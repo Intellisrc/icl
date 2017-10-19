@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="jp.sharelock.crypt.HashTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2017-10-19T07:56:20" hostname="rhino" time="0.313">
+  <properties/>
+  <testcase name="MD5 Hash" classname="jp.sharelock.crypt.HashTest" time="0.012"/>
+  <testcase name="SHA Hash as default" classname="jp.sharelock.crypt.HashTest" time="0.003"/>
+  <testcase name="SHA256 Hash and setting type" classname="jp.sharelock.crypt.HashTest" time="0.002"/>
+  <testcase name="SHA512 Hash and Auto-detect-SHA512" classname="jp.sharelock.crypt.HashTest" time="0.011"/>
+  <testcase name="MD2 Hash and Auto-detect-MD2" classname="jp.sharelock.crypt.HashTest" time="0.01"/>
+  <testcase name="SHA Cost" classname="jp.sharelock.crypt.HashTest" time="0.004"/>
+  <testcase name="Hash as bytes and extended algorithm" classname="jp.sharelock.crypt.HashTest" time="0.265"/>
+  <testcase name="Static SHA" classname="jp.sharelock.crypt.HashTest" time="0.001"/>
+  <testcase name="Static SHA with cost" classname="jp.sharelock.crypt.HashTest" time="0.001"/>
+  <system-out><![CDATA[TIGER HASH: A2614727BCA6549236C470392E1E122AC135083B1ECB30AC
+It requires BountyCastle to be installed, Refer to the README.md file
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

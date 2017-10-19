@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="jp.sharelock.crypt.AESTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2017-10-19T07:56:20" hostname="rhino" time="0.051">
+  <properties/>
+  <testcase name="AES Simple" classname="jp.sharelock.crypt.AESTest" time="0.027"/>
+  <testcase name="AES Decrypt Message" classname="jp.sharelock.crypt.AESTest" time="0.014"/>
+  <testcase name="AES Multiple" classname="jp.sharelock.crypt.AESTest" time="0.006"/>
+  <system-out><![CDATA[KEY : 7961516F32774665754D77715445523232484861446D33673967785039474445
+ENCODED : E4F47C389CF3BFC622BE93DC7E203523813121B4542CB11CCB84534CF1880075 (��|8���"���~ 5#�1!�T,�?˄SL�?u)
+DECODED : Hello Earth!
+ENCODED1 : 335B1EC327DE10092C60B7619EA8957D63BF1A2F02D062DF4FEB9C15750455BF
+ENCODED2 : 0BF8D497E42BBD47B347CD3B46C8579EB1A85BC29868E00B0C7AD5DC2CC7DF38
+DECODED : Hello Earth!
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="jp.sharelock.etc.BytesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2017-10-19T07:56:28" hostname="rhino" time="0.176">
+  <properties/>
+  <testcase name="Bytes and String" classname="jp.sharelock.etc.BytesTest" time="0.138"/>
+  <testcase name="Bytes and char" classname="jp.sharelock.etc.BytesTest" time="0.011"/>
+  <testcase name="Bytes and HEX" classname="jp.sharelock.etc.BytesTest" time="0.026"/>
+  <system-out><![CDATA[HEX: E58886E3818BE381A3E3819FEFBC9F
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
