@@ -1,0 +1,92 @@
+<html>
+<head>
+<title>WebSocket</title>
+<style>
+ html,body{ font:normal 0.9em arial,helvetica; }
+ #log { width:90vw; height:80vh; border:1px solid #7F9DB9; overflow:auto; padding: 10px; margin: auto; }
+ #msg { width:270px; }
+ #list { padding: 0; margin: 0; }
+ #list li { display: inline-block; padding: 5px; background-color: #CCC; margin: 5px; }
+ div.controls { padding: 5px; text-align: center; }
+</style>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="jquery.ws.js"></script>
+<script>
+    $(function() {
+        var $ws = $.WS({ 
+            url : location.hostname + ":" + location.port + "/chat",
+            debug : false,
+            auto_start : false,
+            on_open : function() {
+              $("button.join").prop("disabled",true);
+              $("button.send").prop("disabled",false);
+              $("button.quit").prop("disabled",false);
+            },
+            on_close : function() {
+              $("button.join").prop("disabled",false);
+              $("button.send").prop("disabled",true);
+              $("button.quit").prop("disabled",true);
+              $("#list").html("");
+            },
+            log: function(error) {
+                console.log(error);
+            }
+        },function(res) {
+            res = $.parseJSON(res);
+            var log = "";
+            switch(res.type) {
+               case "in" : log = "<span style='color:green'>"+res.message+"</span>"; break;
+               case "out" : log = "<span style='color:red'>"+res.message+"</span>"; break;
+               case "txt" : log = "<b>"+res.user+"</b> : "+res.message; break;
+            }
+            $("#log").append("<div>"+log+"</div>");
+            $("#log").animate({ scrollTop: $("#log")[0].scrollHeight}, 1000);
+            var html = "";
+            for(var u in res.list) {
+                html += "<li>"+res.list[u];
+            }
+            $("#list").html(html);
+        });
+        $("#msg").focus();
+        $("button.join").click(function(){
+            if($("#msg").val() != "")  {
+              $ws.options.url += "?user=" + $("#msg").val()
+              $("#msg").val("")
+            }
+            $ws.start();
+        });
+        $("#msg").keypress(function(ev) {
+            if(ev.which == 13) {
+               if($("button.send").prop("disabled")) {
+                  $("button.join").click();
+               } else {
+                  $("button.send").click();
+               }
+            }
+        });
+        $("button.send").click(function(){
+            $ws.send($("#msg").val());
+            $("#msg").val("");
+        });
+        $("button.clear").click(function(){
+            $("#log").html("");
+        });
+        $("button.quit").click(function(){
+            $ws.quit();
+        });
+    });
+</script>
+</head>
+<body>
+ <h3>WebSocket v2 Chat</h3>
+ <div id="log"></div>
+ <div class="controls">
+     <input id="msg" type="textbox"/>
+     <button class="join">Join</button>
+     <button class="send" disabled="disabled">Send</button>
+     <button class="clear">Clear</button>
+     <button class="quit" disabled="disabled">Quit</button>
+     <ul id="list"></ul>
+ </div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':etc')
+    compile 'mysql:mysql-connector-java:5.1.40'
+}

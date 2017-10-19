@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name=".._crypt_main" target="1.8" />
+      <module name=".._crypt_test" target="1.8" />
+      <module name=".._db_main" target="1.8" />
+      <module name=".._db_test" target="1.8" />
+      <module name=".._etc_main" target="1.8" />
+      <module name=".._etc_test" target="1.8" />
+      <module name=".._groovy-extend_main" target="1.8" />
+      <module name=".._groovy-extend_test" target="1.8" />
+      <module name=".._net_main" target="1.8" />
+      <module name=".._net_test" target="1.8" />
+      <module name=".._os_main" target="1.8" />
+      <module name=".._os_test" target="1.8" />
+      <module name=".._srv_main" target="1.8" />
+      <module name=".._srv_test" target="1.8" />
+      <module name=".._web_main" target="1.8" />
+      <module name=".._web_test" target="1.8" />
+      <module name="common_main" target="1.8" />
+      <module name="common_test" target="1.8" />
+      <module name="crypt_main" target="1.8" />
+      <module name="crypt_test" target="1.8" />
+      <module name="db_main" target="1.8" />
+      <module name="db_test" target="1.8" />
+      <module name="etc_main" target="1.8" />
+      <module name="etc_test" target="1.8" />
+      <module name="groovy-extend_main" target="1.8" />
+      <module name="groovy-extend_test" target="1.8" />
+      <module name="lib-etc_main" target="1.8" />
+      <module name="lib-etc_test" target="1.8" />
+      <module name="modules-crypt_main" target="1.8" />
+      <module name="modules-crypt_test" target="1.8" />
+      <module name="modules-db_main" target="1.8" />
+      <module name="modules-db_test" target="1.8" />
+      <module name="modules-groovy-extend_main" target="1.8" />
+      <module name="modules-groovy-extend_test" target="1.8" />
+      <module name="modules-net_main" target="1.8" />
+      <module name="modules-net_test" target="1.8" />
+      <module name="modules-os_main" target="1.8" />
+      <module name="modules-os_test" target="1.8" />
+      <module name="modules-srv_main" target="1.8" />
+      <module name="modules-srv_test" target="1.8" />
+      <module name="modules-web_main" target="1.8" />
+      <module name="modules-web_test" target="1.8" />
+      <module name="net_main" target="1.8" />
+      <module name="net_test" target="1.8" />
+      <module name="os_main" target="1.8" />
+      <module name="os_test" target="1.8" />
+      <module name="srv_main" target="1.8" />
+      <module name="srv_test" target="1.8" />
+      <module name="web_main" target="1.8" />
+      <module name="web_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

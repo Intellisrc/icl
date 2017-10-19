@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common.iml" filepath="$PROJECT_DIR$/.idea/modules/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" group="etc" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" group="etc" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" group="etc" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" group="crypt" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" group="crypt" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" group="crypt" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" group="db" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" group="db" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" group="db" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" group="net" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" group="net" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" group="net" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv.iml" group="srv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_main.iml" group="srv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_test.iml" group="srv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" group="web" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" group="web" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" group="web" />
+    </modules>
+  </component>
+</project>

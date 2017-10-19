@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="jp.sharelock.web.WebServiceTest" tests="5" skipped="3" failures="0" errors="0" timestamp="2017-10-19T07:56:36" hostname="rhino" time="2.399">
+  <properties/>
+  <testcase name="General Test" classname="jp.sharelock.web.WebServiceTest" time="1.362"/>
+  <testcase name="HTTPS" classname="jp.sharelock.web.WebServiceTest" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Websocket Test" classname="jp.sharelock.web.WebServiceTest" time="1.034"/>
+  <testcase name="WebSocket Client" classname="jp.sharelock.web.WebServiceTest" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="WebSocket StackOverflow Client" classname="jp.sharelock.web.WebServiceTest" time="0.0">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[RES DIR:/home/kaname/Projects/sharelock/common/modules/web/res/public/
+2017-10-19 16:56:36.857 [?[36mI?[0m] ?[32mWebService ?[36mStarting server in port 46075 with pool size of 20?[0m
+2017-10-19 16:56:36.965 [?[31mE?[0m] ?[32mWebService$_start_closure1 ?[31mWebService	Interface not implemented?[0m
+2017-10-19 16:56:37.981 [?[36mI?[0m] ?[32mWebService ?[36mStopping server running at port: 46075?[0m
+2017-10-19 16:56:38.011 [?[36mI?[0m] ?[32mWebService ?[36mStarting server in port 8888 with pool size of 20?[0m
+2017-10-19 16:56:39.034 [?[36mI?[0m] ?[32mWebService ?[36mStopping server running at port: 8888?[0m
+]]></system-out>
+  <system-err><![CDATA[SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+]]></system-err>
+</testsuite>

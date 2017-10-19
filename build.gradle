@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.+')
+    }
+}
+
+allprojects {
+    group "${groupName}"
+    version "${currentVersion}"
+}
+
+subprojects {
+
+    apply plugin: 'com.jfrog.artifactory'
+    apply plugin: 'groovy'
+    apply plugin: 'idea'
+    apply plugin: 'maven-publish'
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.4.10'
+        compile 'jp.sharelock:groovy-extend:1.5.1'
+        testCompile group: 'org.spockframework', name: 'spock-unitils', version: '1.1-groovy-2.4'
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId "${artifact}"
+                from components.java
+            }
+        }
+    }
+
+    artifactory {
+        contextUrl = "${repositoryURL}"
+        publish {
+            repository {
+                repoKey = currentVersion.endsWith("SNAPSHOT") ? "${repositoryDevelop}" : "${repositoryStable}" // The Artifactory repository key to publish to
+                username = "${artifactoryUser}" // The publisher user name
+                password = "${artifactoryPassword}" // The publisher password
+            }
+            defaults {
+                publications('mavenJava')
+                publishArtifacts = true
+                // Properties to be attached to the published artifacts.
+                properties = ['qa.level': 'basic', 'dev.team' : 'core']
+                // Publish generated POM files to Artifactory (true by default)
+                publishPom = true
+            }
+        }
+        resolve {
+            repository {
+                repoKey =  "${repositoryResolve}" // The Artifactory repository key to publish to
+                username = "${artifactoryUser}" // The publisher user name
+                password = "${artifactoryPassword}" // The publisher password
+            }
+        }
+    }
+}
