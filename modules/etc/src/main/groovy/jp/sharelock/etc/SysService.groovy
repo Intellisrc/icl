@@ -105,7 +105,10 @@ abstract class SysService {
      * @return
      */
     String getAction(List<String> args) { return args ? args.first() : "" }
-    void onStop() {}
+    void onStop() {
+        Log.i("System exiting...")
+        System.exit(0)
+    }
     void onStatus(boolean running) {
         Log.i("Status: "+(running ? "RUNNING" : "STOPPED"))
         System.exit(2)
