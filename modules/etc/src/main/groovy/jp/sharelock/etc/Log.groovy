@@ -15,23 +15,24 @@ import java.text.SimpleDateFormat
  */
 final class Log {
     //When logFile is not empty, it will export log to that file
-    public static String logFile = ""
+    static String logFile = ""
+    static String logPath = ""
 
-    public static final String ANSI_RESET   = "\u001B[0m"
-    public static final String ANSI_BLACK   = "\u001B[30m"
-    public static final String ANSI_RED     = "\u001B[31m"
-    public static final String ANSI_GREEN   = "\u001B[32m"
-    public static final String ANSI_YELLOW  = "\u001B[33m"
-    public static final String ANSI_BLUE    = "\u001B[34m"
-    public static final String ANSI_PURPLE  = "\u001B[35m"
-    public static final String ANSI_CYAN    = "\u001B[36m"
-    public static final String ANSI_WHITE   = "\u001B[37m"
+    static final String ANSI_RESET   = "\u001B[0m"
+    static final String ANSI_BLACK   = "\u001B[30m"
+    static final String ANSI_RED     = "\u001B[31m"
+    static final String ANSI_GREEN   = "\u001B[32m"
+    static final String ANSI_YELLOW  = "\u001B[33m"
+    static final String ANSI_BLUE    = "\u001B[34m"
+    static final String ANSI_PURPLE  = "\u001B[35m"
+    static final String ANSI_CYAN    = "\u001B[36m"
+    static final String ANSI_WHITE   = "\u001B[37m"
 
-    public final static int V = 0
-    public final static int D = 1
-    public final static int I = 2
-    public final static int W = 3
-    public final static int E = 4
+    static final int V = 0
+    static final int D = 1
+    static final int I = 2
+    static final int W = 3
+    static final int E = 4
 
     private Log() {}
 
@@ -40,19 +41,26 @@ final class Log {
     }
 
     private static class FilePrinter implements Printer {
-        private final static List<String> LEVELS = ['VERB ', 'DEBUG', 'INFO ', 'WARN ', 'ERROR']
+        private static final List<String> LEVELS = ['V', 'D', 'I', 'W', 'E']
         @Override
         void print(int level, String tag, String msg) {
             if(logFile) {
-                def usrDir = SysInfo.getWritablePath()
-                def file = new File(usrDir + logFile)
-                file << (LEVELS[level] + "\t" + tag + "\t" + msg + "\n")
+                String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date())
+                if(!(logPath && new File(logPath).canWrite())) {
+                    logPath = SysInfo.getWritablePath()
+                } else {
+                    if(!logPath.endsWith(File.separator)) {
+                        logPath += File.separator
+                    }
+                }
+                def file = new File(logPath + logFile)
+                file << (time + "\t" + "[" + LEVELS[level] + "]\t" + tag + "\t" + msg + "\n")
             }
         }
     }
 
     private static class SystemOutPrinter implements Printer {
-        private final static List<String> LEVELS = ['V', 'D', 'I', 'W', 'E']
+        private static final List<String> LEVELS = ['V', 'D', 'I', 'W', 'E']
         private getColor(int level) {
             def color = ANSI_WHITE
             switch(level) {
@@ -77,7 +85,7 @@ final class Log {
 
     private static class AndroidPrinter implements Printer {
 
-        private final static List<String> METHOD_NAMES = ["v", "d", "i", "w", "e"]
+        private static final List<String> METHOD_NAMES = ["v", "d", "i", "w", "e"]
 
         private final Class<?> mLogClass
         private final Method[] mLogMethods
@@ -113,11 +121,11 @@ final class Log {
         }
     }
 
-    public final static SystemOutPrinter SYSTEM = new SystemOutPrinter()
-    public final static AndroidPrinter ANDROID = new AndroidPrinter()
-    public final static FilePrinter LOGFILE = new FilePrinter()
+    static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
+    static final AndroidPrinter ANDROID = new AndroidPrinter()
+    static final FilePrinter LOGFILE = new FilePrinter()
 
-    private final static Map<String, String> mTags = new HashMap<>()
+    private static final Map<String, String> mTags = new HashMap<>()
 
     private static List<String> mUseTags = ['tag', 'TAG']
     private static boolean mUseFormat = false
@@ -228,7 +236,7 @@ final class Log {
         return sb.toString()
     }
 
-    final static int MAX_LOG_LINE_LENGTH = 4000
+    static final int MAX_LOG_LINE_LENGTH = 4000
 
     private static void print(int level, String tag, String msg) {
         for (String line : msg.split("\\n")) {
@@ -260,7 +268,7 @@ final class Log {
         }
     }
 
-    private final static int STACK_DEPTH = 4
+    private static final int STACK_DEPTH = 4
     private static String tag() {
         StackTraceElement[] stackTrace = new Throwable().getStackTrace()
         if (stackTrace.length < STACK_DEPTH) {
