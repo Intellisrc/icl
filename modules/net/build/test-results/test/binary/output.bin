@@ -1,13 +1,13 @@
-\2017-10-19 16:56:32.445 [[37mV[0m] [32mTCPClient [37mConnecting to: 127.0.0.1:33648[0m
-T2017-10-19 16:56:32.468 [[37mV[0m] [32mTCPClient [37mConnected. [127.0.0.1][0m
-k2017-10-19 16:56:32.476 [[37mD[0m] [32mTCPServer$ClientServiceThread [37mTCPServer	Accepted Client[0m
-n2017-10-19 16:56:32.479 [[36mI[0m] [32mTCPClient [36mMessage to Server [127.0.0.1] >>>>> Hello Server[0m
-a2017-10-19 16:56:32.482 [[37mV[0m] [32mTCPClient [37mWaiting for response... [127.0.0.1][0m
-„2017-10-19 16:56:32.483 [[36mI[0m] [32mTCPServer$ClientServiceThread [36mTCPServer	Message from client <<<<< [Hello Server][0m
+\2017-10-23 16:41:01.381 [[37mV[0m] [32mTCPClient [37mConnecting to: 127.0.0.1:36368[0m
+T2017-10-23 16:41:01.397 [[37mV[0m] [32mTCPClient [37mConnected. [127.0.0.1][0m
+n2017-10-23 16:41:01.398 [[36mI[0m] [32mTCPClient [36mMessage to Server [127.0.0.1] >>>>> Hello Server[0m
+m2017-10-23 16:41:01.400 [[37mD[0m] [32mTCPServer [37mTCPServer$ClientServiceThread : Accepted Client[0m
+a2017-10-23 16:41:01.401 [[37mV[0m] [32mTCPClient [37mWaiting for response... [127.0.0.1][0m
+†2017-10-23 16:41:01.402 [[36mI[0m] [32mTCPServer [36mTCPServer$ClientServiceThread : Message from client <<<<< [Hello Server][0m
 Received Hello Server
-€2017-10-19 16:56:32.499 [[36mI[0m] [32mTCPServer$ClientServiceThread [36mTCPServer	Message to client >>>>> [Hi client!][0m
-n2017-10-19 16:56:32.502 [[36mI[0m] [32mTCPClient [36mMessage from Server [127.0.0.1] <<<<< Hi client![0m
-h2017-10-19 16:56:32.515 [[37mV[0m] [32mTCPClient [37mConnection closed successfully [127.0.0.1][0m
-l2017-10-19 16:56:32.517 [[37mD[0m] [32mTCPServer$ClientServiceThread [37mTCPServer	... Thread ended[0m
+‚2017-10-23 16:41:01.406 [[36mI[0m] [32mTCPServer [36mTCPServer$ClientServiceThread : Message to client >>>>> [Hi client!][0m
+n2017-10-23 16:41:01.407 [[36mI[0m] [32mTCPClient [36mMessage from Server [127.0.0.1] <<<<< Hi client![0m
+n2017-10-23 16:41:01.408 [[37mD[0m] [32mTCPServer [37mTCPServer$ClientServiceThread : ... Thread ended[0m
+h2017-10-23 16:41:01.412 [[37mV[0m] [32mTCPClient [37mConnection closed successfully [127.0.0.1][0m
 Replied: Hi client!
-h2017-10-19 16:56:32.588 [[36mI[0m] [32mTCPServer [36mServer will stop listening to new requests[0m
+h2017-10-23 16:41:01.447 [[36mI[0m] [32mTCPServer [36mServer will stop listening to new requests[0m

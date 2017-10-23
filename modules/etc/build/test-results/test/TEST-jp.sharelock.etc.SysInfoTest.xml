@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="jp.sharelock.etc.SysInfoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2017-10-19T07:56:29" hostname="rhino" time="0.04">
+<testsuite name="jp.sharelock.etc.SysInfoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2017-10-23T07:40:57" hostname="ilepehost" time="0.015">
   <properties/>
-  <testcase name="OS detection" classname="jp.sharelock.etc.SysInfoTest" time="0.04"/>
+  <testcase name="OS detection" classname="jp.sharelock.etc.SysInfoTest" time="0.015"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

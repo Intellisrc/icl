@@ -1,1 +1,7 @@
 $HEX: E58886E3818BE381A3E3819FEFBC9F
+U2017-10-23 16:40:57.818 [[36mI[0m] [32mSysService [36mService Action : start[0m
+Ž2017-10-23 16:40:57.827 [[37mD[0m] [32mSysService [37mCreating lock file: /home/lepe/Projects/sharelock/common/modules/etc/dummy.lock[0m
+Started
+U2017-10-23 16:40:57.830 [[36mI[0m] [32mSysService [36mWaiting for command...[0m
+T2017-10-23 16:40:59.811 [[36mI[0m] [32mSysService [36mService Action : stop[0m
+Q2017-10-23 16:40:59.828 [[37mD[0m] [32mSysService [37mRemoving lock file[0m
