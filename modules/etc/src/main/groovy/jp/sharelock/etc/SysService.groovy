@@ -106,9 +106,21 @@ abstract class SysService {
      */
     String getAction(List<String> args) { return args ? args.first() : "" }
     void onStop() {}
-    void onStatus(boolean running) {}
+    void onStatus(boolean running) {
+        Log.i("Status: "+(running ? "RUNNING" : "STOPPED"))
+        System.exit(2)
+    }
     void onRestart() {}
-    void onReload() { Log.w("'reload' is not implemented") }
-    void onInstall() { Log.w("'install' is not implemented") }
-    void onUninstall() { Log.w("'uninstall' is not implemented") }
+    void onReload() {
+        Log.w("'reload' is not implemented")
+        System.exit(2)
+    }
+    void onInstall() {
+        Log.w("'install' is not implemented")
+        System.exit(2)
+    }
+    void onUninstall() {
+        Log.w("'uninstall' is not implemented")
+        System.exit(2)
+    }
 }

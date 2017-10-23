@@ -2,70 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/output.bin" afterPath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/output.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/output.bin.idx" afterPath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/output.bin.idx" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/results.bin" afterPath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/results.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/test-results/test/binary/output.bin" afterPath="$PROJECT_DIR$/modules/db/build/test-results/test/binary/output.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/test-results/test/binary/results.bin" afterPath="$PROJECT_DIR$/modules/db/build/test-results/test/binary/results.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log$AndroidPrinter.class" afterPath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log$AndroidPrinter.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log$SystemOutPrinter.class" afterPath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log$SystemOutPrinter.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log.class" afterPath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/SysInfo.class" afterPath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/SysInfo.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/output.bin" afterPath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/output.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/output.bin.idx" afterPath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/output.bin.idx" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/results.bin" afterPath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/results.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/output.bin" afterPath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/output.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/output.bin.idx" afterPath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/output.bin.idx" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/results.bin" afterPath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/results.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/test-results/test/binary/output.bin" afterPath="$PROJECT_DIR$/modules/web/build/test-results/test/binary/output.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/test-results/test/binary/output.bin.idx" afterPath="$PROJECT_DIR$/modules/web/build/test-results/test/binary/output.bin.idx" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/test-results/test/binary/results.bin" afterPath="$PROJECT_DIR$/modules/web/build/test-results/test/binary/results.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.AESTest.html" afterPath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.AESTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.CryptTest.html" afterPath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.CryptTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.HashTest.html" afterPath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.HashTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.PasswordHashTest.html" afterPath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.PasswordHashTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/index.html" afterPath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/packages/jp.sharelock.crypt.html" afterPath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/packages/jp.sharelock.crypt.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.AESTest.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.AESTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.CryptTest.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.CryptTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.HashTest.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.HashTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.PasswordHashTest.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.PasswordHashTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/classes/jp.sharelock.db.PoolConnectorTest.html" afterPath="$PROJECT_DIR$/modules/db/build/reports/tests/test/classes/jp.sharelock.db.PoolConnectorTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/index.html" afterPath="$PROJECT_DIR$/modules/db/build/reports/tests/test/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/packages/jp.sharelock.db.html" afterPath="$PROJECT_DIR$/modules/db/build/reports/tests/test/packages/jp.sharelock.db.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/test-results/test/TEST-jp.sharelock.db.PoolConnectorTest.xml" afterPath="$PROJECT_DIR$/modules/db/build/test-results/test/TEST-jp.sharelock.db.PoolConnectorTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.BytesTest.html" afterPath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.BytesTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.SysInfoTest.html" afterPath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.SysInfoTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/index.html" afterPath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/packages/jp.sharelock.etc.html" afterPath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/packages/jp.sharelock.etc.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/TEST-jp.sharelock.etc.BytesTest.xml" afterPath="$PROJECT_DIR$/modules/etc/build/test-results/test/TEST-jp.sharelock.etc.BytesTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/TEST-jp.sharelock.etc.SysInfoTest.xml" afterPath="$PROJECT_DIR$/modules/etc/build/test-results/test/TEST-jp.sharelock.etc.SysInfoTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysInfo.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysInfo.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/reports/tests/test/classes/jp.sharelock.web.TCPClientServerTest.html" afterPath="$PROJECT_DIR$/modules/net/build/reports/tests/test/classes/jp.sharelock.web.TCPClientServerTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/reports/tests/test/index.html" afterPath="$PROJECT_DIR$/modules/net/build/reports/tests/test/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/reports/tests/test/packages/jp.sharelock.web.html" afterPath="$PROJECT_DIR$/modules/net/build/reports/tests/test/packages/jp.sharelock.web.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/test-results/test/TEST-jp.sharelock.web.TCPClientServerTest.xml" afterPath="$PROJECT_DIR$/modules/net/build/test-results/test/TEST-jp.sharelock.web.TCPClientServerTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/srv/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/srv/build/publications/mavenJava/pom-default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/reports/tests/test/classes/jp.sharelock.web.HTTPServerTest.html" afterPath="$PROJECT_DIR$/modules/web/build/reports/tests/test/classes/jp.sharelock.web.HTTPServerTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/reports/tests/test/classes/jp.sharelock.web.WebServiceTest.html" afterPath="$PROJECT_DIR$/modules/web/build/reports/tests/test/classes/jp.sharelock.web.WebServiceTest.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/reports/tests/test/index.html" afterPath="$PROJECT_DIR$/modules/web/build/reports/tests/test/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/reports/tests/test/packages/jp.sharelock.web.html" afterPath="$PROJECT_DIR$/modules/web/build/reports/tests/test/packages/jp.sharelock.web.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/test-results/test/TEST-jp.sharelock.web.HTTPServerTest.xml" afterPath="$PROJECT_DIR$/modules/web/build/test-results/test/TEST-jp.sharelock.web.HTTPServerTest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/test-results/test/TEST-jp.sharelock.web.WebServiceTest.xml" afterPath="$PROJECT_DIR$/modules/web/build/test-results/test/TEST-jp.sharelock.web.WebServiceTest.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -246,18 +184,18 @@
       <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
+            <state relative-caret-position="486">
               <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="true">
+      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="6" column="17" lean-forward="false" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
+            <state relative-caret-position="162">
+              <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -266,7 +204,7 @@
       <file leaf-file-name="Log.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3060">
+            <state relative-caret-position="882">
               <caret line="49" column="12" lean-forward="false" selection-start-line="49" selection-start-column="12" selection-end-line="49" selection-end-column="12" />
               <folding>
                 <element signature="e#52#82#0" expanded="true" />
@@ -275,11 +213,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SysService.groovy" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SysService.groovy" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="-220">
+              <caret line="92" column="4" lean-forward="false" selection-start-line="92" selection-start-column="4" selection-end-line="92" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -2394,12 +2332,12 @@
         <option value="$PROJECT_DIR$/settings.gradle" />
         <option value="$PROJECT_DIR$/modules/etc/build.gradle" />
         <option value="$PROJECT_DIR$/build.gradle" />
-        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/dummy/SysServiceDummy.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/SysServiceTest.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysInfo.groovy" />
         <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
       </list>
     </option>
   </component>
@@ -2431,7 +2369,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -2526,8 +2464,8 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -2773,7 +2711,14 @@
       <option name="project" value="LOCAL" />
       <updated>1508739870717</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="2.2 : Added log printing to files">
+      <created>1508744503430</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1508744503430</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -2819,17 +2764,18 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-3" y="33" width="1926" height="1170" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.56446993" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.56446993" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20948827" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21162046" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="JFrog" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2260128" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -2851,7 +2797,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added SysService" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added SysService" />
+    <MESSAGE value="2.2 : Added log printing to files" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2 : Added log printing to files" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -3104,6 +3051,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-3960">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -3130,16 +3078,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
+        <state relative-caret-position="486">
           <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -3174,7 +3114,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3060">
+        <state relative-caret-position="882">
           <caret line="49" column="12" lean-forward="false" selection-start-line="49" selection-start-column="12" selection-end-line="49" selection-end-column="12" />
           <folding>
             <element signature="e#52#82#0" expanded="true" />
@@ -3184,8 +3124,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gradle.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="17" lean-forward="false" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
+        <state relative-caret-position="162">
+          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-220">
+          <caret line="92" column="4" lean-forward="false" selection-start-line="92" selection-start-column="4" selection-end-line="92" selection-end-column="4" />
           <folding />
         </state>
       </provider>
