@@ -13,8 +13,9 @@ import java.text.SimpleDateFormat
  *
  * Note: this code still needs a lot of simplification aka Groovy.
  */
-
 final class Log {
+    //When logFile is not empty, it will export log to that file
+    public static String logFile = ""
 
     public static final String ANSI_RESET   = "\u001B[0m"
     public static final String ANSI_BLACK   = "\u001B[30m"
@@ -36,6 +37,18 @@ final class Log {
 
     interface Printer {
         void print(int level, String tag, String msg)
+    }
+
+    private static class FilePrinter implements Printer {
+        private final static List<String> LEVELS = ['VERB ', 'DEBUG', 'INFO ', 'WARN ', 'ERROR']
+        @Override
+        void print(int level, String tag, String msg) {
+            if(logFile) {
+                def usrDir = SysInfo.getWritablePath()
+                def file = new File(usrDir + logFile)
+                file << (LEVELS[level] + "\t" + tag + "\t" + msg + "\n")
+            }
+        }
     }
 
     private static class SystemOutPrinter implements Printer {
@@ -102,6 +115,7 @@ final class Log {
 
     public final static SystemOutPrinter SYSTEM = new SystemOutPrinter()
     public final static AndroidPrinter ANDROID = new AndroidPrinter()
+    public final static FilePrinter LOGFILE = new FilePrinter()
 
     private final static Map<String, String> mTags = new HashMap<>()
 
@@ -116,6 +130,7 @@ final class Log {
             usePrinter(ANDROID, true)
         } else {
             usePrinter(SYSTEM, true)
+            usePrinter(LOGFILE, true)
         }
     }
 
@@ -226,11 +241,19 @@ final class Log {
                     }
                 }
                 splitPos = Math.min(splitPos + 1, line.length())
-                String part = line.substring(0, splitPos)
+                msg = line.substring(0, splitPos)
                 line = line.substring(splitPos)
 
+                if(msg.contains("\t")) {
+                    def parts = msg.split("\t").toList()
+                    def new_tag = parts.first()
+                    parts.remove(0)
+                    msg = tag + " : " + parts.join(" ")
+                    tag = new_tag
+                }
+
                 for (Printer p : mPrinters) {
-                    p.print(level, tag, part)
+                    p.print(level, tag, msg)
                 }
                 line
             }
@@ -275,3 +298,4 @@ final class Log {
         return className.substring(className.lastIndexOf('.') + 1)
     }
 }
+

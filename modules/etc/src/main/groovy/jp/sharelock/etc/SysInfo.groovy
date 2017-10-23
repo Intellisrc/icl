@@ -37,6 +37,21 @@ class SysInfo {
         return os_type
     }
     /**
+     * Returns a path in which can be written. It will try
+     * current path first, then temporally directory
+     */
+    static String getWritablePath() {
+        def usrDir = System.getProperty("user.dir") + File.separator
+        if(!new File(usrDir).canWrite()) {
+            def tmpDir = System.getProperty("java.io.tmpdir")
+            if (!tmpDir.endsWith(File.separator)) {
+                tmpDir += File.separator
+            }
+            usrDir = tmpDir
+        }
+        return usrDir
+    }
+    /**
      * Identify if OS is Windows
      * @return
      */

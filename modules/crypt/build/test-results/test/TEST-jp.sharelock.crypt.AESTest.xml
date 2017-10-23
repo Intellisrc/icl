@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="jp.sharelock.crypt.AESTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2017-10-19T07:56:20" hostname="rhino" time="0.051">
+<testsuite name="jp.sharelock.crypt.AESTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2017-10-23T07:40:53" hostname="ilepehost" time="0.214">
   <properties/>
-  <testcase name="AES Simple" classname="jp.sharelock.crypt.AESTest" time="0.027"/>
-  <testcase name="AES Decrypt Message" classname="jp.sharelock.crypt.AESTest" time="0.014"/>
-  <testcase name="AES Multiple" classname="jp.sharelock.crypt.AESTest" time="0.006"/>
-  <system-out><![CDATA[KEY : 7961516F32774665754D77715445523232484861446D33673967785039474445
-ENCODED : E4F47C389CF3BFC622BE93DC7E203523813121B4542CB11CCB84534CF1880075 (��|8���"���~ 5#�1!�T,�?˄SL�?u)
+  <testcase name="AES Simple" classname="jp.sharelock.crypt.AESTest" time="0.207"/>
+  <testcase name="AES Decrypt Message" classname="jp.sharelock.crypt.AESTest" time="0.004"/>
+  <testcase name="AES Multiple" classname="jp.sharelock.crypt.AESTest" time="0.003"/>
+  <system-out><![CDATA[KEY : 374347616D4975394852355A4167436D5474704F62676667426576524B303558
+ENCODED : 6510EBEBF2E054E188C40E4E60F09B95B8453495B4531ABC73542EAD9B7E921A (e?����T��?N`??E4��S?�sT.��~�?)
 DECODED : Hello Earth!
-ENCODED1 : 335B1EC327DE10092C60B7619EA8957D63BF1A2F02D062DF4FEB9C15750455BF
-ENCODED2 : 0BF8D497E42BBD47B347CD3B46C8579EB1A85BC29868E00B0C7AD5DC2CC7DF38
+ENCODED1 : AB41E429DE17104BF7E5444AB1464358B043130EED0D17A43071F1F68450BC3A
+ENCODED2 : 20AD70F4146958B71313421B7C5FA4CC2F9D62C19B3B0BFED1168E3F969F99D7
 DECODED : Hello Earth!
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
