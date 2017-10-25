@@ -75,7 +75,7 @@ final class Log {
         @Override
         void print(int level, String tag, String msg) {
             String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date())
-            if(SysInfo.isAnyLinux()) {
+            if(SysInfo.isLinux()) {
                 System.out.println(time+" [" + getColor(level) + LEVELS[level] + ANSI_RESET + "] " + ANSI_GREEN + tag + " " + getColor(level) + msg + ANSI_RESET)
             } else {
                 System.out.println(time+" [" + LEVELS[level] + "] " + tag + " " + msg)

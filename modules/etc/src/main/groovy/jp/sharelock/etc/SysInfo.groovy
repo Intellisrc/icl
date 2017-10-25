@@ -3,6 +3,10 @@ package jp.sharelock.etc
  * @since 1/2/17.
  */
 @groovy.transform.CompileStatic
+/**
+ * System Information class
+ * For example: get OS type
+ */
 class SysInfo {
     static final String LOG_TAG = SysInfo.simpleName
     static final enum OSType {
@@ -41,15 +45,29 @@ class SysInfo {
      * current path first, then temporally directory
      */
     static String getWritablePath() {
-        def usrDir = System.getProperty("user.dir") + File.separator
+        def usrDir = getUserDir()
         if(!new File(usrDir).canWrite()) {
-            def tmpDir = System.getProperty("java.io.tmpdir")
-            if (!tmpDir.endsWith(File.separator)) {
-                tmpDir += File.separator
-            }
-            usrDir = tmpDir
+            usrDir = getTempDir()
         }
         return usrDir
+    }
+    /**
+     * Returns the root path of the application
+     * @return
+     */
+    static String getUserDir() {
+        return System.getProperty("user.dir") + File.separator
+    }
+    /**
+     * Returns the temporally directory path
+     * @return
+     */
+    static String getTempDir() {
+        def tmpDir = System.getProperty("java.io.tmpdir")
+        if (!tmpDir.endsWith(File.separator)) {
+            tmpDir += File.separator
+        }
+        return tmpDir
     }
     /**
      * Identify if OS is Windows
@@ -62,7 +80,7 @@ class SysInfo {
      * Identify if OS is Linux (not Android)
      * @return
      */
-    static isCoreLinux() {
+    static isLinux() {
         return getOS() == OSType.LINUX
     }
     /**
