@@ -91,6 +91,9 @@ class WebService {
                     case ServiciableWebSocket:
                         addWebSocketService(serviciable, serviciable.path)
                         break
+                    case ServiciableAuth:
+                        //do nothing, skip
+                        break
                     default:
                         Log.e(LOG_TAG, "Interface not implemented")
                 }
