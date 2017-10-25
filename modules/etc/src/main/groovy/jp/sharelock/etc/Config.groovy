@@ -8,115 +8,136 @@ package jp.sharelock.etc
 class Config {
     private static final String LOG_TAG = Config.getSimpleName()
 	static String fileName = "config.properties"
-	/**
-	 * Get Stream depending on platform
-	 * @return 
-	 */
-	private static InputStream getInputStream(String fn) {
-		InputStream inputStream = null
-		try {
-			inputStream = new FileInputStream(fn)
-		} catch (FileNotFoundException ex) {
-			Log.e(LOG_TAG, "Unable to open file: "+fn+". "+ex)
-		}
-		return inputStream
-	}
+    static String filePath = SysInfo.getUserDir()
+    static Properties props = System.getProperties()
+    private static Properties config = new Properties()
+    private static File configFile
 
-		private static OutputStream getOutputStream(String fn) {
-		OutputStream ouputStream = null
-		try {
-			ouputStream = new FileOutputStream(fn)
-		} catch (FileNotFoundException ex) {
-			Log.e(LOG_TAG, "Unable to open file: "+fn+". "+ex)
-		}
-		return ouputStream
-	}
-	
-	/**
-	 * Get value as int
-	 * @param key
-	 * @return 
-	 */
-	static int getInt(String key) {
-		String str = get(key)
-		if(str.isEmpty()) {
-			str = "0"
-		}
-		return Integer.parseInt(str)
-	}
-	
-	/**
-	 * Get value as int from a specific file
-	 * @param fn
-	 * @param key
-	 * @return 
-	 */
-	static int getInt(String fn, String key) {
-		String str = get(fn, key)
-		if(str.isEmpty()) {
-			str = "0"
-		}
-		return Integer.parseInt(str)
-	}
-	
-	/**
-	 * using Default filename
-	 * @param key
-	 * @return 
-	 */
-	static String get(String key) {
-		return get(fileName, key)
-	}
+    /**
+     * Be sure filePath ends with File Separator
+     * @param fp
+     */
+    static void setFilePath(String fp) {
+        if(!fp.endsWith(File.separator)) {
+            fp += File.separator
+        }
+        filePath = fp
+    }
+
+    static update() {
+        configFile = new File(filePath + fileName)
+        if(configFile.exists()) {
+            if(configFile.canRead()) {
+                config.load(configFile.newDataInputStream())
+                config.keys().each {
+                    String key ->
+                        props.setProperty(key, config.getProperty(key))
+                }
+            }
+            if(!configFile.canWrite()) {
+                Log.w(LOG_TAG, "Configuration configFile: "+configFile.toString()+" is not writable. Any attempt to change settings will fail.")
+            }
+        } else {
+            Log.d(LOG_TAG, "Configuration not being used ("+configFile.toString()+"). All settings will be loaded from System")
+        }
+    }
+
+    /**
+     * Returns true if config file exists
+     * @return
+     */
+    static boolean exists() {
+        update()
+        return configFile.exists()
+    }
+
+    /**
+     * Returns true if any key starts with some string
+     * @param key
+     * @return
+     */
+    static boolean matchKey(String key) {
+        update()
+        props.keys().find {
+            String pkey ->
+                pkey.startsWith(key)
+        }
+    }
+
+    /**
+     *
+     * @param key
+     * @return
+     */
+    static boolean hasKey(String key) {
+        update()
+        return props.containsKey(key)
+    }
+
+    /**
+     * Prevent updating object
+     */
+    static void setProps() {
+        //Do nothing.
+        Log.w(LOG_TAG, "Properties can not be updated directly. Use set() instead.")
+    }
+
 	/**
 	 * Get value as String
-	 * @param fn : filename
 	 * @param key
-	 * @return 
+	 * @return
 	 */
-	static String get(String fn, String key) {
-		Properties prop = new Properties()
-		String value = ""
-		InputStream inputStream = getInputStream(fn)
-		if (inputStream != null) {
-			try {
-				prop.load(inputStream)
-				value = prop.getProperty(key)
-				inputStream.close()
-			} catch (IOException ex) {
-				Log.e(LOG_TAG, "Getting config key failed: "+ex)
-			}
-		}
-		return value
+	static String get(String key) {
+        update()
+        String val = config.getProperty(key)
+        if(val == null) { val = "" }
+        if(val.startsWith('"') || val.startsWith("'")) {
+            Log.w(LOG_TAG, "Settings in properties files don't need quotes. Please delete them to remove this warning.")
+            val = val.replaceAll(/^["']|["']$/,'')
+        }
+        return val
 	}
 
+    /**
+     * Get value as int
+     * @param key
+     * @return
+     */
+    static int getInt(String key) {
+        String str = get(key)
+        if(str.isEmpty()) {
+            str = "0"
+        }
+        return Integer.parseInt(str)
+    }
+
+    /**
+     * Get value as boolean
+     * @param key
+     * @return
+     */
+    static boolean getBool(String key) {
+        boolean val = true
+        String str = get(key)
+        if(str == null || str.isEmpty() || str == "0" || str.toLowerCase() == "false") {
+            val = false
+        }
+        return val
+    }
+
 	/**
-	 * Usign Default filename
+	 * Set value in properties
 	 * @param key
 	 * @param value 
 	 */
 	static void set(String key, Object value) {
-		set(fileName, key, value)
+        update()
+        config.setProperty(key, value.toString())
+        if(configFile.canWrite()) {
+            config.store(configFile.newWriter(), null)
+        } else {
+            Log.e(LOG_TAG, "Unable to write to: "+configFile.toString())
+        }
 	}
-	/**
-	 * Set value in properties
-	 * @param fn : filename
-	 * @param key
-	 * @param value 
-	 */
-	static void set(String fn, String key, Object value) {
-		Properties prop = new Properties()
-		OutputStream ouputStream = getOutputStream(fn)
-		InputStream inputStream = getInputStream(fn)
-		if (ouputStream != null) {
-			try {
-				prop.load(inputStream)
-				inputStream.close()
-				prop.setProperty(key, value.toString())
-				prop.store(ouputStream, null)
-				ouputStream.close()
-			} catch (IOException ex) {
-				Log.e(LOG_TAG, "Setting config key failed : "+ex)
-			}
-		}
-	}
+
 }

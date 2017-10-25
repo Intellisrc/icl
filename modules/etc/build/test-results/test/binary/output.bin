@@ -1,7 +1,23 @@
 $HEX: E58886E3818BE381A3E3819FEFBC9F
-U2017-10-23 16:40:57.818 [[36mI[0m] [32mSysService [36mService Action : start[0m
-Ž2017-10-23 16:40:57.827 [[37mD[0m] [32mSysService [37mCreating lock file: /home/lepe/Projects/sharelock/common/modules/etc/dummy.lock[0m
-Started
-U2017-10-23 16:40:57.830 [[36mI[0m] [32mSysService [36mWaiting for command...[0m
-T2017-10-23 16:40:59.811 [[36mI[0m] [32mSysService [36mService Action : stop[0m
-Q2017-10-23 16:40:59.828 [[37mD[0m] [32mSysService [37mRemoving lock file[0m
+a2017-10-25 15:07:43.719 [[33mW[0m] [32mNativeMethodAccessorImpl [33mThis is some warning[0m
+OLog file created in: /home/lepe/Projects/sharelock/common/modules/etc/test.log
+	Content:
+J2017-10-25 15:07:43.722	[W]	NativeMethodAccessorImpl	This is some warning
+
+a2017-10-25 15:07:43.731 [[33mW[0m] [32mNativeMethodAccessorImpl [33mThis is some warning[0m
+#Log file created in: /tmp/test.log
+	Content:
+J2017-10-25 15:07:43.732	[W]	NativeMethodAccessorImpl	This is some warning
+
+
+U2017-10-25 15:07:43.759 [[36mI[0m] [32mSysService [36mService Action : start[0m
+
+Ž2017-10-25 15:07:43.761 [[37mD[0m] [32mSysService [37mCreating lock file: /home/lepe/Projects/sharelock/common/modules/etc/dummy.lock[0m
+
+Started
+
+U2017-10-25 15:07:43.761 [[36mI[0m] [32mSysService [36mWaiting for command...[0m
+
+T2017-10-25 15:07:45.754 [[36mI[0m] [32mSysService [36mService Action : stop[0m
+
+Q2017-10-25 15:07:45.765 [[37mD[0m] [32mSysService [37mRemoving lock file[0m

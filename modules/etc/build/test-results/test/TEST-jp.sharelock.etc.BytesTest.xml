@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="jp.sharelock.etc.BytesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2017-10-23T07:40:57" hostname="ilepehost" time="0.073">
+<testsuite name="jp.sharelock.etc.BytesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2017-10-25T06:07:43" hostname="ilepehost" time="0.063">
   <properties/>
-  <testcase name="Bytes and String" classname="jp.sharelock.etc.BytesTest" time="0.058"/>
-  <testcase name="Bytes and char" classname="jp.sharelock.etc.BytesTest" time="0.004"/>
-  <testcase name="Bytes and HEX" classname="jp.sharelock.etc.BytesTest" time="0.011"/>
+  <testcase name="Bytes and String" classname="jp.sharelock.etc.BytesTest" time="0.049"/>
+  <testcase name="Bytes and char" classname="jp.sharelock.etc.BytesTest" time="0.003"/>
+  <testcase name="Bytes and HEX" classname="jp.sharelock.etc.BytesTest" time="0.009"/>
   <system-out><![CDATA[HEX: E58886E3818BE381A3E3819FEFBC9F
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
