@@ -9,6 +9,6 @@ import spark.Request
 interface ServiciableAuth extends Serviciable {
     String getLoginPath()
     String getLogoutPath()
-    HashMap<String, Object> onLogin(Request request)
+    Map<String, Object> onLogin(Request request)
     boolean onLogout()
 }
