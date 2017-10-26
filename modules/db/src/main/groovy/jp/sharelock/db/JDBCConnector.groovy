@@ -1,5 +1,6 @@
 package jp.sharelock.db
 
+import jp.sharelock.etc.Config
 import jp.sharelock.etc.Log
 import jp.sharelock.db.DB.Connector
 import jp.sharelock.db.DB.ColumnType
@@ -35,9 +36,24 @@ class JDBCConnector implements Connector {
 	private DBType type = NONE
 	long lastUsed = 0
 
+	/**
+	 * Constructor with local settings
+	 * @param conn_url
+	 * @param dbname
+	 */
 	JDBCConnector(String conn_url, String dbname) {
 		this.dbname = dbname
 		this.jdbc_url = conn_url
+	}
+
+	/**
+	 * Constructor with global settings (Config or System)
+	 */
+	JDBCConnector() {
+		if(Config.hasKey("db.jdbc.name")) {
+			this.dbname = Config.get("db.jdbc.name")  //    database name
+			this.jdbc_url = Config.get("db.jdbc.url") //    proto://user:pass@host:port/"
+		}
 	}
 
 	@Override
@@ -52,6 +68,9 @@ class JDBCConnector implements Connector {
 	}
 
 	private String getJDBCStr() {
+		if(jdbc_url.isEmpty() || dbname.isEmpty()) {
+			Log.e(LOG_TAG,"Database name or url is not defined. Either specify it in the constructor or use a configuration file.")
+		}
 		String connection_str = "jdbc:"
 		if(jdbc_url.contains("://")) {
 			//--- Full URL ---
