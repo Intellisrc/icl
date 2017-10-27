@@ -9,6 +9,7 @@ import jp.sharelock.db.DB.Connector
 import jp.sharelock.db.DB.ColumnType
 import jp.sharelock.db.DB.DBType
 import jp.sharelock.db.DB.Statement
+import jp.sharelock.etc.Config
 import jp.sharelock.etc.Log
 
 @groovy.transform.CompileStatic
@@ -25,14 +26,25 @@ class AndroidConnector implements Connector {
 	long lastUsed = 0
 	
     /////////////////////////// Constructors /////////////////////////////
+	AndroidConnector(Object context) {
+		this("", (Context) context)
+	}
+	AndroidConnector(Context context) {
+		this("", context)
+	}
     AndroidConnector(String dbname, Object context) {
-        this(dbname, (Context) context, 1)
+        this(dbname, (Context) context)
     }
-    AndroidConnector(String dbname, Context context) {
-        this(dbname, context, 1)
-    }
-    AndroidConnector(String dbname, Context context, int version) {
-		this.dbname = dbname + ".db"
+    AndroidConnector(String dbname, Context context, int version = 1) {
+		if(!dbname) {
+            if(Config.hasKey("db.name")) {
+                this.dbname = Config.get("db.name") + ".db"
+            } else {
+                Log.e(LOG_TAG, "Database is not defined. Please pass it to the constructor or define 'db.name' in config.properties")
+            }
+		} else {
+			this.dbname = dbname + ".db"
+		}
 		this.context = context
 		this.version = version
     }
