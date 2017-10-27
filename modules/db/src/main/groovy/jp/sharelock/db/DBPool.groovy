@@ -24,21 +24,12 @@ class DBPool {
 	List<DB.Connector> availableConnections = []
 
 	/**
-	 * Initialize with database name and pool size (e.g. from Android)
-	 * @param DatabaseName
-	 * @param poolsize
-     * @param timeout
-	 */
-	synchronized void init(String database, int timeout = TIMEOUT_SEC) {
-		init(database, "", timeout)
-	}
-	/**
 	 * Initialize with JDBC connection
 	 * @param DatabaseName
 	 * @param ConnectionStr
      * @param timeout
 	 */
-	synchronized void init(String database, String connectionStr, int timeout = TIMEOUT_SEC) {
+	synchronized void init(String database = "", String connectionStr = "", int timeout = TIMEOUT_SEC) {
 		if(!initialized) {
 			databaseName = database
 			connectionString = connectionStr
@@ -123,7 +114,7 @@ class DBPool {
 				conn = (DB.Connector) con.newInstance(databaseName, AndroidContext.context)
 			} else {
 				Constructor con = Class.forName("jp.sharelock.db.JDBCConnector").getConstructor(String, String)
-				conn = (DB.Connector) con.newInstance(connectionString, databaseName)
+				conn = (DB.Connector) con.newInstance(databaseName, connectionString)
 			}
 		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			Log.e(LOG_TAG, "Unable to load the connection class: " + ex)

@@ -41,19 +41,30 @@ class JDBCConnector implements Connector {
 	 * @param conn_url
 	 * @param dbname
 	 */
-	JDBCConnector(String conn_url, String dbname) {
-		this.dbname = dbname
-		this.jdbc_url = conn_url
-	}
-
-	/**
-	 * Constructor with global settings (Config or System)
-	 */
-	JDBCConnector() {
-		if(Config.hasKey("db.jdbc.name")) {
-			this.dbname = Config.get("db.jdbc.name")  //    database name
-			this.jdbc_url = Config.get("db.jdbc.url") //    proto://user:pass@host:port/"
-		}
+	JDBCConnector(String dbname = "", String conn_url = "") {
+        if(dbname.isEmpty()) {
+            if(Config.hasKey("db.name")) {
+                this.dbname = Config.get("db.name")  //    database name
+                //proto://user:pass@host:port/"
+                if(!Config.hasKey("db.jdbc.url")) {
+                    if(!Config.hasKey("db.type")) {
+                        this.jdbc_url = "sqlite"
+                    } else {
+                        def type = Config.get("db.type") ?: "mysql"
+                        def host = Config.get("db.host") ?: "localhost"
+                        def user = Config.get("db.user") ?: "root"
+                        def pass = Config.get("db.pass") ?: ""
+                        def port = Config.get("db.port") ?: (type == "mysql" ? 3306 : 5432)
+                        this.jdbc_url = "${type}://${user}:${pass}@${host}:${port}"
+                    }
+                } else {
+                    this.jdbc_url = Config.get("db.jdbc.url")
+                }
+            }
+        } else {
+            this.dbname = dbname
+            this.jdbc_url = conn_url ?: "sqlite"
+        }
 	}
 
 	@Override
