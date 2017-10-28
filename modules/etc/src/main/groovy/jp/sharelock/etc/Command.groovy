@@ -1,7 +1,5 @@
 package jp.sharelock.etc
 
-import jp.sharelock.etc.Log
-
 /**
  * @since 1/9/17.
  *  secret: if true, it will not log arguments
@@ -13,8 +11,11 @@ class Command {
     boolean secret = false // Does the command includes sensitive information that it should not be logged?
     int exit = 0 //Change this value if the normal exit code is different than 0
     int timeout = 10000
-    Closure onDone = { String out -> out }
-    Closure onFail = { String out, Integer code -> out }
+    interface Callback {
+        void done(String out)
+        void fail(String out, int code)
+    }
+    Callback callback
 
     /**
      * Execute a command Synchronously
@@ -22,12 +23,11 @@ class Command {
      * @param args
      * @return
      */
-    void execSync(String cmd, Collection<String> args = []) {
+    void exec(String cmd, Collection<String> args = [], Callback call = null) {
         assert cmd: "Invalid Command"
 
         final std_out = new StringBuilder(), std_err = new StringBuilder()
         final prc
-        final timeout = 60000
         int exitCode
         //TODO: iterate if cmd is a collection
         final arg_str = args.join(" ")
@@ -51,9 +51,17 @@ class Command {
             Log.w(std_err)
         }
         if (exitCode == exit) {
-            onDone(std_out.toString())
+            if(call) {
+                call.done(std_out.toString())
+            } else if(callback) {
+                callback.done(std_out.toString())
+            }
         } else {
-            onFail(std_err.toString(), exitCode)
+            if(call) {
+                call.fail(std_err.toString(), exitCode)
+            } else if(callback) {
+                callback.fail(std_err.toString(), exitCode)
+            }
         }
     }
     /**
@@ -63,9 +71,9 @@ class Command {
      * @param timeout
      * @return
      */
-    void execAsync(String cmd, Collection<String> args = []) {
+    void execAsync(String cmd, Collection<String> args = [], Callback callback = null) {
         Thread.start({
-            execSync(cmd, args)
+            execSync(cmd, args, callback)
         })
     }
 
