@@ -73,7 +73,7 @@ class Command {
      */
     void execAsync(String cmd, Collection<String> args = [], Callback callback = null) {
         Thread.start({
-            execSync(cmd, args, callback)
+            exec(cmd, args, callback)
         })
     }
 

@@ -2,28 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/AndroidContext.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Bytes.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Command$_closure1.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Command$_closure2.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Command$_execAsync_closure3.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Command.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Config.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log$AndroidPrinter.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log$Printer.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log$SystemOutPrinter.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Log.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/Pack.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/SysInfo$OSType.class" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/modules/etc/build/classes/main/jp/sharelock/etc/SysInfo.class" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -169,6 +148,24 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="common" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="common" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="common" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -201,8 +198,8 @@
       <file leaf-file-name="Command.groovy" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+            <state relative-caret-position="540">
+              <caret line="75" column="16" lean-forward="false" selection-start-line="75" selection-start-column="16" selection-end-line="75" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -18783,7 +18780,14 @@
       <option name="project" value="LOCAL" />
       <updated>1509170196918</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="2.2.8 : Improved Command and removed Closure objects">
+      <created>1509179459204</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1509179459204</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -18835,13 +18839,13 @@
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33960047" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33960047" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24878444" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22528364" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22528364" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.63102233" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -18883,7 +18887,8 @@
     <MESSAGE value="2.2.7 : Added onSleep for background processes in SysSrv and Recoded part of JDBCConnector. Removed DBType.NONE" />
     <MESSAGE value="2.2.7 : fixed JDBCConnector." />
     <MESSAGE value="2.2.7.1 : fixed JDBCConnector." />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.7.1 : fixed JDBCConnector." />
+    <MESSAGE value="2.2.8 : Improved Command and removed Closure objects" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.8 : Improved Command and removed Closure objects" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -19240,8 +19245,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+        <state relative-caret-position="540">
+          <caret line="75" column="16" lean-forward="false" selection-start-line="75" selection-start-column="16" selection-end-line="75" selection-end-column="16" />
           <folding />
         </state>
       </provider>
