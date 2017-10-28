@@ -94,8 +94,8 @@ class JDBCConnector implements Connector {
         }
         if(sUrl.contains("://")) {
             try {
-                URL url = new URL(sUrl)
-                type = url.protocol.toUpperCase() as DBType
+                URI url = new URI(sUrl)
+                type = url.scheme.toUpperCase() as DBType
                 host = url.host
                 port = url.port ?: (type == MYSQL ? 3306 : 5432)
                 def userpass = url.userInfo.split(":")
@@ -105,13 +105,13 @@ class JDBCConnector implements Connector {
                 }
                 def path = url.path.replaceAll('/','')
                 if(path) {
-                    dbname = url.path
+                    dbname = path
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : "+e.message)
             }
         } else {
-            Log.e(LOG_TAG, "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: [$sUrl]")
+            Log.e(LOG_TAG, "Specified URL has no protocol: [$sUrl]")
         }
     }
 
@@ -129,7 +129,7 @@ class JDBCConnector implements Connector {
      * Return JDBC URL in standard way
      * @return
      */
-	private String getJDBCStr() {
+	String getJDBCStr() {
         def url = "jdbc:"
         def stype = type.toString().toLowerCase()
         switch (type) {
@@ -139,7 +139,7 @@ class JDBCConnector implements Connector {
             case POSGRESQL:
             case MYSQL:
             default:
-                url += ":${stype}://${host}:${port}/${dbname}"
+                url += "${stype}://${host}:${port}/${dbname}"
                 break
         }
         //Additional params
