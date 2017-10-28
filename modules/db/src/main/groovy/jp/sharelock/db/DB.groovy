@@ -26,11 +26,11 @@ class DB {
     }
 
 	DBType getType() {
-		return db?.getType() ?: DBType.NONE
+		return db?.getType() ?: DBType.DUMMY
 	}
 
 	enum DBType {
-		NONE, DUMMY, SQLITE, MYSQL, POSGRESQL, JAVADB, ORACLE, DB2, SUN
+		DUMMY, SQLITE, MYSQL, POSGRESQL, JAVADB, ORACLE, DB2, SUN
 	}
 
 	enum ColumnType {

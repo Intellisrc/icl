@@ -15,13 +15,28 @@ import java.sql.ResultSetMetaData
 import java.sql.SQLException
 import java.sql.PreparedStatement
 import static java.sql.Types.*
-import java.util.regex.Matcher
 
 @groovy.transform.CompileStatic
 /**
  * SQL connector for Java using JDBC
  * It supports mysql, postgres, sqlite and a dummy connection
  * Each type requires an additional library to work (except dummy)
+ *
+ * In configuration file, you can set:
+ * db.type = [mysql,postgresql,sqlite]
+ * db.name = mydb
+ * db.host = localhost
+ * db.user = myuser
+ * db.pass = secret
+ * db.port = 1234
+ *
+ * Or set it as URL:
+ * db.jdbc.url = mysql://user:pass@host:port/dbname
+ *
+ * Or set database name and URL separately:
+ * db.name = mydb
+ * db.jdbc.url = mysql://user:pass@host:port
+ *
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
 class JDBCConnector implements Connector {
@@ -29,11 +44,12 @@ class JDBCConnector implements Connector {
     private final String LOG_TAG = JDBCConnector.getSimpleName()
 	private static int TIMEOUT = 1000
 	private String dbname = ""
-	private String jdbc_url = "" //For sqlite, it will be: 'sqlite' only, for mysql is : mysql://user:pass@host:port/
 	private String user = ""
 	private String pass = ""
+	private String host = ""
+	private int port
 	private static Connection db
-	private DBType type = NONE
+	private DBType type = SQLITE
 	long lastUsed = 0
 
 	/**
@@ -42,106 +58,109 @@ class JDBCConnector implements Connector {
 	 * @param dbname
 	 */
 	JDBCConnector(String dbname = "", String conn_url = "") {
-        if(dbname.isEmpty()) {
+        if(dbname.isEmpty() && conn_url.isEmpty()) {
             if(Config.hasKey("db.name")) {
                 this.dbname = Config.get("db.name")  //    database name
-                //proto://user:pass@host:port/"
                 if(!Config.hasKey("db.jdbc.url")) {
-                    if(!Config.hasKey("db.type")) {
-                        this.jdbc_url = "sqlite"
-                    } else {
-                        def type = Config.get("db.type") ?: "mysql"
-                        def host = Config.get("db.host") ?: "localhost"
-                        def user = Config.get("db.user") ?: "root"
-                        def pass = Config.get("db.pass") ?: ""
-                        def port = Config.get("db.port") ?: (type == "mysql" ? 3306 : 5432)
-                        this.jdbc_url = "${type}://${user}:${pass}@${host}:${port}"
+                    if(Config.hasKey("db.type")) {
+                        type = (Config.get("db.type") ?: "mysql").toUpperCase() as DBType
+                        host = Config.get("db.host") ?: "localhost"
+                        user = Config.get("db.user") ?: "root"
+                        pass = Config.get("db.pass") ?: ""
+                        port = Config.getInt("db.port") ?: (type == MYSQL ? 3306 : 5432)
                     }
                 } else {
-                    this.jdbc_url = Config.get("db.jdbc.url")
+                    parseJDBC(Config.get("db.jdbc.url"))
                 }
             }
+        } else if(!conn_url.isEmpty()) {
+            if(!dbname.isEmpty()) {
+                this.dbname = dbname
+            }
+            parseJDBC(conn_url)
         } else {
             this.dbname = dbname
-            this.jdbc_url = conn_url ?: "sqlite"
         }
 	}
+
+    /**
+     * Import connection settings from URL
+       proto://user:pass@host:port/db?"
+     * @param url
+     */
+    private void parseJDBC(String sUrl) {
+        if(sUrl.isEmpty()) {
+            Log.e(LOG_TAG,"JDBC URL is not defined. Either specify it in the constructor or use a configuration file. Alternatively, set all connections settings individually.")
+        }
+        if(sUrl.contains("://")) {
+            try {
+                URL url = new URL(sUrl)
+                type = url.protocol.toUpperCase() as DBType
+                host = url.host
+                port = url.port ?: (type == MYSQL ? 3306 : 5432)
+                def userpass = url.userInfo.split(":")
+                if(userpass) {
+                    user = userpass[0]
+                    pass = userpass[1]
+                }
+                def path = url.path.replaceAll('/','')
+                if(path) {
+                    dbname = url.path
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : "+e.message)
+            }
+        } else {
+            Log.e(LOG_TAG, "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: [$sUrl]")
+        }
+    }
 
 	@Override
 	void open() {
 		try {
-            String connStr = getJDBCStr() //This step will extract user and pass
-			db = DriverManager.getConnection(connStr, user, pass)
+			db = DriverManager.getConnection(getJDBCStr(), user, pass)
 			Log.d(LOG_TAG, "Connecting to DB")
 		} catch (SQLException ex) {
 			Log.w(LOG_TAG, "Connection failed: " + ex)
 		}
 	}
 
+    /**
+     * Return JDBC URL in standard way
+     * @return
+     */
 	private String getJDBCStr() {
-		if(jdbc_url.isEmpty() || dbname.isEmpty()) {
-			Log.e(LOG_TAG,"Database name or url is not defined. Either specify it in the constructor or use a configuration file.")
-		}
-		String connection_str = "jdbc:"
-		if(jdbc_url.contains("://")) {
-			//--- Full URL ---
-			//CHECK: parsing URL must exists in some common library
-							//    protocol      ://    user         :   pass                @host           :port
-			String pattern = '^(?:([^\\:]*)\\:\\/\\/)?(?:([^\\:\\@]*)(?:\\:([^\\@]*))?\\@)?(?:([^\\/\\:]*))?(?:\\:([0-9]*))?\\/$'
-			Matcher m = jdbc_url =~ /$pattern/
-			if(m.find()) {
-				String proto = m.group(1)
-					   user  = m.group(2)
-					   pass  = m.group(3)
-				String host  = m.group(4)
-				String port  = m.group(5)
-				if(user == null) { user = "" }
-				if(pass == null) { pass = "" }
-				if(port == null) { 
-					port = ""
-				} else {
-					port = ":"+port
-				}
-				switch(proto) {
-					case "mysql": type = MYSQL; break
-					case "posgresql": type = POSGRESQL; break
-				}
-				connection_str += proto + "://" + host + port + "/" + dbname
-				//Additional params
-				switch(proto) {
-					case "mysql":
-						try {
-							Class.forName("com.mysql.jdbc.Driver")
-							connection_str += "?useSSL=false" //Disable SSL warning
-							connection_str += "&autoReconnect=true" //Reconnect
-							//UTF-8 enable:
-							connection_str += "&useUnicode=true"
-							connection_str += "&characterEncoding=UTF-8"
-							connection_str += "&characterSetResults=utf8"
-							connection_str += "&connectionCollation=utf8_general_ci"
-						} catch(Exception e) {
-							Log.e(LOG_TAG, "Driver not found: "+e)
-							connection_str = ""
-						}
-						break
-				}
-			} else {
-				Log.e(LOG_TAG, "Malformed URL, please specify it as: proto://user:pass@host:port/")
-			}
-		} else {
-			//--- No protocol
-			connection_str += jdbc_url + ":"
-			switch(jdbc_url) {
-				case "sqlite":
-					type = SQLITE
-					connection_str += dbname + ".db"
-					break
-				default:
-					Log.e(LOG_TAG, "Database type ["+jdbc_url+"] not supported yet")
-					break
-			}
-		}
-		return connection_str
+        def url = "jdbc:"
+        def stype = type.toString().toLowerCase()
+        switch (type) {
+            case SQLITE:
+                url += "${stype}:${dbname}.db"
+                break
+            case POSGRESQL:
+            case MYSQL:
+            default:
+                url += ":${stype}://${host}:${port}/${dbname}"
+                break
+        }
+        //Additional params
+        switch(type) {
+            case MYSQL:
+                try {
+                    Class.forName("com.mysql.jdbc.Driver")
+                    url += "?useSSL=false" //Disable SSL warning
+                    url += "&autoReconnect=true" //Reconnect
+                    //UTF-8 enable:
+                    url += "&useUnicode=true"
+                    url += "&characterEncoding=UTF-8"
+                    url += "&characterSetResults=utf8"
+                    url += "&connectionCollation=utf8_general_ci"
+                } catch(Exception e) {
+                    Log.e(LOG_TAG, "Driver not found: "+e)
+                    url = ""
+                }
+                break
+        }
+        return url
 	}
 			
 	/**
@@ -154,7 +173,7 @@ class JDBCConnector implements Connector {
 	boolean isOpen() {
 		boolean open = false
 		try {
-            if(db != null && type != NONE) {
+            if(db != null) {
                 open = !db.isClosed()
             }
 		} catch (SQLException ex) {

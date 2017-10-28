@@ -15,9 +15,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" group="net" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" group="net" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" group="net" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv.iml" group="srv" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_main.iml" group="srv" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/srv/modules-srv_test.iml" group="srv" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" group="web" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" group="web" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" group="web" />

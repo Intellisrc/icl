@@ -13,7 +13,6 @@
             <option value="$PROJECT_DIR$/modules/db" />
             <option value="$PROJECT_DIR$/modules/etc" />
             <option value="$PROJECT_DIR$/modules/net" />
-            <option value="$PROJECT_DIR$/modules/srv" />
             <option value="$PROJECT_DIR$/modules/web" />
           </set>
         </option>
