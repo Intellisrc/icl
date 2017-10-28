@@ -87,6 +87,7 @@ abstract class SysService {
         lockFile.deleteOnExit()
         while(lockFile.exists()) {
             sleep(1000)
+            sysSrv.onSleep()
         }
         sysSrv.onStop()
         System.exit(0)
@@ -126,4 +127,9 @@ abstract class SysService {
         Log.w("'uninstall' is not implemented")
         System.exit(2)
     }
+    /**
+     * This method will be called each second
+     * ideal to run background processes
+     */
+    void onSleep() {}
 }

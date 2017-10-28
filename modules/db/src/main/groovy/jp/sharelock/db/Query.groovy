@@ -12,7 +12,7 @@ import static jp.sharelock.db.Query.SortOrder.*
  * Created by A.Lepe on 16/11/11.
  */
 class Query {
-	private DBType dbType = NONE
+	private DBType dbType = DUMMY
     private static final String LOG_TAG = Query.getSimpleName()
     // Action type (RAW is default)
     enum Action {

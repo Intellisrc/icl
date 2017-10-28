@@ -4,13 +4,11 @@ include ":etc"
 include ":crypt"
 include ":db"
 include ":net"
-include ":srv"
 include ":web"
 
 project(':etc').projectDir = new File(rootProject.projectDir, 'modules/etc')
 project(':crypt').projectDir = new File(rootProject.projectDir, 'modules/crypt')
 project(':db').projectDir = new File(rootProject.projectDir, 'modules/db')
 project(':net').projectDir = new File(rootProject.projectDir, 'modules/net')
-project(':srv').projectDir = new File(rootProject.projectDir, 'modules/srv')
 project(':web').projectDir = new File(rootProject.projectDir, 'modules/web')
 
