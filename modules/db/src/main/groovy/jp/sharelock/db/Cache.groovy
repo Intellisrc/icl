@@ -43,7 +43,7 @@ abstract class Cache<K, V> {
 	 * Get value by key
 	 * @param key
 	 * @return
-	 * @throws jp.sharelock.db.Cache.KeyNotPresentException 
+	 * @throws Cache.KeyNotPresentException
 	 */
     V get(K key) throws KeyNotPresentException {
 		if (cache.size() > 0 && cache.containsKey(key)) {

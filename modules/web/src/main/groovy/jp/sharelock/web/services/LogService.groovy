@@ -8,7 +8,6 @@ import spark.Request
 
 /**
  * @since 10/19/17.
- * TODO: move this class into Common
  */
 @CompileStatic
 class LogService implements ServiciableSingle {
