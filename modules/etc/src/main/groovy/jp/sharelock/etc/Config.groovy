@@ -2,6 +2,8 @@ package jp.sharelock.etc
 
 @groovy.transform.CompileStatic
 /**
+ * This class will combine System Properties and config.properties into a
+ * single configuration. Multiple methods are defined to handle it easier
  *
  * @author Alberto Lepe <lepe@sharelock.jp>
  */

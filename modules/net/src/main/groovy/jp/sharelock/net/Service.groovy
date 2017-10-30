@@ -20,13 +20,13 @@ class Service {
             Protocol thisProtocol
             switch(proto) {
                 case ~/(?i)tcp/:
-                    thisProtocol = Protocol.TCP
+                    thisProtocol = TCP
                     break
                 case ~/(?i)udp/:
-                    thisProtocol = Protocol.UDP
+                    thisProtocol = UDP
                     break
                 default:
-                    thisProtocol = Protocol.UNKNOWN
+                    thisProtocol = UNKNOWN
                     break
             }
             return thisProtocol

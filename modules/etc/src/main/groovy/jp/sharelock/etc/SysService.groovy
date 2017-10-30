@@ -34,15 +34,8 @@ abstract class SysService {
         def sysSrv = service
         //Process args before starting
         def action = sysSrv.getAction(args.toList())
-        def usrDir = System.getProperty("user.dir") + File.separator
+        def usrDir = SysInfo.getWritablePath()
         def lockFile = new File(usrDir + sysSrv.lockFile)
-        if(!new File(usrDir).canWrite()) {
-            def tmpDir = System.getProperty("java.io.tmpdir")
-            if (!tmpDir.endsWith(File.separator)) {
-                tmpDir += File.separator
-            }
-            lockFile = new File(tmpDir + lockFile)
-        }
         if(!action) {
             action = "start"
         }
