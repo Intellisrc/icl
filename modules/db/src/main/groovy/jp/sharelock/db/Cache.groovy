@@ -4,15 +4,14 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 @groovy.transform.CompileStatic
+@Singleton
 /**
  * Classes extending this class must be implemented as singleton
  * @author Alberto Lepe <lepe@sharelock.jp>
- * @param <K>
- * @param <V> 
  */
-abstract class Cache<K, V> {
+class Cache {
 
-    final ConcurrentMap<K, V> cache = new ConcurrentHashMap<>()
+    final ConcurrentMap<String, Object> cache = new ConcurrentHashMap<>()
 
 	/**
 	 * Returns true if cache is empty
@@ -26,7 +25,7 @@ abstract class Cache<K, V> {
 	 * @param key
 	 * @return 
 	 */
-	boolean exists(K key) {
+	boolean exists(String key) {
 		return cache.containsKey(key)
 	}
 	/**
@@ -35,7 +34,7 @@ abstract class Cache<K, V> {
 	 * @param default_val
 	 * @return 
 	 */
-    V get(K key, V default_val) {
+    Object get(String key, Object default_val) {
         return cache.getOrDefault(key, default_val)
     }
 	
@@ -45,7 +44,7 @@ abstract class Cache<K, V> {
 	 * @return
 	 * @throws Cache.KeyNotPresentException
 	 */
-    V get(K key) throws KeyNotPresentException {
+    Object get(String key) throws KeyNotPresentException {
 		if (cache.size() > 0 && cache.containsKey(key)) {
         	return cache.get(key)
 		} else {
@@ -58,7 +57,7 @@ abstract class Cache<K, V> {
 	 * @param key
 	 * @param value 
 	 */
-    void set(K key, V value) {
+    void set(String key, Object value) {
 		if(value == null) {
 			del(key)
 		} else {
@@ -71,7 +70,7 @@ abstract class Cache<K, V> {
 	 * @param key
 	 * @return 
 	 */
-	boolean del(K key) {
+	boolean del(String key) {
 		if(cache.containsKey(key)) {
 			cache.remove(key)
 			return true
