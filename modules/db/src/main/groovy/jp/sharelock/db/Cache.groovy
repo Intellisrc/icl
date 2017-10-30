@@ -1,17 +1,27 @@
 package jp.sharelock.db
 
+import jp.sharelock.etc.Log
+
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 @groovy.transform.CompileStatic
-@Singleton
 /**
- * Classes extending this class must be implemented as singleton
+ * Manage Cache of objects
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
-class Cache {
-
-    final ConcurrentMap<String, Object> cache = new ConcurrentHashMap<>()
+class Cache<V> {
+    final static String LOG_TAG = Cache.simpleName
+    final int DEFAULT_TIMEOUT = 60 //seconds
+    private class CacheObj {
+        V       value
+        long    expire
+        CacheObj(V obj, long time) {
+            value = obj
+            expire = time
+        }
+    }
+    final ConcurrentMap<String, CacheObj> cache = new ConcurrentHashMap<>()
 
 	/**
 	 * Returns true if cache is empty
@@ -25,31 +35,38 @@ class Cache {
 	 * @param key
 	 * @return 
 	 */
-	boolean exists(String key) {
-		return cache.containsKey(key)
-	}
+    boolean exists(final String key) {
+        return cache.containsKey(key) &&! expired(key)
+    }
+    /**
+     * Return true if expired and remove it from cache
+     * @param key
+     * @return
+     */
+    private boolean expired(final String key) {
+        def expired = false
+        if(cache.get(key)?.expire < new Date().getTime()) {
+            Log.d(LOG_TAG, "Key [$key] expired.")
+            del(key)
+            expired = true
+        }
+        return expired
+    }
 	/**
-	 * Returns value if found, or default if not
+	 * Returns value if found, or set object if not
 	 * @param key
 	 * @param default_val
 	 * @return 
 	 */
-    Object get(String key, Object default_val) {
-        return cache.getOrDefault(key, default_val)
-    }
-	
-	/**
-	 * Get value by key
-	 * @param key
-	 * @return
-	 * @throws Cache.KeyNotPresentException
-	 */
-    Object get(String key) throws KeyNotPresentException {
-		if (cache.size() > 0 && cache.containsKey(key)) {
-        	return cache.get(key)
-		} else {
-		   throw new KeyNotPresentException()
-		}
+    V get(final String key, final V obj = null, long time = DEFAULT_TIMEOUT) {
+        V ret
+        if(exists(key)) {
+            ret = cache.get(key).value
+        } else {
+            set(key, obj, time)
+            ret = obj
+        }
+        return ret
     }
 
 	/**
@@ -57,11 +74,11 @@ class Cache {
 	 * @param key
 	 * @param value 
 	 */
-    void set(String key, Object value) {
+    void set(final String key, final V value, long time = DEFAULT_TIMEOUT) {
 		if(value == null) {
 			del(key)
 		} else {
-	        cache.put(key, value)
+	        cache.put(key, new CacheObj(value, new Date().getTime() + (time * 1000)))
 		}
 	}
 
@@ -70,7 +87,7 @@ class Cache {
 	 * @param key
 	 * @return 
 	 */
-	boolean del(String key) {
+	boolean del(final String key) {
 		if(cache.containsKey(key)) {
 			cache.remove(key)
 			return true
@@ -92,9 +109,16 @@ class Cache {
 	int size() {
 		return cache.size()
 	}
-	
-	static class KeyNotPresentException extends Exception {
-		KeyNotPresentException() {}
-	}
 
+    /**
+     * Will remove expired elements
+     * it doesn't run automatically. Needs to be called
+     */
+    void garbageCollect() {
+        cache.each {
+            String key, CacheObj co ->
+                expired(key)
+        }
+    }
+	
 }
