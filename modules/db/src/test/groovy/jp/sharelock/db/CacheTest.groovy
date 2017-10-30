@@ -1,5 +1,7 @@
 package jp.sharelock.db
 
+import jp.sharelock.etc.Cache
+import jp.sharelock.etc.CacheObj
 import spock.lang.Specification
 
 

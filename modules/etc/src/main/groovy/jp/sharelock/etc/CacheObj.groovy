@@ -1,4 +1,4 @@
-package jp.sharelock.db
+package jp.sharelock.etc
 
 import groovy.transform.CompileStatic
 

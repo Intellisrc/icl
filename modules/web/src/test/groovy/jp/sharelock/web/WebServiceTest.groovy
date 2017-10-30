@@ -42,6 +42,29 @@ class WebServiceTest extends Specification {
             assert !web.isRunning()
     }
 
+    def "Testing auto cache"() {
+        setup:
+            int port = NetworkInterface.getFreePort()
+            def web = new WebService(
+                    port : port,
+                    //resources : 'public'    <--- this is the recommended way to specify resources
+                    cacheTime: 60
+            )
+            // Resources set as full path because code is executed under /tst/ usually use above method
+            println "RES DIR:" + System.getProperty("user.dir") + "/res/public/"
+            web.setResources(System.getProperty("user.dir") + "/res/public/", true)
+            web.addService(new IDService())
+            web.start()
+        expect:
+            assert web.isRunning()
+            assert new URL("http://localhost:${port}/id").text
+            sleep(2000)
+            assert new URL("http://localhost:${port}/id").text
+            //TODO: count if method was called
+            web.stop()
+            assert !web.isRunning()
+    }
+
     @Ignore("Broken")
     def "HTTPS"() {
         setup:

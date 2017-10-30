@@ -33,19 +33,18 @@ class Command {
         final arg_str = args.join(" ")
 
         String command = "$cmd $arg_str" //Allow glob operations //TODO: its different in Windows
-        println "CMD: [$command]"
         prc = command.execute()
         prc.consumeProcessOutput(std_out, std_err)
         prc.waitForOrKill(timeout)
         exitCode = prc.exitValue()
 
         if(!std_err.toString().isEmpty()) {
-            println(std_err.toString())
+            Log.e(cmd, std_err.toString())
         }
         if (secret) {
-            Log.v(cmd, "(hidden args) : " + args.size())
+            Log.v(cmd + "(hidden args) : " + args.size())
         } else {
-            Log.v(cmd, " : " + args.join(","))
+            Log.v(cmd + " : " + args.join(","))
         }
         if (std_err) {
             Log.w(std_err)

@@ -1,6 +1,4 @@
-package jp.sharelock.db
-
-import jp.sharelock.etc.Log
+package jp.sharelock.etc
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -65,9 +63,13 @@ class Cache<V> {
         V ret = null
         if(exists(key)) {
             ret = cache.get(key).value
+			Log.v(LOG_TAG, "[$key] read from cache")
         } else {
             if(notFound) {
                 ret = notFound.call()
+				if(ret) {
+					Log.v(LOG_TAG, "[$key] added to cache")
+				}
             }
             set(key, ret, time)
         }

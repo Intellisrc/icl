@@ -1,10 +1,12 @@
 package jp.sharelock.web
 
+import jp.sharelock.etc.CacheObj
 import jp.sharelock.etc.Log
 import spark.Request
 import spark.Response
 import spark.Route
 import spark.Service
+
 import static jp.sharelock.web.ServicePath.Method.*
 import static groovy.json.JsonOutput.toJson
 
@@ -83,9 +85,9 @@ class WebService {
                             addWebSocketService(single, single.path)
                         } else if(serviciable instanceof ServiciableHTTPS) {
                             addSSLService(serviciable)
-                            addServicePath(single.getService(), single.path)
+                            addServicePath(single.service, single.path)
                         } else {
-                            addServicePath(single.getService(), single.path)
+                            addServicePath(single.service, single.path)
                         }
                         break
                     case ServiciableWebSocket:
@@ -168,12 +170,12 @@ class WebService {
      * @return
      */
     private void addServicePath(ServicePath service, String rootPath) {
-        String fullPath = rootPath + service.path
-        if (listPaths.contains(service.method.toString() + fullPath)) {
-            Log.w(LOG_TAG, "Warning, duplicated path [$fullPath] and method [" + service.method.toString() + "] found.")
+        service.fullPath = rootPath + service.path
+        if (listPaths.contains(service.method.toString() + service.fullPath)) {
+            Log.w(LOG_TAG, "Warning, duplicated path ["+service.fullPath+"] and method [" + service.method.toString() + "] found.")
         } else {
-            listPaths << service.method.toString() + fullPath
-            addAction(fullPath, service)
+            listPaths << service.method.toString() + service.fullPath
+            addAction(service.fullPath, service)
         }
     }
 
@@ -222,7 +224,14 @@ class WebService {
                 String out
                 response.type("application/json")
                 if(sp.allow.check(request)) {
-                    out = toJson(sp.action.run(request))
+                    if(sp.cacheTime) {
+                        String key = sp.fullPath
+                        out = CacheObj.instance.get(key, {
+                            toJson(sp.action.run(request))
+                        }, sp.cacheTime)
+                    } else {
+                        out = toJson(sp.action.run(request))
+                    }
                 } else {
                     out = toJson(y : false)
                 }
