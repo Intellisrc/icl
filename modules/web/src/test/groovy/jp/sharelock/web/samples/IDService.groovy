@@ -10,6 +10,7 @@ import jp.sharelock.web.ServicePath.Action
 class IDService implements ServiciableSingle {
     ServicePath getService() {
         return new ServicePath(
+            cacheTime: 10,
             action: {
                 return [
                     i : 200

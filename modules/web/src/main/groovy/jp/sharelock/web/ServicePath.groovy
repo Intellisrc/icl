@@ -16,6 +16,8 @@ class ServicePath {
     static enum Method {
         GET, POST, PUT, DELETE, OPTIONS
     }
+    String fullPath= ""                                           // To be filled by the application
+    int cacheTime  = 0                                            // Seconds to store action in Cache
     Method method  = Method.GET                                   // HTTP Method to be used
     String path    = ""                                           // URL path relative to parent
     Action action  = { Request request -> null } as Action        // Closure that will return an object (usually Collection or HashMap) to be converted to JSON as response
