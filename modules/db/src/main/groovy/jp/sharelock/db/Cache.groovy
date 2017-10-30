@@ -11,6 +11,9 @@ import java.util.concurrent.ConcurrentMap
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
 class Cache<V> {
+    interface onNotFound {
+        V call()
+    }
     final static String LOG_TAG = Cache.simpleName
     final int DEFAULT_TIMEOUT = 60 //seconds
     private class CacheObj {
@@ -58,13 +61,15 @@ class Cache<V> {
 	 * @param default_val
 	 * @return 
 	 */
-    V get(final String key, final V obj = null, long time = DEFAULT_TIMEOUT) {
-        V ret
+    V get(final String key, onNotFound notFound = null, long time = DEFAULT_TIMEOUT) {
+        V ret = null
         if(exists(key)) {
             ret = cache.get(key).value
         } else {
-            set(key, obj, time)
-            ret = obj
+            if(notFound) {
+                ret = notFound.call()
+            }
+            set(key, ret, time)
         }
         return ret
     }
