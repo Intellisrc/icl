@@ -272,22 +272,37 @@ class JDBCConnector implements Connector {
 					try {
 						ColumnType ct = ColumnType.NULL
 						switch(rm.getColumnType(index)) {
+                            case NCLOB: //N means: Unicode
+                            case CLOB: //stores variable-length character data more than 4GB
+                            case LONGNVARCHAR:
+                            case LONGVARCHAR:
+                            case NVARCHAR:
 							case VARCHAR:
+                            case NCHAR:
 							case CHAR:
 								ct = ColumnType.TEXT; break
 							case INTEGER:
 							case SMALLINT:
 							case TINYINT:
+                            case BOOLEAN:
+                            case BIT:
 								ct = ColumnType.INTEGER; break
 							case BIGINT:
 							case FLOAT:
 							case DOUBLE:
 							case DECIMAL:
 							case NUMERIC:
+                            case REAL:
 								ct = ColumnType.DOUBLE; break
-							case BLOB:
+                            case LONGVARBINARY:
+                            case VARBINARY:
+                            case BINARY:
+                            case BLOB:
 								ct = ColumnType.BLOB; break
+                            case TIME_WITH_TIMEZONE:
+                            case TIMESTAMP_WITH_TIMEZONE:
 							case TIMESTAMP:
+                            case TIME:
 							case DATE:
 								ct = ColumnType.DATE; break
 							default:
