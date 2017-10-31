@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentMap
 /**
  * Manage Cache of objects
  * @author Alberto Lepe <lepe@sharelock.jp>
+ * @param <V>
  */
 class Cache<V> {
     interface onNotFound {
