@@ -18,6 +18,7 @@ class WebServiceTest extends Specification {
 
     def "General Test"() {
         setup:
+            Log.logFile = "web.log"
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                 port : port,

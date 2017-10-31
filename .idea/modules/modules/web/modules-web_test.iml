@@ -14,13 +14,11 @@
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.10" level="project" />
     <orderEntry type="library" name="Gradle: jp.sharelock:groovy-extend:1.5.1" level="project" />
     <orderEntry type="module" module-name="etc_main" />
-    <orderEntry type="module" module-name="modules-db_main" />
     <orderEntry type="library" name="Gradle: com.sparkjava:spark-core:2.6.0" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-nop:1.7.25" level="project" />
     <orderEntry type="library" name="Gradle: org.spockframework:spock-unitils:1.1-groovy-2.4" level="project" />
     <orderEntry type="library" name="Gradle: commons-net:commons-net:3.5" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android:android:4.1.1.4" level="project" />
-    <orderEntry type="library" name="Gradle: mysql:mysql-connector-java:5.1.40" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-server:9.4.4.v20170414" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-webapp:9.4.4.v20170414" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-server:9.4.4.v20170414" level="project" />
