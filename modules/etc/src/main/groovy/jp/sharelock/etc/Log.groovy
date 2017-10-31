@@ -6,6 +6,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.text.SimpleDateFormat
+
 @groovy.transform.CompileStatic
 /**
  * Originally imported from: trikita.log

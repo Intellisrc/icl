@@ -144,7 +144,7 @@ class PasswordHashTest extends Specification {
     def "SCrypt with hard-coded salt"() {
         when:
         char[] pwd = "Hello Earth!".toCharArray()
-        byte[] saltin = "VWSYob8uOI1rxZKx"
+        byte[] saltin = Bytes.fromString("VWSYob8uOI1rxZKx")
         def ph = new PasswordHash(password: pwd, salt: saltin, cost: 12)
         def hash = ph.SCrypt()
         def saltout = ph.salt

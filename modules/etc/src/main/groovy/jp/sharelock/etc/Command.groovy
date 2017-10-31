@@ -1,11 +1,13 @@
 package jp.sharelock.etc
 
+import groovy.transform.CompileStatic
+
 /**
  * @since 1/9/17.
  *  secret: if true, it will not log arguments
  */
 //@Immutable
-@groovy.transform.CompileStatic
+@CompileStatic
 class Command {
     // Properties:
     boolean secret = false // Does the command includes sensitive information that it should not be logged?
