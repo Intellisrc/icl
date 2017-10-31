@@ -4,6 +4,20 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.Charset
 /**
+ * This class contains a rewrite of some methods without using String class.
+ * The reason is because String class keep values in memory and thus poses a security risk according to some sources.
+ * While all methods in this class exists natively in Groovy/Java, those requires to change values to String, e.g:
+ *
+ * char[] password = ...
+ * bytes[] bytesPass = password.toString().getBytes()
+ *
+ * This class solves that issue, e.g:
+ *
+ * char[] password = ...
+ * bytes[] bytesPass = Bytes.fromChars(password)
+ *
+ * This class is mainly used by common.crypt package
+ *
  * @since 17/04/11.
  */
 @groovy.transform.CompileStatic

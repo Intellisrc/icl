@@ -16,7 +16,7 @@ import java.security.SecureRandom
      String instead of char[] making the protection useless, which is supported by:
      http://stackoverflow.com/questions/15016250/in-java-how-do-i-extract-a-password-from-a-httpservletrequest-header-without-ge
 
-     You can use tools.Bytes.* to convert from/to char[], byte[] and String
+     You can use etc.Bytes.* to convert from/to char[], byte[] and String
  *
  */
 @groovy.transform.CompileStatic
