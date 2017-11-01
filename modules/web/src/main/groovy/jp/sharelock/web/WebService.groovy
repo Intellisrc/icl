@@ -170,12 +170,12 @@ class WebService {
      * @return
      */
     private void addServicePath(ServicePath service, String rootPath) {
-        service.fullPath = rootPath + service.path
-        if (listPaths.contains(service.method.toString() + service.fullPath)) {
-            Log.w(LOG_TAG, "Warning, duplicated path ["+service.fullPath+"] and method [" + service.method.toString() + "] found.")
+        def fullPath = rootPath + service.path
+        if (listPaths.contains(service.method.toString() + fullPath)) {
+            Log.w(LOG_TAG, "Warning, duplicated path ["+fullPath+"] and method [" + service.method.toString() + "] found.")
         } else {
-            listPaths << service.method.toString() + service.fullPath
-            addAction(service.fullPath, service)
+            listPaths << service.method.toString() + fullPath
+            addAction(fullPath, service)
         }
     }
 
@@ -225,7 +225,7 @@ class WebService {
                 response.type("application/json")
                 if(sp.allow.check(request)) {
                     if(sp.cacheTime) {
-                        String key = sp.fullPath
+                        String key = request.uri() + "?" + request.queryString()
                         out = CacheObj.instance.get(key, {
                             toJson(sp.action.run(request))
                         }, sp.cacheTime)

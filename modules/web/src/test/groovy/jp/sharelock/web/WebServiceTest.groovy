@@ -58,9 +58,9 @@ class WebServiceTest extends Specification {
             web.start()
         expect:
             assert web.isRunning()
-            assert new URL("http://localhost:${port}/id").text
+            assert new URL("http://localhost:${port}/id?i=1").text
             sleep(2000)
-            assert new URL("http://localhost:${port}/id").text
+            assert new URL("http://localhost:${port}/id?i=1").text
             //TODO: count if method was called
             web.stop()
             assert !web.isRunning()
