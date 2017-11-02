@@ -65,18 +65,17 @@ class Data {
     }	
     // Will return the first element of each row
     ArrayList toArray() {
-        ArrayList al = new ArrayList()
+        ArrayList al = []
         if(!data.isEmpty()) {
-            HashMap map = data.get(0)
-            if(!map.isEmpty()) {
-                al.add(getFirstElement(map))
+            al = data.collect {
+                it.values().first()
             }
         }
         return al
     }
     // It will return the first row as Hash
     HashMap toHash() {
-        HashMap map = new HashMap()
+        HashMap map = [:]
         if(!data.isEmpty()) {
             map = data.get(0)
         }
@@ -96,7 +95,7 @@ class Data {
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next()
             it.remove() // avoids a ConcurrentModificationException
-            return pair.getValue()
+            return pair.value
         }
         return null
     }
