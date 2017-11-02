@@ -11,7 +11,7 @@ package jp.sharelock.db
  * @author A.Lepe
  */
 class Data {
-    private ArrayList<HashMap> data
+    private ArrayList<HashMap> data = []
 
     Data() {}
     Data(ArrayList<HashMap> data) {
@@ -65,13 +65,13 @@ class Data {
     }	
     // Will return the first element of each row
     ArrayList toArray() {
-        ArrayList al = []
+        List al = []
         if(!data.isEmpty()) {
             al = data.collect {
                 it.values().first()
             }
         }
-        return al
+        return al as ArrayList
     }
     // It will return the first row as Hash
     HashMap toHash() {
