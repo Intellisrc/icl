@@ -33,7 +33,7 @@ subprojects {
 
     dependencies {
         compile 'org.codehaus.groovy:groovy-all:2.4.10'
-        compile 'jp.sharelock:groovy-extend:1.5.1'
+        compile 'jp.sharelock:groovy-extend:1.6.1'
         testCompile group: 'org.spockframework', name: 'spock-unitils', version: '1.1-groovy-2.4'
     }
 
