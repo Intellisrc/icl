@@ -1,5 +1,6 @@
 package jp.sharelock.web
 
+import jp.sharelock.etc.Log
 import jp.sharelock.web.samples.ChatClient
 import jp.sharelock.web.samples.ChatService
 import jp.sharelock.web.samples.EmailService

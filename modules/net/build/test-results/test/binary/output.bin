@@ -1,87 +1,105 @@
-š2017-10-25 15:07:47.342 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/lepe/Projects/sharelock/common/smtp.properties to setup variables.[0m
-·2017-10-25 15:07:47.349 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/lepe/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
-2017-10-25 15:07:47.402 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 1) is sending...[0m
-j2017-10-25 15:07:47.402 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
-g2017-10-25 15:07:47.404 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
-L2017-10-25 15:07:47.405 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
-d2017-10-25 15:07:47.406 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
-[2017-10-25 15:07:47.407 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
-^2017-10-25 15:07:47.407 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing SMTP[0m
-L2017-10-25 15:07:47.408 [[37mD[0m] [32mSmtp [37m###################[0m
-š2017-10-25 15:07:47.412 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/lepe/Projects/sharelock/common/smtp.properties to setup variables.[0m
-·2017-10-25 15:07:47.412 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/lepe/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
-š2017-10-25 15:07:47.452 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/lepe/Projects/sharelock/common/smtp.properties to setup variables.[0m
-·2017-10-25 15:07:47.452 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/lepe/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
-M/home/lepe/Projects/sharelock/common/modules/net/src/test/resources/star.png
-š2017-10-25 15:07:47.454 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/lepe/Projects/sharelock/common/smtp.properties to setup variables.[0m
-·2017-10-25 15:07:47.454 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/lepe/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
-]2017-10-25 15:07:47.462 [[37mD[0m] [32mSmtp$_send_closure4 [37mAttached: example.txt[0m
-Z2017-10-25 15:07:47.462 [[37mD[0m] [32mSmtp$_send_closure4 [37mAttached: star.png[0m
-2017-10-25 15:07:47.463 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 1) is sending...[0m
-j2017-10-25 15:07:47.463 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
-g2017-10-25 15:07:47.464 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
-L2017-10-25 15:07:47.464 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
-d2017-10-25 15:07:47.464 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
-[2017-10-25 15:07:47.465 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
-n2017-10-25 15:07:47.465 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing SMTP with Attachment[0m
-L2017-10-25 15:07:47.466 [[37mD[0m] [32mSmtp [37m###################[0m
-š2017-10-25 15:07:47.466 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/lepe/Projects/sharelock/common/smtp.properties to setup variables.[0m
-·2017-10-25 15:07:47.467 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/lepe/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
-2017-10-25 15:07:47.470 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 2) is sending...[0m
-j2017-10-25 15:07:47.470 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
-g2017-10-25 15:07:47.471 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
-h2017-10-25 15:07:47.472 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> you@example.com[0m
-L2017-10-25 15:07:47.472 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
-d2017-10-25 15:07:47.473 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
-[2017-10-25 15:07:47.474 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
-\2017-10-25 15:07:47.474 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : you@example.com[0m
-m2017-10-25 15:07:47.475 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing multiple recipients[0m
-L2017-10-25 15:07:47.475 [[37mD[0m] [32mSmtp [37m###################[0m
-š2017-10-25 15:07:47.477 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/lepe/Projects/sharelock/common/smtp.properties to setup variables.[0m
-·2017-10-25 15:07:47.477 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/lepe/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
-2017-10-25 15:07:47.479 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 1) is sending...[0m
-j2017-10-25 15:07:47.480 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
-g2017-10-25 15:07:47.481 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
-L2017-10-25 15:07:47.481 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
-d2017-10-25 15:07:47.482 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
-[2017-10-25 15:07:47.482 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
-g2017-10-25 15:07:47.483 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing HTML and text[0m
-L2017-10-25 15:07:47.483 [[37mD[0m] [32mSmtp [37m###################[0m
-š2017-10-25 15:07:47.484 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/lepe/Projects/sharelock/common/smtp.properties to setup variables.[0m
-·2017-10-25 15:07:47.485 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/lepe/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
-2017-10-25 15:07:47.490 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 2) is sending...[0m
-j2017-10-25 15:07:47.490 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
-g2017-10-25 15:07:47.491 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
-h2017-10-25 15:07:47.492 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> you@example.com[0m
-L2017-10-25 15:07:47.492 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
-d2017-10-25 15:07:47.492 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
-[2017-10-25 15:07:47.493 [[37mD[0m] [32mSmtp$_send_closure6 [37mCc : me@example.com[0m
-]2017-10-25 15:07:47.493 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : you@example.com[0m
-h2017-10-25 15:07:47.494 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing recipient Type[0m
-L2017-10-25 15:07:47.494 [[37mD[0m] [32mSmtp [37m###################[0m
+œ2017-11-02 17:06:50.631 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/kaname/Projects/sharelock/common/smtp.properties to setup variables.[0m
+¹2017-11-02 17:06:50.643 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/kaname/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
+2017-11-02 17:06:50.769 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 2) is sending...[0m
+j2017-11-02 17:06:50.771 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
+g2017-11-02 17:06:50.775 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
+n2017-11-02 17:06:50.776 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> recipient@example.com[0m
+L2017-11-02 17:06:50.777 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
+d2017-11-02 17:06:50.782 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
+[2017-11-02 17:06:50.783 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
+c2017-11-02 17:06:50.785 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : recipient@example.com[0m
+^2017-11-02 17:06:50.786 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing SMTP[0m
+L2017-11-02 17:06:50.787 [[37mD[0m] [32mSmtp [37m###################[0m
+œ2017-11-02 17:06:50.798 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/kaname/Projects/sharelock/common/smtp.properties to setup variables.[0m
+¹2017-11-02 17:06:50.800 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/kaname/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
+”2017-11-02 17:06:50.805 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> recipient@example.com... (recipients: 1) is sending...[0m
+j2017-11-02 17:06:50.806 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
+n2017-11-02 17:06:50.808 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> recipient@example.com[0m
+L2017-11-02 17:06:50.809 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
+d2017-11-02 17:06:50.810 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
+c2017-11-02 17:06:50.811 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : recipient@example.com[0m
+^2017-11-02 17:06:50.813 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing SMTP[0m
+L2017-11-02 17:06:50.814 [[37mD[0m] [32mSmtp [37m###################[0m
+œ2017-11-02 17:06:50.815 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/kaname/Projects/sharelock/common/smtp.properties to setup variables.[0m
+¹2017-11-02 17:06:50.817 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/kaname/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
+O/home/kaname/Projects/sharelock/common/modules/net/src/test/resources/star.png
+œ2017-11-02 17:06:50.821 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/kaname/Projects/sharelock/common/smtp.properties to setup variables.[0m
+¹2017-11-02 17:06:50.822 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/kaname/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
+]2017-11-02 17:06:50.841 [[37mD[0m] [32mSmtp$_send_closure4 [37mAttached: example.txt[0m
+Z2017-11-02 17:06:50.843 [[37mD[0m] [32mSmtp$_send_closure4 [37mAttached: star.png[0m
+2017-11-02 17:06:50.844 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 2) is sending...[0m
+j2017-11-02 17:06:50.845 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
+g2017-11-02 17:06:50.847 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
+n2017-11-02 17:06:50.848 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> recipient@example.com[0m
+L2017-11-02 17:06:50.849 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
+d2017-11-02 17:06:50.850 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
+[2017-11-02 17:06:50.851 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
+c2017-11-02 17:06:50.852 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : recipient@example.com[0m
+n2017-11-02 17:06:50.853 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing SMTP with Attachment[0m
+L2017-11-02 17:06:50.854 [[37mD[0m] [32mSmtp [37m###################[0m
+œ2017-11-02 17:06:50.857 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/kaname/Projects/sharelock/common/smtp.properties to setup variables.[0m
+¹2017-11-02 17:06:50.858 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/kaname/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
+2017-11-02 17:06:50.864 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 3) is sending...[0m
+j2017-11-02 17:06:50.865 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
+g2017-11-02 17:06:50.866 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
+h2017-11-02 17:06:50.867 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> you@example.com[0m
+n2017-11-02 17:06:50.868 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> recipient@example.com[0m
+L2017-11-02 17:06:50.869 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
+d2017-11-02 17:06:50.870 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
+[2017-11-02 17:06:50.871 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
+\2017-11-02 17:06:50.872 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : you@example.com[0m
+c2017-11-02 17:06:50.873 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : recipient@example.com[0m
+m2017-11-02 17:06:50.875 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing multiple recipients[0m
+L2017-11-02 17:06:50.876 [[37mD[0m] [32mSmtp [37m###################[0m
+œ2017-11-02 17:06:50.879 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/kaname/Projects/sharelock/common/smtp.properties to setup variables.[0m
+¹2017-11-02 17:06:50.880 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/kaname/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
+2017-11-02 17:06:50.884 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 2) is sending...[0m
+j2017-11-02 17:06:50.885 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
+g2017-11-02 17:06:50.887 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
+n2017-11-02 17:06:50.888 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> recipient@example.com[0m
+L2017-11-02 17:06:50.889 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
+d2017-11-02 17:06:50.890 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
+[2017-11-02 17:06:50.891 [[37mD[0m] [32mSmtp$_send_closure6 [37mTo : me@example.com[0m
+c2017-11-02 17:06:50.892 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : recipient@example.com[0m
+g2017-11-02 17:06:50.893 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing HTML and text[0m
+L2017-11-02 17:06:50.894 [[37mD[0m] [32mSmtp [37m###################[0m
+œ2017-11-02 17:06:50.895 [[36mI[0m] [32mNativeMethodAccessorImpl [36mUse: /home/kaname/Projects/sharelock/common/smtp.properties to setup variables.[0m
+¹2017-11-02 17:06:50.896 [[36mI[0m] [32mNativeMethodAccessorImpl [36mYou can use /home/kaname/Projects/sharelock/common/modules/net/src/test/resources/smtp.properties as example[0m
+2017-11-02 17:06:50.910 [[37mD[0m] [32mSmtp [37mEmail from: unit_test@example.com -> me@example.com... (recipients: 3) is sending...[0m
+j2017-11-02 17:06:50.911 [[33mW[0m] [32mSmtp [33mSMTP Simulation mode is ON. No messages are sent.[0m
+g2017-11-02 17:06:50.912 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> me@example.com[0m
+h2017-11-02 17:06:50.913 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> you@example.com[0m
+n2017-11-02 17:06:50.914 [[37mD[0m] [32mSmtp$_send_closure5 [37m    Recipient -> recipient@example.com[0m
+L2017-11-02 17:06:50.915 [[37mD[0m] [32mSmtp [37m##### HEADERS #####[0m
+d2017-11-02 17:06:50.916 [[37mD[0m] [32mSmtp$_send_closure6 [37mFrom : unit_test@example.com[0m
+[2017-11-02 17:06:50.917 [[37mD[0m] [32mSmtp$_send_closure6 [37mCc : me@example.com[0m
+]2017-11-02 17:06:50.918 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : you@example.com[0m
+c2017-11-02 17:06:50.919 [[37mD[0m] [32mSmtp$_send_closure6 [37mBcc : recipient@example.com[0m
+h2017-11-02 17:06:50.920 [[37mD[0m] [32mSmtp$_send_closure6 [37mSubject : Testing recipient Type[0m
+L2017-11-02 17:06:50.921 [[37mD[0m] [32mSmtp [37m###################[0m
 
-	\2017-10-25 15:07:47.513 [[37mV[0m] [32mTCPClient [37mConnecting to: 127.0.0.1:32934[0m
+	\2017-11-02 17:06:50.964 [[37mV[0m] [32mTCPClient [37mConnecting to: 127.0.0.1:44415[0m
 
-	T2017-10-25 15:07:47.515 [[37mV[0m] [32mTCPClient [37mConnected. [127.0.0.1][0m
+	T2017-11-02 17:06:50.967 [[37mV[0m] [32mTCPClient [37mConnected. [127.0.0.1][0m
 
-	n2017-10-25 15:07:47.516 [[36mI[0m] [32mTCPClient [36mMessage to Server [127.0.0.1] >>>>> Hello Server[0m
+	n2017-11-02 17:06:50.972 [[36mI[0m] [32mTCPClient [36mMessage to Server [127.0.0.1] >>>>> Hello Server[0m
 
-	a2017-10-25 15:07:47.516 [[37mV[0m] [32mTCPClient [37mWaiting for response... [127.0.0.1][0m
+	a2017-11-02 17:06:50.973 [[37mV[0m] [32mTCPClient [37mWaiting for response... [127.0.0.1][0m
 
-	m2017-10-25 15:07:47.518 [[37mD[0m] [32mTCPServer [37mTCPServer$ClientServiceThread : Accepted Client[0m
+	m2017-11-02 17:06:50.974 [[37mD[0m] [32mTCPServer [37mTCPServer$ClientServiceThread : Accepted Client[0m
 
-	†2017-10-25 15:07:47.518 [[36mI[0m] [32mTCPServer [36mTCPServer$ClientServiceThread : Message from client <<<<< [Hello Server][0m
+	†2017-11-02 17:06:50.975 [[36mI[0m] [32mTCPServer [36mTCPServer$ClientServiceThread : Message from client <<<<< [Hello Server][0m
 
 	Received Hello Server
 
-	‚2017-10-25 15:07:47.519 [[36mI[0m] [32mTCPServer [36mTCPServer$ClientServiceThread : Message to client >>>>> [Hi client!][0m
+	‚2017-11-02 17:06:50.978 [[36mI[0m] [32mTCPServer [36mTCPServer$ClientServiceThread : Message to client >>>>> [Hi client!][0m
 
-	n2017-10-25 15:07:47.520 [[36mI[0m] [32mTCPClient [36mMessage from Server [127.0.0.1] <<<<< Hi client![0m
+	n2017-11-02 17:06:50.979 [[36mI[0m] [32mTCPClient [36mMessage from Server [127.0.0.1] <<<<< Hi client![0m
 
-	n2017-10-25 15:07:47.520 [[37mD[0m] [32mTCPServer [37mTCPServer$ClientServiceThread : ... Thread ended[0m
+	n2017-11-02 17:06:50.982 [[37mD[0m] [32mTCPServer [37mTCPServer$ClientServiceThread : ... Thread ended[0m
 
-	h2017-10-25 15:07:47.523 [[37mV[0m] [32mTCPClient [37mConnection closed successfully [127.0.0.1][0m
+	h2017-11-02 17:06:50.986 [[37mV[0m] [32mTCPClient [37mConnection closed successfully [127.0.0.1][0m
 
 	Replied: Hi client!
 
-	h2017-10-25 15:07:47.526 [[36mI[0m] [32mTCPServer [36mServer will stop listening to new requests[0m
+	h2017-11-02 17:06:50.991 [[36mI[0m] [32mTCPServer [36mServer will stop listening to new requests[0m
