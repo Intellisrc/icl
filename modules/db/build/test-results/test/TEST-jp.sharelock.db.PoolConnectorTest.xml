@@ -1,158 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="jp.sharelock.db.PoolConnectorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2017-10-25T06:07:42" hostname="ilepehost" time="0.194">
+<testsuite name="jp.sharelock.db.PoolConnectorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2017-11-02T08:06:43" hostname="rhino" time="0.259">
   <properties/>
-  <testcase name="Testing return-to-pool" classname="jp.sharelock.db.PoolConnectorTest" time="0.189"/>
-  <testcase name="Testing disable Pool" classname="jp.sharelock.db.PoolConnectorTest" time="0.005"/>
-  <system-out><![CDATA[2017-10-25 15:07:42.753 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.765 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.766 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 1 sleeping: 0?[0m
-2017-10-25 15:07:42.767 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.768 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.769 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.770 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.775 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.775 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.776 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 2 sleeping: 0?[0m
-2017-10-25 15:07:42.777 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.777 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.778 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.778 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.779 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.780 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.780 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 3 sleeping: 0?[0m
-2017-10-25 15:07:42.781 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.781 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.782 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.783 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.783 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.784 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.784 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 4 sleeping: 0?[0m
-2017-10-25 15:07:42.785 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.785 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.786 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.786 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.787 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.787 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.788 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 5 sleeping: 0?[0m
-2017-10-25 15:07:42.788 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.789 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.789 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.790 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.790 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.791 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.791 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 6 sleeping: 0?[0m
-2017-10-25 15:07:42.792 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.792 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.793 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.793 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.794 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.794 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.795 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 7 sleeping: 0?[0m
-2017-10-25 15:07:42.795 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.795 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.796 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.796 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.797 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.797 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.798 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 8 sleeping: 0?[0m
-2017-10-25 15:07:42.798 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.799 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.799 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.799 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.800 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.800 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.801 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 9 sleeping: 0?[0m
-2017-10-25 15:07:42.801 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.801 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.802 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.802 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.803 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.803 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
-2017-10-25 15:07:42.804 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 10 sleeping: 0?[0m
-2017-10-25 15:07:42.804 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.804 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
-2017-10-25 15:07:42.805 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
-2017-10-25 15:07:42.805 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
-2017-10-25 15:07:42.807 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.808 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.809 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.809 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.810 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.811 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.811 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.811 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.812 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.812 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.812 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.813 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.813 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.813 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.814 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.814 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.815 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.815 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 3 sleeping: 7?[0m
-2017-10-25 15:07:42.816 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.816 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.816 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.817 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 4 sleeping: 6?[0m
-2017-10-25 15:07:42.817 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.817 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.818 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.818 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 5 sleeping: 5?[0m
-2017-10-25 15:07:42.819 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.819 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.819 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.820 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 6 sleeping: 4?[0m
-2017-10-25 15:07:42.820 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.820 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.821 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.821 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 7 sleeping: 3?[0m
-2017-10-25 15:07:42.822 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.822 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.822 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.823 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 8 sleeping: 2?[0m
-2017-10-25 15:07:42.823 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.823 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.824 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.824 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 9 sleeping: 1?[0m
-2017-10-25 15:07:42.824 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.825 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.825 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.825 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 10 sleeping: 0?[0m
-2017-10-25 15:07:42.826 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.826 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.827 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.827 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.828 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.828 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.828 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.829 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.829 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.830 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.830 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.830 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.831 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.831 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.831 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.831 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.832 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.832 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.833 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.833 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.833 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.834 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.839 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.839 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 1 sleeping: 9?[0m
-2017-10-25 15:07:42.839 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.840 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.840 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
-2017-10-25 15:07:42.840 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 2 sleeping: 8?[0m
-2017-10-25 15:07:42.840 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
-2017-10-25 15:07:42.841 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
-2017-10-25 15:07:42.842 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.842 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
-2017-10-25 15:07:42.843 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
-2017-10-25 15:07:42.843 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+  <testcase name="Testing return-to-pool" classname="jp.sharelock.db.PoolConnectorTest" time="0.249"/>
+  <testcase name="Testing disable Pool" classname="jp.sharelock.db.PoolConnectorTest" time="0.01"/>
+  <system-out><![CDATA[2017-11-02 17:06:43.133 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.139 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.141 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 1 sleeping: 0?[0m
+2017-11-02 17:06:43.143 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.144 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.146 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.148 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.155 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.157 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.158 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 2 sleeping: 0?[0m
+2017-11-02 17:06:43.159 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.162 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.163 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.165 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.166 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.168 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.169 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 3 sleeping: 0?[0m
+2017-11-02 17:06:43.170 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.172 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.173 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.174 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.175 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.176 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.178 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 4 sleeping: 0?[0m
+2017-11-02 17:06:43.179 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.181 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.182 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.184 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.185 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.187 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.188 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 5 sleeping: 0?[0m
+2017-11-02 17:06:43.189 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.190 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.192 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.193 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.194 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.196 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.197 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 6 sleeping: 0?[0m
+2017-11-02 17:06:43.197 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.198 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.199 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.200 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.202 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.203 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.204 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 7 sleeping: 0?[0m
+2017-11-02 17:06:43.206 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.207 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.208 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.209 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.210 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.211 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.212 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 8 sleeping: 0?[0m
+2017-11-02 17:06:43.214 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.215 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.216 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.217 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.218 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.219 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.220 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 9 sleeping: 0?[0m
+2017-11-02 17:06:43.221 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.222 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.223 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.224 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.225 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.226 [?[37mV?[0m] ?[32mDBPool ?[37mConnection added to pool?[0m
+2017-11-02 17:06:43.227 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 10 sleeping: 0?[0m
+2017-11-02 17:06:43.228 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.229 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? NO?[0m
+2017-11-02 17:06:43.230 [?[37mD?[0m] ?[32mDummyConnector ?[37mDatabase opened?[0m
+2017-11-02 17:06:43.231 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection was opened?[0m
+2017-11-02 17:06:43.233 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.234 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.235 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.236 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.237 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.237 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.238 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.239 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.240 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.241 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.242 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.242 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.243 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.244 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.245 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.246 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.249 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.250 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 3 sleeping: 7?[0m
+2017-11-02 17:06:43.251 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.252 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.253 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.254 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 4 sleeping: 6?[0m
+2017-11-02 17:06:43.255 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.256 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.257 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.258 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 5 sleeping: 5?[0m
+2017-11-02 17:06:43.259 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.259 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.260 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.261 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 6 sleeping: 4?[0m
+2017-11-02 17:06:43.261 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.262 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.263 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.264 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 7 sleeping: 3?[0m
+2017-11-02 17:06:43.265 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.266 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.268 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.269 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 8 sleeping: 2?[0m
+2017-11-02 17:06:43.270 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.271 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.272 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.273 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 9 sleeping: 1?[0m
+2017-11-02 17:06:43.273 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.274 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.275 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.276 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 10 sleeping: 0?[0m
+2017-11-02 17:06:43.277 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.278 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.280 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.281 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.283 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.284 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.285 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.301 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.302 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.303 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.304 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.306 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.307 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.309 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.310 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.311 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.313 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.314 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.316 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.317 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.319 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.320 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.322 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.323 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 1 sleeping: 9?[0m
+2017-11-02 17:06:43.324 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.325 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.326 [?[37mD?[0m] ?[32mDB ?[37mConnecting...?[0m
+2017-11-02 17:06:43.326 [?[37mV?[0m] ?[32mDBPool ?[37mCurrent connections: 2 sleeping: 8?[0m
+2017-11-02 17:06:43.327 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection got from Pool?[0m
+2017-11-02 17:06:43.328 [?[37mD?[0m] ?[32mDummyConnector ?[37mIs database open? YES?[0m
+2017-11-02 17:06:43.329 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.329 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
+2017-11-02 17:06:43.330 [?[37mD?[0m] ?[32mDB ?[37mClosing connection...?[0m
+2017-11-02 17:06:43.330 [?[37mD?[0m] ?[32mPoolConnector ?[37mConnection returned.?[0m
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
