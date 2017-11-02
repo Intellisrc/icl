@@ -1,23 +1,17 @@
 $HEX: E58886E3818BE381A3E3819FEFBC9F
-a2017-10-25 15:07:43.719 [[33mW[0m] [32mNativeMethodAccessorImpl [33mThis is some warning[0m
-OLog file created in: /home/lepe/Projects/sharelock/common/modules/etc/test.log
+a2017-11-02 17:06:45.359 [[33mW[0m] [32mNativeMethodAccessorImpl [33mThis is some warning[0m
+QLog file created in: /home/kaname/Projects/sharelock/common/modules/etc/test.log
 	Content:
-J2017-10-25 15:07:43.722	[W]	NativeMethodAccessorImpl	This is some warning
+J2017-11-02 17:06:45.354	[W]	NativeMethodAccessorImpl	This is some warning
 
-a2017-10-25 15:07:43.731 [[33mW[0m] [32mNativeMethodAccessorImpl [33mThis is some warning[0m
+a2017-11-02 17:06:45.384 [[33mW[0m] [32mNativeMethodAccessorImpl [33mThis is some warning[0m
 #Log file created in: /tmp/test.log
 	Content:
-J2017-10-25 15:07:43.732	[W]	NativeMethodAccessorImpl	This is some warning
+J2017-11-02 17:06:45.383	[W]	NativeMethodAccessorImpl	This is some warning
 
-
-U2017-10-25 15:07:43.759 [[36mI[0m] [32mSysService [36mService Action : start[0m
-
-é2017-10-25 15:07:43.761 [[37mD[0m] [32mSysService [37mCreating lock file: /home/lepe/Projects/sharelock/common/modules/etc/dummy.lock[0m
-
-Started
-
-U2017-10-25 15:07:43.761 [[36mI[0m] [32mSysService [36mWaiting for command...[0m
-
-T2017-10-25 15:07:45.754 [[36mI[0m] [32mSysService [36mService Action : stop[0m
-
-Q2017-10-25 15:07:45.765 [[37mD[0m] [32mSysService [37mRemoving lock file[0m
+	U2017-11-02 17:06:45.436 [[36mI[0m] [32mSysService [36mService Action : start[0m
+	ê2017-11-02 17:06:45.438 [[37mD[0m] [32mSysService [37mCreating lock file: /home/kaname/Projects/sharelock/common/modules/etc/dummy.lock[0m
+	Started
+	U2017-11-02 17:06:45.440 [[36mI[0m] [32mSysService [36mWaiting for command...[0m
+	T2017-11-02 17:06:47.421 [[36mI[0m] [32mSysService [36mService Action : stop[0m
+	Q2017-11-02 17:06:47.423 [[37mD[0m] [32mSysService [37mRemoving lock file[0m
