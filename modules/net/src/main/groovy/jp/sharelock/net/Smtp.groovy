@@ -37,7 +37,6 @@ class Smtp {
     String defaultTo    = ""
     String replyTo      = ""
     boolean startTLS    = false
-    boolean useSSL      = false
     boolean simulate    = false //If true, it won't send any email
     int port            = 25
     Map<String,String> headers = [:] //custom headers
@@ -56,6 +55,10 @@ class Smtp {
 
     private boolean useLocalSettings = false //Force to use settings specified here over configuration file or system settings
     private List<File> attachments = []
+    private enum TransportType {
+        SMTP, SMTPS
+    }
+    private TransportType transportType = TransportType.SMTP
 
     /**
      * Autodetect when to override global settings
@@ -150,8 +153,9 @@ class Smtp {
     boolean send(Map<String, Mode> recipients, String subject = "", String body = "", String bodyText = "") {
         Email emailFrom
         Properties props = new Properties()
-        boolean globalSettings = Config.matchKey("mail.smtp")
-        if(!useLocalSettings && globalSettings) {
+        boolean fileSettings = Config.matchKey("mail.smtp")
+        //Reading from file...
+        if(!useLocalSettings && fileSettings) {
             props = Config.props
             simulate = Config.getBool("mail.smtp.simulate")
             //Variables needed for connection
@@ -175,29 +179,32 @@ class Smtp {
                         recipients[to] = Mode.BCC
                 }
             }
-            props.setProperty("mail.smtp.ssl.trust", host)
-            props.setProperty("mail.smtp.auth", username ? "true" : "false")
+        //Reading from variables
         } else {
-            if(globalSettings) {
-                Log.d("Global settings were override with local settings.")
+            if(fileSettings) {
+                Log.d("Config file settings were override with local settings.")
             }
             if (defaultTo) {
                 recipients[defaultTo] = Mode.BCC
             }
-            if (username) {
-                props.setProperty("mail.smtp.auth", "true")
-                props.setProperty("mail.smtp.user", username)
-                props.setProperty("mail.smtp.password", password)
-            }
-            if (startTLS) {
-                props.setProperty("mail.smtp.starttls.enable", "true")
-            }
-            if (useSSL) {
-                props.setProperty("mail.smtp.EnableSSL.enable", "true")
-                props.setProperty("mail.smtp.ssl.trust", host)
-            }
-            props.setProperty("mail.smtp.host", host)
-            props.setProperty("mail.smtp.port", port.toString())
+        }
+        //Setup javamail
+        if (username) {
+            props.setProperty("mail.smtp.auth", "true")
+            props.setProperty("mail.smtp.user", username)
+            props.setProperty("mail.smtp.password", password)
+        }
+        props.setProperty("mail.smtp.host", host)
+        props.setProperty("mail.smtp.port", port.toString())
+        if (port == 465) {
+            props.setProperty("mail.smtp.starttls.enable", "true")
+            props.setProperty("mail.smtp.EnableSSL.enable", "true")
+            props.setProperty("mail.smtp.ssl.trust", host)
+        } else if (startTLS) {
+            props.setProperty("mail.smtp.starttls.enable", "true")
+        }
+        if(port == 587 || port == 465) {
+            transportType = TransportType.SMTPS
         }
         if(recipients.isEmpty()) {
             Log.e("No recipients specified. Neither default or explicit set.")
@@ -319,7 +326,7 @@ class Smtp {
                 }
                 Log.d("###################")
             } else {
-                Transport transport = session.getTransport(port == 587 ? "smtps" : "smtp")
+                Transport transport = session.getTransport(transportType.toString().toLowerCase())
                 transport.connect(host, username, password)
                 transport.sendMessage(message, message.getAllRecipients())
                 transport.close()
