@@ -33,7 +33,9 @@ class Smtp {
     String password     = ""
     String host         = "localhost"
     String from         = ""
+    String fromName     = ""
     String defaultTo    = ""
+    String replyTo      = ""
     boolean startTLS    = false
     boolean useSSL      = false
     boolean simulate    = false //If true, it won't send any email
@@ -159,6 +161,12 @@ class Smtp {
             if(Config.hasKey("mail.smtp.from") && Config.get("mail.smtp.from")) {
                 from = Config.get("mail.smtp.from")
             }
+            if(Config.hasKey("mail.smtp.name") && Config.get("mail.smtp.name")) {
+                fromName = Config.get("mail.smtp.name")
+            }
+            if(Config.hasKey("mail.smtp.reply") && Config.get("mail.smtp.reply")) {
+                replyTo = Config.get("mail.smtp.reply")
+            }
             //If config is set, send a copy to those
             if(Config.hasKey("mail.smtp.to") && Config.get("mail.smtp.to")) {
                 Config.get("mail.smtp.to").split(",").each {
@@ -203,10 +211,17 @@ class Smtp {
         Session session = Session.getDefaultInstance(props)
         Message message = new MimeMessage(session)
         try {
-            message.setFrom(new InternetAddress(emailFrom.toString()))
+            if(fromName) {
+                message.setFrom(new InternetAddress(emailFrom.toString(), fromName))
+            } else {
+                message.setFrom(new InternetAddress(emailFrom.toString()))
+            }
         } catch (MessagingException e) {
             Log.e("Failed to set FROM: $from, error was: "+e.message)
             return false
+        }
+        if(replyTo) {
+            message.setReplyTo([ new InternetAddress(replyTo) ] as Address[])
         }
         recipients.each {
             String to, Mode mode ->
@@ -237,7 +252,7 @@ class Smtp {
                     if(bodyText) {
                         MimeBodyPart textBodyPart = new MimeBodyPart()
                         MimeBodyPart htmlBodyPart = new MimeBodyPart()
-                        htmlBodyPart.setContent(body, "text/html")
+                        htmlBodyPart.setContent(body, "text/html; charset=UTF-8")
                         textBodyPart.setText(bodyText,"UTF-8")
                         multipart.addBodyPart(htmlBodyPart)
                         multipart.addBodyPart(textBodyPart)
@@ -293,7 +308,7 @@ class Smtp {
                 }
                 Log.d("###################")
             } else {
-                Transport transport = session.getTransport("smtp")
+                Transport transport = session.getTransport(port == 587 ? "smtps" : "smtp")
                 transport.connect(host, username, password)
                 transport.sendMessage(message, message.getAllRecipients())
                 transport.close()
