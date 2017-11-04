@@ -93,4 +93,19 @@ class SmtpTest extends Specification {
         sendTo[recipient2] = Smtp.Mode.BCC
         expect: assert smtp.send(sendTo,"Testing recipient Type", "This is body")
     }
+    def "Mail magazine"() {
+        setup:
+            def to = [ "test@example.com" ]
+        expect:
+            to.each {
+                println it
+                assert smtp.send(
+                        it,
+                        "Magazine",
+                        new File("magazine.html").text,
+                        new File("magazine.txt").text
+                )
+            }
+
+    }
 }
