@@ -40,6 +40,7 @@ class Smtp {
     boolean useSSL      = false
     boolean simulate    = false //If true, it won't send any email
     int port            = 25
+    Map<String,String> headers = [:] //custom headers
 
     enum Mode {
         TO, CC, BCC
@@ -291,6 +292,16 @@ class Smtp {
             } catch (MessagingException e) {
                 Log.e("Unable to set text to body: "+body.substring(0,10)+"... , error was: "+e.message)
                 return false
+            }
+        }
+        if(headers) {
+            try {
+                headers.each {
+                    String head, String value ->
+                        message.addHeader(head, value)
+                }
+            } catch (MessagingException e) {
+                Log.e("Unable to set headers.")
             }
         }
         Log.d("Email from: $from -> "+ ( recipients.keySet().first() ) + "... (recipients: "+recipients.size()+")" +" is sending...")
