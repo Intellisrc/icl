@@ -12,8 +12,17 @@ class SysServiceDummy extends SysService {
         service = new SysServiceDummy()
         service.lockFile = "dummy.lock" //Optional: see SysService for explanation
     }
+
+    void onInit() {
+        println "Initializing"
+    }
+
     @Override
     void onStart() {
         println "Started"
+    }
+
+    void onCustom() {
+        println "Custom"
     }
 }

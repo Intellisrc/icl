@@ -2,6 +2,8 @@ package jp.sharelock.etc
 
 import groovy.transform.CompileStatic
 
+import java.lang.reflect.Method
+
 /**
  * @since 17/10/23.
  *
@@ -22,6 +24,17 @@ import groovy.transform.CompileStatic
  * ---------------------------------------------------------------------------------------------
  * Setting lockFile may be required when two services are running in the same directory or
  * two or more services are running from read-only directories (as it will use TEMP dir instead)
+ *
+ * Custom Actions:
+ * ------------------------
+ * You can add custom methods for actions like:
+ * onReload() , which will be called when first argument is: "reload"
+ *
+ * Initialization
+ * ------------------------
+ * You can override onInit() which will be called before assigning action
+ * It is useful if you want do something with the arguments (stored in args)
+ * before starting.
  */
 @CompileStatic
 abstract class SysService {
@@ -33,12 +46,12 @@ abstract class SysService {
         }
         def sysSrv = service
         //Process args before starting
-        def action = sysSrv.getAction(args.toList())
+        sysSrv.args = args.toList() as Queue
+        //Initialize
+        sysSrv.onInit()
+        String action = sysSrv.args.isEmpty() ? "start" : sysSrv.args.poll()
         def usrDir = SysInfo.getWritablePath()
         def lockFile = new File(usrDir + sysSrv.lockFile)
-        if(!action) {
-            action = "start"
-        }
         Log.i("Service Action : " + action)
         switch(action) {
             case "stop" :
@@ -62,17 +75,15 @@ abstract class SysService {
             case "status":
                 sysSrv.onStatus(lockFile.exists())
                 break
-            case "reload":
-                sysSrv.onReload()
-                break
-            case "install":
-                sysSrv.onInstall()
-                break
-            case "uninstall":
-                sysSrv.onUninstall()
-                break
             default:
-                Log.e("Unknown command : "+action)
+                try {
+                    Method m = service.class.getDeclaredMethod("on"+action.capitalize())
+                    if(m) {
+                        m.invoke(sysSrv)
+                    }
+                } catch (Exception e) {
+                    Log.e("Unknown command : "+action)
+                }
                 System.exit(1)
                 break
         }
@@ -85,8 +96,12 @@ abstract class SysService {
         sysSrv.onStop()
         System.exit(0)
     }
+    static void exit() {
+        main("stop")
+    }
     //------------------------------ NON STATIC ---------------------------------
     String lockFile = "service.lock"
+    Queue args = [] as Queue
     /**
      * Required to implement onStart()
      */
@@ -98,7 +113,9 @@ abstract class SysService {
      * @param args
      * @return
      */
-    String getAction(List<String> args) { return args ? args.first() : "" }
+    //The very first step before starting
+    void onInit() {}
+
     void onStop() {
         Log.i("System exiting...")
         System.exit(0)
@@ -108,18 +125,6 @@ abstract class SysService {
         System.exit(2)
     }
     void onRestart() {}
-    void onReload() {
-        Log.w("'reload' is not implemented")
-        System.exit(2)
-    }
-    void onInstall() {
-        Log.w("'install' is not implemented")
-        System.exit(2)
-    }
-    void onUninstall() {
-        Log.w("'uninstall' is not implemented")
-        System.exit(2)
-    }
     /**
      * This method will be called each second
      * ideal to run background processes

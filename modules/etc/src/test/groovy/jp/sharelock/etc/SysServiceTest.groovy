@@ -24,4 +24,12 @@ class SysServiceTest extends Specification {
         expect:
             assert ! new File(SysServiceDummy.service.lockFile).exists()
     }
+    def "Custom method"() {
+        setup:
+            SysServiceDummy.main("custom")
+        expect:
+            assert new File(SysServiceDummy.service.lockFile).exists()
+        cleanup:
+            SysServiceDummy.exit()
+    }
 }
