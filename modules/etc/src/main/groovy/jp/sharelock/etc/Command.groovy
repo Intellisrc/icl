@@ -25,7 +25,10 @@ class Command {
      * @param args
      * @return
      */
-    void exec(String cmd, Collection<String> args = [], Callback call = null) {
+    void exec(String cmd, Callback callback) {
+        exec(cmd, [], callback)
+    }
+    void exec(String cmd, Collection<String> args = [], Callback callback = null) {
         assert cmd: "Invalid Command"
 
         final std_out = new StringBuilder(), std_err = new StringBuilder()
@@ -52,16 +55,16 @@ class Command {
             Log.w(std_err)
         }
         if (exitCode == exit) {
-            if(call) {
-                call.done(std_out.toString())
-            } else if(callback) {
+            if(callback) {
                 callback.done(std_out.toString())
+            } else if(this.callback) {
+                this.callback.done(std_out.toString())
             }
         } else {
-            if(call) {
-                call.fail(std_err.toString(), exitCode)
-            } else if(callback) {
+            if(callback) {
                 callback.fail(std_err.toString(), exitCode)
+            } else if(this.callback) {
+                this.callback.fail(std_err.toString(), exitCode)
             }
         }
     }
@@ -72,6 +75,9 @@ class Command {
      * @param timeout
      * @return
      */
+    void execAsync(String cmd, Callback callback) {
+        execAsync(cmd,[],callback)
+    }
     void execAsync(String cmd, Collection<String> args = [], Callback callback = null) {
         Thread.start({
             exec(cmd, args, callback)
