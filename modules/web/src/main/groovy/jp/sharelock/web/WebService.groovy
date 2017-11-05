@@ -225,7 +225,8 @@ class WebService {
                 response.type("application/json")
                 if(sp.allow.check(request)) {
                     if(sp.cacheTime) {
-                        String key = request.uri() + "?" + request.queryString()
+                        String query = request.queryString()
+                        String key = request.uri() + (query  ? "?" + query : "")
                         out = CacheObj.instance.get(key, {
                             toJson(sp.action.run(request))
                         }, sp.cacheTime)
