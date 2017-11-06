@@ -36,19 +36,18 @@ class Query {
         }
     }
     enum SortOrder {
-        ASC, DESC, RAND
+        ASC, DESC
     }
     private String query    = ""
     private String table    = ""
     private String groupby  = ""
-    private String sort     = ""
     private String where    = ""
     private String insvals  = ""
     private String updvals  = ""
     private int limit       = 0
     private int offset      = 0
-    private SortOrder order = ASC
     private Action action   = RAW //Database action for query, like: SELECT, INSERT...
+    private Map<String, SortOrder> sort = [:]
     private List<String> fields = new ArrayList()
     private List<String> keys = new ArrayList()
     private List args = new ArrayList()
@@ -84,14 +83,15 @@ class Query {
         return this
     }
 
-    Query setFields(List fields) {
+    Query setFields(List<String> fields) {
         this.fields = fields
         if(this.fieldtype == FieldType.NOSET) {
             this.fieldtype = FieldType.COLUMN
         }
         return this
     }
-    Query setFields(List fields, FieldType type) {
+
+    Query setFields(List<String> fields, FieldType type) {
         this.fields = fields
         this.fieldtype = type
         return this
@@ -187,9 +187,13 @@ class Query {
         return this
     }
 
+    Query setOrder(final Map<String,SortOrder> orderPair) {
+        this.sort = orderPair
+        return this
+    }
+
     Query setOrder(String column, SortOrder order) {
-        this.sort = column
-        this.order = order
+        this.sort[column] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
         return this
     }
 
@@ -254,14 +258,15 @@ class Query {
         return this.groupby.isEmpty() ? "" : " GROUP BY "+sqlName(this.groupby)
     }
     String getSort() {
-        String s_order = ""
-        switch(this.order) {
-            case ASC:  s_order = "ASC"; break
-            case DESC: s_order = "DESC"; break
-            case RAND:
-                return " ORDER BY RANDOM() "
+        def query = ""
+        if(sort) {
+            sort.each {
+                String column, SortOrder order ->
+                    query += (query ? "," : "") + sqlName(column) + " " + order.toString()
+            }
+            query = " ORDER BY $query"
         }
-        return this.sort.isEmpty() ? "" : " ORDER BY "+sqlName(this.sort)+" "+s_order
+        return query
     }
     String getLimit() {
         String off = this.offset > 0 ? " OFFSET "+this.offset : ""
