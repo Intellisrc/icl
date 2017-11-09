@@ -14,8 +14,8 @@ class DB {
     private final String LOG_TAG = DB.getSimpleName()
     private Connector db
     private String table = ""
-    private Query query = null
     private int last_id = 0
+    private Query query = null
 	//Setter / Getters
 	HashMap<String, List<String>> priKeys = new HashMap<String, List<String>>()
 
@@ -292,6 +292,15 @@ class DB {
 		Log.d(LOG_TAG, "Closing connection...")
     	db.close()
     }
+
+    /** Execute a Query **/
+    Data exec(Query q = null) {
+        if(q) {
+            query = q
+        }
+        return exec_get()
+    }
+
     //------------------- Fluent interfaces ----------------
 
     /**
