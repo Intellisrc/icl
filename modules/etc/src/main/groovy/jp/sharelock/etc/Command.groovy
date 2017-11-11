@@ -47,9 +47,9 @@ class Command {
             Log.e(cmd, std_err.toString())
         }
         if (secret) {
-            Log.v(cmd + "(hidden args) : " + args.size())
+            Log.v("> " + cmd + " ( " +args.size() + "hidden args )")
         } else {
-            Log.v(cmd + " : " + args.join(","))
+            Log.v("> " + command)
         }
         if (std_err) {
             Log.w(std_err)
