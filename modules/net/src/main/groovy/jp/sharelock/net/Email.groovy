@@ -23,4 +23,11 @@ class Email {
         return user+"@"+domain
     }
     static class EmailMalformedException extends Exception {}
+    /**
+     * When used as boolean... check if email is correct and not empty
+     * @return
+     */
+    boolean toBoolean() {
+        return !(user.isEmpty() || user.isEmpty())
+    }
 }
