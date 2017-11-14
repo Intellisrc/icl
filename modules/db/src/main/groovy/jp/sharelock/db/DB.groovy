@@ -613,7 +613,7 @@ class DB {
         if(!this.priKeys.containsKey(table)) {
             Data info = info()
             List<String> foundPks = []
-			info.toArrHash().find {
+			info.toListMap().find {
 				Map row ->
                     if(row.containsKey("pk") && Double.parseDouble(row.get("pk").toString()) == 1) { //we use double as it may be: "1.0"
                         if(row.containsKey("name")) {
