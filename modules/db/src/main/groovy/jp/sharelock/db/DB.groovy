@@ -174,7 +174,7 @@ class DB {
 	 * @param insvals
 	 * @return 
      **/
-    boolean insert(Map<String, Object> insvals) {
+    boolean insert(Map insvals) {
         getQuery().setAction(Query.Action.INSERT).setValues(insvals)
         return exec_set()
     }
@@ -183,7 +183,7 @@ class DB {
 	 * @param insvals
 	 * @return 
      **/
-    boolean insert(List<Map<String, Object>> insvals) {
+    boolean insert(List<Map> insvals) {
 		//TODO prepare..commit
 		boolean ok = true
 		for(Map<String, Object> row: insvals) {
