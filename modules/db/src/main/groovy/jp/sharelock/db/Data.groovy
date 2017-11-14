@@ -64,7 +64,7 @@ class Data {
         return val
     }	
     // Will return the first element of each row
-    List toArray() {
+    List toList() {
         List al = []
         if(!data.isEmpty()) {
             al = data.collect {
@@ -74,7 +74,7 @@ class Data {
         return al as List
     }
     // It will return the first row as Hash
-    Map toHash() {
+    Map toMap() {
         Map map = [:]
         if(!data.isEmpty()) {
             map = data.get(0)
@@ -82,7 +82,7 @@ class Data {
         return map
     }
 
-    List<Map> toArrHash() {
+    List<Map> toListMap() {
         return data
     }
 
