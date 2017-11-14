@@ -48,9 +48,9 @@ class Query {
     private int offset      = 0
     private Action action   = RAW //Database action for query, like: SELECT, INSERT...
     private Map<String, SortOrder> sort = [:]
-    private List<String> fields = new ArrayList()
-    private List<String> keys = new ArrayList()
-    private List args = new ArrayList()
+    private List<String> fields = []
+    private List<String> keys = []
+    private List args = []
     private FieldType fieldtype = FieldType.NOSET
 
     Query() {
@@ -148,7 +148,7 @@ class Query {
         return this
     }
 
-    Query setWhere(HashMap<String,String> where) {
+    Query setWhere(Map<String,String> where) {
         Iterator it = where.entrySet().iterator()
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next()
@@ -159,7 +159,7 @@ class Query {
         return this
     }
 
-    Query setValues(HashMap values) {
+    Query setValues(Map values) {
         String inspre = ""
         String inspst = ""
         String updstr = ""
