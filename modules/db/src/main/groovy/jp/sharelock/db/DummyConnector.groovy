@@ -45,7 +45,7 @@ class DummyConnector implements DB.Connector {
     }
 
     class DummyStatement implements DB.Statement {
-        ArrayList<LinkedHashMap<String,Object>> data = new ArrayList<LinkedHashMap<String,Object>>()
+        List<Map<String,Object>> data = []
         private int dataIndex = 0
 
         boolean next() {
