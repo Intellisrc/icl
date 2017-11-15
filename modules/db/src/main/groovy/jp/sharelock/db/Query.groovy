@@ -13,7 +13,6 @@ import static jp.sharelock.db.Query.SortOrder.*
  */
 class Query {
 	private DBType dbType = DUMMY
-    private static final String LOG_TAG = Query.getSimpleName()
     // Action type (RAW is default)
     enum Action {
         RAW, SELECT, UPDATE, INSERT, DELETE, DROP, INFO, LASTID, EXISTS
@@ -48,9 +47,9 @@ class Query {
     private int offset      = 0
     private Action action   = RAW //Database action for query, like: SELECT, INSERT...
     private Map<String, SortOrder> sort = [:]
-    private List<String> fields = new ArrayList()
-    private List<String> keys = new ArrayList()
-    private List args = new ArrayList()
+    private List<String> fields = []
+    private List<String> keys = []
+    private List args = []
     private FieldType fieldtype = FieldType.NOSET
 
     Query() {
@@ -132,7 +131,7 @@ class Query {
 			this.where += (this.where.isEmpty() ? "" : " AND ") + cleanSQL(where)
 			this.args.addAll(Arrays.asList(params))
 		} else {
-			Log.e(LOG_TAG, "Parameters specified doesn't match arguments count")
+			Log.e( "Parameters specified doesn't match arguments count")
 		}
 		return this
 	}
@@ -148,7 +147,7 @@ class Query {
         return this
     }
 
-    Query setWhere(HashMap<String,String> where) {
+    Query setWhere(Map<String,String> where) {
         Iterator it = where.entrySet().iterator()
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next()
@@ -159,7 +158,7 @@ class Query {
         return this
     }
 
-    Query setValues(HashMap values) {
+    Query setValues(Map values) {
         String inspre = ""
         String inspst = ""
         String updstr = ""
@@ -208,7 +207,7 @@ class Query {
     }
     List<String> getKeys() {
         if(keys.isEmpty()) {
-            Log.e(LOG_TAG, "Keys were not set")
+            Log.e( "Keys were not set")
             keys.add("id") //Generic ID name
         }
         return keys
@@ -296,7 +295,7 @@ class Query {
 					case MYSQL:
 						squery = "SELECT COLUMN_NAME as 'name', DATA_TYPE as 'type', IF(COLUMN_KEY = 'PRI',1,0) as 'pk' FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+cleanSQL(table)+"'"; break
 					default:
-						Log.e(LOG_TAG,"Type not defined on INFO")
+						Log.e("Type not defined on INFO")
 				}
 				break
             case LASTID:
@@ -306,7 +305,7 @@ class Query {
 					case MYSQL:
 						squery = "SELECT LAST_INSERT_ID() as lastid"; break
 					default:
-						Log.e(LOG_TAG,"Type not defined on LASTID")
+						Log.e("Type not defined on LASTID")
 				}
 				break
             case EXISTS: 
@@ -316,7 +315,7 @@ class Query {
 					case MYSQL:
 						squery = "SHOW TABLES LIKE \""+cleanSQL(table)+"\""; break
 					default:
-						Log.e(LOG_TAG,"Type not defined on EXISTS")
+						Log.e("Type not defined on EXISTS")
 				}	
 				break
             default :

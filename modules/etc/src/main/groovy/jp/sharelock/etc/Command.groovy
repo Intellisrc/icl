@@ -52,7 +52,7 @@ class Command {
             Log.v("> " + command)
         }
         if (std_err) {
-            Log.w(std_err)
+            Log.w(std_err.toString())
         }
         if (exitCode == exit) {
             if(callback) {

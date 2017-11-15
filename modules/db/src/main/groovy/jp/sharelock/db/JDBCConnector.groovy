@@ -40,8 +40,6 @@ import static java.sql.Types.*
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
 class JDBCConnector implements Connector {
-	
-    private final String LOG_TAG = JDBCConnector.getSimpleName()
 	private static int TIMEOUT = 1000
 	private String dbname = ""
 	private String user = ""
@@ -90,7 +88,7 @@ class JDBCConnector implements Connector {
      */
     private void parseJDBC(String sUrl) {
         if(sUrl.isEmpty()) {
-            Log.e(LOG_TAG,"JDBC URL is not defined. Either specify it in the constructor or use a configuration file. Alternatively, set all connections settings individually.")
+            Log.e("JDBC URL is not defined. Either specify it in the constructor or use a configuration file. Alternatively, set all connections settings individually.")
         }
         if(sUrl.contains("://")) {
             try {
@@ -108,10 +106,10 @@ class JDBCConnector implements Connector {
                     dbname = path
                 }
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : "+e.message)
+                Log.e( "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : "+e.message)
             }
         } else {
-            Log.e(LOG_TAG, "Specified URL has no protocol: [$sUrl]")
+            Log.e( "Specified URL has no protocol: [$sUrl]")
         }
     }
 
@@ -119,9 +117,9 @@ class JDBCConnector implements Connector {
 	void open() {
 		try {
 			db = DriverManager.getConnection(getJDBCStr(), user, pass)
-			Log.d(LOG_TAG, "Connecting to DB")
+			Log.d( "Connecting to DB")
 		} catch (SQLException ex) {
-			Log.w(LOG_TAG, "Connection failed: " + ex)
+			Log.w( "Connection failed: " + ex)
 		}
 	}
 
@@ -155,7 +153,7 @@ class JDBCConnector implements Connector {
                     url += "&characterSetResults=utf8"
                     url += "&connectionCollation=utf8_general_ci"
                 } catch(Exception e) {
-                    Log.e(LOG_TAG, "Driver not found: "+e)
+                    Log.e( "Driver not found: "+e)
                     url = ""
                 }
                 break
@@ -177,7 +175,7 @@ class JDBCConnector implements Connector {
                 open = !db.isClosed()
             }
 		} catch (SQLException ex) {
-			Log.w(LOG_TAG, "DB was closed ($ex)")
+			Log.w( "DB was closed ($ex)")
 		}
 		return open
 	}
@@ -186,9 +184,9 @@ class JDBCConnector implements Connector {
 	void close() {
 		try {
 			db.close()
-			Log.d(LOG_TAG, "Disconnecting from DB")
+			Log.d( "Disconnecting from DB")
 		} catch (SQLException ex) {
-			Log.e(LOG_TAG, "Unable to close ($ex)")
+			Log.e( "Unable to close ($ex)")
 		}
 	}
 
@@ -214,7 +212,7 @@ class JDBCConnector implements Connector {
 					st.setString(index, (String) o)
 				} else {
 					st.setNull(index, NULL)
-					Log.e(LOG_TAG, "Wrong data type")
+					Log.e( "Wrong data type")
 				}
 			}
 			boolean updaction = false
@@ -239,7 +237,7 @@ class JDBCConnector implements Connector {
 							ok = rs.next()
 						}
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "Step failed: "+ex)
+						Log.e( "Step failed: "+ex)
 					}
 					return ok
 				}
@@ -252,7 +250,7 @@ class JDBCConnector implements Connector {
 						}
 						st.close()
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "Unable to close Statement: "+ex)
+						Log.e( "Unable to close Statement: "+ex)
 					}
 				}
 
@@ -262,7 +260,7 @@ class JDBCConnector implements Connector {
 					try {
 						count = rm.getColumnCount()
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column count failed: "+ex)
+						Log.e( "column count failed: "+ex)
 					}
 					return count
 				}
@@ -306,11 +304,11 @@ class JDBCConnector implements Connector {
 							case DATE:
 								ct = ColumnType.DATE; break
 							default:
-								Log.e(LOG_TAG, "Unknown column type: "+rm.getColumnType(index))
+								Log.e( "Unknown column type: "+rm.getColumnType(index))
 						}
 						return ct
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column type failed: "+ex)
+						Log.e( "column type failed: "+ex)
 						return null
 					}
 				}
@@ -320,7 +318,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rm.getColumnName(index)
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column name failed: "+ex)
+						Log.e( "column name failed: "+ex)
 						return ""
 					}
 				}
@@ -330,7 +328,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getString(index)
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column Str failed: "+ex)
+						Log.e( "column Str failed: "+ex)
 						return ""
 					}
 				}
@@ -340,7 +338,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getInt(index)
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column Int failed: "+ex)
+						Log.e( "column Int failed: "+ex)
 						return 0
 					}
 				}
@@ -350,7 +348,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getDouble(index)
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column Dbl failed: "+ex)
+						Log.e( "column Dbl failed: "+ex)
 						return 0d
 					}
 				}
@@ -360,7 +358,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getBytes(index)
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column Blob failed: "+ex)
+						Log.e( "column Blob failed: "+ex)
 						return null
 					}
 				}
@@ -370,7 +368,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getTimestamp(index)
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column Date failed: "+ex)
+						Log.e( "column Date failed: "+ex)
 						return null
 					}
 				}
@@ -381,7 +379,7 @@ class JDBCConnector implements Connector {
 						rs.getString(index)
 						return rs.wasNull()
 					} catch (SQLException ex) {
-						Log.e(LOG_TAG, "column isColumnNull failed: "+ex)
+						Log.e( "column isColumnNull failed: "+ex)
 						return true
 					}
 				}
@@ -392,14 +390,14 @@ class JDBCConnector implements Connector {
 				}
 			}
 		} catch (SQLException ex) {
-			Log.e(LOG_TAG, "Statement failed: "+ex)
+			Log.e( "Statement failed: "+ex)
 		}
 		return null
 	}
 
 	@Override
 	void onError(Exception ex) {
-		Log.e(LOG_TAG, "General error: "+ex)
+		Log.e( "General error: "+ex)
 	}
 
 	@Override
