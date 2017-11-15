@@ -11,10 +11,10 @@ package jp.sharelock.db
  * @author A.Lepe
  */
 class Data {
-    private ArrayList<HashMap> data = []
+    private List<Map> data = []
 
     Data() {}
-    Data(ArrayList<HashMap> data) {
+    Data(List<Map> data) {
         this.data = data
     }
 
@@ -26,7 +26,7 @@ class Data {
     String toString() {
         String str = ""
         if(!data.isEmpty()) {
-            HashMap map = data.get(0)
+            Map map = data.get(0)
             if(!map.isEmpty()) {
                 str = (String) getFirstElement(map)
             }
@@ -36,7 +36,7 @@ class Data {
     Integer toInt() {
         int val = 0
         if(!data.isEmpty()) {
-            HashMap map = data.get(0)
+            Map map = data.get(0)
             if(!map.isEmpty()) {
 				Object o = getFirstElement(map)
                 switch(o) {
@@ -56,7 +56,7 @@ class Data {
     Double toDbl() {
         Double val = 0
         if(!data.isEmpty()) {
-            HashMap map = data.get(0)
+            Map map = data.get(0)
             if(!map.isEmpty()) {
                 val = (Double) getFirstElement(map)
             }
@@ -64,33 +64,33 @@ class Data {
         return val
     }	
     // Will return the first element of each row
-    ArrayList toArray() {
+    List toList() {
         List al = []
         if(!data.isEmpty()) {
             al = data.collect {
                 it.values().first()
             }
         }
-        return al as ArrayList
+        return al as List
     }
     // It will return the first row as Hash
-    HashMap toHash() {
-        HashMap map = [:]
+    Map toMap() {
+        Map map = [:]
         if(!data.isEmpty()) {
             map = data.get(0)
         }
         return map
     }
 
-    ArrayList<HashMap> toArrHash() {
+    List<Map> toListMap() {
         return data
     }
 
-    void addRow(HashMap row) {
+    void addRow(Map row) {
         data.add(row)
     }
 
-    private Object getFirstElement(HashMap map) {
+    private Object getFirstElement(Map map) {
         Iterator it = map.entrySet().iterator()
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next()

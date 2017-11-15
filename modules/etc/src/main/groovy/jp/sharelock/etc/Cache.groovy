@@ -13,7 +13,6 @@ class Cache<V> {
     interface onNotFound {
         V call()
     }
-    final static String LOG_TAG = Cache.simpleName
     final int DEFAULT_TIMEOUT = 60 //seconds
     private class CacheObj {
         V       value
@@ -48,7 +47,7 @@ class Cache<V> {
     private boolean expired(final String key) {
         def expired = false
         if(cache.get(key)?.expire < new Date().getTime()) {
-            Log.d(LOG_TAG, "Key [$key] expired.")
+            Log.d( "Key [$key] expired.")
             del(key)
             expired = true
         }
@@ -64,12 +63,12 @@ class Cache<V> {
         V ret = null
         if(exists(key)) {
             ret = cache.get(key).value
-			Log.v(LOG_TAG, "[$key] read from cache")
+			Log.v( "[$key] read from cache")
         } else {
             if(notFound) {
                 ret = notFound.call()
 				if(ret) {
-					Log.v(LOG_TAG, "[$key] added to cache")
+					Log.v( "[$key] added to cache")
 				}
             }
             set(key, ret, time)
