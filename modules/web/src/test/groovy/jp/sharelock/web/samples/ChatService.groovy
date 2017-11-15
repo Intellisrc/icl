@@ -11,7 +11,6 @@ import jp.sharelock.web.ServiciableWebSocket.WSMessage
  */
 @CompileStatic
 class ChatService implements ServiciableWebSocket {
-    private static final String LOG_TAG = ChatService.simpleName
     List<String> currentList = new ArrayList<>()
 
     void setBroadCaster(WebSocketService.MsgBroadCaster msgBroadCaster) {}
@@ -56,7 +55,7 @@ class ChatService implements ServiciableWebSocket {
     }
 
     void onError(Session session, String message) {
-        Log.e(LOG_TAG, message)
+        Log.e( message)
     }
 
     String getPath() {

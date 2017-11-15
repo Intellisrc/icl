@@ -13,8 +13,6 @@ import spark.Request
 
 @groovy.transform.CompileStatic
 class LoginService implements ServiciableAuth {
-    static final String LOG_TAG = LoginService.simpleName
-
     static enum Level {
         GUEST, USER, MODERATOR, ADMIN
     }
@@ -72,7 +70,7 @@ class LoginService implements ServiciableAuth {
                        request.queryParams("p") ?: ""
             Level level = Level.GUEST
             if(user.isEmpty() || pass.isEmpty()) {
-                Log.w(LOG_TAG,"User or Password is empty. You can use onLoginAction interface or specify any standard query names")
+                Log.w("User or Password is empty. You can use onLoginAction interface or specify any standard query names")
             } else {
                 level = onLoginAuth.call(user, pass) ?: Level.GUEST
             }
@@ -86,7 +84,7 @@ class LoginService implements ServiciableAuth {
     LoginAuth onLoginAuth = new LoginAuth() {
         @Override
         Level call(String user, String password) {
-            Log.e(LOG_TAG, "No login authorization has been implemented.")
+            Log.e( "No login authorization has been implemented.")
             return Level.GUEST
         }
     }
