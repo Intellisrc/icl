@@ -22,8 +22,6 @@ import java.nio.charset.Charset
  */
 @groovy.transform.CompileStatic
 class Bytes {
-    static final String LOG_TAG = Bytes.simpleName
-
     /**
      * Converts a char[] to byte[]
      * Based on: http://stackoverflow.com/questions/5513144/
@@ -38,7 +36,7 @@ class Bytes {
             byteBuffer = Charset.forName(encoding).encode(charBuffer)
             bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())
         } catch( Exception e) {
-            Log.w(LOG_TAG,"Unable to convert to Bytes: "+encoding+" ("+e+")")
+            Log.w("Unable to convert to Bytes: "+encoding+" ("+e+")")
         }
         Arrays.fill(byteBuffer.array(), (byte) 0) // clear sensitive data
         return bytes
@@ -56,7 +54,7 @@ class Bytes {
         try {
             bytes = str.getBytes(encoding)
         } catch (UnsupportedEncodingException e) {
-            Log.w(LOG_TAG,"Invalid encoding: "+encoding+" ("+e+")")
+            Log.w("Invalid encoding: "+encoding+" ("+e+")")
         }
         return bytes
     }
@@ -123,7 +121,7 @@ class Bytes {
             charBuffer = Charset.forName(encoding).decode(ByteBuffer.wrap(bytes))
             chars = Arrays.copyOfRange(charBuffer.array(), charBuffer.position(), charBuffer.limit())
         } catch( Exception e) {
-            Log.w(LOG_TAG,"Unable to convert bytes to chars using encoding: "+encoding+" ("+e+")")
+            Log.w("Unable to convert bytes to chars using encoding: "+encoding+" ("+e+")")
         }
         Arrays.fill(charBuffer.array(), (char) 0) // clear sensitive data
         return chars

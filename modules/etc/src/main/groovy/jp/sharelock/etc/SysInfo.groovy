@@ -8,7 +8,6 @@ package jp.sharelock.etc
  * For example: get OS type
  */
 class SysInfo {
-    static final String LOG_TAG = SysInfo.simpleName
     static final enum OSType {
         UNKNOWN, LINUX, WINDOWS, IOS, SOLARIS, ANDROID, PRINTER, NAS, SWITCH, ROUTER, CAMERA, TV
     }
@@ -36,7 +35,7 @@ class SysInfo {
             default:
                 //We can't use Log.d() here as that function call this one
                 // and enter in an infinite loop
-                println LOG_TAG + "> Not Found: $osStr"
+                println "> Not Found: $osStr"
         }
         return os_type
     }

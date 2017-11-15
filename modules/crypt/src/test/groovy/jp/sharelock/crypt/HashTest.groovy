@@ -2,12 +2,30 @@ package jp.sharelock.crypt
 
 import jp.sharelock.crypt.hash.Hash
 import jp.sharelock.etc.Bytes
+import jp.sharelock.etc.Log
 import spock.lang.Specification
 
 /**
  * @since 17/04/11.
  */
 class HashTest extends Specification {
+    def "Get List of Algorithms"() {
+        given:
+            def listAlgo = Hash.getAlgorithms()
+            def listAlias = Hash.getAlgorithms(true,true)
+        expect:
+            assert listAlgo.size()
+            assert listAlias.size()
+            assert listAlias.size() > listAlgo.size()
+    }
+    def "Testing Enum BasicAlgo"() {
+        given:
+            def hba224 = Hash.BasicAlgo.SHA224
+            def hbamd5 = Hash.BasicAlgo.MD5
+        expect:
+            assert hba224.toString() == "SHA-224"
+            assert hbamd5.toString() == "MD5"
+    }
     def "MD5 Hash"() {
         given:
             String str = "admin"
@@ -63,9 +81,11 @@ class HashTest extends Specification {
             String str = "admin"
             Hash hash = new Hash(key: Bytes.fromString(str))
             byte[] bytes = hash.asBytes("TIGER")
-            println "TIGER HASH: "+Bytes.toHex(bytes)
+            Log.i("TIGER HASH: "+Bytes.toHex(bytes))
         expect:
-            println "It requires BountyCastle to be installed, Refer to the README.md file"
+            if(!Hash.getAlgorithms().contains("TIGER")) {
+                Log.e("TIGER requires BountyCastle to be installed, Refer to the README.md file")
+            }
             assert hash.verify(bytes, "TIGER")
     }
     def "Static SHA"() {

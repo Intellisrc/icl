@@ -11,7 +11,6 @@ import static jp.sharelock.db.DB.ColumnType.*
  * @since 2016-10
  */
 class DB {
-    private final String LOG_TAG = DB.getSimpleName()
     private Connector db
     private String table = ""
     private int last_id = 0
@@ -78,7 +77,7 @@ class DB {
 	 */
 	void openIfClosed() {
 		if(!db.isOpen()) {
-			Log.d(LOG_TAG, "Connecting...")
+			Log.d( "Connecting...")
 			db.open()
 		}
 	}
@@ -244,7 +243,7 @@ class DB {
     /** Drops the current table
 	 * @return true on success **/
     boolean drop() {
-        Log.w(LOG_TAG, "Dropping table: "+this.table)
+        Log.w( "Dropping table: "+this.table)
         getQuery().setAction(Query.Action.DROP)
         return exec_set()
     }
@@ -275,21 +274,21 @@ class DB {
     /** Checks if a table exists or not
 	 * @return boolean **/
     boolean exists() {
-		Log.d(LOG_TAG, "Checking if table exists...")
+		Log.d( "Checking if table exists...")
 		getQuery().setType(getType()).setAction(Query.Action.EXISTS)
         return ! exec_get().isEmpty()
     }
     /** Get Table information
 	 * @return  **/
     Data info() {
-		Log.d(LOG_TAG, "Getting table information...")
+		Log.d( "Getting table information...")
         getQuery().setType(getType()).setAction(Query.Action.INFO)
         return exec_get()
     }
 
     /** Quit **/
     void close() {
-		Log.d(LOG_TAG, "Closing connection...")
+		Log.d( "Closing connection...")
     	db.close()
     }
 
@@ -500,7 +499,7 @@ class DB {
     private Query getQuery() {
         if(query == null) {
             query = new Query()
-            Log.d(LOG_TAG,"Initializing Query")
+            Log.d("Initializing Query")
             if(!this.table.isEmpty()) {
                 query.setTable(this.table)
             }
@@ -517,9 +516,9 @@ class DB {
         Data data = null
         openIfClosed()
         if(db.isOpen()) {
-            Log.d(LOG_TAG, "GET ::: " + query.toString())
+            Log.d( "GET ::: " + query.toString())
             for (Object o : query.getArgs()) {
-                Log.d(LOG_TAG, " --> " + o)
+                Log.d( " --> " + o)
             }
             List<Map> rows = []
             try {
@@ -548,7 +547,7 @@ class DB {
                                     row.put(column, st.columnDate(i))
                                     break
                                 default:
-                                    Log.e(LOG_TAG, "Type was NULL")
+                                    Log.e( "Type was NULL")
                                     break
                             }
                         }
@@ -572,16 +571,16 @@ class DB {
 		boolean ok = false
         openIfClosed()
         if(db.isOpen()) {
-			Log.d(LOG_TAG, "SET ::: " + query.toString())
+			Log.d( "SET ::: " + query.toString())
 			query.getArgs().each {
 				Object it ->
-					Log.d(LOG_TAG, " --> " + it)
+					Log.d( " --> " + it)
 			}
             Statement st
             try {
                 st = db.prepare(query)
             } catch (e) {
-                Log.e(LOG_TAG, "Query Syntax error: "+e)
+                Log.e( "Query Syntax error: "+e)
             }
             if(st != null) {
                 try {
@@ -593,13 +592,13 @@ class DB {
                     }
                     ok = true
                 } catch (e) {
-                    Log.e(LOG_TAG, "Insert failed. " + (e))
+                    Log.e( "Insert failed. " + (e))
                 }
                 st.close()
             }
 			query = null
         } else {
-            Log.e(LOG_TAG, "No changes done: database is not open")
+            Log.e( "No changes done: database is not open")
         }
         return ok
     }
@@ -620,7 +619,7 @@ class DB {
                             ok = true
                             String name = row.get("name").toString()
                             foundPks.add(name)
-                            Log.d(LOG_TAG, "PK Found: "+name)
+                            Log.d( "PK Found: "+name)
 							return true
                         }
                     }

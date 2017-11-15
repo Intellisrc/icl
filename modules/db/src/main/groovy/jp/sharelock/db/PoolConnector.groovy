@@ -11,7 +11,6 @@ import jp.sharelock.db.DB.Statement
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
 class PoolConnector implements Connector {
-	private static final String LOG_TAG = PoolConnector.getSimpleName()
 	Connector connector
 	long lastUsed = 0
 	
@@ -19,7 +18,7 @@ class PoolConnector implements Connector {
 		if(DBPool?.getInstance()?.isInitialized()) {
 			return new DB(this)
 		} else {
-			Log.e(LOG_TAG, "Pool has not been initialized")
+			Log.e( "Pool has not been initialized")
 			return null
 		}
 	}
@@ -33,14 +32,14 @@ class PoolConnector implements Connector {
 	void open() {
         if(!isOpen()) {
             connector = DBPool?.getInstance()?.getConnectionFromPool()
-			Log.d(LOG_TAG, "Connection got from Pool")
+			Log.d( "Connection got from Pool")
             try {
 				if(!isOpen()) {
 					connector.open()
-					Log.d(LOG_TAG, "Connection was opened")
+					Log.d( "Connection was opened")
 				}
             } catch (e) {
-                Log.e(LOG_TAG, "Unable to get connection :" + e)
+                Log.e( "Unable to get connection :" + e)
             }
         }
 	}
@@ -48,7 +47,7 @@ class PoolConnector implements Connector {
 	@Override
 	void close() {
 		DBPool?.getInstance()?.returnConnectionToPool(connector)
-		Log.d(LOG_TAG, "Connection returned.")
+		Log.d( "Connection returned.")
 	}
 
 	@Override
