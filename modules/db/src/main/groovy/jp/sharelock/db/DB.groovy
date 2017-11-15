@@ -11,13 +11,12 @@ import static jp.sharelock.db.DB.ColumnType.*
  * @since 2016-10
  */
 class DB {
-    private final String LOG_TAG = DB.getSimpleName()
     private Connector db
     private String table = ""
     private int last_id = 0
     private Query query = null
 	//Setter / Getters
-	HashMap<String, List<String>> priKeys = new HashMap<String, List<String>>()
+	Map<String, List<String>> priKeys = [:]
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
@@ -78,7 +77,7 @@ class DB {
 	 */
 	void openIfClosed() {
 		if(!db.isOpen()) {
-			Log.d(LOG_TAG, "Connecting...")
+			Log.d( "Connecting...")
 			db.open()
 		}
 	}
@@ -114,7 +113,7 @@ class DB {
 	 * @param ids
 	 * @return 
      **/
-    Data get(ArrayList ids) {
+    Data get(List ids) {
         getQuery().setAction(Query.Action.SELECT).setWhere(ids)
         return exec_get()
     }
@@ -123,49 +122,49 @@ class DB {
 	 * @param keyvals
 	 * @return 
      **/
-    Data get(HashMap keyvals) {
+    Data get(Map keyvals) {
         getQuery().setAction(Query.Action.SELECT).setWhere(keyvals)
         return exec_get()
     }
     /**
-     * Update data (HashMap) where ID is an int with specified value
+     * Update data (Map) where ID is an int with specified value
 	 * @param updvals
 	 * @param id
 	 * @return 
      **/
-    boolean update(HashMap updvals, Integer id) {
+    boolean update(Map updvals, Integer id) {
         getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(id)
         return exec_set()
     }
     /**
-     * Update data (HashMap) where ID is a String with specified value
+     * Update data (Map) where ID is a String with specified value
 	 * @param updvals
 	 * @param id
 	 * @return 
      **/
-    boolean update(HashMap updvals, String id) {
+    boolean update(Map updvals, String id) {
         getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(id)
         return exec_set()
     }
 
     /**
-     * Update data (HashMap) where IDs is in a list of IDs
+     * Update data (Map) where IDs is in a list of IDs
      * @param updvals : Key => value
      * @param ids : list of IDs to update
      * @return true on success
      */
-    boolean update(HashMap updvals, ArrayList ids) {
+    boolean update(Map updvals, List ids) {
         getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(ids)
         return exec_set()
     }
 
     /**
-     * Update data (HashMap) where criteria matches.
+     * Update data (Map) where criteria matches.
      * @param updvals : Key => value
      * @param keyvals : Criteria key => value
      * @return true on success
      */
-    boolean update(HashMap updvals, HashMap keyvals) {
+    boolean update(Map updvals, Map keyvals) {
         getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(keyvals)
         return exec_set()
     }
@@ -174,19 +173,19 @@ class DB {
 	 * @param insvals
 	 * @return 
      **/
-    boolean insert(HashMap<String, Object> insvals) {
+    boolean insert(Map insvals) {
         getQuery().setAction(Query.Action.INSERT).setValues(insvals)
         return exec_set()
     }
     /**
-     * Inserts multiple rows using ArrayList(Hashmap).
+     * Inserts multiple rows using List(Map).
 	 * @param insvals
 	 * @return 
      **/
-    boolean insert(ArrayList<HashMap<String, Object>> insvals) {
+    boolean insert(List<Map> insvals) {
 		//TODO prepare..commit
 		boolean ok = true
-		for(HashMap<String, Object> row: insvals) {
+		for(Map<String, Object> row: insvals) {
 	        ok = insert(row)
 			if(!ok) {
 				break
@@ -210,7 +209,7 @@ class DB {
      * @return true on success
      */
     boolean delete(String[] ids) {
-        return delete(new ArrayList<>(Arrays.asList(ids)))
+        return delete(Arrays.asList(ids))
     }
 
     /**
@@ -218,7 +217,7 @@ class DB {
      * @param ids
      * @return true on success
      */
-    boolean delete(ArrayList ids) {
+    boolean delete(List ids) {
         getQuery().setAction(Query.Action.DELETE).setWhere(ids)
         return exec_set()
     }
@@ -227,7 +226,7 @@ class DB {
      * Performs a data deletion using key => values pairs
      *
      * Example:
-     * hm = new HashMap()
+     * hm = new Map()
      * hm.put("year","2011")
      * hm.put("country","JP")
      * .delete(hm)
@@ -237,14 +236,14 @@ class DB {
      * @param keyvals
      * @return true on success
      */
-    boolean delete(HashMap keyvals) {
+    boolean delete(Map keyvals) {
         getQuery().setAction(Query.Action.DELETE).setWhere(keyvals)
         return exec_set()
     }
     /** Drops the current table
 	 * @return true on success **/
     boolean drop() {
-        Log.w(LOG_TAG, "Dropping table: "+this.table)
+        Log.w( "Dropping table: "+this.table)
         getQuery().setAction(Query.Action.DROP)
         return exec_set()
     }
@@ -260,7 +259,7 @@ class DB {
 	 * @param query
 	 * @param args
 	 * @return true on success **/
-    boolean set(String query, ArrayList args) {
+    boolean set(String query, List args) {
         this.query = new Query(query, args)
         return exec_set()
     }
@@ -275,21 +274,21 @@ class DB {
     /** Checks if a table exists or not
 	 * @return boolean **/
     boolean exists() {
-		Log.d(LOG_TAG, "Checking if table exists...")
+		Log.d( "Checking if table exists...")
 		getQuery().setType(getType()).setAction(Query.Action.EXISTS)
         return ! exec_get().isEmpty()
     }
     /** Get Table information
 	 * @return  **/
     Data info() {
-		Log.d(LOG_TAG, "Getting table information...")
+		Log.d( "Getting table information...")
         getQuery().setType(getType()).setAction(Query.Action.INFO)
         return exec_get()
     }
 
     /** Quit **/
     void close() {
-		Log.d(LOG_TAG, "Closing connection...")
+		Log.d( "Closing connection...")
     	db.close()
     }
 
@@ -310,7 +309,7 @@ class DB {
 	 * @return 
      */
     DB field(String field) {
-        ArrayList<String> afields = []
+        List<String> afields = []
         afields.add(field)
         return fields(afields)
     }
@@ -331,16 +330,16 @@ class DB {
 	 * @return 
      */
     DB fields(String[] fields_arr) {
-        ArrayList<String> afields = new ArrayList<>(Arrays.asList(fields_arr))
+        List<String> afields = Arrays.asList(fields_arr)
         return fields(afields)
     }
 
     /**
-     * Sets fields using an ArrayList
+     * Sets fields using an List
 	 * @param fields
 	 * @return 
      */
-    DB fields(ArrayList<String> fields_arr) {
+    DB fields(List<String> fields_arr) {
         getQuery().setFields(fields_arr)
         return this
     }
@@ -363,7 +362,7 @@ class DB {
 	 * @return 
 	 * @example : .where("mydate" > ?, somedate.toString())
 	 */
-	DB where(String query, ArrayList<Object> list) {
+	DB where(String query, List<Object> list) {
 		getQuery().setWhere(query, list.toArray())
 		return this
 	}
@@ -388,7 +387,7 @@ class DB {
 	 * @return 
      */
     DB key(String key) {
-        ArrayList<String> akeys = new ArrayList<>()
+        List<String> akeys = []
         akeys.add(key)
         return keys(akeys)
     }
@@ -399,7 +398,7 @@ class DB {
 	 * @param keys
 	 * @return 
      */
-    DB keys(ArrayList<String> keys) {
+    DB keys(List<String> keys) {
         getQuery().setKeys(keys)
         return this
     }
@@ -500,7 +499,7 @@ class DB {
     private Query getQuery() {
         if(query == null) {
             query = new Query()
-            Log.d(LOG_TAG,"Initializing Query")
+            Log.d("Initializing Query")
             if(!this.table.isEmpty()) {
                 query.setTable(this.table)
             }
@@ -511,22 +510,22 @@ class DB {
     /**
      * Executes Query and retrieves data
      * Last stop for read queries
-     * @return Data (ArrayList<Hashmap>)
+     * @return Data (List<Map>)
      */
     private Data exec_get() {
         Data data = null
         openIfClosed()
         if(db.isOpen()) {
-            Log.d(LOG_TAG, "GET ::: " + query.toString())
+            Log.d( "GET ::: " + query.toString())
             for (Object o : query.getArgs()) {
-                Log.d(LOG_TAG, " --> " + o)
+                Log.d( " --> " + o)
             }
-            ArrayList<HashMap> rows = new ArrayList()
+            List<Map> rows = []
             try {
                 Statement st = db.prepare(query)
                 query = null
                 while (st.next()) {
-                    HashMap row = new HashMap()
+                    Map row = [:]
                     for (int i = st.firstColumn(); i < st.columnCount() + st.firstColumn(); i++) {
                         if (!st.isColumnNull(i)) {
                             String column = st?.columnName(i)
@@ -548,7 +547,7 @@ class DB {
                                     row.put(column, st.columnDate(i))
                                     break
                                 default:
-                                    Log.e(LOG_TAG, "Type was NULL")
+                                    Log.e( "Type was NULL")
                                     break
                             }
                         }
@@ -572,16 +571,16 @@ class DB {
 		boolean ok = false
         openIfClosed()
         if(db.isOpen()) {
-			Log.d(LOG_TAG, "SET ::: " + query.toString())
+			Log.d( "SET ::: " + query.toString())
 			query.getArgs().each {
 				Object it ->
-					Log.d(LOG_TAG, " --> " + it)
+					Log.d( " --> " + it)
 			}
             Statement st
             try {
                 st = db.prepare(query)
             } catch (e) {
-                Log.e(LOG_TAG, "Query Syntax error: "+e)
+                Log.e( "Query Syntax error: "+e)
             }
             if(st != null) {
                 try {
@@ -593,13 +592,13 @@ class DB {
                     }
                     ok = true
                 } catch (e) {
-                    Log.e(LOG_TAG, "Insert failed. " + (e))
+                    Log.e( "Insert failed. " + (e))
                 }
                 st.close()
             }
 			query = null
         } else {
-            Log.e(LOG_TAG, "No changes done: database is not open")
+            Log.e( "No changes done: database is not open")
         }
         return ok
     }
@@ -612,15 +611,15 @@ class DB {
         openIfClosed()
         if(!this.priKeys.containsKey(table)) {
             Data info = info()
-            ArrayList<String> foundPks = new ArrayList<>()
-			info.toArrHash().find {
-				HashMap row ->
+            List<String> foundPks = []
+			info.toListMap().find {
+				Map row ->
                     if(row.containsKey("pk") && Double.parseDouble(row.get("pk").toString()) == 1) { //we use double as it may be: "1.0"
                         if(row.containsKey("name")) {
                             ok = true
                             String name = row.get("name").toString()
                             foundPks.add(name)
-                            Log.d(LOG_TAG, "PK Found: "+name)
+                            Log.d( "PK Found: "+name)
 							return true
                         }
                     }

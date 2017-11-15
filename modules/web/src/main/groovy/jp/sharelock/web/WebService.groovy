@@ -28,7 +28,6 @@ import static groovy.json.JsonOutput.toJson
  *
  */
 class WebService {
-    public static String LOG_TAG = WebService.simpleName
     private final Service srv
     private ArrayList<Serviciable> listServices = []
     private ArrayList<String> listPaths = [] //mainly used to prevent collisions
@@ -61,7 +60,7 @@ class WebService {
             }
         }
         srv.port(port).threadPool(threads) //Initialize it right away
-        Log.i(LOG_TAG, "Starting server in port $port with pool size of $threads")
+        Log.i( "Starting server in port $port with pool size of $threads")
         listServices.each {
             Serviciable serviciable ->
                 switch(serviciable) {
@@ -97,7 +96,7 @@ class WebService {
                         //do nothing, skip
                         break
                     default:
-                        Log.e(LOG_TAG, "Interface not implemented")
+                        Log.e( "Interface not implemented")
                 }
                 switch(serviciable) {
                     case ServiciableAuth:
@@ -172,7 +171,7 @@ class WebService {
     private void addServicePath(ServicePath service, String rootPath) {
         def fullPath = rootPath + service.path
         if (listPaths.contains(service.method.toString() + fullPath)) {
-            Log.w(LOG_TAG, "Warning, duplicated path ["+fullPath+"] and method [" + service.method.toString() + "] found.")
+            Log.w( "Warning, duplicated path ["+fullPath+"] and method [" + service.method.toString() + "] found.")
         } else {
             listPaths << service.method.toString() + fullPath
             addAction(fullPath, service)
@@ -183,7 +182,7 @@ class WebService {
      * stop web service
      */
     void stop() {
-        Log.i(LOG_TAG, "Stopping server running at port: $port")
+        Log.i( "Stopping server running at port: $port")
         srv.stop()
         running = false
     }
