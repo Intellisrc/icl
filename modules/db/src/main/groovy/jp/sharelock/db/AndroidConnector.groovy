@@ -17,7 +17,6 @@ import jp.sharelock.etc.Log
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
 class AndroidConnector implements Connector {
-	private final String LOG_TAG = AndroidConnector.getSimpleName()
     private Updater dbhelper
     private SQLiteDatabase db
 	private String dbname
@@ -40,7 +39,7 @@ class AndroidConnector implements Connector {
             if(Config.hasKey("db.name")) {
                 this.dbname = Config.get("db.name") + ".db"
             } else {
-                Log.e(LOG_TAG, "Database is not defined. Please pass it to the constructor or define 'db.name' in config.properties")
+                Log.e( "Database is not defined. Please pass it to the constructor or define 'db.name' in config.properties")
             }
 		} else {
 			this.dbname = dbname + ".db"
@@ -78,11 +77,11 @@ class AndroidConnector implements Connector {
         try {
             db = dbhelper.getWritableDatabase()
         } catch(e1) {
-            Log.w(LOG_TAG, "Unable to get Writable Database, trying with read-only : "+e1)
+            Log.w( "Unable to get Writable Database, trying with read-only : "+e1)
             try {
                 db = dbhelper.getReadableDatabase()
             } catch (e2) {
-                Log.e(LOG_TAG, "Unable to open Database : "+e2)
+                Log.e( "Unable to open Database : "+e2)
             }
         }
 	}
@@ -153,7 +152,7 @@ class AndroidConnector implements Connector {
 				try {
 					return new Date()
 				} catch (Exception ex) {
-					Log.e(LOG_TAG, "column Date failed: "+ex)
+					Log.e( "column Date failed: "+ex)
 					return null
 				}
 			}
@@ -172,7 +171,7 @@ class AndroidConnector implements Connector {
 
 	@Override
 	void onError(Exception ex) {
-		Log.e(LOG_TAG, ex)
+		Log.e("General Exception", ex)
 	}
 
 	@Override
@@ -207,19 +206,19 @@ class AndroidConnector implements Connector {
 		}
 		@Override
 		void onCreate(SQLiteDatabase db) {
-			Log.w(LOG_TAG,"Database created")
+			Log.w("Database created")
 		}
 
 		@Override
 		void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.w(LOG_TAG,"Newer Database detected")
+			Log.w("Newer Database detected")
 			if(this.updater != null) {
 				updater?.onUpgrade(db, oldVersion)
 			}
 		}
 		@Override
 		void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.w(LOG_TAG,"Older Database detected")
+			Log.w("Older Database detected")
 			if(this.updater != null) {
 				updater?.onDowngrade(db, oldVersion)
 			}

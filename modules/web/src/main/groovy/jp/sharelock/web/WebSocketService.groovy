@@ -24,7 +24,6 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket
 @groovy.transform.CompileStatic
 @WebSocket
 class WebSocketService {
-    private static final String LOG_TAG = WebSocketService.simpleName
     private ServiciableWebSocket listener
     /**
      * Interface used to send a message directly from client to server
@@ -81,7 +80,7 @@ class WebSocketService {
     @OnWebSocketError
     void onWebSocketError(WSSession sockSession, Throwable throwable) {
         listener.onError(getSession(sockSession), throwable.message)
-        Log.e(LOG_TAG, throwable.message)
+        Log.e( throwable.message)
     }
     //------------- Implementation ---------------
     private Queue<Session> sessionQueue = new ConcurrentLinkedQueue()

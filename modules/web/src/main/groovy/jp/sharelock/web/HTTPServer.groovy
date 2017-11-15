@@ -17,7 +17,6 @@ import java.text.SimpleDateFormat
  */
 @groovy.transform.CompileStatic
 class HTTPServer {
-    static final String LOG_TAG = HTTPServer.simpleName
     private boolean running = false
     //public
     int port = 80
@@ -40,7 +39,7 @@ class HTTPServer {
     void start() {
         serverSocket = new ServerSocket(port)
         serverSocket.setSoTimeout(timeout * 1000)
-        Log.i(LOG_TAG, "HTTP Server [$serverString] started on port: $port , with root: $root")
+        Log.i( "HTTP Server [$serverString] started on port: $port , with root: $root")
         running = true
 
         while(running) {
@@ -51,7 +50,7 @@ class HTTPServer {
                 running = false
             }
         }
-        Log.i(LOG_TAG, "HTTP Server on port $port stopped")
+        Log.i( "HTTP Server on port $port stopped")
     }
 
     /**
@@ -202,7 +201,7 @@ class HTTPServer {
             // Return if trying to load file outside of web server root or if file contains potentially bad string
             Path p = Paths.get(root, path)
             if(!p.startsWith(root) || file.contains(";") || file.contains("*")) {
-                Log.w(LOG_TAG,"[400] Illegal connection : " + root + " , " +file)
+                Log.w("[400] Illegal connection : " + root + " , " +file)
                 return responseError(400, charset)
             }
 
@@ -212,14 +211,14 @@ class HTTPServer {
                 // Open file
                 fileContents = oFile.getText(charset)
             } else if(params.isEmpty() || method == "GET") {
-                Log.w(LOG_TAG, "[404] File doesn't exists: " + root+path)
+                Log.w( "[404] File doesn't exists: " + root+path)
                 return responseError(404, charset)
             }
             return action.call(headers, params, fileContents)
         } else if(method == "HEAD") {
             return new Response()
         }
-        Log.w(LOG_TAG, "[501] Method not found: " + method)
+        Log.w( "[501] Method not found: " + method)
         return responseError(501, charset)
     }
 
@@ -325,14 +324,14 @@ class HTTPServer {
                     byte[] outBytes = res.content.getBytes(res.charset)
                     respondHeader(res.code, res.mime, outBytes.length, output)
                     output.write(outBytes)
-                    Log.i(LOG_TAG, headers["remote"] + " " + headers["time"] + ' "' + headers["header"] + '" '+ res.code + " " + outBytes.length +' "' + (headers["user-agent"] ?: "Unknown") + '"')
+                    Log.i( headers["remote"] + " " + headers["time"] + ' "' + headers["header"] + '" '+ res.code + " " + outBytes.length +' "' + (headers["user-agent"] ?: "Unknown") + '"')
                 }
                 output.flush()
                 output.close()
                 input.close()
 
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Error flushing and closing: "+e)
+                Log.e( "Error flushing and closing: "+e)
             }
         }
     }

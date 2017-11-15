@@ -10,34 +10,33 @@ import jp.sharelock.etc.Log
  * @since 17/03/02.
  */
 class DummyConnector implements DB.Connector {
-    private static final String LOG_TAG = DummyConnector.getSimpleName()
     private connected = false
     private opened = false
     long lastUsed = 0
 
     boolean isOpen() {
-        Log.d(LOG_TAG, "Is database open? "+(opened ? "YES" : "NO"))
+        Log.d( "Is database open? "+(opened ? "YES" : "NO"))
         return opened
     }
 
     void open() {
         opened = true
-        Log.d(LOG_TAG, "Database opened")
+        Log.d( "Database opened")
     }
 
     void close() {
-        Log.d(LOG_TAG, "Database closed")
+        Log.d( "Database closed")
         opened = false
         connected = false
     }
 
     DB.Statement prepare(Query query) {
-        Log.d(LOG_TAG, "Query prepared: "+query.toString())
+        Log.d( "Query prepared: "+query.toString())
         return new DummyStatement()
     }
 
     void onError(Exception ex) {
-        Log.e(LOG_TAG, "Error reported: "+ex)
+        Log.e( "Error reported: "+ex)
     }
 
     DB.DBType getType() {
