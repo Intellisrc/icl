@@ -15,8 +15,6 @@ class TCPClient extends Thread {
     interface Parser {
         Object call(String msg)
     }
-
-    private final String LOG_TAG = TCPClient.getSimpleName()
     protected InetAddress dstAddress
     protected int dstPort
     protected Request request
@@ -112,16 +110,16 @@ class TCPClient extends Thread {
             // Create the socket connection to the MultiThreadedSocketServer port
             try {
                 s = new Socket()
-				Log.v(LOG_TAG,"Connecting to: "+dstAddress.getHostAddress()+":"+dstPort)
+				Log.v("Connecting to: "+dstAddress.getHostAddress()+":"+dstPort)
 				s.connect(new InetSocketAddress(dstAddress, dstPort), timeout)
-				Log.v(LOG_TAG,"Connected. ["+dstAddress.getHostAddress()+"]")
+				Log.v("Connected. ["+dstAddress.getHostAddress()+"]")
             } catch (UnknownHostException uhe) {
                 // Server Host unreachable
-                Log.e(LOG_TAG, "Unknown Host :" + dstAddress.getHostAddress()+" ($uhe)")
+                Log.e( "Unknown Host :" + dstAddress.getHostAddress()+" ($uhe)")
                 s = null
             } catch (IOException ioe) {
                 // Cannot connect to port on given server host
-                Log.e(LOG_TAG, "Cant connect to server: " + dstAddress.getHostAddress() + ":" + dstPort + ". Make sure it is running. ($ioe)")
+                Log.e( "Cant connect to server: " + dstAddress.getHostAddress() + ":" + dstPort + ". Make sure it is running. ($ioe)")
                 s = null
             }
 
@@ -140,15 +138,15 @@ class TCPClient extends Thread {
 
                 // Since this is the client, we will initiate the talking.
                 // Send a string data and flush
-				Log.i(LOG_TAG, "Message to Server [" + dstAddress.getHostAddress() + "] >>>>> " + request.getMessage())
+				Log.i( "Message to Server [" + dstAddress.getHostAddress() + "] >>>>> " + request.getMessage())
                 dataOut.println(request.getMessage())
                 dataOut.flush()
-				Log.v(LOG_TAG,"Waiting for response... [" + dstAddress.getHostAddress() + "]")
+				Log.v("Waiting for response... [" + dstAddress.getHostAddress() + "]")
                 // Receive the reply.
 				String s_resp = dataIn.readLine()
-				Log.i(LOG_TAG, "Message from Server [" + dstAddress.getHostAddress() + "] <<<<< " + s_resp)
+				Log.i( "Message from Server [" + dstAddress.getHostAddress() + "] <<<<< " + s_resp)
 				if(s_resp == null) {
-					Log.e(LOG_TAG, "Response was NULL. TCPStatus is unknown")
+					Log.e( "Response was NULL. TCPStatus is unknown")
 					response = new Response(TCPStatus.NO_RESPONSE, "", request)
 				} else {
 					response = new Response(TCPStatus.SENT, s_resp, request)
@@ -160,16 +158,16 @@ class TCPClient extends Thread {
 					dataIn.close()
                     // Close the socket before quitting
                     s.close()
-					Log.v(LOG_TAG, "Connection closed successfully [" + dstAddress.getHostAddress() + "]")
+					Log.v( "Connection closed successfully [" + dstAddress.getHostAddress() + "]")
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, "Unable to close communication: " + e.getMessage())
+                    Log.e( "Unable to close communication: " + e.getMessage())
                 }
             } catch (IOException ioe) {
-                Log.e(LOG_TAG, "Exception during communication. Server probably closed connection: "+ioe)
+                Log.e( "Exception during communication. Server probably closed connection: "+ioe)
 				response = new Response(TCPStatus.NO_CONN, "", request)
             }
         } else {
-            Log.e(LOG_TAG, "Missing remote Host and port")
+            Log.e( "Missing remote Host and port")
 			response = new Response(TCPStatus.ERROR, "", request)
         }
 		return response

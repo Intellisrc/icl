@@ -2,19 +2,29 @@ package jp.sharelock.etc
 /**
  * @since 2/11/17.
  */
-import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-import java.text.SimpleDateFormat
 
 @groovy.transform.CompileStatic
 /**
  * Originally imported from: trikita.log
  * @author Alberto Lepe <lepe@sharelock.jp>
  *
- * Note: this code still needs a lot of simplification aka Groovy.
  */
 final class Log {
+    //Execute on load
+    static {
+        if(Config.hasKey("log.level")) {
+            def sLevel = Config.get("log.level").toUpperCase()
+            mMinLevel = sLevel.take(1) as LEVEL
+        }
+        if(Config.hasKey("log.path")) {
+            logPath = Config.get("log.path")
+        }
+        if(Config.hasKey("log.file")) {
+            logFile = Config.get("log.file")
+        }
+    }
     //When logFile is not empty, it will export log to that file
     static String logFile = ""
     static String logPath = ""
@@ -29,24 +39,18 @@ final class Log {
     static final String ANSI_CYAN    = "\u001B[36m"
     static final String ANSI_WHITE   = "\u001B[37m"
 
-    static final int V = 0
-    static final int D = 1
-    static final int I = 2
-    static final int W = 3
-    static final int E = 4
-
+    private static final enum LEVEL { V, D, I, W, E }
     private Log() {}
 
     interface Printer {
-        void print(int level, String tag, String msg)
+        void print(LEVEL level, Stack stack, String msg)
     }
 
     private static class FilePrinter implements Printer {
-        private static final List<String> LEVELS = ['V', 'D', 'I', 'W', 'E']
         @Override
-        void print(int level, String tag, String msg) {
+        void print(LEVEL level, Stack stack, String msg) {
             if(logFile) {
-                String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date())
+                String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
                 if(!(logPath && new File(logPath).canWrite())) {
                     logPath = SysInfo.getWritablePath()
                 } else {
@@ -55,31 +59,34 @@ final class Log {
                     }
                 }
                 def file = new File(logPath + logFile)
-                file << (time + "\t" + "[" + LEVELS[level] + "]\t" + tag + "\t" + msg + "\n")
+                file << (time + "\t" + "[" + level + "]\t" + stack + "\t" + msg + "\n")
             }
         }
     }
 
     private static class SystemOutPrinter implements Printer {
-        private static final List<String> LEVELS = ['V', 'D', 'I', 'W', 'E']
-        private getColor(int level) {
-            def color = ANSI_WHITE
+        private static getColor(LEVEL level) {
+            def color
             switch(level) {
-                case V: color = ANSI_WHITE; break
-                case D: color = ANSI_WHITE; break
-                case I: color = ANSI_CYAN; break
-                case W: color = ANSI_YELLOW; break
-                case E: color = ANSI_RED; break
+                case LEVEL.V: color = ANSI_WHITE; break
+                case LEVEL.D: color = ANSI_WHITE; break
+                case LEVEL.I: color = ANSI_CYAN; break
+                case LEVEL.W: color = ANSI_YELLOW; break
+                case LEVEL.E: color = ANSI_RED; break
             }
             return color
         }
         @Override
-        void print(int level, String tag, String msg) {
-            String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date())
+        void print(LEVEL level, Stack stack, String msg) {
+            String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
             if(SysInfo.isLinux()) {
-                System.out.println(time+" [" + getColor(level) + LEVELS[level] + ANSI_RESET + "] " + ANSI_GREEN + tag + " " + getColor(level) + msg + ANSI_RESET)
+                println(time+" [" + getColor(level) + level + ANSI_RESET + "] " +
+                        ANSI_GREEN + stack.className + ANSI_RESET +
+                        " (" + ANSI_BLUE + stack.methodName + ANSI_RESET +
+                        ":" + ANSI_CYAN + stack.lineNumber + ANSI_RESET + ") " +
+                        getColor(level) + msg + ANSI_RESET)
             } else {
-                System.out.println(time+" [" + LEVELS[level] + "] " + tag + " " + msg)
+                println(time+" [" + level + "] " + stack.className + " (" + stack.methodName + ":" + stack.lineNumber + ") " + msg)
             }
         }
     }
@@ -111,10 +118,10 @@ final class Log {
             mLoaded = loaded
         }
 
-        void print(int level, String tag, String msg) {
+        void print(LEVEL level, Stack stack, String msg) {
             try {
                 if (mLoaded) {
-                    mLogMethods[level].invoke(null, tag, msg)
+                    mLogMethods[level.toString()].invoke(null, stack, msg)
                 }
             } catch (InvocationTargetException|IllegalAccessException e) {
                 // Ignore
@@ -122,17 +129,19 @@ final class Log {
         }
     }
 
+    private static class Stack {
+        String className
+        String methodName
+        String fileName
+        int    lineNumber
+    }
+
     static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
     static final AndroidPrinter ANDROID = new AndroidPrinter()
     static final FilePrinter LOGFILE = new FilePrinter()
 
-    private static final Map<String, String> mTags = new HashMap<>()
-
-    private static List<String> mUseTags = ['tag', 'TAG']
-    private static boolean mUseFormat = false
-    private static int mMinLevel = V
-
-    private static Set<Printer> mPrinters = new HashSet<>()
+    private static LEVEL mMinLevel = LEVEL.V
+    private static Set<Printer> mPrinters = []
 
     static {
         if (ANDROID.mLoaded) {
@@ -143,18 +152,8 @@ final class Log {
         }
     }
 
-    static synchronized Log useTags(ArrayList<String> tags) {
-        mUseTags = tags
-        return null
-    }
-
     static synchronized Log level(int minLevel) {
-        mMinLevel = minLevel
-        return null
-    }
-
-    static synchronized Log useFormat(boolean yes) {
-        mUseFormat = yes
+        mMinLevel = LEVEL.values()[minLevel]
         return null
     }
 
@@ -167,44 +166,36 @@ final class Log {
         return null
     }
 
-    static synchronized Log v(Object msg, Object... args) {
-        log(V, mUseFormat, msg, args)
+    static synchronized Log v(String msg, Object... args) {
+        log(LEVEL.V, msg, args)
         return null
     }
-    static synchronized Log d(Object msg, Object... args) {
-        log(D, mUseFormat, msg, args)
+    static synchronized Log d(String msg, Object... args) {
+        log(LEVEL.D, msg, args)
         return null
     }
-    static synchronized Log i(Object msg, Object... args) {
-        log(I, mUseFormat, msg, args)
+    static synchronized Log i(String msg, Object... args) {
+        log(LEVEL.I, msg, args)
         return null
     }
-    static synchronized Log w(Object msg, Object... args) {
-        log(W, mUseFormat, msg, args)
+    static synchronized Log w(String msg, Object... args) {
+        log(LEVEL.W, msg, args)
         return null
     }
-    static synchronized Log e(Object msg, Object... args) {
-        log(E, mUseFormat, msg, args)
+    static synchronized Log e(String msg, Object... args) {
+        log(LEVEL.E, msg, args)
         return null
     }
 
-    private static void log(int level, boolean fmt, Object msg, Object... args) {
+    private static void log(LEVEL level, String msg, Object... args) {
         if (level < mMinLevel) {
             return
         }
-        String tag = tag()
-        if (!mUseTags.isEmpty() && tag == msg) {
-            if (args.length > 1) {
-                print(level, tag, format(fmt, args[0], Arrays.copyOfRange(args, 1, args.length)))
-            } else {
-                print(level, tag, format(fmt, (args.length > 0 ? args[0] : "")))
-            }
-        } else {
-            print(level, tag, format(fmt, msg, args))
-        }
+        Stack stack = stack()
+        print(level, stack, format(msg, args))
     }
 
-    private static String format(boolean fmt, Object msg, Object... args) {
+    private static String format(String msg, Object... args) {
         Throwable t = null
         if (args == null) {
             // Null array is not supposed to be passed into this method, so it must
@@ -215,96 +206,78 @@ final class Log {
             t = (Throwable) args[args.length - 1]
             args = Arrays.copyOfRange(args, 0, args.length - 1)
         }
-        if (fmt && msg instanceof String) {
-            String head = (String) msg
-            if (head.indexOf('%') != -1) {
-                return String.format(head, args)
-            }
+        if (msg.indexOf('%') != -1) {
+            return String.format(msg, args)
         }
         StringBuilder sb = new StringBuilder()
-        sb.append(msg == null ? "null" : msg.toString())
+        sb.append(msg.toString())
         for (Object arg : args) {
             sb.append("\t")
-            sb.append(arg == null ? "null" : arg.toString())
+            sb.append(arg == null ? "<null>" : arg.toString())
         }
-        if (t != null) {
+        if(t) {
+            sb.append("\t")
+            sb.append(t.message ?: "")
             sb.append("\n")
+            sb.append("STACK START ------------------------------------------------------------------------------\n")
             StringWriter sw = new StringWriter()
             PrintWriter pw = new PrintWriter(sw)
             t.printStackTrace(pw)
             sb.append(sw.toString())
+            sb.append("STACK END ------------------------------------------------------------------------------\n")
         }
         return sb.toString()
     }
 
     static final int MAX_LOG_LINE_LENGTH = 4000
 
-    private static void print(int level, String tag, String msg) {
-        for (String line : msg.split("\\n")) {
-            while( line.length() > 0) {
-                int splitPos = Math.min(MAX_LOG_LINE_LENGTH, line.length())
-                for (int i = splitPos-1; line.length() > MAX_LOG_LINE_LENGTH && i >= 0; i--) {
-                    if (" \t,.;:?!{}()[]/\\".indexOf(line.charAt(i) as String) != -1) {
-                        splitPos = i
-                        break
+    private static void print(LEVEL level, Stack stack, String msg) {
+        msg.eachLine {
+            String line ->
+                while( line.length() > 0) {
+                    int splitPos = Math.min(MAX_LOG_LINE_LENGTH, line.length())
+                    for (int i = splitPos-1; line.length() > MAX_LOG_LINE_LENGTH && i >= 0; i--) {
+                        if (" \t,.;:?!{}()[]/\\".indexOf(line.charAt(i) as String) != -1) {
+                            splitPos = i
+                            break
+                        }
+                    }
+                    splitPos = Math.min(splitPos + 1, line.length())
+                    msg = line.substring(0, splitPos)
+                    line = line.substring(splitPos)
+
+                    mPrinters.each {
+                        it.print(level, stack, msg)
                     }
                 }
-                splitPos = Math.min(splitPos + 1, line.length())
-                msg = line.substring(0, splitPos)
-                line = line.substring(splitPos)
-
-                if(msg.contains("\t")) {
-                    def parts = msg.split("\t").toList()
-                    def new_tag = parts.first()
-                    parts.remove(0)
-                    msg = tag + " : " + parts.join(" ")
-                    tag = new_tag
-                }
-
-                for (Printer p : mPrinters) {
-                    p.print(level, tag, msg)
-                }
-                line
-            }
         }
     }
 
     private static final int STACK_DEPTH = 4
-    private static String tag() {
-        StackTraceElement[] stackTrace = new Throwable().getStackTrace()
+    private static Stack stack() {
+        Stack stack = null
+        def stackTrace = new Throwable().getStackTrace()
         if (stackTrace.length < STACK_DEPTH) {
             throw new IllegalStateException
                     ("Synthetic stacktrace didn't have enough elements: are you using proguard?")
         }
-        String className = stackTrace[STACK_DEPTH-1].getClassName()
-        String tag = mTags.get(className)
-        if (tag != null) {
-            return tag
-        }
+        def caller = stackTrace[STACK_DEPTH-1]
+        String className = caller.className
 
+        //Remove closure information:
+        if(className.contains('$')) {
+            className -= ~/\$.*/
+        }
         try {
             Class<?> c = Class.forName(className)
-            for (String f : mUseTags) {
-                try {
-                    Field field = c.getDeclaredField(f)
-                    if (field != null) {
-                        field.setAccessible(true)
-                        Object value = field.get(null)
-                        if (value instanceof String) {
-                            mTags.put(className, (String) value)
-                            return (String) value
-                        }
-                    }
-                } catch (NoSuchFieldException|IllegalAccessException|
-                IllegalStateException|NullPointerException e) {
-                    //Ignore
-                }
-            }
+            stack = new Stack(
+                className : className.substring(className.lastIndexOf('.') + 1),
+                fileName  : caller.fileName,
+                methodName: caller.methodName,
+                lineNumber: caller.lineNumber > 0 ? caller.lineNumber : 0
+            )
         } catch (ClassNotFoundException e) { /* Ignore */ }
-
-        // Check class field useTag, if exists - return it, otherwise - return the generated tag
-        className =~ /\\$\\d+$"/ //<--- LEPE: Not sure if it works the same. before it was like /.../.replaceAll("")
-        return className.substring(className.lastIndexOf('.') + 1)
+        return stack
     }
 }
 

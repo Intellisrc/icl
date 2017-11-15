@@ -8,12 +8,104 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/Crypt$_randomChars_closure1.class" afterPath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/Crypt$_randomChars_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/Crypt.class" afterPath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/Crypt.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/encode/AES.class" afterPath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/encode/AES.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hash$_asBytes_closure1.class" afterPath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hash$_asBytes_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hash.class" afterPath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hash.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/out/test/classes/jp/sharelock/crypt/HashTest.class" afterPath="$PROJECT_DIR$/modules/crypt/out/test/classes/jp/sharelock/crypt/HashTest.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/AndroidConnector$1.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/AndroidConnector$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/AndroidConnector$Updater.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/AndroidConnector$Updater.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/AndroidConnector.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/AndroidConnector.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$_autoSetPriKeys_closure2.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$_autoSetPriKeys_closure2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$_exec_set_closure1.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$_exec_set_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool$_init_closure1.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool$_init_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool$_timeoutPool_closure2.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool$_timeoutPool_closure2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Data.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Data.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector$DummyStatement.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector$DummyStatement.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector$1.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/PoolConnector.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/PoolConnector.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query$FieldType.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query$FieldType.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Bytes.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Bytes.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Command.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Command.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Config.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Config.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$AndroidPrinter.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$AndroidPrinter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$Printer.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$Printer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$SystemOutPrinter.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$SystemOutPrinter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/SysInfo.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/SysInfo.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$WorkerRunnable.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$WorkerRunnable.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_closure1.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_parseURLParams_closure3$_closure4.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_parseURLParams_closure3$_closure4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_parseURLParams_closure3.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_parseURLParams_closure3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_respondContent_closure2.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_respondContent_closure2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_onAction_closure2.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_onAction_closure2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure3.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4$_closure6.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4$_closure6.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure5.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure5.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_broadcast_closure5.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_broadcast_closure5.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_closure1.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getConnected_closure2.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getConnected_closure2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure3.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure4.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/ChatService.class" afterPath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/ChatService.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/common.iml" afterPath="$PROJECT_DIR$/.idea/modules/common.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/Crypt.groovy" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/Crypt.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/encode/AES.groovy" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/encode/AES.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/hash/Hash.groovy" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/hash/Hash.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/src/test/groovy/jp/sharelock/crypt/HashTest.groovy" afterPath="$PROJECT_DIR$/modules/crypt/src/test/groovy/jp/sharelock/crypt/HashTest.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DBPool.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DBPool.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DummyConnector.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DummyConnector.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/PoolConnector.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/PoolConnector.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Query.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Query.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Bytes.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Bytes.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cache.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cache.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysInfo.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysInfo.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPClient.groovy" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPClient.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/HTTPServer.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/HTTPServer.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebSocketService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebSocketService.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LoginService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LoginService.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -158,6 +250,24 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="common" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="common" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="common" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -167,21 +277,73 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build.gradle">
+      <file leaf-file-name="HashTest.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/jp/sharelock/crypt/HashTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="522">
-              <caret line="47" column="0" lean-forward="false" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
+            <state relative-caret-position="180">
+              <caret line="85" column="40" lean-forward="false" selection-start-line="85" selection-start-column="40" selection-end-line="85" selection-end-column="40" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Config.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="738">
+              <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+              <folding>
+                <marker date="1510719119192" expanded="true" signature="775:1200" ph="{...}" />
+                <marker date="1510719119192" expanded="true" signature="860:1200" ph="{...}" />
+                <marker date="1510719119192" expanded="true" signature="1176:1194" ph="{" />
+                <marker date="1510719119192" expanded="true" signature="1176:1200" ph="{...}" />
+                <marker date="1510719119192" expanded="true" signature="3580:3636" ph="{...}" />
+                <marker date="1510719119192" expanded="true" signature="3580:3639" ph="{...}" />
+                <marker date="1510719119192" expanded="true" signature="3626:3636" ph="}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Hash.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/hash/Hash.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="268" column="46" lean-forward="false" selection-start-line="268" selection-start-column="46" selection-end-line="268" selection-end-column="46" />
+              <folding>
+                <element signature="e#33#64#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="6" column="22" lean-forward="false" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
+            <state relative-caret-position="162">
+              <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Log.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4104">
+              <caret line="228" column="27" lean-forward="false" selection-start-line="228" selection-start-column="27" selection-end-line="228" selection-end-column="27" />
+              <folding>
+                <element signature="e#52#102#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Command.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="810">
+              <caret line="45" column="42" lean-forward="false" selection-start-line="45" selection-start-column="42" selection-end-line="45" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -190,8 +352,8 @@
       <file leaf-file-name="DB.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="11070">
-              <caret line="615" column="13" lean-forward="false" selection-start-line="615" selection-start-column="13" selection-end-line="615" selection-end-column="13" />
+            <state relative-caret-position="396">
+              <caret line="22" column="26" lean-forward="false" selection-start-line="22" selection-start-column="26" selection-end-line="22" selection-end-column="26" />
               <folding>
                 <element signature="e#25#52#0" expanded="true" />
               </folding>
@@ -199,71 +361,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Config.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy">
+      <file leaf-file-name="ChatService.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="22" column="41" lean-forward="false" selection-start-line="22" selection-start-column="41" selection-end-line="22" selection-end-column="41" />
+            <state relative-caret-position="360">
+              <caret line="25" column="4" lean-forward="false" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Data.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Data.groovy">
+      <file leaf-file-name="AndroidConnector.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1818">
-              <caret line="101" column="0" lean-forward="false" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
+            <state relative-caret-position="806">
+              <caret line="173" column="31" lean-forward="false" selection-start-line="173" selection-start-column="31" selection-end-line="173" selection-end-column="31" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JDBCConnectorTest.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/JDBCConnectorTest.groovy">
+      <file leaf-file-name="TCPServer.groovy" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" column="6" lean-forward="false" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="6" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CacheTest.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/CacheTest.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PoolConnector.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/PoolConnector.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="468">
-              <caret line="29" column="4" lean-forward="false" selection-start-line="29" selection-start-column="4" selection-end-line="29" selection-end-column="4" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="JDBCConnector.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5256">
-              <caret line="306" column="55" lean-forward="false" selection-start-line="306" selection-start-column="55" selection-end-line="306" selection-end-column="55" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DummyConnector.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DummyConnector.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1026">
-              <caret line="57" column="0" lean-forward="false" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+            <state relative-caret-position="763">
+              <caret line="155" column="52" lean-forward="false" selection-start-line="155" selection-start-column="52" selection-end-line="155" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -277,10 +399,11 @@
       <find>Cache</find>
       <find>ArrayList</find>
       <find>HashMap</find>
+      <find>LOG_TAG</find>
     </findStrings>
     <dirStrings>
-      <dir>$PROJECT_DIR$/modules</dir>
       <dir>$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db</dir>
+      <dir>$PROJECT_DIR$/modules</dir>
     </dirStrings>
   </component>
   <component name="Git.Settings">
@@ -1379,11 +1502,11 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="13582710034000" />
+        <entry key="$PROJECT_DIR$" value="13582785833000" />
         <entry key="$PROJECT_DIR$/build.gradle" value="4231675548" />
         <entry key="$PROJECT_DIR$/crypt/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/db/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/gradle.properties" value="4125415695" />
+        <entry key="$PROJECT_DIR$/gradle.properties" value="2357249069" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="615277776" />
         <entry key="$PROJECT_DIR$/module/groovy-extend/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/crypt/build.gradle" value="3337576961" />
@@ -2166,23 +2289,17 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/web/TCPClientServerTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/web/TCPServer.groovy" />
-        <option value="$PROJECT_DIR$/modules/crypt/build.gradle" />
-        <option value="$PROJECT_DIR$/modules/db/build.gradle" />
         <option value="$PROJECT_DIR$/modules/os/build.gradle" />
         <option value="$PROJECT_DIR$/modules/srv/build.gradle" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/SysInfoTest.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/build.gradle" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/LogTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
         <option value="$PROJECT_DIR$/modules/net/build.gradle" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/web/Smtp.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysInfo.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/test/resources/smtp.properties" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableAuth.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DBPool.groovy" />
-        <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy" />
         <option value="$PROJECT_DIR$/settings.gradle" />
         <option value="$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/JDBCConnectorTest.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Service.groovy" />
@@ -2209,14 +2326,20 @@
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/dummy/SysServiceDummy.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/SysServiceTest.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
-        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Query.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DummyConnector.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/CacheTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Data.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
+        <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/jp/sharelock/crypt/HashTest.groovy" />
+        <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/hash/Hash.groovy" />
         <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy" />
+        <option value="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy" />
+        <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy" />
+        <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy" />
       </list>
     </option>
   </component>
@@ -2250,6 +2373,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -2266,55 +2392,12 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
               <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -2322,7 +2405,7 @@
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.4429066" />
-    <property name="settings.editor.selected.configurable" value="reference.settings.project.maven.repository.indices" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.tabs" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -2350,23 +2433,23 @@
     </option>
   </component>
   <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
-    <configuration name="CacheTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="HashTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
-          <option name="PATTERN" value="jp.sharelock.etc.*" />
+          <option name="PATTERN" value="jp.sharelock.crypt.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <module name="etc_test" />
+      <module name="modules-crypt_test" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="jp.sharelock.etc" />
-      <option name="MAIN_CLASS_NAME" value="jp.sharelock.etc.CacheTest" />
+      <option name="PACKAGE_NAME" value="jp.sharelock.crypt" />
+      <option name="MAIN_CLASS_NAME" value="jp.sharelock.crypt.HashTest" />
       <option name="METHOD_NAME" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/etc" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/crypt" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
       <option name="TEST_SEARCH_SCOPE">
@@ -2375,43 +2458,73 @@
       <envs />
       <patterns />
     </configuration>
-    <configuration name="PoolConnectorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="HashTest.Get List of Algorithms" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
-          <option name="PATTERN" value="jp.sharelock.etc.*" />
+          <option name="PATTERN" value="jp.sharelock.crypt.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <module name="modules-db_test" />
+      <module name="modules-crypt_test" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="jp.sharelock.db" />
-      <option name="MAIN_CLASS_NAME" value="jp.sharelock.db.PoolConnectorTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/db" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
-    </configuration>
-    <configuration name="SysServiceTest.Custom method" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="etc_test" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="jp.sharelock.etc" />
-      <option name="MAIN_CLASS_NAME" value="jp.sharelock.etc.SysServiceTest" />
-      <option name="METHOD_NAME" value="Custom method" />
+      <option name="PACKAGE_NAME" value="jp.sharelock.crypt" />
+      <option name="MAIN_CLASS_NAME" value="jp.sharelock.crypt.HashTest" />
+      <option name="METHOD_NAME" value="Get List of Algorithms" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/etc" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/crypt" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+    </configuration>
+    <configuration name="HashTest.Hash as bytes and extended algorithm" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="jp.sharelock.crypt.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="modules-crypt_test" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="jp.sharelock.crypt" />
+      <option name="MAIN_CLASS_NAME" value="jp.sharelock.crypt.HashTest" />
+      <option name="METHOD_NAME" value="Hash as bytes and extended algorithm" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/crypt" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+    </configuration>
+    <configuration name="HashTest.Testing Enum BasicAlgo" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="jp.sharelock.crypt.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="modules-crypt_test" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="jp.sharelock.crypt" />
+      <option name="MAIN_CLASS_NAME" value="jp.sharelock.crypt.HashTest" />
+      <option name="METHOD_NAME" value="Testing Enum BasicAlgo" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/crypt" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
       <option name="TEST_SEARCH_SCOPE">
@@ -2517,37 +2630,20 @@
         <option name="vmOptions" />
       </ExternalSystemSettings>
     </configuration>
-    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="publishToMavenLocal" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-    </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Gradle.common [artifactoryPublish]" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.SysServiceTest.Custom method" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.PoolConnectorTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.CacheTest" />
-      <item index="4" class="java.lang.String" itemvalue="Gradle.common [publishToMavenLocal]" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.HashTest.Get List of Algorithms" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.HashTest.Testing Enum BasicAlgo" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.HashTest" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.HashTest.Hash as bytes and extended algorithm" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Gradle.common [artifactoryPublish]" />
-        <item index="1" class="java.lang.String" itemvalue="Gradle.common [publishToMavenLocal]" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.CacheTest" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.PoolConnectorTest" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.SysServiceTest.Custom method" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.HashTest.Hash as bytes and extended algorithm" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.HashTest" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.HashTest.Testing Enum BasicAlgo" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.HashTest.Get List of Algorithms" />
       </list>
     </recent_temporary>
   </component>
@@ -2737,39 +2833,46 @@
       <option name="project" value="LOCAL" />
       <updated>1510643214737</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="2.2.16.6 added boolean to Emai">
+      <created>1510643221390</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1510643221390</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="CacheTest - 2017.11.14 at 10h 09m 24s.xml">
-      <configuration name="CacheTest" configurationId="JUnit" />
+    <history-entry file="HashTest - 2017.11.15 at 13h 04m 33s.xml">
+      <configuration name="HashTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="PoolConnectorTest - 2017.11.14 at 10h 08m 26s.xml">
-      <configuration name="PoolConnectorTest" configurationId="JUnit" />
+    <history-entry file="HashTest_Get_List_of_Algorithms - 2017.11.15 at 12h 28m 40s.xml">
+      <configuration name="HashTest.Get List of Algorithms" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Create_service - 2017.11.04 at 15h 15m 58s.xml">
-      <configuration name="SysServiceTest.Create service" configurationId="JUnit" />
+    <history-entry file="HashTest_Get_List_of_Algorithms - 2017.11.15 at 12h 32m 17s.xml">
+      <configuration name="HashTest.Get List of Algorithms" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Create_service - 2017.11.04 at 15h 16m 46s.xml">
-      <configuration name="SysServiceTest.Create service" configurationId="JUnit" />
+    <history-entry file="HashTest_Hash_as_bytes_and_extended_algorithm - 2017.11.15 at 13h 06m 30s.xml">
+      <configuration name="HashTest.Hash as bytes and extended algorithm" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Create_service - 2017.11.04 at 15h 17m 00s.xml">
-      <configuration name="SysServiceTest.Create service" configurationId="JUnit" />
+    <history-entry file="HashTest_Hash_as_bytes_and_extended_algorithm - 2017.11.15 at 13h 06m 59s.xml">
+      <configuration name="HashTest.Hash as bytes and extended algorithm" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Custom_method - 2017.11.04 at 15h 13m 17s.xml">
-      <configuration name="SysServiceTest.Custom method" configurationId="JUnit" />
+    <history-entry file="HashTest_Hash_as_bytes_and_extended_algorithm - 2017.11.15 at 13h 07m 08s.xml">
+      <configuration name="HashTest.Hash as bytes and extended algorithm" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Custom_method - 2017.11.04 at 15h 17m 14s.xml">
-      <configuration name="SysServiceTest.Custom method" configurationId="JUnit" />
+    <history-entry file="HashTest_Testing_Enum_BasicAlgo - 2017.11.15 at 12h 44m 23s.xml">
+      <configuration name="HashTest.Testing Enum BasicAlgo" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Custom_method - 2017.11.04 at 15h 18m 13s.xml">
-      <configuration name="SysServiceTest.Custom method" configurationId="JUnit" />
+    <history-entry file="HashTest_Testing_Enum_BasicAlgo - 2017.11.15 at 12h 44m 54s.xml">
+      <configuration name="HashTest.Testing Enum BasicAlgo" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Custom_method - 2017.11.04 at 15h 19m 20s.xml">
-      <configuration name="SysServiceTest.Custom method" configurationId="JUnit" />
+    <history-entry file="HashTest_Testing_Enum_BasicAlgo - 2017.11.15 at 12h 46m 23s.xml">
+      <configuration name="HashTest.Testing Enum BasicAlgo" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="SysServiceTest_Custom_method - 2017.11.04 at 15h 19m 28s.xml">
-      <configuration name="SysServiceTest.Custom method" configurationId="JUnit" />
+    <history-entry file="HashTest_Testing_Enum_BasicAlgo - 2017.11.15 at 12h 47m 32s.xml">
+      <configuration name="HashTest.Testing Enum BasicAlgo" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -2785,29 +2888,29 @@
     <frame x="-3" y="33" width="1926" height="1170" extended-state="6" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19961795" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37440306" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37344795" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26332623" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17910448" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3285578" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="JFrog" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27025586" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15831557" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.44183314" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.6647564" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19976498" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941177" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -2843,7 +2946,15 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="36" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy</url>
+          <line>80</line>
+          <properties />
+          <option name="timeStamp" value="63" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="64" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="JUnit">
@@ -2856,56 +2967,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="42" lean-forward="true" selection-start-line="7" selection-start-column="42" selection-end-line="7" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableWebSocket.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="8" lean-forward="false" selection-start-line="17" selection-start-column="8" selection-end-line="17" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LogService.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="533">
-          <caret line="33" column="41" lean-forward="false" selection-start-line="33" selection-start-column="41" selection-end-line="33" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Service.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="702">
-          <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/MacAddress.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableAuth.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="20" lean-forward="true" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/AuthLinkService.groovy" />
-    <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/java/sql/Types.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="4" column="16" lean-forward="false" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LoginService.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
@@ -2955,13 +3016,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/java/lang/reflect/Method.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="187" column="0" lean-forward="false" selection-start-line="187" selection-start-column="0" selection-end-line="187" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableSingle.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -2994,7 +3048,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3002,9 +3055,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="11" column="6" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
-          <folding>
-            <element signature="e#26#71#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -3072,7 +3123,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
           <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3080,7 +3130,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="522">
           <caret line="30" column="33" lean-forward="false" selection-start-line="30" selection-start-column="33" selection-end-line="30" selection-end-column="33" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3088,14 +3137,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1125">
           <caret line="9" column="6" lean-forward="false" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1368">
-          <caret line="76" column="6" lean-forward="false" selection-start-line="76" selection-start-column="6" selection-end-line="76" selection-end-column="6" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3118,14 +3159,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1447">
           <caret line="15" column="6" lean-forward="false" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2790">
-          <caret line="27" column="30" lean-forward="false" selection-start-line="27" selection-start-column="30" selection-end-line="27" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3200,36 +3233,135 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="47" column="0" lean-forward="false" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/sun/reflect/NativeMethodAccessorImpl.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="13" column="171" lean-forward="false" selection-start-line="13" selection-start-column="171" selection-end-line="13" selection-end-column="171" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/sun/reflect/DelegatingMethodAccessorImpl.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="11" column="171" lean-forward="false" selection-start-line="11" selection-start-column="171" selection-end-line="11" selection-end-column="171" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/java/lang/reflect/Method.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1296">
+          <caret line="73" column="206" lean-forward="false" selection-start-line="73" selection-start-column="206" selection-end-line="73" selection-end-column="206" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="738">
+          <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+          <folding>
+            <marker date="1510719119192" expanded="true" signature="775:1200" ph="{...}" />
+            <marker date="1510719119192" expanded="true" signature="860:1200" ph="{...}" />
+            <marker date="1510719119192" expanded="true" signature="1176:1194" ph="{" />
+            <marker date="1510719119192" expanded="true" signature="1176:1200" ph="{...}" />
+            <marker date="1510719119192" expanded="true" signature="3580:3636" ph="{...}" />
+            <marker date="1510719119192" expanded="true" signature="3580:3639" ph="{...}" />
+            <marker date="1510719119192" expanded="true" signature="3626:3636" ph="}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="810">
+          <caret line="45" column="42" lean-forward="false" selection-start-line="45" selection-start-column="42" selection-end-line="45" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/java/lang/Throwable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="49" column="16" lean-forward="false" selection-start-line="49" selection-start-column="16" selection-end-line="49" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4104">
+          <caret line="228" column="27" lean-forward="false" selection-start-line="228" selection-start-column="27" selection-end-line="228" selection-end-column="27" />
+          <folding>
+            <element signature="e#52#102#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/jp/sharelock/crypt/HashTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="85" column="40" lean-forward="false" selection-start-line="85" selection-start-column="40" selection-end-line="85" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/jp/sharelock/crypt/hash/Hash.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="268" column="46" lean-forward="false" selection-start-line="268" selection-start-column="46" selection-end-line="268" selection-end-column="46" />
+          <folding>
+            <element signature="e#33#64#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="11070">
-          <caret line="615" column="13" lean-forward="false" selection-start-line="615" selection-start-column="13" selection-end-line="615" selection-end-column="13" />
+        <state relative-caret-position="396">
+          <caret line="22" column="26" lean-forward="false" selection-start-line="22" selection-start-column="26" selection-end-line="22" selection-end-column="26" />
           <folding>
             <element signature="e#25#52#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy">
+    <entry file="file://$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="22" column="41" lean-forward="false" selection-start-line="22" selection-start-column="41" selection-end-line="22" selection-end-column="41" />
+        <state relative-caret-position="360">
+          <caret line="25" column="4" lean-forward="false" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
+    <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="47" column="0" lean-forward="false" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
+        <state relative-caret-position="806">
+          <caret line="173" column="31" lean-forward="false" selection-start-line="173" selection-start-column="31" selection-end-line="173" selection-end-column="31" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
+    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="22" lean-forward="false" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
+        <state relative-caret-position="763">
+          <caret line="155" column="52" lean-forward="false" selection-start-line="155" selection-start-column="52" selection-end-line="155" selection-end-column="52" />
           <folding />
         </state>
       </provider>

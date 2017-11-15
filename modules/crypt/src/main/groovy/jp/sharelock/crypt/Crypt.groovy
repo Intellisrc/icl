@@ -21,7 +21,6 @@ import java.security.SecureRandom
  */
 @groovy.transform.CompileStatic
 class Crypt {
-    private static final String LOG_TAG = Crypt.simpleName
     protected static SecureRandom random = new SecureRandom()
 
     static enum Complexity {
@@ -96,7 +95,7 @@ class Crypt {
         if(!hasKey()) {
             genKey(len)
         } else if(key.length != len) {
-            Log.w(LOG_TAG,"Key length didn't match the requirement. Generating a new one.")
+            Log.w("Key length didn't match the requirement. Generating a new one.")
             genKey(len)
         }
     }

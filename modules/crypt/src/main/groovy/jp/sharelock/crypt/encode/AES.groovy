@@ -15,7 +15,6 @@ import org.bouncycastle.crypto.params.ParametersWithIV
  */
 @groovy.transform.CompileStatic
 class AES extends Crypt implements Encodable {
-    private static final String LOG_TAG = AES.simpleName
     private static final int IV_LENGTH = 16 //That is 128bits for AESEngine
     private byte[] iv
     int keylen = 32 //Valid values are: 16, 24 and 32
@@ -56,7 +55,7 @@ class AES extends Crypt implements Encodable {
         byte[] result = new byte[0]
         // Fix keylen if mistaken
         if(![16,24,32].contains(keylen)) {
-            Log.w(LOG_TAG,"Key length must be 16,24 or 32 bytes long")
+            Log.w("Key length must be 16,24 or 32 bytes long")
             keylen = 32
         }
         genIfNoKey(keylen)
@@ -86,7 +85,7 @@ class AES extends Crypt implements Encodable {
                 System.arraycopy(outBuf, 0, result, 0, result.length)
             }
         } catch(Exception e){
-            Log.e(LOG_TAG, "Unable to encode/decode data")
+            Log.e( "Unable to encode/decode data")
         }
         return result
     }

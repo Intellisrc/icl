@@ -14,8 +14,6 @@ import java.lang.reflect.InvocationTargetException
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
 class DBPool {
-
-	private static final String LOG_TAG = DBPool.getSimpleName()
     private int TIMEOUT_SEC = 600
 	private boolean initialized = false
     private String databaseName
@@ -62,7 +60,7 @@ class DBPool {
                 connector.lastUsed = 0
                 connector.close()
                 availableConnections.remove(connector)
-                Log.v(LOG_TAG, "Connection timed out")
+                Log.v( "Connection timed out")
             }
 		}
 	}
@@ -75,7 +73,7 @@ class DBPool {
     synchronized void increasePool() {
         if (availableConnections.isEmpty()) {
             availableConnections.add(createNewConnectionForPool())
-            Log.v(LOG_TAG, "Connection added to pool")
+            Log.v( "Connection added to pool")
         }
     }
 
@@ -87,7 +85,7 @@ class DBPool {
 			availableConnections.first().close()
             availableConnections.remove(0)
 		}
-		Log.d(LOG_TAG, "Database has closed all connections")
+		Log.d( "Database has closed all connections")
 	}
 
     /**
@@ -117,7 +115,7 @@ class DBPool {
 				conn = (DB.Connector) con.newInstance(databaseName, connectionString)
 			}
 		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-			Log.e(LOG_TAG, "Unable to load the connection class: " + ex)
+			Log.e( "Unable to load the connection class: " + ex)
 		}
 		return conn
 	}
@@ -130,9 +128,9 @@ class DBPool {
 			connection.lastUsed = System.currentTimeSeconds()
             availableConnections.remove(connection)
             currentConnections++
-            Log.v(LOG_TAG, "Current connections: " + currentConnections + " sleeping: " + availableConnections.size())
+            Log.v( "Current connections: " + currentConnections + " sleeping: " + availableConnections.size())
 		} else {
-			Log.e(LOG_TAG, "Database Pool was not initialized")
+			Log.e( "Database Pool was not initialized")
 		}
 		return connection
 	}
