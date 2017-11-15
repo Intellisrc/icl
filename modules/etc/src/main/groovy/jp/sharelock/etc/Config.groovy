@@ -8,7 +8,6 @@ package jp.sharelock.etc
  * @author Alberto Lepe <lepe@sharelock.jp>
  */
 class Config {
-    private static final String LOG_TAG = Config.getSimpleName()
 	static String fileName = "config.properties"
     static String filePath = SysInfo.getUserDir()
     static Properties props = System.getProperties()
@@ -37,10 +36,10 @@ class Config {
                 }
             }
             if(!configFile.canWrite()) {
-                Log.w(LOG_TAG, "Configuration configFile: "+configFile.toString()+" is not writable. Any attempt to change settings will fail.")
+                Log.w( "Configuration configFile: "+configFile.toString()+" is not writable. Any attempt to change settings will fail.")
             }
         } else {
-            Log.d(LOG_TAG, "Configuration not being used ("+configFile.toString()+"). All settings will be loaded from System")
+            Log.d( "Configuration not being used ("+configFile.toString()+"). All settings will be loaded from System")
         }
     }
 
@@ -81,7 +80,7 @@ class Config {
      */
     static void setProps() {
         //Do nothing.
-        Log.w(LOG_TAG, "Properties can not be updated directly. Use set() instead.")
+        Log.w( "Properties can not be updated directly. Use set() instead.")
     }
 
 	/**
@@ -94,7 +93,7 @@ class Config {
         String val = config.getProperty(key)
         if(val == null) { val = "" }
         if(val.startsWith('"') || val.startsWith("'")) {
-            Log.w(LOG_TAG, "Settings in properties files don't need quotes. Please delete them to remove this warning.")
+            Log.w( "Settings in properties files don't need quotes. Please delete them to remove this warning.")
             val = val.replaceAll(/^["']|["']$/,'')
         }
         return val
@@ -138,7 +137,7 @@ class Config {
         if(configFile.canWrite()) {
             config.store(configFile.newWriter(), null)
         } else {
-            Log.e(LOG_TAG, "Unable to write to: "+configFile.toString())
+            Log.e( "Unable to write to: "+configFile.toString())
         }
 	}
 

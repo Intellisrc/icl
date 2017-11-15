@@ -10,7 +10,6 @@ import java.nio.charset.Charset
  * It is abstract because execCommand must be implemented
  */
 class TCPServer {
-	private static final String LOG_TAG = TCPServer.getSimpleName()
 	interface ServerCallback {
         String exec(String clientCommand)
     }
@@ -37,7 +36,7 @@ class TCPServer {
                 serverSocket = new ServerSocket(port)
                 ServerOn = true
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Could not create server socket on port: $port "+e)
+                Log.e( "Could not create server socket on port: $port "+e)
                 throw new InvalidPortException("Could not create server socket on port: $port ")
             }
             while(ServerOn) {
@@ -63,7 +62,7 @@ class TCPServer {
                 }
                 catch(IOException ioe)
                 {
-                    Log.w(LOG_TAG, "Exception encountered on accept. Ignoring. ($ioe)")
+                    Log.w( "Exception encountered on accept. Ignoring. ($ioe)")
                 }
 
             }
@@ -71,11 +70,11 @@ class TCPServer {
             try
             {
                 serverSocket.close()
-                Log.d(LOG_TAG, "Server Stopped")
+                Log.d( "Server Stopped")
             }
             catch(IOException ioe)
             {
-                Log.e(LOG_TAG, "Problem stopping server socket ($ioe)")
+                Log.e( "Problem stopping server socket ($ioe)")
                 System.exit(-1)
             }
 		})
@@ -83,7 +82,7 @@ class TCPServer {
 
 	void quit() {
 		ServerOn = false
-		Log.i(LOG_TAG, "Server will stop listening to new requests")
+		Log.i( "Server will stop listening to new requests")
 	}
 
 	/**
@@ -114,8 +113,8 @@ class TCPServer {
 			PrintWriter dataOut = null
 
 			// Print out details of this connection
-			//Log.d(LOG_TAG, "Accepted Client Address - " + myClientSocket.getInetAddress().getHostName()); <-- this line caused 5sec delay in Windows
-			Log.d(LOG_TAG, "Accepted Client")
+			//Log.d( "Accepted Client Address - " + myClientSocket.getInetAddress().getHostName()); <-- this line caused 5sec delay in Windows
+			Log.d( "Accepted Client")
 
 			try
 			{
@@ -124,12 +123,12 @@ class TCPServer {
 
                 // read incoming stream
                 String clientCommand = dataIn.readLine()
-				Log.i(LOG_TAG, "Message from client <<<<< [" + clientCommand+"]")
+				Log.i( "Message from client <<<<< [" + clientCommand+"]")
 
 				reply = execCommand.exec(clientCommand)
                 // Process it
                 if(!reply.isEmpty()) {
-					Log.i(LOG_TAG, "Message to client >>>>> [" + reply +"]")
+					Log.i( "Message to client >>>>> [" + reply +"]")
 					dataOut.println(reply)
 					dataOut.flush()
                 } else if(reply == "exit") {
@@ -138,7 +137,7 @@ class TCPServer {
             }
 			catch(IOException e)
 			{
-				Log.e(LOG_TAG,e)
+				Log.e("Error in TCP connection",e)
 			}
             // Clean up
             try
@@ -150,11 +149,11 @@ class TCPServer {
 					dataOut.close()
 				}
                 myClientSocket.close()
-				Log.d(LOG_TAG, "... Thread ended")
+				Log.d( "... Thread ended")
 			}
             catch(IOException ioe)
             {
-				Log.e(LOG_TAG, ioe)
+				Log.e("Error while closing connection", ioe)
             }
 		}
 
