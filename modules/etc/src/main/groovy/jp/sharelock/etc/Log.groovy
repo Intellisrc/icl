@@ -206,7 +206,7 @@ final class Log {
             t = (Throwable) args[args.length - 1]
             args = Arrays.copyOfRange(args, 0, args.length - 1)
         }
-        if (msg.indexOf('%') != -1) {
+        if (msg.indexOf('%') != -1 && args.length > 0) {
             return String.format(msg, args)
         }
         StringBuilder sb = new StringBuilder()

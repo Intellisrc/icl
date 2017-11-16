@@ -24,6 +24,7 @@ class LogTest extends Specification {
     }
     def "Specifying path"() {
         setup:
+        // If can also be specified at the config.properties file like: log.file, log.path
             Log.logFile = "test.log"
             Log.logPath = "/tmp/"
             Log.w("This is some warning")
@@ -37,5 +38,31 @@ class LogTest extends Specification {
             println oFile.text
         cleanup:
             oFile.delete()
+    }
+    def "Test parameters"() {
+        when:
+            Log.w("This is a %s", "warning")
+            Log.i("Somewhere between %d and %d", 100, 200)
+            Log.d("I'm %d%% that this is correct.", 80)
+            Log.e("This failed 100%")
+        then:
+            notThrown Exception
+    }
+    static class DummyTestException extends Exception {
+        String message = "This is the message of the dummy exception"
+    }
+    def "Test Exception"() {
+        setup:
+            def throwIt = {
+                throw new DummyTestException()
+            }
+        when:
+            try {
+                throwIt()
+            } catch(Exception e) {
+                Log.e("This is an exception: ",e)
+            }
+        then:
+            notThrown Exception
     }
 }
