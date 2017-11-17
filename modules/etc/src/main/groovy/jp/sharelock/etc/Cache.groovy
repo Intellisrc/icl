@@ -57,7 +57,7 @@ class Cache<V> {
 	 * Returns value if found, or set object if not
 	 * @param key
 	 * @param default_val
-	 * @return 
+	 * @return
 	 */
     V get(final String key, onNotFound notFound = null, long time = DEFAULT_TIMEOUT) {
         V ret = null
@@ -127,5 +127,4 @@ class Cache<V> {
                 expired(key)
         }
     }
-	
 }
