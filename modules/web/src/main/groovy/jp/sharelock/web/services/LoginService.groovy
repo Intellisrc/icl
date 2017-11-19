@@ -13,9 +13,18 @@ import spark.Request
 
 @groovy.transform.CompileStatic
 class LoginService implements ServiciableAuth {
+    String rootPath  = ""
+    String loginPath = "/login"
+    String logoutPath = "/logout"
+
     static enum Level {
         GUEST, USER, MODERATOR, ADMIN
     }
+    
+    Level getUserLevel(Request request) {
+        return request.session().attribute("level").toString().toUpperCase() as Level
+    }
+
     static final Allow User = {
         Request request ->
             if(request.session()) {
@@ -88,9 +97,6 @@ class LoginService implements ServiciableAuth {
             return Level.GUEST
         }
     }
-    String rootPath  = ""
-    String loginPath = "/login"
-    String logoutPath = "/logout"
 
     @Override
     Map<String,Object> onLogin(final Request request) {
