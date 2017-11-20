@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.pac4j:spark-pac4j:2.1.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.pac4j/spark-pac4j/2.1.0/539a7a0731e0c26e8c36d4610b54595489bfda2e/spark-pac4j-2.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.pac4j/spark-pac4j/2.1.0/b3ee1b489797f1ee3af026c44abe9715a453ee69/spark-pac4j-2.1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

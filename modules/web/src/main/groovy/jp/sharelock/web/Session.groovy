@@ -9,5 +9,5 @@ class Session {
     spark.Session httpSession
     InetAddress address
     String userID
-    Collection data
+    Map data
 }
