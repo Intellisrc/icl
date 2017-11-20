@@ -17,6 +17,7 @@ class ServicePath {
         GET, POST, PUT, DELETE, OPTIONS
     }
     int cacheTime  = 0                                            // Seconds to store action in Cache
+    boolean cacheExtend = false                                   // Extend time upon read (similar as sessions)
     Method method  = Method.GET                                   // HTTP Method to be used
     String path    = ""                                           // URL path relative to parent
     Action action  = { Request request -> null } as Action        // Closure that will return an object (usually Collection or HashMap) to be converted to JSON as response

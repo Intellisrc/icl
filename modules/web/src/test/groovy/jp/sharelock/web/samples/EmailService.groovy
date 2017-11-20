@@ -72,13 +72,13 @@ class EmailService implements ServiciableMultiple {
                 new ServicePath(
                         path   : "/more",
                         action : getEmailsMore,
-                        allow  : LoginService.isAdmin
+                        allow  : LoginServiceExample.isAdmin
                 ),
                 new ServicePath(
                         method : POST,
                         path   : ".save", //will become: /emails.save
                         action : saveEmails,
-                        allow  : LoginService.canEditEmails
+                        allow  : LoginServiceExample.canEditEmails
                 )
         ]
     }

@@ -11,7 +11,7 @@ import spark.Request
 /**
  * @since 17/04/03.
  */
-class LoginService implements ServiciableAuth {
+class LoginServiceExample implements ServiciableAuth {
 
     static enum Level {
         GUEST, USER, EDITOR, ADMIN
@@ -40,31 +40,29 @@ class LoginService implements ServiciableAuth {
             return request.ip() ==~ /^127.0.0.1/
     } as Allow
 
+    /**
+     * In extended classes, overriding "onLogin" its the recommended
+     * way to specify the login Task.
+     *
+     * However, you can override the "onLoginAction" parameter o
+     * implemented it outside this class by setting on the constructor:
+     *
+     * addService(new LoginServiceExample(onLoginAction : {
+     *     ...
+     * } as LoginAction)
+     *
+     */
     @Override
-    String getPath() {
-        ""
-    }
-
-    @Override
-    String getLoginPath() {
-        "/login"
-    }
-
-    @Override
-    String getLogoutPath() {
-        "/logout"
-    }
-
-    @Override
-    HashMap<String,Object> onLogin(final Request request) {
+    Map onLogin(Request request) {
         if(canLogin.check(request)) {
-            String user = request.queryParams("user")
-            String pass = request.queryParams("pass")
+            String user = request.queryParams("my-user")
+            String pass = request.queryParams("my-pass")
             if (user == "test" && pass == "test") {
+                //This information will be stored in the session:
                 return [
                         user : "test",
-                        level: Level.ADMIN,
-                        name : "Super User"
+                        level: Level.USER,
+                        name : "Super User Name"
                 ]
             }
         }
@@ -73,7 +71,22 @@ class LoginService implements ServiciableAuth {
 
     @Override
     boolean onLogout() {
-        return true
+        return false
+    }
+
+    @Override
+    String getPath() {
+        "/auth"
+    }
+
+    @Override
+    String getLoginPath() {
+        ".login"        //becomes: /auth.login
+    }
+
+    @Override
+    String getLogoutPath() {
+        ".logout"       //becomes: /auth.logout
     }
 
 }

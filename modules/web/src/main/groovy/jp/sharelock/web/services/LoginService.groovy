@@ -4,7 +4,18 @@ import jp.sharelock.etc.Log
 
 /**
  * Generic class to allow access to private content
- * If this class doesn't fit your case, extend it or imitate it
+ * If this class doesn't fit your case, extend it (recommended) or imitate it
+ *
+ * onLoginAction, should be defined to allow login. The recommended way
+ * to define it is on creation:
+ *
+ * addService(new LoginService(onLoginAction : {
+ *     ...
+ * } as LoginAction)
+ *
+ * TODO: redesign this class. Its not flexible enough. If possible, use:
+ * https://github.com/pac4j/spark-pac4j
+ *
  * @since 10/19/17.
  */
 import jp.sharelock.web.ServiciableAuth
@@ -90,6 +101,10 @@ class LoginService implements ServiciableAuth {
             ] as Map<String, Object>
         }
     }
+
+    /**
+     * This property must be defined to allow login
+     */
     LoginAuth onLoginAuth = new LoginAuth() {
         @Override
         Level call(String user, String password) {
@@ -98,6 +113,11 @@ class LoginService implements ServiciableAuth {
         }
     }
 
+    /**
+     * Is recommended to override this method in child classes.
+     * @param request
+     * @return
+     */
     @Override
     Map<String,Object> onLogin(final Request request) {
         return onLoginAction.call(request)

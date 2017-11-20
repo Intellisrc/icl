@@ -5,6 +5,7 @@ import spock.lang.Specification
 
 /**
  * @since 17/10/30.
+ //TODO: use fake clock (if possible)
  */
 class CacheTest extends Specification {
     def "Testing cache"() {
@@ -36,15 +37,32 @@ class CacheTest extends Specification {
             def oc = new Cache<Integer>()
             def key = "Wow"
          //   oc.set("Hello","World") <--must be marked by IDE as wrong
-            oc.set(key,1, 10)
+            oc.set(key,1, 3)
         expect:
-            //TODO: use virtual time (if possible)
-            sleep(3000)
-            println "Must exists in this point"
-            assert oc.exists(key)
-            sleep(8000)
-            println "Must NOT exists in this point"
-            assert ! oc.exists(key)
+            sleep(2000)
+            assert oc.exists(key) : "Must exists in this point"
+
+            sleep(2000)
+            assert ! oc.exists(key) : "Must NOT exists in this point"
+        cleanup:
+            oc.clear()
+    }
+
+    def "Testing Time extension"() {
+        setup:
+            def oc = new Cache<Integer>(extend: true)
+            def key = "Wow"
+            oc.set(key,1, 3)
+        expect:
+            sleep(2000)
+            assert oc.exists(key) : "After 2 seconds it should be there"
+
+            sleep(2000)
+            assert oc.exists(key) : "After 4 seconds it should be there as it was renewed"
+
+            sleep(4000)
+            assert ! oc.exists(key) : "After 4 seconds from the last read it should NOT be there"
+
         cleanup:
             oc.clear()
     }
