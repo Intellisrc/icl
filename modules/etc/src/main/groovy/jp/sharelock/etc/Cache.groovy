@@ -8,22 +8,41 @@ import java.util.concurrent.ConcurrentMap
  * Manage Cache of objects
  * @author Alberto Lepe <lepe@sharelock.jp>
  * @param <V>
+ *
+ * GC_INTERVAL  : how many seconds to execute Garbage Collector. Set it to zero to disabled it (for any crazy reason)
+ * extend       : if true, it will extend time upon access. If false, it will expire when the time is due (without changing expire value).
  */
 class Cache<V> {
     interface onNotFound {
         V call()
     }
-    final int DEFAULT_TIMEOUT = 60 //seconds
+	int GC_INTERVAL = 120 //seconds
+    boolean extend  = false
+
+    private final int DEFAULT_TIMEOUT = 60 //seconds
     private class CacheObj {
         V       value
         long    expire
+        private long length
         CacheObj(V obj, long time) {
             value = obj
             expire = time
+            length = expire - new Date().time
         }
     }
     final ConcurrentMap<String, CacheObj> cache = new ConcurrentHashMap<>()
 
+	/**
+	 * Constructor
+	 */
+	Cache() {
+        Thread.start {
+            while(GC_INTERVAL > 0) {
+                sleep(GC_INTERVAL * 1000)
+                garbageCollect()
+            }
+        }
+	}
 	/**
 	 * Returns true if cache is empty
 	 * @return 
@@ -45,11 +64,19 @@ class Cache<V> {
      * @return
      */
     private boolean expired(final String key) {
-        def expired = false
-        if(cache.get(key)?.expire < new Date().getTime()) {
-            Log.d( "Key [$key] expired.")
-            del(key)
-            expired = true
+        def expired = true
+        def obj = cache.get(key)
+        def now = new Date().time
+        if(obj) {
+            if (obj.expire < now) {
+                Log.d("Key [$key] expired.")
+                del(key)
+            } else {
+                if(extend) {
+                    obj.expire = now + obj.length
+                }
+                expired = false
+            }
         }
         return expired
     }
@@ -119,9 +146,9 @@ class Cache<V> {
 
     /**
      * Will remove expired elements
-     * it doesn't run automatically. Needs to be called
+     * It is initialized automatically
      */
-    void garbageCollect() {
+    private garbageCollect() {
         cache.each {
             String key, CacheObj co ->
                 expired(key)

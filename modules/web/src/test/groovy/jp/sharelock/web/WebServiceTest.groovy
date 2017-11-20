@@ -5,7 +5,7 @@ import jp.sharelock.web.samples.ChatClient
 import jp.sharelock.web.samples.ChatService
 import jp.sharelock.web.samples.EmailService
 import jp.sharelock.web.samples.IDService
-import jp.sharelock.web.samples.LoginService
+import jp.sharelock.web.samples.LoginServiceExample
 import jp.sharelock.web.samples.SSLService
 import jp.sharelock.web.samples.StackOverflowChatClient
 import groovy.json.JsonSlurper
@@ -31,7 +31,7 @@ class WebServiceTest extends Specification {
             web.setResources(System.getProperty("user.dir") + "/res/public/", true)
             web.addService(new EmailService())
             web.addService(new IDService())
-            web.addService(new LoginService())
+            web.addService(new LoginServiceExample())
             web.start()
         expect:
             assert web.isRunning()
