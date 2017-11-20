@@ -7,5 +7,5 @@ package jp.sharelock.web
  */
 @groovy.transform.CompileStatic
 interface ServiciableMultiple extends Serviciable {
-    abstract Collection<ServicePath> getServices()
+    abstract List<ServicePath> getServices()
 }

@@ -2,6 +2,8 @@ package jp.sharelock.web
 
 import jp.sharelock.etc.CacheObj
 import jp.sharelock.etc.Log
+import org.pac4j.sparkjava.SecurityFilter
+import spark.Filter
 import spark.Request
 import spark.Response
 import spark.Route
@@ -94,6 +96,9 @@ class WebService {
                         break
                     case ServiciableAuth:
                         //do nothing, skip
+                        //TODO: do it for Multiple
+                        ServiciableSingle single = serviciable as ServiciableSingle
+                        srv.before("somePath", new SecurityFilter(single.service.config.build(), "Login"))
                         break
                     default:
                         Log.e( "Interface not implemented")
@@ -221,19 +226,20 @@ class WebService {
         return {
             Request request, Response response ->
                 String out
-                response.type("application/json")
+                boolean isJson = sp.contentType.contains("json")
+                response.type(sp.contentType)
                 if(sp.allow.check(request)) {
                     if(sp.cacheTime) {
                         String query = request.queryString()
                         String key = request.uri() + (query  ? "?" + query : "")
                         out = CacheObj.instance.get(key, {
-                            toJson(sp.action.run(request))
+                            isJson ? toJson(sp.action.run(request)) : sp.action.run(request)
                         }, sp.cacheTime)
                     } else {
-                        out = toJson(sp.action.run(request))
+                        out = isJson ? toJson(sp.action.run(request)) : sp.action.run(request)
                     }
                 } else {
-                    out = toJson(y : false)
+                    out = isJson ? toJson(y : false) : ""
                 }
                 return out
         } as Route
