@@ -2,8 +2,6 @@ package jp.sharelock.web
 
 import jp.sharelock.etc.CacheObj
 import jp.sharelock.etc.Log
-import org.pac4j.sparkjava.SecurityFilter
-import spark.Filter
 import spark.Request
 import spark.Response
 import spark.Route
@@ -97,8 +95,8 @@ class WebService {
                     case ServiciableAuth:
                         //do nothing, skip
                         //TODO: do it for Multiple
-                        ServiciableSingle single = serviciable as ServiciableSingle
-                        srv.before("somePath", new SecurityFilter(single.service.config.build(), "Login"))
+                        /*ServiciableSingle single = serviciable as ServiciableSingle
+                        srv.before("somePath", new SecurityFilter(single.service.config.build(), "Login"))*/
                         break
                     default:
                         Log.e( "Interface not implemented")
