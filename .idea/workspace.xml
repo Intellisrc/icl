@@ -2,21 +2,41 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_fasterxml_jackson_core_jackson_annotations_2_8_0.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_fasterxml_jackson_core_jackson_core_2_8_7.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_fasterxml_jackson_core_jackson_databind_2_8_7.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_pac4j_pac4j_core_2_1_0.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_pac4j_pac4j_http_2_1_0.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_pac4j_spark_pac4j_2_1_0.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/LoginConfig.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$AndroidPrinter.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$AndroidPrinter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$SystemOutPrinter.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$SystemOutPrinter.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServicePath$_closure1.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServicePath$_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServicePath$_closure2.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServicePath$_closure2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServicePath.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServicePath.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableMultiple.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableMultiple.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/Session.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/Session.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_onAction_closure2.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_onAction_closure2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure3.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4$_closure6.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4$_closure6.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure5.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure5.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/common.iml" afterPath="$PROJECT_DIR$/.idea/modules/common.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build.gradle" afterPath="$PROJECT_DIR$/modules/web/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServicePath.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServicePath.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableMultiple.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableMultiple.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/Session.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/Session.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -188,26 +208,42 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="LoginService.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LoginService.groovy">
+      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
-              <caret line="25" column="46" lean-forward="false" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
-              <folding>
-                <element signature="e#532#571#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="188">
+              <caret line="35" column="49" lean-forward="false" selection-start-line="35" selection-start-column="49" selection-end-line="35" selection-end-column="49" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WebService.groovy" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy">
+      <file leaf-file-name="Smtp.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="617">
-              <caret line="115" column="19" lean-forward="true" selection-start-line="115" selection-start-column="19" selection-end-line="115" selection-end-column="19" />
-              <folding>
-                <element signature="e#26#58#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="810">
+              <caret line="188" column="8" lean-forward="false" selection-start-line="188" selection-start-column="8" selection-end-line="188" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Log.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="98">
+              <caret line="64" column="129" lean-forward="false" selection-start-line="64" selection-start-column="129" selection-end-line="64" selection-end-column="129" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LogTest.groovy" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/LogTest.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="367">
+              <caret line="38" column="8" lean-forward="false" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -215,7 +251,7 @@
       <file leaf-file-name="LoginConfig.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/LoginConfig.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
+            <state relative-caret-position="126">
               <caret line="15" column="41" lean-forward="false" selection-start-line="15" selection-start-column="41" selection-end-line="15" selection-end-column="41" />
               <folding>
                 <element signature="e#26#62#0" expanded="true" />
@@ -227,21 +263,11 @@
       <file leaf-file-name="ServicePath.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServicePath.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="468">
+            <state relative-caret-position="450">
               <caret line="26" column="102" lean-forward="false" selection-start-line="26" selection-start-column="102" selection-end-line="26" selection-end-column="102" />
               <folding>
                 <element signature="e#26#68#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ServiciableSingle.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableSingle.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="8" column="10" lean-forward="false" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -1391,11 +1417,11 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="13585221817000" />
+        <entry key="$PROJECT_DIR$" value="13586086313000" />
         <entry key="$PROJECT_DIR$/build.gradle" value="4231675548" />
         <entry key="$PROJECT_DIR$/crypt/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/db/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/gradle.properties" value="2778885639" />
+        <entry key="$PROJECT_DIR$/gradle.properties" value="1828195844" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="615277776" />
         <entry key="$PROJECT_DIR$/module/groovy-extend/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/crypt/build.gradle" value="3337576961" />
@@ -2194,7 +2220,6 @@
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/SmtpTest.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Email.groovy" />
-        <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/dummy/SysServiceDummy.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/SysServiceTest.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
@@ -2207,11 +2232,8 @@
         <option value="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/AndroidConnector.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy" />
-        <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/LogTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/CommandTest.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Command.groovy" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Version.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/LoginService.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cache.groovy" />
@@ -2229,6 +2251,10 @@
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/LoginConfig.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServicePath.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/LogTest.groovy" />
       </list>
     </option>
   </component>
@@ -2239,10 +2265,10 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-1" />
+    <option name="x" value="-3" />
     <option name="y" value="33" />
-    <option name="width" value="1922" />
-    <option name="height" value="1165" />
+    <option name="width" value="1926" />
+    <option name="height" value="1170" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="false" id="Update" />
@@ -2262,9 +2288,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="Scratches" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -2281,58 +2307,47 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="462c0819:PsiDirectoryNode" />
-              <item name="services" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
@@ -2340,7 +2355,7 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
@@ -2349,22 +2364,57 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="net" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
               <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="462c0819:PsiDirectoryNode" />
-              <item name="samples" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -2404,7 +2454,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.CacheTest">
+  <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
     <configuration name="CacheTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -2480,7 +2530,7 @@
       <envs />
       <patterns />
     </configuration>
-    <configuration name="CommandTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="LogTest.Specifying path" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
           <option name="PATTERN" value="jp.sharelock.etc.*" />
@@ -2491,9 +2541,9 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="jp.sharelock.etc" />
-      <option name="MAIN_CLASS_NAME" value="jp.sharelock.etc.CommandTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="MAIN_CLASS_NAME" value="jp.sharelock.etc.LogTest" />
+      <option name="METHOD_NAME" value="Specifying path" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/modules/etc" />
@@ -2603,19 +2653,19 @@
       </ExternalSystemSettings>
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.CommandTest" />
-      <item index="1" class="java.lang.String" itemvalue="Gradle.common [artifactoryPublish]" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.CacheTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension: false" />
+      <item index="0" class="java.lang.String" itemvalue="Gradle.common [artifactoryPublish]" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.CacheTest" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension: false" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.LogTest.Specifying path" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.CacheTest" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension: false" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension" />
-        <item index="3" class="java.lang.String" itemvalue="Gradle.common [artifactoryPublish]" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.CommandTest" />
+        <item index="0" class="java.lang.String" itemvalue="Gradle.common [artifactoryPublish]" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.LogTest.Specifying path" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.CacheTest" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension: false" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.CacheTest.Testing Time extension" />
       </list>
     </recent_temporary>
   </component>
@@ -2826,22 +2876,17 @@
       <option name="project" value="LOCAL" />
       <updated>1511167846491</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="2.2.18-SNAPSHOT: Adding security module">
+      <created>1511170840645</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1511170840645</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="CacheTest - 2017.11.20 at 12h 27m 41s.xml">
-      <configuration name="CacheTest" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest - 2017.11.20 at 12h 46m 54s.xml">
-      <configuration name="CacheTest" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest - 2017.11.20 at 12h 48m 12s.xml">
-      <configuration name="CacheTest" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest - 2017.11.20 at 17h 49m 44s.xml">
-      <configuration name="CacheTest" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="CacheTest_Testing_Time_extension - 2017.11.20 at 12h 29m 36s.xml">
       <configuration name="CacheTest.Testing Time extension" configurationId="JUnit" />
     </history-entry>
@@ -2860,6 +2905,18 @@
     <history-entry file="CommandTest_Command_Test_As_parameter - 2017.11.17 at 15h 33m 44s.xml">
       <configuration name="CommandTest.Command Test As parameter" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="LogTest_Specifying_path - 2017.11.27 at 17h 32m 23s.xml">
+      <configuration name="LogTest.Specifying path" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="LogTest_Specifying_path - 2017.11.27 at 17h 32m 55s.xml">
+      <configuration name="LogTest.Specifying path" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="LogTest_Specifying_path - 2017.11.27 at 17h 34m 18s.xml">
+      <configuration name="LogTest.Specifying path" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="LogTest_Specifying_path - 2017.11.27 at 17h 34m 40s.xml">
+      <configuration name="LogTest.Specifying path" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -2871,40 +2928,38 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="33" width="1030" height="738" extended-state="6" />
-    <editor active="true" />
+    <frame x="-3" y="33" width="1926" height="1170" extended-state="6" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19770774" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.44033614" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.43935052" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.40510204" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5593496" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2196162" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="JFrog" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.15724947" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15724947" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.66386557" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19770774" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5593496" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.2 : Log path can be specified. Test classes added" />
     <MESSAGE value="2.2.3 : Added SMTP class" />
     <MESSAGE value="2.2.7 : Added onSleep for background processes in SysSrv and Recoded part of JDBCConnector. Removed DBType.NONE" />
     <MESSAGE value="2.2.7 : fixed JDBCConnector." />
@@ -2929,7 +2984,8 @@
     <MESSAGE value="2.2.16.6 added boolean to Emai" />
     <MESSAGE value="2.2.18 : improved Command and added tests" />
     <MESSAGE value="2.2.18-SNAPSHOT: Added 'extend' to Cache, and tried to improve LoginService" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.18-SNAPSHOT: Added 'extend' to Cache, and tried to improve LoginService" />
+    <MESSAGE value="2.2.18-SNAPSHOT: Adding security module" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.18-SNAPSHOT: Adding security module" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -2946,13 +3002,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/sun/reflect/NativeMethodAccessorImpl.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="13" column="171" lean-forward="false" selection-start-line="13" selection-start-column="171" selection-end-line="13" selection-end-column="171" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///usr/lib/jvm/default-java/jre/lib/rt.jar!/sun/reflect/DelegatingMethodAccessorImpl.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -2999,13 +3048,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7650">
           <caret line="511" column="5" lean-forward="false" selection-start-line="511" selection-start-column="5" selection-end-line="511" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/LogTest.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="705">
-          <caret line="47" column="12" lean-forward="false" selection-start-line="47" selection-start-column="12" selection-end-line="47" selection-end-column="12" />
         </state>
       </provider>
     </entry>
@@ -3072,13 +3114,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1422">
-          <caret line="80" column="15" lean-forward="false" selection-start-line="80" selection-start-column="15" selection-end-line="80" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="702">
@@ -3090,22 +3125,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
           <caret line="9" column="6" lean-forward="false" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="35" column="49" lean-forward="false" selection-start-line="35" selection-start-column="49" selection-end-line="35" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="21" lean-forward="false" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -3127,7 +3146,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="14" column="6" lean-forward="false" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3142,9 +3160,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" column="30" lean-forward="false" selection-start-line="6" selection-start-column="30" selection-end-line="6" selection-end-column="30" />
-          <folding>
-            <element signature="e#26#57#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -3159,7 +3174,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="288">
           <caret line="17" column="4" lean-forward="false" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3167,7 +3181,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="21" column="0" lean-forward="true" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3175,7 +3188,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="35" lean-forward="false" selection-start-line="21" selection-start-column="35" selection-end-line="21" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3186,9 +3198,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="414">
           <caret line="33" column="36" lean-forward="false" selection-start-line="33" selection-start-column="36" selection-end-line="33" selection-end-column="36" />
-          <folding>
-            <element signature="e#26#53#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -3196,9 +3205,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1224">
           <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
-          <folding>
-            <element signature="e#62#101#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -3222,7 +3228,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="10" lean-forward="false" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3238,23 +3243,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/Json.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="10" lean-forward="false" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/Json.groovy" />
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-all/2.4.10/4cd3ebb112ce901e969f6f85d2a42c22f04854d0/groovy-all-2.4.10-sources.jar!/groovy/json/JsonOutput.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3262,23 +3258,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="5" column="32" lean-forward="false" selection-start-line="5" selection-start-column="32" selection-end-line="5" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LoginService.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="25" column="46" lean-forward="false" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
-          <folding>
-            <element signature="e#532#571#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/LoginConfig.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
+        <state relative-caret-position="126">
           <caret line="15" column="41" lean-forward="false" selection-start-line="15" selection-start-column="41" selection-end-line="15" selection-end-column="41" />
           <folding>
             <element signature="e#26#62#0" expanded="true" />
@@ -3296,7 +3281,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServicePath.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
+        <state relative-caret-position="450">
           <caret line="26" column="102" lean-forward="false" selection-start-line="26" selection-start-column="102" selection-end-line="26" selection-end-column="102" />
           <folding>
             <element signature="e#26#68#0" expanded="true" />
@@ -3308,20 +3293,66 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="41" column="11" lean-forward="false" selection-start-line="41" selection-start-column="11" selection-end-line="41" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="20" lean-forward="false" selection-start-line="6" selection-start-column="20" selection-end-line="6" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LoginService.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-810">
+          <caret line="25" column="46" lean-forward="false" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
           <folding>
-            <element signature="e#1299#1300#0" expanded="true" />
-            <element signature="e#1348#1349#0" expanded="true" />
+            <element signature="e#532#571#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="617">
-          <caret line="115" column="19" lean-forward="true" selection-start-line="115" selection-start-column="19" selection-end-line="115" selection-end-column="19" />
+        <state relative-caret-position="131">
+          <caret line="100" column="28" lean-forward="false" selection-start-line="100" selection-start-column="28" selection-end-line="100" selection-end-column="28" />
           <folding>
             <element signature="e#26#58#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="188">
+          <caret line="35" column="49" lean-forward="false" selection-start-line="35" selection-start-column="49" selection-end-line="35" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="810">
+          <caret line="188" column="8" lean-forward="false" selection-start-line="188" selection-start-column="8" selection-end-line="188" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="98">
+          <caret line="64" column="129" lean-forward="false" selection-start-line="64" selection-start-column="129" selection-end-line="64" selection-end-column="129" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/LogTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="367">
+          <caret line="38" column="8" lean-forward="false" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
+          <folding />
         </state>
       </provider>
     </entry>
