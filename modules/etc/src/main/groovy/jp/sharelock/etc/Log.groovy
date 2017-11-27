@@ -1,4 +1,7 @@
 package jp.sharelock.etc
+
+import groovy.transform.ToString
+
 /**
  * @since 2/11/17.
  */
@@ -59,7 +62,7 @@ final class Log {
                     }
                 }
                 def file = new File(logPath + logFile)
-                file << (time + "\t" + "[" + level + "]\t" + stack + "\t" + msg + "\n")
+                file << (time + "\t" + "[" + level + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
             }
         }
     }
