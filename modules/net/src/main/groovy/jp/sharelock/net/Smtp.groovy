@@ -163,29 +163,28 @@ class Smtp {
             password = Config.get("mail.smtp.password")
             host     = Config.get("mail.smtp.host")
             port     = Config.getInt("mail.smtp.port")
-            if(Config.hasKey("mail.smtp.from") && Config.get("mail.smtp.from")) {
-                from = Config.get("mail.smtp.from")
-            }
-            if(Config.hasKey("mail.smtp.name") && Config.get("mail.smtp.name")) {
-                fromName = Config.get("mail.smtp.name")
-            }
-            if(Config.hasKey("mail.smtp.reply") && Config.get("mail.smtp.reply")) {
-                replyTo = Config.get("mail.smtp.reply")
-            }
-            //If config is set, send a copy to those
-            if(Config.hasKey("mail.smtp.to") && Config.get("mail.smtp.to")) {
-                Config.get("mail.smtp.to").split(",").each {
-                    String to ->
-                        recipients[to] = Mode.BCC
-                }
-            }
         //Reading from variables
         } else {
             if(fileSettings) {
                 Log.d("Config file settings were override with local settings.")
             }
-            if (defaultTo) {
-                recipients[defaultTo] = Mode.BCC
+        }
+        if(from.isEmpty() && Config.hasKey("mail.smtp.from") && Config.get("mail.smtp.from")) {
+            from = Config.get("mail.smtp.from")
+        }
+        if(fromName.isEmpty() && Config.hasKey("mail.smtp.name") && Config.get("mail.smtp.name")) {
+            fromName = Config.get("mail.smtp.name")
+        }
+        if(replyTo.isEmpty() && Config.hasKey("mail.smtp.reply") && Config.get("mail.smtp.reply")) {
+            replyTo = Config.get("mail.smtp.reply")
+        }
+        //If config is set, send a copy to those
+        if (defaultTo) {
+            recipients[defaultTo] = Mode.BCC
+        } else if(Config.hasKey("mail.smtp.to") && Config.get("mail.smtp.to")) {
+            Config.get("mail.smtp.to").split(",").each {
+                String to ->
+                    recipients[to] = Mode.BCC
             }
         }
         //Setup javamail
