@@ -19,6 +19,7 @@ class ServicePath {
     }
     int cacheTime  = 0                                            // Seconds to store action in Cache
     boolean cacheExtend = false                                   // Extend time upon read (similar as sessions)
+    String redirect = ""                                          // Redirect after processing. It will convert map to query
     String contentType = "application/json"
     String path    = ""                                           // URL path relative to parent
     Method method  = Method.GET                                   // HTTP Method to be used

@@ -214,6 +214,34 @@ class WebService {
             case OPTIONS:   srv.options(fullPath, onAction(sp)); break
         }
     }
+    /**
+     * Output types used in getOutput
+     */
+    private final static enum OutputType {
+        JSON, QUERY, PLAIN
+    }
+    /**
+     * Gets the output and convert it
+     * @param output
+     * @param otype
+     * @return
+     */
+    private static String getOutput(Object output, OutputType otype) {
+        String out
+        switch(otype) {
+            case OutputType.JSON:
+                out = toJson(output)
+                break
+            case OutputType.QUERY:
+                output = output as Map
+                out = "?" + output.collect { it }.join('&') //TODO: move it to Map.toQueryString
+                break
+            case OutputType.PLAIN:
+            default:
+                out = output.toString()
+        }
+        return out
+    }
 
     /**
      * Returns the Route to be added into Spark.Service based in ServicePath object
@@ -224,20 +252,25 @@ class WebService {
         return {
             Request request, Response response ->
                 String out
-                boolean isJson = sp.contentType.contains("json")
+                String redirect = sp.redirect
+                OutputType otype = redirect.isEmpty() ? (sp.contentType.contains("json") ? OutputType.JSON : OutputType.PLAIN) : OutputType.QUERY
                 response.type(sp.contentType)
                 if(sp.allow.check(request)) {
                     if(sp.cacheTime) {
                         String query = request.queryString()
                         String key = request.uri() + (query  ? "?" + query : "")
                         out = CacheObj.instance.get(key, {
-                            isJson ? toJson(sp.action.run(request)) : sp.action.run(request)
+                            return getOutput(sp.action.run(request), otype)
                         }, sp.cacheTime)
                     } else {
-                        out = isJson ? toJson(sp.action.run(request)) : sp.action.run(request)
+                        out = getOutput(sp.action.run(request), otype)
+                    }
+                    if(!redirect.isEmpty()) {
+                        response.redirect(redirect + out)
                     }
                 } else {
-                    out = isJson ? toJson(y : false) : ""
+                    response.status(401)
+                    out = otype == OutputType.JSON ? toJson(y : false) : ""
                 }
                 return out
         } as Route
