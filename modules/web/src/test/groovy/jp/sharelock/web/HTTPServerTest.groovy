@@ -27,12 +27,15 @@ class HTTPServerTest extends Specification {
                 http.start()
             }
             def newTitle = "Hello World!"
-            def url = ("http://localhost:$port/template.html?title="+URLEncoder.encode(newTitle,"UTF-8")).toURL()
+            def params = [
+                    title : newTitle
+            ]
+            def url = ("http://localhost:$port/template.html?"+params.toQueryString()).toURL()
         then:
             assert url.text.contains("<h1>"+newTitle+"</h1>")
         when: "Closing connection and testing that is closed"
             http.stop()
-            "http://localhost:$port/template.html?title=$newTitle".toURL().text
+            ("http://localhost:$port/template.html?"+params.toQueryString()).toURL().text
         then:
             thrown ConnectException
     }
