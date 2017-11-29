@@ -218,7 +218,7 @@ class WebService {
      * Output types used in getOutput
      */
     private final static enum OutputType {
-        JSON, QUERY, PLAIN
+        JSON, PLAIN
     }
     /**
      * Gets the output and convert it
@@ -231,10 +231,6 @@ class WebService {
         switch(otype) {
             case OutputType.JSON:
                 out = toJson(output)
-                break
-            case OutputType.QUERY:
-                output = output as Map
-                out = "?" + output.collect { it }.join('&') //TODO: move it to Map.toQueryString
                 break
             case OutputType.PLAIN:
             default:
@@ -252,21 +248,17 @@ class WebService {
         return {
             Request request, Response response ->
                 String out
-                String redirect = sp.redirect
-                OutputType otype = redirect.isEmpty() ? (sp.contentType.contains("json") ? OutputType.JSON : OutputType.PLAIN) : OutputType.QUERY
+                OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : OutputType.PLAIN
                 response.type(sp.contentType)
                 if(sp.allow.check(request)) {
                     if(sp.cacheTime) {
                         String query = request.queryString()
                         String key = request.uri() + (query  ? "?" + query : "")
                         out = CacheObj.instance.get(key, {
-                            return getOutput(sp.action.run(request), otype)
+                            return getOutput(sp.action.run(request, response), otype)
                         }, sp.cacheTime)
                     } else {
-                        out = getOutput(sp.action.run(request), otype)
-                    }
-                    if(!redirect.isEmpty()) {
-                        response.redirect(redirect + out)
+                        out = getOutput(sp.action.run(request, response), otype)
                     }
                 } else {
                     response.status(401)

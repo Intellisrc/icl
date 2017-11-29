@@ -2,6 +2,7 @@ package jp.sharelock.web
 
 import org.pac4j.core.config.ConfigFactory
 import spark.Request
+import spark.Response
 
 @groovy.transform.CompileStatic
 /**
@@ -9,7 +10,7 @@ import spark.Request
  */
 class ServicePath {
     interface Action {
-        Object run(Request request)
+        Object run(Request request, Response response)
     }
     interface Allow {
         boolean check(Request request)
@@ -19,7 +20,6 @@ class ServicePath {
     }
     int cacheTime  = 0                                            // Seconds to store action in Cache
     boolean cacheExtend = false                                   // Extend time upon read (similar as sessions)
-    String redirect = ""                                          // Redirect after processing. It will convert map to query
     String contentType = "application/json"
     String path    = ""                                           // URL path relative to parent
     Method method  = Method.GET                                   // HTTP Method to be used
