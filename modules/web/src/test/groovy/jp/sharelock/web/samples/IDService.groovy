@@ -2,7 +2,7 @@ package jp.sharelock.web.samples
 
 import jp.sharelock.web.ServicePath
 import jp.sharelock.web.ServiciableSingle
-import jp.sharelock.web.ServicePath.Action
+import jp.sharelock.web.ServicePath.ActionRequestResponse
 import spark.Request
 import spark.Response
 
@@ -12,8 +12,8 @@ import spark.Response
 class IDService implements ServiciableSingle {
     ServicePath getService() {
         return new ServicePath(
-            cacheTime: 10,
-            cacheExtend: true,
+            //cacheTime: 10,
+            //cacheExtend: true,
             action: {
                 Request request, Response response ->
                     //Example use of Response
@@ -24,7 +24,7 @@ class IDService implements ServiciableSingle {
                 return [
                     i : 200
                 ]
-            } as Action
+            } as ActionRequestResponse
         )
     }
 

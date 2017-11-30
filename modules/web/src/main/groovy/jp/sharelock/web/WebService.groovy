@@ -2,10 +2,18 @@ package jp.sharelock.web
 
 import jp.sharelock.etc.CacheObj
 import jp.sharelock.etc.Log
+import jp.sharelock.etc.SysInfo
 import spark.Request
 import spark.Response
 import spark.Route
 import spark.Service
+
+import javax.servlet.MultipartConfigElement
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 
 import static jp.sharelock.web.ServicePath.Method.*
 import static groovy.json.JsonOutput.toJson
@@ -218,7 +226,7 @@ class WebService {
      * Output types used in getOutput
      */
     private final static enum OutputType {
-        JSON, PLAIN
+        JSON, PLAIN, BINARY
     }
     /**
      * Gets the output and convert it
@@ -226,11 +234,29 @@ class WebService {
      * @param otype
      * @return
      */
-    private static String getOutput(Object output, OutputType otype) {
-        String out
+    private static Object getOutput(Response response, Object output, OutputType otype) {
+        Object out
         switch(otype) {
             case OutputType.JSON:
                 out = toJson(output)
+                break
+            case OutputType.BINARY:
+                HttpServletResponse raw = response.raw()
+                byte[] content
+                switch (output) {
+                    case File:
+                        content = (output as File).bytes
+                        break
+                    case String:
+                    default:
+                        content = output.toString().bytes
+                        break
+                }
+                raw.getOutputStream().write(content)
+                raw.getOutputStream().flush()
+                raw.getOutputStream().close()
+                raw.setContentLength(content.length)
+                out = raw
                 break
             case OutputType.PLAIN:
             default:
@@ -247,18 +273,97 @@ class WebService {
     private static Route onAction(final ServicePath sp) {
         return {
             Request request, Response response ->
-                String out
-                OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : OutputType.PLAIN
+                Object out = ""
+                OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : (sp.contentType.contains("text") ? OutputType.PLAIN : OutputType.BINARY)
                 response.type(sp.contentType)
                 if(sp.allow.check(request)) {
-                    if(sp.cacheTime) {
+                    if(sp.download) {
+                        response.header("Content-Disposition", "attachment; filename="+sp.download)
+                    }
+                    if(otype == OutputType.BINARY) {
+                        response.header("Content-Transfer-Encoding", "binary")
+                    }
+                    if(sp.upload) {
+                        def tempDir = SysInfo.getTempDir()
+                        def tempFileDir = new File(tempDir)
+                        if(tempFileDir.canWrite()) {
+                            request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
+                            Path path = Files.createTempFile("upload", ".file")
+                            def raw = request.raw()
+                            if(raw.contentLength > 0) {
+                                try {
+                                    def part = raw.getPart(sp.uploadField)
+                                    if(part) {
+                                        InputStream input = part.getInputStream()
+                                        Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
+                                        def file = new File(path.toString())
+                                        try {
+                                            Object res
+                                            switch(sp.upload) {
+                                                case ServicePath.UploadRequestResponse: res = (sp.upload as ServicePath.UploadRequestResponse).run(file, request, response); break
+                                                case ServicePath.UploadRequest: res = (sp.upload as ServicePath.UploadRequest).run(file, request); break
+                                                case ServicePath.Upload:
+                                                default: res = (sp.upload as ServicePath.Upload).run(file); break
+                                            }
+                                            out = getOutput(response, res, otype)
+                                        } catch (Exception e) {
+                                            response.status(500)
+                                            Log.e("ServicePath.upload closure failed", e)
+                                        }
+                                        if (file.exists()) {
+                                            file.delete()
+                                        }
+                                        return out
+                                    } else {
+                                        response.status(500)
+                                        Log.e("Upload field name does not matches ServicePath.uploadField value: %s",sp.uploadField)
+                                    }
+                                } catch (Exception e) {
+                                    response.status(500)
+                                    Log.e("Unable to upload file.", e)
+                                }
+                            } else {
+                                response.status(411)
+                                Log.e("Uploaded file is empty")
+                            }
+                        } else {
+                            response.status(503)
+                            Log.e("Temporally directory %s is not writable", tempDir)
+                        }
+                    } else if(sp.cacheTime) {
                         String query = request.queryString()
                         String key = request.uri() + (query  ? "?" + query : "")
                         out = CacheObj.instance.get(key, {
-                            return getOutput(sp.action.run(request, response), otype)
+                            def toSave = ""
+                            try {
+                                Object res
+                                switch(sp.action) {
+                                    case ServicePath.ActionRequestResponse: res = (sp.action as ServicePath.ActionRequestResponse).run(request, response); break
+                                    case ServicePath.ActionRequest: res = (sp.action as ServicePath.ActionRequest).run(request); break
+                                    case ServicePath.Action:
+                                    default: res = (sp.action as ServicePath.Action).run(); break
+                                }
+                                toSave = getOutput(response, res, otype)
+                            } catch (Exception e) {
+                                response.status(500)
+                                Log.e("ServicePath.action CACHE closure failed",e)
+                            }
+                            return toSave
                         }, sp.cacheTime)
                     } else {
-                        out = getOutput(sp.action.run(request, response), otype)
+                        try {
+                            Object res
+                            switch(sp.action) {
+                                case ServicePath.ActionRequestResponse: res = (sp.action as ServicePath.ActionRequestResponse).run(request, response); break
+                                case ServicePath.ActionRequest: res = (sp.action as ServicePath.ActionRequest).run(request); break
+                                case ServicePath.Action:
+                                default: res = (sp.action as ServicePath.Action).run(); break
+                            }
+                            out = getOutput(response, res, otype)
+                        } catch (Exception e) {
+                            response.status(500)
+                            Log.e("ServicePath.action closure failed",e)
+                        }
                     }
                 } else {
                     response.status(401)
