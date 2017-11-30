@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.2.20.1 : commented in-progress code">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/UploadService.groovy" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
       <change type="DELETED" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$Action.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$Response.class" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$WorkerRunnable.class" afterPath="" />
@@ -48,22 +47,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/IDService$_getService_closure1.class" afterPath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/IDService$_getService_closure1.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/IDService.class" afterPath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/IDService.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/common.iml" afterPath="$PROJECT_DIR$/.idea/modules/common.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" />
@@ -71,9 +54,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServicePath.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServicePath.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebService.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/IDService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/IDService.groovy" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -231,7 +211,7 @@
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="90">
-              <caret line="6" column="23" lean-forward="false" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
+              <caret line="6" column="21" lean-forward="false" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -2879,7 +2859,14 @@
       <option name="project" value="LOCAL" />
       <updated>1511858088095</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="2.2.23-SNAPSHOT : Fixed ServicePath and added Upload file">
+      <created>1512038472397</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1512038472397</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -2925,6 +2912,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-3" y="29" width="1372" height="742" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19663866" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -2937,7 +2925,7 @@
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27045456" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5593496" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15681818" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15681818" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5226891" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -2957,7 +2945,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.7.1 : fixed JDBCConnector." />
     <MESSAGE value="2.2.8 : Improved Command and removed Closure objects" />
     <MESSAGE value="2.2.8+ : Cleaning code" />
     <MESSAGE value="2.2.8+ : Added comments about Spark usage" />
@@ -2982,7 +2969,8 @@
     <MESSAGE value="2.2.20 : Log to file was printing objects. Smtp was not using some of the local settings." />
     <MESSAGE value="2.2.20.1 : commented in-progress code" />
     <MESSAGE value="2.2.21 : added &quot;redirect&quot; to ServicePath" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.21 : added &quot;redirect&quot; to ServicePath" />
+    <MESSAGE value="2.2.23-SNAPSHOT : Fixed ServicePath and added Upload file" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.23-SNAPSHOT : Fixed ServicePath and added Upload file" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3365,7 +3353,7 @@
     <entry file="file://$PROJECT_DIR$/gradle.properties">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
-          <caret line="6" column="23" lean-forward="false" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
+          <caret line="6" column="21" lean-forward="false" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
           <folding />
         </state>
       </provider>
