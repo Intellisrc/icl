@@ -1,6 +1,5 @@
 package jp.sharelock.web
 
-import org.pac4j.core.config.ConfigFactory
 import spark.Request
 import spark.Response
 
@@ -52,7 +51,6 @@ class ServicePath {
     Method method  = Method.GET                                   // HTTP Method to be used
     Action action  = { } as Action                                // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow    = { true } as Allow                            // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
-    String uploadField = "upload"
+    String uploadField = "upload"                                 // Name of the HTML input[type=file]
     Upload upload  = null                                         // When uploading files to server, use this parameter
-    ConfigFactory config = null                                   // Specify configuration for security
 }
