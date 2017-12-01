@@ -9,13 +9,12 @@ import spark.Route
 import spark.Service
 
 import javax.servlet.MultipartConfigElement
-import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-import static jp.sharelock.web.ServicePath.Method.*
+import static jp.sharelock.web.Service.Method.*
 import static groovy.json.JsonOutput.toJson
 
 @groovy.transform.CompileStatic
@@ -75,7 +74,7 @@ class WebService {
                     case ServiciableMultiple:
                         ServiciableMultiple serviciables = serviciable as ServiciableMultiple
                         serviciables.services.each {
-                            ServicePath sp ->
+                            jp.sharelock.web.Service sp ->
                                 if(serviciable instanceof ServiciableWebSocket) {
                                     addWebSocketService(serviciable, serviciables.path + sp.path)
                                 } else if(serviciable instanceof ServiciableHTTPS) {
@@ -179,7 +178,7 @@ class WebService {
      * @param rootPath
      * @return
      */
-    private void addServicePath(ServicePath service, String rootPath) {
+    private void addServicePath(jp.sharelock.web.Service service, String rootPath) {
         def fullPath = rootPath + service.path
         if (listPaths.contains(service.method.toString() + fullPath)) {
             Log.w( "Warning, duplicated path ["+fullPath+"] and method [" + service.method.toString() + "] found.")
@@ -209,10 +208,10 @@ class WebService {
     /**
      * Adds some action to the Spark.Service
      * @param fullPath : path of service
-     * @param sp       : ServicePath object
+     * @param sp       : Service object
      * @param srv      : Spark.Service instance
      */
-    private void addAction(final String fullPath, final ServicePath sp) {
+    private void addAction(final String fullPath, final jp.sharelock.web.Service sp) {
         //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
         //Automatic set POST for uploads
         if(sp.upload && sp.method == GET) {
@@ -270,11 +269,11 @@ class WebService {
     }
 
     /**
-     * Returns the Route to be added into Spark.Service based in ServicePath object
-     * @param sp : ServicePath object
+     * Returns the Route to be added into Spark.Service based in Service object
+     * @param sp : Service object
      * @return
      */
-    private static Route onAction(final ServicePath sp) {
+    private static Route onAction(final jp.sharelock.web.Service sp) {
         return {
             Request request, Response response ->
                 Object out = ""
@@ -304,15 +303,15 @@ class WebService {
                                         try {
                                             Object res
                                             switch(sp.upload) {
-                                                case ServicePath.UploadRequestResponse: res = (sp.upload as ServicePath.UploadRequestResponse).run(file, request, response); break
-                                                case ServicePath.UploadRequest: res = (sp.upload as ServicePath.UploadRequest).run(file, request); break
-                                                case ServicePath.Upload:
-                                                default: res = (sp.upload as ServicePath.Upload).run(file); break
+                                                case jp.sharelock.web.Service.UploadRequestResponse: res = (sp.upload as jp.sharelock.web.Service.UploadRequestResponse).run(file, request, response); break
+                                                case jp.sharelock.web.Service.UploadRequest: res = (sp.upload as jp.sharelock.web.Service.UploadRequest).run(file, request); break
+                                                case jp.sharelock.web.Service.Upload:
+                                                default: res = (sp.upload as jp.sharelock.web.Service.Upload).run(file); break
                                             }
                                             out = getOutput(response, res, otype)
                                         } catch (Exception e) {
                                             response.status(500)
-                                            Log.e("ServicePath.upload closure failed", e)
+                                            Log.e("Service.upload closure failed", e)
                                         }
                                         if (file.exists()) {
                                             file.delete()
@@ -320,7 +319,7 @@ class WebService {
                                         return out
                                     } else {
                                         response.status(500)
-                                        Log.e("Upload field name does not matches ServicePath.uploadField value: %s",sp.uploadField)
+                                        Log.e("Upload field name does not matches Service.uploadField value: %s",sp.uploadField)
                                     }
                                 } catch (Exception e) {
                                     response.status(500)
@@ -342,15 +341,15 @@ class WebService {
                             try {
                                 Object res
                                 switch(sp.action) {
-                                    case ServicePath.ActionRequestResponse: res = (sp.action as ServicePath.ActionRequestResponse).run(request, response); break
-                                    case ServicePath.ActionRequest: res = (sp.action as ServicePath.ActionRequest).run(request); break
-                                    case ServicePath.Action:
-                                    default: res = (sp.action as ServicePath.Action).run(); break
+                                    case jp.sharelock.web.Service.ActionRequestResponse: res = (sp.action as jp.sharelock.web.Service.ActionRequestResponse).run(request, response); break
+                                    case jp.sharelock.web.Service.ActionRequest: res = (sp.action as jp.sharelock.web.Service.ActionRequest).run(request); break
+                                    case jp.sharelock.web.Service.Action:
+                                    default: res = (sp.action as jp.sharelock.web.Service.Action).run(); break
                                 }
                                 toSave = getOutput(response, res, otype)
                             } catch (Exception e) {
                                 response.status(500)
-                                Log.e("ServicePath.action CACHE closure failed",e)
+                                Log.e("Service.action CACHE closure failed",e)
                             }
                             return toSave
                         }, sp.cacheTime)
@@ -358,15 +357,15 @@ class WebService {
                         try {
                             Object res
                             switch(sp.action) {
-                                case ServicePath.ActionRequestResponse: res = (sp.action as ServicePath.ActionRequestResponse).run(request, response); break
-                                case ServicePath.ActionRequest: res = (sp.action as ServicePath.ActionRequest).run(request); break
-                                case ServicePath.Action:
-                                default: res = (sp.action as ServicePath.Action).run(); break
+                                case jp.sharelock.web.Service.ActionRequestResponse: res = (sp.action as jp.sharelock.web.Service.ActionRequestResponse).run(request, response); break
+                                case jp.sharelock.web.Service.ActionRequest: res = (sp.action as jp.sharelock.web.Service.ActionRequest).run(request); break
+                                case jp.sharelock.web.Service.Action:
+                                default: res = (sp.action as jp.sharelock.web.Service.Action).run(); break
                             }
                             out = getOutput(response, res, otype)
                         } catch (Exception e) {
                             response.status(500)
-                            Log.e("ServicePath.action closure failed",e)
+                            Log.e("Service.action closure failed",e)
                         }
                     }
                 } else {
