@@ -26,22 +26,22 @@ class Command {
     boolean secret = false
     int exit = 0
     int timeout = 10000
-    interface Callback {
+    interface Done {
         void done(String out)
+    }
+    interface Fail {
         void fail(String out, int code)
     }
-    private Callback callback
-
     /**
      * Execute multiple commands one by one
      * example:
      * [ "ls", "top" ]
      * the output will be added
      * @param cmds
-     * @param callback
+     * @param done
      */
-    void exec(List<String> cmds, Callback callback = null) {
-        exec(wrapCmds(cmds), callback)
+    void exec(final List<String> cmds, final Done onDone = null, final Fail onFail = null) {
+        exec(wrapCmds(cmds), onDone, onFail)
     }
     /**
      * Execute multiple commands one by one with arguments
@@ -52,33 +52,33 @@ class Command {
      * ]
      * the output will be added
      * @param cmds
-     * @param callback
+     * @param done
      */
-    void exec(Map<String,List> cmds, Callback callback = null) {
+    void exec(final Map<String,List> cmds, final Done onDone = null, final Fail onFail = null) {
         String totOut = ""
         String totErr = ""
         cmds.each {
             String cmd, List args ->
-                exec(cmd, args, new Callback() {
-                    @Override
-                    void done(String out) {
+                exec(cmd, args, {
+                    String out ->
                         totOut += (totOut.isEmpty() ? "" : "\n") + out
-                    }
-
-                    @Override
-                    void fail(String out, int code) {
+                }, {
+                    String out, int code ->
                         totErr += (totErr.isEmpty() ? "" : "\n") + out
-                    }
                 })
         }
         totOut = totOut.trim()
         totErr = totErr.trim()
-        if(callback) {
+        if(onDone) {
             if(totOut) {
-                callback.done(totOut)
+                onDone.done(totOut)
             }
-            if(totErr) {
-                callback.fail(totErr, 1)
+            if (totErr) {
+                if(onFail) {
+                    onFail.fail(totErr, 1)
+                } else {
+                    Log.e("Command failed with error: %s",totErr)
+                }
             }
         }
 
@@ -89,11 +89,11 @@ class Command {
      * [ "ls", "top" ]
      * the output will be added
      * @param cmds
-     * @param callback
+     * @param done
      */
-    void execAsync(List<String> cmds, Callback callback = null) {
+    void execAsync(final List<String> cmds, final Done onDone = null, final Fail onFail = null) {
         Thread.start {
-            exec(wrapCmds(cmds), callback)
+            exec(wrapCmds(cmds), onDone, onFail)
         }
     }
     /**
@@ -105,11 +105,11 @@ class Command {
      * ]
      * the output will be added
      * @param cmds
-     * @param callback
+     * @param done
      */
-    void execAsync(Map<String,List> cmds, Callback callback = null) {
+    void execAsync(final Map<String,List> cmds,final  Done onDone = null, final Fail onFail = null) {
         Thread.start {
-            exec(cmds, callback)
+            exec(cmds, onDone, onFail)
         }
     }
     /**
@@ -130,10 +130,10 @@ class Command {
      * @param args
      * @return
      */
-    void exec(String cmd, Callback callback) {
-        exec(cmd, [], callback)
+    void exec(final String cmd, final Done onDone, final Fail onFail = null) {
+        exec(cmd, [], onDone, onFail)
     }
-    void exec(String cmd, List args = [], Callback callback = null) {
+    void exec(final String cmd, final List args = [], final Done onDone = null, final Fail onFail = null) {
         assert cmd: "Invalid Command"
 
         final std_out = new StringBuilder(), std_err = new StringBuilder()
@@ -160,16 +160,14 @@ class Command {
             Log.e(std_err.toString())
         }
         if (exitCode == exit) {
-            if(callback) {
-                callback.done(std_out.toString().trim())
-            } else if(this.callback) {
-                this.callback.done(std_out.toString().trim())
+            if(onDone) {
+                onDone.done(std_out.toString().trim())
             }
         } else {
-            if(callback) {
-                callback.fail(std_err.toString().trim(), exitCode)
-            } else if(this.callback) {
-                this.callback.fail(std_err.toString().trim(), exitCode)
+            if (onFail) {
+                onFail.fail(std_err.toString().trim(), exitCode)
+            } else {
+                Log.e("Command failed with exit code %d and message: %s", exitCode, std_err.toString())
             }
         }
     }
@@ -180,21 +178,13 @@ class Command {
      * @param timeout
      * @return
      */
-    void execAsync(String cmd, Callback callback) {
-        execAsync(cmd,[],callback)
+    void execAsync(final String cmd,final Done onDone, final Fail onFail = null) {
+        execAsync(cmd, [], onDone, onFail)
     }
-    void execAsync(String cmd, List args = [], Callback callback = null) {
+    void execAsync(final String cmd,final List args = [],final Done onDone = null, final Fail onFail = null) {
         Thread.start {
-            exec(cmd, args, callback)
+            exec(cmd, args, onDone, onFail)
         }
     }
 
-    /**
-     * What to return when is used as boolean
-     * @return
-     */
-    /*
-    def asBoolean() {
-        return exit = ret_code
-    }*/
 }

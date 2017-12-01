@@ -9,14 +9,15 @@ import spark.Response
  * @since 11/30/17.
  */
 class UploadService implements ServiciableSingle {
+    final static String fieldName = "image_name"
     @Override
     ServicePath getService() {
         return new ServicePath(
-            uploadField: "image_name",
+            contentType: "image/gif",
+            uploadField: fieldName,
             upload: {
-                File tmpFile, Request request, Response response ->
-                    tmpFile.renameTo("uploads/"+request.queryParams("user"))
-                    response.redirect("/done")
+                File tmpFile ->
+                    return tmpFile
             } as ServicePath.Upload
         )
     }
