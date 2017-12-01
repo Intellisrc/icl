@@ -1,5 +1,6 @@
 package jp.sharelock.web.samples
 
+import jp.sharelock.etc.Log
 import jp.sharelock.web.ServicePath
 import jp.sharelock.web.ServiciableSingle
 import jp.sharelock.web.ServicePath.ActionRequestResponse
@@ -12,17 +13,23 @@ import spark.Response
 class IDService implements ServiciableSingle {
     ServicePath getService() {
         return new ServicePath(
-            //cacheTime: 10,
-            //cacheExtend: true,
+            cacheTime: 10,
+            cacheExtend: true,
             action: {
                 Request request, Response response ->
+                    int id = 0
                     //Example use of Response
-                    if(request.params().isEmpty()) {
+                    if(request.queryParams().isEmpty()) {
+                        Log.e("No parameters found")
                         response.status(404)
                         response.redirect("/")
+                    } else {
+                        id = request.queryParams("i") as Integer
+                        Log.d("ID requested: %d", id)
                     }
                 return [
-                    i : 200
+                    i : id,
+                    t : new Date().time
                 ]
             } as ActionRequestResponse
         )
@@ -32,3 +39,4 @@ class IDService implements ServiciableSingle {
         return "/id"
     }
 }
+
