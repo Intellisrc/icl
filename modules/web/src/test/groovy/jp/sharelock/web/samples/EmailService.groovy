@@ -1,13 +1,12 @@
 package jp.sharelock.web.samples
-
 /**
  * @since 17/04/19.
  */
-import jp.sharelock.web.ServicePath
-import jp.sharelock.web.ServicePath.Action
+import jp.sharelock.web.Service
+import jp.sharelock.web.Service.Action
 import jp.sharelock.web.ServiciableMultiple
 
-import static jp.sharelock.web.ServicePath.Method.*
+import static Service.Method.*
 import spark.Request
 
 @groovy.transform.CompileStatic
@@ -59,22 +58,22 @@ class EmailService implements ServiciableMultiple {
     }
 
     @Override
-    List<ServicePath> getServices() {
+    List<Service> getServices() {
         return [
-                new ServicePath(
+                new Service(
                         path   : "",
                         action : getEmails
                 ),
-                new ServicePath(
+                new Service(
                         path   : "/new",
                         action : getEmailsNew
                 ),
-                new ServicePath(
+                new Service(
                         path   : "/more",
                         action : getEmailsMore,
                         allow  : LoginServiceExample.isAdmin
                 ),
-                new ServicePath(
+                new Service(
                         method : POST,
                         path   : ".save", //will become: /emails.save
                         action : saveEmails,

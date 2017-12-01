@@ -19,7 +19,7 @@ import jp.sharelock.etc.Log
  * @since 10/19/17.
  */
 import jp.sharelock.web.ServiciableAuth
-import jp.sharelock.web.ServicePath.Allow
+import jp.sharelock.web.Service.Allow
 import spark.Request
 
 @groovy.transform.CompileStatic

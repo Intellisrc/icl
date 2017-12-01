@@ -2,7 +2,7 @@ package jp.sharelock.web.services
 
 import groovy.transform.CompileStatic
 import jp.sharelock.etc.Log
-import jp.sharelock.web.ServicePath
+import jp.sharelock.web.Service
 import jp.sharelock.web.ServiciableSingle
 import spark.Request
 
@@ -18,8 +18,8 @@ class LogService implements ServiciableSingle {
     }
 
     @Override
-    ServicePath getService() {
-        return new ServicePath(
+    Service getService() {
+        return new Service(
             action : {
                 Request request ->
                     //specify in Log if we want to export it, then read it here and return it with parameters
@@ -67,7 +67,7 @@ class LogService implements ServiciableSingle {
                         }
                     }
                     return res
-            } as ServicePath.Action
+            } as Service.Action
         )
     }
 }
