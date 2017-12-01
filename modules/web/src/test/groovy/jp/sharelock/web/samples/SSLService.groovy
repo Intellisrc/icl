@@ -1,7 +1,7 @@
 package jp.sharelock.web.samples
 
-import jp.sharelock.web.ServicePath
-import jp.sharelock.web.ServicePath.Action
+import jp.sharelock.web.Service
+import jp.sharelock.web.Service.Action
 import jp.sharelock.web.ServiciableHTTPS
 import jp.sharelock.web.ServiciableSingle
 import spark.Request
@@ -35,8 +35,8 @@ class SSLService implements ServiciableHTTPS, ServiciableSingle {
         return "e7LcrHoWe3iuogAiwPdTCzAk"
     }
 
-    ServicePath getService() {
-        return new ServicePath(
+    Service getService() {
+        return new Service(
             action: getSecret
         )
     }

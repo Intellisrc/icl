@@ -4,7 +4,7 @@ package jp.sharelock.web.samples
  * @since 17/04/19.
  */
 import jp.sharelock.web.ServiciableAuth
-import jp.sharelock.web.ServicePath.Allow
+import jp.sharelock.web.Service.Allow
 import spark.Request
 
 @groovy.transform.CompileStatic
