@@ -1,9 +1,7 @@
 package jp.sharelock.web.samples
 
-import jp.sharelock.web.ServicePath
+import jp.sharelock.web.Service
 import jp.sharelock.web.ServiciableSingle
-import spark.Request
-import spark.Response
 
 /**
  * @since 11/30/17.
@@ -11,19 +9,15 @@ import spark.Response
 class UploadService implements ServiciableSingle {
     final static String fieldName = "image_name"
     @Override
-    ServicePath getService() {
-        return new ServicePath(
+    Service getService() {
+        return new Service(
+            path: "/upload",
             contentType: "image/gif",
             uploadField: fieldName,
             upload: {
                 File tmpFile ->
                     return tmpFile
-            } as ServicePath.Upload
+            } as Service.Upload
         )
-    }
-
-    @Override
-    String getPath() {
-        return "/upload"
     }
 }

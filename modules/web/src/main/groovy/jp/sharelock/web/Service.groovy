@@ -7,7 +7,7 @@ import spark.Response
 /**
  * @since 17/04/04.
  */
-class ServicePath {
+class Service {
     /**
      * Execute an action and return for example, JSON data
      */

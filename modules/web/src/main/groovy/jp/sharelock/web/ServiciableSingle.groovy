@@ -7,5 +7,5 @@ package jp.sharelock.web
  */
 @groovy.transform.CompileStatic
 interface ServiciableSingle extends Serviciable {
-    abstract ServicePath getService()
+    abstract Service getService()
 }

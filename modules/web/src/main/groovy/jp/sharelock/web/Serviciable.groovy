@@ -19,6 +19,6 @@ package jp.sharelock.web
  *
  * @since 17/04/03.
  */
-interface Serviciable {
-    abstract String getPath()
+trait Serviciable {
+    String getPath() { return "" }
 }
