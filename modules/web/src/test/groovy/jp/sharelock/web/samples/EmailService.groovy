@@ -78,6 +78,16 @@ class EmailService implements ServiciableMultiple {
                         path   : ".save", //will become: /emails.save
                         action : saveEmails,
                         allow  : LoginServiceExample.canEditEmails
+                ),
+                new Service(
+                        path   : "/:user/*",
+                        contentType: "text/plain",
+                        action : {
+                            Request request ->
+                                def user = request.params("user") //It can be ":user" or "user"
+                                def domain = request.splat()[0]
+                                return user + "@" + domain
+                        } as Service.ActionRequest
                 )
         ]
     }
