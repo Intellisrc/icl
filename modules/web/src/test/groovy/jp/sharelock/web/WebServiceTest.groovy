@@ -4,6 +4,7 @@ import jp.sharelock.etc.Cmd
 import jp.sharelock.etc.Log
 import jp.sharelock.web.samples.ChatClient
 import jp.sharelock.web.samples.ChatService
+import jp.sharelock.web.samples.EmailService
 import jp.sharelock.web.samples.IDService
 import jp.sharelock.web.samples.SSLService
 import jp.sharelock.web.samples.StackOverflowChatClient
@@ -82,6 +83,33 @@ class WebServiceTest extends Specification {
         then:
             //TODO: count if method was called
             assert json == json_new
+        when:
+            web.stop()
+        then:
+            assert !web.isRunning()
+    }
+
+    def "Test parameters and splat"() {
+        setup:
+            int port = NetworkInterface.getFreePort()
+            def web = new WebService(
+                    port : port,
+                    //resources : 'public'    <--- this is the recommended way to specify resources
+                    cacheTime: 60
+            )
+            // Resources set as full path because code is executed under /tst/ usually use above method
+            println "RES DIR: $publicDir"
+            web.setResources(publicDir, true)
+            web.addService(new EmailService())
+        when:
+            web.start()
+        then:
+            assert web.isRunning()
+        when:
+            def text = new URL("http://localhost:${port}/emails/john/example.com").text
+            println "Email is: $text"
+        then:
+            assert text == "john@example.com"
         when:
             web.stop()
         then:
