@@ -214,6 +214,10 @@ class WebService {
      */
     private void addAction(final String fullPath, final ServicePath sp) {
         //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
+        //Automatic set POST for uploads
+        if(sp.upload && sp.method == GET) {
+            sp.method = POST
+        }
         switch(sp.method) {
             case GET:       srv.get(fullPath, onAction(sp));     break
             case POST:      srv.post(fullPath, onAction(sp));    break

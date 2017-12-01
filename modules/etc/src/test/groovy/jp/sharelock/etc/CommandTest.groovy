@@ -18,7 +18,7 @@ class CommandTest extends Specification {
                         println "> " + it
                     }
                     assert output == "hello"
-            } as Command.Callback)
+            })
         then:
             notThrown Exception
     }
@@ -26,61 +26,52 @@ class CommandTest extends Specification {
         setup:
             def cmd = "found.not"
         expect:
-            new Command().exec(cmd, new Command.Callback() {
-                void done(String out) {
+            new Command().exec(cmd, {
                     assert false //If comes here, fail
-                }
-                void fail(String out, int code) {
+                },
+         {
+                    String out, int code ->
                     assert code > 0
                     println "Exit Code: $code"
-                }
             })
     }
     def "Command Exec Multiple"() {
         setup:
         def cmds = ["sleep 3","echo done"]
         expect:
-        new Command(timeout: 5000).exec(cmds, new Command.Callback() {
-            @Override
-            void done(String out) {
+        new Command(timeout: 5000).exec(cmds, {
+            String out ->
                 assert out == "done"
-            }
-            @Override
-            void fail(String out, int code) {
-                assert false //Should not endup here
-            }
+        },
+ {
+            assert false //Should not endup here
         })
     }
     def "Command Exec Multiple Using Map"() {
         setup:
         def cmds = [ sleep : [3], echo  : ["done"] ]
         expect:
-        new Command(timeout: 5000).exec(cmds, new Command.Callback() {
-            @Override
-            void done(String out) {
+        new Command(timeout: 5000).exec(cmds, {
+            String out ->
                 assert out == "done"
-            }
-            @Override
-            void fail(String out, int code) {
-                assert false //Should not endup here
-            }
-        })
+            },
+     {
+            assert false //Should not endup here
+            })
     }
     def "Command Exec Async"() {
         setup:
             def async = new AsyncConditions()
             def cmds = [ sleep : [3], echo : ["done"] ]
         expect:
-            new Command(timeout: 5000).execAsync(cmds, new Command.Callback() {
-                @Override
-                void done(String out) {
+            new Command(timeout: 5000).execAsync(cmds, {
+                String out ->
                     async.evaluate({ assert out == "done" })
-                }
-                @Override
-                void fail(String out, int code) {
+                },
+         {
+                String out, int code ->
                     assert false //Should not endup here
-                }
-            })
+                })
             println "Waiting for command to finish..."
             async.await(5)
     }
