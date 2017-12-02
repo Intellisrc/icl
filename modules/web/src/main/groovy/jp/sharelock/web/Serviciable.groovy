@@ -20,5 +20,5 @@ package jp.sharelock.web
  * @since 17/04/03.
  */
 trait Serviciable {
-    String getPath() { return "" }
+    String getPath() { return "/" }
 }
