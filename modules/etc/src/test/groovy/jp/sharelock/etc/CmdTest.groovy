@@ -6,11 +6,11 @@ import spock.util.concurrent.AsyncConditions
 /**
  * @since 17/11/17.
  */
-class CommandTest extends Specification {
+class CmdTest extends Specification {
     def "Command Test As parameter"() {
         setup:
             def arg = "hello"
-            def cmd = new Command(timeout: 2000, secret: true)
+            def cmd = Cmd.options(timeout: 2000, secret: true)
         when:
             cmd.exec("echo",[arg], {
                 String output ->
@@ -26,7 +26,7 @@ class CommandTest extends Specification {
         setup:
             def cmd = "found.not"
         expect:
-            new Command().exec(cmd, {
+            Cmd.exec(cmd, {
                     assert false //If comes here, fail
                 },
          {
@@ -39,7 +39,7 @@ class CommandTest extends Specification {
         setup:
         def cmds = ["sleep 3","echo done"]
         expect:
-        new Command(timeout: 5000).exec(cmds, {
+        Cmd.options(timeout: 5000).exec(cmds, {
             String out ->
                 assert out == "done"
         },
@@ -51,7 +51,7 @@ class CommandTest extends Specification {
         setup:
         def cmds = [ sleep : [3], echo  : ["done"] ]
         expect:
-        new Command(timeout: 5000).exec(cmds, {
+        Cmd.options(timeout: 5000).exec(cmds, {
             String out ->
                 assert out == "done"
             },
@@ -64,7 +64,7 @@ class CommandTest extends Specification {
             def async = new AsyncConditions()
             def cmds = [ sleep : [3], echo : ["done"] ]
         expect:
-            new Command(timeout: 5000).async(cmds, {
+            Cmd.options(timeout: 5000).async(cmds, {
                 String out ->
                     async.evaluate({ assert out == "done" })
                 },
