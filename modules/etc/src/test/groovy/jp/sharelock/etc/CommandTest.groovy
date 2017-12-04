@@ -64,7 +64,7 @@ class CommandTest extends Specification {
             def async = new AsyncConditions()
             def cmds = [ sleep : [3], echo : ["done"] ]
         expect:
-            new Command(timeout: 5000).execAsync(cmds, {
+            new Command(timeout: 5000).async(cmds, {
                 String out ->
                     async.evaluate({ assert out == "done" })
                 },
