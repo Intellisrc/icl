@@ -91,7 +91,7 @@ class Command {
      * @param cmds
      * @param done
      */
-    void execAsync(final List<String> cmds, final Done onDone = null, final Fail onFail = null) {
+    void async(final List<String> cmds, final Done onDone = null, final Fail onFail = null) {
         Thread.start {
             exec(wrapCmds(cmds), onDone, onFail)
         }
@@ -107,7 +107,7 @@ class Command {
      * @param cmds
      * @param done
      */
-    void execAsync(final Map<String,List> cmds,final  Done onDone = null, final Fail onFail = null) {
+    void async(final Map<String,List> cmds, final  Done onDone = null, final Fail onFail = null) {
         Thread.start {
             exec(cmds, onDone, onFail)
         }
@@ -178,10 +178,10 @@ class Command {
      * @param timeout
      * @return
      */
-    void execAsync(final String cmd,final Done onDone, final Fail onFail = null) {
-        execAsync(cmd, [], onDone, onFail)
+    void async(final String cmd, final Done onDone, final Fail onFail = null) {
+        async(cmd, [], onDone, onFail)
     }
-    void execAsync(final String cmd,final List args = [],final Done onDone = null, final Fail onFail = null) {
+    void async(final String cmd, final List args = [], final Done onDone = null, final Fail onFail = null) {
         Thread.start {
             exec(cmd, args, onDone, onFail)
         }
