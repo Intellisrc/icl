@@ -28,11 +28,11 @@ class DB {
 		return db?.getType() ?: DBType.DUMMY
 	}
 
-	enum DBType {
+	static enum DBType {
 		DUMMY, SQLITE, MYSQL, POSGRESQL, JAVADB, ORACLE, DB2, SUN
 	}
 
-	enum ColumnType {
+	static enum ColumnType {
 		TEXT, INTEGER, DOUBLE, BLOB, DATE, NULL
 	}
     ////////////////////////// Interfaces ////////////////////////////////
@@ -48,7 +48,7 @@ class DB {
         void setLastUsed(long milliseconds)
 	}
 
-	interface Statement {
+	static interface Statement {
 		boolean next()
 		void close()
 		int columnCount()
@@ -375,9 +375,6 @@ class DB {
     DB table(String tbl) {
         this.table = tbl
         getQuery().setTable(tbl)
-        if(priKeys.isEmpty()) {
-            autoSetPriKeys()
-        }
         return this
     }
 
@@ -606,7 +603,7 @@ class DB {
     /**
      * Search and set PKs for tables in the database
      */
-    private void autoSetPriKeys() {
+    void searchPriKeys() {
         boolean ok = false
         openIfClosed()
         if(!this.priKeys.containsKey(table)) {
