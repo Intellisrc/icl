@@ -14,11 +14,11 @@ import static jp.sharelock.db.Query.SortOrder.*
 class Query {
 	private DBType dbType = DUMMY
     // Action type (RAW is default)
-    enum Action {
+    static enum Action {
         RAW, SELECT, UPDATE, INSERT, DELETE, DROP, INFO, LASTID, EXISTS
     }
     // Field type (NOSET is default)
-    enum FieldType {
+    static enum FieldType {
         NOSET, COLUMN, MAX, MIN, AVG, COUNT
         def getSQL(String fieldstr) {
             switch (this) {
@@ -34,7 +34,7 @@ class Query {
             return fieldstr
         }
     }
-    enum SortOrder {
+    static enum SortOrder {
         ASC, DESC
     }
     private String query    = ""
