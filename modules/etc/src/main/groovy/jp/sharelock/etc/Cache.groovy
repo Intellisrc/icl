@@ -9,25 +9,36 @@ import java.util.concurrent.ConcurrentMap
  * @author Alberto Lepe <lepe@sharelock.jp>
  * @param <V>
  *
- * GC_INTERVAL  : how many seconds to execute Garbage Collector. Set it to zero to disabled it (for any crazy reason)
+ * gcInterval  : how many seconds to execute Garbage Collector. Set it to zero to disabled it (for any crazy reason)
  * extend       : if true, it will extend time upon access. If false, it will expire when the time is due (without changing expire value).
  */
 class Cache<V> {
     interface onNotFound {
         V call()
     }
-	int GC_INTERVAL = 120 //seconds
+	int gcInterval = 120 //seconds
+    int timeout = 0 //seconds
     boolean extend  = false
 
-    private final int DEFAULT_TIMEOUT = 60 //seconds
+    /**
+     * Object used as data structure inside Cache
+     * long expire : stores the time in which will expire
+     * length      : time in milliseconds that will be stored (used to extend cache)
+     * value       : value to store
+     */
     private class CacheObj {
         V       value
-        long    expire
-        private long length
+        long    expire = 0
+        private long length = 0
+        private boolean forever = false
         CacheObj(V obj, long time) {
             value = obj
-            expire = time
-            length = expire - new Date().time
+            if(time > 0) {
+                expire = time
+                length = expire - new Date().time
+            } else {
+                forever = true
+            }
         }
     }
     final ConcurrentMap<String, CacheObj> cache = new ConcurrentHashMap<>()
@@ -37,8 +48,8 @@ class Cache<V> {
 	 */
 	Cache() {
         Thread.start {
-            while(GC_INTERVAL > 0) {
-                sleep(GC_INTERVAL * 1000)
+            while(gcInterval > 0) {
+                sleep(gcInterval * 1000)
                 garbageCollect()
             }
         }
@@ -64,18 +75,20 @@ class Cache<V> {
      * @return
      */
     private boolean expired(final String key) {
-        def expired = true
+        def expired = false
         def obj = cache.get(key)
-        def now = new Date().time
         if(obj) {
-            if (obj.expire < now) {
-                Log.d("Key [$key] expired.")
-                del(key)
-            } else {
-                if(extend) {
-                    obj.expire = now + obj.length
+            if(!obj.forever) {
+                def now = new Date().time
+                if (obj.expire < now) {
+                    Log.d("Key [$key] expired.")
+                    del(key)
+                    expired = true
+                } else {
+                    if (extend) {
+                        obj.expire = now + obj.length
+                    }
                 }
-                expired = false
             }
         }
         return expired
@@ -86,7 +99,7 @@ class Cache<V> {
 	 * @param default_val
 	 * @return
 	 */
-    V get(final String key, onNotFound notFound = null, long time = DEFAULT_TIMEOUT) {
+    V get(final String key, onNotFound notFound = null, long time = timeout) {
         V ret = null
         if(exists(key)) {
             ret = cache.get(key).value
@@ -108,11 +121,11 @@ class Cache<V> {
 	 * @param key
 	 * @param value 
 	 */
-    void set(final String key, final V value, long time = DEFAULT_TIMEOUT) {
+    void set(final String key, final V value, long time = timeout) {
 		if(value == null) {
 			del(key)
 		} else {
-	        cache.put(key, new CacheObj(value, new Date().getTime() + (time * 1000)))
+	        cache.put(key, new CacheObj(value, time ? new Date().getTime() + (time * 1000) : 0))
 		}
 	}
 
