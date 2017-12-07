@@ -66,4 +66,20 @@ class CacheTest extends Specification {
         cleanup:
             oc.clear()
     }
+
+    def "Testing Forever"() {
+        setup:
+            def oc = new Cache<Integer>()
+            def key = "Wow"
+            //   oc.set("Hello","World") <--must be marked by IDE as wrong
+            oc.set(key,1) //This will be forever
+        expect:
+            sleep(2000)
+            assert oc.exists(key) : "Must exists in this point"
+
+            sleep(2000)
+            assert oc.exists(key) : "Must exists in this point"
+        cleanup:
+            oc.clear()
+    }
 }
