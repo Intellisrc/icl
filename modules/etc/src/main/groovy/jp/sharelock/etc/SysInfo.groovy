@@ -9,35 +9,27 @@ package jp.sharelock.etc
  */
 class SysInfo {
     static final enum OSType {
-        UNKNOWN, LINUX, WINDOWS, IOS, SOLARIS, ANDROID, PRINTER, NAS, SWITCH, ROUTER, CAMERA, TV
+        UNKNOWN, LINUX, WINDOWS, ANDROID, IOS
     }
     /**
      * Returns OS in which the system is installed
      * @param osStr : if not set will read it from localhost
      */
-    static OSType getOS(String osStr = System.getProperty("os.name")) {
-        def os_type = OSType.UNKNOWN
+    static getOS() {
+        def osType = OSType.UNKNOWN
+        def osStr = System.getProperty("os.name")
         switch(osStr) {
-
-            case ~/(?i).*(printer|copier).*/ : os_type = OSType.PRINTER; break
-            case ~/(?i).*nas\sdevice.*/ : os_type = OSType.NAS; break
-            case ~/(?i).*switch.*/ : os_type = OSType.SWITCH; break
-            case ~/(?i).*router.*/ : os_type = OSType.ROUTER; break
-            case ~/(?i).*camera.*/ : os_type = OSType.CAMERA; break
-            case ~/(?i).*\stv.*/ : os_type = OSType.TV; break
-
-            case ~/(?i).*mac.*/ : os_type = OSType.IOS; break
-            case ~/(?i).*android.*/ : os_type = OSType.ANDROID; break
-            case ~/(?i).*(nix|nux|aix).*/ : os_type = OSType.LINUX; break
-            case ~/(?i).*sunos.*/ : os_type = OSType.SOLARIS; break
-            case ~/(?i).*win.*/ : os_type = OSType.WINDOWS; break
-            case ~/(?i).*version.*service.*pack.*/ : os_type = OSType.WINDOWS; break
+            case ~/(?i).*version.*service.*pack.*/ :
+            case ~/.*(?i)win.*/ : osType = OSType.WINDOWS; break
+            case ~/.*(?i)android.*/ : osType = OSType.ANDROID; break
+            case ~/.*(?i)(nix|nux|aix).*/ : osType = OSType.LINUX; break
+            case ~/(?i).*mac.*/ : osType = OSType.IOS; break
             default:
                 //We can't use Log.d() here as that function call this one
                 // and enter in an infinite loop
                 println "> Not Found: $osStr"
         }
-        return os_type
+        return osType
     }
     /**
      * Returns a path in which can be written. It will try
@@ -76,7 +68,7 @@ class SysInfo {
         return getOS() == OSType.WINDOWS
     }
     /**
-     * Identify if OS is Linux (not Android)
+     * Identify if OS is Linux (excluding Android)
      * @return
      */
     static isLinux() {
@@ -121,19 +113,5 @@ class SysInfo {
      */
     static getHomeDir() {
         return System.properties.'user.dir'
-    }
-    /**
-     * Get the % of free RAM memory
-     */
-    static getRAMPct() {
-        /*def bean = ManagementFactory.getOperatingSystemMXBean() <-- This is static and can not be assigned
-        return bean.freePhysicalMemorySize / bean.totalPhysicalMemorySize * 100*/
-    }
-    /**
-     * Get the % of CPU used
-     */
-    static getCPUPct() {
-        /*def bean = ManagementFactory.getOperatingSystemMXBean()
-        return bean.getSystemCpuLoad() * 100*/
     }
 }
