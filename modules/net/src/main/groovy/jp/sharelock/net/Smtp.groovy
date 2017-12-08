@@ -41,7 +41,7 @@ class Smtp {
     int port            = 25
     Map<String,String> headers = [:] //custom headers
 
-    enum Mode {
+    static enum Mode {
         TO, CC, BCC
         Message.RecipientType toRecipientType() {
             switch (this) {
@@ -55,7 +55,7 @@ class Smtp {
 
     private boolean useLocalSettings = false //Force to use settings specified here over configuration file or system settings
     private List<File> attachments = []
-    private enum TransportType {
+    private static enum TransportType {
         SMTP, SMTPS
     }
     private TransportType transportType = TransportType.SMTP

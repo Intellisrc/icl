@@ -31,7 +31,7 @@ class LoginService implements ServiciableAuth {
     static enum Level {
         GUEST, USER, MODERATOR, ADMIN
     }
-    
+
     Level getUserLevel(Request request) {
         return request.session().attribute("level").toString().toUpperCase() as Level
     }
