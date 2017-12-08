@@ -4,6 +4,7 @@ import jp.sharelock.etc.Log
 import jp.sharelock.web.Service
 import jp.sharelock.web.ServiciableSingle
 import jp.sharelock.web.Service.ActionRequestResponse
+
 import spark.Request
 import spark.Response
 

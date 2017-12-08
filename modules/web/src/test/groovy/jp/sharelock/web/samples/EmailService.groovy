@@ -6,7 +6,7 @@ import jp.sharelock.web.Service
 import jp.sharelock.web.Service.Action
 import jp.sharelock.web.ServiciableMultiple
 
-import static Service.Method.*
+import static jp.sharelock.web.Service.Method.*
 import spark.Request
 
 @groovy.transform.CompileStatic

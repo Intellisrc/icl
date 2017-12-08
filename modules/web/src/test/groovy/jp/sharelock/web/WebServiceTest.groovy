@@ -8,8 +8,9 @@ import jp.sharelock.web.samples.EmailService
 import jp.sharelock.web.samples.IDService
 import jp.sharelock.web.samples.SSLService
 import jp.sharelock.web.samples.StackOverflowChatClient
-import groovy.json.JsonSlurper
 import jp.sharelock.web.samples.UploadService
+
+import groovy.json.JsonSlurper
 import spock.lang.Ignore
 import spock.lang.Specification
 

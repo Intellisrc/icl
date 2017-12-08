@@ -1,5 +1,6 @@
 #!/bin/bash
 echo -e "\e[93m STARTING COMPARISON ********************************************"
+echo -e "\e[39m"
 compare_with="../../groovy/common-java"
 for F in $(find -name *.groovy); do
 	base=$(basename $F);
@@ -16,3 +17,4 @@ for F in $(find -name *.groovy); do
 		fi
 	fi
 done
+echo -e "\e[39m"
