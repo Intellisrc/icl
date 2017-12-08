@@ -3,10 +3,12 @@ package jp.sharelock.web
 import jp.sharelock.etc.CacheObj
 import jp.sharelock.etc.Log
 import jp.sharelock.etc.SysInfo
+import static jp.sharelock.web.Service.Method.*
+
 import spark.Request
 import spark.Response
 import spark.Route
-import spark.Service
+import spark.Service as Srv
 
 import javax.servlet.MultipartConfigElement
 import javax.servlet.http.HttpServletResponse
@@ -14,7 +16,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-import static jp.sharelock.web.Service.Method.*
 import static groovy.json.JsonOutput.toJson
 
 @groovy.transform.CompileStatic
@@ -35,7 +36,7 @@ import static groovy.json.JsonOutput.toJson
  *
  */
 class WebService {
-    private final Service srv
+    private final Srv srv
     private ArrayList<Serviciable> listServices = []
     private ArrayList<String> listPaths = [] //mainly used to prevent collisions
     private boolean resourcesAbsolute = false
@@ -50,7 +51,7 @@ class WebService {
      * Constructor: initializes Service instance
      */
     WebService() {
-        srv = Service.ignite()
+        srv = Srv.ignite()
     }
 
     /**
@@ -74,7 +75,7 @@ class WebService {
                     case ServiciableMultiple:
                         ServiciableMultiple serviciables = serviciable as ServiciableMultiple
                         serviciables.services.each {
-                            jp.sharelock.web.Service sp ->
+                            Service sp ->
                                 if(serviciable instanceof ServiciableWebSocket) {
                                     addWebSocketService(serviciable, serviciables.path + sp.path)
                                 } else if(serviciable instanceof ServiciableHTTPS) {
@@ -178,7 +179,7 @@ class WebService {
      * @param rootPath
      * @return
      */
-    private void addServicePath(jp.sharelock.web.Service service, String rootPath) {
+    private void addServicePath(Service service, String rootPath) {
         def fullPath = rootPath + service.path
         if (listPaths.contains(service.method.toString() + fullPath)) {
             Log.w( "Warning, duplicated path ["+fullPath+"] and method [" + service.method.toString() + "] found.")
@@ -211,7 +212,7 @@ class WebService {
      * @param sp       : Service object
      * @param srv      : Spark.Service instance
      */
-    private void addAction(final String fullPath, final jp.sharelock.web.Service sp) {
+    private void addAction(final String fullPath, final Service sp) {
         //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
         //Automatic set POST for uploads
         if(sp.upload && sp.method == GET) {
@@ -273,7 +274,7 @@ class WebService {
      * @param sp : Service object
      * @return
      */
-    private static Route onAction(final jp.sharelock.web.Service sp) {
+    private static Route onAction(final Service sp) {
         return {
             Request request, Response response ->
                 Object out = ""
@@ -303,10 +304,10 @@ class WebService {
                                         try {
                                             Object res
                                             switch(sp.upload) {
-                                                case jp.sharelock.web.Service.UploadRequestResponse: res = (sp.upload as jp.sharelock.web.Service.UploadRequestResponse).run(file, request, response); break
-                                                case jp.sharelock.web.Service.UploadRequest: res = (sp.upload as jp.sharelock.web.Service.UploadRequest).run(file, request); break
-                                                case jp.sharelock.web.Service.Upload:
-                                                default: res = (sp.upload as jp.sharelock.web.Service.Upload).run(file); break
+                                                case Service.UploadRequestResponse: res = (sp.upload as Service.UploadRequestResponse).run(file, request, response); break
+                                                case Service.UploadRequest: res = (sp.upload as Service.UploadRequest).run(file, request); break
+                                                case Service.Upload:
+                                                default: res = (sp.upload as Service.Upload).run(file); break
                                             }
                                             out = getOutput(response, res, otype)
                                         } catch (Exception e) {
@@ -341,10 +342,10 @@ class WebService {
                             try {
                                 Object res
                                 switch(sp.action) {
-                                    case jp.sharelock.web.Service.ActionRequestResponse: res = (sp.action as jp.sharelock.web.Service.ActionRequestResponse).run(request, response); break
-                                    case jp.sharelock.web.Service.ActionRequest: res = (sp.action as jp.sharelock.web.Service.ActionRequest).run(request); break
-                                    case jp.sharelock.web.Service.Action:
-                                    default: res = (sp.action as jp.sharelock.web.Service.Action).run(); break
+                                    case Service.ActionRequestResponse: res = (sp.action as Service.ActionRequestResponse).run(request, response); break
+                                    case Service.ActionRequest: res = (sp.action as Service.ActionRequest).run(request); break
+                                    case Service.Action:
+                                    default: res = (sp.action as Service.Action).run(); break
                                 }
                                 toSave = getOutput(response, res, otype)
                             } catch (Exception e) {
@@ -357,10 +358,10 @@ class WebService {
                         try {
                             Object res
                             switch(sp.action) {
-                                case jp.sharelock.web.Service.ActionRequestResponse: res = (sp.action as jp.sharelock.web.Service.ActionRequestResponse).run(request, response); break
-                                case jp.sharelock.web.Service.ActionRequest: res = (sp.action as jp.sharelock.web.Service.ActionRequest).run(request); break
-                                case jp.sharelock.web.Service.Action:
-                                default: res = (sp.action as jp.sharelock.web.Service.Action).run(); break
+                                case Service.ActionRequestResponse: res = (sp.action as Service.ActionRequestResponse).run(request, response); break
+                                case Service.ActionRequest: res = (sp.action as Service.ActionRequest).run(request); break
+                                case Service.Action:
+                                default: res = (sp.action as Service.Action).run(); break
                             }
                             out = getOutput(response, res, otype)
                         } catch (Exception e) {

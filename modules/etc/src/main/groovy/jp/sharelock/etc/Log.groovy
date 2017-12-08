@@ -1,7 +1,4 @@
 package jp.sharelock.etc
-
-import groovy.transform.ToString
-
 /**
  * @since 2/11/17.
  */
