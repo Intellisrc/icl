@@ -16,7 +16,7 @@ final class Log {
     static {
         if(Config.hasKey("log.level")) {
             def sLevel = Config.get("log.level").toUpperCase()
-            mMinLevel = sLevel.take(1) as LEVEL
+            mMinLevel = sLevel.take(1) as Level
         }
         if(Config.hasKey("log.path")) {
             logPath = Config.get("log.path")
@@ -39,16 +39,16 @@ final class Log {
     static final String ANSI_CYAN    = "\u001B[36m"
     static final String ANSI_WHITE   = "\u001B[37m"
 
-    private static final enum LEVEL { V, D, I, W, E }
+    private static final enum Level { VERBOSE, DEBUG, INFO, WARN, ERROR }
     private Log() {}
 
     interface Printer {
-        void print(LEVEL level, Stack stack, String msg)
+        void print(Level level, Stack stack, String msg)
     }
 
     private static class FilePrinter implements Printer {
         @Override
-        void print(LEVEL level, Stack stack, String msg) {
+        void print(Level level, Stack stack, String msg) {
             if(logFile) {
                 String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
                 if(!(logPath && new File(logPath).canWrite())) {
@@ -65,19 +65,19 @@ final class Log {
     }
 
     private static class SystemOutPrinter implements Printer {
-        private static getColor(LEVEL level) {
+        private static getColor(Level level) {
             def color
             switch(level) {
-                case LEVEL.V: color = ANSI_WHITE; break
-                case LEVEL.D: color = ANSI_WHITE; break
-                case LEVEL.I: color = ANSI_CYAN; break
-                case LEVEL.W: color = ANSI_YELLOW; break
-                case LEVEL.E: color = ANSI_RED; break
+                case Level.VERBOSE: color = ANSI_WHITE; break
+                case Level.DEBUG: color = ANSI_WHITE; break
+                case Level.INFO: color = ANSI_CYAN; break
+                case Level.WARN: color = ANSI_YELLOW; break
+                case Level.ERROR: color = ANSI_RED; break
             }
             return color
         }
         @Override
-        void print(LEVEL level, Stack stack, String msg) {
+        void print(Level level, Stack stack, String msg) {
             String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
             if(SysInfo.isLinux()) {
                 println(time+" [" + getColor(level) + level + ANSI_RESET + "] " +
@@ -118,7 +118,7 @@ final class Log {
             mLoaded = loaded
         }
 
-        void print(LEVEL level, Stack stack, String msg) {
+        void print(Level level, Stack stack, String msg) {
             try {
                 if (mLoaded) {
                     mLogMethods[level.toString()].invoke(null, stack, msg)
@@ -140,7 +140,7 @@ final class Log {
     static final AndroidPrinter ANDROID = new AndroidPrinter()
     static final FilePrinter LOGFILE = new FilePrinter()
 
-    private static LEVEL mMinLevel = LEVEL.V
+    private static Level mMinLevel = Level.VERBOSE
     private static Set<Printer> mPrinters = []
 
     static {
@@ -152,8 +152,8 @@ final class Log {
         }
     }
 
-    static synchronized Log level(int minLevel) {
-        mMinLevel = LEVEL.values()[minLevel]
+    static synchronized Log level(Level level) {
+        mMinLevel = level
         return null
     }
 
@@ -167,27 +167,27 @@ final class Log {
     }
 
     static synchronized Log v(String msg, Object... args) {
-        log(LEVEL.V, msg, args)
+        log(Level.VERBOSE, msg, args)
         return null
     }
     static synchronized Log d(String msg, Object... args) {
-        log(LEVEL.D, msg, args)
+        log(Level.DEBUG, msg, args)
         return null
     }
     static synchronized Log i(String msg, Object... args) {
-        log(LEVEL.I, msg, args)
+        log(Level.INFO, msg, args)
         return null
     }
     static synchronized Log w(String msg, Object... args) {
-        log(LEVEL.W, msg, args)
+        log(Level.WARN, msg, args)
         return null
     }
     static synchronized Log e(String msg, Object... args) {
-        log(LEVEL.E, msg, args)
+        log(Level.ERROR, msg, args)
         return null
     }
 
-    private static void log(LEVEL level, String msg, Object... args) {
+    private static void log(Level level, String msg, Object... args) {
         if (level < mMinLevel) {
             return
         }
@@ -231,7 +231,7 @@ final class Log {
 
     static final int MAX_LOG_LINE_LENGTH = 4000
 
-    private static void print(LEVEL level, Stack stack, String msg) {
+    private static void print(Level level, Stack stack, String msg) {
         msg.eachLine {
             String line ->
                 while( line.length() > 0) {

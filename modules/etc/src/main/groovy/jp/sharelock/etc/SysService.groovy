@@ -52,7 +52,6 @@ abstract class SysService {
         String action = sysSrv.args.isEmpty() ? "start" : sysSrv.args.poll()
         def usrDir = SysInfo.getWritablePath()
         def lockFile = new File(usrDir + sysSrv.lockFile)
-        Log.i("Service Action : " + action)
         switch(action) {
             case "stop" :
                 Log.d("Removing lock file")
