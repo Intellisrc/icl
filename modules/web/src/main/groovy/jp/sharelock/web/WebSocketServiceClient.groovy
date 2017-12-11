@@ -41,7 +41,7 @@ class WebSocketServiceClient {
         void onMessage(WebSocketSession sockSession, String message) {
             if(onMessageReceived != null) {
                 JsonSlurper jsonSlurper = new JsonSlurper()
-                onMessageReceived.call((HashMap) jsonSlurper.parseText(message))
+                onMessageReceived.call((Map) jsonSlurper.parseText(message))
             }
         }
 
@@ -61,7 +61,7 @@ class WebSocketServiceClient {
      * Interface used as callback for onMessage and onError
      */
     interface Callable {
-        void call(HashMap message)
+        void call(Map message)
     }
     /**
      * Return WebSocketSession (jetty Session) object
@@ -91,7 +91,7 @@ class WebSocketServiceClient {
      * Sends a message
      * @param message
      */
-    void sendMessage(HashMap message) {
+    void sendMessage(Map message) {
         sendMessage(toJson(message))
     }
     /**
