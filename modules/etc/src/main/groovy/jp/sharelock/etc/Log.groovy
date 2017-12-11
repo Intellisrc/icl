@@ -39,7 +39,12 @@ final class Log {
     static final String ANSI_CYAN    = "\u001B[36m"
     static final String ANSI_WHITE   = "\u001B[37m"
 
-    private static final enum Level { VERBOSE, DEBUG, INFO, WARN, ERROR }
+    private static final enum Level {
+        VERBOSE, DEBUG, INFO, WARN, ERROR
+        String toString() {
+            return super.toString().substring(0,1)
+        }
+    }
     private Log() {}
 
     interface Printer {
