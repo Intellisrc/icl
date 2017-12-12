@@ -95,7 +95,7 @@ class DummyConnector implements DB.Connector {
         }
 
         Date columnDate(int index) {
-            return columnStr(index).toDateSTD()
+            return columnStr(index).fromYMDHms()
         }
 
         byte[] columnBlob(int index) {
