@@ -14,7 +14,7 @@ class StackOverflowChatClient {
     static void Connect() {
         String uname = "StackBOT"
         int timeout = 0
-        WebSocketServiceClient wssc = new WebSocketServiceClient(
+        def wssc = new WebSocketServiceClient(
                 //hostname: "localhost",
                 //port : 8888,
                 path : "chat?user=$uname"
