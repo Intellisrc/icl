@@ -29,7 +29,7 @@ class ChatClient
         )
         def last_responses = []
         wssc.connect({
-            HashMap msg ->
+            Map msg ->
                 if(msg.type == "txt" && msg.user != uname) {
                     String botsay = ""
                     if(new Random().nextInt(5) < 2) {

@@ -5,7 +5,7 @@ import jp.sharelock.web.ServiciableWebSocket.WSMessage
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import static groovy.json.JsonOutput.toJson
-import org.eclipse.jetty.websocket.api.Session as WSSession
+import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError
@@ -56,7 +56,7 @@ class WebSocketService {
     }
 
     @OnWebSocketConnect
-    void onConnect(WSSession sockSession) throws Exception {
+    void onConnect(JettySession sockSession) throws Exception {
         String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, sockSession.getRemoteAddress().address)
         Session session = new Session(userID: user, websocketSession: sockSession, address: sockSession.getRemoteAddress().address)
         sessionQueue.add(session)
@@ -65,7 +65,7 @@ class WebSocketService {
     }
 
     @OnWebSocketClose
-    void onClose(WSSession sockSession, int statusCode, String reason) {
+    void onClose(JettySession sockSession, int statusCode, String reason) {
         Session session = getSession(sockSession)
         sessionQueue.remove(session)
         listener.onClientsChange(getConnected())
@@ -73,12 +73,12 @@ class WebSocketService {
     }
 
     @OnWebSocketMessage
-    void onMessage(WSSession sockSession, String message) {
+    void onMessage(JettySession sockSession, String message) {
         broadcast(listener.onMessage(getSession(sockSession), message))
     }
 
     @OnWebSocketError
-    void onWebSocketError(WSSession sockSession, Throwable throwable) {
+    void onWebSocketError(JettySession sockSession, Throwable throwable) {
         listener.onError(getSession(sockSession), throwable.message)
         Log.e( throwable.message)
     }
@@ -101,7 +101,7 @@ class WebSocketService {
     /**
      * Search for the Session using WebSocketSession
      */
-    private Session getSession(WSSession sockSession) {
+    private Session getSession(JettySession sockSession) {
         return sessionQueue.find {
             Session sess ->
                 return sess.websocketSession.isOpen() && sess.websocketSession == sockSession
