@@ -2,7 +2,7 @@ package jp.sharelock.web
 
 import groovy.json.JsonSlurper
 import static groovy.json.JsonOutput.toJson
-import org.eclipse.jetty.websocket.api.Session as WebSocketSession
+import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
@@ -18,7 +18,7 @@ import java.util.concurrent.Future
  */
 @groovy.transform.CompileStatic
 class WebSocketServiceClient {
-    private WebSocketSession clientSession
+    private JettySession clientSession
     private Callable onMessageReceived
     private Callable onErrorReceived
     private WebSocketClient client
@@ -33,12 +33,12 @@ class WebSocketServiceClient {
     @WebSocket
     class WSSocket {
         @OnWebSocketConnect
-        void onConnect(WebSocketSession sockSession) throws Exception {
+        void onConnect(JettySession sockSession) throws Exception {
             clientSession = sockSession
         }
 
         @OnWebSocketMessage
-        void onMessage(WebSocketSession sockSession, String message) {
+        void onMessage(JettySession sockSession, String message) {
             if(onMessageReceived != null) {
                 JsonSlurper jsonSlurper = new JsonSlurper()
                 onMessageReceived.call((Map) jsonSlurper.parseText(message))
@@ -46,7 +46,7 @@ class WebSocketServiceClient {
         }
 
         @OnWebSocketError
-        void onWebSocketError(WebSocketSession sockSession, Throwable throwable) {
+        void onWebSocketError(JettySession sockSession, Throwable throwable) {
             if(onErrorReceived != null) {
                 onErrorReceived.call(
                         error: throwable.message,
@@ -64,10 +64,10 @@ class WebSocketServiceClient {
         void call(Map message)
     }
     /**
-     * Return WebSocketSession (jetty Session) object
+     * Return JettySession (jetty Session) object
      * @return
      */
-    WebSocketSession getSession() {
+    JettySession getSession() {
         return clientSession
     }
     /**
@@ -82,7 +82,7 @@ class WebSocketServiceClient {
         client.start()
         URI echoUri = new URI(serverURL)
         ClientUpgradeRequest request = new ClientUpgradeRequest()
-        Future<WebSocketSession> future = client.connect(new WSSocket(), echoUri, request)
+        Future<JettySession> future = client.connect(new WSSocket(), echoUri, request)
         clientSession = future.get()
         onMessageReceived = onMessage
         onErrorReceived = onError
