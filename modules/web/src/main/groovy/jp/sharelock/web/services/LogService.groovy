@@ -36,14 +36,14 @@ class LogService implements ServiciableSingle {
                             def filtered = logs.findAll {
                                 String line ->
                                     def parts = line.split("\t")
-                                    Date lTime = parts.first().toDateSTD()
+                                    Date lTime = parts.first().fromYMDHms()
                                     def inc = true
                                     if(from) {
-                                        Date dFrom = from.toDateSTD()
+                                        Date dFrom = from.fromYMDHms()
                                         inc = lTime.time >= dFrom.time
                                     }
                                     if(inc && to) {
-                                        Date dTo = to.toDateSTD()
+                                        Date dTo = to.fromYMDHms()
                                         inc = lTime.time <= dTo.time
                                     }
                                     if(inc && keyword) {
