@@ -1,6 +1,5 @@
 package jp.sharelock.db
 
-import jp.sharelock.etc.AndroidContext
 import jp.sharelock.etc.Log
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
@@ -20,6 +19,7 @@ class DBPool {
     private String connectionString
     private int currentConnections
 	List<DB.Connector> availableConnections = []
+	Object context //Android context
 
 	/**
 	 * Initialize with JDBC connection
@@ -108,10 +108,10 @@ class DBPool {
             if(connectionString == "dummy") {
                 conn = new DummyConnector()
             } else if (isAndroid) {
-				Constructor con = Class.forName("jp.sharelock.db.AndroidConnector").getConstructor(String, Class.forName("android.content.Context"))
-				conn = (DB.Connector) con.newInstance(databaseName, AndroidContext.context)
+				Constructor con = Class.forName("com.inspeedia.common.db.AndroidConnector").getConstructor(String, Class.forName("android.content.Context"))
+				conn = (DB.Connector) con.newInstance(databaseName, Class.forName("android.content.Context").cast(context))
 			} else {
-				Constructor con = Class.forName("jp.sharelock.db.JDBCConnector").getConstructor(String, String)
+				Constructor con = Class.forName("com.inspeedia.common.db.JDBCConnector").getConstructor(String, String)
 				conn = (DB.Connector) con.newInstance(databaseName, connectionString)
 			}
 		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
