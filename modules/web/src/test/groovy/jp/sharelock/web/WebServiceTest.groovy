@@ -10,7 +10,6 @@ import jp.sharelock.web.samples.SSLService
 import jp.sharelock.web.samples.StackOverflowChatClient
 import jp.sharelock.web.samples.UploadService
 
-import groovy.json.JsonSlurper
 import spock.lang.Ignore
 import spock.lang.Specification
 
@@ -45,8 +44,7 @@ class WebServiceTest extends Specification {
             assert json
             assert !json.contains("<html>")
         when:
-            def jsonSlurper = new JsonSlurper()
-            def res = jsonSlurper.parseText(json)
+            def res = JSON.toMap(json)
         then:
             assert res instanceof Map
             assert res.i == number
