@@ -38,7 +38,7 @@ class WebSocketServiceClient {
         @OnWebSocketMessage
         void onMessage(JettySession sockSession, String message) {
             if(onMessageReceived != null) {
-                onMessageReceived.call(JSON.toMap(message))
+                onMessageReceived.call(JSON.decode(message).toMap())
             }
         }
 
@@ -89,7 +89,7 @@ class WebSocketServiceClient {
      * @param message
      */
     void sendMessage(Map message) {
-        sendMessage(JSON.toString(message))
+        sendMessage(JSON.encode(message))
     }
     /**
      * Sends a message

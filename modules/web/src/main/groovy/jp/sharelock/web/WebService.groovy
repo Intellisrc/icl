@@ -126,7 +126,7 @@ class WebService {
                                     id = request.session().id()
                                 }
                                 response.type("application/json")
-                                return JSON.toString(
+                                return JSON.encode(
                                         y : ok,
                                         id : id
                                 )
@@ -135,7 +135,7 @@ class WebService {
                             Request request, Response response ->
                                 response.type("application/json")
                                 request.session().invalidate()
-                                return JSON.toString(
+                                return JSON.encode(
                                         y : auth.onLogout()
                                 )
                         })
@@ -242,7 +242,7 @@ class WebService {
         Object out
         switch(otype) {
             case OutputType.JSON:
-                out = JSON.toString(output)
+                out = JSON.encode(output)
                 break
             case OutputType.BINARY:
                 HttpServletResponse raw = response.raw()
@@ -371,7 +371,7 @@ class WebService {
                     }
                 } else {
                     response.status(401)
-                    out = otype == OutputType.JSON ? JSON.toString(y : false) : ""
+                    out = otype == OutputType.JSON ? JSON.encode(y : false) : ""
                 }
                 return out
         } as Route
