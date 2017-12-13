@@ -11,7 +11,7 @@ import jp.sharelock.web.ServiciableWebSocket.WSMessage
  */
 @CompileStatic
 class ChatService implements ServiciableWebSocket {
-    List<String> currentList = new ArrayList<>()
+    List<String> currentList = []
 
     void setBroadCaster(WebSocketService.MsgBroadCaster msgBroadCaster) {}
 

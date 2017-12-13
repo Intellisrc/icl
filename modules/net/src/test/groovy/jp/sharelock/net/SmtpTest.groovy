@@ -30,6 +30,7 @@ class SmtpTest extends Specification {
         def confile = new File(rootdir.toString() + File.separator + Config.fileName)
         if(confile.exists()) {
             Config.filePath = rootdir.toString() + File.separator
+            Log.i("Using configuration file in: "+Config.filePath)
         } else {
             Log.i("Use: "+rootdir.toString()+File.separator+Config.fileName+" to setup variables.")
             Config.filePath = userdir.toString() + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator
@@ -37,8 +38,8 @@ class SmtpTest extends Specification {
         }
         // If config is loaded, no need to specify connection settings
         smtp = new Smtp(
-            from: "unit_test@example.com",
-            simulate: true
+            //from: "unit_test@example.com",
+            //simulate: true
         )
         attachFile = new File("src/test/resources/star.png")
     }
@@ -86,6 +87,15 @@ class SmtpTest extends Specification {
     }
     def "HTML and text"() {
         expect: assert smtp.send(recipient1,"Testing HTML and text", "<h1>Hello! this is <i>H1</i></h1>", "This is TXT format")
+    }
+    def "HTML and text with Attachments"() {
+        setup:
+        def file = new File(SysInfo.getWritablePath()+"example.txt")
+        file << "Hello this is just a test"
+        smtp.addAttachment(file)
+        expect: assert smtp.send(recipient1,"Testing HTML and text", "<h1>Hello! this is <i>H1</i></h1>", "This is TXT format")
+        cleanup:
+        file.delete()
     }
     def "Specifying recipient type"() {
         def sendTo = [:]
