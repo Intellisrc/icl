@@ -132,7 +132,7 @@ class WebSocketService {
                     if (session != null) {
                         try {
                             if (session.websocketSession.isOpen()) {
-                                session.websocketSession.getRemote().sendString(JSON.toString(wsMessage.jsonObj))
+                                session.websocketSession.getRemote().sendString(JSON.encode(wsMessage.jsonObj))
                             }
                         } catch (Exception e) {
                             listener.onError(session, e.message)
