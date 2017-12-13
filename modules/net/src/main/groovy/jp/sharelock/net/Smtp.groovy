@@ -18,6 +18,7 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeBodyPart
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
+import javax.mail.internet.MimePartDataSource
 
 /**
  * References:
@@ -152,7 +153,7 @@ class Smtp {
      */
     boolean send(Map<String, Mode> recipients, String subject = "", String body = "", String bodyText = "") {
         Email emailFrom
-        Properties props = new Properties()
+        def props = new Properties()
         boolean fileSettings = Config.matchKey("mail.smtp")
         //Reading from file...
         if(!useLocalSettings && fileSettings) {
@@ -215,8 +216,8 @@ class Smtp {
             Log.e("Sender email is not correct: $from")
             return false
         }
-        Session session = Session.getDefaultInstance(props)
-        Message message = new MimeMessage(session)
+        def session = Session.getDefaultInstance(props)
+        def message = new MimeMessage(session)
         try {
             if(fromName) {
                 message.setFrom(new InternetAddress(emailFrom.toString(), fromName))
@@ -253,62 +254,72 @@ class Smtp {
             return false
         }
         //If we have attachments or we defined bodyText (which means there body is HTML)
+        //Alternative + Attachments : code using as reference: https://mlyly.wordpress.com/2011/05/13/hello-world/
         if(attachments || bodyText) {
-                Multipart multipart = new MimeMultipart()
-                try {
-                    if(bodyText) {
-                        MimeBodyPart textBodyPart = new MimeBodyPart()
-                        MimeBodyPart htmlBodyPart = new MimeBodyPart()
-                        htmlBodyPart.setContent(body, "text/html; charset=UTF-8")
-                        textBodyPart.setText(bodyText,"UTF-8")
-                        multipart.addBodyPart(htmlBodyPart)
-                        multipart.addBodyPart(textBodyPart)
-                    } else {
-                        MimeBodyPart messageBodyPart = new MimeBodyPart()
-                        messageBodyPart.setText(body,"UTF-8")
-                        multipart.addBodyPart(messageBodyPart)
-                    }
-                } catch (MessagingException e) {
-                    Log.e("Unable to set the body in multipart. Error was: "+e.message)
-                    return false
-                }
-                attachments.each {
-                    File file ->
-                        try {
-                            MimeBodyPart messageBodyPart = new MimeBodyPart()
-                            DataSource source = new FileDataSource(file)
-                            messageBodyPart.setDataHandler(new DataHandler(source))
-                            messageBodyPart.setFileName(file.name)
-                            multipart.addBodyPart(messageBodyPart)
-                            Log.d("Attached: "+file.name)
-                        } catch(MessagingException e) {
-                            Log.e("Attachment was not added: $file, error was: "+e.message)
-                            return false
+                def wrapBodyPart = new MimeBodyPart()
+                if(bodyText) {
+                    def altPart = new MimeMultipart("alternative")
+                    try {
+                        if (bodyText) {
+                            def textBodyPart = new MimeBodyPart()
+                            def htmlBodyPart = new MimeBodyPart()
+                            textBodyPart.setContent(bodyText, "text/plain; charset=UTF-8")
+                            htmlBodyPart.setContent(body, "text/html; charset=UTF-8")
+                            altPart.addBodyPart(textBodyPart)
+                            altPart.addBodyPart(htmlBodyPart)
+                        } else {
+                            def messageBodyPart = new MimeBodyPart()
+                            messageBodyPart.setText(body, "UTF-8")
+                            altPart.addBodyPart(messageBodyPart)
                         }
+                        wrapBodyPart.setContent(altPart)
+                    } catch (MessagingException e) {
+                        Log.e("Unable to set the body in multipart. Error was: " + e.message)
+                        return false
+                    }
                 }
-                try {
-                    message.setContent(multipart)
-                } catch (MessagingException e) {
-                    Log.e("Unable to set multipart content. Error was: "+e.message)
-                    return false
+
+                def relatedPart = new MimeMultipart("related")
+                message.setContent(relatedPart)
+                relatedPart.addBodyPart(wrapBodyPart)
+
+                if(attachments) {
+                    attachments.each {
+                        File file ->
+                            try {
+                                DataSource source = new FileDataSource(file)
+                                def messageBodyPart = new MimeBodyPart(
+                                        dataHandler: new DataHandler(source),
+                                        fileName: file.name
+                                )
+                                relatedPart.addBodyPart(messageBodyPart)
+                                Log.d("Attached: " + file.name)
+                            } catch (MessagingException e) {
+                                Log.e("Attachment was not added: $file, error was: " + e.message)
+                                return false
+                            }
+                    }
+
                 }
         } else {
             try {
-                message.setText(body)
+                message.setText(body, "UTF-8")
             } catch (MessagingException e) {
                 Log.e("Unable to set text to body: "+body.substring(0,10)+"... , error was: "+e.message)
                 return false
             }
         }
-        if(headers) {
-            try {
+        // Add headers
+        message.setSentDate(new Date())
+        try {
+            if(!headers.isEmpty()) {
                 headers.each {
                     String head, String value ->
                         message.addHeader(head, value)
                 }
-            } catch (MessagingException e) {
-                Log.e("Unable to set headers.")
             }
+        } catch (MessagingException e) {
+            Log.e("Unable to set headers.")
         }
         Log.d("Email from: $from -> "+ ( recipients.keySet().first() ) + "... (recipients: "+recipients.size()+")" +" is sending...")
         try {

@@ -4,7 +4,6 @@ import jp.sharelock.etc.Log
 import jp.sharelock.web.ServiciableWebSocket.WSMessage
 
 import java.util.concurrent.ConcurrentLinkedQueue
-import static groovy.json.JsonOutput.toJson
 import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
@@ -133,7 +132,7 @@ class WebSocketService {
                     if (session != null) {
                         try {
                             if (session.websocketSession.isOpen()) {
-                                session.websocketSession.getRemote().sendString(toJson(wsMessage.jsonObj))
+                                session.websocketSession.getRemote().sendString(JSON.toString(wsMessage.jsonObj))
                             }
                         } catch (Exception e) {
                             listener.onError(session, e.message)
