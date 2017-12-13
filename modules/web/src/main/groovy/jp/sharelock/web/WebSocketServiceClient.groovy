@@ -1,7 +1,5 @@
 package jp.sharelock.web
 
-import groovy.json.JsonSlurper
-import static groovy.json.JsonOutput.toJson
 import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError
@@ -40,8 +38,7 @@ class WebSocketServiceClient {
         @OnWebSocketMessage
         void onMessage(JettySession sockSession, String message) {
             if(onMessageReceived != null) {
-                JsonSlurper jsonSlurper = new JsonSlurper()
-                onMessageReceived.call((Map) jsonSlurper.parseText(message))
+                onMessageReceived.call(JSON.toMap(message))
             }
         }
 
@@ -92,7 +89,7 @@ class WebSocketServiceClient {
      * @param message
      */
     void sendMessage(Map message) {
-        sendMessage(toJson(message))
+        sendMessage(JSON.toString(message))
     }
     /**
      * Sends a message

@@ -1,7 +1,7 @@
 package jp.sharelock.web.samples
 
+import jp.sharelock.web.JSON
 import jp.sharelock.web.WebSocketServiceClient
-import groovy.json.JsonSlurper
 
 /**
  * Example of a simple Echo Client.
@@ -48,9 +48,8 @@ class ChatClient
                         }
                     }
                     if(botsay.isEmpty() || last_responses.contains(botsay)) {
-                        JsonSlurper jsonSlurper = new JsonSlurper()
                         String toSend = URLEncoder.encode(msg.message, "UTF-8")
-                        Object response = jsonSlurper.parseText("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text)
+                        def response = JSON.toMap("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text)
                         botsay = response.botsay
                     }
                     if (botsay.isEmpty() || last_responses.contains(botsay)) {
@@ -61,9 +60,8 @@ class ChatClient
                         }
                         //Last resource to prevent repetition:
                         if(last_responses.contains(botsay)) {
-                            JsonSlurper jsonSlurper = new JsonSlurper()
-                            Object response = jsonSlurper.parseText("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text)
-                            HashMap res = response.first()
+                            def response = JSON.toList("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text)
+                            Map res = (Map) response.first()
                             botsay = res.content
                             if(botsay.isEmpty()) {
                                 botsay = getStatement()

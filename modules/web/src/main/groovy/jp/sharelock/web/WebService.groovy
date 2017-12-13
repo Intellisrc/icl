@@ -16,7 +16,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-import static groovy.json.JsonOutput.toJson
+
 
 @groovy.transform.CompileStatic
 /**
@@ -126,7 +126,7 @@ class WebService {
                                     id = request.session().id()
                                 }
                                 response.type("application/json")
-                                return toJson(
+                                return JSON.toString(
                                         y : ok,
                                         id : id
                                 )
@@ -135,7 +135,7 @@ class WebService {
                             Request request, Response response ->
                                 response.type("application/json")
                                 request.session().invalidate()
-                                return toJson(
+                                return JSON.toString(
                                         y : auth.onLogout()
                                 )
                         })
@@ -242,7 +242,7 @@ class WebService {
         Object out
         switch(otype) {
             case OutputType.JSON:
-                out = toJson(output)
+                out = JSON.toString(output)
                 break
             case OutputType.BINARY:
                 HttpServletResponse raw = response.raw()
@@ -371,7 +371,7 @@ class WebService {
                     }
                 } else {
                     response.status(401)
-                    out = otype == OutputType.JSON ? toJson(y : false) : ""
+                    out = otype == OutputType.JSON ? JSON.toString(y : false) : ""
                 }
                 return out
         } as Route

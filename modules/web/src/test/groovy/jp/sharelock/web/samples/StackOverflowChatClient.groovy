@@ -1,7 +1,7 @@
 package jp.sharelock.web.samples
 
+import jp.sharelock.web.JSON
 import jp.sharelock.web.WebSocketServiceClient
-import groovy.json.JsonSlurper
 
 import java.util.zip.GZIPInputStream
 
@@ -25,12 +25,11 @@ class StackOverflowChatClient {
                 String reply = "<ul>"
                 if(msg.type == "txt" && msg.user != uname && message.startsWith('$')) {
                     message = message.replace('$','')
-                    JsonSlurper jsonSlurper = new JsonSlurper()
                     String toSend = URLEncoder.encode(message, "UTF-8")
                     byte[] gziped = "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=relevance&q=$toSend&accepted=True&site=stackoverflow".toURL().getBytes()
                     GZIPInputStream gzip = new GZIPInputStream (new ByteArrayInputStream (gziped))
-                    Object response = jsonSlurper.parseText(gzip.getText("UTF-8"))
-                    Object firstItem = response.items.each {
+                    def response = JSON.toMap(gzip.getText("UTF-8"))
+                    def firstItem = response.items.each {
                         String title = it.title
                         String link = it.link
                         reply += "<li><a href='$link' target='_blank'>$title</a>"
