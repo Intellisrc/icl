@@ -6,17 +6,16 @@ import spock.lang.Specification
  * @since 17/03/02.
  */
 class PoolConnectorTest extends Specification {
-    final poolSize = 20
     def setup() {
     }
     def "Testing return-to-pool"() {
         setup:
-            DBPool.instance.init("dummy", "dummy", poolSize)
+            Database.init(new Dummy())
         when:
             ArrayList<DB> dbArr = []
             (1..10).each {
-                DB db = new PoolConnector().getDB()
-                assert db: "Failed to initialize DB"
+                DB db = Database.connect()
+                assert db: "Failed to connect to Database"
                 dbArr << db
             }
             (1..8).each {
@@ -24,7 +23,7 @@ class PoolConnectorTest extends Specification {
                 dbArr.remove(0)
             }
             (1..8).each {
-                DB db = new PoolConnector().getDB()
+                DB db = Database.connect()
                 assert db: "Failed to initialize DB"
                 dbArr << db
             }
@@ -33,25 +32,29 @@ class PoolConnectorTest extends Specification {
                 dbArr.remove(0)
             }
         then:
-            DBPool.instance.currentConnections() == 0
+            Database.connections == 0
+        cleanup:
+            Database.quit()
     }
     def "Testing disable Pool"() {
         setup:
-            DBPool.instance.init("dummy","dummy",0)
+            Database.init(new Dummy())
         when:
-            DB db = new PoolConnector().getDB()
+            DB db = Database.connect()
         then:
             assert db : "Failed to initialize DB"
-            assert DBPool.instance.currentConnections() == 1
+            assert Database.connections == 1
         and:
-            DB db2 = new PoolConnector().getDB()
+            DB db2 = Database.connect()
         then:
             assert db2 : "Failed to initialize DB"
-            assert DBPool.instance.currentConnections() == 2
+            assert Database.connections == 2
         and:
             db.close()
             db2.close()
         then:
-            assert DBPool.instance.currentConnections() == 0
+            assert Database.connections == 0
+        cleanup:
+            Database.quit()
     }
 }

@@ -1,25 +1,20 @@
 package jp.sharelock.db
 
 import jp.sharelock.etc.Log
-import java.lang.reflect.Constructor
-import java.lang.reflect.InvocationTargetException
 
 @groovy.transform.CompileStatic
-@Singleton
 /**
  * Manage the DB connection pool
- * If poolsize == 0, it will only act as a wrapper to the connection. That
- * means that connections will he handled and closed as requested (no pool)
- * @author Alberto Lepe <lepe@sharelock.jp>
+ * It handles automatically the number of connections as it
+ * increases or decrease the pool according to demand.
+ * @author Alberto Lepe <lepe@inspeedia.com>
  */
 class DBPool {
-    private int TIMEOUT_SEC = 600
+    private int timeoutSeconds = 600
 	private boolean initialized = false
-    private String databaseName
-    private String connectionString
     private int currentConnections
 	List<DB.Connector> availableConnections = []
-	Object context //Android context
+	DB.Starter starter
 
 	/**
 	 * Initialize with JDBC connection
@@ -27,13 +22,12 @@ class DBPool {
 	 * @param ConnectionStr
      * @param timeout
 	 */
-	synchronized void init(String database = "", String connectionStr = "", int timeout = TIMEOUT_SEC) {
+	synchronized void init(DB.Starter dbStarter, int timeout = 0) {
 		if(!initialized) {
-			databaseName = database
-			connectionString = connectionStr
-			TIMEOUT_SEC = timeout
+			starter = dbStarter
+			timeoutSeconds = timeout ?: timeoutSeconds
 			Thread.startDaemon {
-				long waitTime = (TIMEOUT_SEC < 60 ? TIMEOUT_SEC : 60) * 1000
+				long waitTime = (timeoutSeconds < 60 ? timeoutSeconds : 60) * 1000
 				while (initialized) {
 					timeoutPool()
 					sleep waitTime
@@ -49,9 +43,9 @@ class DBPool {
 	synchronized void timeoutPool() {
 		if(!availableConnections.isEmpty()) {
 			DB.Connector connector = availableConnections.find {
-				DB.Connector conn ->
+                DB.Connector conn ->
 					if (conn.lastUsed > 0) {
-						if (System.currentTimeSeconds() - conn.lastUsed > TIMEOUT_SEC) {
+						if (System.currentTimeSeconds() - conn.lastUsed > timeoutSeconds) {
                             return conn
 						}
 					}
@@ -60,7 +54,7 @@ class DBPool {
                 connector.lastUsed = 0
                 connector.close()
                 availableConnections.remove(connector)
-                Log.v( "Connection timed out")
+                Log.v( "DB timed out")
             }
 		}
 	}
@@ -73,7 +67,7 @@ class DBPool {
     synchronized void increasePool() {
         if (availableConnections.isEmpty()) {
             availableConnections.add(createNewConnectionForPool())
-            Log.v( "Connection added to pool")
+            Log.v( "DB added to pool")
         }
     }
 
@@ -92,7 +86,7 @@ class DBPool {
      * Get current number of connections used
      * @return
      */
-	synchronized int currentConnections() {
+	synchronized int getCurrentConnections() {
 		return currentConnections
 	}
 
@@ -103,19 +97,10 @@ class DBPool {
 	//Creating a connection
 	private synchronized DB.Connector createNewConnectionForPool() {
 		DB.Connector conn = null
-		boolean isAndroid = System.getProperties().getProperty("java.vendor").contains("Android")
 		try {
-            if(connectionString == "dummy") {
-                conn = new DummyConnector()
-            } else if (isAndroid) {
-				Constructor con = Class.forName("jp.sharelock.db.AndroidConnector").getConstructor(String, Class.forName("android.content.Context"))
-				conn = (DB.Connector) con.newInstance(databaseName, Class.forName("android.content.Context").cast(context))
-			} else {
-				Constructor con = Class.forName("jp.sharelock.db.JDBCConnector").getConstructor(String, String)
-				conn = (DB.Connector) con.newInstance(databaseName, connectionString)
-			}
-		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-			Log.e( "Unable to load the connection class: " + ex)
+			conn = starter.getNewConnection()
+		} catch (Exception e) {
+			Log.e( "Unable to load the connection class", e)
 		}
 		return conn
 	}
