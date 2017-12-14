@@ -8,7 +8,7 @@ import spock.lang.Specification
 class JDBCConnectorTest extends Specification {
     def "Testing URL parse"() {
         setup:
-            def jdbc = new JDBCConnector("","mysql://user1:pass1@localhost1:1234/mydb")
+            def jdbc = new JDBCConnector("mysql://user1:pass1@localhost1:1234/mydb")
         expect:
             def url = jdbc.getJDBCStr()
             assert url
