@@ -12,10 +12,15 @@ import jp.sharelock.db.DB.Statement
  */
 class PoolConnector implements Connector {
 	Connector connector
+	private final DBPool pool
 	long lastUsed = 0
-	
+
+	PoolConnector(DBPool dbPool) {
+		pool = dbPool
+	}
+
 	DB getDB() {
-		if(DBPool?.getInstance()?.isInitialized()) {
+		if(pool.initialized) {
 			return new DB(this)
 		} else {
 			Log.e( "Pool has not been initialized")
@@ -31,12 +36,12 @@ class PoolConnector implements Connector {
 	@Override
 	void open() {
         if(!isOpen()) {
-            connector = DBPool?.getInstance()?.getConnectionFromPool()
-			Log.d( "Connection got from Pool")
+            connector = pool?.getConnectionFromPool()
+			Log.d( "DB got from Pool")
             try {
 				if(!isOpen()) {
 					connector.open()
-					Log.d( "Connection was opened")
+					Log.d( "DB was opened")
 				}
             } catch (e) {
                 Log.e( "Unable to get connection :" + e)
@@ -46,8 +51,8 @@ class PoolConnector implements Connector {
 
 	@Override
 	void close() {
-		DBPool?.getInstance()?.returnConnectionToPool(connector)
-		Log.d( "Connection returned.")
+		pool?.returnConnectionToPool(connector)
+		Log.d( "DB returned.")
 	}
 
 	@Override

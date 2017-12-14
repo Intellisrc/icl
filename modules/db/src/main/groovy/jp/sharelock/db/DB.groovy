@@ -36,6 +36,9 @@ class DB {
 		TEXT, INTEGER, DOUBLE, BLOB, DATE, NULL
 	}
     ////////////////////////// Interfaces ////////////////////////////////
+    interface Starter {
+        Connector getNewConnection()
+    }
 
 	interface Connector {
 		void open()

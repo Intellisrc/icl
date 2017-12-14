@@ -47,7 +47,7 @@ class JDBCConnector implements Connector {
 	private String host = ""
 	private int port
 	private static Connection db
-	private DBType type = SQLITE
+	private DBType type = JAVADB
 	long lastUsed = 0
 
 	/**
@@ -55,30 +55,26 @@ class JDBCConnector implements Connector {
 	 * @param conn_url
 	 * @param dbname
 	 */
-	JDBCConnector(String dbname = "", String conn_url = "") {
-        if(dbname.isEmpty() && conn_url.isEmpty()) {
+	JDBCConnector(String conn_url = "") {
+        if(conn_url.isEmpty()) {
             if(Config.hasKey("db.name")) {
                 this.dbname = Config.get("db.name")  //    database name
-                if(!Config.hasKey("db.jdbc.url")) {
-                    if(Config.hasKey("db.type")) {
-                        type = (Config.get("db.type") ?: "mysql").toUpperCase() as DBType
-                        host = Config.get("db.host") ?: "localhost"
-                        user = Config.get("db.user") ?: "root"
-                        pass = Config.get("db.pass") ?: ""
-                        port = Config.getInt("db.port") ?: (type == MYSQL ? 3306 : 5432)
-                    }
-                } else {
-                    parseJDBC(Config.get("db.jdbc.url"))
+            }
+            if(!Config.hasKey("db.jdbc.url")) {
+                if(Config.hasKey("db.type")) {
+                    type = (Config.get("db.type") ?: "mysql").toUpperCase() as DBType
+                    host = Config.get("db.host") ?: "localhost"
+                    user = Config.get("db.user") ?: "root"
+                    pass = Config.get("db.pass") ?: ""
+                    port = Config.getInt("db.port") ?: (type == MYSQL ? 3306 : 5432)
                 }
+            } else {
+                parseJDBC(Config.get("db.jdbc.url"))
             }
         } else if(!conn_url.isEmpty()) {
-            if(!dbname.isEmpty()) {
-                this.dbname = dbname
-            }
             parseJDBC(conn_url)
-        } else {
-            this.dbname = dbname
         }
+		assert dbname
 	}
 
     /**
