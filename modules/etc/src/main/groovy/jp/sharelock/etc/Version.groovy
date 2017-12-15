@@ -1,5 +1,7 @@
 package jp.sharelock.etc
 
+import groovy.transform.CompileStatic
+
 import java.util.jar.Attributes
 import java.util.jar.Manifest
 
@@ -7,6 +9,7 @@ import java.util.jar.Manifest
  * Automatic search for version
  * @since 17/11/17.
  */
+@CompileStatic
 class Version {
     private static enum Source {
         JAR, CONFIG, GRADLE, NONE

@@ -1,10 +1,13 @@
 package jp.sharelock.etc
 
+import groovy.transform.CompileStatic
+
 /**
  * imported from: org.bouncycastle.util
  * https://github.com/bcgit/bc-java/blob/master/core/src/main/java/org/bouncycastle/util/Pack.java
  * Utility methods for converting byte arrays into ints and longs, and back again.
  */
+@CompileStatic
 abstract class Pack {
     static short bigEndianToShort(byte[] bs, int off) {
         int n = (bs[off] & 0xff) << 8
