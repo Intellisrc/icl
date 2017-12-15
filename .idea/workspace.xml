@@ -2,12 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Database.groovy" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Databases.groovy" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Dummy.groovy" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBC.groovy" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/MySQL.groovy" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/SQLite.groovy" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" />
@@ -34,14 +28,11 @@
       <change beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
       <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" />
       <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DBPool.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DBPool.groovy" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/PoolConnector.groovy" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/PoolConnector.groovy" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/JDBCConnectorTest.groovy" afterPath="$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/JDBCConnectorTest.groovy" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/PoolConnectorTest.groovy" afterPath="$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/PoolConnectorTest.groovy" />
       <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cmd.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cmd.groovy" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
       <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" />
+      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/MacAddress.groovy" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/MacAddress.groovy" />
       <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -187,24 +178,6 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="common" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="common" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="common" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="publishing" type="c8890929:TasksNode$1" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -214,21 +187,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Smtp.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
+      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5058">
-              <caret line="298" column="28" lean-forward="false" selection-start-line="298" selection-start-column="28" selection-end-line="298" selection-end-column="28" />
+            <state relative-caret-position="108">
+              <caret line="6" column="23" lean-forward="false" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <file leaf-file-name="SysService.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="8" column="16" lean-forward="false" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
+            <state relative-caret-position="468">
+              <caret line="85" column="0" lean-forward="false" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -264,11 +237,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Database.groovy" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Database.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Database.groovy">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="198">
               <caret line="11" column="6" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.gradle">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="972">
+              <caret line="54" column="0" lean-forward="false" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -1430,11 +1413,11 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="13596928713000" />
+        <entry key="$PROJECT_DIR$" value="13597019151000" />
         <entry key="$PROJECT_DIR$/build.gradle" value="2450016860" />
         <entry key="$PROJECT_DIR$/crypt/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/db/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/gradle.properties" value="136853249" />
+        <entry key="$PROJECT_DIR$/gradle.properties" value="3412362817" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="615277776" />
         <entry key="$PROJECT_DIR$/module/groovy-extend/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/crypt/build.gradle" value="3337576961" />
@@ -1447,7 +1430,7 @@
         <entry key="$PROJECT_DIR$/modules/web/build.gradle" value="1293925480" />
         <entry key="$PROJECT_DIR$/net/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/os/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/settings.gradle" value="2931841741" />
+        <entry key="$PROJECT_DIR$/settings.gradle" value="960307654" />
         <entry key="$PROJECT_DIR$/srv/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/web/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/../main" value="1487467690892" />
@@ -2213,6 +2196,11 @@
     <option name="externalProjectsViewState">
       <projects_view />
     </option>
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
+      </map>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -2244,7 +2232,6 @@
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cmd.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Query.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DB.groovy" />
-        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/services/LogService.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DummyConnector.groovy" />
@@ -2264,10 +2251,11 @@
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/JSON.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebSocketServiceClient.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/JSONTest.groovy" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Dummy.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/JDBCConnectorTest.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Databases.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
       </list>
     </option>
   </component>
@@ -2278,7 +2266,7 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="33" />
+    <option name="y" value="52" />
     <option name="width" value="1922" />
     <option name="height" value="1165" />
   </component>
@@ -2319,74 +2307,68 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
               <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="etc" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
@@ -2678,13 +2660,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00001" summary="Added SysService">
-      <created>1508739870717</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1508739870717</updated>
     </task>
     <task id="LOCAL-00002" summary="2.2 : Added log printing to files">
       <created>1508744503430</created>
@@ -3015,7 +2990,21 @@
       <option name="project" value="LOCAL" />
       <updated>1513151597747</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="2.2.34 : Reestructured Databases classes so it allows multiple connections and it won't depend on reflection.">
+      <created>1513220112025</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1513220112025</updated>
+    </task>
+    <task id="LOCAL-00050" summary="2.2.34 : Fixed gradle.properties">
+      <created>1513220257084</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1513220257085</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3060,7 +3049,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="33" width="1372" height="738" extended-state="6" />
+    <frame x="-3" y="33" width="1926" height="1170" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -3069,15 +3058,15 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Code Outline" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36585367" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36580706" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2859304" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2857143" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Build" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295129" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="JFrog" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18154311" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18123667" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.52149" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -3095,8 +3084,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.16.6 added boolean to Emai" />
-    <MESSAGE value="2.2.18 : improved Command and added tests" />
     <MESSAGE value="2.2.18-SNAPSHOT: Added 'extend' to Cache, and tried to improve LoginService" />
     <MESSAGE value="2.2.18-SNAPSHOT: Adding security module" />
     <MESSAGE value="2.2.20 : Log to file was printing objects. Smtp was not using some of the local settings." />
@@ -3120,7 +3107,9 @@
     <MESSAGE value="2.2.31 : Fixed DBPool" />
     <MESSAGE value="2.2.32 : Replaced Groovy JSON for GSon (to use in android). Fixed SMTP to handle HTML+Text with Attachments" />
     <MESSAGE value="2.2.33 : modified JSON class" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.33 : modified JSON class" />
+    <MESSAGE value="2.2.34 : Reestructured Databases classes so it allows multiple connections and it won't depend on reflection." />
+    <MESSAGE value="2.2.34 : Fixed gradle.properties" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.34 : Fixed gradle.properties" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3141,21 +3130,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="35" column="48" lean-forward="false" selection-start-line="35" selection-start-column="48" selection-end-line="35" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="61" column="50" lean-forward="false" selection-start-line="61" selection-start-column="50" selection-end-line="61" selection-end-column="50" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/PoolConnectorTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="493">
@@ -3443,14 +3417,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="16" lean-forward="false" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/SQLite.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -3503,6 +3469,30 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="11" column="6" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="972">
+          <caret line="54" column="0" lean-forward="false" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/SysService.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="468">
+          <caret line="85" column="0" lean-forward="false" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="23" lean-forward="false" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
           <folding />
         </state>
       </provider>
