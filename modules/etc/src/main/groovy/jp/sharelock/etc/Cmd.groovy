@@ -1,5 +1,7 @@
 package jp.sharelock.etc
 
+import groovy.transform.CompileStatic
+
 /**
  * @since 1/9/17.
  *

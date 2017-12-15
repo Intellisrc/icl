@@ -1,5 +1,6 @@
 package jp.sharelock.db
 
+import groovy.transform.CompileStatic
 import jp.sharelock.etc.Log
 
 /**
@@ -8,6 +9,7 @@ import jp.sharelock.etc.Log
  * must be used.
  * @since 17/12/14.
  */
+@CompileStatic
 class Databases {
     static private Map<String, DBPool> pools = [:]
     static void init(String key, DB.Starter type = null, int timeout = 0) {
@@ -33,7 +35,6 @@ class Databases {
             pools[key].quit()
             pools.remove(key)
         } else {
-
             Log.e("Pool with key: $key does not exists.")
         }
     }
