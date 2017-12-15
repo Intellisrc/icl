@@ -1,9 +1,12 @@
 package jp.sharelock.web
 
 import com.google.gson.Gson
+import groovy.transform.CompileStatic
+
 /**
  * @since 17/12/13.
  */
+@CompileStatic
 class JSON {
     static class JsonData {
         private final String json

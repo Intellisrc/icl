@@ -1,5 +1,7 @@
 package jp.sharelock.db
 
+import groovy.transform.CompileStatic
+
 /**
  * Main Database initialization class
  *
@@ -9,6 +11,7 @@ package jp.sharelock.db
  *
  * @since 17/12/13.
  */
+@CompileStatic
 class Database {
     static private DBPool pool
     static void init(String urlstr, int timeout = 0) {
