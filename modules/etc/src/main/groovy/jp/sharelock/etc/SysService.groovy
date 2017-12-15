@@ -75,12 +75,14 @@ abstract class SysService {
                 sysSrv.onStatus(lockFile.exists())
                 break
             default:
-                try {
-                    Method m = service.class.getDeclaredMethod("on"+action.capitalize())
-                    if(m) {
+                Method m = service.class.getDeclaredMethod("on"+action.capitalize())
+                if(m) {
+                    try {
                         m.invoke(sysSrv)
+                    } catch (Exception e) {
+                        Log.e("Exception in method: on${action.capitalize()}", e)
                     }
-                } catch (Exception e) {
+                } else {
                     Log.e("Unknown command : "+action)
                 }
                 System.exit(1)

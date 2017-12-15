@@ -19,6 +19,7 @@ package jp.sharelock.etc
  *  to create an script and execute it only once (more performance efficient).
  *
  */
+@CompileStatic
 class Cmd {
     interface Done {
         void done(String out)
@@ -195,9 +196,15 @@ class Cmd {
         def comm = new Command()
         if(opts) {
             comm.with {
-                secret  = opts.secret ?: false
-                exit    = opts.exit ?: 0
-                timeout = opts.timeout ?: 10000
+                if(opts.secret) {
+                    secret = opts.secret as Boolean
+                }
+                if(opts.exit) {
+                    exit = opts.exit as Integer
+                }
+                if(opts.timeout) {
+                    timeout = opts.timeout as Integer
+                }
             }
         }
         return comm
