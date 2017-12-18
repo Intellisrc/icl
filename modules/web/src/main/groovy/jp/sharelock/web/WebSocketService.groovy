@@ -79,7 +79,7 @@ class WebSocketService {
     @OnWebSocketError
     void onWebSocketError(JettySession sockSession, Throwable throwable) {
         listener.onError(getSession(sockSession), throwable.message)
-        Log.e( throwable.message)
+        Log.e("WebSocketError: ", throwable)
     }
     //------------- Implementation ---------------
     private Queue<Session> sessionQueue = new ConcurrentLinkedQueue()

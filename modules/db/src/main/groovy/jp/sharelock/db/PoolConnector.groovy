@@ -44,7 +44,7 @@ class PoolConnector implements Connector {
 					Log.d( "DB was opened")
 				}
             } catch (e) {
-                Log.e( "Unable to get connection :" + e)
+                Log.e( "Unable to get connection :", e)
             }
         }
 	}

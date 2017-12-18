@@ -85,7 +85,7 @@ class AES extends Crypt implements Encodable {
                 System.arraycopy(outBuf, 0, result, 0, result.length)
             }
         } catch(Exception e){
-            Log.e( "Unable to encode/decode data")
+            Log.e( "Unable to encode/decode data", e)
         }
         return result
     }

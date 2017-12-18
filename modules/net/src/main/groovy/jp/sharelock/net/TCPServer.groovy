@@ -36,7 +36,7 @@ class TCPServer {
                 serverSocket = new ServerSocket(port)
                 ServerOn = true
             } catch (Exception e) {
-                Log.e( "Could not create server socket on port: $port "+e)
+                Log.e( "Could not create server socket on port: $port ",e)
                 throw new InvalidPortException("Could not create server socket on port: $port ")
             }
             while(ServerOn) {
@@ -74,7 +74,7 @@ class TCPServer {
             }
             catch(IOException ioe)
             {
-                Log.e( "Problem stopping server socket ($ioe)")
+                Log.e( "Problem stopping server socket", ioe)
                 System.exit(-1)
             }
 		})
