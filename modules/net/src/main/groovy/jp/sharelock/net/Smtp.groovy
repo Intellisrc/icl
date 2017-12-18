@@ -212,7 +212,7 @@ class Smtp {
         try {
             emailFrom = new Email(from)
         } catch(Email.EmailMalformedException e) {
-            Log.e("Sender email is not correct: $from")
+            Log.e("Sender email is not correct: $from", e)
             return false
         }
         def session = Session.getDefaultInstance(props)
@@ -224,7 +224,7 @@ class Smtp {
                 message.setFrom(new InternetAddress(emailFrom.toString()))
             }
         } catch (MessagingException e) {
-            Log.e("Failed to set FROM: $from, error was: "+e.message)
+            Log.e("Failed to set FROM: $from, error was: ", e)
             return false
         }
         if(replyTo) {
@@ -236,20 +236,20 @@ class Smtp {
                 try {
                     emailTo = new Email(to)
                 } catch (Email.EmailMalformedException e) {
-                    Log.e("Receiver email is not correct: $to")
+                    Log.e("Receiver email is not correct: $to", e)
                     return false
                 }
                 try {
                     message.addRecipient(mode.toRecipientType(), new InternetAddress(emailTo.toString()))
                 } catch (MessagingException e) {
-                    Log.e("Failed to set TO: $to, error was: "+e.message)
+                    Log.e("Failed to set TO: $to, error was: ", e)
                     return false
                 }
         }
         try {
             message.setSubject(subject)
         } catch (MessagingException e) {
-            Log.e("Failed to set mail subject: ["+subject+"], error was: "+e.message)
+            Log.e("Failed to set mail subject: ["+subject+"], error was: ", e)
             return false
         }
         //If we have attachments or we defined bodyText (which means there body is HTML)
@@ -273,7 +273,7 @@ class Smtp {
                         }
                         wrapBodyPart.setContent(altPart)
                     } catch (MessagingException e) {
-                        Log.e("Unable to set the body in multipart. Error was: " + e.message)
+                        Log.e("Unable to set the body in multipart. Error was: ", e)
                         return false
                     }
                 }
@@ -294,7 +294,7 @@ class Smtp {
                                 relatedPart.addBodyPart(messageBodyPart)
                                 Log.d("Attached: " + file.name)
                             } catch (MessagingException e) {
-                                Log.e("Attachment was not added: $file, error was: " + e.message)
+                                Log.e("Attachment was not added: $file, error was: ", e)
                                 return false
                             }
                     }
@@ -304,7 +304,7 @@ class Smtp {
             try {
                 message.setText(body, "UTF-8")
             } catch (MessagingException e) {
-                Log.e("Unable to set text to body: "+body.substring(0,10)+"... , error was: "+e.message)
+                Log.e("Unable to set text to body: "+body.substring(0,10)+"... , error was: ", e)
                 return false
             }
         }
@@ -318,7 +318,7 @@ class Smtp {
                 }
             }
         } catch (MessagingException e) {
-            Log.e("Unable to set headers.")
+            Log.e("Unable to set headers.", e)
         }
         Log.d("Email from: $from -> "+ ( recipients.keySet().first() ) + "... (recipients: "+recipients.size()+")" +" is sending...")
         try {
@@ -341,9 +341,10 @@ class Smtp {
                 transport.close()
             }
         } catch(MessagingException e) {
-            Log.e("Mail was not sent. Error was: "+e.message)
-            if(e.nextException) {
-                Log.e("... " + e.nextException)
+            Log.e("Mail was not sent. Error was: ", e)
+            Exception ne
+            while (ne = e.nextException) {
+                Log.e("... ", ne)
             }
             return false
         }

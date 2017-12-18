@@ -36,7 +36,7 @@ class DummyConnector implements DB.Connector {
     }
 
     void onError(Exception ex) {
-        Log.e( "Error reported: "+ex)
+        Log.e( "Error reported: ", ex)
     }
 
     DB.DBType getType() {

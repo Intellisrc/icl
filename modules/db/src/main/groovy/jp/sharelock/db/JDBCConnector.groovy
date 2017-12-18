@@ -102,7 +102,7 @@ class JDBCConnector implements Connector {
                     dbname = path
                 }
             } catch (Exception e) {
-                Log.e( "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : "+e.message)
+                Log.e( "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : ", e)
             }
         } else {
             Log.e( "Specified URL has no protocol: [$sUrl]")
@@ -114,8 +114,8 @@ class JDBCConnector implements Connector {
 		try {
 			db = DriverManager.getConnection(getJDBCStr(), user, pass)
 			Log.d( "Connecting to DB")
-		} catch (SQLException ex) {
-			Log.w( "Connection failed: " + ex)
+		} catch (SQLException e) {
+			Log.w( "Connection failed: ", e)
 		}
 	}
 
@@ -149,7 +149,7 @@ class JDBCConnector implements Connector {
                     url += "&characterSetResults=utf8"
                     url += "&connectionCollation=utf8_general_ci"
                 } catch(Exception e) {
-                    Log.e( "Driver not found: "+e)
+                    Log.e( "Driver not found: ",e)
                     url = ""
                 }
                 break
@@ -170,8 +170,8 @@ class JDBCConnector implements Connector {
             if(db != null) {
                 open = !db.isClosed()
             }
-		} catch (SQLException ex) {
-			Log.w( "DB was closed ($ex)")
+		} catch (SQLException e) {
+			Log.w( "DB was closed ",e)
 		}
 		return open
 	}
@@ -181,8 +181,8 @@ class JDBCConnector implements Connector {
 		try {
 			db.close()
 			Log.d( "Disconnecting from DB")
-		} catch (SQLException ex) {
-			Log.e( "Unable to close ($ex)")
+		} catch (SQLException e) {
+			Log.e( "Unable to close ",e)
 		}
 	}
 
@@ -233,7 +233,7 @@ class JDBCConnector implements Connector {
 							ok = rs.next()
 						}
 					} catch (SQLException ex) {
-						Log.e( "Step failed: "+ex)
+						Log.e( "Step failed: ",ex)
 					}
 					return ok
 				}
@@ -246,7 +246,7 @@ class JDBCConnector implements Connector {
 						}
 						st.close()
 					} catch (SQLException ex) {
-						Log.e( "Unable to close Statement: "+ex)
+						Log.e( "Unable to close Statement: ",ex)
 					}
 				}
 
@@ -256,7 +256,7 @@ class JDBCConnector implements Connector {
 					try {
 						count = rm.getColumnCount()
 					} catch (SQLException ex) {
-						Log.e( "column count failed: "+ex)
+						Log.e( "column count failed: ",ex)
 					}
 					return count
 				}
@@ -304,7 +304,7 @@ class JDBCConnector implements Connector {
 						}
 						return ct
 					} catch (SQLException ex) {
-						Log.e( "column type failed: "+ex)
+						Log.e( "column type failed: ",ex)
 						return null
 					}
 				}
@@ -314,7 +314,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rm.getColumnName(index)
 					} catch (SQLException ex) {
-						Log.e( "column name failed: "+ex)
+						Log.e( "column name failed: ",ex)
 						return ""
 					}
 				}
@@ -324,7 +324,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getString(index)
 					} catch (SQLException ex) {
-						Log.e( "column Str failed: "+ex)
+						Log.e( "column Str failed: ",ex)
 						return ""
 					}
 				}
@@ -334,7 +334,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getInt(index)
 					} catch (SQLException ex) {
-						Log.e( "column Int failed: "+ex)
+						Log.e( "column Int failed: ",ex)
 						return 0
 					}
 				}
@@ -344,7 +344,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getDouble(index)
 					} catch (SQLException ex) {
-						Log.e( "column Dbl failed: "+ex)
+						Log.e( "column Dbl failed: ",ex)
 						return 0d
 					}
 				}
@@ -354,7 +354,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getBytes(index)
 					} catch (SQLException ex) {
-						Log.e( "column Blob failed: "+ex)
+						Log.e( "column Blob failed: ",ex)
 						return null
 					}
 				}
@@ -364,7 +364,7 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getTimestamp(index)
 					} catch (SQLException ex) {
-						Log.e( "column Date failed: "+ex)
+						Log.e( "column Date failed: ",ex)
 						return null
 					}
 				}
@@ -375,7 +375,7 @@ class JDBCConnector implements Connector {
 						rs.getString(index)
 						return rs.wasNull()
 					} catch (SQLException ex) {
-						Log.e( "column isColumnNull failed: "+ex)
+						Log.e( "column isColumnNull failed: ",ex)
 						return true
 					}
 				}
@@ -386,14 +386,14 @@ class JDBCConnector implements Connector {
 				}
 			}
 		} catch (SQLException ex) {
-			Log.e( "Statement failed: "+ex)
+			Log.e( "Statement failed: ",ex)
 		}
 		return null
 	}
 
 	@Override
 	void onError(Exception ex) {
-		Log.e( "General error: "+ex)
+		Log.e( "General error: ",ex)
 	}
 
 	@Override
