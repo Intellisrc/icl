@@ -115,11 +115,11 @@ class TCPClient extends Thread {
 				Log.v("Connected. ["+dstAddress.getHostAddress()+"]")
             } catch (UnknownHostException uhe) {
                 // Server Host unreachable
-                Log.e( "Unknown Host :" + dstAddress.getHostAddress()+" ($uhe)")
+                Log.e( "Unknown Host :" + dstAddress.getHostAddress(), uhe)
                 s = null
             } catch (IOException ioe) {
                 // Cannot connect to port on given server host
-                Log.e( "Cant connect to server: " + dstAddress.getHostAddress() + ":" + dstPort + ". Make sure it is running. ($ioe)")
+                Log.e( "Cant connect to server: " + dstAddress.getHostAddress() + ":" + dstPort + ". Make sure it is running.", ioe)
                 s = null
             }
 
@@ -160,10 +160,10 @@ class TCPClient extends Thread {
                     s.close()
 					Log.v( "Connection closed successfully [" + dstAddress.getHostAddress() + "]")
                 } catch (IOException e) {
-                    Log.e( "Unable to close communication: " + e.getMessage())
+                    Log.e( "Unable to close communication: ", e)
                 }
             } catch (IOException ioe) {
-                Log.e( "Exception during communication. Server probably closed connection: "+ioe)
+                Log.e( "Exception during communication. Server probably closed connection: ",ioe)
 				response = new Response(TCPStatus.NO_CONN, "", request)
             }
         } else {

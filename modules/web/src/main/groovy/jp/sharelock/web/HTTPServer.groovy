@@ -331,7 +331,7 @@ class HTTPServer {
                 input.close()
 
             } catch (Exception e) {
-                Log.e( "Error flushing and closing: "+e)
+                Log.e( "Error flushing and closing: ",e)
             }
         }
     }

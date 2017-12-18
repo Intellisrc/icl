@@ -580,7 +580,7 @@ class DB {
             try {
                 st = db.prepare(query)
             } catch (e) {
-                Log.e( "Query Syntax error: "+e)
+                Log.e( "Query Syntax error: ",e)
             }
             if(st != null) {
                 try {
@@ -592,7 +592,7 @@ class DB {
                     }
                     ok = true
                 } catch (e) {
-                    Log.e( "Insert failed. " + (e))
+                    Log.e( "Insert failed. ", e)
                 }
                 st.close()
             }
