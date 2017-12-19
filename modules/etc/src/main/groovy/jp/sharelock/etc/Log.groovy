@@ -74,7 +74,7 @@ final class Log {
             def color
             switch(level) {
                 case Level.VERBOSE: color = ANSI_WHITE; break
-                case Level.DEBUG: color = ANSI_WHITE; break
+                case Level.DEBUG: color = ANSI_BLACK; break
                 case Level.INFO: color = ANSI_CYAN; break
                 case Level.WARN: color = ANSI_YELLOW; break
                 case Level.ERROR: color = ANSI_RED; break
@@ -197,37 +197,45 @@ final class Log {
             return
         }
         Stack stack = stack()
-        print(level, stack, format(msg, args))
+        Queue listArgs = args.toList() as Queue
+        Throwable throwable = null
+        if(!listArgs.isEmpty() && listArgs.last() instanceof Throwable) {
+            throwable = (Throwable) listArgs.poll()
+        } else if(level == Level.ERROR) {
+            throwable = new Exception("Generic Exception generated in Log")
+        }
+        print(level, stack, format(msg, listArgs))
+        if(throwable) {
+            print(Level.VERBOSE, stack, printStack(throwable))
+        }
     }
 
-    private static String format(String msg, Object... args) {
-        Throwable t = null
-        if (args == null) {
-            // Null array is not supposed to be passed into this method, so it must
-            // be a single null argument
-            args = [null]
-        }
-        if (args.length > 0 && args[args.length - 1] instanceof Throwable) {
-            t = (Throwable) args[args.length - 1]
-            args = Arrays.copyOfRange(args, 0, args.length - 1)
-        }
-        if (msg.indexOf('%') != -1 && args.length > 0) {
-            return String.format(msg, args)
+    private static String format(String msg, Queue args) {
+        if (msg.indexOf('%') != -1 &&! args.isEmpty()) {
+            return String.format(msg, args.toArray())
         }
         StringBuilder sb = new StringBuilder()
         sb.append(msg.toString())
-        for (Object arg : args) {
+        args.each {
             sb.append("\t")
-            sb.append(arg == null ? "<null>" : arg.toString())
+            sb.append(it == null ? "<null>" : it.toString())
         }
-        if(t) {
-            sb.append("\t")
-            sb.append(t.message ?: "")
-            sb.append("\n")
+        return sb.toString()
+    }
+
+    private static String printStack(Throwable throwable) {
+        StringBuilder sb = new StringBuilder()
+        if(throwable) {
             sb.append("STACK START ------------------------------------------------------------------------------\n")
+            sb.append("\t")
+            if(throwable.message) {
+                sb.append(throwable.message ?: "")
+                sb.append("\n")
+                sb.append("\t")
+            }
             StringWriter sw = new StringWriter()
             PrintWriter pw = new PrintWriter(sw)
-            t.printStackTrace(pw)
+            throwable.printStackTrace(pw)
             sb.append(sw.toString())
             sb.append("STACK END ------------------------------------------------------------------------------\n")
         }
