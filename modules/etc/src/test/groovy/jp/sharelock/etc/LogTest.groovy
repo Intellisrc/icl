@@ -41,9 +41,11 @@ class LogTest extends Specification {
     }
     def "Test parameters"() {
         when:
-            Log.w("This is a %s", "warning")
-            Log.i("Somewhere between %d and %d", 100, 200)
+            Log.v("This is more than you need to know... %s", "SECRET")
             Log.d("I'm %d%% that this is correct.", 80)
+            Log.i("Somewhere between %d and %d", 100, 200)
+            Log.w("This is a %s", "warning")
+            Log.s("Someone is trying to mess with this code!")
             Log.e("This failed 100%")
         then:
             notThrown Exception
@@ -64,5 +66,24 @@ class LogTest extends Specification {
             }
         then:
             notThrown Exception
+    }
+    def "Test Level"() {
+        when:
+            Log.level = Log.Level.ERROR
+            Log.v("No printing this..")
+            Log.d("No printing this..")
+            Log.i("No printing this..")
+            Log.w("No printing this..")
+            Log.s("No printing this..")
+            Log.e("This failed 100%")
+        then:
+            notThrown Exception
+    }
+    def "Disable colors"() {
+        when:
+            Log.color = false
+            Log.w("This warning is so pale...")
+        then:
+        notThrown Exception
     }
 }
