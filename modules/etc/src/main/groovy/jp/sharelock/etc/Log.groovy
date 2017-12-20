@@ -7,7 +7,7 @@ import java.lang.reflect.Method
 
 @groovy.transform.CompileStatic
 /**
- * Originally imported from: trikita.log
+ * Based in: trikita.log
  * @author Alberto Lepe <lepe@sharelock.jp>
  *
  */
@@ -16,7 +16,7 @@ final class Log {
     static {
         if(Config.hasKey("log.level")) {
             def sLevel = Config.get("log.level").toUpperCase()
-            mMinLevel = sLevel.take(1) as Level
+            level = sLevel.take(1) as Level
         }
         if(Config.hasKey("log.path")) {
             logPath = Config.get("log.path")
@@ -24,10 +24,26 @@ final class Log {
         if(Config.hasKey("log.file")) {
             logFile = Config.get("log.file")
         }
+        if (ANDROID.mLoaded) {
+            usePrinter(ANDROID, true)
+        } else {
+            usePrinter(SYSTEM, true)
+            usePrinter(LOGFILE, true)
+        }
     }
+
     //When logFile is not empty, it will export log to that file
     static String logFile = ""
     static String logPath = ""
+    static boolean color = true //When true, it will automatically set color. If false, it will disabled it
+    static Level level = Level.VERBOSE
+
+    static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
+    static final AndroidPrinter ANDROID = new AndroidPrinter()
+    static final FilePrinter LOGFILE = new FilePrinter()
+
+    private static final Set<Printer> mPrinters = []
+    private static final int STACK_DEPTH = 4
 
     static final String ANSI_RESET   = "\u001B[0m"
     static final String ANSI_BLACK   = "\u001B[30m"
@@ -39,8 +55,8 @@ final class Log {
     static final String ANSI_CYAN    = "\u001B[36m"
     static final String ANSI_WHITE   = "\u001B[37m"
 
-    private static final enum Level {
-        VERBOSE, DEBUG, INFO, WARN, ERROR
+    static final enum Level {
+        VERBOSE, DEBUG, INFO, WARN, SECURITY, ERROR
         String toString() {
             return super.toString().substring(0,1)
         }
@@ -77,6 +93,7 @@ final class Log {
                 case Level.DEBUG: color = ANSI_BLACK; break
                 case Level.INFO: color = ANSI_CYAN; break
                 case Level.WARN: color = ANSI_YELLOW; break
+                case Level.SECURITY: color = ANSI_PURPLE; break
                 case Level.ERROR: color = ANSI_RED; break
             }
             return color
@@ -84,7 +101,7 @@ final class Log {
         @Override
         void print(Level level, Stack stack, String msg) {
             String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
-            if(SysInfo.isLinux()) {
+            if(SysInfo.isLinux() && color) {
                 println(time+" [" + getColor(level) + level + ANSI_RESET + "] " +
                         ANSI_GREEN + stack.className + ANSI_RESET +
                         " (" + ANSI_BLUE + stack.methodName + ANSI_RESET +
@@ -98,14 +115,13 @@ final class Log {
 
     private static class AndroidPrinter implements Printer {
 
-        private static final List<String> METHOD_NAMES = ["v", "d", "i", "w", "e"]
-
+        private static final List<String> METHOD_NAMES = ["v", "d", "i", "w", "s", "e"]
         private final Class<?> mLogClass
         private final Method[] mLogMethods
         private final boolean mLoaded
 
         AndroidPrinter() {
-            Class logClass
+            Class logClass = null
             boolean loaded = false
             mLogMethods = new Method[METHOD_NAMES.size()]
             if(SysInfo.isAndroid()) {
@@ -141,59 +157,35 @@ final class Log {
         int    lineNumber
     }
 
-    static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
-    static final AndroidPrinter ANDROID = new AndroidPrinter()
-    static final FilePrinter LOGFILE = new FilePrinter()
-
-    private static Level mMinLevel = Level.VERBOSE
-    private static Set<Printer> mPrinters = []
-
-    static {
-        if (ANDROID.mLoaded) {
-            usePrinter(ANDROID, true)
-        } else {
-            usePrinter(SYSTEM, true)
-            usePrinter(LOGFILE, true)
-        }
-    }
-
-    static synchronized Log level(Level level) {
-        mMinLevel = level
-        return null
-    }
-
-    static synchronized Log usePrinter(Printer p, boolean on) {
+    static synchronized void usePrinter(Printer p, boolean on) {
         if (on) {
             mPrinters.add(p)
         } else {
             mPrinters.remove(p)
         }
-        return null
     }
 
-    static synchronized Log v(String msg, Object... args) {
+    static synchronized void v(String msg, Object... args) {
         log(Level.VERBOSE, msg, args)
-        return null
     }
-    static synchronized Log d(String msg, Object... args) {
+    static synchronized void d(String msg, Object... args) {
         log(Level.DEBUG, msg, args)
-        return null
     }
-    static synchronized Log i(String msg, Object... args) {
+    static synchronized void i(String msg, Object... args) {
         log(Level.INFO, msg, args)
-        return null
     }
-    static synchronized Log w(String msg, Object... args) {
+    static synchronized void w(String msg, Object... args) {
         log(Level.WARN, msg, args)
-        return null
     }
-    static synchronized Log e(String msg, Object... args) {
+    static synchronized void s(String msg, Object... args) {
+        log(Level.SECURITY, msg, args)
+    }
+    static synchronized void e(String msg, Object... args) {
         log(Level.ERROR, msg, args)
-        return null
     }
 
     private static void log(Level level, String msg, Object... args) {
-        if (level < mMinLevel) {
+        if (level < Log.level) {
             return
         }
         Stack stack = stack()
@@ -266,7 +258,6 @@ final class Log {
         }
     }
 
-    private static final int STACK_DEPTH = 4
     private static Stack stack() {
         Stack stack = null
         def stackTrace = new Throwable().getStackTrace()
