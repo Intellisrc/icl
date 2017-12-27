@@ -63,6 +63,15 @@ final class Log {
     }
     private Log() {}
 
+    static OnLog onLog
+
+    /**
+     * Used to hook something on any event
+     */
+    interface OnLog {
+        void call(Level level, String message, Stack stack)
+    }
+
     interface Printer {
         void print(Level level, Stack stack, String msg)
     }
@@ -150,7 +159,7 @@ final class Log {
         }
     }
 
-    private static class Stack {
+    static class Stack {
         String className
         String methodName
         String fileName
@@ -199,6 +208,9 @@ final class Log {
         print(level, stack, format(msg, listArgs))
         if(throwable) {
             print(Level.VERBOSE, stack, printStack(throwable))
+        }
+        if(onLog) {
+            onLog.call(level, format(msg, listArgs), stack)
         }
     }
 
