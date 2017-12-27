@@ -180,7 +180,7 @@ class Smtp {
         }
         //If config is set, send a copy to those
         if (defaultTo) {
-            recipients[defaultTo] = Mode.BCC
+            recipients[defaultTo] = Mode.TO
         } else if(Config.hasKey("mail.smtp.to") && Config.get("mail.smtp.to")) {
             Config.get("mail.smtp.to").split(",").each {
                 String to ->
@@ -343,8 +343,10 @@ class Smtp {
         } catch(MessagingException e) {
             Log.e("Mail was not sent. Error was: ", e)
             Exception ne
-            while (ne = e.nextException) {
+            String last = e.message
+            while ((ne = e.nextException) && (last != ne.message)) {
                 Log.e("... ", ne)
+                last = ne.message
             }
             return false
         }
