@@ -62,23 +62,25 @@ final class Log {
         }
     }
     private Log() {}
-
-    static OnLog onLog
+    private static synchronized final List<OnLog> onLogList = []
+    static void setOnLog(OnLog toSet) {
+        onLogList << toSet
+    }
 
     /**
      * Used to hook something on any event
      */
     interface OnLog {
-        void call(Level level, String message, Stack stack)
+        void call(Level level, String message, Info stack)
     }
 
     interface Printer {
-        void print(Level level, Stack stack, String msg)
+        void print(Level level, Info stack, String msg)
     }
 
     private static class FilePrinter implements Printer {
         @Override
-        void print(Level level, Stack stack, String msg) {
+        void print(Level level, Info stack, String msg) {
             if(logFile) {
                 String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
                 if(!(logPath && new File(logPath).canWrite())) {
@@ -108,7 +110,7 @@ final class Log {
             return color
         }
         @Override
-        void print(Level level, Stack stack, String msg) {
+        void print(Level level, Info stack, String msg) {
             String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
             if(SysInfo.isLinux() && color) {
                 println(time+" [" + getColor(level) + level + ANSI_RESET + "] " +
@@ -148,7 +150,7 @@ final class Log {
             mLoaded = loaded
         }
 
-        void print(Level level, Stack stack, String msg) {
+        void print(Level level, Info stack, String msg) {
             try {
                 if (mLoaded) {
                     mLogMethods[level.toString()].invoke(null, stack, msg)
@@ -159,7 +161,7 @@ final class Log {
         }
     }
 
-    static class Stack {
+    static class Info {
         String className
         String methodName
         String fileName
@@ -197,7 +199,7 @@ final class Log {
         if (level < Log.level) {
             return
         }
-        Stack stack = stack()
+        Info stack = stack()
         Queue listArgs = args.toList() as Queue
         Throwable throwable = null
         if(!listArgs.isEmpty() && listArgs.last() instanceof Throwable) {
@@ -209,8 +211,11 @@ final class Log {
         if(throwable) {
             print(Level.VERBOSE, stack, printStack(throwable))
         }
-        if(onLog) {
-            onLog.call(level, format(msg, listArgs), stack)
+        if(!onLogList.isEmpty()) {
+            onLogList.each {
+                OnLog onLog ->
+                    onLog.call(level, format(msg, listArgs), stack)
+            }
         }
     }
 
@@ -248,7 +253,7 @@ final class Log {
 
     static final int MAX_LOG_LINE_LENGTH = 4000
 
-    private static void print(Level level, Stack stack, String msg) {
+    private static void print(Level level, Info stack, String msg) {
         msg.eachLine {
             String line ->
                 while( line.length() > 0) {
@@ -270,8 +275,8 @@ final class Log {
         }
     }
 
-    private static Stack stack() {
-        Stack stack = null
+    private static Info stack() {
+        Info stack = null
         def stackTrace = new Throwable().getStackTrace()
         if (stackTrace.length < STACK_DEPTH) {
             throw new IllegalStateException
@@ -286,7 +291,7 @@ final class Log {
         }
         try {
             Class<?> c = Class.forName(className)
-            stack = new Stack(
+            stack = new Info(
                 className : className.substring(className.lastIndexOf('.') + 1),
                 fileName  : caller.fileName,
                 methodName: caller.methodName,
