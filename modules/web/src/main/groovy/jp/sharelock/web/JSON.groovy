@@ -1,6 +1,7 @@
 package jp.sharelock.web
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import groovy.transform.CompileStatic
 
 /**
@@ -38,8 +39,10 @@ class JSON {
             return new Gson().fromJson(json, List.class)
         }
     }
-    static String encode(Object object) {
-        return new Gson().toJson(object)
+    static String encode(Object object, boolean pretty = false) {
+        return pretty ?
+            new GsonBuilder().setPrettyPrinting().create().toJson(object) :
+            new Gson().toJson(object)
     }
     static JsonData decode(String string) {
         return new JsonData(string)
