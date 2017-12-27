@@ -79,4 +79,30 @@ class JSONTest extends Specification {
             println new Date(it.toString()).toYMD()
         }
     }
+    /**
+     * Test pretty output
+     */
+    def "Pretty pring"() {
+        setup:
+
+        def obj = [
+                    user : 100,
+                    name : "G. Lucas",
+                    address : [
+                            state  : "Water State",
+                            city   : "Fire City",
+                            street : "Main Rd.",
+                            place  : [
+                                    building : "Sun Terrace",
+                                    number : 303
+                            ]
+                    ]
+                ]
+        def jsonStr = JSON.encode(obj)
+        def prettyStr = JSON.encode(obj, true)
+
+        expect:
+        assert jsonStr != prettyStr
+        println prettyStr
+    }
 }
