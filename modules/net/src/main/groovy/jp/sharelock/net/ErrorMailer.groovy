@@ -25,7 +25,7 @@ class ErrorMailer {
      */
     static void set(Email destiny = null) {
         Log.onLog = {
-            Level level, String message, Log.Stack stack ->
+            Level level, String message, Log.Info stack ->
                 if(level >= minLevel) {
                     def body  = "Date:" + new Date().toYMDHms() +
                                 "Message: $message" +

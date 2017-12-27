@@ -2,7 +2,6 @@ package jp.sharelock.etc
 
 import spock.lang.Specification
 
-
 /**
  * @since 17/10/23.
  */
@@ -85,5 +84,23 @@ class LogTest extends Specification {
             Log.w("This warning is so pale...")
         then:
         notThrown Exception
+    }
+    def "Multiple onLog"() {
+        setup:
+            int incremental = 0
+        when:
+            Log.onLog = {
+                Log.Level level, String message, Log.Info info ->
+                    incremental += 7
+                    println "Log One"
+            } as Log.OnLog
+            Log.onLog = {
+                Log.Level level, String message, Log.Info info ->
+                    incremental += 100
+                    println "Log Two"
+            } as Log.OnLog
+        then:
+            Log.d("This is an message")
+            assert incremental == 107
     }
 }
