@@ -22,28 +22,31 @@ class TCPServer {
             super(e)
         }
     }
-
-	boolean ServerOn = false
+    /**
+     * Set this flag to true to exit the server
+     */
+	private boolean exit = false
 	/**
 	 * Creates a new TCPServer with port and a return callback to process String response
 	 * @param port
 	 * @param callback
 	 */
 	TCPServer(int port, ServerCallback callback) throws InvalidPortException {
-		Thread.start({
+		Thread.start {
 			ServerSocket serverSocket
+			Socket		 clientSocket
             try {
                 serverSocket = new ServerSocket(port)
-                ServerOn = true
+                exit = true
             } catch (Exception e) {
                 Log.e( "Could not create server socket on port: $port ",e)
                 throw new InvalidPortException("Could not create server socket on port: $port ")
             }
-            while(ServerOn) {
+            while(exit) {
                 try
                 {
                     // Accept incoming connections.
-                    Socket clientSocket = serverSocket.accept()
+                    clientSocket = serverSocket.accept()
 
                     // accept() will block until a client connects to the server.
                     // If execution reaches this point, then it means that a client
@@ -69,6 +72,7 @@ class TCPServer {
 
             try
             {
+                clientSocket.close()
                 serverSocket.close()
                 Log.d( "Server Stopped")
             }
@@ -77,11 +81,11 @@ class TCPServer {
                 Log.e( "Problem stopping server socket", ioe)
                 System.exit(-1)
             }
-		})
+		}
 	}
 
 	void quit() {
-		ServerOn = false
+		exit = false
 		Log.i( "Server will stop listening to new requests")
 	}
 
@@ -89,8 +93,7 @@ class TCPServer {
 	 * For each client, this method will be started
 	 */
 	class ClientServiceThread extends Thread {
-		private Socket myClientSocket
-        private String reply = ""
+		private Socket clientSocket
 		private final ServerCallback execCommand
 		/**
 		 * Execute some command on the server side and return result
@@ -98,8 +101,8 @@ class TCPServer {
 		 * @param command
 		 */
 
-		ClientServiceThread(Socket s, final ServerCallback callback) {
-			myClientSocket = s
+		ClientServiceThread(final Socket s, final ServerCallback callback) {
+			clientSocket = s
 			execCommand = callback
 		}
 
@@ -118,22 +121,20 @@ class TCPServer {
 
 			try
 			{
-				dataIn = new BufferedReader(new InputStreamReader(myClientSocket.getInputStream(),Charset.forName("UTF8")))
-				dataOut = new PrintWriter(new OutputStreamWriter(myClientSocket.getOutputStream(),Charset.forName("UTF8")))
+				dataIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(),Charset.forName("UTF8")))
+				dataOut = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream(),Charset.forName("UTF8")))
 
                 // read incoming stream
-                String clientCommand = dataIn.readLine()
-				Log.i( "Message from client <<<<< [" + clientCommand+"]")
-
-				reply = execCommand.exec(clientCommand)
-                // Process it
-                if(!reply.isEmpty()) {
-					Log.i( "Message to client >>>>> [" + reply +"]")
-					dataOut.println(reply)
-					dataOut.flush()
-                } else if(reply == "exit") {
-					ServerOn = false
-				}
+				String clientCommand
+                String reply
+                while(clientCommand = dataIn.readLine()) {
+					Log.i("Message from client <<<<< [" + clientCommand + "]")
+					reply = execCommand.exec(clientCommand)
+                    if(!reply.isEmpty()) {
+                        Log.i( "Message to client >>>>> [" + reply +"]")
+                        dataOut.println(reply)
+                    }
+                }
             }
 			catch(IOException e)
 			{
@@ -148,8 +149,6 @@ class TCPServer {
 				if(dataOut != null) {
 					dataOut.close()
 				}
-                myClientSocket.close()
-				Log.d( "... Thread ended")
 			}
             catch(IOException ioe)
             {
@@ -157,6 +156,10 @@ class TCPServer {
             }
 		}
 
+        void close() {
+            clientSocket.close()
+            Log.d( "... Thread ended")
+        }
 	}
 
 }
