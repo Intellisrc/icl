@@ -34,7 +34,6 @@ class TCPServer {
 	TCPServer(int port, ServerCallback callback) throws InvalidPortException {
 		Thread.start {
 			ServerSocket serverSocket
-			Socket		 clientSocket
             try {
                 serverSocket = new ServerSocket(port)
                 exit = true
@@ -46,7 +45,7 @@ class TCPServer {
                 try
                 {
                     // Accept incoming connections.
-                    clientSocket = serverSocket.accept()
+                    Socket clientSocket = serverSocket.accept()
 
                     // accept() will block until a client connects to the server.
                     // If execution reaches this point, then it means that a client
@@ -58,10 +57,8 @@ class TCPServer {
                     // MultiThreadedSocketServer accept multiple connections simultaneously.
 
                     // Start a Service thread
-
                     ClientServiceThread cliThread = new ClientServiceThread(clientSocket, callback)
                     cliThread.start()
-
                 }
                 catch(IOException ioe)
                 {
@@ -72,7 +69,6 @@ class TCPServer {
 
             try
             {
-                clientSocket.close()
                 serverSocket.close()
                 Log.d( "Server Stopped")
             }
@@ -112,8 +108,8 @@ class TCPServer {
 			// Obtain the input stream and the output stream for the socket
 			// A good practice is to encapsulate them with a BufferedReader
 			// and a PrintWriter as shown below.
-			BufferedReader dataIn = null
-			PrintWriter dataOut = null
+            BufferedReader dataIn = new BufferedReader(new InputStreamReader(clientSocket.inputStream, Charset.forName("UTF8")))
+            PrintWriter dataOut = new PrintWriter(new OutputStreamWriter(clientSocket.outputStream, Charset.forName("UTF8")))
 
 			// Print out details of this connection
 			//Log.d( "Accepted Client Address - " + myClientSocket.getInetAddress().getHostName()); <-- this line caused 5sec delay in Windows
@@ -121,9 +117,6 @@ class TCPServer {
 
 			try
 			{
-				dataIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(),Charset.forName("UTF8")))
-				dataOut = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream(),Charset.forName("UTF8")))
-
                 // read incoming stream
 				String clientCommand
                 String reply
@@ -132,7 +125,8 @@ class TCPServer {
 					reply = execCommand.exec(clientCommand)
                     if(!reply.isEmpty()) {
                         Log.i( "Message to client >>>>> [" + reply +"]")
-                        dataOut.println(reply)
+                        dataOut.println(reply+"\n")
+						dataOut.flush()
                     }
                 }
             }
@@ -149,17 +143,14 @@ class TCPServer {
 				if(dataOut != null) {
 					dataOut.close()
 				}
+				clientSocket.close()
+				Log.d( "... Thread ended")
 			}
             catch(IOException ioe)
             {
 				Log.e("Error while closing connection", ioe)
             }
 		}
-
-        void close() {
-            clientSocket.close()
-            Log.d( "... Thread ended")
-        }
 	}
 
 }
