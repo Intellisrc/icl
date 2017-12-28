@@ -8,7 +8,7 @@ import java.nio.charset.Charset
 /**
  * TCP Client
  */
-class TCPClient extends Thread {
+class TCPClient {
 	interface ClientCallback {
 		void call(Response response)
 	}
@@ -17,9 +17,8 @@ class TCPClient extends Thread {
     }
     protected InetAddress dstAddress
     protected int dstPort
-    protected Request request
-	protected ClientCallback callback
-	int timeout = 20000
+	protected final List<Request> requestList = []
+    int timeout = 20000
 
 	static enum TCPStatus {
 		SENT, NO_CONN, ERROR, NO_RESPONSE
@@ -77,33 +76,40 @@ class TCPClient extends Thread {
 	 * @param request
 	 * @param callback
 	 */
-	void sendRequest(Request request, ClientCallback callback) {
-		this.request = request
-		this.callback = callback
-		if(isAlive()) {
-			run()
-		} else {
-			start()
-		}
+	void sendRequest(Request request) {
+		requestList << request
+		send()
 	}
-	@Override
-    void run() {
-		Response response = getResponse()
-		if(callback) {
-			callback.call(response)
+    /**
+     * Sends multiple Messages
+     * @param request
+     * @param callback
+     */
+    void sendRequest(List<Request> requests) {
+        requests.each {
+            requestList << it
+        }
+        send()
+    }
+
+	/**
+	 * Add a request. Requires to execute send()
+	 * @param request
+	 * @param callback
+	 */
+	void addRequest(Request request) {
+		requestList << request
+	}
+    /**
+     * Send the request(s)
+     */
+    void send() {
+		Thread.start {
+            getResponse()
 		}
     }
-	/**
-	 * Sends a Message Synchronously
-	 * @param request
-	 * @return 
-	 */
-	Response sendRequest(Request request) {
-		this.request = request
-		return getResponse()
-	}
 
-	Response getResponse(){
+	void getResponse(){
         Socket s
 		Response response
         if(this.dstAddress != null) {
@@ -123,54 +129,66 @@ class TCPClient extends Thread {
                 s = null
             }
 
-            if (s == null) {
-				response = new Response(TCPStatus.ERROR, "", request)
-				return response
-			}
+            if (s != null) {
+				BufferedReader dataIn
+				PrintWriter dataOut
 
-            BufferedReader dataIn
-            PrintWriter dataOut
+				try {
+					// Create the streams to send and receive information
+					dataIn = new BufferedReader(new InputStreamReader(s.getInputStream(), Charset.forName("UTF8")))
+					dataOut = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), Charset.forName("UTF8")))
+					requestList.each {
+						Request request ->
 
-            try {
-                // Create the streams to send and receive information
-				dataIn = new BufferedReader(new InputStreamReader(s.getInputStream(),Charset.forName("UTF8")))
-                dataOut = new PrintWriter(new OutputStreamWriter(s.getOutputStream(),Charset.forName("UTF8")))
-
-                // Since this is the client, we will initiate the talking.
-                // Send a string data and flush
-				Log.i( "Message to Server [" + dstAddress.getHostAddress() + "] >>>>> " + request.getMessage())
-                dataOut.println(request.getMessage())
-                dataOut.flush()
-				Log.v("Waiting for response... [" + dstAddress.getHostAddress() + "]")
-                // Receive the reply.
-				String s_resp = dataIn.readLine()
-				Log.i( "Message from Server [" + dstAddress.getHostAddress() + "] <<<<< " + s_resp)
-				if(s_resp == null) {
-					Log.e( "Response was NULL. TCPStatus is unknown")
-					response = new Response(TCPStatus.NO_RESPONSE, "", request)
-				} else {
-					response = new Response(TCPStatus.SENT, s_resp, request)
+							// Since this is the client, we will initiate the talking.
+							// Send a string data and flush
+							Log.i("Message to Server [" + dstAddress.hostName + "] >>>>> " + request.message)
+							dataOut.println(request.message)
+							dataOut.flush()
+                            Log.v("Waiting for response... [" + dstAddress.hostName + "]")
+							// Receive the reply.
+							String sResp
+                            while(sResp = dataIn.readLine()) {
+                                Log.i("Message from Server [" + dstAddress.hostName + "] <<<<< " + sResp)
+                                if (sResp) {
+                                    response = new Response(TCPStatus.SENT, sResp, request)
+                                } else {
+                                    Log.e("Response was NULL. TCPStatus is unknown")
+                                    response = new Response(TCPStatus.NO_RESPONSE, "", request)
+                                }
+                                try {
+                                    request.onResponse.call(response)
+                                } catch (IOException e) {
+                                    Log.e("There was an error while processing the response", e)
+                                }
+                            }
+					}
+                    // Clean up
+                    try
+                    {
+                        // Close the input and output streams
+                        if(dataIn != null) {
+                            dataIn.close()
+                        }
+                        if(dataOut != null) {
+                            dataOut.close()
+                        }
+                        s.close()
+                        Log.v("Connection closed successfully [" + dstAddress.getHostAddress() + "]")
+                    }
+                    catch(IOException ioe)
+                    {
+                        Log.e("Error while closing connection", ioe)
+                    }
+				} catch (IOException ioe) {
+					Log.e("Exception during communication. Server probably closed connection: ", ioe)
 				}
-                // For subsequent commands, use: dataOut.printl(...); dataOut.flush()
-                try {
-                    // Close the input and output streams
-                    dataOut.close()
-					dataIn.close()
-                    // Close the socket before quitting
-                    s.close()
-					Log.v( "Connection closed successfully [" + dstAddress.getHostAddress() + "]")
-                } catch (IOException e) {
-                    Log.e( "Unable to close communication: ", e)
-                }
-            } catch (IOException ioe) {
-                Log.e( "Exception during communication. Server probably closed connection: ",ioe)
-				response = new Response(TCPStatus.NO_CONN, "", request)
-            }
+			} else {
+				Log.e("Socket was empty")
+			}
         } else {
             Log.e( "Missing remote Host and port")
-			response = new Response(TCPStatus.ERROR, "", request)
         }
-		return response
 	}
 
 	/**
@@ -179,28 +197,15 @@ class TCPClient extends Thread {
 	 */
 	static class Request {
 		private final String message
-		private final Object[] params
-		
-		Request(String message) {
+        private final ClientCallback onResponse
+
+		Request(String message, ClientCallback callback = {}) {
 			this.message = message
-			this.params = null
-		}
-		Request(String message, Object... params) {
-			this.message = message
-			this.params = params
+            this.onResponse = callback
 		}
 		///////////////// GET //////////////////////
 		String getMessage() {
 			return this.message
-		}
-		Object getParam(int i) {
-			Object o = null
-			if(this.params != null) {
-				if(this.params.length - 1 >= i) {
-					o = this.params[i]
-				}
-			}
-			return o
 		}
 	}
 
