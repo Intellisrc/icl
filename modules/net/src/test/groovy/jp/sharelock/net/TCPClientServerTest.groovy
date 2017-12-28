@@ -94,29 +94,23 @@ class TCPClientServerTest extends Specification {
     }
     def "Sending multiple commands using short annotation"() {
         setup:
-            def async = new AsyncConditions()
-            TCPClient.Request req1 = new TCPClient.Request(tosend, {
-                TCPClient.Response resp -> async.evaluate {
-                    println "Replied 1: " + resp.toString()
-                    assert resp.toString() == reply
+            def async1 = new AsyncConditions()
+            def async2 = new AsyncConditions()
+            TCPClient.Request req1 = new TCPClient.Request(sendHello, {
+                TCPClient.Response resp -> async1.evaluate {
+                    assert resp.toString() == replyHello
                 }
             })
-            TCPClient.Request req2 = new TCPClient.Request(tosend, {
-                TCPClient.Response resp -> async.evaluate {
-                    println "Replied 2: " + resp.toString()
-                    assert resp.toString() == reply
-                }
-            })
-            TCPClient.Request req3 = new TCPClient.Request(tosend, {
-                TCPClient.Response resp -> async.evaluate {
-                    println "Replied 3: " + resp.toString()
-                    assert resp.toString() == reply
+            TCPClient.Request req2 = new TCPClient.Request(sendDate, {
+                TCPClient.Response resp -> async2.evaluate {
+                    assert resp.toString() == replyDate
                 }
             })
         when:
-            client.sendRequest([req1, req2, req3])
+            client.sendRequest([req1, req2])
         then:
-            async.await(60000)
+            async1.await(300)
+            async2.await(300)
             notThrown Exception
     }
 }
