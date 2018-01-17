@@ -113,7 +113,7 @@ class JDBCConnector implements Connector {
 	void open() {
 		try {
 			db = DriverManager.getConnection(getJDBCStr(), user, pass)
-			Log.d( "Connecting to DB")
+			Log.v( "Connecting to DB")
 		} catch (SQLException e) {
 			Log.w( "Connection failed: ", e)
 		}
@@ -180,7 +180,7 @@ class JDBCConnector implements Connector {
 	void close() {
 		try {
 			db.close()
-			Log.d( "Disconnecting from DB")
+			Log.v( "Disconnecting from DB")
 		} catch (SQLException e) {
 			Log.e( "Unable to close ",e)
 		}

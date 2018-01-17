@@ -81,7 +81,7 @@ class Cache<V> {
             if(!obj.forever) {
                 def now = new Date().time
                 if (obj.expire < now) {
-                    Log.d("Key [$key] expired.")
+                    Log.v("Key [$key] expired.")
                     del(key)
                     expired = true
                 } else {
@@ -103,7 +103,7 @@ class Cache<V> {
         V ret = null
         if(exists(key)) {
             ret = cache.get(key).value
-			Log.v( "[$key] read from cache")
+			Log.d( "[$key] read from cache")
         } else {
             if(notFound) {
                 ret = notFound.call()

@@ -37,11 +37,11 @@ class PoolConnector implements Connector {
 	void open() {
         if(!isOpen()) {
             connector = pool?.getConnectionFromPool()
-			Log.d( "DB got from Pool")
+			Log.v( "DB got from Pool")
             try {
 				if(!isOpen()) {
 					connector.open()
-					Log.d( "DB was opened")
+					Log.v( "DB was opened")
 				}
             } catch (e) {
                 Log.e( "Unable to get connection :", e)
@@ -52,7 +52,7 @@ class PoolConnector implements Connector {
 	@Override
 	void close() {
 		pool?.returnConnectionToPool(connector)
-		Log.d( "DB returned.")
+		Log.v( "DB returned.")
 	}
 
 	@Override
