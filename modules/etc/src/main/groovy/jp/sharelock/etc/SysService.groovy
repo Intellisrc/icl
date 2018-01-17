@@ -54,7 +54,7 @@ abstract class SysService {
         def lockFile = new File(usrDir + sysSrv.lockFile)
         switch(action) {
             case "stop" :
-                Log.d("Removing lock file")
+                Log.v("Removing lock file")
                 lockFile.delete()
                 System.exit(0)
                 break
@@ -63,11 +63,11 @@ abstract class SysService {
                 //no break
             case "start":
                 if(lockFile.exists()) {
-                    Log.d("Lock file was present... removing")
+                    Log.v("Lock file was present... removing")
                     lockFile.delete()
                     sleep(2000)
                 }
-                Log.d("Creating lock file: "+lockFile.toString())
+                Log.v("Creating lock file: "+lockFile.toString())
                 lockFile << "ok\n"
                 sysSrv.onStart()
                 break

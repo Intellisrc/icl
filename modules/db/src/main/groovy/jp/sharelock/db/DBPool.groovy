@@ -54,7 +54,7 @@ class DBPool {
                 connector.lastUsed = 0
                 connector.close()
                 availableConnections.remove(connector)
-                Log.v( "DB timed out")
+                Log.w( "DB timed out")
             }
 		}
 	}
@@ -79,7 +79,7 @@ class DBPool {
 			availableConnections.first().close()
             availableConnections.remove(0)
 		}
-		Log.d( "Database has closed all connections")
+		Log.i( "Database has closed all connections")
 	}
 
     /**

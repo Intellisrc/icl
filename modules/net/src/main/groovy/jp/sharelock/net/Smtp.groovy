@@ -166,7 +166,7 @@ class Smtp {
         //Reading from variables
         } else {
             if(fileSettings) {
-                Log.d("Config file settings were override with local settings.")
+                Log.d("Config file settings were overridden with local settings.")
             }
         }
         if(from.isEmpty() && Config.hasKey("mail.smtp.from") && Config.get("mail.smtp.from")) {
@@ -292,7 +292,7 @@ class Smtp {
                                         fileName: file.name
                                 )
                                 relatedPart.addBodyPart(messageBodyPart)
-                                Log.d("Attached: " + file.name)
+                                Log.v("Attached: " + file.name)
                             } catch (MessagingException e) {
                                 Log.e("Attachment was not added: $file, error was: ", e)
                                 return false
@@ -320,20 +320,20 @@ class Smtp {
         } catch (MessagingException e) {
             Log.e("Unable to set headers.", e)
         }
-        Log.d("Email from: $from -> "+ ( recipients.keySet().first() ) + "... (recipients: "+recipients.size()+")" +" is sending...")
+        Log.i("Email from: $from -> "+ ( recipients.keySet().first() ) + "... (recipients: "+recipients.size()+")" +" is sending...")
         try {
             if(simulate) {
                 Log.w("SMTP Simulation mode is ON. No messages are sent.")
                 message.getAllRecipients().each {
                     Address address ->
-                    Log.d("    Recipient -> "+address.toString())
+                    Log.v("    Recipient -> "+address.toString())
                 }
-                Log.d("##### HEADERS #####")
+                Log.v("##### HEADERS #####")
                 message.getAllHeaders().each {
                     Header h ->
-                        Log.d(h.name+" : "+h.value)
+                        Log.v(h.name+" : "+h.value)
                 }
-                Log.d("###################")
+                Log.v("###################")
             } else {
                 Transport transport = session.getTransport(transportType.toString().toLowerCase())
                 transport.connect(host, username, password)

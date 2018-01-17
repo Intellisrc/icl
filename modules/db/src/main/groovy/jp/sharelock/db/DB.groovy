@@ -80,7 +80,7 @@ class DB {
 	 */
 	void openIfClosed() {
 		if(!db.isOpen()) {
-			Log.d( "Connecting...")
+			Log.v( "Connecting...")
 			db.open()
 		}
 	}
@@ -277,21 +277,21 @@ class DB {
     /** Checks if a table exists or not
 	 * @return boolean **/
     boolean exists() {
-		Log.d( "Checking if table exists...")
+		Log.v( "Checking if table exists...")
 		getQuery().setType(getType()).setAction(Query.Action.EXISTS)
         return ! exec_get().isEmpty()
     }
     /** Get Table information
 	 * @return  **/
     Data info() {
-		Log.d( "Getting table information...")
+		Log.v( "Getting table information...")
         getQuery().setType(getType()).setAction(Query.Action.INFO)
         return exec_get()
     }
 
     /** Quit **/
     void close() {
-		Log.d( "Closing connection...")
+		Log.v( "Closing connection...")
     	db.close()
     }
 
@@ -499,7 +499,7 @@ class DB {
     private Query getQuery() {
         if(query == null) {
             query = new Query()
-            Log.d("Initializing Query")
+            Log.v("Initializing Query")
             if(!this.table.isEmpty()) {
                 query.setTable(this.table)
             }
@@ -516,9 +516,9 @@ class DB {
         Data data = null
         openIfClosed()
         if(db.isOpen()) {
-            Log.d( "GET ::: " + query.toString())
+            Log.v( "GET ::: " + query.toString())
             for (Object o : query.getArgs()) {
-                Log.d( " --> " + o)
+                Log.v( " --> " + o)
             }
             List<Map> rows = []
             try {
@@ -571,10 +571,10 @@ class DB {
 		boolean ok = false
         openIfClosed()
         if(db.isOpen()) {
-			Log.d( "SET ::: " + query.toString())
+			Log.v( "SET ::: " + query.toString())
 			query.getArgs().each {
 				Object it ->
-					Log.d( " --> " + it)
+					Log.v( " --> " + it)
 			}
             Statement st
             try {
@@ -619,7 +619,7 @@ class DB {
                             ok = true
                             String name = row.get("name").toString()
                             foundPks.add(name)
-                            Log.d( "PK Found: "+name)
+                            Log.v( "PK Found: "+name)
 							return true
                         }
                     }

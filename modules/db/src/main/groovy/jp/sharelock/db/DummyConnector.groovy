@@ -15,23 +15,23 @@ class DummyConnector implements DB.Connector {
     long lastUsed = 0
 
     boolean isOpen() {
-        Log.d( "Is database open? "+(opened ? "YES" : "NO"))
+        Log.v( "Is database open? "+(opened ? "YES" : "NO"))
         return opened
     }
 
     void open() {
         opened = true
-        Log.d( "Database opened")
+        Log.v( "Database opened")
     }
 
     void close() {
-        Log.d( "Database closed")
+        Log.v( "Database closed")
         opened = false
         connected = false
     }
 
     DB.Statement prepare(Query query) {
-        Log.d( "Query prepared: "+query.toString())
+        Log.v( "Query prepared: "+query.toString())
         return new DummyStatement()
     }
 
