@@ -2,6 +2,7 @@ package jp.sharelock.web
 
 import jp.sharelock.etc.Log
 import jp.sharelock.web.ServiciableWebSocket.WSMessage
+import org.eclipse.jetty.websocket.api.WriteCallback
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import org.eclipse.jetty.websocket.api.Session as JettySession
@@ -56,8 +57,9 @@ class WebSocketService {
 
     @OnWebSocketConnect
     void onConnect(JettySession sockSession) throws Exception {
-        String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, sockSession.getRemoteAddress().address)
-        Session session = new Session(userID: user, websocketSession: sockSession, address: sockSession.getRemoteAddress().address)
+        String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, sockSession.remoteAddress.address)
+        Log.i("Client connected [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
+        Session session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
         sessionQueue.add(session)
         listener.onClientsChange(getConnected())
         broadcast(listener.onConnect(session))
@@ -65,6 +67,7 @@ class WebSocketService {
 
     @OnWebSocketClose
     void onClose(JettySession sockSession, int statusCode, String reason) {
+        Log.i("Client disconnected [%s], reason: [%s]", sockSession.remoteAddress.address.hostAddress, reason)
         Session session = getSession(sockSession)
         sessionQueue.remove(session)
         listener.onClientsChange(getConnected())
@@ -73,13 +76,19 @@ class WebSocketService {
 
     @OnWebSocketMessage
     void onMessage(JettySession sockSession, String message) {
+        Log.v("[%s] sent message: [%s]", sockSession.remoteAddress.address.hostAddress, message)
         broadcast(listener.onMessage(getSession(sockSession), message))
     }
 
     @OnWebSocketError
     void onWebSocketError(JettySession sockSession, Throwable throwable) {
         listener.onError(getSession(sockSession), throwable.message)
-        Log.e("WebSocketError: ", throwable)
+        String ip = sockSession.remoteAddress.address.hostAddress
+        if(throwable.message) {
+            Log.e("[$ip] WebSocketError: ", throwable)
+        } else {
+            Log.w("[$ip] disconnected unexpectedly.")
+        }
     }
     //------------- Implementation ---------------
     private Queue<Session> sessionQueue = new ConcurrentLinkedQueue()
@@ -132,7 +141,17 @@ class WebSocketService {
                     if (session != null) {
                         try {
                             if (session.websocketSession.isOpen()) {
-                                session.websocketSession.getRemote().sendString(JSON.encode(wsMessage.jsonObj))
+                                WriteCallback callback = new WriteCallback() {
+                                    @Override
+                                    void writeFailed(Throwable e) {
+                                        Log.e("Failed to send message to client", e)
+                                    }
+                                    @Override
+                                    void writeSuccess() {
+                                        Log.v("Message was sent successfully")
+                                    }
+                                }
+                                session.websocketSession.remote.sendString(JSON.encode(wsMessage.jsonObj), callback)
                             }
                         } catch (Exception e) {
                             listener.onError(session, e.message)
