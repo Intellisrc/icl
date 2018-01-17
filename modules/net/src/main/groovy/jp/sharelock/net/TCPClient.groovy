@@ -116,16 +116,16 @@ class TCPClient {
             // Create the socket connection to the MultiThreadedSocketServer port
             try {
                 s = new Socket()
-				Log.v("Connecting to: "+dstAddress.getHostAddress()+":"+dstPort)
+				Log.v("Connecting to: "+dstAddress.hostAddress+":"+dstPort)
 				s.connect(new InetSocketAddress(dstAddress, dstPort), timeout)
-				Log.v("Connected. ["+dstAddress.getHostAddress()+"]")
+				Log.i("Connected. ["+dstAddress.hostAddress+"]")
             } catch (UnknownHostException uhe) {
                 // Server Host unreachable
-                Log.e( "Unknown Host :" + dstAddress.getHostAddress(), uhe)
+                Log.e( "Unknown Host :" + dstAddress.hostAddress, uhe)
                 s = null
             } catch (IOException ioe) {
                 // Cannot connect to port on given server host
-                Log.e( "Cant connect to server: " + dstAddress.getHostAddress() + ":" + dstPort + ". Make sure it is running.", ioe)
+                Log.e( "Cant connect to server: " + dstAddress.hostAddress + ":" + dstPort + ". Make sure it is running.", ioe)
                 s = null
             }
 
@@ -139,7 +139,6 @@ class TCPClient {
 					dataOut = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), Charset.forName("UTF8")))
 					requestList.each {
 						Request request ->
-
 							// Since this is the client, we will initiate the talking.
 							// Send a string data and flush
 							Log.i("Message to Server [" + dstAddress.hostName + "] >>>>> " + request.message)
@@ -174,7 +173,7 @@ class TCPClient {
                             dataOut.close()
                         }
                         s.close()
-                        Log.v("Connection closed successfully [" + dstAddress.getHostAddress() + "]")
+                        Log.v("Connection closed successfully [" + dstAddress.hostAddress + "]")
                     }
                     catch(IOException ioe)
                     {

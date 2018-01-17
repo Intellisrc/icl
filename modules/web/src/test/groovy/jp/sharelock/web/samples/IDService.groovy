@@ -26,7 +26,7 @@ class IDService implements ServiciableSingle {
                         response.redirect("/")
                     } else {
                         id = request.queryParams("i") as Integer
-                        Log.d("ID requested: %d", id)
+                        Log.v("ID requested: %d", id)
                     }
                 return [
                     i : id,

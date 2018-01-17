@@ -39,7 +39,7 @@ class Config {
                 Log.w( "Configuration configFile: "+configFile.toString()+" is not writable. Any attempt to change settings will fail.")
             }
         } else {
-            Log.d( "Configuration not being used ("+configFile.toString()+"). All settings will be loaded from System")
+            Log.v( "Configuration not being used ("+configFile.toString()+"). All settings will be loaded from System")
         }
     }
 

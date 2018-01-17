@@ -70,7 +70,7 @@ class TCPServer {
             try
             {
                 serverSocket.close()
-                Log.d( "Server Stopped")
+                Log.i( "Server Stopped")
             }
             catch(IOException ioe)
             {
@@ -112,8 +112,8 @@ class TCPServer {
             PrintWriter dataOut = new PrintWriter(new OutputStreamWriter(clientSocket.outputStream, Charset.forName("UTF8")))
 
 			// Print out details of this connection
-			//Log.d( "Accepted Client Address - " + myClientSocket.getInetAddress().getHostName()); <-- this line caused 5sec delay in Windows
-			Log.d( "Accepted Client")
+			//Log.v( "Accepted Client Address - " + myClientSocket.getInetAddress().getHostName()); <-- this line caused 5sec delay in Windows
+			Log.v( "Accepted Client")
 
 			try
 			{
@@ -144,7 +144,7 @@ class TCPServer {
 					dataOut.close()
 				}
 				clientSocket.close()
-				Log.d( "... Thread ended")
+				Log.v( "... Thread ended")
 			}
             catch(IOException ioe)
             {
