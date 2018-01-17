@@ -33,15 +33,21 @@ class WebSocketService {
      * to send their messages in another thread.
      */
     interface MsgBroadCaster {
-        void call(WSMessage message)
+        void call(WSMessage message, SuccessCallback onSuccess, FailCallback onFail)
+    }
+    interface FailCallback {
+        void call(Throwable e)
+    }
+    interface SuccessCallback {
+        void call()
     }
     /**
      * Object which will be assigned to listener to be able to
      * broadcast outside the main thread
      */
     private final MsgBroadCaster broadCaster = {
-        WSMessage wsMessage ->
-            broadcast(wsMessage)
+        WSMessage wsMessage, SuccessCallback onSuccess, FailCallback onFail ->
+            broadcast(wsMessage, onSuccess, onFail)
     } as MsgBroadCaster
 
     /**
@@ -58,11 +64,18 @@ class WebSocketService {
     @OnWebSocketConnect
     void onConnect(JettySession sockSession) throws Exception {
         String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, sockSession.remoteAddress.address)
-        Log.i("Client connected [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
-        Session session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
-        sessionQueue.add(session)
-        listener.onClientsChange(getConnected())
-        broadcast(listener.onConnect(session))
+        if(!sessionQueue.find {
+            Session sess ->
+                user == sess.userID
+        }) {
+            Log.i("Client connected [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
+            Session session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
+            sessionQueue.add(session)
+            listener.onClientsChange(getConnected())
+            broadcast(listener.onConnect(session))
+        } else {
+            Log.w("Client with userID [%s] already exits.", user)
+        }
     }
 
     @OnWebSocketClose
@@ -112,7 +125,7 @@ class WebSocketService {
     private Session getSession(JettySession sockSession) {
         return sessionQueue.find {
             Session sess ->
-                return sess.websocketSession.isOpen() && sess.websocketSession == sockSession
+                return sess.websocketSession == sockSession
         }
     }
     /**
@@ -130,7 +143,7 @@ class WebSocketService {
      * if 'to' is set in WSMessage, it will send to specific recipients
      * @param message
      */
-    private void broadcast(WSMessage wsMessage) {
+    private void broadcast(WSMessage wsMessage, SuccessCallback onSuccess = null, FailCallback onFail = null) {
         if(wsMessage != null) {
             if (wsMessage.to.isEmpty()) {
                 wsMessage.to = getConnected()
@@ -144,11 +157,19 @@ class WebSocketService {
                                 WriteCallback callback = new WriteCallback() {
                                     @Override
                                     void writeFailed(Throwable e) {
-                                        Log.e("Failed to send message to client", e)
+                                        if(onFail) {
+                                            onFail.call(e)
+                                        } else {
+                                            Log.e("Failed to send message to client", e)
+                                        }
                                     }
                                     @Override
                                     void writeSuccess() {
-                                        Log.v("Message was sent successfully")
+                                        if(onSuccess) {
+                                            onSuccess.call()
+                                        } else {
+                                            Log.v("Message was sent successfully")
+                                        }
                                     }
                                 }
                                 session.websocketSession.remote.sendString(JSON.encode(wsMessage.jsonObj), callback)
