@@ -51,9 +51,6 @@ class Version {
         }
         return version
     }
-    static void print() {
-        Log.i("Version: "+get()+" ("+source+") ")
-    }
     static String getSource() {
         return source.toString()
     }

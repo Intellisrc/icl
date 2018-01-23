@@ -36,7 +36,7 @@ final class Log {
     static String logFile = ""
     static String logPath = ""
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
-    static Level level = Level.VERBOSE
+    static Level level = Version.get().contains("SNAPSHOT") ? Level.VERBOSE : Level.INFO
 
     static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
     static final AndroidPrinter ANDROID = new AndroidPrinter()
