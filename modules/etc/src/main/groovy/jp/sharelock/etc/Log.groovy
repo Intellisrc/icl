@@ -290,14 +290,20 @@ final class Log {
             className -= ~/\$.*/
         }
         try {
-            Class<?> c = Class.forName(className)
             stack = new Info(
                 className : className.substring(className.lastIndexOf('.') + 1),
                 fileName  : caller.fileName,
                 methodName: caller.methodName,
                 lineNumber: caller.lineNumber > 0 ? caller.lineNumber : 0
             )
-        } catch (ClassNotFoundException e) { /* Ignore */ }
+        } catch (ClassNotFoundException e) {
+            stack = new Info(
+                className : "Unknown",
+                fileName  : "?",
+                methodName: "?",
+                lineNumber: 0
+            )
+        }
         return stack
     }
 }
