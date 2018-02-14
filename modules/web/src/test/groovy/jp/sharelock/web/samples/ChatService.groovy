@@ -13,6 +13,11 @@ import jp.sharelock.web.ServiciableWebSocket.WSMessage
 class ChatService implements ServiciableWebSocket {
     List<String> currentList = []
 
+    @Override
+    boolean getReplaceOnDuplicate() {
+        return false
+    }
+
     void setBroadCaster(WebSocketService.MsgBroadCaster msgBroadCaster) {}
 
     String getUserID(Map<String, List<String>> params, InetAddress source) {

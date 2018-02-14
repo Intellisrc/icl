@@ -15,16 +15,16 @@ class CacheTest extends Specification {
             oc.set("Date", new Date())
         expect:
             assert !oc.isEmpty()
-            assert oc.exists("Hello")
-            assert !oc.exists("Bla")
+            assert oc.contains("Hello")
+            assert !oc.contains("Bla")
             assert oc.get("Hello") == "World"
             assert oc.get("Date").class.isInstance(new Date())
         when:
             Date d = oc.get("Date") as Date
-            println d.toStringSTD()
+            println d.toYMDHms()
             oc.del("Date")
         then:
-            assert !oc.exists("Date")
+            assert !oc.contains("Date")
             assert !oc.isEmpty()
         when:
             oc.clear()
@@ -40,10 +40,10 @@ class CacheTest extends Specification {
             oc.set(key,1, 3)
         expect:
             sleep(2000)
-            assert oc.exists(key) : "Must exists in this point"
+            assert oc.contains(key) : "Must exists in this point"
 
             sleep(2000)
-            assert ! oc.exists(key) : "Must NOT exists in this point"
+            assert ! oc.contains(key) : "Must NOT exists in this point"
         cleanup:
             oc.clear()
     }
@@ -55,13 +55,13 @@ class CacheTest extends Specification {
             oc.set(key,1, 3)
         expect:
             sleep(2000)
-            assert oc.exists(key) : "After 2 seconds it should be there"
+            assert oc.contains(key) : "After 2 seconds it should be there"
 
             sleep(2000)
-            assert oc.exists(key) : "After 4 seconds it should be there as it was renewed"
+            assert oc.contains(key) : "After 4 seconds it should be there as it was renewed"
 
             sleep(4000)
-            assert ! oc.exists(key) : "After 4 seconds from the last read it should NOT be there"
+            assert ! oc.contains(key) : "After 4 seconds from the last read it should NOT be there"
 
         cleanup:
             oc.clear()
@@ -75,10 +75,25 @@ class CacheTest extends Specification {
             oc.set(key,1) //This will be forever
         expect:
             sleep(2000)
-            assert oc.exists(key) : "Must exists in this point"
+            assert oc.contains(key) : "Must exists in this point"
 
             sleep(2000)
-            assert oc.exists(key) : "Must exists in this point"
+            assert oc.contains(key) : "Must exists in this point"
+        cleanup:
+            oc.clear()
+    }
+
+    def "Test keys"() {
+        setup:
+            def oc = new Cache<Integer>()
+            oc.set("a",1)
+            oc.set("b",2)
+            oc.set("c",3)
+        expect:
+            assert oc.keys().size() == 3
+            assert oc.keys().first() == "a"
+            assert oc.keys().contains("b")
+            assert oc.keys().last() == "c"
         cleanup:
             oc.clear()
     }
