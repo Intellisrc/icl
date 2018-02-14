@@ -41,7 +41,7 @@ class Cache<V> {
             }
         }
     }
-    final ConcurrentMap<String, CacheObj> cache = new ConcurrentHashMap<>()
+    protected final ConcurrentMap<String, CacheObj> cache = new ConcurrentHashMap<>()
 
 	/**
 	 * Constructor
@@ -66,7 +66,11 @@ class Cache<V> {
 	 * @param key
 	 * @return 
 	 */
+    @Deprecated
     boolean exists(final String key) {
+        return contains(key)
+    }
+    boolean contains(final String key) {
         return cache.containsKey(key) &&! expired(key)
     }
     /**
@@ -101,7 +105,7 @@ class Cache<V> {
 	 */
     V get(final String key, onNotFound notFound = null, long time = timeout) {
         V ret = null
-        if(exists(key)) {
+        if(contains(key)) {
             ret = cache.get(key).value
 			Log.d( "[$key] read from cache")
         } else {
@@ -156,6 +160,14 @@ class Cache<V> {
 	int size() {
 		return cache.size()
 	}
+
+    /**
+     * Return all keys in cache
+     * @return
+     */
+    List<String> keys() {
+        return cache.keySet().toList()
+    }
 
     /**
      * Will remove expired elements
