@@ -37,11 +37,7 @@ interface ServiciableWebSocket extends Serviciable {
             this.jsonObj = jsonObj
         }
     }
-    /**
-     * On connect return ID
-     * @param session
-     * @return
-     */
+    abstract boolean getReplaceOnDuplicate()
     abstract void setBroadCaster(WebSocketService.MsgBroadCaster msgBroadCaster)
     abstract String getUserID(Map<String, List<String>> params, InetAddress remoteIP)
     abstract WSMessage onConnect(Session session)
