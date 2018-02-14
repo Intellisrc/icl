@@ -62,19 +62,28 @@ class WebSocketService {
     }
 
     @OnWebSocketConnect
-    void onConnect(JettySession sockSession) throws Exception {
+    void onConnect(JettySession sockSession) {
         String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, sockSession.remoteAddress.address)
-        if(!sessionQueue.find {
+        Session session = sessionQueue.find {
             Session sess ->
                 user == sess.userID
-        }) {
+        }
+        if(session) {
+            if(listener.replaceOnDuplicate) {
+                Log.v("Client replaced [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
+                session.websocketSession = sockSession
+                session.address = sockSession.remoteAddress.address
+                listener.onClientsChange(getConnected())
+                broadcast(listener.onConnect(session))
+            } else {
+                Log.w("Client with userID [%s] already exits.", user)
+            }
+        } else {
             Log.i("Client connected [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
-            Session session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
+            session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
             sessionQueue.add(session)
             listener.onClientsChange(getConnected())
             broadcast(listener.onConnect(session))
-        } else {
-            Log.w("Client with userID [%s] already exits.", user)
         }
     }
 

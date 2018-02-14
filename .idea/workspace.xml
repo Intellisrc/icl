@@ -20,8 +20,162 @@
       <change beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Version.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Version.groovy" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.AESTest.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.CryptTest.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.HashTest.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/classes/jp.sharelock.crypt.PasswordHashTest.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/css/base-style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/css/style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/index.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/js/report.js" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/reports/tests/test/packages/jp.sharelock.crypt.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.AESTest.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.CryptTest.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.HashTest.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/TEST-jp.sharelock.crypt.PasswordHashTest.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/output.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/output.bin.idx" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/test-results/test/binary/results.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/tmp/jar/MANIFEST.MF" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/Crypt$Complexity.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/Crypt$_randomChars_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/Crypt.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/encode/AES.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/encode/Encodable$Trait$Helper.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/encode/Encodable.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hash$_asBytes_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hash.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hashable$hashType.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/Hashable.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/PasswordHash$Type.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/out/production/classes/jp/sharelock/crypt/hash/PasswordHash.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/classes/jp.sharelock.db.PoolConnectorTest.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/css/base-style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/css/style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/index.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/js/report.js" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/reports/tests/test/packages/jp.sharelock.db.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/test-results/test/TEST-jp.sharelock.db.PoolConnectorTest.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/test-results/test/binary/output.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/test-results/test/binary/output.bin.idx" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/test-results/test/binary/results.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/tmp/jar/MANIFEST.MF" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$ColumnType.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$Connector.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$DBType.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$Statement.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$_exec_set_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool$_init_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool$_timeoutPool_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Data.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector$DummyStatement.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector$1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/PoolConnector.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query$Action.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query$FieldType.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/test/classes/jp/sharelock/db/PoolConnectorTest$__spock_feature_0_0_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/test/classes/jp/sharelock/db/PoolConnectorTest$__spock_feature_0_0_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/test/classes/jp/sharelock/db/PoolConnectorTest$__spock_feature_0_0_closure3.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/test/classes/jp/sharelock/db/PoolConnectorTest$__spock_feature_0_0_closure4.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/db/out/test/classes/jp/sharelock/db/PoolConnectorTest.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.BytesTest.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.SysInfoTest.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/css/base-style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/css/style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/index.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/js/report.js" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/reports/tests/test/packages/jp.sharelock.etc.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/TEST-jp.sharelock.etc.BytesTest.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/TEST-jp.sharelock.etc.SysInfoTest.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/output.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/output.bin.idx" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/test-results/test/binary/results.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/tmp/jar/MANIFEST.MF" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Bytes.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Config.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$AndroidPrinter.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$Printer.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$SystemOutPrinter.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Pack.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/SysInfo$OSType.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/SysInfo.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cache.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Cache.groovy" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/CacheTest.groovy" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/jp/sharelock/etc/CacheTest.groovy" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/reports/tests/test/css/base-style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/reports/tests/test/css/style.css" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/reports/tests/test/index.html" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/reports/tests/test/js/report.js" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/output.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/output.bin.idx" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/test-results/test/binary/results.bin" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/tmp/jar/MANIFEST.MF" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build/tmp/jar/MANIFEST.MF" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$Action.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$Response.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$WorkerRunnable.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_parseURLParams_closure3$_closure4.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_parseURLParams_closure3.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer$_respondContent_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/HTTPServer.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/Serviciable.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableAuth.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableHTTPS.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableMultiple.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableSingle.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableWebSocket$WSMessage.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableWebSocket.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/Session.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_onAction_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure3.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4$_closure6.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure4.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1$_closure5.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService$_start_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebService.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$MsgBroadCaster.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_broadcast_closure5.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getConnected_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure3.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure4.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketServiceClient$Callable.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketServiceClient$WSSocket.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketServiceClient.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/HTTPServerTest$__spock_feature_0_0_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/HTTPServerTest$__spock_feature_0_0_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/HTTPServerTest.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/WebServiceTest.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/ChatClient$_Connect_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/ChatClient.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/ChatService.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/EmailService$_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/EmailService$_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/EmailService$_closure3.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/EmailService$_closure4.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/EmailService.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/IDService$_getService_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/IDService.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/SSLService$_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/SSLService.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/StackOverflowChatClient$_Connect_closure1$_closure2.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/StackOverflowChatClient$_Connect_closure1.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/out/test/classes/jp/sharelock/web/samples/StackOverflowChatClient.class" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableWebSocket.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/ServiciableWebSocket.groovy" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebSocketService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/jp/sharelock/web/WebSocketService.groovy" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/jp/sharelock/web/samples/ChatService.groovy" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -178,7 +332,7 @@
       <file leaf-file-name="TCPClientServerTest.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/TCPClientServerTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1476">
+            <state relative-caret-position="1458">
               <caret line="82" column="52" lean-forward="false" selection-start-line="82" selection-start-column="52" selection-end-line="82" selection-end-column="52" />
               <folding>
                 <element signature="e#26#57#0" expanded="true" />
@@ -200,8 +354,8 @@
       <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" column="20" lean-forward="false" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="20" />
+            <state relative-caret-position="144">
+              <caret line="8" column="25" lean-forward="false" selection-start-line="8" selection-start-column="25" selection-end-line="8" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -230,7 +384,7 @@
       <file leaf-file-name="Smtp.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6210">
+            <state relative-caret-position="5922">
               <caret line="346" column="33" lean-forward="false" selection-start-line="346" selection-start-column="33" selection-end-line="346" selection-end-column="33" />
               <folding />
             </state>
@@ -1368,11 +1522,11 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="13600397537000" />
+        <entry key="$PROJECT_DIR$" value="13602290219000" />
         <entry key="$PROJECT_DIR$/build.gradle" value="2450016860" />
         <entry key="$PROJECT_DIR$/crypt/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/db/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/gradle.properties" value="2224683740" />
+        <entry key="$PROJECT_DIR$/gradle.properties" value="1158496748" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="615277776" />
         <entry key="$PROJECT_DIR$/module/groovy-extend/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/crypt/build.gradle" value="3337576961" />
@@ -2262,8 +2416,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -2280,87 +2434,20 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="etc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
@@ -2368,7 +2455,7 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
@@ -2377,17 +2464,17 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="462c0819:PsiDirectoryNode" />
+              <item name="web" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
@@ -2395,36 +2482,47 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="net" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="web" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="web" type="462c0819:PsiDirectoryNode" />
+              <item name="samples" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/etc/src/main/groovy/com/inspeedia/common/etc/Version.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/samples/ChatService.groovy" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.4429066" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Groovy" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/etc/src/main/groovy/com/inspeedia/common/etc/Version.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/samples/ChatService.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -2686,13 +2784,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00012" summary="2.2.9 : Added missing data types in DB">
-      <created>1509338876756</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1509338876756</updated>
     </task>
     <task id="LOCAL-00013" summary="2.2.10 : Converted abstract Cache into Generic Class">
       <created>1509350492541</created>
@@ -3030,7 +3121,14 @@
       <option name="project" value="LOCAL" />
       <updated>1516162593040</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="2.2.41 : Auto-log level">
+      <created>1516687736742</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1516687736742</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3076,22 +3174,22 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="33" width="1922" height="1165" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Code Outline" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.7543186" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.75453675" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.54823303" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20245726" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26976496" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Build" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295129" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Tail" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="JFrog" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16559829" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16565809" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38652483" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -3100,28 +3198,10 @@
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Code Outline" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38652483" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19293219" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.75453675" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.54823303" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26976496" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.55930567" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="JFrog" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16565809" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -3154,7 +3234,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.25.1 : Disabled autoPKeys in DB as it is not so useful and reduces performance" />
     <MESSAGE value="2.2.27: Simplified SysInfo, removed Device and other not-so-useful classes." />
     <MESSAGE value="2.2.27.5: Log.level(Level) instead of int. Suppressed log in SysInfo to allow simple output in commands" />
     <MESSAGE value="2.2.27.5: Log.level(Level) instead of int. Suppressed log in SysService to allow simple output in commands" />
@@ -3179,7 +3258,8 @@
     <MESSAGE value="2.2.35.7 : Fixed ErrorMailer and Smtp and prevented repeated errors to loop" />
     <MESSAGE value="2.2.35.7 : Working with TCP multi commands" />
     <MESSAGE value="2.2.36 : Added more logs in Websocket and changed verbosity of all logs." />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.36 : Added more logs in Websocket and changed verbosity of all logs." />
+    <MESSAGE value="2.2.41 : Auto-log level" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.41 : Auto-log level" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3505,7 +3585,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6210">
+        <state relative-caret-position="5922">
           <caret line="346" column="33" lean-forward="false" selection-start-line="346" selection-start-column="33" selection-end-line="346" selection-end-column="33" />
           <folding />
         </state>
@@ -3537,7 +3617,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/TCPClientServerTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1476">
+        <state relative-caret-position="1458">
           <caret line="82" column="52" lean-forward="false" selection-start-line="82" selection-start-column="52" selection-end-line="82" selection-end-column="52" />
           <folding>
             <element signature="e#26#57#0" expanded="true" />
@@ -3563,8 +3643,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gradle.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="20" lean-forward="false" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="20" />
+        <state relative-caret-position="144">
+          <caret line="8" column="25" lean-forward="false" selection-start-line="8" selection-start-column="25" selection-end-line="8" selection-end-column="25" />
           <folding />
         </state>
       </provider>
