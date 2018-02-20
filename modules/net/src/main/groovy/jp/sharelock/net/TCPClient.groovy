@@ -17,7 +17,7 @@ class TCPClient {
     }
     protected InetAddress dstAddress
     protected int dstPort
-	protected final List<Request> requestList = []
+	protected final synchronized Queue<Request> requestList = [] as Queue<Request>
     int timeout = 20000
 
 	static enum TCPStatus {
@@ -137,30 +137,30 @@ class TCPClient {
 					// Create the streams to send and receive information
 					dataIn = new BufferedReader(new InputStreamReader(s.getInputStream(), Charset.forName("UTF8")))
 					dataOut = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), Charset.forName("UTF8")))
-					requestList.each {
-						Request request ->
-							// Since this is the client, we will initiate the talking.
-							// Send a string data and flush
-							Log.i("Message to Server [" + dstAddress.hostName + "] >>>>> " + request.message)
-							dataOut.println(request.message)
-							dataOut.flush()
-                            Log.v("Waiting for response... [" + dstAddress.hostName + "]")
-							// Receive the reply.
-							String sResp
-                            while(sResp = dataIn.readLine()) {
-                                Log.i("Message from Server [" + dstAddress.hostName + "] <<<<< " + sResp)
-                                if (sResp) {
-                                    response = new Response(TCPStatus.SENT, sResp, request)
-                                } else {
-                                    Log.e("Response was NULL. TCPStatus is unknown")
-                                    response = new Response(TCPStatus.NO_RESPONSE, "", request)
-                                }
-                                try {
-                                    request.onResponse.call(response)
-                                } catch (IOException e) {
-                                    Log.e("There was an error while processing the response", e)
-                                }
+					Request request
+					while(request = requestList.poll()) {
+                        // Since this is the client, we will initiate the talking.
+                        // Send a string data and flush
+                        Log.i("Message to Server [" + dstAddress.hostName + "] >>>>> " + request.message)
+                        dataOut.println(request.message)
+                        dataOut.flush()
+                        Log.v("Waiting for response... [" + dstAddress.hostName + "]")
+                        // Receive the reply.
+                        String sResp
+                        while(sResp = dataIn.readLine()) {
+                            Log.i("Message from Server [" + dstAddress.hostName + "] <<<<< " + sResp)
+                            if (sResp) {
+                                response = new Response(TCPStatus.SENT, sResp, request)
+                            } else {
+                                Log.e("Response was NULL. TCPStatus is unknown")
+                                response = new Response(TCPStatus.NO_RESPONSE, "", request)
                             }
+                            try {
+                                request.onResponse.call(response)
+                            } catch (IOException e) {
+                                Log.e("There was an error while processing the response", e)
+                            }
+                        }
 					}
                     // Clean up
                     try
