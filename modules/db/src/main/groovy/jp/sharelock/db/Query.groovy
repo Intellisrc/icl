@@ -36,79 +36,79 @@ class Query {
     static enum SortOrder {
         ASC, DESC
     }
-    private String query    = ""
-    private String table    = ""
-    private String groupby  = ""
-    private String where    = ""
-    private String insvals  = ""
-    private String updvals  = ""
-    private int limit       = 0
-    private int offset      = 0
-    private Action action   = RAW //Database action for query, like: SELECT, INSERT...
+    private String queryStr     = ""
+    private String tableStr     = ""
+    private String groupbyStr   = ""
+    private String whereStr     = ""
+    private String insvalsStr   = ""
+    private String updvalsStr   = ""
+    private int limitInt        = 0
+    private int offsetInt       = 0
+    private Action actionType   = RAW //Database action for query, like: SELECT, INSERT...
     private Map<String, SortOrder> sort = [:]
-    private List<String> fields = []
-    private List<String> keys = []
-    private List args = []
+    private List<String> fieldList = []
+    private List<String> keyList = []
+    private List<Object> argList = []
     private FieldType fieldtype = FieldType.NOSET
 
     Query() {
-        this.action = RAW
+        actionType = RAW
     }
     Query(final Action action) {
-        this.action = action
+        actionType = action
     }
     Query(final String query) {
-        this.query = query
-        this.action = RAW
+        queryStr = query
+        actionType = RAW
     }
     Query(final String query, final List args) {
-        this.query = query
-        this.action = RAW
-        this.args = args
+        queryStr = query
+        actionType = RAW
+        argList = args
     }
 
     /////////////////////////////////////// SET //////////////////////////////////
 	Query setType(final DBType dbtype) {
-		this.dbType = dbtype
+		dbType = dbtype
 		return this
 	}
     Query setAction(final Action action) {
-        this.action = action
+        actionType = action
         return this
     }
     Query setTable(final String table) {
-        this.table = table
+        tableStr = table
         return this
     }
 
     Query setFields(final List<String> fields) {
-        this.fields = fields
-        if(this.fieldtype == FieldType.NOSET) {
-            this.fieldtype = FieldType.COLUMN
+        fieldList = fields
+        if(fieldtype == FieldType.NOSET) {
+            fieldtype = FieldType.COLUMN
         }
         return this
     }
 
     Query setFields(final List<String> fields,final  FieldType type) {
-        this.fields = fields
-        this.fieldtype = type
+        fieldList = fields
+        fieldtype = type
         return this
     }
 
     Query setFieldsType(final FieldType type ) {
-        this.fieldtype = type
+        fieldtype = type
         return this
     }
 
     Query setKeys(final List<String> keys) {
-        this.keys = keys
+        keyList = keys
         return this
     }
 
     Query setWhere(final Integer where) {
         String key = getKey() //For the moment no multiple keys allowed
-        this.where += (this.where.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-        this.args.add(where)
+        whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+        argList << where
         return this
     }
 
@@ -118,8 +118,8 @@ class Query {
 			setWhere(where, params)
 		} else {
 			String key = getKey() //For the moment no multiple keys allowed
-			this.where += (this.where.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-			this.args.add(where)
+			whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+			argList << where
 		}
         return this
     }
@@ -127,8 +127,8 @@ class Query {
 	Query setWhere(final String where, final ... params) {
 		int param_count = where.length() - where.replace("?", "").length()
 		if(param_count == params.length) {
-			this.where += (this.where.isEmpty() ? "" : " AND ") + cleanSQL(where)
-			this.args.addAll(Arrays.asList(params))
+			whereStr += (whereStr.isEmpty() ? "" : " AND ") + cleanSQL(where)
+			argList.addAll(Arrays.asList(params))
 		} else {
 			Log.e( "Parameters specified doesn't match arguments count")
 		}
@@ -140,17 +140,17 @@ class Query {
         String marks = ""
         where.each {
             marks += (marks.isEmpty() ? "" : ",") + '?'
-            this.args.add(it)
+            argList << it
         }
-        this.where += sqlName(key) + " IN ("+marks+")"
+        whereStr += sqlName(key) + " IN ("+marks+")"
         return this
     }
 
     Query setWhere(final Map<String,Object> where) {
         where.each {
             String key, Object val ->
-                this.where += (this.where.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-                this.args.add(val)
+                whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+                argList << val
         }
         return this
     }
@@ -164,48 +164,48 @@ class Query {
             inspre += (inspre.isEmpty() ? "" : ',') + sqlName(key)
             inspst += (inspst.isEmpty() ? "" : ',') + "?"
             updstr += (updstr.isEmpty() ? "" : ',') + sqlName(key) + " = ?"
-            this.args.add(val)
+            argList << val
         }
-        this.insvals = "("+inspre+") VALUES ("+inspst+")"
-        this.updvals = updstr
+        insvalsStr = "("+inspre+") VALUES ("+inspst+")"
+        updvalsStr = updstr
         return this
     }
 
     Query setLimit(int limit) {
-        this.limit = limit
+        limitInt = limit
         return this
     }
 
     Query setOffset(int offset) {
-        this.offset = offset
+        offsetInt = offset
         return this
     }
 
     Query setOrder(final Map<String,SortOrder> orderPair) {
-        this.sort = orderPair
+        sort = orderPair
         return this
     }
 
     Query setOrder(final String column,final  SortOrder order) {
-        this.sort[column] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
+        sort[column] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
         return this
     }
 
     Query setGroupBy(final String column) {
-        this.groupby = column
+        groupbyStr = column
         return this
     }
 
     /////////////////////////////////////// GET //////////////////////////////////
     Action getAction() {
-        return action
+        return actionType
     }
     List<String> getKeys() {
-        if(keys.isEmpty()) {
+        if(keyList.isEmpty()) {
             Log.e( "Keys were not set")
-            keys.add("id") //Generic ID name
+            keyList << "id" //Generic ID name
         }
-        return keys
+        return keyList
     }
     // Returns the first specified key
     String getKey() {
@@ -213,22 +213,25 @@ class Query {
     }
     String getFields() {
         String fieldstr = ""
-        if(this.fields.isEmpty()) {
+        if(fieldList.isEmpty()) {
             return "*"
         }
-        this.fields.each {
+        fieldList.each {
             fieldstr += (fieldstr.isEmpty() ? "" : ',') + sqlName(it)
         }
         return fieldtype.getSQL(fieldstr)
     }
     String getTable() {
-        return sqlName(this.table)
+        return sqlName(tableStr)
     }
     String getWhere() {
-        return this.where.isEmpty() ? "" : " WHERE "+this.where
+        return whereStr.isEmpty() ? "" : " WHERE "+whereStr
     }
     Object[] getArgs() {
-        return this.args.toArray()
+        return argList.toArray()
+    }
+    List<Object> getArgsList() {
+        return argList.collect()
     }
 	/**
 	 * Return args as String array
@@ -236,17 +239,17 @@ class Query {
 	 * @return 
 	 */
     String[] getArgsStr() {
-        String[] array = new String[this.args.size()]
-		return this.args.toArray(array)
+        String[] array = new String[argList.size()]
+		return argList.toArray(array)
 	}
     private String getInsertValues() {
-        return this.insvals
+        return insvalsStr
     }
     private String getUpdateValues() {
-        return this.updvals
+        return updvalsStr
     }
     String getGroupBy() {
-        return this.groupby.isEmpty() ? "" : " GROUP BY "+sqlName(this.groupby)
+        return groupbyStr.isEmpty() ? "" : " GROUP BY "+sqlName(groupbyStr)
     }
     String getSort() {
         def query = ""
@@ -260,15 +263,15 @@ class Query {
         return query
     }
     String getLimit() {
-        String off = this.offset > 0 ? " OFFSET "+this.offset : ""
-        return this.limit > 0 ? " LIMIT "+this.limit+off : ""
+        String off = offsetInt > 0 ? " OFFSET "+offsetInt : ""
+        return limitInt > 0 ? " LIMIT "+limitInt+off : ""
     }
 
 	@Override
     String toString() {
         String squery = ""
-        switch(this.action) {
-            case RAW:    squery = this.query
+        switch(actionType) {
+            case RAW:    squery = queryStr
 				break
             case SELECT: squery = "SELECT "+getFields()+" FROM "+getTable()+getWhere()+getGroupBy()+getSort()+getLimit()
 				break
@@ -285,7 +288,7 @@ class Query {
 					case SQLITE:
 						squery = "PRAGMA table_info("+getTable()+")";  break
 					case MYSQL:
-						squery = "SELECT COLUMN_NAME as 'name', DATA_TYPE as 'type', IF(COLUMN_KEY = 'PRI',1,0) as 'pk' FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+cleanSQL(table)+"'"; break
+						squery = "SELECT COLUMN_NAME as 'name', DATA_TYPE as 'type', IF(COLUMN_KEY = 'PRI',1,0) as 'pk' FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+cleanSQL(tableStr)+"'"; break
 					default:
 						Log.e("Type not defined on INFO")
 				}
@@ -305,7 +308,7 @@ class Query {
 					case SQLITE:				
 						squery = "PRAGMA table_info("+getTable()+")"; break
 					case MYSQL:
-						squery = "SHOW TABLES LIKE \""+cleanSQL(table)+"\""; break
+						squery = "SHOW TABLES LIKE \""+cleanSQL(tableStr)+"\""; break
 					default:
 						Log.e("Type not defined on EXISTS")
 				}	
@@ -314,7 +317,7 @@ class Query {
                 //WARN: unknown action
                 break
         }
-        //this.clear(); //Prevent garbage values
+        //clear(); //Prevent garbage values
         return squery
     }
 
