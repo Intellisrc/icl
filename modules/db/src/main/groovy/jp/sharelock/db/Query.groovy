@@ -4,7 +4,6 @@ import jp.sharelock.etc.Log
 import jp.sharelock.db.DB.DBType
 import static jp.sharelock.db.DB.DBType.*
 import static jp.sharelock.db.Query.Action.*
-import static jp.sharelock.db.Query.SortOrder.*
 
 @groovy.transform.CompileStatic
 /**
@@ -55,34 +54,34 @@ class Query {
     Query() {
         this.action = RAW
     }
-    Query(Action action) {
+    Query(final Action action) {
         this.action = action
     }
-    Query(String query) {
+    Query(final String query) {
         this.query = query
         this.action = RAW
     }
-    Query(String query, List args) {
+    Query(final String query, final List args) {
         this.query = query
         this.action = RAW
         this.args = args
     }
 
     /////////////////////////////////////// SET //////////////////////////////////
-	Query setType(DBType dbtype) {
+	Query setType(final DBType dbtype) {
 		this.dbType = dbtype
 		return this
 	}
-    Query setAction(Action action) {
+    Query setAction(final Action action) {
         this.action = action
         return this
     }
-    Query setTable(String table) {
+    Query setTable(final String table) {
         this.table = table
         return this
     }
 
-    Query setFields(List<String> fields) {
+    Query setFields(final List<String> fields) {
         this.fields = fields
         if(this.fieldtype == FieldType.NOSET) {
             this.fieldtype = FieldType.COLUMN
@@ -90,30 +89,30 @@ class Query {
         return this
     }
 
-    Query setFields(List<String> fields, FieldType type) {
+    Query setFields(final List<String> fields,final  FieldType type) {
         this.fields = fields
         this.fieldtype = type
         return this
     }
 
-    Query setFieldsType(FieldType type ) {
+    Query setFieldsType(final FieldType type ) {
         this.fieldtype = type
         return this
     }
 
-    Query setKeys(List<String> keys) {
+    Query setKeys(final List<String> keys) {
         this.keys = keys
         return this
     }
 
-    Query setWhere(Integer where) {
+    Query setWhere(final Integer where) {
         String key = getKey() //For the moment no multiple keys allowed
         this.where += (this.where.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
         this.args.add(where)
         return this
     }
 
-    Query setWhere(String where) {
+    Query setWhere(final String where) {
 		if(where.contains("?")) {
 			def params = []
 			setWhere(where, params)
@@ -125,7 +124,7 @@ class Query {
         return this
     }
 
-	Query setWhere(String where, Object[] params) {
+	Query setWhere(final String where, final ... params) {
 		int param_count = where.length() - where.replace("?", "").length()
 		if(param_count == params.length) {
 			this.where += (this.where.isEmpty() ? "" : " AND ") + cleanSQL(where)
@@ -136,40 +135,36 @@ class Query {
 		return this
 	}
 
-    Query setWhere(List where) {
+    Query setWhere(final List where) {
         String key = getKey() //For the moment no multiple keys allowed
         String marks = ""
-        for(Object cond: where) {
+        where.each {
             marks += (marks.isEmpty() ? "" : ",") + '?'
-            this.args.add(cond)
+            this.args.add(it)
         }
         this.where += sqlName(key) + " IN ("+marks+")"
         return this
     }
 
-    Query setWhere(Map<String,String> where) {
-        Iterator it = where.entrySet().iterator()
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next()
-            this.where += (this.where.isEmpty() ? "" : " AND ") + sqlName(pair.getKey()) + " = ? "
-            this.args.add(pair.getValue())
-            it.remove() // avoids a ConcurrentModificationException
+    Query setWhere(final Map<String,Object> where) {
+        where.each {
+            String key, Object val ->
+                this.where += (this.where.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+                this.args.add(val)
         }
         return this
     }
 
-    Query setValues(Map values) {
+    Query setValues(final Map<String,Object> values) {
         String inspre = ""
         String inspst = ""
         String updstr = ""
-        Iterator it = values.entrySet().iterator()
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next()
-            inspre += (inspre.isEmpty() ? "" : ',') + sqlName(pair.getKey())
+        values.each {
+            String key, Object val ->
+            inspre += (inspre.isEmpty() ? "" : ',') + sqlName(key)
             inspst += (inspst.isEmpty() ? "" : ',') + "?"
-            updstr += (updstr.isEmpty() ? "" : ',') + sqlName(pair.getKey()) + " = ?"
-            this.args.add(pair.getValue())
-            it.remove() // avoids a ConcurrentModificationException
+            updstr += (updstr.isEmpty() ? "" : ',') + sqlName(key) + " = ?"
+            this.args.add(val)
         }
         this.insvals = "("+inspre+") VALUES ("+inspst+")"
         this.updvals = updstr
@@ -191,12 +186,12 @@ class Query {
         return this
     }
 
-    Query setOrder(String column, SortOrder order) {
+    Query setOrder(final String column,final  SortOrder order) {
         this.sort[column] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
         return this
     }
 
-    Query setGroupBy(String column) {
+    Query setGroupBy(final String column) {
         this.groupby = column
         return this
     }
@@ -221,8 +216,8 @@ class Query {
         if(this.fields.isEmpty()) {
             return "*"
         }
-        for(String fld: this.fields) {
-            fieldstr += (fieldstr.isEmpty() ? "" : ',') + sqlName(fld)
+        this.fields.each {
+            fieldstr += (fieldstr.isEmpty() ? "" : ',') + sqlName(it)
         }
         return fieldtype.getSQL(fieldstr)
     }
@@ -242,10 +237,7 @@ class Query {
 	 */
     String[] getArgsStr() {
         String[] array = new String[this.args.size()]
-        for( int i = 0; i < this.args.size(); i++ ){
-            array[i] = this.args.get(i).toString()
-        }
-		return array
+		return this.args.toArray(array)
 	}
     private String getInsertValues() {
         return this.insvals
@@ -326,17 +318,17 @@ class Query {
         return squery
     }
 
-    private static String sqlName(Object obj) {
+    private static String sqlName(final Object obj) {
         return sqlName(obj.toString())
     }
     // Return column or table name clean and with ``
-    private static String sqlName(String str) {
+    private static String sqlName(final String str) {
         return "`" + str.toLowerCase().replaceAll("/[^a-z0-9._]/","") + "`"
     }
 	/**
 	 * Clean a SQL query removing invalid characters like unicode, comments, semicolon, etc
 	 */
-	private static String cleanSQL(String sql) {
+	private static String cleanSQL(final String sql) {
 		return sql.replaceAll("/[^a-z0-9._()><=?%+*/-`\"']/","")
 	}
 }
