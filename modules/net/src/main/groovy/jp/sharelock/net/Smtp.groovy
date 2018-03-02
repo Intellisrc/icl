@@ -153,8 +153,8 @@ class Smtp {
      */
     boolean send(Email to, String subject = "", String body = "", String bodyText = "") {
         def map = [:]
-        map[to] = Mode.TO
-        send(map.toString(), subject, body, bodyText)
+        map[to.toString()] = Mode.TO
+        send(map, subject, body, bodyText)
     }
     /**
      * Sends an email to a single recipient
