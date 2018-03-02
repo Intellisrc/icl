@@ -80,36 +80,24 @@ class Smtp {
             String key, String rule ->
                 switch (rule) {
                     case "simulate":
-                        if(fileSettings) {
-                            if(Config.hasKey("${cfgKey}.$rule")) {
-                                this.setProperty(key, Config.getBool("${cfgKey}.$rule"))
-                            }
-                        } else if(fileSettingsDefault) {
-                            if(Config.hasKey("${defaultKey}.$rule")) {
-                                this.setProperty(key, Config.getBool("${defaultKey}.$rule"))
-                            }
+                        if(fileSettings && Config.hasKey("${cfgKey}.$rule")) {
+                            this.setProperty(key, Config.getBool("${cfgKey}.$rule"))
+                        } else if(fileSettingsDefault && Config.hasKey("${defaultKey}.$rule")) {
+                            this.setProperty(key, Config.getBool("${defaultKey}.$rule"))
                         }
                         break
                     case "port":
-                        if(fileSettings) {
-                            if(Config.hasKey("${cfgKey}.$rule")) {
-                                this.setProperty(key, Config.getInt("${cfgKey}.$rule"))
-                            }
-                        } else if(fileSettingsDefault) {
-                            if(Config.hasKey("${defaultKey}.$rule")) {
-                                this.setProperty(key, Config.getInt("${defaultKey}.$rule"))
-                            }
+                        if(fileSettings && Config.hasKey("${cfgKey}.$rule")) {
+                            this.setProperty(key, Config.getInt("${cfgKey}.$rule"))
+                        } else if(fileSettingsDefault && Config.hasKey("${defaultKey}.$rule")) {
+                            this.setProperty(key, Config.getInt("${defaultKey}.$rule"))
                         }
                         break
                     default:
-                        if(fileSettings) {
-                            if(Config.hasKey("${cfgKey}.$rule")) {
-                                this.setProperty(key, Config.get("${cfgKey}.$rule"))
-                            }
-                        } else if(fileSettingsDefault) {
-                            if(Config.hasKey("${defaultKey}.$rule")) {
-                                this.setProperty(key, Config.get("${defaultKey}.$rule"))
-                            }
+                        if(fileSettings && Config.hasKey("${cfgKey}.$rule")) {
+                            this.setProperty(key, Config.get("${cfgKey}.$rule"))
+                        } else if(fileSettingsDefault && Config.hasKey("${defaultKey}.$rule")) {
+                            this.setProperty(key, Config.get("${defaultKey}.$rule"))
                         }
                 }
         }
