@@ -64,8 +64,9 @@ class Smtp {
         Map<String,String> settings = [
             simulate : "simulate",
             username : "user",
-            host     : "host",
+            fromName : "name",
             password : "password",
+            host     : "host",
             port     : "port",
             defaultTo: "to",
             from     : "from",
