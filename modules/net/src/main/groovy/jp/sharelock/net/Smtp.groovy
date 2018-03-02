@@ -151,6 +151,18 @@ class Smtp {
      * @param body
      * @return
      */
+    boolean send(Email to, String subject = "", String body = "", String bodyText = "") {
+        def map = [:]
+        map[to] = Mode.TO
+        send(map.toString(), subject, body, bodyText)
+    }
+    /**
+     * Sends an email to a single recipient
+     * @param to
+     * @param subject
+     * @param body
+     * @return
+     */
     boolean send(String to, String subject = "", String body = "", String bodyText = "") {
         def map = [:]
         map[to] = Mode.TO
@@ -183,13 +195,15 @@ class Smtp {
     boolean send(Map<String, Mode> recipients, String subject = "", String body = "", String bodyText = "") {
         Email emailFrom
         //If config is set, send a copy to those
-        if (defaultTo.contains(',')) {
-            defaultTo.split(',').each {
-                String to ->
-                    recipients[to] = Mode.BCC
+        if(defaultTo) {
+            if (defaultTo.contains(',')) {
+                defaultTo.split(',').each {
+                    String to ->
+                        recipients[to] = recipients.isEmpty() ? Mode.TO : Mode.BCC
+                }
+            } else {
+                recipients[defaultTo] = recipients.isEmpty() ? Mode.TO : Mode.BCC
             }
-        } else {
-            recipients[defaultTo] = Mode.TO
         }
         //Setup javamail
         if (username) {
