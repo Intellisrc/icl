@@ -517,8 +517,8 @@ class DB {
         openIfClosed()
         if(db.isOpen()) {
             Log.v( "GET ::: " + query.toString())
-            for (Object o : query.getArgs()) {
-                Log.v( " --> " + o)
+            query.argsList.each {
+                Log.v( " --> " + it)
             }
             List<Map> rows = []
             try {
@@ -572,7 +572,7 @@ class DB {
         openIfClosed()
         if(db.isOpen()) {
 			Log.v( "SET ::: " + query.toString())
-			query.getArgs().each {
+			query.argsList.each {
 				Object it ->
 					Log.v( " --> " + it)
 			}
