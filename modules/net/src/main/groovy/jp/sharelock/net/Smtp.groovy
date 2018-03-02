@@ -152,7 +152,7 @@ class Smtp {
      * @return
      */
     boolean send(Email to, String subject = "", String body = "", String bodyText = "") {
-        def map = [:]
+        Map<String,Mode> map = [:]
         map[to.toString()] = Mode.TO
         send(map, subject, body, bodyText)
     }
@@ -164,7 +164,7 @@ class Smtp {
      * @return
      */
     boolean send(String to, String subject = "", String body = "", String bodyText = "") {
-        def map = [:]
+        Map<String,Mode> map = [:]
         map[to] = Mode.TO
         send(map, subject, body, bodyText)
     }
@@ -177,7 +177,7 @@ class Smtp {
      * @return
      */
     boolean send(List<String> tos, String subject = "", String body = "", String bodyText = "") {
-        def map = [:]
+        Map<String,Mode> map = [:]
         tos.each {
             map[it] = Mode.TO
         }
