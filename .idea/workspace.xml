@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
       <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -186,11 +185,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="true">
+      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" column="22" lean-forward="false" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
+            <state relative-caret-position="180">
+              <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -226,11 +225,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Smtp.groovy" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Smtp.groovy" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="204" column="66" lean-forward="false" selection-start-line="204" selection-start-column="66" selection-end-line="204" selection-end-column="66" />
+            <state relative-caret-position="756">
+              <caret line="179" column="0" lean-forward="false" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -2236,8 +2235,8 @@
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPClient.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/EmailTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
         <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
       </list>
     </option>
   </component>
@@ -2695,20 +2694,6 @@
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
     </task>
-    <task id="LOCAL-00019" summary="2.2.13.1 : Added custom headers to SMTP">
-      <created>1509770301116</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1509770301116</updated>
-    </task>
-    <task id="LOCAL-00020" summary="2.2.14: SysService now accepts custom arguments. getAction was removed. SMTP SSL related code is now automatic.">
-      <created>1509776774571</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1509776774571</updated>
-    </task>
     <task id="LOCAL-00021" summary="2.2.14.1 : Command parameters is now optional">
       <created>1509779701159</created>
       <option name="number" value="00021" />
@@ -3038,7 +3023,21 @@
       <option name="project" value="LOCAL" />
       <updated>1519961230195</updated>
     </task>
-    <option name="localTasksCounter" value="68" />
+    <task id="LOCAL-00068" summary="2.2.45.3 : Fixed issue with defaulTo">
+      <created>1519961602181</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1519961602181</updated>
+    </task>
+    <task id="LOCAL-00069" summary="2.2.45.3 : send using Email">
+      <created>1519961683195</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1519961683195</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3144,8 +3143,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.29 : Fixed string to date" />
-    <MESSAGE value="2.2.30 : Upgraded groovy-extend" />
     <MESSAGE value="2.2.31 : Removed dependency on Android" />
     <MESSAGE value="2.2.31 : Fixed DBPool" />
     <MESSAGE value="2.2.32 : Replaced Groovy JSON for GSon (to use in android). Fixed SMTP to handle HTML+Text with Attachments" />
@@ -3169,7 +3166,9 @@
     <MESSAGE value="2.2.45 : Replaced dynamic assignation for .setProperty" />
     <MESSAGE value="2.2.45.1 : Fixed when no key existed" />
     <MESSAGE value="2.2.45.1 : Added EmailTest" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.45.1 : Added EmailTest" />
+    <MESSAGE value="2.2.45.3 : Fixed issue with defaulTo" />
+    <MESSAGE value="2.2.45.3 : send using Email" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.45.3 : send using Email" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3543,6 +3542,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Email.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
@@ -3553,16 +3560,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="204" column="66" lean-forward="false" selection-start-line="204" selection-start-column="66" selection-end-line="204" selection-end-column="66" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="22" lean-forward="false" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
+        <state relative-caret-position="756">
+          <caret line="179" column="0" lean-forward="false" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
           <folding />
         </state>
       </provider>
