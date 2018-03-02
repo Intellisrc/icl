@@ -53,24 +53,55 @@ class Smtp {
         }
     }
 
-    private boolean useLocalSettings = false //Force to use settings specified here over configuration file or system settings
     private List<File> attachments = []
     private static enum TransportType {
         SMTP, SMTPS
     }
     private TransportType transportType = TransportType.SMTP
+    private Properties props = new Properties()
 
-    /**
-     * Autodetect when to override global settings
-     * @param sFrom
-     */
-    void setHost(String sHost) {
-        host = sHost
-        useLocalSettings = true
-    }
-    void setUsername(String sUserName) {
-        username = sUserName
-        useLocalSettings = true
+    Smtp(String cfgKey = "mail.smtp") {
+        Map<String,String> settings = [
+            simulate : "simulate",
+            username : "user",
+            host     : "host",
+            password : "password",
+            host     : "host",
+            port     : "port",
+            defaultTo: "to",
+            from     : "from",
+            replyTo  : "reply"
+        ]
+        // Load first defaults if found
+        String defaultKey = "mail.smtp"
+        boolean fileSettingsDefault = Config.matchKey(defaultKey)
+        boolean fileSettings = defaultKey != cfgKey && Config.matchKey(cfgKey)
+        props = Config.props
+        settings.each {
+            String key, String rule ->
+                switch (rule) {
+                    case "simulate":
+                        if(fileSettings) {
+                            this."$key" = Config.getBool("${cfgKey}.$rule")
+                        } else if(fileSettingsDefault) {
+                            this."$key" = Config.getBool("${defaultKey}.$rule")
+                        }
+                        break
+                    case "port":
+                        if(fileSettings) {
+                            this."$key" = Config.getInt("${cfgKey}.$rule")
+                        } else if(fileSettingsDefault) {
+                            this."$key" = Config.getInt("${defaultKey}.$rule")
+                        }
+                        break
+                    default:
+                        if(fileSettings) {
+                            this."$key" = Config.get("${cfgKey}.$rule")
+                        } else if(fileSettingsDefault) {
+                            this."$key" = Config.get("${defaultKey}.$rule")
+                        }
+                }
+        }
     }
 
     /**
@@ -152,40 +183,14 @@ class Smtp {
      */
     boolean send(Map<String, Mode> recipients, String subject = "", String body = "", String bodyText = "") {
         Email emailFrom
-        def props = new Properties()
-        boolean fileSettings = Config.matchKey("mail.smtp")
-        //Reading from file...
-        if(!useLocalSettings && fileSettings) {
-            props = Config.props
-            simulate = Config.getBool("mail.smtp.simulate")
-            //Variables needed for connection
-            username = Config.get("mail.smtp.user")
-            password = Config.get("mail.smtp.password")
-            host     = Config.get("mail.smtp.host")
-            port     = Config.getInt("mail.smtp.port")
-        //Reading from variables
-        } else {
-            if(fileSettings) {
-                Log.d("Config file settings were overridden with local settings.")
-            }
-        }
-        if(from.isEmpty() && Config.hasKey("mail.smtp.from") && Config.get("mail.smtp.from")) {
-            from = Config.get("mail.smtp.from")
-        }
-        if(fromName.isEmpty() && Config.hasKey("mail.smtp.name") && Config.get("mail.smtp.name")) {
-            fromName = Config.get("mail.smtp.name")
-        }
-        if(replyTo.isEmpty() && Config.hasKey("mail.smtp.reply") && Config.get("mail.smtp.reply")) {
-            replyTo = Config.get("mail.smtp.reply")
-        }
         //If config is set, send a copy to those
-        if (defaultTo) {
-            recipients[defaultTo] = Mode.TO
-        } else if(Config.hasKey("mail.smtp.to") && Config.get("mail.smtp.to")) {
-            Config.get("mail.smtp.to").split(",").each {
+        if (defaultTo.contains(',')) {
+            defaultTo.split(',').each {
                 String to ->
                     recipients[to] = Mode.BCC
             }
+        } else {
+            recipients[defaultTo] = Mode.TO
         }
         //Setup javamail
         if (username) {
