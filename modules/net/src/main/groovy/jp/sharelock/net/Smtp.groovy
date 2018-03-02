@@ -82,23 +82,23 @@ class Smtp {
                 switch (rule) {
                     case "simulate":
                         if(fileSettings) {
-                            this."$key" = Config.getBool("${cfgKey}.$rule")
+                            this.setProperty(key, Config.getBool("${cfgKey}.$rule"))
                         } else if(fileSettingsDefault) {
-                            this."$key" = Config.getBool("${defaultKey}.$rule")
+                            this.setProperty(key, Config.getBool("${defaultKey}.$rule"))
                         }
                         break
                     case "port":
                         if(fileSettings) {
-                            this."$key" = Config.getInt("${cfgKey}.$rule")
+                            this.setProperty(key, Config.getInt("${cfgKey}.$rule"))
                         } else if(fileSettingsDefault) {
-                            this."$key" = Config.getInt("${defaultKey}.$rule")
+                            this.setProperty(key, Config.getInt("${defaultKey}.$rule"))
                         }
                         break
                     default:
                         if(fileSettings) {
-                            this."$key" = Config.get("${cfgKey}.$rule")
+                            this.setProperty(key, Config.get("${cfgKey}.$rule"))
                         } else if(fileSettingsDefault) {
-                            this."$key" = Config.get("${defaultKey}.$rule")
+                            this.setProperty(key, Config.get("${defaultKey}.$rule"))
                         }
                 }
         }
