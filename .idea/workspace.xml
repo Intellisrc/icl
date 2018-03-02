@@ -2,52 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/common.iml" afterPath="$PROJECT_DIR$/.idea/modules/common.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$_exec_set_closure1.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB$_exec_set_closure1.class" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DB.class" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DBPool.class" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/DummyConnector.class" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/JDBCConnector.class" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/PoolConnector.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/PoolConnector.class" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query$FieldType.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query$FieldType.class" />
-      <change beforePath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query.class" afterPath="$PROJECT_DIR$/modules/db/out/production/classes/jp/sharelock/db/Query.class" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Config.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Config.class" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" />
-      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" afterPath="$PROJECT_DIR$/gradle.properties" />
       <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableWebSocket.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/ServiciableWebSocket.class" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$MsgBroadCaster.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$MsgBroadCaster.class" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_broadcast_closure5.class" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_closure1.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_closure1.class" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getConnected_closure2.class" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure3.class" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure4.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService$_getSession_closure4.class" />
-      <change beforePath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService.class" afterPath="$PROJECT_DIR$/modules/web/out/production/classes/jp/sharelock/web/WebSocketService.class" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -229,11 +187,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
+      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="8" column="13" lean-forward="false" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+            <state relative-caret-position="126">
+              <caret line="7" column="22" lean-forward="false" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -262,18 +220,18 @@
       <file leaf-file-name="Smtp.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="470">
-              <caret line="100" column="84" lean-forward="false" selection-start-line="100" selection-start-column="84" selection-end-line="100" selection-end-column="84" />
+            <state relative-caret-position="180">
+              <caret line="27" column="18" lean-forward="false" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SmtpTest.groovy" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SmtpTest.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/SmtpTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="34" column="71" lean-forward="false" selection-start-line="34" selection-start-column="71" selection-end-line="34" selection-end-column="71" />
+            <state relative-caret-position="432">
+              <caret line="27" column="26" lean-forward="false" selection-start-line="27" selection-start-column="26" selection-end-line="27" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -2269,8 +2227,8 @@
         <option value="$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/TCPClientServerTest.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPClient.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/TCPServer.groovy" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
       </list>
     </option>
   </component>
@@ -2304,8 +2262,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -2728,13 +2686,6 @@
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
     </task>
-    <task id="LOCAL-00016" summary="2.2.12 : Fixed Data toArray">
-      <created>1509609759917</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1509609759917</updated>
-    </task>
     <task id="LOCAL-00017" summary="2.2.12+ : Fixed Test">
       <created>1509611002074</created>
       <option name="number" value="00017" />
@@ -3071,7 +3022,14 @@
       <option name="project" value="LOCAL" />
       <updated>1519959306863</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="2.2.45 : Replaced dynamic assignation for .setProperty">
+      <created>1519959778491</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1519959778491</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3117,14 +3075,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="33" width="1922" height="1165" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19289827" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32954547" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Code Outline" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.7543186" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.7543186" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="23" y="225" width="1320" height="350" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.54823303" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -3143,6 +3101,7 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19289827" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.55930567" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
@@ -3177,7 +3136,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.28 : converted HashMap to Map in Sockets" />
     <MESSAGE value="2.2.28.1: Log output fixed" />
     <MESSAGE value="2.2.29 : Updated groovy-extends to 1.6.4" />
     <MESSAGE value="2.2.29 : Fixed string to date" />
@@ -3202,7 +3160,8 @@
     <MESSAGE value="2.2.43 : Websocket: added replaceOnDuplicate. Cache: renamed exists for contains." />
     <MESSAGE value="2.2.44 : Fixed TCP commands queue (in some cases it was looping)" />
     <MESSAGE value="2.2.45 : Smtp settings override improved. Query code cleaned" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.45 : Smtp settings override improved. Query code cleaned" />
+    <MESSAGE value="2.2.45 : Replaced dynamic assignation for .setProperty" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.45 : Replaced dynamic assignation for .setProperty" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3212,24 +3171,6 @@
           <line>126</line>
           <properties />
           <option name="timeStamp" value="99" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/SmtpTest.groovy</url>
-          <line>50</line>
-          <properties />
-          <option name="timeStamp" value="141" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy</url>
-          <line>77</line>
-          <properties />
-          <option name="timeStamp" value="143" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy</url>
-          <line>76</line>
-          <properties />
-          <option name="timeStamp" value="144" />
         </line-breakpoint>
       </breakpoints>
       <option name="time" value="146" />
@@ -3580,37 +3521,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="8" column="13" lean-forward="false" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="470">
-          <caret line="100" column="84" lean-forward="false" selection-start-line="100" selection-start-column="84" selection-end-line="100" selection-end-column="84" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.spockframework/spock-core/1.1-groovy-2.4/2b08ca54637337988a8da795c6dc3f66d2810ebb/spock-core-1.1-groovy-2.4-sources.jar!/org/spockframework/util/ReflectionUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="192" column="0" lean-forward="false" selection-start-line="192" selection-start-column="0" selection-end-line="192" selection-end-column="0" />
           <folding>
-            <element signature="e#7001#7013#0" expanded="true" />
-            <element signature="e#7014#7015#0" expanded="true" />
+            <element signature="e#7001#7013#0" expanded="false" />
+            <element signature="e#7014#7015#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/net/src/test/groovy/jp/sharelock/net/SmtpTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="34" column="71" lean-forward="false" selection-start-line="34" selection-start-column="71" selection-end-line="34" selection-end-column="71" />
+        <state relative-caret-position="432">
+          <caret line="27" column="26" lean-forward="false" selection-start-line="27" selection-start-column="26" selection-end-line="27" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/jp/sharelock/net/Smtp.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="27" column="18" lean-forward="false" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="22" lean-forward="false" selection-start-line="7" selection-start-column="22" selection-end-line="7" selection-end-column="22" />
           <folding />
         </state>
       </provider>
