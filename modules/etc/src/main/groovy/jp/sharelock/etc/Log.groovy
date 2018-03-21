@@ -24,6 +24,9 @@ final class Log {
         if(Config.hasKey("log.file")) {
             logFile = Config.get("log.file")
         }
+        if(Config.hasKey("log.days")) {
+            logDays = Config.getInt("log.days")
+        }
         if (ANDROID.mLoaded) {
             usePrinter(ANDROID, true)
         } else {
@@ -35,8 +38,10 @@ final class Log {
     //When logFile is not empty, it will export log to that file
     static String logFile = ""
     static String logPath = ""
+    static Date logDate = new Date() //TODO: change to LocalDate
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
     static Level level = Version.get().contains("SNAPSHOT") ? Level.VERBOSE : Level.INFO
+    static int logDays = 30
 
     static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
     static final AndroidPrinter ANDROID = new AndroidPrinter()
@@ -90,7 +95,20 @@ final class Log {
                         logPath += File.separator
                     }
                 }
-                def file = new File(logPath + logFile)
+                Date newDate = new Date()
+                def file = new File(logPath + logDate.toYMD() + "-" + logFile)
+                // Change file and compress if date changed
+                if(newDate.toYMD() != logDate.toYMD()) {
+                    Zip.gzip(file, false)
+                    logDate = newDate
+                    file = new File(logPath + logDate.toYMD() + "-" + logFile)
+                    def logs = new File(logPath + "*-" + logFile).listFiles()
+                    if(logs.size() > logDays) {
+                        logs.sort()?.toList()?.reverse()?.subList(0, logDays)?.each {
+                            it.delete()
+                        }
+                    }
+                }
                 file << (time + "\t" + "[" + level + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
             }
         }
