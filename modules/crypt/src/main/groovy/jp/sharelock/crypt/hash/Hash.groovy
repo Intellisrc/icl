@@ -3,6 +3,15 @@ package jp.sharelock.crypt.hash
 import jp.sharelock.crypt.Crypt
 import jp.sharelock.etc.Bytes
 import jp.sharelock.etc.Log
+import org.bouncycastle.crypto.Digest
+import org.bouncycastle.crypto.digests.MD5Digest
+import org.bouncycastle.crypto.digests.SHA1Digest
+import org.bouncycastle.crypto.digests.SHA224Digest
+import org.bouncycastle.crypto.digests.SHA256Digest
+import org.bouncycastle.crypto.digests.SHA384Digest
+import org.bouncycastle.crypto.digests.SHA512Digest
+import org.bouncycastle.crypto.macs.HMac
+import org.bouncycastle.crypto.params.KeyParameter
 
 import java.security.MessageDigest
 import java.security.Provider
@@ -179,6 +188,67 @@ class Hash extends Crypt implements Hashable {
      */
     void setCost(int costSet) {
         cost = costSet
+    }
+
+    /**
+     * Sign a message with HMAC
+     * @param text
+     * @param algorithm
+     * @return
+     */
+    byte[] sign(final String text, BasicAlgo algorithm) {
+        Digest digest
+        switch (algorithm) {
+            case BasicAlgo.SHA      : digest = new SHA1Digest(); break
+            case BasicAlgo.SHA224   : digest = new SHA224Digest(); break
+            case BasicAlgo.SHA256   : digest = new SHA256Digest(); break
+            case BasicAlgo.SHA384   : digest = new SHA384Digest(); break
+            case BasicAlgo.SHA512   : digest = new SHA512Digest(); break
+            case BasicAlgo.MD5      :
+            default:
+                digest = new MD5Digest(); break
+        }
+        return sign(text, digest)
+    }
+
+    /**
+     * Sign message with specific Digest (not included in the BasicAlgo enum), example:
+     *
+     * sign('hello', new TigerDigest())
+     *
+     * Other algorithms:
+     * GOST3411Digest, MD2Digest, MD4Digest, RIPEMD128Digest, RIPEMD160Digest, RIPEMD256Digest,
+     * RIPEMD320Digest, TigerDigest, WhirlpoolDigest
+     *
+     * @param text
+     * @param digest
+     * @return
+     */
+    byte[] sign(final String text, Digest digest) {
+        HMac hmac = new HMac(digest)
+        hmac.init(new KeyParameter(key))
+        hmac.update(Bytes.fromString(text), 0, text.size())
+        byte[]  resBuf = new byte[digest.getDigestSize()]
+        hmac.doFinal(resBuf, 0)
+        return resBuf
+    }
+    /**
+     * Return Sign as HEX
+     * @param text
+     * @param digest
+     * @return
+     */
+    String signHex(final String text, Digest digest) {
+        return Bytes.toHex(sign(text, digest))
+    }
+    /**
+     * Return Sign as HEX
+     * @param text
+     * @param digest
+     * @return
+     */
+    String signHex(final String text, BasicAlgo algorithm) {
+        return Bytes.toHex(sign(text, algorithm))
     }
 
     /**

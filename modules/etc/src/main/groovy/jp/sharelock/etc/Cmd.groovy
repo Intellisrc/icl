@@ -168,7 +168,7 @@ class Cmd {
                 if (onFail) {
                     onFail.fail(std_err.toString().trim(), exitCode)
                 } else {
-                    Log.e("Commandzzz failed with exit code %d and message: %s", exitCode, std_err.toString())
+                    Log.e("Command failed with exit code %d and message: %s", exitCode, std_err.toString())
                 }
             }
         }
