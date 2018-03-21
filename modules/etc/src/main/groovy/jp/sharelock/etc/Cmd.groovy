@@ -78,7 +78,7 @@ class Cmd {
                     if(onFail) {
                         onFail.fail(totErr, 1)
                     } else {
-                        Log.e("Commandzzz failed with error: %s",totErr)
+                        Log.e("Command failed with error: %s",totErr)
                     }
                 }
             }
@@ -135,7 +135,7 @@ class Cmd {
             exec(cmd, [], onDone, onFail)
         }
         void exec(final String cmd, final List args = [], final Done onDone = null, final Fail onFail = null) {
-            assert cmd: "Invalid Commandzzz"
+            assert cmd: "Invalid Command"
 
             final std_out = new StringBuilder(), std_err = new StringBuilder()
             final prc
