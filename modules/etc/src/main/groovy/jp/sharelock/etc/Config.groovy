@@ -113,6 +113,19 @@ class Config {
     }
 
     /**
+     * Get value as double
+     * @param key
+     * @return
+     */
+    static double getDbl(String key) {
+        String str = get(key)
+        if(str.isEmpty()) {
+            str = "0.0"
+        }
+        return Double.parseDouble(str)
+    }
+
+    /**
      * Get value as boolean
      * @param key
      * @return
