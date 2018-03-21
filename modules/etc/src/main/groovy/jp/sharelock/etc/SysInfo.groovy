@@ -15,7 +15,7 @@ class SysInfo {
      * Returns OS in which the system is installed
      * @param osStr : if not set will read it from localhost
      */
-    static getOS() {
+    static OSType getOS() {
         def osType = OSType.UNKNOWN
         def osStr = System.getProperty("os.name")
         switch(osStr) {
@@ -43,6 +43,13 @@ class SysInfo {
         return usrDir
     }
     /**
+     * Return the User's home directory
+     * @return
+     */
+    static String getHomeDir() {
+        return System.getProperty('user.home') + File.separator
+    }
+    /**
      * Returns the root path of the application
      * @return
      */
@@ -64,54 +71,47 @@ class SysInfo {
      * Identify if OS is Windows
      * @return
      */
-    static isWindows() {
+    static boolean isWindows() {
         return getOS() == OSType.WINDOWS
     }
     /**
      * Identify if OS is Linux (excluding Android)
      * @return
      */
-    static isLinux() {
+    static boolean isLinux() {
         return getOS() == OSType.LINUX
     }
     /**
      * Identify if OS is any Linux including Android
      * @return
      */
-    static isAnyLinux() {
+    static boolean isAnyLinux() {
         return getOS() == OSType.ANDROID || getOS() == OSType.LINUX
     }
     /**
      * Identify if OS is MacOS or iOS
      * @return
      */
-    static isMac() {
+    static boolean isMac() {
         return getOS() == OSType.IOS
     }
     /**
      * Identify if OS is Android
      * @return
      */
-    static isAndroid() {
+    static boolean isAndroid() {
         return getOS() == OSType.ANDROID
     }
     /**
      * Get OS Version
      */
-    static getOSVersion() {
+    static String getOSVersion() {
         return System.getProperty("os.version")
     }
     /**
      * Returns OS Architecture
      */
-    static getOSArch() {
+    static String getOSArch() {
         return System.getProperty("os.arch")
-    }
-    /**
-     * Return the User's home directory
-     * @return
-     */
-    static getHomeDir() {
-        return System.properties.'user.dir'
     }
 }
