@@ -3,7 +3,11 @@ package jp.sharelock.crypt
 import jp.sharelock.crypt.hash.Hash
 import jp.sharelock.etc.Bytes
 import jp.sharelock.etc.Log
+import org.bouncycastle.crypto.digests.TigerDigest
 import spock.lang.Specification
+
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
 /**
  * @since 17/04/11.
@@ -99,5 +103,40 @@ class HashTest extends Specification {
             String hash = Hash.SHA("admin".toCharArray(), 100)
         expect:
             assert hash == "E9336BA3B1F8A49D98C888FD54EE923B3942A4D8"
+    }
+    def "Sign message with HMAC_256"() {
+        given:
+            def key = "secret"
+            def msg = "Message"
+            def hash = new Hash(key: Bytes.fromString(key))
+        expect:
+            def hashed = hash.sign(msg, Hash.BasicAlgo.SHA256)
+            def hashedHex = hash.signHex(msg, Hash.BasicAlgo.SHA256)
+            def otherMethod = hmac_sha256(key, msg)
+            assert hashed == otherMethod
+            assert hashedHex == Bytes.toHex(otherMethod)
+            println hashedHex
+            def asB64 = otherMethod.encodeBase64().toString()
+            assert hashed.encodeBase64().toString() == asB64
+            println asB64
+            assert asB64 == "qnR8UCqJggD55PohusaBNviGoOJ67HC6Btry4qXLVZc="
+    }
+    // Implementation using java.crypto (as reference)
+    def hmac_sha256(String secretKey, String data) {
+        Mac mac = Mac.getInstance("HmacSHA256")
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256")
+        mac.init(secretKeySpec)
+        return mac.doFinal(data.getBytes())
+    }
+
+    def "Sign with custom Digest"() {
+        given:
+        def key = "secret"
+        def msg = "Message"
+        def hash = new Hash(key: Bytes.fromString(key))
+        expect:
+        def hashed = hash.signHex(msg, new TigerDigest())
+        assert hashed
+        println hashed
     }
 }

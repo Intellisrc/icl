@@ -39,6 +39,7 @@ import java.lang.reflect.Method
 @CompileStatic
 abstract class SysService {
     static SysService service
+    static int exitCode = 0
     static void main(String[] args) {
         if(service == null) {
             Log.e("`service` is not defined. To define it, use: \n static {\n     service = new MyClass()\n }\n inside MyClass")
@@ -46,63 +47,74 @@ abstract class SysService {
         }
         def sysSrv = service
         //Process args before starting
-        sysSrv.args = args.toList() as Queue
+        sysSrv.args.addAll(args.toList())
         //Initialize
         sysSrv.onInit()
-        String action = sysSrv.args.isEmpty() ? "start" : sysSrv.args.poll()
+        String action = sysSrv.args.isEmpty() ? "start" : sysSrv.args.first()
         def usrDir = SysInfo.getWritablePath()
         def lockFile = new File(usrDir + sysSrv.lockFile)
+        boolean startService = false
         switch(action) {
             case "stop" :
                 Log.v("Removing lock file")
                 lockFile.delete()
-                System.exit(0)
+                System.exit(exitCode)
                 break
             case "restart":
+                sysSrv.args.poll()
                 sysSrv.onRestart()
                 //no break
             case "start":
-                if(lockFile.exists()) {
-                    Log.v("Lock file was present... removing")
-                    lockFile.delete()
-                    sleep(2000)
+                if(sysSrv.args.first() == "start") {
+                    sysSrv.args.poll()
                 }
-                Log.v("Creating lock file: "+lockFile.toString())
-                lockFile << "ok\n"
+                startService = true
                 sysSrv.onStart()
                 break
             case "status":
-                sysSrv.onStatus(lockFile.exists())
+                sysSrv.args.poll()
+                service.onStatus(lockFile.exists())
                 break
             default:
-                Method m = service.class.getDeclaredMethod("on"+action.capitalize())
-                if(m) {
+                try {
+                    Method m = service.class.getDeclaredMethod("on" + action.capitalize())
                     try {
+                        sysSrv.args.poll()
                         m.invoke(sysSrv)
                     } catch (Exception e) {
                         Log.e("Exception in method: on${action.capitalize()}", e)
                     }
-                } else {
-                    Log.e("Unknown command : "+action)
+                } catch (NoSuchMethodException e) {
+                    startService = true
+                    sysSrv.onStart()
                 }
-                System.exit(1)
                 break
         }
-        Log.i("Waiting for command...")
-        lockFile.deleteOnExit()
-        while(lockFile.exists()) {
-            sleep(1000)
-            sysSrv.onSleep()
+        if(startService) {
+            if(lockFile.exists()) {
+                Log.v("Lock file was present... removing")
+                lockFile.delete()
+                sleep(2000)
+            }
+            Log.v("Creating lock file: "+lockFile.toString())
+            lockFile << "ok\n"
+            Log.i("Waiting for command...")
+            lockFile.deleteOnExit()
+            while(lockFile.exists()) {
+                sleep(1000)
+                sysSrv.onSleep()
+            }
         }
-        sysSrv.onStop()
+        service.onStop()
         System.exit(0)
     }
-    static void exit() {
+    void exit(int code = 0) {
+        exitCode = code
         main("stop")
     }
     //------------------------------ NON STATIC ---------------------------------
     String lockFile = "service.lock"
-    Queue args = [] as Queue
+    final Queue<String> args = [] as Queue<String>
     /**
      * Required to implement onStart()
      */
