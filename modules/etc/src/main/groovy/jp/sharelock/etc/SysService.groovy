@@ -61,25 +61,31 @@ abstract class SysService {
                 System.exit(exitCode)
                 break
             case "restart":
-                sysSrv.args.poll()
+                if(sysSrv.args.size() > 0) {
+                    sysSrv.args.poll()
+                }
                 sysSrv.onRestart()
                 //no break
             case "start":
-                if(sysSrv.args.first() == "start") {
+                if(sysSrv.args.size() > 0 && sysSrv.args.first() == "start") {
                     sysSrv.args.poll()
                 }
                 startService = true
                 sysSrv.onStart()
                 break
             case "status":
-                sysSrv.args.poll()
+                if(sysSrv.args.size() > 0) {
+                    sysSrv.args.poll()
+                }
                 service.onStatus(lockFile.exists())
                 break
             default:
                 try {
                     Method m = service.class.getDeclaredMethod("on" + action.capitalize())
                     try {
-                        sysSrv.args.poll()
+                        if(sysSrv.args.size() > 0) {
+                            sysSrv.args.poll()
+                        }
                         m.invoke(sysSrv)
                     } catch (Exception e) {
                         Log.e("Exception in method: on${action.capitalize()}", e)
