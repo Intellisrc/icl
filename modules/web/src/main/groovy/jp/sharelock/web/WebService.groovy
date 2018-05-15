@@ -280,6 +280,10 @@ class WebService {
                 Object out = ""
                 OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : (sp.contentType.contains("text") ? OutputType.PLAIN : OutputType.BINARY)
                 response.type(sp.contentType)
+                sp.headers.each {
+                    String key, String val ->
+                        response.header(key, val)
+                }
                 if(sp.allow.check(request)) {
                     if(sp.download) {
                         response.header("Content-Disposition", "attachment; filename="+sp.download)
