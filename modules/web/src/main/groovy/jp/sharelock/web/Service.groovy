@@ -53,4 +53,5 @@ class Service {
     Allow allow    = { true } as Allow                            // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String uploadField = "upload"                                 // Name of the HTML input[type=file]
     Upload upload  = null                                         // When uploading files to server, use this parameter
+    Map<String,String> headers = [:]                              // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
 }
