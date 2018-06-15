@@ -2,40 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_xerial_sqlite_jdbc_3_23_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/SQLiteTest.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/crypt/modules-crypt_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/db/modules-db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/etc/etc_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/net/modules-net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/modules/web/modules-web_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Database.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Database.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/SQLite.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/SQLite.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Config.class" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Config.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$AndroidPrinter.class" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$AndroidPrinter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$SystemOutPrinter.class" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log$SystemOutPrinter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/out/production/classes/jp/sharelock/etc/Log.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Log.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Version.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Version.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
     </list>
@@ -213,7 +190,7 @@
         <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/SQLiteTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="360">
-              <caret line="20" column="39" lean-forward="true" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
+              <caret line="20" column="39" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
               <folding>
                 <element signature="e#25#52#0" expanded="true" />
               </folding>
@@ -224,7 +201,7 @@
       <file leaf-file-name="Version.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Version.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
+            <state relative-caret-position="756">
               <caret line="45" selection-start-line="45" selection-end-line="45" />
             </state>
           </provider>
@@ -233,7 +210,7 @@
       <file leaf-file-name="Config.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
+            <state relative-caret-position="1134">
               <caret line="63" selection-start-line="63" selection-end-line="63" />
             </state>
           </provider>
@@ -242,7 +219,7 @@
       <file leaf-file-name="JDBCConnector.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="174">
+            <state relative-caret-position="1854">
               <caret line="117" selection-start-line="117" selection-end-line="117" />
             </state>
           </provider>
@@ -269,7 +246,7 @@
       <file leaf-file-name="Database.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Database.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
+            <state relative-caret-position="630">
               <caret line="35" column="40" selection-start-line="35" selection-start-column="40" selection-end-line="35" selection-end-column="40" />
             </state>
           </provider>
@@ -287,7 +264,7 @@
       <file leaf-file-name="DBPool.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DBPool.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
+            <state relative-caret-position="2142">
               <caret line="119" selection-start-line="119" selection-end-line="119" />
             </state>
           </provider>
@@ -296,7 +273,7 @@
       <file leaf-file-name="PoolConnector.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/PoolConnector.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
+            <state relative-caret-position="702">
               <caret line="42" selection-start-line="42" selection-end-line="42" />
             </state>
           </provider>
@@ -1431,12 +1408,12 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="19680505570000" />
+        <entry key="$PROJECT_DIR$" value="19683206060000" />
         <entry key="$PROJECT_DIR$/.gradle" value="0" />
         <entry key="$PROJECT_DIR$/build.gradle" value="427038882" />
         <entry key="$PROJECT_DIR$/crypt/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/db/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/gradle.properties" value="3037359241" />
+        <entry key="$PROJECT_DIR$/gradle.properties" value="3966522594" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="615277776" />
         <entry key="$PROJECT_DIR$/module/groovy-extend/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/crypt/.gradle" value="0" />
@@ -2298,7 +2275,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -2327,6 +2303,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -2366,7 +2343,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.SQLiteTest.Create database">
+  <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
@@ -2529,10 +2506,10 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.common [artifactoryPublish]" />
         <item itemvalue="JUnit.SQLiteTest.Create database" />
         <item itemvalue="JUnit.JDBCConnectorTest" />
         <item itemvalue="JUnit.PoolConnectorTest" />
-        <item itemvalue="Gradle.common [artifactoryPublish]" />
         <item itemvalue="Gradle.common [publishToMavenLocal]" />
       </list>
     </recent_temporary>
@@ -2544,13 +2521,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00025" summary="2.2.16.6 added boolean to Emai">
-      <created>1510643214737</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1510643214737</updated>
     </task>
     <task id="LOCAL-00026" summary="2.2.16.6 added boolean to Emai">
       <created>1510643221390</created>
@@ -2888,7 +2858,14 @@
       <option name="project" value="LOCAL" />
       <updated>1526349295543</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="2.2.53 : Fixed SQLite and Log/Config initialization errors">
+      <created>1529049683226</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1529049683227</updated>
+    </task>
+    <option name="localTasksCounter" value="75" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -2937,18 +2914,16 @@
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32903227" />
-      <window_info anchor="bottom" id="Messages" order="7" weight="0.19284603" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="3" weight="0.32954547" />
       <window_info anchor="right" id="Code Outline" order="4" />
-      <window_info anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.4631579" />
+      <window_info anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" weight="0.4631579" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.54823303" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Designer" order="2" />
       <window_info anchor="bottom" id="Run with VisualVM" order="8" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1673774" />
-      <window_info anchor="bottom" id="Build" order="9" weight="0.32659408" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1673774" />
       <window_info anchor="bottom" id="Tail" order="10" />
       <window_info anchor="bottom" id="JFrog" order="8" />
       <window_info anchor="right" id="Gradle" order="3" visible="true" weight="0.15511727" />
@@ -2962,7 +2937,9 @@
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Build" order="9" weight="0.32659408" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.55854124" />
+      <window_info anchor="bottom" id="Messages" order="7" weight="0.19284603" />
     </layout>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -2995,7 +2972,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.34 : Fixed gradle.properties" />
     <MESSAGE value="2.2.34.5 : Fixed SysService Error reporting" />
     <MESSAGE value="2.2.34.5 : Added missing @CompileStatic" />
     <MESSAGE value="2.2.34.6 : Fixed Log.e to use Exception" />
@@ -3020,7 +2996,8 @@
     <MESSAGE value="2.2.45.4 : A missign return class and typos" />
     <MESSAGE value="2.2.50 : Config.getDbl added, Log rotate added. Fixed SysService argument management. Added HMCA in crypt" />
     <MESSAGE value="2.2.52 : Added Additional headers to response" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.2.52 : Added Additional headers to response" />
+    <MESSAGE value="2.2.53 : Fixed SQLite and Log/Config initialization errors" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.2.53 : Fixed SQLite and Log/Config initialization errors" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3295,7 +3272,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/Database.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
+        <state relative-caret-position="630">
           <caret line="35" column="40" selection-start-line="35" selection-start-column="40" selection-end-line="35" selection-end-column="40" />
         </state>
       </provider>
@@ -3309,14 +3286,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Version.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
+        <state relative-caret-position="756">
           <caret line="45" selection-start-line="45" selection-end-line="45" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/jp/sharelock/etc/Config.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
+        <state relative-caret-position="1134">
           <caret line="63" selection-start-line="63" selection-end-line="63" />
         </state>
       </provider>
@@ -3337,21 +3314,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/DBPool.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
+        <state relative-caret-position="2142">
           <caret line="119" selection-start-line="119" selection-end-line="119" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/PoolConnector.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
+        <state relative-caret-position="702">
           <caret line="42" selection-start-line="42" selection-end-line="42" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/jp/sharelock/db/JDBCConnector.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
+        <state relative-caret-position="1854">
           <caret line="117" selection-start-line="117" selection-end-line="117" />
         </state>
       </provider>
@@ -3366,7 +3343,7 @@
     <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/jp/sharelock/db/SQLiteTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
-          <caret line="20" column="39" lean-forward="true" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
+          <caret line="20" column="39" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
           <folding>
             <element signature="e#25#52#0" expanded="true" />
           </folding>
