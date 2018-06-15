@@ -1,4 +1,5 @@
 dependencies {
     compile project(':etc')
     compile 'mysql:mysql-connector-java:5.1.40'
+    compile 'org.xerial:sqlite-jdbc:3.23.1'
 }
