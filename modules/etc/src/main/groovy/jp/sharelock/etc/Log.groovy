@@ -14,18 +14,23 @@ import java.lang.reflect.Method
 final class Log {
     //Execute on load
     static {
-        if(Config.hasKey("log.level")) {
-            def sLevel = Config.get("log.level").toUpperCase()
-            level = sLevel.take(1) as Level
+        if(Config.exists()) {
+            if (Config.hasKey("log.level")) {
+                def sLevel = Config.get("log.level").toUpperCase()
+                level = sLevel.take(1) as Level
+            }
+            if (Config.hasKey("log.path")) {
+                logPath = Config.get("log.path")
+            }
+            if (Config.hasKey("log.file")) {
+                logFile = Config.get("log.file")
+            }
+            if (Config.hasKey("log.days")) {
+                logDays = Config.getInt("log.days")
+            }
         }
-        if(Config.hasKey("log.path")) {
-            logPath = Config.get("log.path")
-        }
-        if(Config.hasKey("log.file")) {
-            logFile = Config.get("log.file")
-        }
-        if(Config.hasKey("log.days")) {
-            logDays = Config.getInt("log.days")
+        if(Version.get().contains("SNAPSHOT")) {
+            level = Level.VERBOSE
         }
         if (ANDROID.mLoaded) {
             usePrinter(ANDROID, true)
@@ -40,7 +45,7 @@ final class Log {
     static String logPath = ""
     static Date logDate = new Date() //TODO: change to LocalDate
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
-    static Level level = Version.get().contains("SNAPSHOT") ? Level.VERBOSE : Level.INFO
+    static Level level = Level.INFO
     static int logDays = 30
 
     static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
@@ -213,8 +218,8 @@ final class Log {
         log(Level.ERROR, msg, args)
     }
 
-    private static void log(Level level, String msg, Object... args) {
-        if (level < Log.level) {
+    private static void log(Level lvl, String msg, Object... args) {
+        if (lvl < level) {
             return
         }
         Info stack = stack()
@@ -222,7 +227,7 @@ final class Log {
         Throwable throwable = null
         if(!listArgs.isEmpty() && listArgs.last() instanceof Throwable) {
             throwable = (Throwable) listArgs.poll()
-        } else if(level == Level.ERROR) {
+        } else if(lvl == Level.ERROR) {
             throwable = new Exception("Generic Exception generated in Log")
         }
         print(level, stack, format(msg, listArgs))
@@ -232,7 +237,7 @@ final class Log {
         if(!onLogList.isEmpty()) {
             onLogList.each {
                 OnLog onLog ->
-                    onLog.call(level, format(msg, listArgs), stack)
+                    onLog.call(lvl, format(msg, listArgs), stack)
             }
         }
     }

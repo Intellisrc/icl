@@ -43,7 +43,7 @@ class Version {
                 }
             }
         }
-        if(!version) {
+        if(!version && Config.exists()) {
             version = Config.get("version")
             if(version) {
                 source = Source.CONFIG

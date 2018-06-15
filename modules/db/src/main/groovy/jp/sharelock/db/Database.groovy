@@ -27,13 +27,13 @@ class Database {
         }
     }
     static void quit() {
-        pool.quit()
+        pool?.quit()
     }
     static int getConnections() {
-        return pool.currentConnections
+        return pool?.currentConnections ?: 0
     }
     static boolean isInitialized() {
-        return pool.initialized
+        return pool?.initialized ?: false
     }
     static DB connect() {
         return new PoolConnector(pool).getDB()
