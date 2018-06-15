@@ -10,7 +10,7 @@ class SQLite extends JDBC {
     String dbname = "local.db"
     @Override
     DB.Connector getNewConnection() {
-        connectionString = "sqlite://$dbname"
+        connectionString = "sqlite://localhost/$dbname"
         return new JDBCConnector(connectionString)
     }
 }
