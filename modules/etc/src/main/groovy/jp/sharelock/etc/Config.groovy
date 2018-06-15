@@ -13,6 +13,7 @@ class Config {
     static Properties props = System.getProperties()
     private static Properties config = new Properties()
     private static File configFile
+    private static boolean reload = false
 
     /**
      * Be sure filePath ends with File Separator
@@ -23,10 +24,22 @@ class Config {
             fp += File.separator
         }
         filePath = fp
+        reload = true
+    }
+
+    /**
+     * Change file name
+     * @param fn
+     */
+    static void setFileName(String fn) {
+        fileName = fn
+        reload = true
     }
 
     static update() {
-        configFile = new File(filePath + fileName)
+        if(!configFile || reload) {
+            configFile = new File(filePath + fileName)
+        }
         if(configFile.exists()) {
             if(configFile.canRead()) {
                 config.load(configFile.newDataInputStream())
@@ -39,7 +52,7 @@ class Config {
                 Log.w( "Configuration configFile: "+configFile.toString()+" is not writable. Any attempt to change settings will fail.")
             }
         } else {
-            Log.v( "Configuration not being used ("+configFile.toString()+"). All settings will be loaded from System")
+            Log.v( "Configuration not found ("+configFile.toString()+"). All settings will be loaded from System")
         }
     }
 
@@ -90,11 +103,16 @@ class Config {
 	 */
 	static String get(String key) {
         update()
-        String val = config.getProperty(key)
-        if(val == null) { val = "" }
-        if(val.startsWith('"') || val.startsWith("'")) {
-            Log.w( "Settings in properties files don't need quotes. Please delete them to remove this warning.")
-            val = val.replaceAll(/^["']|["']$/,'')
+        String val = ""
+        if(hasKey(key)) {
+            val = config.getProperty(key)
+            if (val == null) {
+                val = ""
+            }
+            if (val.startsWith('"') || val.startsWith("'")) {
+                Log.w("Settings in properties files don't need quotes. Please delete them to remove this warning.")
+                val = val.replaceAll(/^["']|["']$/, '')
+            }
         }
         return val
 	}

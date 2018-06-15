@@ -92,7 +92,7 @@ class JDBCConnector implements Connector {
                 type = url.scheme.toUpperCase() as DBType
                 host = url.host
                 port = url.port ?: (type == MYSQL ? 3306 : 5432)
-                def userpass = url.userInfo.split(":")
+                def userpass = url.userInfo?.split(":")
                 if(userpass) {
                     user = userpass[0]
                     pass = userpass[1]
@@ -128,7 +128,10 @@ class JDBCConnector implements Connector {
         def stype = type.toString().toLowerCase()
         switch (type) {
             case SQLITE:
-                url += "${stype}:${dbname}.db"
+				if(!dbname.endsWith(".db")) {
+					dbname += ".db"
+				}
+                url += "${stype}:${dbname}"
                 break
             case POSGRESQL:
             case MYSQL:
