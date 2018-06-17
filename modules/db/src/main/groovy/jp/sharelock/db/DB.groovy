@@ -124,6 +124,15 @@ class DB {
         return exec_get()
     }
     /**
+     * Returns rows which matches specified ids
+	 * @param ids
+	 * @return 
+     **/
+    Data get(LocalDateTime date) {
+        getQuery().setAction(Query.Action.SELECT).setWhere(date)
+        return exec_get()
+    }
+    /**
      * Returns rows based in criteria (key : value)
 	 * @param keyvals
 	 * @return 
