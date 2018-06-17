@@ -2,6 +2,7 @@ package jp.sharelock.db
 
 import jp.sharelock.etc.Log
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 import static jp.sharelock.db.DB.ColumnType.*
@@ -129,6 +130,15 @@ class DB {
 	 * @return 
      **/
     Data get(LocalDateTime date) {
+        getQuery().setAction(Query.Action.SELECT).setWhere(date)
+        return exec_get()
+    }
+    /**
+     * Returns rows which matches specified ids
+     * @param ids
+     * @return
+     **/
+    Data get(LocalDate date) {
         getQuery().setAction(Query.Action.SELECT).setWhere(date)
         return exec_get()
     }
