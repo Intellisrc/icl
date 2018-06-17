@@ -293,8 +293,13 @@ final class Log {
                     msg = line.substring(0, splitPos)
                     line = line.substring(splitPos)
 
-                    mPrinters.each {
-                        it.print(level, stack, msg)
+                    if(!mPrinters) {
+                        println "No printers registered... check config file"
+                        println msg
+                    } else {
+                        mPrinters.each {
+                            it.print(level, stack, msg)
+                        }
                     }
                 }
         }
