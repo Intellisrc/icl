@@ -5,6 +5,8 @@ import jp.sharelock.etc.Log.Level
 import jp.sharelock.etc.Version
 import groovy.transform.CompileStatic
 
+import java.time.LocalDateTime
+
 /**
  * Send error and security alerts to administrator
  * @since 17/12/27.
@@ -32,7 +34,7 @@ class ErrorMailer {
             Level level, String message, Log.Info info ->
                 // We don't send any issue with the Smtp class as it may loop forever
                 if(level >= minLevel &&! reported.find{ it.className == info.className && it.lineNumber == it.lineNumber }) {
-                    def body  = "Date:" + new Date().toYMDHms() + "\n" +
+                    def body  = "Date:" + LocalDateTime.now().YMDHms + "\n" +
                                 "Message: $message" + "\n" +
                                 "At: " + info.fileName + ":" + info.lineNumber + "\n" +
                                 "Class: " + info.className + "\n" +

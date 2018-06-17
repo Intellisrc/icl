@@ -4,6 +4,8 @@ package jp.sharelock.etc
  */
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @groovy.transform.CompileStatic
 /**
@@ -43,7 +45,7 @@ final class Log {
     //When logFile is not empty, it will export log to that file
     static String logFile = ""
     static String logPath = ""
-    static Date logDate = new Date() //TODO: change to LocalDate
+    static LocalDate logDate = LocalDate.now()
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
     static Level level = Level.INFO
     static int logDays = 30
@@ -92,7 +94,7 @@ final class Log {
         @Override
         void print(Level level, Info stack, String msg) {
             if(logFile) {
-                String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
+                String time = LocalDateTime.now().YMDHmsS
                 if(!(logPath && new File(logPath).canWrite())) {
                     logPath = SysInfo.getWritablePath()
                 } else {
@@ -100,13 +102,13 @@ final class Log {
                         logPath += File.separator
                     }
                 }
-                Date newDate = new Date()
-                def file = new File(logPath + logDate.toYMD() + "-" + logFile)
+                LocalDate newDate = LocalDate.now()
+                def file = new File(logPath + logDate.YMD + "-" + logFile)
                 // Change file and compress if date changed
-                if(newDate.toYMD() != logDate.toYMD()) {
+                if(newDate != logDate) {
                     Zip.gzip(file, false)
                     logDate = newDate
-                    file = new File(logPath + logDate.toYMD() + "-" + logFile)
+                    file = new File(logPath + logDate.YMD + "-" + logFile)
                     def logs = new File(logPath + "*-" + logFile).listFiles()
                     if(logs.size() > logDays) {
                         logs.sort()?.toList()?.reverse()?.subList(0, logDays)?.each {
@@ -134,7 +136,7 @@ final class Log {
         }
         @Override
         void print(Level level, Info stack, String msg) {
-            String time = new Date().toString("yyyy-MM-dd HH:mm:ss.SSS")
+            String time = LocalDateTime.now().format("yyyy-MM-dd HH:mm:ss.SSS")
             if(SysInfo.isLinux() && color) {
                 println(time+" [" + getColor(level) + level + ANSI_RESET + "] " +
                         ANSI_GREEN + stack.className + ANSI_RESET +
