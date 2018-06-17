@@ -1,6 +1,8 @@
 package jp.sharelock.db
 
 import jp.sharelock.etc.Log
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @groovy.transform.CompileStatic
 /**
@@ -10,6 +12,7 @@ import jp.sharelock.etc.Log
  * @since 17/03/02.
  */
 class DummyConnector implements DB.Connector {
+    static String datePattern = "yyyy-MM-dd HH:mm:ss"
     private connected = false
     private opened = false
     long lastUsed = 0
@@ -71,7 +74,7 @@ class DummyConnector implements DB.Connector {
                     case String : type = DB.ColumnType.TEXT; break
                     case Integer: type = DB.ColumnType.INTEGER; break
                     case Double : type = DB.ColumnType.DOUBLE; break
-                    case Date : type = DB.ColumnType.DATE; break
+                    case LocalDateTime : type = DB.ColumnType.DATE; break
                 }
             }
             return type
@@ -94,8 +97,8 @@ class DummyConnector implements DB.Connector {
             return Double.parseDouble(columnStr(index))
         }
 
-        Date columnDate(int index) {
-            return columnStr(index).fromYMDHms()
+        LocalDateTime columnDate(int index) {
+            return LocalDateTime.parse(columnStr(index), DateTimeFormatter.ofPattern(datePattern))
         }
 
         byte[] columnBlob(int index) {
