@@ -6,6 +6,8 @@ import jp.sharelock.db.DB.Connector
 import jp.sharelock.db.DB.ColumnType
 import jp.sharelock.db.DB.DBType
 
+import java.sql.Timestamp
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -213,9 +215,11 @@ class JDBCConnector implements Connector {
 					st.setBytes(index, (byte[]) o)
 				} else if (o instanceof String) {
 					st.setString(index, (String) o)
+				} else if (o instanceof LocalDate) {
+					st.setDate(index, java.sql.Date.valueOf(o))
 				} else if (o instanceof LocalDateTime) {
 					long millis = o.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-					st.setDate(index, new java.sql.Date(millis))
+					st.setTimestamp(index, new Timestamp(millis))
 				} else {
 					st.setNull(index, NULL)
 					Log.e( "Wrong data type: " + o)

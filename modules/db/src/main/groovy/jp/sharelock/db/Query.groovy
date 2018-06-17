@@ -3,6 +3,7 @@ package jp.sharelock.db
 import jp.sharelock.etc.Log
 import jp.sharelock.db.DB.DBType
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 import static jp.sharelock.db.DB.DBType.*
@@ -146,6 +147,13 @@ class Query {
             argList << it
         }
         whereStr += sqlName(key) + " IN ("+marks+")"
+        return this
+    }
+
+    Query setWhere(final LocalDate where) {
+        String key = getKey() //For the moment no multiple keys allowed
+        whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+        argList << where
         return this
     }
 
