@@ -5,6 +5,9 @@ import jp.sharelock.etc.Log
 import jp.sharelock.db.DB.Connector
 import jp.sharelock.db.DB.ColumnType
 import jp.sharelock.db.DB.DBType
+
+import java.time.LocalDateTime
+
 import static jp.sharelock.db.DB.DBType.*
 import static jp.sharelock.db.Query.Action.*
 
@@ -363,9 +366,9 @@ class JDBCConnector implements Connector {
 				}
 
 				@Override
-				Date columnDate(int index) {
+				LocalDateTime columnDate(int index) {
 					try {
-						return rs.getTimestamp(index)
+						return rs.getTimestamp(index).toLocalDateTime()
 					} catch (SQLException ex) {
 						Log.e( "column Date failed: ",ex)
 						return null

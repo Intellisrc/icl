@@ -1,6 +1,9 @@
 package jp.sharelock.db
 
 import jp.sharelock.etc.Log
+
+import java.time.LocalDateTime
+
 import static jp.sharelock.db.DB.ColumnType.*
 
 @groovy.transform.CompileStatic
@@ -61,7 +64,7 @@ class DB {
 		String columnStr(int index)
 		Integer columnInt(int index)
 		Double columnDbl(int index)
-		Date columnDate(int index)
+		LocalDateTime columnDate(int index)
 		byte[] columnBlob(int index)
 		boolean isColumnNull(int index)
 	}

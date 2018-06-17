@@ -6,6 +6,9 @@ import jp.sharelock.web.Service
 import jp.sharelock.web.ServiciableSingle
 import spark.Request
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 /**
  * @since 10/19/17.
  */
@@ -36,15 +39,15 @@ class LogService implements ServiciableSingle {
                             def filtered = logs.findAll {
                                 String line ->
                                     def parts = line.split("\t")
-                                    Date lTime = parts.first().fromYMDHms()
+                                    LocalDateTime lTime = parts.first().toDateTime()
                                     def inc = true
                                     if(from) {
-                                        Date dFrom = from.fromYMDHms()
-                                        inc = lTime.time >= dFrom.time
+                                        LocalDateTime dFrom = from.toDateTime()
+                                        inc = lTime >= dFrom
                                     }
                                     if(inc && to) {
-                                        Date dTo = to.fromYMDHms()
-                                        inc = lTime.time <= dTo.time
+                                        LocalDateTime dTo = to.toDateTime()
+                                        inc = lTime <= dTo
                                     }
                                     if(inc && keyword) {
                                         inc = line.contains(keyword)
