@@ -16,10 +16,13 @@ import java.time.LocalDateTime
 final class Log {
     //Execute on load
     static {
+        if(Version.get().contains("SNAPSHOT")) {
+            level = Level.VERBOSE
+        }
         if(Config.exists()) {
             if (Config.hasKey("log.level")) {
                 def sLevel = Config.get("log.level").toUpperCase()
-                level = sLevel.take(1) as Level
+                level = sLevel as Level
             }
             if (Config.hasKey("log.path")) {
                 logPath = Config.get("log.path")
@@ -30,9 +33,6 @@ final class Log {
             if (Config.hasKey("log.days")) {
                 logDays = Config.getInt("log.days")
             }
-        }
-        if(Version.get().contains("SNAPSHOT")) {
-            level = Level.VERBOSE
         }
         if (ANDROID.mLoaded) {
             usePrinter(ANDROID, true)
