@@ -6,7 +6,7 @@ for F in $(find -name *.groovy); do
 	base=$(basename $F);
 	with=$(find $compare_with -name "$base")
 	if [[ $with != "" ]]; then
-		diffwith=$(diff $F $with | egrep -v "sharelock|inspeedia" | egrep "^[>|<]");
+		diffwith=$(diff $F $with | egrep -v "intellisrc|inspeedia" | egrep "^[>|<]");
 		if [[ $diffwith != "" ]]; then
 			echo -e "\e[39m"
 			echo -e "\e[36m${F} ..."

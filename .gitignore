@@ -21,10 +21,10 @@ modules/db/out/production/classes/jp/sharelock/db/Query$_getSort_closure1.class
 modules/db/out/test/classes/jp/sharelock/db/JDBCConnectorTest.class
 modules/etc/build/classes/
 modules/etc/build/libs/
-modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.LogTest.html
-modules/etc/build/reports/tests/test/classes/jp.sharelock.etc.SysServiceTest.html
-modules/etc/build/test-results/test/TEST-jp.sharelock.etc.LogTest.xml
-modules/etc/build/test-results/test/TEST-jp.sharelock.etc.SysServiceTest.xml
+modules/etc/build/reports/tests/test/classes/LogTest.html
+modules/etc/build/reports/tests/test/classes/SysServiceTest.html
+modules/etc/build/test-results/test/TEST-LogTest.xml
+modules/etc/build/test-results/test/TEST-SysServiceTest.xml
 modules/etc/build/tmp/compileGroovy/
 modules/etc/build/tmp/compileTestGroovy/
 modules/etc/build/tmp/test/
@@ -59,8 +59,8 @@ modules/net/build/libs/
 modules/net/build/reports/tests/test/classes/
 modules/net/build/reports/tests/test/packages/
 modules/net/build/resources/
-modules/net/build/test-results/test/TEST-jp.sharelock.net.SmtpTest.xml
-modules/net/build/test-results/test/TEST-jp.sharelock.net.TCPClientServerTest.xml
+modules/net/build/test-results/test/TEST-SmtpTest.xml
+modules/net/build/test-results/test/TEST-TCPClientServerTest.xml
 modules/net/build/tmp/compileGroovy/
 modules/net/build/tmp/compileTestGroovy/
 modules/net/build/tmp/test/
