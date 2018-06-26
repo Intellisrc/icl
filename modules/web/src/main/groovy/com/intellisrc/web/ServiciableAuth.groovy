@@ -1,0 +1,14 @@
+package com.intellisrc.web
+
+import spark.Request
+
+@groovy.transform.CompileStatic
+/**
+ * @since 17/04/03.
+ */
+interface ServiciableAuth extends Serviciable {
+    String getLoginPath()
+    String getLogoutPath()
+    Map<String, Object> onLogin(Request request)
+    boolean onLogout()
+}
