@@ -37,7 +37,6 @@ class Console {
     static private ScheduledFuture timer
     static private boolean timerRunning = false
     static private final List<Consolable> consoles = []
-    static private final List<String> completeList = []
 
     static protected boolean running = true
 
@@ -73,12 +72,7 @@ class Console {
             consoles << new ConsoleDefault()
         }
         // Get the auto complete list
-        consoles.each {
-            Consolable console ->
-                console.onInit()
-                completeList.addAll(console.autoCompleteList)
-        }
-        reader.completer = new StringsCompleter(completeList as String[])
+        updateAutoComplete()
         while(running) {
             if(line) {
                 running = false
@@ -118,9 +112,14 @@ class Console {
      * Add a word to the autocomplete list
      * @param word
      */
-    static void addAutoComplete(String word) {
-        completeList << word
-        reader.completer = new StringsCompleter(completeList.unique() as String[])
+    static void updateAutoComplete() {
+        final List<String> completeList = []
+        consoles.each {
+            Consolable console ->
+                console.onInit()
+                completeList.addAll(console.autoCompleteList)
+        }
+        reader.completer = new StringsCompleter(completeList as String[])
     }
 
     /**
