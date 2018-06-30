@@ -1,7 +1,7 @@
 package com.intellisrc.crypt
 
 import com.intellisrc.etc.Bytes
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import org.bouncycastle.crypto.digests.TigerDigest
 import spock.lang.Specification
 

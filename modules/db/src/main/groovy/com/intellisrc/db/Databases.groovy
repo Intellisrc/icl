@@ -1,7 +1,7 @@
 package com.intellisrc.db
 
 import groovy.transform.CompileStatic
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 
 /**
  * When using more than one database in an application,

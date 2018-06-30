@@ -1,5 +1,6 @@
 package com.intellisrc.crypt
 
+import com.intellisrc.crypt.encode.AES
 import com.intellisrc.etc.Bytes
 import spock.lang.Specification
 
@@ -9,7 +10,7 @@ import spock.lang.Specification
 class AESTest extends Specification {
     def "AES Simple"() {
         given:
-            com.intellisrc.crypt.encode.AES aes = new com.intellisrc.crypt.encode.AES()
+            AES aes = new AES()
             def secret = "Hello Earth!"
         when:
             def encodedBytes = aes.encrypt(secret.getBytes())
@@ -24,7 +25,7 @@ class AESTest extends Specification {
     def "AES Decrypt Message"() {
         given:
             def key = "584F5A53487853313550577939666B37665973623145516D37327655347A4F43"
-            com.intellisrc.crypt.encode.AES aes = new com.intellisrc.crypt.encode.AES(key : Bytes.fromHex(key))
+            AES aes = new AES(key : Bytes.fromHex(key))
         when:
             def encoded = "36BE9734BF441E4260D86A2833FAFD7F071B68B18BD36E26BA44CBBC334922A5"
             def decoded = aes.decrypt(Bytes.fromHex(encoded))
@@ -35,7 +36,7 @@ class AESTest extends Specification {
     }
     def "AES Multiple"() {
         given:
-            com.intellisrc.crypt.encode.AES aes = new com.intellisrc.crypt.encode.AES()
+            AES aes = new AES()
             def secret1 = "Hello Earth!"
             def secret2 = "Hello Earth!"
         when:

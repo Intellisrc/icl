@@ -1,5 +1,6 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 import java.util.zip.GZIPInputStream

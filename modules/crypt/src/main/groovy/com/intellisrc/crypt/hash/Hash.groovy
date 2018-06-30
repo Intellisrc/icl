@@ -1,7 +1,7 @@
 package com.intellisrc.crypt.hash
 
 import com.intellisrc.etc.Bytes
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import org.bouncycastle.crypto.Digest
 import org.bouncycastle.crypto.digests.MD5Digest
 import org.bouncycastle.crypto.digests.SHA1Digest

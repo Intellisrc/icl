@@ -20,6 +20,8 @@
       <module name=".._web_test" target="1.8" />
       <module name="common_main" target="1.8" />
       <module name="common_test" target="1.8" />
+      <module name="core_main" target="1.8" />
+      <module name="core_test" target="1.8" />
       <module name="crypt_main" target="1.8" />
       <module name="crypt_test" target="1.8" />
       <module name="db_main" target="1.8" />
@@ -30,10 +32,14 @@
       <module name="groovy-extend_test" target="1.8" />
       <module name="lib-etc_main" target="1.8" />
       <module name="lib-etc_test" target="1.8" />
+      <module name="modules-core_main" target="1.8" />
+      <module name="modules-core_test" target="1.8" />
       <module name="modules-crypt_main" target="1.8" />
       <module name="modules-crypt_test" target="1.8" />
       <module name="modules-db_main" target="1.8" />
       <module name="modules-db_test" target="1.8" />
+      <module name="modules-etc_main" target="1.8" />
+      <module name="modules-etc_test" target="1.8" />
       <module name="modules-groovy-extend_main" target="1.8" />
       <module name="modules-groovy-extend_test" target="1.8" />
       <module name="modules-net_main" target="1.8" />
@@ -42,6 +48,8 @@
       <module name="modules-os_test" target="1.8" />
       <module name="modules-srv_main" target="1.8" />
       <module name="modules-srv_test" target="1.8" />
+      <module name="modules-tools_main" target="1.8" />
+      <module name="modules-tools_test" target="1.8" />
       <module name="modules-web_main" target="1.8" />
       <module name="modules-web_test" target="1.8" />
       <module name="net_main" target="1.8" />
@@ -50,6 +58,8 @@
       <module name="os_test" target="1.8" />
       <module name="srv_main" target="1.8" />
       <module name="srv_test" target="1.8" />
+      <module name="tools_main" target="1.8" />
+      <module name="tools_test" target="1.8" />
       <module name="web_main" target="1.8" />
       <module name="web_test" target="1.8" />
     </bytecodeTargetLevel>

@@ -1,6 +1,6 @@
 package com.intellisrc.web
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import org.eclipse.jetty.websocket.api.WriteCallback
 
 import java.util.concurrent.ConcurrentLinkedQueue

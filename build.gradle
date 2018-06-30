@@ -59,7 +59,7 @@ subprojects {
                 publications('mavenJava')
                 publishArtifacts = true
                 // Properties to be attached to the published artifacts.
-                properties = ['qa.level': 'basic', 'dev.team' : 'core']
+                properties = ['qa.level': 'basic', 'dev.team' : 'etc']
                 // Publish generated POM files to Artifactory (true by default)
                 publishPom = true
             }

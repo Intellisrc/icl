@@ -1,6 +1,6 @@
 package com.intellisrc.net
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 
 /**
  * @since 12/29/17.

@@ -1,15 +1,17 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
+import com.intellisrc.web.Service
+import com.intellisrc.web.ServiciableSingle
 import spark.Request
 import spark.Response
 
 /**
  * @since 17/04/19.
  */
-class IDService implements com.intellisrc.web.ServiciableSingle {
-    com.intellisrc.web.Service getService() {
-        return new com.intellisrc.web.Service(
+class IDService implements ServiciableSingle {
+    Service getService() {
+        return new Service(
             cacheTime: 10,
             cacheExtend: true,
             action: {
@@ -28,7 +30,7 @@ class IDService implements com.intellisrc.web.ServiciableSingle {
                     i : id,
                     t : new Date().time
                 ]
-            } as com.intellisrc.web.Service.ActionRequestResponse
+            } as Service.ActionRequestResponse
         )
     }
 
