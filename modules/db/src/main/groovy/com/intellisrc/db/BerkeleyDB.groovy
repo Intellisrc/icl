@@ -238,6 +238,22 @@ class BerkeleyDB {
     }
 
     /**
+     * Returns true if database has no records
+     * @return
+     */
+    boolean isEmpty() {
+        return dbB.count() > 0
+    }
+
+    /**
+     * Returns number of records
+     * @return
+     */
+    long getSize() {
+        return dbB.count()
+    }
+
+    /**
      * Close link
      */
     void close() {

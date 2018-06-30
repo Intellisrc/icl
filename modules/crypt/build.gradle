@@ -1,5 +1,4 @@
 dependencies {
-    compile project(':core')
     compile project(':etc')
     compile 'org.bouncycastle:bcprov-jdk15on:1.56'
 }
