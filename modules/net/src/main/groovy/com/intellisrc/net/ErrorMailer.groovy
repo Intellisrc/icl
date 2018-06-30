@@ -1,8 +1,8 @@
 package com.intellisrc.net
 
-import com.intellisrc.etc.Log
-import com.intellisrc.etc.Log.Level
-import com.intellisrc.etc.Version
+import com.intellisrc.core.Log
+import com.intellisrc.core.Log.Level
+import com.intellisrc.core.Version
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime

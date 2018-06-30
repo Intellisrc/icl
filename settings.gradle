@@ -1,14 +1,18 @@
 rootProject.name = 'common'
 
+include ":core"
 include ":etc"
 include ":crypt"
 include ":db"
 include ":net"
 include ":web"
+include ":tools"
 
+project(':core').projectDir = new File(rootProject.projectDir, 'modules/core')
 project(':etc').projectDir = new File(rootProject.projectDir, 'modules/etc')
 project(':crypt').projectDir = new File(rootProject.projectDir, 'modules/crypt')
 project(':db').projectDir = new File(rootProject.projectDir, 'modules/db')
 project(':net').projectDir = new File(rootProject.projectDir, 'modules/net')
 project(':web').projectDir = new File(rootProject.projectDir, 'modules/web')
+project(':tools').projectDir = new File(rootProject.projectDir, 'modules/tools')
 

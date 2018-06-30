@@ -1,6 +1,6 @@
 package com.intellisrc.db
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
