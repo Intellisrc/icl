@@ -1,6 +1,6 @@
 package com.intellisrc.web.services
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import com.intellisrc.web.Service
 
 /**

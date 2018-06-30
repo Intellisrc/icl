@@ -1,6 +1,6 @@
 package com.intellisrc.crypt.encode
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import org.bouncycastle.crypto.CipherParameters
 import org.bouncycastle.crypto.engines.AESEngine
 import org.bouncycastle.crypto.modes.CBCBlockCipher

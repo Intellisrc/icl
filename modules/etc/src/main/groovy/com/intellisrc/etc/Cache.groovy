@@ -1,5 +1,7 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Log
+
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 

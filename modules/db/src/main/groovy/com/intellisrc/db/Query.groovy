@@ -1,6 +1,6 @@
 package com.intellisrc.db
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import com.intellisrc.db.DB.DBType
 
 import java.time.LocalDate

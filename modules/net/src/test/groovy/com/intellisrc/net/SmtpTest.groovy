@@ -1,8 +1,8 @@
 package com.intellisrc.net
 
-import com.intellisrc.etc.Config
-import com.intellisrc.etc.Log
-import com.intellisrc.etc.SysInfo
+import com.intellisrc.core.Config
+import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import spock.lang.Specification
 
 /**

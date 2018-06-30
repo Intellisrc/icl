@@ -1,5 +1,8 @@
 package com.intellisrc.web.samples
 
+import com.intellisrc.web.JSON
+import com.intellisrc.web.WebSocketServiceClient
+
 import java.util.zip.GZIPInputStream
 
 /**
@@ -11,7 +14,7 @@ class StackOverflowChatClient {
     static void Connect() {
         String uname = "StackBOT"
         int timeout = 0
-        def wssc = new com.intellisrc.web.WebSocketServiceClient(
+        def wssc = new WebSocketServiceClient(
                 //hostname: "localhost",
                 //port : 8888,
                 path : "chat?user=$uname"
@@ -25,7 +28,7 @@ class StackOverflowChatClient {
                     String toSend = URLEncoder.encode(message, "UTF-8")
                     byte[] gziped = "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=relevance&q=$toSend&accepted=True&site=stackoverflow".toURL().getBytes()
                     GZIPInputStream gzip = new GZIPInputStream (new ByteArrayInputStream (gziped))
-                    def response = com.intellisrc.web.JSON.toMap(gzip.getText("UTF-8"))
+                    def response = JSON.decode(gzip.getText("UTF-8")).toMap()
                     def firstItem = response.items.each {
                         String title = it.title
                         String link = it.link

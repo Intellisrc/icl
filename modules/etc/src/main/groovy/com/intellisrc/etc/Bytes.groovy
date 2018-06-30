@@ -1,5 +1,7 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Log
+
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.Charset
@@ -127,4 +129,17 @@ class Bytes {
         return chars
     }
 
+    /**
+     * Concat two or more byte arrays
+     * @param arrays
+     * @return
+     */
+    static byte[] concat(byte[]... arrays) {
+        def outputStream = new ByteArrayOutputStream()
+        arrays.each {
+            byte[] arr ->
+            outputStream.write(arr)
+        }
+        return outputStream.toByteArray()
+    }
 }
