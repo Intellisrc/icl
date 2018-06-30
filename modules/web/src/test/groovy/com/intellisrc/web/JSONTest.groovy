@@ -46,8 +46,8 @@ class JSONTest extends Specification {
         def obj = "http://localhost".toURL()
         assert JSON.encode(obj) == JsonOutput.toJson(obj)
         println JSON.encode(obj)
-        def date = "2017-01-01".fromYMD()
-        assert JSON.decode(JSON.encode(date)).toDate().toYMD() == date.toYMD()
+        def date = "2017-01-01".toDate()
+        assert JSON.decode(JSON.encode(date)).toDate().YMD == date.YMD
     }
     /**
      * JSON decoding tests
@@ -60,9 +60,9 @@ class JSONTest extends Specification {
             user : 100,
             name : "G. Lucas",
             dates : [
-                "2018-02-12".fromYMD(),
-                "2017-10-14".fromYMD(),
-                "2018-01-08".fromYMD()
+                "2018-02-12".toDate(),
+                "2017-10-14 10:05:34".toDateTime(),
+                "10:30:10".toTime()
             ]
         ]
 
@@ -75,9 +75,9 @@ class JSONTest extends Specification {
         assert map.name == obj.name
         def list = map.dates as List
         assert list.size() == obj.dates.size()
-        list.each {
-            println new Date(it.toString()).toYMD()
-        }
+        assert list[0].toString().toDate().YMD == obj.dates[0].YMD
+        assert list[1].toString().toDateTime().YMDHms == obj.dates[1].YMDHms
+        assert list[2].toString().toTime().HHmmss == obj.dates[2].HHmmss
     }
     /**
      * Test pretty output

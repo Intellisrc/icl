@@ -2,9 +2,9 @@ package com.intellisrc.web
 
 //TODO: redesign security (example code below)
 /*
-import org.pac4j.core.client.Clients
-import org.pac4j.core.config.Config as ConfigPac
-import org.pac4j.core.config.ConfigFactory
+import org.pac4j.etc.client.Clients
+import org.pac4j.etc.config.Config as ConfigPac
+import org.pac4j.etc.config.ConfigFactory
 
 import Config
 import org.pac4j.http.client.direct.DirectBasicAuthClient

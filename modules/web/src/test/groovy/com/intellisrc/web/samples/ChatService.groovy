@@ -1,6 +1,7 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
+import com.intellisrc.web.Session
 import com.intellisrc.web.WebSocketService
 import groovy.transform.CompileStatic
 import com.intellisrc.web.ServiciableWebSocket
@@ -29,7 +30,7 @@ class ChatService implements ServiciableWebSocket {
         return sessionID
     }
 
-    WSMessage onConnect(com.intellisrc.web.Session session) {
+    WSMessage onConnect(Session session) {
         return new WSMessage(
                     user : "System",
                     message : "User : "+session.userID+" connected",
@@ -37,7 +38,7 @@ class ChatService implements ServiciableWebSocket {
                     type : "in"
                 )
     }
-    WSMessage onDisconnect(com.intellisrc.web.Session session, int statusCode, String reason) {
+    WSMessage onDisconnect(Session session, int statusCode, String reason) {
         return new WSMessage(
                     user : "System",
                     message : "User : "+session.userID+" disconnected",
@@ -45,7 +46,7 @@ class ChatService implements ServiciableWebSocket {
                     type : "out"
                 )
     }
-    WSMessage onMessage(com.intellisrc.web.Session session, String message) {
+    WSMessage onMessage(Session session, String message) {
         return new WSMessage(
                     user : session.userID,
                     message : message,
@@ -58,7 +59,7 @@ class ChatService implements ServiciableWebSocket {
         currentList = list
     }
 
-    void onError(com.intellisrc.web.Session session, String message) {
+    void onError(Session session, String message) {
         Log.e( message)
     }
 

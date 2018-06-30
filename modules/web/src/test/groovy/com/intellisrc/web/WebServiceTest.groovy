@@ -1,9 +1,14 @@
 package com.intellisrc.web
 
-import com.intellisrc.etc.Cmd
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Cmd
+import com.intellisrc.core.Log
+import com.intellisrc.web.samples.ChatClient
+import com.intellisrc.web.samples.ChatService
+import com.intellisrc.web.samples.EmailService
 import com.intellisrc.web.samples.IDService
+import com.intellisrc.web.samples.SSLService
 import com.intellisrc.web.samples.StackOverflowChatClient
+import com.intellisrc.web.samples.UploadService
 import spock.lang.Ignore
 import spock.lang.Specification
 
@@ -38,7 +43,7 @@ class WebServiceTest extends Specification {
             assert json
             assert !json.contains("<html>")
         when:
-            def res = JSON.toMap(json)
+            def res = JSON.decode(json).toMap()
         then:
             assert res instanceof Map
             assert res.i == number
@@ -93,7 +98,7 @@ class WebServiceTest extends Specification {
             // Resources set as full path because code is executed under /tst/ usually use above method
             println "RES DIR: $publicDir"
             web.setResources(publicDir, true)
-            web.addService(new com.intellisrc.web.samples.EmailService())
+            web.addService(new EmailService())
         when:
             web.start()
         then:
@@ -120,14 +125,14 @@ class WebServiceTest extends Specification {
             // Resources set as full path because code is executed under /tst/ usually use above method
             println "RES DIR: $publicDir"
             web.setResources(publicDir, true)
-            web.addService(new com.intellisrc.web.samples.UploadService())
+            web.addService(new UploadService())
         when:
             web.start()
         then:
             assert web.isRunning()
         when:
             def emptyGif = publicDir + "empty.gif"
-            def field = com.intellisrc.web.samples.UploadService.fieldName
+            def field = UploadService.fieldName
         then:
             Cmd.exec("curl",["-s", "-F", "$field=@$emptyGif", "http://localhost:$port/upload"], {
                 String out ->
@@ -151,7 +156,7 @@ class WebServiceTest extends Specification {
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             web.setResources(System.getProperty("user.dir") + "/res/public", true)
-            web.addService(new com.intellisrc.web.samples.SSLService())
+            web.addService(new SSLService())
             web.start()
         expect:
             assert web.isRunning()
@@ -170,7 +175,7 @@ class WebServiceTest extends Specification {
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             web.setResources(System.getProperty("user.dir") + "/res/public/", true)
-            web.addService(new com.intellisrc.web.samples.ChatService())
+            web.addService(new ChatService())
             web.start()
         expect:
             assert web.isRunning()
@@ -181,7 +186,7 @@ class WebServiceTest extends Specification {
     @Ignore("Broken")
     def "WebSocket Client"() {
         setup:
-            com.intellisrc.web.samples.ChatClient cc = new com.intellisrc.web.samples.ChatClient()
+            ChatClient cc = new ChatClient()
             cc.Connect()
     }
 

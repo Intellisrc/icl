@@ -1,4 +1,8 @@
 package com.intellisrc.web.samples
+
+import com.intellisrc.web.JSON
+import com.intellisrc.web.WebSocketServiceClient
+
 /**
  * Example of a simple Echo Client.
  * Using:
@@ -18,7 +22,7 @@ class ChatClient
         final int MAX_REPEAT = 30 //Prevent repeating itself
         String uname = "RoboCUP"
         int timeout = QUIT_TIMEOUT
-        com.intellisrc.web.WebSocketServiceClient wssc = new com.intellisrc.web.WebSocketServiceClient(
+        WebSocketServiceClient wssc = new WebSocketServiceClient(
                 //hostname: "localhost",
                 //port : 8888,
                 path : "chat?user=$uname"
@@ -45,7 +49,7 @@ class ChatClient
                     }
                     if(botsay.isEmpty() || last_responses.contains(botsay)) {
                         String toSend = URLEncoder.encode(msg.message, "UTF-8")
-                        def response = com.intellisrc.web.JSON.toMap("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text)
+                        def response = JSON.decode("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text).toMap()
                         botsay = response.botsay
                     }
                     if (botsay.isEmpty() || last_responses.contains(botsay)) {
@@ -56,7 +60,7 @@ class ChatClient
                         }
                         //Last resource to prevent repetition:
                         if(last_responses.contains(botsay)) {
-                            def response = com.intellisrc.web.JSON.toList("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text)
+                            def response = JSON.decode("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text).toList()
                             Map res = (Map) response.first()
                             botsay = res.content
                             if(botsay.isEmpty()) {

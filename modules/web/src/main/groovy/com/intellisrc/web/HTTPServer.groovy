@@ -1,6 +1,6 @@
 package com.intellisrc.web
 
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 
 import java.nio.file.Path
 import java.nio.file.Paths

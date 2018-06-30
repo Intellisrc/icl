@@ -1,6 +1,7 @@
 package com.intellisrc.web.samples
 
 import com.intellisrc.web.Service
+import com.intellisrc.web.ServiciableAuth
 
 /**
  * @since 17/04/19.
@@ -11,7 +12,7 @@ import spark.Request
 /**
  * @since 17/04/03.
  */
-class LoginServiceExample implements com.intellisrc.web.ServiciableAuth {
+class LoginServiceExample implements ServiciableAuth {
 
     static enum Level {
         GUEST, USER, EDITOR, ADMIN

@@ -1,7 +1,7 @@
 package com.intellisrc.web.services
 
 import groovy.transform.CompileStatic
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 import spark.Request
 
 import java.time.LocalDateTime

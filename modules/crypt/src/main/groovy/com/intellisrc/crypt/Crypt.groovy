@@ -1,7 +1,7 @@
 package com.intellisrc.crypt
 
 import com.intellisrc.etc.Bytes
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Log
 
 import java.security.SecureRandom
 

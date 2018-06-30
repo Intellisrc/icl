@@ -1,8 +1,8 @@
 package com.intellisrc.web
 
 import com.intellisrc.etc.CacheObj
-import com.intellisrc.etc.Log
-import com.intellisrc.etc.SysInfo
+import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import static com.intellisrc.web.Service.Method.*
 
 import spark.Request

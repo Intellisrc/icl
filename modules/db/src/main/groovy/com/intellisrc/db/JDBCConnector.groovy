@@ -1,7 +1,7 @@
 package com.intellisrc.db
 
-import com.intellisrc.etc.Config
-import com.intellisrc.etc.Log
+import com.intellisrc.core.Config
+import com.intellisrc.core.Log
 
 import java.sql.Timestamp
 import java.time.LocalDate
