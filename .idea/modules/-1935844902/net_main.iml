@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":net:main" external.linked.project.path="$MODULE_DIR$/../../../../../intellisrc/common/modules/net" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.intellisrc" external.system.module.type="sourceSet" external.system.module.version="2.4.0.5-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":net:main" external.linked.project.path="$MODULE_DIR$/../../../modules/net" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.intellisrc" external.system.module.type="sourceSet" external.system.module.version="2.4.0.8-SNAPSHOT" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output url="file://$MODULE_DIR$/../../../../../intellisrc/common/modules/net/out/production/classes" />
+    <output url="file://$MODULE_DIR$/../../../modules/net/out/production/classes" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../../../intellisrc/common/modules/net/src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../intellisrc/common/modules/net/src/main/groovy" isTestSource="false" />
+    <content url="file://$MODULE_DIR$/../../../modules/net/src/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../modules/net/src/main/groovy" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:1.7.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:1.7.6.3-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="core_main" />
     <orderEntry type="module" module-name="crypt_main" />
     <orderEntry type="library" name="Gradle: javax.mail:mail:1.4.1" level="project" />
