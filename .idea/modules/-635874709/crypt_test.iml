@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":crypt:test" external.linked.project.path="$MODULE_DIR$/../../../../../intellisrc/common/modules/crypt" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.intellisrc" external.system.module.type="sourceSet" external.system.module.version="2.4.0.5-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":crypt:test" external.linked.project.path="$MODULE_DIR$/../../../modules/crypt" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.intellisrc" external.system.module.type="sourceSet" external.system.module.version="2.4.0.8-SNAPSHOT" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output-test url="file://$MODULE_DIR$/../../../../../intellisrc/common/modules/crypt/out/test/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../modules/crypt/out/test/classes" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../../../intellisrc/common/modules/crypt/src/test">
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../intellisrc/common/modules/crypt/src/test/groovy" isTestSource="true" />
+    <content url="file://$MODULE_DIR$/../../../modules/crypt/src/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../modules/crypt/src/test/groovy" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="crypt_main" />
-    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:1.7.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:1.7.6.3-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="etc_main" />
     <orderEntry type="library" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.56" level="project" />
     <orderEntry type="library" name="Gradle: org.spockframework:spock-unitils:1.1-groovy-2.4" level="project" />
