@@ -33,12 +33,11 @@ class Console {
     static final int timeout = Config.getInt("console.timeout") ?: 0
     static final boolean addDefault = Config.getBool("console.default") ?: true
     static LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
+    static final LinkedList<String> lineBuffer = new LinkedList<>()
 
     static private ScheduledFuture timer
     static private boolean timerRunning = false
     static private final List<Consolable> consoles = []
-
-    static protected boolean running = true
 
     /**
      * Execute some code on the background while waiting for input
@@ -60,7 +59,7 @@ class Console {
      * Launches the console and loop indefinitely
      * @param line
      */
-    static void start(String line = "") {
+    static void start(final LinkedList<String> args = new LinkedList<>()) {
         reader.history = new DefaultHistory()
         // Add the default console if nothing has been specified
         if(addDefault) {
@@ -71,14 +70,19 @@ class Console {
             }
             consoles << new ConsoleDefault()
         }
+        String line
+        // Auto init
+        consoles.each {
+            Consolable console ->
+                String local = console.onInit(args.collect() as LinkedList<String>)
+                if(local) {
+                    lineBuffer << local
+                }
+        }
         // Get the auto complete list
         updateAutoComplete()
-        while(running) {
-            if(line) {
-                running = false
-            } else {
-                line = read()
-            }
+        while(true) {
+            line = lineBuffer.empty ? read() : lineBuffer.poll()
             if(timerRunning) {
                 timer.cancel(true)
                 timerRunning = false
@@ -91,7 +95,6 @@ class Console {
                         return !console.onCommand(list.collect() as LinkedList<String>)
                 }
             }
-            line = ""
             reader.terminal.flush()
             if(timeout) {
                 timer = Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
@@ -116,7 +119,6 @@ class Console {
         final List<String> completeList = []
         consoles.each {
             Consolable console ->
-                console.onInit()
                 completeList.addAll(console.autoCompleteList)
         }
         reader.completer = new StringsCompleter(completeList as String[])
