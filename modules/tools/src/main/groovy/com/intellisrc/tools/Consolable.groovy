@@ -12,7 +12,7 @@ interface Consolable {
      * @param arguments : command line arguments or options
      * @return initial command if any
      */
-    String onInit(LinkedList<String> arguments)
+    void onInit(LinkedList<String> arguments)
     /**
      * Get the list of words to use as auto-complete
      * @return
