@@ -33,7 +33,7 @@ class Console {
     static final int timeout = Config.getInt("console.timeout") ?: 0
     static final boolean addDefault = Config.getBool("console.default") ?: true
     static LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
-    static final LinkedList<String> lineBuffer = new LinkedList<>()
+    static final LinkedList<String> commandBuffer = new LinkedList<>()
 
     static private ScheduledFuture timer
     static private boolean timerRunning = false
@@ -74,15 +74,12 @@ class Console {
         // Auto init
         consoles.each {
             Consolable console ->
-                String local = console.onInit(args.collect() as LinkedList<String>)
-                if(local) {
-                    lineBuffer << local
-                }
+                console.onInit(args.collect() as LinkedList<String>)
         }
         // Get the auto complete list
         updateAutoComplete()
         while(true) {
-            line = lineBuffer.empty ? read() : lineBuffer.poll()
+            line = commandBuffer.empty ? read() : commandBuffer.poll()
             if(timerRunning) {
                 timer.cancel(true)
                 timerRunning = false
