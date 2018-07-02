@@ -235,9 +235,9 @@ class Console {
      */
     static void execCommandList(final LinkedList<String> command) {
         if(!command.empty) {
-            consoles.each {
+            consoles.any {
                 Consolable console ->
-                    console.onCommand(command)
+                    return !console.onCommand(command) //continue if "true" is returned
             }
         }
     }
