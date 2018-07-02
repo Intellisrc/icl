@@ -12,11 +12,20 @@ class ConsoleDefault implements Consolable {
     @Override
     void onInit() {}
 
+    /**
+     * Basic commands to auto-complete
+     * @return
+     */
     @Override
     List<String> getAutoCompleteList() {
         return ["exit","quit","clear"]
     }
 
+    /**
+     * Process basic commands
+     * @param commandLine
+     * @return true, which means it will continue to next available Console (controlled in 'Console')
+     */
     @Override
     boolean onCommand(final LinkedList<String> commandLine) {
         if(commandLine) {
@@ -34,6 +43,10 @@ class ConsoleDefault implements Consolable {
         return true
     }
 
+    /**
+     * In case console.timeout setting is set, it will exit automatically
+     * @return
+     */
     @Override
     boolean onTimeOut() {
         Console.execCommand("exit")
