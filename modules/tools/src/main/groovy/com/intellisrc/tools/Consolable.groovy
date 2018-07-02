@@ -9,8 +9,10 @@ import groovy.transform.CompileStatic
 interface Consolable {
     /**
      * Code to execute on initialization
+     * @param arguments : command line arguments or options
+     * @return initial command if any
      */
-    void onInit()
+    String onInit(LinkedList<String> arguments)
     /**
      * Get the list of words to use as auto-complete
      * @return
