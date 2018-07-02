@@ -10,7 +10,9 @@ import groovy.transform.CompileStatic
 class ConsoleDefault implements Consolable {
 
     @Override
-    void onInit() {}
+    String onInit(LinkedList<String> args) {
+        return ""
+    }
 
     /**
      * Basic commands to auto-complete
