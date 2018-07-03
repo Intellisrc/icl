@@ -1,5 +1,7 @@
 package com.intellisrc.web.services
 
+import com.intellisrc.web.Service
+import com.intellisrc.web.ServiciableSingle
 import groovy.transform.CompileStatic
 import com.intellisrc.core.Log
 import spark.Request
@@ -10,7 +12,7 @@ import java.time.LocalDateTime
  * @since 10/19/17.
  */
 @CompileStatic
-class LogService implements com.intellisrc.web.ServiciableSingle {
+class LogService implements ServiciableSingle {
 
     @Override
     String getPath() {
@@ -18,8 +20,8 @@ class LogService implements com.intellisrc.web.ServiciableSingle {
     }
 
     @Override
-    com.intellisrc.web.Service getService() {
-        return new com.intellisrc.web.Service(
+    Service getService() {
+        return new Service(
             action : {
                 Request request ->
                     //specify in Log if we want to export it, then read it here and return it with parameters
@@ -67,7 +69,7 @@ class LogService implements com.intellisrc.web.ServiciableSingle {
                         }
                     }
                     return res
-            } as com.intellisrc.web.Service.ActionRequest
+            } as Service.ActionRequest
         )
     }
 }
