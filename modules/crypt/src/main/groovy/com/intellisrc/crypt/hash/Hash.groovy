@@ -1,5 +1,6 @@
 package com.intellisrc.crypt.hash
 
+import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
 import com.intellisrc.core.Log
 import org.bouncycastle.crypto.Digest
@@ -21,7 +22,7 @@ import java.security.Security
  * @since 17/04/07.
  */
 @groovy.transform.CompileStatic
-class Hash extends com.intellisrc.crypt.Crypt implements Hashable {
+class Hash extends Crypt implements Hashable {
     /**
      * Note: Using cost will reuse the bytes returned to rehash it again
      * This is different than: sha(sha(x)) because sha(x) returns String HEX

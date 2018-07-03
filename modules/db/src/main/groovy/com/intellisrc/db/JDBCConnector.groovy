@@ -2,6 +2,9 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.db.DB.Connector
+import com.intellisrc.db.DB.ColumnType
+import com.intellisrc.db.DB.DBType
 
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -42,7 +45,7 @@ import static java.sql.Types.*
  *
  * @author Alberto Lepe <lepe@intellisrc.com>
  */
-class JDBCConnector implements DB.Connector {
+class JDBCConnector implements Connector {
 	private static int TIMEOUT = 1000
 	private String dbname = ""
 	private String user = ""
@@ -50,7 +53,7 @@ class JDBCConnector implements DB.Connector {
 	private String host = ""
 	private int port
 	private static Connection db
-	private DB.DBType type = JAVADB
+	private DBType type = JAVADB
 	long lastUsed = 0
 
 	/**
@@ -65,7 +68,7 @@ class JDBCConnector implements DB.Connector {
             }
             if(!Config.hasKey("db.jdbc.url")) {
                 if(Config.hasKey("db.type")) {
-                    type = (Config.get("db.type") ?: "mysql").toUpperCase() as DB.DBType
+                    type = (Config.get("db.type") ?: "mysql").toUpperCase() as DBType
                     host = Config.get("db.host") ?: "localhost"
                     user = Config.get("db.user") ?: "root"
                     pass = Config.get("db.pass") ?: ""
@@ -92,7 +95,7 @@ class JDBCConnector implements DB.Connector {
         if(sUrl.contains("://")) {
             try {
                 URI url = new URI(sUrl)
-                type = url.scheme.toUpperCase() as DB.DBType
+                type = url.scheme.toUpperCase() as DBType
                 host = url.host
                 port = url.port ?: (type == MYSQL ? 3306 : 5432)
                 def userpass = url.userInfo?.split(":")
@@ -273,9 +276,9 @@ class JDBCConnector implements DB.Connector {
 				}
 
 				@Override
-				DB.ColumnType columnType(int index) {
+				ColumnType columnType(int index) {
 					try {
-						DB.ColumnType ct = DB.ColumnType.NULL
+						ColumnType ct = ColumnType.NULL
 						switch(rm.getColumnType(index)) {
                             case NCLOB: //N means: Unicode
                             case CLOB: //stores variable-length character data more than 4GB
@@ -285,31 +288,31 @@ class JDBCConnector implements DB.Connector {
 							case VARCHAR:
                             case NCHAR:
 							case CHAR:
-								ct = DB.ColumnType.TEXT; break
+								ct = ColumnType.TEXT; break
 							case INTEGER:
 							case SMALLINT:
 							case TINYINT:
                             case BOOLEAN:
                             case BIT:
-								ct = DB.ColumnType.INTEGER; break
+								ct = ColumnType.INTEGER; break
 							case BIGINT:
 							case FLOAT:
 							case DOUBLE:
 							case DECIMAL:
 							case NUMERIC:
                             case REAL:
-								ct = DB.ColumnType.DOUBLE; break
+								ct = ColumnType.DOUBLE; break
                             case LONGVARBINARY:
                             case VARBINARY:
                             case BINARY:
                             case BLOB:
-								ct = DB.ColumnType.BLOB; break
+								ct = ColumnType.BLOB; break
                             case TIME_WITH_TIMEZONE:
                             case TIMESTAMP_WITH_TIMEZONE:
 							case TIMESTAMP:
                             case TIME:
 							case DATE:
-								ct = DB.ColumnType.DATE; break
+								ct = ColumnType.DATE; break
 							default:
 								Log.e( "Unknown column type: "+rm.getColumnType(index))
 						}
@@ -408,7 +411,7 @@ class JDBCConnector implements DB.Connector {
 	}
 
 	@Override
-	DB.DBType getType() {
+	DBType getType() {
 		return type
 	}
 }

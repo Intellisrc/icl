@@ -1,6 +1,7 @@
 package com.intellisrc.web
 
 import com.intellisrc.core.Log
+import com.intellisrc.web.ServiciableWebSocket.WSMessage
 import org.eclipse.jetty.websocket.api.WriteCallback
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -32,7 +33,7 @@ class WebSocketService {
      * to send their messages in another thread.
      */
     interface MsgBroadCaster {
-        void call(ServiciableWebSocket.WSMessage message, SuccessCallback onSuccess, FailCallback onFail)
+        void call(WSMessage message, SuccessCallback onSuccess, FailCallback onFail)
     }
     interface FailCallback {
         void call(Throwable e)
@@ -45,7 +46,7 @@ class WebSocketService {
      * broadcast outside the main thread
      */
     private final MsgBroadCaster broadCaster = {
-        ServiciableWebSocket.WSMessage wsMessage, SuccessCallback onSuccess, FailCallback onFail ->
+        WSMessage wsMessage, SuccessCallback onSuccess, FailCallback onFail ->
             broadcast(wsMessage, onSuccess, onFail)
     } as MsgBroadCaster
 
@@ -151,7 +152,7 @@ class WebSocketService {
      * if 'to' is set in WSMessage, it will send to specific recipients
      * @param message
      */
-    private void broadcast(ServiciableWebSocket.WSMessage wsMessage, SuccessCallback onSuccess = null, FailCallback onFail = null) {
+    private void broadcast(WSMessage wsMessage, SuccessCallback onSuccess = null, FailCallback onFail = null) {
         if(wsMessage != null) {
             if (wsMessage.to.isEmpty()) {
                 wsMessage.to = getConnected()

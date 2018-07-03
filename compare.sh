@@ -17,4 +17,9 @@ for F in $(find -name *.groovy); do
 		fi
 	fi
 done
+for M in core crypt db etc net tools web; do
+	echo $M
+	rsync --exclude=out --exclude=build -rin --ignore-existing --delete "modules/$M/src/main/groovy/com/intellisrc/$M/" "$compare_with/modules/$M/src/main/groovy/com/inspeedia/common/$M/"
+	rsync --exclude=out --exclude=build -rin --ignore-existing --delete "modules/$M/src/test/groovy/com/intellisrc/$M/" "$compare_with/modules/$M/src/test/groovy/com/inspeedia/common/$M/"
+done
 echo -e "\e[39m"

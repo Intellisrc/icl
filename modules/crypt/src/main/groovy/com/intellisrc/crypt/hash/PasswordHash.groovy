@@ -1,8 +1,11 @@
 package com.intellisrc.crypt.hash
 
+import com.intellisrc.crypt.Crypt
+import com.intellisrc.crypt.Crypt.Complexity
 import com.intellisrc.etc.Bytes
 
 //Sometimes complains
+import org.bouncycastle.crypto.generators.BCrypt
 import org.bouncycastle.crypto.generators.OpenBSDBCrypt
 import org.bouncycastle.crypto.generators.SCrypt
 
@@ -10,7 +13,7 @@ import org.bouncycastle.crypto.generators.SCrypt
  * @since 17/04/07.
  */
 @groovy.transform.CompileStatic
-class PasswordHash extends com.intellisrc.crypt.Crypt implements Hashable {
+class PasswordHash extends Crypt implements Hashable {
     enum Type implements Hashable.hashType {
         BCRYPT, SCRYPT, PBKDF2
         String getCryptHeader() {
