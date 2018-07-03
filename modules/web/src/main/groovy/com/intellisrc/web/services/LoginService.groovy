@@ -1,7 +1,9 @@
 package com.intellisrc.web.services
 
 import com.intellisrc.core.Log
-import com.intellisrc.web.Service
+import com.intellisrc.web.Service.Allow
+import com.intellisrc.web.ServiciableAuth
+import spark.Request
 
 /**
  * Generic class to allow access to private content
@@ -19,10 +21,9 @@ import com.intellisrc.web.Service
  *
  * @since 10/19/17.
  */
-import spark.Request
 
 @groovy.transform.CompileStatic
-class LoginService implements com.intellisrc.web.ServiciableAuth {
+class LoginService implements ServiciableAuth {
     String rootPath  = ""
     String loginPath = "/login"
     String logoutPath = "/logout"
@@ -35,7 +36,7 @@ class LoginService implements com.intellisrc.web.ServiciableAuth {
         return request.session().attribute("level").toString().toUpperCase() as Level
     }
 
-    static final Service.Allow User = {
+    static final Allow User = {
         Request request ->
             if(request.session()) {
                 Level level = request.session().attribute("level").toString().toUpperCase() as Level
@@ -43,8 +44,8 @@ class LoginService implements com.intellisrc.web.ServiciableAuth {
             } else {
                 return false
             }
-    } as Service.Allow
-    static final Service.Allow Moderator = {
+    } as Allow
+    static final Allow Moderator = {
         Request request ->
             if(request.session()) {
                 Level level = request.session().attribute("level").toString().toUpperCase() as Level
@@ -52,8 +53,8 @@ class LoginService implements com.intellisrc.web.ServiciableAuth {
             } else {
                 return false
             }
-    } as Service.Allow
-    static final Service.Allow Admin = {
+    } as Allow
+    static final Allow Admin = {
         Request request ->
             if(request.session()) {
                 Level level = request.session().attribute("level").toString().toUpperCase() as Level
@@ -61,7 +62,7 @@ class LoginService implements com.intellisrc.web.ServiciableAuth {
             } else {
                 return false
             }
-    } as Service.Allow
+    } as Allow
 
     /**
      * This interface will include full request

@@ -3,6 +3,7 @@ package com.intellisrc.web.samples
 import com.intellisrc.core.Log
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableSingle
+import com.intellisrc.web.Service.ActionRequestResponse
 import spark.Request
 import spark.Response
 
@@ -30,7 +31,7 @@ class IDService implements ServiciableSingle {
                     i : id,
                     t : new Date().time
                 ]
-            } as Service.ActionRequestResponse
+            } as ActionRequestResponse
         )
     }
 
