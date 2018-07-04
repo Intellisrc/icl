@@ -2,35 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/BerkeleyDB.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/BerkeleyDB.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -259,11 +232,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BerkeleyDBTest.groovy" pinned="false" current-in-tab="true">
+      <file leaf-file-name="BerkeleyDBTest.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="729">
-              <caret line="56" column="30" selection-start-line="56" selection-start-column="30" selection-end-line="56" selection-end-column="30" />
+            <state relative-caret-position="371">
+              <caret line="44" column="30" selection-start-line="44" selection-start-column="30" selection-end-line="44" selection-end-column="30" />
               <folding>
                 <element signature="e#27#75#0" expanded="true" />
               </folding>
@@ -271,11 +244,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PGPTest.groovy" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PGPTest.groovy" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="411">
-              <caret line="50" column="4" selection-start-line="50" selection-start-column="4" selection-end-line="50" selection-end-column="4" />
+            <state relative-caret-position="478">
+              <caret line="60" column="57" selection-start-line="60" selection-start-column="57" selection-end-line="60" selection-end-column="57" />
               <folding>
                 <element signature="e#30#68#0" expanded="true" />
               </folding>
@@ -2678,13 +2651,13 @@
         <option value="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/build.gradle" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/Crypt.groovy" />
-        <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/BerkeleyDB.groovy" />
         <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" />
         <option value="$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy" />
+        <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" />
       </list>
     </option>
   </component>
@@ -2771,6 +2744,33 @@
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
               <item name="crypt" type="462c0819:PsiDirectoryNode" />
               <item name="encode" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="crypt" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
@@ -2874,7 +2874,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.BerkeleyDBTest.Binary data">
+  <component name="RunManager" selected="JUnit.PGPTest.Separate objects">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
@@ -2944,7 +2944,7 @@
       </option>
       <patterns />
     </configuration>
-    <configuration name="PasswordHashTest.Provided password , default algorithm" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PGPTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="crypt_test" />
       <extension name="coverage">
         <pattern>
@@ -2955,9 +2955,9 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="com.intellisrc.crypt" />
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.PasswordHashTest" />
-      <option name="METHOD_NAME" value="Provided password , default algorithm" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.PGPTest" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -2967,7 +2967,7 @@
       </option>
       <patterns />
     </configuration>
-    <configuration name="PasswordHashTest.Using NO-HEADER" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="PGPTest.Separate objects" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="crypt_test" />
       <extension name="coverage">
         <pattern>
@@ -2978,8 +2978,8 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="com.intellisrc.crypt" />
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.PasswordHashTest" />
-      <option name="METHOD_NAME" value="Using NO-HEADER" />
+      <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.PGPTest" />
+      <option name="METHOD_NAME" value="Separate objects" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
@@ -3039,19 +3039,19 @@
       <listeners />
     </configuration>
     <list>
-      <item itemvalue="JUnit.PasswordHashTest.Using NO-HEADER" />
-      <item itemvalue="JUnit.PasswordHashTest.Provided password , default algorithm" />
       <item itemvalue="Gradle.common [publishToMavenLocal]" />
       <item itemvalue="JUnit.BerkeleyDBTest.General test" />
       <item itemvalue="JUnit.BerkeleyDBTest.Binary data" />
+      <item itemvalue="JUnit.PGPTest" />
+      <item itemvalue="JUnit.PGPTest.Separate objects" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PGPTest.Separate objects" />
+        <item itemvalue="JUnit.PGPTest" />
         <item itemvalue="JUnit.BerkeleyDBTest.Binary data" />
         <item itemvalue="Gradle.common [publishToMavenLocal]" />
         <item itemvalue="JUnit.BerkeleyDBTest.General test" />
-        <item itemvalue="JUnit.PasswordHashTest.Provided password , default algorithm" />
-        <item itemvalue="JUnit.PasswordHashTest.Using NO-HEADER" />
       </list>
     </recent_temporary>
   </component>
@@ -3062,13 +3062,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00044" summary="2.2.30 : Upgraded groovy-extend">
-      <created>1513052781284</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1513052781284</updated>
     </task>
     <task id="LOCAL-00045" summary="2.2.31 : Removed dependency on Android">
       <created>1513068899283</created>
@@ -3406,25 +3399,17 @@
       <option name="project" value="LOCAL" />
       <updated>1530684767732</updated>
     </task>
-    <option name="localTasksCounter" value="93" />
+    <task id="LOCAL-00093" summary="2.4.5 Added test for BerkeleyDB">
+      <created>1530688999878</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1530688999878</updated>
+    </task>
+    <option name="localTasksCounter" value="94" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="BerkeleyDBTest_General_test - 2018.07.04 at 13h 58m 10s.xml">
-      <configuration name="BerkeleyDBTest.General test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="BerkeleyDBTest_General_test - 2018.07.04 at 13h 59m 56s.xml">
-      <configuration name="BerkeleyDBTest.General test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="BerkeleyDBTest_General_test - 2018.07.04 at 13h 59m 58s.xml">
-      <configuration name="BerkeleyDBTest.General test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="BerkeleyDBTest_General_test - 2018.07.04 at 14h 00m 02s.xml">
-      <configuration name="BerkeleyDBTest.General test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="BerkeleyDBTest_General_test - 2018.07.04 at 15h 07m 24s.xml">
-      <configuration name="BerkeleyDBTest.General test" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="BerkeleyDBTest_General_test - 2018.07.04 at 15h 09m 47s.xml">
       <configuration name="BerkeleyDBTest.General test" configurationId="JUnit" />
     </history-entry>
@@ -3439,6 +3424,21 @@
     </history-entry>
     <history-entry file="BerkeleyDBTest_Binary_data - 2018.07.04 at 16h 21m 40s.xml">
       <configuration name="BerkeleyDBTest.Binary data" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="BerkeleyDBTest_Binary_data - 2018.07.04 at 16h 22m 46s.xml">
+      <configuration name="BerkeleyDBTest.Binary data" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="PGPTest - 2018.07.04 at 16h 26m 12s.xml">
+      <configuration name="PGPTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="PGPTest_Separate_objects - 2018.07.04 at 16h 31m 47s.xml">
+      <configuration name="PGPTest.Separate objects" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="PGPTest_Separate_objects - 2018.07.04 at 16h 32m 07s.xml">
+      <configuration name="PGPTest.Separate objects" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="PGPTest_Separate_objects - 2018.07.04 at 16h 32m 11s.xml">
+      <configuration name="PGPTest.Separate objects" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -3460,7 +3460,7 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.32952693" />
       <window_info anchor="right" id="Maven Projects" order="3" weight="0.32954547" />
       <window_info anchor="right" id="Code Outline" order="4" />
-      <window_info active="true" anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.20095694" />
+      <window_info active="true" anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.30526316" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.15598086" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Designer" order="2" />
@@ -3513,7 +3513,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.45.3 : send using Email" />
     <MESSAGE value="2.2.45.3 : Added types" />
     <MESSAGE value="2.2.45.4 : Missing &quot;fromName&quot; in settings import" />
     <MESSAGE value="2.2.45.4 : A missign return class and typos" />
@@ -3538,7 +3537,8 @@
     <MESSAGE value="2.4.5 Added PGP encryption" />
     <MESSAGE value="2.4.5 Added PGP armor test" />
     <MESSAGE value="2.4.5 BerkeleyDB.destroy added" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.4.5 BerkeleyDB.destroy added" />
+    <MESSAGE value="2.4.5 Added test for BerkeleyDB" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.4.5 Added test for BerkeleyDB" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3814,16 +3814,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="411">
-          <caret line="50" column="4" selection-start-line="50" selection-start-column="4" selection-end-line="50" selection-end-column="4" />
-          <folding>
-            <element signature="e#30#68#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/AESTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="241">
@@ -3916,10 +3906,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="729">
-          <caret line="56" column="30" selection-start-line="56" selection-start-column="30" selection-end-line="56" selection-end-column="30" />
+        <state relative-caret-position="371">
+          <caret line="44" column="30" selection-start-line="44" selection-start-column="30" selection-end-line="44" selection-end-column="30" />
           <folding>
             <element signature="e#27#75#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="478">
+          <caret line="60" column="57" selection-start-line="60" selection-start-column="57" selection-end-line="60" selection-end-column="57" />
+          <folding>
+            <element signature="e#30#68#0" expanded="true" />
           </folding>
         </state>
       </provider>
