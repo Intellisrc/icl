@@ -38,4 +38,15 @@ class PGPTest extends Specification {
         assert decrypted == original
         println "Key: " + Bytes.toString(pgp.key)
     }
+    def "Using armor"() {
+        setup:
+        PGP pgp = new PGP(armor: true)
+        byte[] original = "This is a super secret message. Please don't read it out loud!".bytes
+        expect:
+        byte[] encrypted = pgp.encrypt(original)
+        println "encrypted data = '" + Bytes.toString(encrypted) + "'"
+        byte[] decrypted= pgp.decrypt(encrypted)
+        println "decrypted data = '"+Bytes.toString(decrypted)+"'"
+        assert decrypted == original
+    }
 }
