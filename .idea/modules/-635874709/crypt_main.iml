@@ -10,9 +10,11 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:1.7.7" level="project" />
     <orderEntry type="module" module-name="etc_main" />
-    <orderEntry type="library" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.56" level="project" />
+    <orderEntry type="library" name="Gradle: org.bouncycastle:bcpg-jdk15on:1.59" level="project" />
+    <orderEntry type="library" name="Gradle: org.bouncycastle:bcprov-ext-jdk15on:1.47" level="project" />
     <orderEntry type="library" name="Gradle: commons-net:commons-net:3.5" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.13" level="project" />
     <orderEntry type="module" module-name="modules-core_main" />
+    <orderEntry type="library" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.59" level="project" />
   </component>
 </module>

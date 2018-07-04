@@ -90,11 +90,13 @@ class Crypt {
     }
     /**
      * If has no key, generates one
+     * @param len : key length
+     * @param enforceLength : Also generate key if length is mismatched
      */
-    void genIfNoKey(int len) {
+    void genIfNoKey(int len, boolean enforceLength = true) {
         if(!hasKey()) {
             genKey(len)
-        } else if(key.length != len) {
+        } else if(enforceLength && key.length != len) {
             Log.w("Key length didn't match the requirement. Generating a new one.")
             genKey(len)
         }
