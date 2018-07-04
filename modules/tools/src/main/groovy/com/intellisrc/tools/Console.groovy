@@ -109,6 +109,14 @@ class Console {
     }
 
     /**
+     * Println in console
+     * @param output
+     */
+    static void out(String output) {
+        reader.terminal.writer().println(output)
+    }
+
+    /**
      * Add a word to the autocomplete list
      * @param word
      */
