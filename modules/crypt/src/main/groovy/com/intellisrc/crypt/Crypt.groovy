@@ -27,7 +27,7 @@ class Crypt {
         LOW, MEDIUM, HIGH
     }
 
-    protected transient byte[] key
+    transient byte[] key
     /**
      * Generates a random ascii string
      * @param len : length of string
