@@ -3,20 +3,32 @@ package com.intellisrc.db
 import org.apache.commons.lang.RandomStringUtils
 import spock.lang.Specification
 
+import java.security.SecureRandom
+
 
 /**
  * @since 18/07/04.
  */
 class BerkeleyDBTest extends Specification {
+    BerkeleyDB db
+    void setup() {
+        db = new BerkeleyDB("test")
+    }
+    void cleanup() {
+        File dir = new File(".berkeley")
+        assert dir.exists()
+        dir.deleteDir()
+        println "Directory removed"
+    }
     def "General test"() {
         setup:
             int randomStringLength = 32
             String charset = (('a'..'z') + ('A'..'Z') + ('0'..'9')).join()
             String randomString = RandomStringUtils.random(randomStringLength, charset.toCharArray())
-            def db = new BerkeleyDB("test")
             db.add("some","value")
             db.add("other","val")
             db.add(randomString,"moons")
+            // Close it to be sure data is written to disk
             db.close()
             db = new BerkeleyDB("test")
         expect: "Not empty"
@@ -32,11 +44,19 @@ class BerkeleyDBTest extends Specification {
         then: "Destroyed completely"
             assert db.size == 0
             db.destroy()
-        cleanup:
-            File dir = new File(".berkeley")
-            if(dir.exists()) {
-                dir.deleteDir()
-                println "Directory removed"
-            }
     }
+    def "Binary data"() {
+        setup:
+            byte[] bytes = new byte[2000]
+            byte[] kbyte = new byte[20]
+            new SecureRandom().nextBytes(bytes)
+            db.add("strkey", bytes)
+            db.add(kbyte, bytes)
+        expect:
+            assert db.get("strkey") == bytes
+            assert db.get(kbyte) == bytes
+        cleanup:
+            db.destroy()
+    }
+
 }

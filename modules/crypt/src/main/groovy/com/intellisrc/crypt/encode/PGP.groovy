@@ -5,7 +5,6 @@ import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 
-import java.security.SecureRandom
 import org.bouncycastle.bcpg.ArmoredOutputStream
 import org.bouncycastle.bcpg.CompressionAlgorithmTags
 import org.bouncycastle.openpgp.PGPCompressedData
@@ -78,7 +77,7 @@ class PGP extends Crypt implements Encodable {
             out = new ArmoredOutputStream(out)
         }
         genIfNoKey(keylen, false)
-        PGPEncryptedDataGenerator encGen = new PGPEncryptedDataGenerator(new JcePGPDataEncryptorBuilder(algorithm).setSecureRandom(new SecureRandom()).setProvider("BC"))
+        PGPEncryptedDataGenerator encGen = new PGPEncryptedDataGenerator(new JcePGPDataEncryptorBuilder(algorithm).setSecureRandom(random).setProvider("BC"))
         encGen.addMethod(new JcePBEKeyEncryptionMethodGenerator(Bytes.toChars(key)).setProvider("BC"))
 
         OutputStream encOut = encGen.open(out, compressedData.length)
