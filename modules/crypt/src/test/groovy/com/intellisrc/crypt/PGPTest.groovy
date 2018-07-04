@@ -49,4 +49,21 @@ class PGPTest extends Specification {
         println "decrypted data = '"+Bytes.toString(decrypted)+"'"
         assert decrypted == original
     }
+    def "Separate objects"() {
+        setup:
+            char[] pwd = Bytes.toChars(Crypt.randomChars(Random.range(10,20)))
+            println "PWD: $pwd"
+            PGP pgp1 = new PGP(key: Bytes.fromChars(pwd))
+            byte[] data = Crypt.randomBytes(1024)
+            println "DATA: " + Bytes.toHex(data)
+        expect:
+            byte[] encrypted = pgp1.encrypt(data)
+            println "Encrypted : " + Bytes.toHex(encrypted)
+        when:
+            PGP pgp2 = new PGP(key: Bytes.fromChars(pwd))
+        then:
+            byte[] decrypted = pgp2.decrypt(encrypted)
+        expect:
+            assert data == decrypted
+    }
 }
