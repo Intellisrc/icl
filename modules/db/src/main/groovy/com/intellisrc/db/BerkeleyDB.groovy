@@ -24,6 +24,7 @@ class BerkeleyDB {
     Environment dbEnv = null
     Database dbB = null
     final DatabaseConfig dbConfig = new DatabaseConfig()
+    final String databaseName
 
     BerkeleyDB(String dbName = "") {
         File dbDir = new File(Config.get("berkeley.dir") ?: ".berkeley")
@@ -33,6 +34,7 @@ class BerkeleyDB {
         if(!dbName) {
             dbName = Config.get("berkeley.db") ?: "default"
         }
+        databaseName = dbName
         try {
             // create a configuration for DB environment
             EnvironmentConfig envConf = new EnvironmentConfig()
@@ -251,6 +253,15 @@ class BerkeleyDB {
      */
     long getSize() {
         return dbB.count()
+    }
+
+    /**
+     * Destroys a database
+     */
+    void destroy() {
+        dbB.close()
+        dbEnv.removeDatabase(null, databaseName)
+        dbEnv.close()
     }
 
     /**
