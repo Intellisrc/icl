@@ -30,6 +30,9 @@ import java.security.Security
  * based in example:
  * bouncycastle/openpgp/examples/ByteArrayHandler.java
  *
+ * The main difference between PGP and AES (besides the technical differences),
+ * is that this doesn't require a fixed key length.
+ *
  * @since 18/07/04.
  */
 @CompileStatic
