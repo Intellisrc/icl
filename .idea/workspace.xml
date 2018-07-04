@@ -2,17 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_bouncycastle_bcprov_jdk15on_1_56.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/Crypt.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/Crypt.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -208,11 +213,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="true">
+      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" column="20" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="20" />
+            <state relative-caret-position="180">
+              <caret line="10" selection-start-line="10" selection-end-line="10" />
             </state>
           </provider>
         </entry>
@@ -238,8 +243,8 @@
       <file leaf-file-name="PGP.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="2" selection-start-line="2" selection-end-line="2" />
+            <state relative-caret-position="-125">
+              <caret line="35" column="18" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
               <folding>
                 <element signature="e#37#70#0" expanded="true" />
               </folding>
@@ -247,11 +252,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PGPTest.groovy" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PGPTest.groovy" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="25" column="39" selection-start-line="25" selection-start-column="39" selection-end-line="25" selection-end-column="39" />
+            <state relative-caret-position="177">
+              <caret line="34" column="47" selection-start-line="34" selection-start-column="47" selection-end-line="34" selection-end-column="47" />
               <folding>
                 <element signature="e#30#68#0" expanded="true" />
               </folding>
@@ -1782,17 +1787,17 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="22832738513000" />
+        <entry key="$PROJECT_DIR$" value="22832743282000" />
         <entry key="$PROJECT_DIR$/.gradle" value="0" />
         <entry key="$PROJECT_DIR$/build.gradle" value="731150040" />
         <entry key="$PROJECT_DIR$/crypt/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/db/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/gradle.properties" value="4056674166" />
+        <entry key="$PROJECT_DIR$/gradle.properties" value="132019698" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="615277776" />
         <entry key="$PROJECT_DIR$/module/groovy-extend/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/core/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/crypt/.gradle" value="0" />
-        <entry key="$PROJECT_DIR$/modules/crypt/build.gradle" value="1166754852" />
+        <entry key="$PROJECT_DIR$/modules/crypt/build.gradle" value="2583956908" />
         <entry key="$PROJECT_DIR$/modules/db/build.gradle" value="2181335562" />
         <entry key="$PROJECT_DIR$/modules/etc/build.gradle" value="1114725055" />
         <entry key="$PROJECT_DIR$/modules/groovy-extend/build.gradle" value="269508036" />
@@ -2666,10 +2671,10 @@
         <option value="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/build.gradle" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/Crypt.groovy" />
-        <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" />
       </list>
     </option>
   </component>
@@ -2883,29 +2888,12 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.PGPTest">
+  <component name="RunManager" selected="JUnit.PGPTest.Using armor">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-    </configuration>
-    <configuration name="common::home:lepe:Projects:intellisrc:common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="publishToMavenLocal" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
     </configuration>
     <configuration name="AESTest.AES Multiple" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="crypt_test" />
@@ -2920,29 +2908,6 @@
       <option name="PACKAGE_NAME" value="com.intellisrc.crypt" />
       <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.AESTest" />
       <option name="METHOD_NAME" value="AES Multiple" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <patterns />
-    </configuration>
-    <configuration name="AESTest.AES Simple" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="crypt_test" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.intellisrc.crypt.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="com.intellisrc.crypt" />
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.AESTest" />
-      <option name="METHOD_NAME" value="AES Simple" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
@@ -2976,6 +2941,29 @@
       </option>
       <patterns />
     </configuration>
+    <configuration name="PGPTest.General test using own key" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="crypt_test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.intellisrc.crypt.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.intellisrc.crypt" />
+      <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.PGPTest" />
+      <option name="METHOD_NAME" value="General test using own key" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <patterns />
+    </configuration>
     <configuration name="PGPTest.General test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="crypt_test" />
       <extension name="coverage">
@@ -2989,6 +2977,29 @@
       <option name="PACKAGE_NAME" value="com.intellisrc.crypt" />
       <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.PGPTest" />
       <option name="METHOD_NAME" value="General test" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <patterns />
+    </configuration>
+    <configuration name="PGPTest.Using armor" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="crypt_test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.intellisrc.crypt.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.intellisrc.crypt" />
+      <option name="MAIN_CLASS_NAME" value="com.intellisrc.crypt.PGPTest" />
+      <option name="METHOD_NAME" value="Using armor" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" />
@@ -3048,19 +3059,19 @@
       <listeners />
     </configuration>
     <list>
-      <item itemvalue="Gradle.common::home:lepe:Projects:intellisrc:common [publishToMavenLocal]" />
-      <item itemvalue="JUnit.AESTest.AES Simple" />
       <item itemvalue="JUnit.AESTest.AES Multiple" />
       <item itemvalue="JUnit.PGPTest.General test" />
       <item itemvalue="JUnit.PGPTest" />
+      <item itemvalue="JUnit.PGPTest.Using armor" />
+      <item itemvalue="JUnit.PGPTest.General test using own key" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.PGPTest.Using armor" />
+        <item itemvalue="JUnit.PGPTest.General test using own key" />
         <item itemvalue="JUnit.PGPTest" />
         <item itemvalue="JUnit.PGPTest.General test" />
         <item itemvalue="JUnit.AESTest.AES Multiple" />
-        <item itemvalue="Gradle.common::home:lepe:Projects:intellisrc:common [publishToMavenLocal]" />
-        <item itemvalue="JUnit.AESTest.AES Simple" />
       </list>
     </recent_temporary>
   </component>
@@ -3071,13 +3082,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00041" summary="2.2.28.1: Log output fixed">
-      <created>1512960587894</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1512960587894</updated>
     </task>
     <task id="LOCAL-00042" summary="2.2.29 : Updated groovy-extends to 1.6.4">
       <created>1513048866388</created>
@@ -3415,19 +3419,17 @@
       <option name="project" value="LOCAL" />
       <updated>1530668984122</updated>
     </task>
-    <option name="localTasksCounter" value="90" />
+    <task id="LOCAL-00090" summary="2.4.5 Added PGP encryption">
+      <created>1530673190978</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1530673190978</updated>
+    </task>
+    <option name="localTasksCounter" value="91" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="PGPTest_General_test - 2018.07.04 at 11h 44m 33s.xml">
-      <configuration name="PGPTest.General test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="PGPTest_General_test - 2018.07.04 at 11h 44m 46s.xml">
-      <configuration name="PGPTest.General test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="PGPTest - 2018.07.04 at 11h 46m 49s.xml">
-      <configuration name="PGPTest" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="PGPTest - 2018.07.04 at 11h 49m 46s.xml">
       <configuration name="PGPTest" configurationId="JUnit" />
     </history-entry>
@@ -3449,6 +3451,15 @@
     <history-entry file="PGPTest - 2018.07.04 at 11h 58m 58s.xml">
       <configuration name="PGPTest" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="PGPTest_Using_armor - 2018.07.04 at 12h 02m 07s.xml">
+      <configuration name="PGPTest.Using armor" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="PGPTest_Using_armor - 2018.07.04 at 12h 02m 23s.xml">
+      <configuration name="PGPTest.Using armor" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="PGPTest_General_test_using_own_key - 2018.07.04 at 12h 03m 07s.xml">
+      <configuration name="PGPTest.General test using own key" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -3469,12 +3480,12 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.32952693" />
       <window_info anchor="right" id="Maven Projects" order="3" weight="0.32954547" />
       <window_info anchor="right" id="Code Outline" order="4" />
-      <window_info anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.4382775" />
+      <window_info active="true" anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.4382775" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.15598086" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Designer" order="2" />
       <window_info anchor="bottom" id="Run with VisualVM" order="8" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19669509" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19669509" />
       <window_info anchor="bottom" id="Build" order="9" weight="0.32659408" />
       <window_info anchor="bottom" id="Tail" order="10" />
       <window_info anchor="bottom" id="JFrog" order="8" />
@@ -3522,7 +3533,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.45.1 : Fixed when no key existed" />
     <MESSAGE value="2.2.45.1 : Added EmailTest" />
     <MESSAGE value="2.2.45.3 : Fixed issue with defaulTo" />
     <MESSAGE value="2.2.45.3 : send using Email" />
@@ -3547,7 +3557,8 @@
     <MESSAGE value="2.4.4 Cleaning code" />
     <MESSAGE value="2.4.4.1 Added Console.out" />
     <MESSAGE value="2.4.4.2 Crypt.key is now public" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.4.4.2 Crypt.key is now public" />
+    <MESSAGE value="2.4.5 Added PGP encryption" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.4.5 Added PGP encryption" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3903,30 +3914,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy">
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="25" column="39" selection-start-line="25" selection-start-column="39" selection-end-line="25" selection-end-column="39" />
-          <folding>
-            <element signature="e#30#68#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="180">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        <state relative-caret-position="-125">
+          <caret line="35" column="18" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
           <folding>
             <element signature="e#37#70#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
+    <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="20" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="20" />
+        <state relative-caret-position="177">
+          <caret line="34" column="47" selection-start-line="34" selection-start-column="47" selection-end-line="34" selection-end-column="47" />
+          <folding>
+            <element signature="e#30#68#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
