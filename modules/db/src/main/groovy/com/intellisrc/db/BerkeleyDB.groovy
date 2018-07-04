@@ -259,7 +259,9 @@ class BerkeleyDB {
      * Destroys a database
      */
     void destroy() {
-        dbB.close()
+        try {
+            dbB.close()
+        } catch (Exception e){}
         dbEnv.removeDatabase(null, databaseName)
         dbEnv.close()
     }
