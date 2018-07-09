@@ -5,6 +5,14 @@ package com.intellisrc.crypt.encode
  */
 @groovy.transform.CompileStatic
 trait Encodable {
-    abstract byte[] encrypt(byte[] original)
-    abstract byte[] decrypt(byte[] encoded)
+    /**
+     * Error thrown while encoding data
+     */
+    static class EncodingException extends Exception {}
+    /**
+     * Error thrown while decoding data
+     */
+    static class DecodingException extends Exception {}
+    abstract byte[] encrypt(byte[] original) throws EncodingException
+    abstract byte[] decrypt(byte[] encoded) throws DecodingException
 }

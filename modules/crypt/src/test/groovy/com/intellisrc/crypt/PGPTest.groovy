@@ -1,5 +1,6 @@
 package com.intellisrc.crypt
 
+import com.intellisrc.crypt.encode.Encodable
 import com.intellisrc.crypt.encode.PGP
 import com.intellisrc.etc.Bytes
 import org.bouncycastle.openpgp.PGPEncryptedDataGenerator
@@ -65,5 +66,18 @@ class PGPTest extends Specification {
             byte[] decrypted = pgp2.decrypt(encrypted)
         expect:
             assert data == decrypted
+    }
+    def "Testing exceptions"() {
+        setup:
+            PGP pgp = new PGP()
+        when:
+            pgp.decrypt("nothing_here".bytes)
+        then:
+            thrown Encodable.DecodingException
+        /*when: As PGP will encode no matter what, it won't throw an error unless there is an exception in the underlying libraries
+            pgp.encrypt("something".bytes)
+        then:
+            thrown Encodable.EncodingException
+            */
     }
 }

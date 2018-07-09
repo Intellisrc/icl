@@ -24,7 +24,7 @@ class AES extends Crypt implements Encodable {
      * @param text
      * @return
      */
-    byte[] encrypt(byte[] text) {
+    byte[] encrypt(byte[] text) throws EncodingException {
         return cipherData(text, true)
     }
 
@@ -33,7 +33,7 @@ class AES extends Crypt implements Encodable {
      * @param encoded
      * @return
      */
-    byte[] decrypt(byte[] encoded) {
+    byte[] decrypt(byte[] encoded) throws DecodingException {
         return cipherData(encoded, false)
     }
 
@@ -51,7 +51,7 @@ class AES extends Crypt implements Encodable {
      * @param encode
      * @return
      */
-    private byte[] cipherData(byte[] data, boolean encode = true) {
+    private byte[] cipherData(byte[] data, boolean encode = true) throws EncodingException, DecodingException {
         byte[] result = new byte[0]
         // Fix keylen if mistaken
         if(![16,24,32].contains(keylen)) {
@@ -62,8 +62,13 @@ class AES extends Crypt implements Encodable {
         genIV(IV_LENGTH)
         //We extract the IV in decode
         if(!encode) {
-            System.arraycopy(data, 0, iv, 0, IV_LENGTH)
-            data = Arrays.copyOfRange(data, IV_LENGTH, data.length)
+            if(data.length < IV_LENGTH + 1) {
+                Log.e("Data length is too short.")
+                throw new DecodingException()
+            } else {
+                System.arraycopy(data, 0, iv, 0, IV_LENGTH)
+                data = Arrays.copyOfRange(data, IV_LENGTH, data.length)
+            }
         }
         PaddedBufferedBlockCipher aes = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()))
         CipherParameters ivAndKey = new ParametersWithIV(new KeyParameter(key), iv)
@@ -85,7 +90,8 @@ class AES extends Crypt implements Encodable {
                 System.arraycopy(outBuf, 0, result, 0, result.length)
             }
         } catch(Exception e){
-            Log.e( "Unable to encode/decode data", e)
+            Log.e( "Unable to " + (encode ? "encode" : "decode") + " data", e)
+            throw encode ? new EncodingException() : new DecodingException()
         }
         return result
     }
