@@ -186,6 +186,8 @@ class Console {
         }
         try {
             pass = reader.readLine(tempPrompt, mask).trim().toCharArray()
+            reader.buffer.clear() //Try to clear buffer
+            System.gc() // try to collect garbage here in case any String is still holding the value
         } catch (Exception uie) {
             if(process) {
                 process.cancel(true)
