@@ -1,6 +1,7 @@
 package com.intellisrc.crypt
 
 import com.intellisrc.crypt.encode.AES
+import com.intellisrc.crypt.encode.Encodable
 import com.intellisrc.etc.Bytes
 import spock.lang.Specification
 
@@ -53,5 +54,22 @@ class AESTest extends Specification {
             assert Bytes.toString(decoded1) == secret1
             assert Bytes.toString(decoded2) == secret2
             println "DECODED : "+Bytes.toString(decoded1)
+    }
+    def "Testing Exceptions" () {
+        setup:
+            AES aes = new AES()
+        when:
+            aes.decrypt("nothing_here".bytes)
+        then:
+            thrown Encodable.DecodingException
+        when:
+            aes.decrypt(Crypt.randomBytes(1024))
+        then:
+            thrown Encodable.DecodingException
+        /*when: As AES will encode no matter what, it won't throw an error unless there is an exception in the underlying libraries
+            aes = new AES(key: "badkey".bytes)
+            aes.encrypt("something".bytes)
+        then:
+            thrown Encodable.EncodingException*/
     }
 }

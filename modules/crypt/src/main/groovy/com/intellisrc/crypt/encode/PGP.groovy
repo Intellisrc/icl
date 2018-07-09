@@ -1,5 +1,6 @@
 package com.intellisrc.crypt.encode
 
+import com.intellisrc.core.Log
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
@@ -69,24 +70,29 @@ class PGP extends Crypt implements Encodable {
      * @return
      */
     @Override
-    byte[] encrypt(byte[] original) {
-        byte[] compressedData = compress(original, CompressionAlgorithmTags.ZIP)
-        ByteArrayOutputStream bOut = new ByteArrayOutputStream()
-        OutputStream out = bOut
-        if (armor) {
-            out = new ArmoredOutputStream(out)
-        }
-        genIfNoKey(keylen, false)
-        PGPEncryptedDataGenerator encGen = new PGPEncryptedDataGenerator(new JcePGPDataEncryptorBuilder(algorithm).setSecureRandom(random).setProvider("BC"))
-        encGen.addMethod(new JcePBEKeyEncryptionMethodGenerator(Bytes.toChars(key)).setProvider("BC"))
+    byte[] encrypt(byte[] original) throws EncodingException {
+        try {
+            byte[] compressedData = compress(original, CompressionAlgorithmTags.ZIP)
+            ByteArrayOutputStream bOut = new ByteArrayOutputStream()
+            OutputStream out = bOut
+            if (armor) {
+                out = new ArmoredOutputStream(out)
+            }
+            genIfNoKey(keylen, false)
+            PGPEncryptedDataGenerator encGen = new PGPEncryptedDataGenerator(new JcePGPDataEncryptorBuilder(algorithm).setSecureRandom(random).setProvider("BC"))
+            encGen.addMethod(new JcePBEKeyEncryptionMethodGenerator(Bytes.toChars(key)).setProvider("BC"))
 
-        OutputStream encOut = encGen.open(out, compressedData.length)
-        encOut.write(compressedData)
-        encOut.close()
-        if (armor) {
-            out.close()
+            OutputStream encOut = encGen.open(out, compressedData.length)
+            encOut.write(compressedData)
+            encOut.close()
+            if (armor) {
+                out.close()
+            }
+            return bOut.toByteArray()
+        } catch (Exception e) {
+            Log.e("Unable to encrypt data: ", e)
+            throw new EncodingException()
         }
-        return bOut.toByteArray()
     }
 
     /**
@@ -95,7 +101,7 @@ class PGP extends Crypt implements Encodable {
      * @return
      */
     @Override
-    byte[] decrypt(byte[] encoded) {
+    byte[] decrypt(byte[] encoded) throws DecodingException {
         InputStream inBytes = new ByteArrayInputStream(encoded)
         inBytes = PGPUtil.getDecoderStream(inBytes)
         JcaPGPObjectFactory pgpF = new JcaPGPObjectFactory(inBytes)
@@ -108,14 +114,18 @@ class PGP extends Crypt implements Encodable {
         } else {
             enc = (PGPEncryptedDataList)pgpF.nextObject()
         }
-        genIfNoKey(keylen, false)
-        PGPPBEEncryptedData pbe = (PGPPBEEncryptedData)enc.get(0)
-        InputStream clear = pbe.getDataStream(new JcePBEDataDecryptorFactoryBuilder(new JcaPGPDigestCalculatorProviderBuilder().setProvider("BC").build()).setProvider("BC").build(Bytes.toChars(key)))
-        JcaPGPObjectFactory pgpFact = new JcaPGPObjectFactory(clear)
-        PGPCompressedData cData = (PGPCompressedData)pgpFact.nextObject()
-        pgpFact = new JcaPGPObjectFactory(cData.getDataStream())
-        PGPLiteralData ld = (PGPLiteralData)pgpFact.nextObject()
-        return Streams.readAll(ld.getInputStream())
+        if(enc) {
+            genIfNoKey(keylen, false)
+            PGPPBEEncryptedData pbe = (PGPPBEEncryptedData) enc.get(0)
+            InputStream clear = pbe.getDataStream(new JcePBEDataDecryptorFactoryBuilder(new JcaPGPDigestCalculatorProviderBuilder().setProvider("BC").build()).setProvider("BC").build(Bytes.toChars(key)))
+            JcaPGPObjectFactory pgpFact = new JcaPGPObjectFactory(clear)
+            PGPCompressedData cData = (PGPCompressedData) pgpFact.nextObject()
+            pgpFact = new JcaPGPObjectFactory(cData.getDataStream())
+            PGPLiteralData ld = (PGPLiteralData) pgpFact.nextObject()
+            return Streams.readAll(ld.getInputStream())
+        } else {
+            throw new DecodingException()
+        }
     }
 
     /**
