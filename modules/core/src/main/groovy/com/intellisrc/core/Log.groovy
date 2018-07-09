@@ -24,11 +24,14 @@ final class Log {
                 def sLevel = Config.get("log.level").toUpperCase()
                 level = sLevel as Level
             }
-            if (Config.hasKey("log.path")) {
-                logPath = Config.get("log.path")
-            }
             if (Config.hasKey("log.file")) {
                 logFile = Config.get("log.file")
+            }
+            if (Config.hasKey("log.path")) {
+                logPath = Config.get("log.path")
+                if(!logFile) {
+                    logFile = "system.log"
+                }
             }
             if (Config.hasKey("log.days")) {
                 logDays = Config.getInt("log.days")
@@ -37,8 +40,11 @@ final class Log {
         if (ANDROID.mLoaded) {
             usePrinter(ANDROID, true)
         } else {
-            usePrinter(SYSTEM, true)
-            usePrinter(LOGFILE, true)
+            if(logPath || logFile) {
+                usePrinter(LOGFILE, true)
+            } else {
+                usePrinter(SYSTEM, true)
+            }
         }
     }
 
