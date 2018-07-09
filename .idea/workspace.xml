@@ -8,25 +8,13 @@
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -196,18 +184,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PGP.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="877">
-              <caret line="80" column="35" selection-start-line="80" selection-start-column="35" selection-end-line="80" selection-end-column="35" />
-              <folding>
-                <element signature="e#37#67#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
@@ -217,13 +193,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BerkeleyDBTest.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy">
+      <file leaf-file-name="Console.groovy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="371">
-              <caret line="44" column="30" selection-start-line="44" selection-start-column="30" selection-end-line="44" selection-end-column="30" />
+            <state relative-caret-position="280">
+              <caret line="188" column="54" selection-start-line="188" selection-start-column="54" selection-end-line="188" selection-end-column="54" />
               <folding>
-                <element signature="e#27#75#0" expanded="true" />
+                <element signature="e#30#63#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -247,15 +223,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LogTest.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="10" column="18" selection-start-line="10" selection-start-column="18" selection-end-line="10" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Log.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
           <provider selected="true" editor-type-id="text-editor">
@@ -270,15 +237,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="126">
               <caret line="7" selection-start-line="7" selection-end-line="7" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Crypt.groovy" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/Crypt.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="25" selection-start-line="25" selection-end-line="25" />
             </state>
           </provider>
         </entry>
@@ -1779,12 +1737,12 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="22833362863000" />
+        <entry key="$PROJECT_DIR$" value="22833375136000" />
         <entry key="$PROJECT_DIR$/.gradle" value="0" />
         <entry key="$PROJECT_DIR$/build.gradle" value="3138320803" />
         <entry key="$PROJECT_DIR$/crypt/build.gradle" value="1694447563" />
         <entry key="$PROJECT_DIR$/db/build.gradle" value="1694447563" />
-        <entry key="$PROJECT_DIR$/gradle.properties" value="342488153" />
+        <entry key="$PROJECT_DIR$/gradle.properties" value="2207980283" />
         <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="615277776" />
         <entry key="$PROJECT_DIR$/module/groovy-extend/build.gradle" value="2106507894" />
         <entry key="$PROJECT_DIR$/modules/core/build.gradle" value="2106507894" />
@@ -2651,7 +2609,6 @@
         <option value="$PROJECT_DIR$/modules/db/build.gradle" />
         <option value="$PROJECT_DIR$/modules/db/build.gradle" />
         <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/ZipTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/build.gradle" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/BerkeleyDB.groovy" />
@@ -2664,8 +2621,9 @@
         <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/hash/Hash.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/hash/Hashable.groovy" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" />
         <option value="$PROJECT_DIR$/gradle.properties" />
       </list>
     </option>
@@ -2799,72 +2757,12 @@
               <item name="modules" type="462c0819:PsiDirectoryNode" />
               <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="462c0819:PsiDirectoryNode" />
-              <item name="encode" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="462c0819:PsiDirectoryNode" />
-              <item name="hash" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="crypt" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
               <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
@@ -2890,6 +2788,16 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
@@ -2917,6 +2825,46 @@
               <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
               <item name="db" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -3149,13 +3097,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00047" summary="2.2.32 : Replaced Groovy JSON for GSon (to use in android). Fixed SMTP to handle HTML+Text with Attachments">
-      <created>1513140539589</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1513140539589</updated>
     </task>
     <task id="LOCAL-00048" summary="2.2.33 : modified JSON class">
       <created>1513151597747</created>
@@ -3493,7 +3434,14 @@
       <option name="project" value="LOCAL" />
       <updated>1531111721990</updated>
     </task>
-    <option name="localTasksCounter" value="96" />
+    <task id="LOCAL-00096" summary="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set.">
+      <created>1531112023870</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1531112023870</updated>
+    </task>
+    <option name="localTasksCounter" value="97" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3547,12 +3495,12 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" weight="0.32952693" />
       <window_info anchor="right" id="Maven Projects" order="3" weight="0.32954547" />
       <window_info anchor="right" id="Code Outline" order="4" />
-      <window_info anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.30526316" />
+      <window_info active="true" anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.30526316" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.15598086" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Designer" order="2" />
       <window_info anchor="bottom" id="Run with VisualVM" order="8" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19669509" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19669509" />
       <window_info anchor="bottom" id="Build" order="9" weight="0.32659408" />
       <window_info anchor="bottom" id="Tail" order="10" />
       <window_info anchor="bottom" id="JFrog" order="8" />
@@ -3600,7 +3548,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.45.4 : A missign return class and typos" />
     <MESSAGE value="2.2.50 : Config.getDbl added, Log rotate added. Fixed SysService argument management. Added HMCA in crypt" />
     <MESSAGE value="2.2.52 : Added Additional headers to response" />
     <MESSAGE value="2.2.53 : Fixed SQLite and Log/Config initialization errors" />
@@ -3625,7 +3572,8 @@
     <MESSAGE value="2.4.5 Added test for BerkeleyDB" />
     <MESSAGE value="2.4.5 Added test for PGP" />
     <MESSAGE value="2.4.5 Added encoding/decoding exceptions" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.4.5 Added encoding/decoding exceptions" />
+    <MESSAGE value="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set." />
+    <option name="LAST_COMMIT_MESSAGE" value="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3637,28 +3585,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="24" column="30" selection-start-line="24" selection-start-column="30" selection-end-line="24" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/ErrorMailer.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="26" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///usr/lib/jvm/default-java/src.zip!/java/lang/reflect/Type.java" />
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.8.2/b2da9f8444128651758719856de579eacff7f387/gson-2.8.2-sources.jar!/com/google/gson/JsonSerializer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="87" column="39" lean-forward="true" selection-start-line="87" selection-start-column="39" selection-end-line="87" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/JSONTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-137">
@@ -3829,13 +3755,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="111" column="24" selection-start-line="111" selection-start-column="24" selection-end-line="111" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpg-jdk16/1.46/b4f4967c572536c91d5d1a52d4e15defb193106a/bcpg-jdk16-1.46-sources.jar!/org/bouncycastle/bcpg/ArmoredOutputStream.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-486">
@@ -3885,16 +3804,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/BerkeleyDB.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="29" column="16" selection-start-line="29" selection-start-column="16" selection-end-line="29" selection-end-column="16" />
-          <folding>
-            <element signature="e#27#58#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/db/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
@@ -3932,16 +3841,6 @@
           <caret line="81" column="4" selection-start-line="81" selection-start-column="4" selection-end-line="81" selection-end-column="4" />
           <folding>
             <element signature="e#30#74#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="371">
-          <caret line="44" column="30" selection-start-line="44" selection-start-column="30" selection-end-line="44" selection-end-column="30" />
-          <folding>
-            <element signature="e#27#75#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3984,6 +3883,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="39" column="29" selection-start-line="39" selection-start-column="29" selection-end-line="39" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sleepycat/je/18.3.1/52011f79a25285dee23b260cf0c0504045a1cb1c/je-18.3.1-sources.jar!/com/sleepycat/je/Database.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="711">
+          <caret line="1682" column="27" selection-start-line="1682" selection-start-column="27" selection-end-line="1682" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/BerkeleyDB.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="76" column="20" selection-start-line="76" selection-start-column="20" selection-end-line="76" selection-end-column="20" />
+          <folding>
+            <element signature="e#27#58#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="44" column="30" selection-start-line="44" selection-start-column="30" selection-end-line="44" selection-end-column="30" />
+          <folding>
+            <element signature="e#27#75#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="648">
@@ -3991,10 +3924,43 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jline/jline/3.8.0/ada3b3065cb7a18036eb1471aa6b861ca243adbb/jline-3.8.0-sources.jar!/org/jline/reader/Buffer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="39" column="29" selection-start-line="39" selection-start-column="29" selection-end-line="39" selection-end-column="29" />
+        <state relative-caret-position="54">
+          <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jline/jline/3.8.0/ada3b3065cb7a18036eb1471aa6b861ca243adbb/jline-3.8.0-sources.jar!/org/jline/reader/impl/BufferImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4068">
+          <caret line="29" column="11" selection-start-line="29" selection-start-column="11" selection-end-line="29" selection-end-column="11" />
+          <folding>
+            <element signature="e#802#803#0" expanded="true" />
+            <element signature="e#826#827#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jline/jline/3.8.0/ada3b3065cb7a18036eb1471aa6b861ca243adbb/jline-3.8.0-sources.jar!/org/jline/reader/impl/LineReaderImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="156" column="43" selection-start-line="156" selection-start-column="43" selection-end-line="156" selection-end-column="43" />
+          <folding>
+            <element signature="e#5279#5280#0" expanded="true" />
+            <element signature="e#8654#8655#0" expanded="true" />
+            <element signature="e#8680#8681#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="280">
+          <caret line="188" column="54" selection-start-line="188" selection-start-column="54" selection-end-line="188" selection-end-column="54" />
+          <folding>
+            <element signature="e#30#63#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
