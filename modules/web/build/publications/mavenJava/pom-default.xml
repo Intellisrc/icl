@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.intellisrc</groupId>
   <artifactId>web</artifactId>
-  <version>2.4.5.3-SNAPSHOT</version>
+  <version>2.4.5.5-SNAPSHOT</version>
   <packaging>pom</packaging>
   <dependencies>
     <dependency>
@@ -16,7 +16,7 @@
     <dependency>
       <groupId>com.intellisrc</groupId>
       <artifactId>etc</artifactId>
-      <version>2.4.5.3-SNAPSHOT</version>
+      <version>2.4.5.5-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
