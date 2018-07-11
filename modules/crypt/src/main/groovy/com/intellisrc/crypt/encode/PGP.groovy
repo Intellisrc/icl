@@ -3,9 +3,8 @@ package com.intellisrc.crypt.encode
 import com.intellisrc.core.Log
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
-import groovy.transform.CompileStatic
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.bcpg.ArmoredOutputStream
 import org.bouncycastle.bcpg.CompressionAlgorithmTags
 import org.bouncycastle.openpgp.PGPCompressedData
@@ -25,6 +24,7 @@ import org.bouncycastle.util.io.Streams
 
 import java.security.Security
 
+import groovy.transform.CompileStatic
 /**
  * OpenPGP wrapper
  * based in example:
