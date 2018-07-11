@@ -1,6 +1,6 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.web.Service
+import com.intellisrc.web.Service.Allow
 import com.intellisrc.web.ServiciableAuth
 
 /**
@@ -17,7 +17,7 @@ class LoginServiceExample implements ServiciableAuth {
     static enum Level {
         GUEST, USER, EDITOR, ADMIN
     }
-    static final Service.Allow canEditEmails = {
+    static final Allow canEditEmails = {
         Request request ->
             if(request.session()) {
                 Level level = request.session().attribute("level").toString().toUpperCase() as Level
@@ -25,8 +25,8 @@ class LoginServiceExample implements ServiciableAuth {
             } else {
                 return false
             }
-    } as Service.Allow
-    static final Service.Allow isAdmin = {
+    } as Allow
+    static final Allow isAdmin = {
         Request request ->
             if(!request.session().new) {
                 Level level = request.session().attribute("level").toString().toUpperCase() as Level
@@ -34,12 +34,12 @@ class LoginServiceExample implements ServiciableAuth {
             } else {
                 return false
             }
-    } as Service.Allow
-    static final Service.Allow canLogin = {
+    } as Allow
+    static final Allow canLogin = {
         Request request ->
             println "IP: "+request.ip()
             return request.ip() ==~ /^127.0.0.1/
-    } as Service.Allow
+    } as Allow
 
     /**
      * In extended classes, overriding "onLogin" its the recommended
