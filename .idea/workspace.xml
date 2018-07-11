@@ -2,32 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/annotation-processors.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/fileContent/fileContent.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/LoginServiceExample.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/LoginServiceExample.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -226,14 +204,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Console.groovy" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Console.groovy" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="192" column="114" selection-start-line="192" selection-start-column="114" selection-end-line="192" selection-end-column="114" />
+            <state relative-caret-position="513">
+              <caret line="199" column="8" selection-start-line="199" selection-start-column="8" selection-end-line="199" selection-end-column="8" />
               <folding>
                 <element signature="e#30#63#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PGP.groovy" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="162">
+              <caret line="9" column="9" selection-start-line="9" selection-start-column="9" selection-end-line="9" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -2647,7 +2634,6 @@
         <option value="$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/BerkeleyDBTest.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/Crypt.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/Encodable.groovy" />
-        <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/AES.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/AESTest.groovy" />
         <option value="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PGPTest.groovy" />
@@ -2658,6 +2644,7 @@
         <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/LoginServiceExample.groovy" />
         <option value="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" />
+        <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" />
       </list>
     </option>
   </component>
@@ -2853,6 +2840,33 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="groovy" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
@@ -3218,13 +3232,6 @@
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
     </task>
-    <task id="LOCAL-00049" summary="2.2.34 : Reestructured Databases classes so it allows multiple connections and it won't depend on reflection.">
-      <created>1513220112025</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1513220112025</updated>
-    </task>
     <task id="LOCAL-00050" summary="2.2.34 : Fixed gradle.properties">
       <created>1513220257084</created>
       <option name="number" value="00050" />
@@ -3561,7 +3568,14 @@
       <option name="project" value="LOCAL" />
       <updated>1531124018405</updated>
     </task>
-    <option name="localTasksCounter" value="98" />
+    <task id="LOCAL-00098" summary="2.4.6 Crypt stable. Added System.console when no mask is specified in Console">
+      <created>1531277998046</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1531277998046</updated>
+    </task>
+    <option name="localTasksCounter" value="99" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3619,7 +3633,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Designer" order="2" />
       <window_info anchor="bottom" id="Run with VisualVM" order="8" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19669509" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19669509" />
       <window_info anchor="bottom" id="Build" order="9" weight="0.32659408" />
       <window_info anchor="bottom" id="Tail" order="10" />
       <window_info anchor="bottom" id="JFrog" order="8" />
@@ -3668,7 +3682,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.2.52 : Added Additional headers to response" />
     <MESSAGE value="2.2.53 : Fixed SQLite and Log/Config initialization errors" />
     <MESSAGE value="2.2.54 : Possibly 2.2.53 was mislabeled" />
     <MESSAGE value="2.3.3 : Added DateTime support for JDBC" />
@@ -3693,11 +3706,12 @@
     <MESSAGE value="2.4.5 Added encoding/decoding exceptions" />
     <MESSAGE value="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set." />
     <MESSAGE value="2.4.5 Console: after password prompt, clear buffer and call garbage collection" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.4.5 Console: after password prompt, clear buffer and call garbage collection" />
+    <MESSAGE value="2.4.6 Crypt stable. Added System.console when no mask is specified in Console" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.4.6 Crypt stable. Added System.console when no mask is specified in Console" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="178" />
+      <option name="time" value="179" />
     </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
@@ -3911,13 +3925,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="877">
-          <caret line="80" column="35" selection-start-line="80" selection-start-column="35" selection-end-line="80" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/AESTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
@@ -4059,11 +4066,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="192" column="114" selection-start-line="192" selection-start-column="114" selection-end-line="192" selection-end-column="114" />
+        <state relative-caret-position="513">
+          <caret line="199" column="8" selection-start-line="199" selection-start-column="8" selection-end-line="199" selection-end-column="8" />
           <folding>
             <element signature="e#30#63#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="9" column="9" selection-start-line="9" selection-start-column="9" selection-end-line="9" selection-end-column="9" />
         </state>
       </provider>
     </entry>
