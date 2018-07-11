@@ -185,9 +185,14 @@ class Console {
             process = readBackProcess(backProcess)
         }
         try {
-            pass = reader.readLine(tempPrompt, mask).trim().toCharArray()
-            reader.buffer.clear() //Try to clear buffer
-            System.gc() // try to collect garbage here in case any String is still holding the value
+            if(mask) {
+                pass = reader.readLine(tempPrompt, mask).trim().toCharArray()
+                reader.buffer.clear() //Try to clear buffer
+                System.gc() // try to collect garbage here in case any String is still holding the value
+            } else {
+                // If we don't specify mask, we can use System.console() which is safer as it won't create Strings
+                pass = System.console().readPassword()
+            }
         } catch (Exception uie) {
             if(process) {
                 process.cancel(true)
