@@ -78,6 +78,16 @@ class LogTest extends Specification {
         then:
             notThrown Exception
     }
+    def "Respecting Level"() {
+        when:
+            Log.level = Log.Level.DEBUG
+            Log.v("No printing this..")
+            Log.d("Debug")
+            Log.i("Info")
+            Log.w("Warning")
+        then:
+            notThrown Exception
+    }
     def "Disable colors"() {
         when:
             Log.color = false
