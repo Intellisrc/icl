@@ -292,7 +292,7 @@ final class Log {
         } else if(lvl == Level.ERROR) {
             throwable = new Exception("Generic Exception generated in Log")
         }
-        print(level, stack, format(msg, listArgs))
+        print(lvl, stack, format(msg, listArgs))
         if(throwable) {
             print(Level.VERBOSE, stack, printStack(throwable))
         }
