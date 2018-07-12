@@ -23,7 +23,7 @@ class Zip {
         if(file.exists()) {
             if(!file.name.endsWith(".gz")) {
                 file.bytes = gzip(file.bytes)
-                ok = file.renameTo(file.name + ".gz")
+                ok = file.renameTo(file.path + ".gz")
             } else {
                 if(log) { Log.w("File seems already compressed: %s", file.name) }
             }

@@ -1,5 +1,6 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Log
 import spock.lang.Specification
 
 
@@ -25,5 +26,27 @@ class ZipTest extends Specification {
             def unzipped = Zip.gunzip(zipped.decodeBase64())
         then:
             assert bytes == unzipped
+    }
+    /**
+     * Log Zip is tested here because of package dependency
+     */
+    def "Test Log Zip"() {
+        setup:
+            Log.level = Log.Level.VERBOSE
+            Log.logPath = "/tmp/"
+            Log.logFile = "test.log"
+            Log.w("Nothing happened, just testing")
+        expect:
+            assert Log.logFile.exists()
+        when:
+            Log.cleanLogs() //should not return error
+            Log.compressLog()
+            def gzLog = new File(Log.logFile.path + ".gz")
+        then:
+            assert gzLog.exists()
+            assert !Log.logFile.exists()
+        cleanup:
+            gzLog?.delete()
+
     }
 }
