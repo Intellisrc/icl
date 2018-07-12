@@ -103,4 +103,14 @@ class LogTest extends Specification {
             Log.d("This is an message")
             assert incremental == 107
     }
+    def "Test disable" () {
+        setup:
+            Log.level = Log.Level.VERBOSE
+            Log.logPath = "/tmp/"
+            Log.logFile = "test.log"
+            Log.enabled = false
+            Log.e("Some random error")
+        expect:
+            assert !Log.logFile.exists()
+    }
 }
