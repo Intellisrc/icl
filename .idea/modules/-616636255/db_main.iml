@@ -15,6 +15,6 @@
     <orderEntry type="library" name="Gradle: com.sleepycat:je:18.3.1" level="project" />
     <orderEntry type="library" name="Gradle: commons-net:commons-net:3.5" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.13" level="project" />
-    <orderEntry type="module" module-name="modules-core_main" />
+    <orderEntry type="module" module-name="core_main" />
   </component>
 </module>

@@ -9,7 +9,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:1.7.7.1" level="project" />
-    <orderEntry type="module" module-name="modules-core_main" />
+    <orderEntry type="module" module-name="core_main" />
     <orderEntry type="module" module-name="crypt_main" />
     <orderEntry type="library" name="Gradle: javax.mail:mail:1.4.1" level="project" />
     <orderEntry type="library" name="Gradle: commons-net:commons-net:3.5" level="project" />
