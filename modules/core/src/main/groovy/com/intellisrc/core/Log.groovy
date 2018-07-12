@@ -25,36 +25,33 @@ final class Log {
                 level = sLevel as Level
             }
             if (Config.hasKey("log.file")) {
-                logFile = Config.get("log.file")
+                logFileName = Config.get("log.file")
             }
             if (Config.hasKey("log.path")) {
                 logPath = Config.get("log.path")
-                if(!logFile) {
-                    logFile = "system.log"
+                if(!logFileName) {
+                    logFileName = "system.log"
                 }
             }
             if (Config.hasKey("log.days")) {
                 logDays = Config.getInt("log.days")
             }
-        }
-        if (ANDROID.mLoaded) {
-            usePrinter(ANDROID, true)
-        } else {
-            if(logPath || logFile) {
-                usePrinter(LOGFILE, true)
-            } else {
-                usePrinter(SYSTEM, true)
+            if (Config.hasKey("log.enable")) {
+                enabled = Config.getBool("log.enable")
             }
         }
     }
 
     //When logFile is not empty, it will export log to that file
-    static String logFile = ""
+    private static String logFileName = ""
     static String logPath = ""
     static LocalDate logDate = LocalDate.now()
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
+    static synchronized boolean initialized = false
+    static boolean enabled = true
     static Level level = Level.INFO
     static int logDays = 30
+    static final int MAX_LOG_LINE_LENGTH = 4000
 
     static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
     static final AndroidPrinter ANDROID = new AndroidPrinter()
@@ -99,7 +96,7 @@ final class Log {
     private static class FilePrinter implements Printer {
         @Override
         void print(Level level, Info stack, String msg) {
-            if(logFile) {
+            if(logFileName) {
                 String time = LocalDateTime.now().YMDHmsS
                 if(!(logPath && new File(logPath).canWrite())) {
                     logPath = SysInfo.getWritablePath()
@@ -109,27 +106,73 @@ final class Log {
                     }
                 }
                 LocalDate newDate = LocalDate.now()
-                def file = new File(logPath + logDate.YMD + "-" + logFile)
                 // Change file and compress if date changed
                 if(newDate != logDate) {
-                    try {
-                        Class[] parameters = [ File.class, Boolean.class ]
-                        Class zip = Class.forName(this.class.package.name.replace('core','etc') + ".Zip")
-                        Method method = zip.getMethod("gzip", parameters)
-                        method.invoke(file, false)
-                    } catch (Exception e) {
-                        //Ignore... Zip class doesn't exists, so we don't compress them
-                    }
+                    compressLog()
                     logDate = newDate
-                    file = new File(logPath + logDate.YMD + "-" + logFile)
-                    def logs = new File(logPath + "*-" + logFile).listFiles()
-                    if(logs.size() > logDays) {
-                        logs.sort()?.toList()?.reverse()?.subList(0, logDays)?.each {
-                            it.delete()
-                        }
-                    }
+                    cleanLogs()
                 }
-                file << (time + "\t" + "[" + level + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
+                logFile << (time + "\t" + "[" + level + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
+            }
+        }
+    }
+
+    /**
+     * Decide which printer to use
+     */
+    private static void setPrinter() {
+        if(enabled) {
+            if (ANDROID.mLoaded) {
+                usePrinter(ANDROID, true)
+            } else {
+                if (logPath || logFileName) {
+                    usePrinter(LOGFILE, true)
+                } else {
+                    usePrinter(SYSTEM, true)
+                }
+            }
+        }
+    }
+
+    /**
+     * Get current Log File
+     * @return
+     */
+    static File getLogFile() {
+        return new File(logPath + logDate.YMD + "-" + logFileName)
+    }
+
+    /**
+     * Set log name
+     * @param name
+     */
+    static void setLogFile(final String name) {
+        logFileName = name
+    }
+
+    /**
+     * Compress Log file if Zip is present
+     */
+    static void compressLog() {
+        try {
+            Class[] parameters = [ File.class, boolean.class ]
+            Class zip = Class.forName(Log.class.package.name.replace('core','etc') + ".Zip")
+            Method method = zip.getMethod("gzip", parameters)
+            Object[] callParams = [ logFile, false ]
+            method.invoke(null, callParams)
+        } catch (Exception e) {
+            //Ignore... Zip class doesn't exists, so we don't compress them
+        }
+    }
+
+    /**
+     * Delete old logs
+     */
+    static void cleanLogs() {
+        def logs = new File(logPath + "*-" + logFileName).listFiles()
+        if(logs && logs.size() > logDays) {
+            logs.sort()?.toList()?.reverse()?.subList(0, logDays)?.each {
+                it.delete()
             }
         }
     }
@@ -234,8 +277,12 @@ final class Log {
     }
 
     private static void log(Level lvl, String msg, Object... args) {
-        if (lvl < level) {
+        if (lvl < level || !enabled) {
             return
+        }
+        if(!initialized) {
+            setPrinter()
+            initialized = true
         }
         Info stack = stack()
         Queue listArgs = args.toList() as Queue
@@ -288,8 +335,6 @@ final class Log {
         }
         return sb.toString()
     }
-
-    static final int MAX_LOG_LINE_LENGTH = 4000
 
     private static void print(Level level, Info stack, String msg) {
         msg.eachLine {
