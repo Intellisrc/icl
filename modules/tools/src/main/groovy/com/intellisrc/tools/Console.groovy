@@ -110,10 +110,14 @@ class Console {
 
     /**
      * Println in console
+     * The reason of wrapping "println" is so we can use a
+     * console remotely in the future (like web service, etc)
      * @param output
      */
     static void out(String output) {
-        reader.terminal.writer().println(output)
+        //For now, just print on screen
+        //We are not using reader.terminal.writer().println as is not always displayed
+        println output
     }
 
     /**
@@ -191,6 +195,7 @@ class Console {
                 System.gc() // try to collect garbage here in case any String is still holding the value
             } else {
                 // If we don't specify mask, we can use System.console() which is safer as it won't create Strings
+                print tempPrompt
                 pass = System.console().readPassword()
             }
         } catch (Exception uie) {
