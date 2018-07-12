@@ -11,7 +11,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="net_main" />
     <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:1.7.7.1" level="project" />
-    <orderEntry type="module" module-name="modules-core_main" />
+    <orderEntry type="module" module-name="core_main" />
     <orderEntry type="module" module-name="crypt_main" />
     <orderEntry type="library" name="Gradle: javax.mail:mail:1.4.1" level="project" />
     <orderEntry type="library" name="Gradle: org.spockframework:spock-unitils:1.1-groovy-2.4" level="project" />

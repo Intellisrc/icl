@@ -17,7 +17,7 @@
     <orderEntry type="library" name="Gradle: org.spockframework:spock-unitils:1.1-groovy-2.4" level="project" />
     <orderEntry type="library" name="Gradle: commons-net:commons-net:3.5" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.13" level="project" />
-    <orderEntry type="module" module-name="modules-core_main" />
+    <orderEntry type="module" module-name="core_main" />
     <orderEntry type="library" name="Gradle: org.spockframework:spock-core:1.1-groovy-2.4" level="project" />
     <orderEntry type="library" name="Gradle: org.unitils:unitils-core:3.3" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />

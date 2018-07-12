@@ -112,7 +112,14 @@ final class Log {
                 def file = new File(logPath + logDate.YMD + "-" + logFile)
                 // Change file and compress if date changed
                 if(newDate != logDate) {
-                    //Zip.gzip(file, false) TODO: create etc.LogRotate which will take care of them
+                    try {
+                        Class[] parameters = [ File.class, Boolean.class ]
+                        Class zip = Class.forName(this.class.package.name.replace('core','etc') + ".Zip")
+                        Method method = zip.getMethod("gzip", parameters)
+                        method.invoke(file, false)
+                    } catch (Exception e) {
+                        //Ignore... Zip class doesn't exists, so we don't compress them
+                    }
                     logDate = newDate
                     file = new File(logPath + logDate.YMD + "-" + logFile)
                     def logs = new File(logPath + "*-" + logFile).listFiles()
