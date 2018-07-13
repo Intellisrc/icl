@@ -3,8 +3,10 @@ package com.intellisrc.tools
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
+import org.jline.reader.Completer
 import org.jline.reader.LineReader
 import org.jline.reader.impl.LineReaderImpl
+import org.jline.reader.impl.completer.AggregateCompleter
 import org.jline.reader.impl.completer.StringsCompleter
 import org.jline.reader.impl.history.DefaultHistory
 import org.jline.terminal.TerminalBuilder
@@ -30,9 +32,10 @@ import java.util.concurrent.TimeUnit
 class Console {
     static String prompt = Config.get("console.prompt") ?: "> "
     static Character mask = (Config.get("console.mask") ?: "*")[0] as Character
+    static LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
     static final int timeout = Config.getInt("console.timeout") ?: 0
     static final boolean addDefault = Config.getBool("console.default") ?: true
-    static LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
+    static final String ANSI_BACKLINE = '\033[1A'
     static final LinkedList<String> commandBuffer = new LinkedList<>()
 
     static private ScheduledFuture timer
@@ -126,11 +129,17 @@ class Console {
      */
     static void updateAutoComplete() {
         final List<String> completeList = []
+        final List<Completer> completerList = []
         consoles.each {
             Consolable console ->
                 completeList.addAll(console.autoCompleteList)
+                Completer completer = console.completer
+                if(completer) {
+                    completerList << completer
+                }
         }
-        reader.completer = new StringsCompleter(completeList as String[])
+        completerList << new StringsCompleter(completeList as String[])
+        reader.completer = new AggregateCompleter(completerList)
     }
 
     /**
@@ -276,6 +285,16 @@ class Console {
             reader.callWidget(LineReader.REDISPLAY)
             reader.terminal.flush()
         } catch (Exception e) {}
+    }
+
+    /**
+     * Will repaint previous line (after hitting Enter key)
+     * @param withStr
+     */
+    static void resetPreviousPrompt(String withStr = "") {
+        int prevLen = reader.parsedLine.line().length()
+        int diff = prevLen > withStr.length() ? prevLen - withStr.length() + 1 : 1
+        out(ANSI_BACKLINE + prompt + withStr + (" " * diff))
     }
 
     /**
