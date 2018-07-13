@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":db:main" external.linked.project.path="$MODULE_DIR$/../../../modules/db" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.intellisrc" external.system.module.type="sourceSet" external.system.module.version="2.4.6.2-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":db:main" external.linked.project.path="$MODULE_DIR$/../../../modules/db" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.intellisrc" external.system.module.type="sourceSet" external.system.module.version="2.4.6.7-SNAPSHOT" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../../modules/db/out/production/classes" />
     <exclude-output />
@@ -15,6 +15,6 @@
     <orderEntry type="library" name="Gradle: com.sleepycat:je:18.3.1" level="project" />
     <orderEntry type="library" name="Gradle: commons-net:commons-net:3.5" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.13" level="project" />
-    <orderEntry type="module" module-name="core_main" />
+    <orderEntry type="module" module-name="modules-core_main" />
   </component>
 </module>
