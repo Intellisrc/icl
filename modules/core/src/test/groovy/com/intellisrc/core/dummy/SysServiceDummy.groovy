@@ -1,7 +1,7 @@
-package com.intellisrc.etc.dummy
+package com.intellisrc.core.dummy
 
 import groovy.transform.CompileStatic
-import com.intellisrc.etc.SysService
+import com.intellisrc.core.SysService
 
 /**
  * @since 17/10/23.

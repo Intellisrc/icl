@@ -1,74 +1,0 @@
-BHASH $2y$10$YDjAOTT1XBTtTyLhRhSwKO/josYK3qdP2LED.25Grear5SUJKiTXG
-PASS i4a+e@q0lmgX
-SALT hYBAUwd5oWCcN521
-;HASH UhT2OiLQRBLRKFTBaVPtK.OtrdDAwDqtPfgVtWqxTLLVDUSdslahW
-PASS lkoesKZ.qGD2
-SALT Z5xBCRL3S0uCqto0
-BHASH $2y$10$Y1TxMDnTW0DJTBHEPSzvOue2I8IV/gQJX.DdsOz9LDURxW1TrgLi.
-PASS Hello Earth!
-SALT kus8ZUcaKT2FEMqC
-BHASH $2y$10$mnq/xfjTaX5mwHIbPdrQkelsojHFOINvobcjT2nqwEcT5kgIxgCD.
-PASS Hello Earth!
-*SALT IN  A29B01CE1955719EE8C8929D45FB529A
-*SALT OUT ���Uq��Ȓ�E�R�
-BHASH $2y$10$JyRFAtQnlS4DH1yBBffoHes/PbN5NHFU4FLVQkvHmY1gqxzGkY.hy
-PASS Hello Earth!
-*SALT IN  2F44C70AF4A99D4E85277D030E186A26
-SALT OUT /D�
-���N�'}j&
-CHASH using random salt: $s0$8$8$1$A3613B63706692474EB3501E5865D011
-SALT ZeTtf7lD3FXUrH2d
-(SALT IN  X���X*�u(��	n�׆
-(SALT OUT X���X*�u(��	n�׆
-CHASH using fixed salt: $s0$14$8$1$EF46E5641409F851B94AE0A3C3BAF1F7
-	SALT IN  VWSYob8uOI1rxZKx
-	SALT OUT VWSYob8uOI1rxZKx
-	CHASH using fixed salt: $s0$14$8$1$DF7A3D360498325C72C983868BD378FF
-
-x2017-11-02 17:04:02.352 [[33mW[0m] [32mCrypt [33mKey length didn't match the requirement. Generating a new one.[0m
-
-SALT IN  bjYLlEvRhaMNC9ig8wEl
-
-SALT OUT JcTsM174jz3tFkgq
-GKEY : 67794579596C314B457344754C507258364F51704B377473594459497A636E4A
-WENCODED : C9D0260E18490A81623BA4ED0704A6B16837A2D4EA6F729E2C7DE84DA95D5379 (��&I
-1�b;����h7���or�,}�M�]Sy)
-DECODED : Hello Earth!
-LENCODED1 : 298164B1885D9DADA5A44F3645E2038ED4FDC06CB499F3E51FA60375B2227EFC
-LENCODED2 : E253CD94F8F19BEACBDF86F69F1679576E9130582D4AC4BCF92CBC03BC939C6F
-DECODED : Hello Earth!
-=TIGER HASH: A2614727BCA6549236C470392E1E122AC135083B1ECB30AC
-FIt requires BountyCastle to be installed, Refer to the README.md file
-3FzR8711rlWtKDDTeByqqibuDUZU2uNUS4gutfGpOi2T4pKPvm9
-3fn4HkmSqcmFuxnSH1SnEFwj8P4kO7QKRbqHc9QVddKUmSq0L8B
-3aNF4UmM0H7DvDBiUUem2EfubdqtFq4Qp2tAkqheMYVyHg2Ducp
-3FvVrnbPyU4fD5wH9JjxJf0MtGxZHah5R4N0UuLUHVihZhpJ25a
-3F97BWL3siTFB6Oxj07Bp8KSloLPYWJmjqZveEiHW9yGnrOTZlk
-3xedmKryQUQCUcDtBGtjSKzJMmCSQcGMbC4ukTsRfvPEHwskYWp
-3oDAUqOhpELf4PmUwPvck1iXaYpMMEqWc5vg39r17LFiBSCuExG
-3TXrmNHjT5BMhvTyWoJn2E547amHKZ2ORE4ijetUmx0me5h5GDz
-3uBn7cEZ3wl1ZW8nPwfSUrV6vUjeXBQZd4YIO510cLllPP87CNw
-3lgyRkz9wL5fQ1HYK8bC9nwPlMiDjqYIczXffAf7Bzk13RQpedR
-3EkmceNF7aSgI6LX4d0snDJAAXyCvbjnbFgFtadfBucVoTHwH0R
-3h:u6gGt=ktQfrL7zOiDdewynODS=4xYA:p675rt;JlW6L7=S,1
-3$+vftKhvxVBJx=qONQy@J2suqmlx2feix3PWHjqt45tms0f:Fk
-3D@ak4739xf.vCvJmiDkaMy:9Kllgf7nFR$MrKin_jPhemYt17Z
-3PtCq;EWl_ZjhE-$gj7M@62ga_FD8_td2FoB9now,x:Z.dxLkHu
-3KY:ON:v;PyQUH2HEu4uPLR9k9VZOV6@QIPZn6pgIbm_I$,@lKm
-3R9-PRF2VKncKA-D67iV:YSuF_YQE81HAI-FMet,XZqI5TWtK,W
-3PIS$NR9E+d5NS-PLQAoyrOADdSBb0aKxJNB,GG$3Ns+5J1w5fj
-3Yn.EwT-E=fcBGkGFEr$i+46FN:RHB3qnxkgmCg2AZX$PmHc;o2
-3aiu5acZAQDP;JfqzamwCsnlF0T8MBwcSZL5AweojxWJe1cQ$ga
-3,CjkPge3SQrlPjWSv=8Z,mfmXsNW+yLeJ+Y5Iw0t6DuO00Wi,=
-3Gp1L:-3oN313QBDN7H-wQ.gn67CRAmr1Vd;HhNx.tZLL;lyK=Y
-3Y4ONB{t9/\]SfN#uu%_e]g?!egK$54{9/_hc2J`j3VIjx!t2FM
-3/Kr=<E'?G-lb]W<t>khf1rq{bh~"p)%"O&GUiwz\_>enV'xd'n
-3M){E[Q_g#_v#;6%5W3)Uw`#LwNGwq!zN9rmy~{&V|rC"pCc>mi
-3bwppAhw=>4ZF<Z"hI"qS(^ks0vxh`3Z2Du}ynXd>p}CCr_R9Cw
-3+O}A`VwZP5m6Cuc/S5+gZF|{YZV6`*e?@.5%N|l&7l!0Ya9EU-
-3%U5b&ED@M9tUjkF]+szvkoY`tx7+DlmdE_8FWex0A.DJ8Q+Oi+
-3VgqGbp*'VoImM{),@u2$%,%qzbrOA!mQLU*+FN>|#4fjS-R:J^
-34JfLW%a0y^#Y3:;a)CN}1/q2nrR^/h2[&p3fLp1_t[f\u'6FLW
-3=O38(=[iRMo"@rJ_$U5aT\Ik6pCbqQ#jxH8^9UVq1]}U<mq#+;
-35&rgWc:G?$eRp<Ti}-QSQacoaU"@($))0P;kYL'#OMSZ]jBH^$
-3j9L'+I^f:{9z1y#rtq`|a8^moQR(DZWl`}wLiu>:t\GSeKXBug
