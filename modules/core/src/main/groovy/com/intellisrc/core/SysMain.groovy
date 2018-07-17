@@ -1,7 +1,5 @@
-package com.intellisrc.etc
+package com.intellisrc.core
 
-import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Method
