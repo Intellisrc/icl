@@ -1,6 +1,6 @@
-package com.intellisrc.etc
+package com.intellisrc.core
 
-import com.intellisrc.etc.dummy.SysServiceDummy
+import com.intellisrc.core.dummy.SysServiceDummy
 import spock.lang.Specification
 
 /**
