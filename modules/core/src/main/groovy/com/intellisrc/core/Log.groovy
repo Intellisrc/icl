@@ -16,7 +16,8 @@ import java.time.LocalDateTime
 final class Log {
     //Execute on load
     static {
-        if(Version.get().contains("SNAPSHOT")) {
+        isSnapShot = Version.get().contains("SNAPSHOT")
+        if(isSnapShot) {
             level = Level.VERBOSE
         }
         if(Config.exists()) {
@@ -47,6 +48,7 @@ final class Log {
     static String logPath = ""
     static LocalDate logDate = LocalDate.now()
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
+    static boolean isSnapShot
     static synchronized boolean initialized = false
     static boolean enabled = true
     static Level level = Level.INFO
@@ -127,6 +129,9 @@ final class Log {
             } else {
                 if (logPath || logFileName) {
                     usePrinter(LOGFILE, true)
+                    if(isSnapShot) {
+                        usePrinter(SYSTEM, true)
+                    }
                 } else {
                     usePrinter(SYSTEM, true)
                 }
@@ -367,8 +372,7 @@ final class Log {
         Info stack = null
         def stackTrace = new Throwable().getStackTrace()
         if (stackTrace.length < STACK_DEPTH) {
-            throw new IllegalStateException
-                    ("Synthetic stacktrace didn't have enough elements: are you using proguard?")
+            throw new IllegalStateException("Synthetic stacktrace didn't have enough elements: are you using proguard?")
         }
         def caller = stackTrace[STACK_DEPTH-1]
         String className = caller.className
