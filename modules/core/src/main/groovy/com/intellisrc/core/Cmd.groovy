@@ -12,7 +12,7 @@ import groovy.transform.CompileStatic
  *
  *  Note: This Class does not accept pipes. To use pipes, do:
  *
- *  def proc = "grep 'something'".execute() | "sed 's/hello/bye/'".execute() | 'awk "{ print $1 }"''.execute()
+ *  def proc = "grep 'something'".execute() | "sed 's/hello/bye/'".execute() | 'awk "{ print $1 }"'.execute()
  *  println proc.text
  *
  *  It could be implemented passing the result of each command to the next one, however I'm not sure if
@@ -31,6 +31,7 @@ class Cmd {
     }
     static class Command {
         boolean secret = false
+        boolean sendErr = false // Send stdErr on success
         int exit = 0
         int timeout = 10000
         /**
@@ -146,7 +147,11 @@ class Cmd {
             try {
                 prc = command.execute()
                 prc.consumeProcessOutput(std_out, std_err)
-                prc.waitForOrKill(timeout)
+                if(timeout > 0) {
+                    prc.waitForOrKill(timeout)
+                } else {
+                    prc.waitFor()
+                }
                 exitCode = prc.exitValue()
             } catch (Exception e) {
                 exitCode = 1
@@ -157,10 +162,14 @@ class Cmd {
             } else {
                 Log.v("> " + command)
             }
-            if (std_err) {
-                Log.e(std_err.toString())
-            }
             if (exitCode == exit) {
+                if (std_err) {
+                    if(sendErr && onFail) {
+                        onFail.fail(std_err.toString(), exitCode)
+                    } else { //Log any output to std_err
+                        Log.v(std_err.toString())
+                    }
+                }
                 if(onDone) {
                     onDone.done(std_out.toString().trim())
                 }
