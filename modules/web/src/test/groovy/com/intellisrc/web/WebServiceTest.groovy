@@ -167,29 +167,31 @@ class WebServiceTest extends Specification {
 
     def "Websocket Test"() {
         setup:
-            def port = NetworkInterface.getFreePort()
-            def web = new WebService(
-                    port : port,
-                    //resources : 'public'    <--- this is the recommended way to specify resources
-                    cacheTime: 60
-            )
-            // Resources set as full path because code is executed under /tst/ usually use above method
-            web.setResources(System.getProperty("user.dir") + "/res/public/", true)
-            web.addService(new ChatService())
-            web.start()
+        def keepalive = false // change to 'true' to test manually WebSocket Clients
+        //def port = NetworkInterface.getFreePort()
+        def web = new WebService(
+                port : 8888,
+                // Resources set as full path because code is executed under /tst/
+                resources : System.getProperty("user.dir") + "/res/public/",
+                cacheTime: 60
+        )
+        web.addService(new ChatService())
+        web.start(!keepalive)
         expect:
-            assert web.isRunning()
-            web.stop()
-            assert !web.isRunning()
+        assert web.isRunning()
+        web.stop()
+        assert !web.isRunning()
     }
 
+    /* Comment next line to test and set "keepalive = true" in the server test */
     @Ignore("Broken")
     def "WebSocket Client"() {
         setup:
-            ChatClient cc = new ChatClient()
-            cc.Connect()
+        ChatClient cc = new ChatClient()
+        cc.Connect()
     }
 
+    /* Comment next line to test and set "keepalive = true" in the server test */
     @Ignore("Broken")
     def "WebSocket StackOverflow Client"() {
         setup:
