@@ -56,11 +56,13 @@ class WebService {
 
     /**
      * start web service
-     * //TODO: fix paths so path1 + path2 is always correct
      */
-    void start(boolean daemon = true) {
+    void start(boolean background = false) {
         srv.staticFiles.expireTime(cacheTime)
         if(!resources.isEmpty()) {
+            if(resources.startsWith(File.separator) && new File(resources).exists()) {
+                resourcesAbsolute = true
+            }
             if (resourcesAbsolute) {
                 srv.staticFiles.externalLocation(resources)
             } else {
@@ -77,7 +79,7 @@ class WebService {
                         serviciables.services.each {
                             Service sp ->
                                 if(serviciable instanceof ServiciableWebSocket) {
-                                    addWebSocketService(serviciable, serviciables.path + sp.path)
+                                    addWebSocketService(serviciable, (serviciables.path + '/' + sp.path).replaceAll(/\/(\/+)?/,'/'))
                                 } else if(serviciable instanceof ServiciableHTTPS) {
                                     addSSLService(serviciable)
                                     addServicePath(sp, serviciables.path)
@@ -144,7 +146,7 @@ class WebService {
         }
         srv.init()
         running = true
-        if(!daemon) {
+        if(!background) {
             while(running) {
                 sleep 1000L
             }
