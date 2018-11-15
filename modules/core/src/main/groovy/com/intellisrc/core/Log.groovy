@@ -44,7 +44,7 @@ final class Log {
     }
 
     //When logFile is not empty, it will export log to that file
-    private static String logFileName = ""
+    static String logFileName = ""
     static String logPath = ""
     static LocalDate logDate = LocalDate.now()
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
