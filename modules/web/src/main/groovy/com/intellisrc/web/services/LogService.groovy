@@ -29,14 +29,18 @@ class LogService implements ServiciableSingle {
                     def from = request.queryParams("from") ?: ""
                     def to   = request.queryParams("to") ?: ""
                     def type = request.queryParams("type") ?: ""
+                    def clss = request.queryParams("class") ?: ""
+                    def meth = request.queryParams("method") ?: ""
                     def keyword = request.queryParams("key") ?: ""
                     def res = [:]
-                    if(Log.logFile.exists()) {
-                        def logs = Log.logFile.text.split("\n")
-                        def filtered = logs.findAll {
+                    File file = from ? new File(Log.logPath + File.separator + from.split(" ")[0].toDate().getYMD("-") + "-" + Log.logFileName) : Log.logFile
+                    if(file.exists()) {
+                        def logs = file.text.split("\n")
+                        res = logs.findAll {
                             String line ->
                                 def parts = line.split("\t")
                                 LocalDateTime lTime = parts.first().toDateTime()
+                                String
                                 def inc = true
                                 if(from) {
                                     LocalDateTime dFrom = from.toDateTime()
@@ -47,21 +51,27 @@ class LogService implements ServiciableSingle {
                                     inc = lTime <= dTo
                                 }
                                 if(inc && keyword) {
-                                    inc = line.contains(keyword)
+                                    inc = parts[4].toLowerCase().contains(keyword.toLowerCase())
+                                }
+                                if(inc && clss) {
+                                    inc = parts[2].toLowerCase().contains(clss.toLowerCase())
+                                }
+                                if(inc && meth) {
+                                    inc = parts[3].toLowerCase().contains(meth.toLowerCase())
                                 }
                                 if(inc && type) {
-                                    inc = line.contains(" [" + type.toUpperCase() + "] ")
+                                    inc = parts[1].contains(type.toUpperCase())
                                 }
                                 return inc
-                        }
-                        res = filtered.collect {
+                        }.collect {
                             String line ->
                                 def parts = line.split("\t")
                                 return [
                                     time : parts.first(),
                                     type : parts[1].replace("[","").replace("]","").trim(),
                                     clss : parts[2].trim(),
-                                    mssg : parts[3].trim()
+                                    meth : parts[3].trim(),
+                                    mssg : parts[4].trim()
                                 ]
                         }
                     }
