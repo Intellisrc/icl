@@ -1,7 +1,5 @@
 package com.intellisrc.net
 
-import com.intellisrc.core.Config
-import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
 import spock.lang.Specification
 
@@ -20,26 +18,13 @@ class SmtpTest extends Specification {
             host: "example.com",
             username: "example123",
             password: "top_secret",
-            simulate: SIMULATION_MODE //Option normally not used
+            simulate: true //Option normally not used
         )
         */
-        // The following code will try to guess which config to use:
-        Config.fileName = "smtp.properties"
-        def userdir = new File(SysInfo.getUserDir())
-        def rootdir = userdir.parentFile.parentFile
-        def confile = new File(rootdir.toString() + File.separator + Config.fileName)
-        if(confile.exists()) {
-            Config.filePath = rootdir.toString() + File.separator
-            Log.i("Using configuration file in: "+Config.filePath)
-        } else {
-            Log.i("Use: "+rootdir.toString()+File.separator+Config.fileName+" to setup variables.")
-            Config.filePath = userdir.toString() + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator
-            Log.i("You can use "+Config.filePath+Config.fileName+" as example")
-        }
         // If config is loaded, no need to specify connection settings
         smtp = new Smtp(
-            //from: "unit_test@example.com",
-            //simulate: true
+            from: "unit_test@example.com",
+            simulate: true
         )
         attachFile = new File("src/test/resources/star.png")
     }
@@ -54,6 +39,8 @@ class SmtpTest extends Specification {
      * Send a single mail to default recipient (in config file)
      */
     def "SendTest Email to Default"() {
+        setup:
+            smtp.defaultTo = "default@example.com"
         expect:
             assert smtp.sendDefault("Testing SMTP", "This is the body")
     }
@@ -106,16 +93,24 @@ class SmtpTest extends Specification {
     def "Mail magazine"() {
         setup:
             def to = [ "test@example.com" ]
+            def html = new File(SysInfo.tempDir + "magazine.html")
+            def plain = new File(SysInfo.tempDir + "magazine.txt")
+            html.text = "<h1>Hello</h1>"
+            plain.text = "Hello"
         expect:
+            assert html.exists()
+            assert plain.exists()
             to.each {
                 println it
                 assert smtp.send(
                         it,
                         "Magazine",
-                        new File("magazine.html").text,
-                        new File("magazine.txt").text
+                        html.text,
+                        plain.text
                 )
             }
-
+        cleanup:
+            html.delete()
+            plain.delete()
     }
 }

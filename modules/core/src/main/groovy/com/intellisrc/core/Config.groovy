@@ -2,14 +2,21 @@ package com.intellisrc.core
 
 @groovy.transform.CompileStatic
 /**
- * This class will combine System Properties and config.properties into a
- * single configuration. Multiple methods are defined to handle it easier
+ * This class provides an easy way to work with .properties files and Properties classes.
+ * However, this class can also be used to create properties on memory, without any file:
+ * `new Config.Props()`
+ *
+ * This class can be used as static: `Config.getInt("something")` which is equivalent of
+ * `Config.global.getInt("something")` (which reads from "config.properties")
+ *
+ * Additionally, the 'system' property is set to manage the System.properties,
+ * so you can access like: `Config.system.getBool("somekey")`
  *
  * @author Alberto Lepe <lepe@intellisrc.com>
  */
 class Config {
-    static private CfgFile global = new CfgFile(new File(SysInfo.userDir, "config.properties"))
-    static CfgFile system = new CfgFile(null, System.properties)
+    static Props global = new Props(new File(SysInfo.userDir, "config.properties"))
+    static Props system = new Props(System.properties)
 
     /**
      * Static methods will call global instance
@@ -26,26 +33,54 @@ class Config {
     static void set(String key, Object value)   { global.set(key, value) }
 
     /**
+     * Prevent instantiating this class
+     */
+    private Config() {}
+    /**
      * CfgFile can be used with any file
      */
-    static class CfgFile {
-        private final Properties config
-        private final File configFile
-        private boolean useFile = false
+    static class Props {
+        final Properties properties
+        final File configFile
 
-        CfgFile(File cfgFile = null, Properties props = null) {
-            if(cfgFile) {
-                configFile = cfgFile
-                useFile = true
-            }
-            config = props ?: new Properties()
+        /**
+         * Constructor to create new properties on memory
+         */
+        Props() {}
+        /**
+         * Initialize with properties
+         * @param props
+         */
+        Props(Properties props) {
+            properties = props
+        }
+        /**
+         * Constructor using File
+         * @param cfgFile
+         * @param props
+         */
+        Props(File cfgFile, Properties props = null) {
+            configFile = cfgFile
+            properties = props ?: new Properties()
+        }
+        /**
+         * Constructor using only configuration name: new Config("database")
+         * @param configName
+         * @param props
+         */
+        Props(String configName, Properties props = null) {
+            configFile = new File(SysInfo.userDir + configName + ".properties")
+            properties = props ?: new Properties()
         }
 
+        /**
+         * Reload properties from file (if exists)
+         */
         void update() {
-            if(useFile) {
+            if(configFile) {
                 if (configFile.exists()) {
                     if (configFile.canRead()) {
-                        config.load(configFile.newDataInputStream())
+                        properties.load(configFile.newDataInputStream())
                     }
                     if (!configFile.canWrite()) {
                         Log.w("Configuration configFile: " + configFile.toString() + " is not writable. Any attempt to change settings will fail.")
@@ -61,7 +96,7 @@ class Config {
          * @return
          */
         boolean exists() {
-            return useFile && configFile.exists()
+            return configFile && configFile.exists()
         }
 
         /**
@@ -71,7 +106,7 @@ class Config {
          */
         boolean matchKey(String key) {
             update()
-            config.keys().find {
+            properties.keys().find {
                 String pkey ->
                     pkey.startsWith(key)
             }
@@ -84,7 +119,7 @@ class Config {
          */
         boolean hasKey(String key) {
             update()
-            return config.containsKey(key)
+            return properties.containsKey(key)
         }
 
         /**
@@ -96,7 +131,7 @@ class Config {
             update()
             String val = ""
             if (hasKey(key)) {
-                val = config.getProperty(key)
+                val = properties.getProperty(key)
                 if (val == null) {
                     val = ""
                 }
@@ -155,10 +190,10 @@ class Config {
          */
         void set(String key, Object value) {
             update()
-            config.setProperty(key, value.toString())
-            if(useFile) {
+            properties.setProperty(key, value.toString())
+            if(configFile) {
                 if (configFile.parentFile.canWrite()) {
-                    config.store(configFile.newWriter(), null)
+                    properties.store(configFile.newWriter(), null)
                 } else {
                     Log.e("Unable to write to: " + configFile.toString())
                 }
