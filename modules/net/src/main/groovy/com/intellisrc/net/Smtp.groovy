@@ -57,7 +57,6 @@ class Smtp {
         SMTP, SMTPS
     }
     private TransportType transportType = TransportType.SMTP
-    private Properties props = new Properties()
 
     Smtp(String cfgKey = "mail.smtp") {
         Map<String,String> settings = [
@@ -75,7 +74,6 @@ class Smtp {
         String defaultKey = "mail.smtp"
         boolean fileSettingsDefault = Config.matchKey(defaultKey)
         boolean fileSettings = defaultKey != cfgKey && Config.matchKey(cfgKey)
-        props = Config.props
         settings.each {
             String key, String rule ->
                 switch (rule) {
@@ -207,18 +205,18 @@ class Smtp {
         }
         //Setup javamail
         if (username) {
-            props.setProperty("mail.smtp.auth", "true")
-            props.setProperty("mail.smtp.user", username)
-            props.setProperty("mail.smtp.password", password)
+            Config.system.set("mail.smtp.auth", "true")
+            Config.system.set("mail.smtp.user", username)
+            Config.system.set("mail.smtp.password", password)
         }
-        props.setProperty("mail.smtp.host", host)
-        props.setProperty("mail.smtp.port", port.toString())
+        Config.system.set("mail.smtp.host", host)
+        Config.system.set("mail.smtp.port", port.toString())
         if (port == 465) {
-            props.setProperty("mail.smtp.starttls.enable", "true")
-            props.setProperty("mail.smtp.EnableSSL.enable", "true")
-            props.setProperty("mail.smtp.ssl.trust", host)
+            Config.system.set("mail.smtp.starttls.enable", "true")
+            Config.system.set("mail.smtp.EnableSSL.enable", "true")
+            Config.system.set("mail.smtp.ssl.trust", host)
         } else if (startTLS) {
-            props.setProperty("mail.smtp.starttls.enable", "true")
+            Config.system.set("mail.smtp.starttls.enable", "true")
         }
         if(port == 587 || port == 465) {
             transportType = TransportType.SMTPS
@@ -233,7 +231,7 @@ class Smtp {
             Log.e("Sender email is not correct: $from", e)
             return false
         }
-        def session = Session.getDefaultInstance(props)
+        def session = Session.getDefaultInstance(Config.system.properties)
         def message = new MimeMessage(session)
         try {
             if(fromName) {
