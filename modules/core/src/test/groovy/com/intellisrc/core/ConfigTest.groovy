@@ -10,7 +10,7 @@ class ConfigTest extends Specification {
     def "Simple config file"() {
         setup:
             File testCfg = new File(SysInfo.tempDir, "test.config")
-            Config.CfgFile cfg = new Config.CfgFile(testCfg)
+            Config.Props cfg = new Config.Props(testCfg)
             cfg.set("text","something")
             cfg.set("number", 10)
             cfg.set("double", 1.1d)
@@ -31,7 +31,17 @@ class ConfigTest extends Specification {
             Config.system.set("custom", 100)
         expect:
             assert Config.system.getInt("custom") == 100
+            assert System.properties.custom == "100"
             assert Config.system.get("java.home")
             println Config.system.get("java.home")
+    }
+    def "Test Memory Config"() {
+        setup:
+            Config.Props cfg = new Config.Props()
+            cfg.set("my", "test")
+            cfg.set("num", 200)
+        expect:
+            assert cfg.get("my") == "test"
+            assert cfg.getInt("num") == 200
     }
 }
