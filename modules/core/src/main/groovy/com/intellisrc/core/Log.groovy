@@ -40,12 +40,27 @@ final class Log {
             if (Config.hasKey("log.enable")) {
                 enabled = Config.getBool("log.enable")
             }
+            if (Config.hasKey("log.domain")) {
+                domain = Config.get("log.domain")
+            }
+        }
+        if(!domain) {
+            mainClass = Version.mainClass
+            if (mainClass) {
+                def parts = mainClass.tokenize('.')
+                parts.pop()
+                if(parts) {
+                    domain = parts.join('.')
+                }
+            }
         }
     }
 
     //When logFile is not empty, it will export log to that file
     static String logFileName = ""
     static String logPath = ""
+    static String mainClass = ""
+    static String domain = ""   //Highlight this domain in logs (it will try to get it automatically)
     static LocalDate logDate = LocalDate.now()
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
     static boolean isSnapShot
@@ -186,8 +201,8 @@ final class Log {
         private static getColor(Level level) {
             def color
             switch(level) {
-                case Level.VERBOSE: color = ANSI_WHITE; break
-                case Level.DEBUG: color = ANSI_BLACK; break
+                case Level.VERBOSE: color = ANSI_BLACK; break
+                case Level.DEBUG: color = ANSI_WHITE; break
                 case Level.INFO: color = ANSI_CYAN; break
                 case Level.WARN: color = ANSI_YELLOW; break
                 case Level.SECURITY: color = ANSI_PURPLE; break
@@ -299,7 +314,7 @@ final class Log {
         }
         print(lvl, stack, format(msg, listArgs))
         if(throwable) {
-            print(Level.VERBOSE, stack, printStack(throwable))
+            printStack(stack, throwable)
         }
         if(!onLogList.isEmpty()) {
             onLogList.each {
@@ -322,23 +337,25 @@ final class Log {
         return sb.toString()
     }
 
-    private static String printStack(Throwable throwable) {
-        StringBuilder sb = new StringBuilder()
+    private static void printStack(Info stack, Throwable throwable) {
         if(throwable) {
-            sb.append("STACK START ------------------------------------------------------------------------------\n")
-            sb.append("\t")
+            print(Level.VERBOSE, stack,"STACK START ------------------------------------------------------------------------------")
             if(throwable.message) {
-                sb.append(throwable.message ?: "")
-                sb.append("\n")
-                sb.append("\t")
+                print(Level.WARN, stack, throwable.message)
             }
             StringWriter sw = new StringWriter()
             PrintWriter pw = new PrintWriter(sw)
             throwable.printStackTrace(pw)
-            sb.append(sw.toString())
-            sb.append("STACK END ------------------------------------------------------------------------------\n")
+            sw.toString().eachLine {
+                String line ->
+                    if (domain) {
+                        print(line.contains(domain) ? Level.DEBUG : Level.VERBOSE, stack, line)
+                    } else {
+                        print(Level.VERBOSE, stack, line)
+                    }
+            }
+            print(Level.VERBOSE, stack, "STACK END ------------------------------------------------------------------------------")
         }
-        return sb.toString()
     }
 
     private static void print(Level level, Info stack, String msg) {
@@ -369,10 +386,10 @@ final class Log {
     }
 
     private static Info stack() {
-        Info stack = null
+        Info stack
         def stackTrace = new Throwable().getStackTrace()
         if (stackTrace.length < STACK_DEPTH) {
-            throw new IllegalStateException("Synthetic stacktrace didn't have enough elements: are you using proguard?")
+            throw new IllegalStateException("Synthetic stacktrace didn't have enough elements") // are you using proguard?
         }
         def caller = stackTrace[STACK_DEPTH-1]
         String className = caller.className

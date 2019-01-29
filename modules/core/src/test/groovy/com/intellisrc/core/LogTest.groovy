@@ -8,37 +8,19 @@ import spock.lang.Specification
 class LogTest extends Specification {
     def "Simple test"() {
         setup:
+            Log.logPath = SysInfo.tempDir
             Log.logFile = "test.log"
-            Log.w("This is some warning")
+            println "Log file to be created in: ${Log.logFile.absolutePath}"
         expect:
-            def file = Log.logPath + Log.logFile
-            def oFile = new File(file)
-            assert oFile.exists()
-            println "Log file created in: $file"
-            assert oFile.text.contains("some warning")
-            println "Content:"
-            println oFile.text
-        cleanup:
-            oFile.delete()
-    }
-    def "Specifying path"() {
-        setup:
-        // If can also be specified at the config.properties file like: log.file, log.path
-            Log.logFile = "test.log"
-            Log.logPath = "/tmp/"
             Log.w("This is some warning")
-        expect:
-            def file = Log.logPath + Log.logFile
-            def oFile = new File(file)
-            assert oFile.exists()
-            println "Log file created in: $file"
-            assert oFile.text.contains("some warning")
-            println "Content:"
-            println oFile.text
+            assert Log.logFile.exists()
+            assert Log.logFile.text.contains("some warning")
         cleanup:
-            oFile.delete()
+            Log.logFile.delete()
     }
     def "Test parameters"() {
+        setup:
+            Log.domain = this.class.canonicalName.tokenize('.').subList(0, 2).join('.')
         when:
             Log.v("This is more than you need to know... %s", "SECRET")
             Log.d("I'm %d%% that this is correct.", 80)
@@ -116,8 +98,11 @@ class LogTest extends Specification {
     def "Test disable" () {
         setup:
             Log.level = Log.Level.VERBOSE
-            Log.logPath = "/tmp/"
+            Log.logPath = SysInfo.tempDir
             Log.logFile = "test.log"
+            if(Log.logFile.exists()) {
+                Log.logFile.delete()
+            }
             Log.enabled = false
             Log.e("Some random error")
         expect:
