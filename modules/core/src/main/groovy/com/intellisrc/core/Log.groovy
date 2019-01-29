@@ -43,6 +43,12 @@ final class Log {
             if (Config.hasKey("log.domain")) {
                 domain = Config.get("log.domain")
             }
+            if (Config.hasKey("log.color")) {
+                color = Config.getBool("log.color")
+            }
+            if (Config.hasKey("log.color.invert")) {
+                colorInvert = Config.getBool("log.color.invert")
+            }
         }
         if(!domain) {
             mainClass = Version.mainClass
@@ -63,6 +69,7 @@ final class Log {
     static String domain = ""   //Highlight this domain in logs (it will try to get it automatically)
     static LocalDate logDate = LocalDate.now()
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
+    static boolean colorInvert = false //When true BLACK/WHITE will be inverted <VERBOSE vs DEBUG> (depends on terminal)
     static boolean isSnapShot
     static synchronized boolean initialized = false
     static boolean enabled = true
@@ -201,8 +208,8 @@ final class Log {
         private static getColor(Level level) {
             def color
             switch(level) {
-                case Level.VERBOSE: color = ANSI_BLACK; break
-                case Level.DEBUG: color = ANSI_WHITE; break
+                case Level.VERBOSE: color = colorInvert ? ANSI_WHITE : ANSI_BLACK; break
+                case Level.DEBUG: color = colorInvert ? ANSI_BLACK : ANSI_WHITE; break
                 case Level.INFO: color = ANSI_CYAN; break
                 case Level.WARN: color = ANSI_YELLOW; break
                 case Level.SECURITY: color = ANSI_PURPLE; break
@@ -296,8 +303,12 @@ final class Log {
         log(Level.ERROR, msg, args)
     }
 
+    private static isPrintable(Level lvl) {
+        return enabled && lvl >= level
+    }
+
     private static void log(Level lvl, String msg, Object... args) {
-        if (lvl < level || !enabled) {
+        if (!isPrintable(lvl)) {
             return
         }
         if(!initialized) {
@@ -339,22 +350,38 @@ final class Log {
 
     private static void printStack(Info stack, Throwable throwable) {
         if(throwable) {
-            print(Level.VERBOSE, stack,"STACK START ------------------------------------------------------------------------------")
+            boolean verboseOk = isPrintable(Level.VERBOSE)
+            boolean debugOk = isPrintable(Level.DEBUG)
+            if(verboseOk) {
+                print(Level.VERBOSE, stack, "STACK START ------------------------------------------------------------------------------")
+            }
             if(throwable.message) {
-                print(Level.WARN, stack, throwable.message)
+                print(Level.ERROR, stack, "\t" + throwable.message)
             }
-            StringWriter sw = new StringWriter()
-            PrintWriter pw = new PrintWriter(sw)
-            throwable.printStackTrace(pw)
-            sw.toString().eachLine {
-                String line ->
-                    if (domain) {
-                        print(line.contains(domain) ? Level.DEBUG : Level.VERBOSE, stack, line)
-                    } else {
-                        print(Level.VERBOSE, stack, line)
-                    }
+            if(debugOk) {
+                StringWriter sw = new StringWriter()
+                PrintWriter pw = new PrintWriter(sw)
+                throwable.printStackTrace(pw)
+                sw.toString().eachLine {
+                    String line ->
+                        if (domain) {
+                            if (line.contains(domain)) {
+                                print(Level.DEBUG, stack, line)
+                            } else {
+                                if(verboseOk) {
+                                    print(Level.VERBOSE, stack, line)
+                                }
+                            }
+                        } else {
+                            if(verboseOk) {
+                                print(Level.VERBOSE, stack, line)
+                            }
+                        }
+                }
             }
-            print(Level.VERBOSE, stack, "STACK END ------------------------------------------------------------------------------")
+            if(verboseOk) {
+                print(Level.VERBOSE, stack, "STACK END ------------------------------------------------------------------------------")
+            }
         }
     }
 
