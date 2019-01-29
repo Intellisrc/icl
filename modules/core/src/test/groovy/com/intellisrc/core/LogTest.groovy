@@ -20,6 +20,8 @@ class LogTest extends Specification {
     }
     def "Test parameters"() {
         setup:
+            Log.level = Log.Level.VERBOSE
+            Log.colorInvert = true
             Log.domain = this.class.canonicalName.tokenize('.').subList(0, 2).join('.')
         when:
             Log.v("This is more than you need to know... %s", "SECRET")
