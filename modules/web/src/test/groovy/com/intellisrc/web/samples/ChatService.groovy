@@ -3,9 +3,9 @@ package com.intellisrc.web.samples
 import com.intellisrc.core.Log
 import com.intellisrc.web.Session
 import com.intellisrc.web.WebSocketService
-import groovy.transform.CompileStatic
 import com.intellisrc.web.ServiciableWebSocket
-
+import com.intellisrc.web.ServiciableWebSocket.WSMessage
+import groovy.transform.CompileStatic
 /**
  * @since 17/04/19.
  */

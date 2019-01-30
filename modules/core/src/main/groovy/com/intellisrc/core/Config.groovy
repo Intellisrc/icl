@@ -46,7 +46,9 @@ class Config {
         /**
          * Constructor to create new properties on memory
          */
-        Props() {}
+        Props() {
+            properties = new Properties()
+        }
         /**
          * Initialize with properties
          * @param props

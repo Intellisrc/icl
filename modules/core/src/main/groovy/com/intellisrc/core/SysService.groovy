@@ -58,7 +58,7 @@ abstract class SysService {
             case "stop" :
                 Log.v("Removing lock file")
                 lockFile.delete()
-                System.exit(exitCode)
+                service.kill(exitCode)
                 break
             case "restart":
                 if(sysSrv.args.size() > 0) {
@@ -112,11 +112,18 @@ abstract class SysService {
             }
         }
         service.onStop()
-        System.exit(0)
+        service.kill(0)
     }
     void exit(int code = 0) {
         exitCode = code
         main("stop")
+    }
+    /**
+     * Will exit immediately
+     * @param code
+     */
+    void kill(int code) {
+        System.exit(code)
     }
     //------------------------------ NON STATIC ---------------------------------
     String lockFile = "service.lock"

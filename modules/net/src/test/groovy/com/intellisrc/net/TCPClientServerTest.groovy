@@ -3,6 +3,8 @@ package com.intellisrc.net
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
 
+import java.time.LocalDate
+
 /**
  * Test client and server at the same time
  * @since 17/03/03.
@@ -16,7 +18,7 @@ class TCPClientServerTest extends Specification {
     String sendInfo = "Info Please"
     String sendExit = "exit"
     String replyHello = "Hi client!"
-    String replyDate = "Date: "+(new Date().toYMD())
+    String replyDate = "Date: "+(LocalDate.now().YMD)
     String replyInfo = "Info:"+"\n"+replyHello+"\n"+replyDate
     String replyExit = "OK"
     def setup() {

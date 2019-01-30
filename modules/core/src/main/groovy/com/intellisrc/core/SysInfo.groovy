@@ -1,5 +1,4 @@
 package com.intellisrc.core
-
 /**
  * @since 1/2/17.
  */
