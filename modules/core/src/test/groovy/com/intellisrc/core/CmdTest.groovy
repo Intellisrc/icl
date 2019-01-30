@@ -1,4 +1,4 @@
-package com.intellisrc.etc
+package com.intellisrc.core
 
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions

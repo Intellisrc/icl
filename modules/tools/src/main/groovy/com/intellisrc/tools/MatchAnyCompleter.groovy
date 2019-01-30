@@ -8,6 +8,7 @@ import org.jline.reader.ParsedLine
 import org.jline.utils.AttributedString
 
 /**
+ * Auxiliar class to use in Console to match partial command against a list
  * @since 18/07/13.
  */
 @CompileStatic

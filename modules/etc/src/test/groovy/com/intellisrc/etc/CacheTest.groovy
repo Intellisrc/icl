@@ -2,6 +2,8 @@ package com.intellisrc.etc
 
 import spock.lang.Specification
 
+import java.time.LocalDate
+
 
 /**
  * @since 17/10/30.
@@ -12,16 +14,16 @@ class CacheTest extends Specification {
         setup:
             def oc = CacheObj.instance
             oc.set("Hello","World")
-            oc.set("Date", new Date())
+            oc.set("Date", LocalDate.now())
         expect:
             assert !oc.isEmpty()
             assert oc.contains("Hello")
             assert !oc.contains("Bla")
             assert oc.get("Hello") == "World"
-            assert oc.get("Date").class.isInstance(new Date())
+            assert oc.get("Date").class.isInstance(LocalDate.now())
         when:
-            Date d = oc.get("Date") as Date
-            println d.toYMDHms()
+            LocalDate d = oc.get("Date") as LocalDate
+            println d.YMD
             oc.del("Date")
         then:
             assert !oc.contains("Date")
