@@ -1,6 +1,7 @@
 package com.intellisrc.etc
 
 import groovy.transform.CompileStatic
+
 import java.nio.file.Files
 
 /**

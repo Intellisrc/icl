@@ -1,11 +1,10 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.web.Service.Allow
-import com.intellisrc.web.ServiciableAuth
-
 /**
  * @since 17/04/19.
  */
+import com.intellisrc.web.Service.Allow
+import com.intellisrc.web.ServiciableAuth
 import spark.Request
 
 @groovy.transform.CompileStatic

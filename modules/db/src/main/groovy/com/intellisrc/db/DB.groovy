@@ -127,7 +127,7 @@ class DB {
     /**
      * Returns rows which matches specified ids
 	 * @param ids
-	 * @return 
+	 * @return
      **/
     Data get(LocalDateTime date) {
         getQuery().setAction(Query.Action.SELECT).setWhere(date)
