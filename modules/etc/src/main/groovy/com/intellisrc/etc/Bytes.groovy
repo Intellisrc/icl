@@ -136,9 +136,9 @@ class Bytes {
      */
     static byte[] concat(byte[]... arrays) {
         def outputStream = new ByteArrayOutputStream()
-        arrays.each {
+        (arrays as List<byte[]>).each {
             byte[] arr ->
-            outputStream.write(arr)
+                outputStream.write(arr)
         }
         return outputStream.toByteArray()
     }

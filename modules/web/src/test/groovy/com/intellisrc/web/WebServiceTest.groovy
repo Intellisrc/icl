@@ -32,7 +32,7 @@ class WebServiceTest extends Specification {
             web.setResources(publicDir, true)
             web.addService(new IDService())
         when:
-            web.start()
+            web.start(true)
         then:
             assert web.isRunning()
             assert ("http://localhost:"+port).toURL().text.contains("Hello")
@@ -67,7 +67,7 @@ class WebServiceTest extends Specification {
             web.setResources(publicDir, true)
             web.addService(new IDService())
         when:
-            web.start()
+            web.start(true)
         then:
             assert web.isRunning()
         when:
@@ -100,7 +100,7 @@ class WebServiceTest extends Specification {
             web.setResources(publicDir, true)
             web.addService(new EmailService())
         when:
-            web.start()
+            web.start(true)
         then:
             assert web.isRunning()
         when:
@@ -127,7 +127,7 @@ class WebServiceTest extends Specification {
             web.setResources(publicDir, true)
             web.addService(new UploadService())
         when:
-            web.start()
+            web.start(true)
         then:
             assert web.isRunning()
         when:
@@ -157,7 +157,7 @@ class WebServiceTest extends Specification {
             // Resources set as full path because code is executed under /tst/ usually use above method
             web.setResources(System.getProperty("user.dir") + "/res/public", true)
             web.addService(new SSLService())
-            web.start()
+            web.start(true)
         expect:
             assert web.isRunning()
             assert "https://localhost:$port/admin.txt".toURL().text.contains("9EEyY")

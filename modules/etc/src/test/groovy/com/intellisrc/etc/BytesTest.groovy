@@ -41,4 +41,16 @@ class BytesTest extends Specification  {
             assert fromHex(hex) == bytes
             assert toString(bytes) == str
     }
+    def "Concat byte arrays"() {
+        setup:
+            String str1 = "何の言語ですか？"
+            String str2 = "日本語です。"
+            byte[] bytes1 = fromString(str1)
+            byte[] bytes2 = fromString(str2)
+        when:
+            byte[] concat = concat(bytes1, bytes2)
+        then:
+            assert concat.length
+            assert new String(toChars(concat)) == str1 + str2
+    }
 }
