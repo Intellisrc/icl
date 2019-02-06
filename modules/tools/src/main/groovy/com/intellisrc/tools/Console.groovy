@@ -9,6 +9,7 @@ import org.jline.reader.impl.LineReaderImpl
 import org.jline.reader.impl.completer.AggregateCompleter
 import org.jline.reader.impl.completer.StringsCompleter
 import org.jline.reader.impl.history.DefaultHistory
+import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp
 
@@ -33,7 +34,7 @@ class Console {
     static String prompt = Config.get("console.prompt") ?: "> "
     static Character mask = (Config.get("console.mask") ?: "*")[0] as Character
     static LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
-    static final int timeout = Config.getInt("console.timeout") ?: 0
+    static int timeout = Config.getInt("console.timeout") ?: 0
     static final boolean addDefault = Config.getBool("console.default") ?: true
     static final String ANSI_BACKLINE = '\033[1A'
     static final LinkedList<String> commandBuffer = new LinkedList<>()
@@ -182,6 +183,13 @@ class Console {
      */
     static String read(final BackgroundTask interval) {
         return read(prompt, interval)
+    }
+
+    /**
+     * Cancel a read instruction
+     */
+    static void cancel() {
+        reader.terminal.raise(Terminal.Signal.INT)
     }
 
     /**
