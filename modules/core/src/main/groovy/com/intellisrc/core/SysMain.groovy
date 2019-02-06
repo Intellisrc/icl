@@ -39,12 +39,12 @@ abstract class SysMain {
             }
         }
         //When onStart() finish, call onStop(), then exit
-        main.onStop()
-        System.exit(0)
+        main.exit(0)
     }
     void exit(int code = 0) {
         exitCode = code
         main.onStop()
+        System.exit(code)
     }
     //------------------------------ NON STATIC ---------------------------------
     final Queue<String> args = [] as Queue<String>
@@ -57,6 +57,5 @@ abstract class SysMain {
      */
     void onStop() {
         Log.i("System exiting...")
-        System.exit(0)
     }
 }
