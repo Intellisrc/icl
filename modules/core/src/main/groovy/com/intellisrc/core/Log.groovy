@@ -45,6 +45,9 @@ final class Log {
             }
             if (Config.hasKey("log.color")) {
                 color = Config.getBool("log.color")
+                if(color) {
+                    colorAlways = true //We set it true if we have explicitly in the configuration
+                }
             }
             if (Config.hasKey("log.color.invert")) {
                 colorInvert = Config.getBool("log.color.invert")
@@ -67,9 +70,10 @@ final class Log {
     static String logPath = ""
     static String mainClass = ""
     static String domain = ""   //Highlight this domain in logs (it will try to get it automatically)
-    static LocalDate logDate = LocalDate.now()
+    static LocalDateTime logDate = LocalDateTime.now()
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
     static boolean colorInvert = false //When true BLACK/WHITE will be inverted <VERBOSE vs DEBUG> (depends on terminal)
+    static boolean colorAlways = false //When true it will output log always in color
     static boolean isSnapShot
     static synchronized boolean initialized = false
     static boolean enabled = true
@@ -83,16 +87,6 @@ final class Log {
 
     private static final Set<Printer> mPrinters = []
     private static final int STACK_DEPTH = 4
-
-    static final String ANSI_RESET   = "\u001B[0m"
-    static final String ANSI_BLACK   = "\u001B[30m"
-    static final String ANSI_RED     = "\u001B[31m"
-    static final String ANSI_GREEN   = "\u001B[32m"
-    static final String ANSI_YELLOW  = "\u001B[33m"
-    static final String ANSI_BLUE    = "\u001B[34m"
-    static final String ANSI_PURPLE  = "\u001B[35m"
-    static final String ANSI_CYAN    = "\u001B[36m"
-    static final String ANSI_WHITE   = "\u001B[37m"
 
     static final enum Level {
         VERBOSE, DEBUG, INFO, WARN, SECURITY, ERROR
@@ -119,9 +113,8 @@ final class Log {
 
     private static class FilePrinter implements Printer {
         @Override
-        void print(Level level, Info stack, String msg) {
+        void print(Level lvl, Info stack, String msg) {
             if(logFileName) {
-                String time = LocalDateTime.now().YMDHmsS
                 if(!(logPath && new File(logPath).canWrite())) {
                     logPath = SysInfo.getWritablePath()
                 } else {
@@ -129,18 +122,34 @@ final class Log {
                         logPath += File.separator
                     }
                 }
-                LocalDate newDate = LocalDate.now()
+                LocalDateTime newDate = LocalDateTime.now()
                 // Change file and compress if date changed
                 if(newDate != logDate) {
                     compressLog()
                     logDate = newDate
                     cleanLogs()
                 }
-                logFile << (time + "\t" + "[" + level + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
+                logFile << getLogLine(lvl, stack, msg)
             }
         }
     }
 
+    /**
+     * Return a line of the Log (automatically adding color or not)
+     * @return
+     */
+    private static String getLogLine(Level lvl, Info stack, String msg) {
+        String time = LocalDateTime.now().YMDHmsS
+        if(colorAlways || SysInfo.isLinux() && color) {
+            logFile << time +" [" + getLevelColor(lvl) + level + AnsiColor.RESET + "] " +
+                    AnsiColor.GREEN + stack.className + AnsiColor.RESET +
+                    " (" + AnsiColor.BLUE + stack.methodName + AnsiColor.RESET +
+                    ":" + AnsiColor.CYAN + stack.lineNumber + AnsiColor.RESET + ") " +
+                    getLevelColor(lvl) + msg + AnsiColor.RESET
+        } else {
+            logFile << (time + "\t" + "[" + lvl + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
+        }
+    }
     /**
      * Decide which printer to use
      */
@@ -166,7 +175,7 @@ final class Log {
      * @return
      */
     static File getLogFile() {
-        return new File(logPath + logDate.YMD + "-" + logFileName)
+        return new File(logPath + logDate.toLocalDate().YMD + "-" + logFileName)
     }
 
     /**
@@ -204,31 +213,26 @@ final class Log {
         }
     }
 
-    private static class SystemOutPrinter implements Printer {
-        private static getColor(Level level) {
-            def color
-            switch(level) {
-                case Level.VERBOSE: color = colorInvert ? ANSI_WHITE : ANSI_BLACK; break
-                case Level.DEBUG: color = colorInvert ? ANSI_BLACK : ANSI_WHITE; break
-                case Level.INFO: color = ANSI_CYAN; break
-                case Level.WARN: color = ANSI_YELLOW; break
-                case Level.SECURITY: color = ANSI_PURPLE; break
-                case Level.ERROR: color = ANSI_RED; break
-            }
-            return color
+    /**
+     * Return color depending on level
+     */
+    private static getLevelColor(Level lvl) {
+        def color
+        switch(lvl) {
+            case Level.VERBOSE: color = colorInvert ? AnsiColor.WHITE : AnsiColor.BLACK; break
+            case Level.DEBUG: color = colorInvert ? AnsiColor.BLACK : AnsiColor.WHITE; break
+            case Level.INFO: color = AnsiColor.CYAN; break
+            case Level.WARN: color = AnsiColor.YELLOW; break
+            case Level.SECURITY: color = AnsiColor.PURPLE; break
+            case Level.ERROR: color = AnsiColor.RED; break
         }
+        return color
+    }
+
+    private static class SystemOutPrinter implements Printer {
         @Override
-        void print(Level level, Info stack, String msg) {
-            String time = LocalDateTime.now().format("yyyy-MM-dd HH:mm:ss.SSS")
-            if(SysInfo.isLinux() && color) {
-                println(time+" [" + getColor(level) + level + ANSI_RESET + "] " +
-                        ANSI_GREEN + stack.className + ANSI_RESET +
-                        " (" + ANSI_BLUE + stack.methodName + ANSI_RESET +
-                        ":" + ANSI_CYAN + stack.lineNumber + ANSI_RESET + ") " +
-                        getColor(level) + msg + ANSI_RESET)
-            } else {
-                println(time+" [" + level + "] " + stack.className + " (" + stack.methodName + ":" + stack.lineNumber + ") " + msg)
-            }
+        void print(Level lvl, Info stack, String msg) {
+            println(getLogLine(lvl, stack, msg))
         }
     }
 
