@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':core')
+    compile "org.bytedeco:javacv-platform:1.4.4"
+}
