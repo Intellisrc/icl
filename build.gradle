@@ -34,7 +34,7 @@ subprojects {
     apply plugin: 'maven-publish'
 
     dependencies {
-        compile 'com.intellisrc:groovy-extend:1.8'  //Using groovy 2.5.5
+        compile 'com.intellisrc:groovy-extend:2.0.2-SNAPSHOT'  //Using groovy 2.5.7
         testCompile 'org.spockframework:spock-unitils:1.2-groovy-2.5'
     }
 

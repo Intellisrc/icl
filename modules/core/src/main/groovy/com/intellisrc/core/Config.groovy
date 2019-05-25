@@ -186,6 +186,29 @@ class Config {
         }
 
         /**
+         * Get File from path
+         * @param key
+         * @return
+         */
+        File getFile(String key) {
+            File pathFile = null
+            String path = get(key)
+            if(path) {
+                switch (path) {
+                    case ~/^\/.*$/:
+                        pathFile = new File(path)
+                        break
+                    case ~/^~.*$/:
+                        pathFile = new File(SysInfo.homeDir, path.replace('~/', ''))
+                        break
+                    default:
+                        pathFile = new File(SysInfo.userDir, path)
+                }
+            }
+            return pathFile
+        }
+
+        /**
          * Set value in properties
          * @param key
          * @param value
