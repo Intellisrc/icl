@@ -1,59 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.5.6 : Fixed timeout in Console and exit() in SysMain">
-      <change afterPath="$PROJECT_DIR$/create_module.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/AnsiColor.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/CvTools.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/JpegFormat.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFormat.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFrame.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegInputStream.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/VideoGrab.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/serial/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Seriable.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Serial.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/SerialDummy.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/SerialReader.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/Progress.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/fileSnapshots.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/3.5-rc-2/taskHistory/taskHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Consolable.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/Consolable.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/Console.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/ConsoleDefault.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/ConsoleDefault.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/MatchAnyCompleter.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/MatchAnyCompleter.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/test/groovy/com/intellisrc/tools/ConsoleDefaultTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ConsoleDefaultTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/test/groovy/com/intellisrc/tools/MatchAnyCompleterTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/MatchAnyCompleterTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/tools/src/test/groovy/com/intellisrc/tools/console/TestConsole.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/console/TestConsole.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -228,17 +178,35 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
+            <state relative-caret-position="4842">
               <caret line="272" column="8" selection-start-line="272" selection-start-column="8" selection-end-line="272" selection-end-column="8" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Zip.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="28" column="12" selection-start-line="28" selection-start-column="12" selection-end-line="28" selection-end-column="12" />
+            <state relative-caret-position="286">
+              <caret line="32" column="16" selection-start-line="32" selection-start-column="16" selection-end-line="32" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/gradle.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="126">
+              <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build.gradle">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="36" column="49" selection-start-line="36" selection-start-column="49" selection-end-line="36" selection-end-column="49" />
             </state>
           </provider>
         </entry>
@@ -347,7 +315,6 @@
         <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/settings.gradle" />
-        <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/ImgTools.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/CvTools.groovy" />
@@ -357,6 +324,7 @@
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFormat.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/JpegFormat.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/VideoGrab.groovy" />
+        <option value="$PROJECT_DIR$/build.gradle" />
       </list>
     </option>
   </component>
@@ -393,46 +361,6 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -629,13 +557,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00067" summary="2.2.45.1 : Added EmailTest">
-      <created>1519961230195</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1519961230195</updated>
     </task>
     <task id="LOCAL-00068" summary="2.2.45.3 : Fixed issue with defaulTo">
       <created>1519961602181</created>
@@ -973,7 +894,14 @@
       <option name="project" value="LOCAL" />
       <updated>1549439287383</updated>
     </task>
-    <option name="localTasksCounter" value="116" />
+    <task id="LOCAL-00116" summary="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0">
+      <created>1558799866334</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1558799866335</updated>
+    </task>
+    <option name="localTasksCounter" value="117" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1018,9 +946,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="33" width="1372" height="683" extended-state="6" />
+    <frame x="-3" y="33" width="1372" height="738" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49748743" weight="0.31996974" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49748743" visible="true" weight="0.21406959" />
       <window_info id="Structure" order="1" sideWeight="0.5025126" side_tool="true" weight="0.31996974" />
       <window_info id="Designer" order="2" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -1044,7 +973,7 @@
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" show_stripe_button="false" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Gradle" order="3" weight="0.24432677" />
+      <window_info anchor="right" id="Gradle" order="3" visible="true" weight="0.24432677" />
       <window_info anchor="right" id="Palette&#9;" order="4" />
       <window_info anchor="right" id="Maven Projects" order="5" weight="0.32954547" />
       <window_info anchor="right" id="Code Outline" order="6" />
@@ -1093,7 +1022,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.4.5 BerkeleyDB.destroy added" />
     <MESSAGE value="2.4.5 Added test for BerkeleyDB" />
     <MESSAGE value="2.4.5 Added test for PGP" />
     <MESSAGE value="2.4.5 Added encoding/decoding exceptions" />
@@ -1118,7 +1046,8 @@
     <MESSAGE value="2.5.2 : Fixed visibility in logs and added color.invert" />
     <MESSAGE value="2.5.5 : Updated to Groovy 2.5.5 (groovy-extends 1.8). Fixed broken unit tests" />
     <MESSAGE value="2.5.6 : Fixed timeout in Console and exit() in SysMain" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.5.6 : Fixed timeout in Console and exit() in SysMain" />
+    <MESSAGE value="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -1292,13 +1221,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
@@ -1306,13 +1228,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/ai/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/ai/build.gradle" />
     <entry file="file://$PROJECT_DIR$/modules/serial/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
@@ -1370,13 +1286,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="36" column="51" selection-start-line="36" selection-start-column="51" selection-end-line="36" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/cv/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
@@ -1384,26 +1293,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/ImgTools.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1180">
-          <caret line="38" column="8" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
-          <folding>
-            <element signature="e#27#57#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MJpegGrabber.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="6" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="6" />
-          <folding>
-            <element signature="e#27#57#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/ImgTools.groovy" />
+    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MJpegGrabber.groovy" />
     <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegInputStream.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="414">
@@ -1464,15 +1355,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
+        <state relative-caret-position="4842">
           <caret line="272" column="8" selection-start-line="272" selection-start-column="8" selection-end-line="272" selection-end-column="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Zip.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="28" column="12" selection-start-line="28" selection-start-column="12" selection-end-line="28" selection-end-column="12" />
+        <state relative-caret-position="286">
+          <caret line="32" column="16" selection-start-line="32" selection-start-column="16" selection-end-line="32" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="36" column="49" selection-start-line="36" selection-start-column="49" selection-end-line="36" selection-end-column="49" />
         </state>
       </provider>
     </entry>

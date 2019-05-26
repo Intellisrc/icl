@@ -13,7 +13,7 @@
     <orderEntry type="module" module-name="crypt_main" />
     <orderEntry type="module" module-name="etc_main" />
     <orderEntry type="module" module-name="modules-core_main" />
-    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:2.0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:2.0" level="project" />
     <orderEntry type="library" name="Gradle: javax.mail:mail:1.4.1" level="project" />
     <orderEntry type="library" name="Gradle: org.spockframework:spock-unitils:1.2-groovy-2.5" level="project" />
     <orderEntry type="library" name="Gradle: commons-net:commons-net:3.5" level="project" />

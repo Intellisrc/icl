@@ -11,7 +11,7 @@
     <orderEntry type="module" module-name="db_main" />
     <orderEntry type="module" module-name="etc_main" />
     <orderEntry type="module" module-name="modules-core_main" />
-    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:2.0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:2.0" level="project" />
     <orderEntry type="library" name="Gradle: mysql:mysql-connector-java:5.1.40" level="project" />
     <orderEntry type="library" name="Gradle: org.xerial:sqlite-jdbc:3.23.1" level="project" />
     <orderEntry type="library" name="Gradle: com.sleepycat:je:18.3.1" level="project" />
