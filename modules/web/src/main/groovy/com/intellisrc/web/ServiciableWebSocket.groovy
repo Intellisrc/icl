@@ -9,7 +9,7 @@ interface ServiciableWebSocket extends Serviciable {
      * Set to null if no recipient is desired
      */
     static class WSMessage {
-        List<String> to = new ArrayList<>()
+        List<String> to = []
         Map jsonObj = [:]
         /**
          * Send to all recipients

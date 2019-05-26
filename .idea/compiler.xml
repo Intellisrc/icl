@@ -20,12 +20,18 @@
       <module name=".._web_test" target="1.8" />
       <module name="ai_main" target="1.8" />
       <module name="ai_test" target="1.8" />
+      <module name="com.intellisrc-cv_main" target="11" />
+      <module name="com.intellisrc-cv_test" target="11" />
+      <module name="com.intellisrc-etc_main" target="11" />
+      <module name="com.intellisrc-etc_test" target="11" />
       <module name="com.intellisrc-serial_main" target="11" />
       <module name="com.intellisrc-serial_test" target="11" />
-      <module name="common_main" target="1.8" />
-      <module name="common_test" target="1.8" />
-      <module name="core_main" target="1.8" />
-      <module name="core_test" target="1.8" />
+      <module name="com.intellisrc-term_main" target="11" />
+      <module name="com.intellisrc-term_test" target="11" />
+      <module name="common_main" target="11" />
+      <module name="common_test" target="11" />
+      <module name="core_main" target="11" />
+      <module name="core_test" target="11" />
       <module name="crypt_main" target="11" />
       <module name="crypt_test" target="11" />
       <module name="cv_main" target="11" />
@@ -62,8 +68,8 @@
       <module name="net_test" target="11" />
       <module name="os_main" target="1.8" />
       <module name="os_test" target="1.8" />
-      <module name="serial_main" target="1.8" />
-      <module name="serial_test" target="1.8" />
+      <module name="serial_main" target="11" />
+      <module name="serial_test" target="11" />
       <module name="srv_main" target="1.8" />
       <module name="srv_test" target="1.8" />
       <module name="term_main" target="11" />

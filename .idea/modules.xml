@@ -2,9 +2,20 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv.iml" group="common/cv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv_main.iml" group="common/cv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv_test.iml" group="common/cv" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc.iml" group="common/etc" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_main.iml" group="common/etc" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_test.iml" group="common/etc" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial.iml" group="common/serial" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_main.iml" group="common/serial" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_test.iml" group="common/serial" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_main.iml" group="common/term" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_test.iml" group="common/term" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/core/core.iml" group="common/core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/core/core_main.iml" group="common/core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/core/core_test.iml" group="common/core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" filepath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" group="common/crypt" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" filepath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" group="common/crypt" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" filepath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" group="common/crypt" />
@@ -25,6 +36,10 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" filepath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" group="common/net" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" filepath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" group="common/net" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" filepath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" group="common/net" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/serial.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/serial.iml" group="common/serial" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/serial_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/serial_main.iml" group="common/serial" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/serial_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/serial_test.iml" group="common/serial" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/term/term.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/term/term.iml" group="common/term" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/term/term_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/term/term_main.iml" group="common/term" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/term/term_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/term/term_test.iml" group="common/term" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" filepath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" group="common/web" />

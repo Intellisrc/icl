@@ -25,6 +25,9 @@ import org.bouncycastle.util.io.Streams
 import java.security.Security
 
 import groovy.transform.CompileStatic
+
+import java.time.LocalDateTime
+
 /**
  * OpenPGP wrapper
  * based in example:
@@ -148,7 +151,7 @@ class PGP extends Crypt implements Encodable {
                 PGPLiteralData.BINARY,
                 Bytes.toString(randomChars(16)),  // "filename" to store in headers
                 clearData.length, // length of clear data
-                new Date()  // current time
+                LocalDateTime.now().toDate()  // current time
         )
         pOut.write(clearData)
         pOut.close()

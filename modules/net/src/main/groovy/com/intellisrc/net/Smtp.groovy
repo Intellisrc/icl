@@ -17,6 +17,7 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeBodyPart
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
+import java.time.LocalDateTime
 
 /**
  * References:
@@ -325,7 +326,7 @@ class Smtp {
             }
         }
         // Add headers
-        message.setSentDate(new Date())
+        message.setSentDate(LocalDateTime.now().toDate())
         try {
             if(!headers.isEmpty()) {
                 headers.each {
