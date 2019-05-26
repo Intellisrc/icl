@@ -1,6 +1,5 @@
 package com.intellisrc.etc
 
-import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 import java.util.zip.GZIPInputStream
@@ -14,21 +13,22 @@ import java.util.zip.GZIPOutputStream
  */
 @CompileStatic
 class Zip {
+    static class InvalidExtensionException extends Exception {}
     /**
      * Compress a file and rename it to *.gz
      * @param file
      */
-    static boolean gzip(File file, boolean log = true) { // log: As it is used inside Log class, we need a way to turn it off to prevent infinitive loop
+    static boolean gzip(File file) {
         boolean ok = false
         if(file.exists()) {
             if(!file.name.endsWith(".gz")) {
                 file.bytes = gzip(file.bytes)
                 ok = file.renameTo(file.path + ".gz")
             } else {
-                if(log) { Log.w("File seems already compressed: %s", file.name) }
+                throw new InvalidExtensionException()
             }
         } else {
-            if(log) { Log.e("File: %s doesn't exists", file.toString()) }
+            throw new FileNotFoundException()
         }
         return ok
     }
@@ -50,17 +50,17 @@ class Zip {
      * Uncompress file and removes the extension *.gz
      * @param file
      */
-    static boolean gunzip(File file, boolean log = true) { // log: For uniformity with gzip
+    static boolean gunzip(File file) {
         boolean ok = false
         if(file.exists()) {
             if(file.name.endsWith(".gz")) {
                 file.bytes = gunzip(file.bytes)
                 ok = file.renameTo(file.name.replace(/\.gz$/,''))
             } else {
-                if(log) { Log.w("File name does not ends with 'gz': %s", file.name) }
+                throw new InvalidExtensionException()
             }
         } else {
-            if(log) { Log.e("File: %s doesn't exists", file.toString()) }
+            throw new FileNotFoundException()
         }
         return ok
     }

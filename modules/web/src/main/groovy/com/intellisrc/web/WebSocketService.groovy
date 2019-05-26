@@ -119,7 +119,7 @@ class WebSocketService {
      * @return
      */
     private List<String> getConnected() {
-        List<String> clients = new ArrayList<>()
+        List<String> clients = []
         sessionQueue.each {
             Session sess ->
                 if(sess.websocketSession.isOpen()) {

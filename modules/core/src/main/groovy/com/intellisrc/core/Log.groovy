@@ -194,7 +194,7 @@ final class Log {
             Class[] parameters = [ File.class, boolean.class ]
             Class zip = Class.forName(Log.class.package.name.replace('core','etc') + ".Zip")
             Method method = zip.getMethod("gzip", parameters)
-            Object[] callParams = [ logFile, false ]
+            Object[] callParams = [ logFile ]
             method.invoke(null, callParams)
         } catch (Exception e) {
             //Ignore... Zip class doesn't exists, so we don't compress them

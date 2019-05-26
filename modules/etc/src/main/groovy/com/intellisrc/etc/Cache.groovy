@@ -2,6 +2,7 @@ package com.intellisrc.etc
 
 import com.intellisrc.core.Log
 
+import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
@@ -15,6 +16,8 @@ import java.util.concurrent.ConcurrentMap
  * extend       : if true, it will extend time upon access. If false, it will expire when the time is due (without changing expire value).
  */
 class Cache<V> {
+    static final int FOREVER = -1
+    static final int DEFAULT = 600
     interface onNotFound {
         V call()
     }
@@ -28,22 +31,25 @@ class Cache<V> {
      * length      : time in milliseconds that will be stored (used to extend cache)
      * value       : value to store
      */
-    private class CacheObj {
-        V       value
-        long    expire = 0
-        private long length = 0
+    private static class CacheItem<V> {
+        V               value
+        LocalDateTime   expire
+        private int     length = 0
         private boolean forever = false
-        CacheObj(V obj, long time) {
-            value = obj
-            if(time > 0) {
-                expire = time
-                length = expire - new Date().time
-            } else {
-                forever = true
+
+        CacheItem(V obj, int timeToStoreSec = DEFAULT) {
+            if(timeToStoreSec != 0) { //Do not store if its disabled
+                value = obj
+                if (timeToStoreSec > 0) {
+                    expire = LocalDateTime.now().plusSeconds(timeToStoreSec)
+                    length = timeToStoreSec
+                } else if (timeToStoreSec == FOREVER) {
+                    forever = true
+                }
             }
         }
     }
-    protected final ConcurrentMap<String, CacheObj> cache = new ConcurrentHashMap<>()
+    protected final ConcurrentMap<String, CacheItem<V>> cache = new ConcurrentHashMap<>()
 
 	/**
 	 * Constructor
@@ -85,14 +91,14 @@ class Cache<V> {
         def obj = cache.get(key)
         if(obj) {
             if(!obj.forever) {
-                def now = new Date().time
+                def now = LocalDateTime.now()
                 if (obj.expire < now) {
                     Log.v("Key [$key] expired.")
                     del(key)
                     expired = true
                 } else {
                     if (extend) {
-                        obj.expire = now + obj.length
+                        obj.expire = now.plusSeconds(obj.length)
                     }
                 }
             }
@@ -105,7 +111,7 @@ class Cache<V> {
 	 * @param default_val
 	 * @return
 	 */
-    V get(final String key, onNotFound notFound = null, long time = timeout) {
+    V get(final String key, onNotFound notFound = null, int time = timeout) {
         V ret = null
         if(contains(key)) {
             ret = cache.get(key).value
@@ -127,11 +133,11 @@ class Cache<V> {
 	 * @param key
 	 * @param value 
 	 */
-    void set(final String key, final V value, long time = timeout) {
+    void set(final String key, final V value, int time = timeout) {
 		if(value == null) {
 			del(key)
 		} else {
-	        cache.put(key, new CacheObj(value, time ? new Date().getTime() + (time * 1000) : 0))
+	        cache.put(key, new CacheItem(value, time))
 		}
 	}
 
@@ -177,7 +183,7 @@ class Cache<V> {
      */
     private garbageCollect() {
         cache.each {
-            String key, CacheObj co ->
+            String key, CacheItem co ->
                 expired(key)
         }
     }

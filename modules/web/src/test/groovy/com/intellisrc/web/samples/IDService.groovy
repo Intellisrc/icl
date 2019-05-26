@@ -7,6 +7,8 @@ import com.intellisrc.web.Service.ActionRequestResponse
 import spark.Request
 import spark.Response
 
+import java.time.LocalDateTime
+
 /**
  * @since 17/04/19.
  */
@@ -29,7 +31,7 @@ class IDService implements ServiciableSingle {
                     }
                 return [
                     i : id,
-                    t : new Date().time
+                    t : LocalDateTime.now().toLocalTime().HHmmss
                 ]
             } as ActionRequestResponse
         )
