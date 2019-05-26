@@ -120,7 +120,7 @@ class Cmd {
          * @return
          */
         private static Map<String,List> wrapCmds(List<String> cmds) {
-            def cmd = [:]
+            Map<String,List> cmd = [:]
             cmds.each {
                 cmd[it] = []
             }

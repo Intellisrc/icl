@@ -12,7 +12,7 @@ class PoolConnectorTest extends Specification {
         setup:
             Database.init(new Dummy())
         when:
-            ArrayList<DB> dbArr = []
+            List<DB> dbArr = []
             (1..10).each {
                 DB db = Database.connect()
                 assert db: "Failed to connect to Database"

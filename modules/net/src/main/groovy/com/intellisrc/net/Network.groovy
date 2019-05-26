@@ -11,7 +11,7 @@ class Network {
      * @param ipRange
      * @return
      */
-    static ArrayList<Inet4Address> getIpsFromRange(final String ipRange) { //117.211.141-147.20-218
+    static List<Inet4Address> getIpsFromRange(final String ipRange) { //117.211.141-147.20-218
         String[] segments = ipRange.split("\\.")    //split into 4 segments
         int seg1Lower
         int seg1Upper
@@ -63,12 +63,12 @@ class Network {
         }
 
         //generate all IPs
-        def IPs = new ArrayList<>()
+        List<Inet4Address> IPs = []
         for (int i = seg1Lower; i <= seg1Upper; i++) {
             for (int j = seg2Lower; j <= seg2Upper; j++) {
                 for (int k = seg3Lower; k <= seg3Upper; k++) {
                     for (int l = seg4Lower; l <= seg4Upper; l++) {
-                        IPs.add(InetAddress.getByName(i + "." + j + "." + k + "." + l))
+                        IPs.add((Inet4Address) InetAddress.getByName(i + "." + j + "." + k + "." + l))
                     }
                 }
             }
