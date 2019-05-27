@@ -4,46 +4,52 @@ buildscript {
         mavenCentral()
         jcenter()
     }
-    dependencies {
-        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.5.0')
-    }
     configurations.classpath {
-        resolutionStrategy {
-            cacheDynamicVersionsFor 0, 'seconds'
-            cacheChangingModulesFor 0, 'seconds'
+        resolutionStrategy.with {
+            cacheDynamicVersionsFor(0, 'seconds')
+            cacheChangingModulesFor(0, 'seconds')
         }
     }
 }
 
 plugins {
     id 'idea'
+    id 'groovy'
     id 'maven'
     id 'maven-publish'
-    id "com.jfrog.artifactory" version "4.7.4"
+    id "com.jfrog.artifactory" version "4.9.6"
 }
 
 allprojects {
-    group "${groupName}"
-    version "${currentVersion}"
+    group = groupName
+    version = currentVersion
     repositories {
         mavenLocal()
+        maven {
+            url "${repositoryURL}/${repositoryResolve}"
+            credentials {
+                username = "${artifactoryUser}"
+                password = "${artifactoryPassword}"
+            }
+        }
         mavenCentral()
         jcenter()
     }
 }
 
+//Do not publish /common as it is empty
 artifactoryPublish.skip = true
 
 subprojects {
     apply plugin: 'groovy'
     apply plugin: 'idea'
     apply plugin: 'maven-publish'
+    apply plugin: "com.jfrog.artifactory"
 
     dependencies {
         compile 'com.intellisrc:groovy-extend:2.0'  //Using groovy 2.5.7
         testCompile 'org.spockframework:spock-unitils:1.2-groovy-2.5'
     }
-
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -57,7 +63,7 @@ subprojects {
         contextUrl = "${repositoryURL}"
         publish {
             repository {
-                repoKey = currentVersion.endsWith("SNAPSHOT") ? "${repositoryDevelop}" : "${repositoryStable}" // The Artifactory repository key to publish to
+                repoKey = currentVersion.endsWith("SNAPSHOT") ? repositoryDevelop : repositoryStable // The Artifactory repository key to publish to
                 username = "${artifactoryUser}" // The publisher user name
                 password = "${artifactoryPassword}" // The publisher password
             }
@@ -72,9 +78,9 @@ subprojects {
         }
         resolve {
             repository {
-                repoKey =  "${repositoryResolve}" // The Artifactory repository key to publish to
-                username = "${artifactoryUser}" // The publisher user name
-                password = "${artifactoryPassword}" // The publisher password
+                repoKey =  repositoryResolve // The Artifactory repository key to publish to
+                username = artifactoryUser // The publisher user name
+                password = artifactoryPassword // The publisher password
             }
         }
     }
