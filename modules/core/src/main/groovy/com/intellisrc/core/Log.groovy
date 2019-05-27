@@ -140,15 +140,17 @@ final class Log {
      */
     private static String getLogLine(Level lvl, Info stack, String msg) {
         String time = LocalDateTime.now().YMDHmsS
+        String line = ""
         if(colorAlways || SysInfo.isLinux() && color) {
-            logFile << time +" [" + getLevelColor(lvl) + level + AnsiColor.RESET + "] " +
+            line = time +" [" + getLevelColor(lvl) + level + AnsiColor.RESET + "] " +
                     AnsiColor.GREEN + stack.className + AnsiColor.RESET +
                     " (" + AnsiColor.BLUE + stack.methodName + AnsiColor.RESET +
                     ":" + AnsiColor.CYAN + stack.lineNumber + AnsiColor.RESET + ") " +
                     getLevelColor(lvl) + msg + AnsiColor.RESET
         } else {
-            logFile << (time + "\t" + "[" + lvl + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
+            line = (time + "\t" + "[" + lvl + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
         }
+        return line
     }
     /**
      * Decide which printer to use
