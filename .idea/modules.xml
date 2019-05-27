@@ -7,12 +7,13 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/cv/com.intellisrc-cv_test.iml" group="common/cv" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc.iml" group="common/etc" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_main.iml" group="common/etc" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_test.iml" group="common/etc" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial.iml" group="common/serial" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_main.iml" group="common/serial" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/serial/com.intellisrc-serial_test.iml" group="common/serial" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_main.iml" group="common/term" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/term/com.intellisrc-term_test.iml" group="common/term" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common_main.iml" filepath="$PROJECT_DIR$/.idea/modules/common_main.iml" group="common" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common_test.iml" filepath="$PROJECT_DIR$/.idea/modules/common_test.iml" group="common" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/core/core.iml" group="common/core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/core/core_main.iml" group="common/core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/modules/core/core_test.iml" group="common/core" />
