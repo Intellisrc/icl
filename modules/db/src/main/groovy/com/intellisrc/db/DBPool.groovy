@@ -7,7 +7,7 @@ import com.intellisrc.core.Log
  * Manage the DB connection pool
  * It handles automatically the number of connections as it
  * increases or decrease the pool according to demand.
- * @author Alberto Lepe <lepe@inspeedia.com>
+ * @author Alberto Lepe <lepe@intellisrc.com>
  */
 class DBPool {
     private int timeoutSeconds = 600
