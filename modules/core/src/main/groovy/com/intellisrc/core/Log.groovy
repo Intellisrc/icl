@@ -137,7 +137,7 @@ final class Log {
      * Return a line of the Log (automatically adding color or not)
      * @return
      */
-    private static String getLogLine(Level lvl, Info stack, String msg, boolean toFile = false) {
+    private static String getLogLine(Level lvl, Info stack, String msg, boolean toFile) {
         String time = LocalDateTime.now().YMDHmsS
         String line = ""
         if(colorAlways || SysInfo.isLinux() && color &&! toFile) {
@@ -233,7 +233,7 @@ final class Log {
     private static class SystemOutPrinter implements Printer {
         @Override
         void print(Level lvl, Info stack, String msg) {
-            println(getLogLine(lvl, stack, msg))
+            println(getLogLine(lvl, stack, msg, false))
         }
     }
 
@@ -266,7 +266,7 @@ final class Log {
         void print(Level level, Info stack, String msg) {
             try {
                 if (mLoaded) {
-                    mLogMethods[level.toString()].invoke(null, stack, msg)
+                    (mLogMethods[level.toString()] as Method).invoke(null, stack, msg)
                 }
             } catch (InvocationTargetException|IllegalAccessException e) {
                 // Ignore
