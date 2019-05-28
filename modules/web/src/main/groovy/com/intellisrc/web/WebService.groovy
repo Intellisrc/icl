@@ -291,7 +291,7 @@ class WebService {
     private static Route onAction(final Service sp) {
         return {
             Request request, Response response ->
-                Log.v("Requested: %s By: %s", request.uri(), request.ip())
+                Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
                 Object out = ""
                 OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : (sp.contentType.contains("text") ? OutputType.PLAIN : OutputType.BINARY)
                 response.type(sp.contentType)
