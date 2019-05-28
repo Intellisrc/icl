@@ -8,8 +8,6 @@ import org.bytedeco.javacv.OpenCVFrameConverter
 
 import javax.imageio.ImageIO
 import java.awt.image.BufferedImage
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 import static org.bytedeco.javacpp.opencv_core.IplImage
 
