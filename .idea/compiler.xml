@@ -20,6 +20,8 @@
       <module name=".._web_test" target="1.8" />
       <module name="ai_main" target="1.8" />
       <module name="ai_test" target="1.8" />
+      <module name="com.intellisrc-core_main" target="11" />
+      <module name="com.intellisrc-core_test" target="11" />
       <module name="com.intellisrc-cv_main" target="11" />
       <module name="com.intellisrc-cv_test" target="11" />
       <module name="com.intellisrc-etc_main" target="11" />
