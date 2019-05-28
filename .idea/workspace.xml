@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0">
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__ognl_ognl_2_6_9.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__ognl_ognl_2_6_9.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_unitils_unitils_core_3_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_unitils_unitils_core_3_3.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.6.0: Fixed Log not printing">
+      <change afterPath="$PROJECT_DIR$/modules/net/config.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/modules/etc/com.intellisrc-etc_test.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare.sh" beforeDir="false" afterPath="$PROJECT_DIR$/compare.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DBPool.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DBPool.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -206,8 +217,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2664">
-              <caret line="151" column="4" selection-start-line="151" selection-start-column="4" selection-end-line="151" selection-end-column="4" />
+            <state relative-caret-position="2718">
+              <caret line="153" column="6" selection-start-line="153" selection-start-column="6" selection-end-line="153" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/settings.gradle">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="378">
+              <caret line="21" selection-start-line="21" selection-end-line="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="558">
+              <caret line="31" column="35" selection-start-line="31" selection-start-column="35" selection-end-line="31" selection-end-column="35" />
             </state>
           </provider>
         </entry>
@@ -225,16 +254,34 @@
         <entry file="file://$PROJECT_DIR$/gradle.properties">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="126">
-              <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
+              <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="23" column="10" selection-start-line="23" selection-start-column="10" selection-end-line="23" selection-end-column="10" />
+            <state relative-caret-position="208">
+              <caret line="49" column="52" selection-start-line="49" selection-start-column="52" selection-end-line="49" selection-end-column="52" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/serial/build.gradle">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="72">
+              <caret line="4" selection-start-line="4" selection-end-line="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/term/build.gradle">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="36">
+              <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -302,11 +349,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Cmd.groovy" />
-        <option value="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" />
-        <option value="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Version.groovy" />
-        <option value="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Smtp.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/test/groovy/com/intellisrc/net/SmtpTest.groovy" />
         <option value="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/ConfigTest.groovy" />
         <option value="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" />
@@ -339,19 +381,24 @@
         <option value="$PROJECT_DIR$/create_module.sh" />
         <option value="$PROJECT_DIR$/modules/ai/build.gradle" />
         <option value="$PROJECT_DIR$/modules/cv/build.gradle" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/settings.gradle" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/ImgTools.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/CvTools.groovy" />
-        <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MJpegGrabber.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegInputStream.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFormat.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/JpegFormat.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/VideoGrab.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Zip.groovy" />
+        <option value="$PROJECT_DIR$/modules/net/config.properties" />
+        <option value="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" />
+        <option value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
         <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" />
+        <option value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Log.groovy" />
+        <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" />
+        <option value="$PROJECT_DIR$/../../groovy/common-java/modules/cv/src/main/groovy/com/inspeedia/common/cv/VideoGrab.groovy" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/build.gradle" />
       </list>
     </option>
@@ -362,7 +409,7 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-3" />
     <option name="y" value="33" />
     <option name="width" value="1926" />
@@ -377,6 +424,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -386,31 +434,17 @@
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="Gradle: com.intellisrc:groovy-extend:2.0" type="70bed36:NamedLibraryElementNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="Gradle: com.intellisrc:groovy-extend:2.0" type="70bed36:NamedLibraryElementNode" />
-              <item name="groovy-extend-2.0.jar" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="common" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="Gradle: com.intellisrc:groovy-extend:2.0" type="70bed36:NamedLibraryElementNode" />
-              <item name="groovy-extend-2.0.jar" type="462c0819:PsiDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -418,12 +452,12 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/build.gradle" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.2472752" />
+    <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Config.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/build.gradle" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -456,20 +490,6 @@
   <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ProgressTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.term.ProgressTest" />
-      <module name="term_test" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.intellisrc.term.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -518,38 +538,54 @@
       <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="publishToMavenLocal" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="ProgressTest.Test summary" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="term_test" />
+    <configuration name="LogTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="modules-core_test" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.intellisrc.term.*" />
+          <option name="PATTERN" value="com.intellisrc.core.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.intellisrc.term" />
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.term.ProgressTest" />
-      <option name="METHOD_NAME" value="Test summary" />
+      <option name="PACKAGE_NAME" value="com.intellisrc.core" />
+      <option name="MAIN_CLASS_NAME" value="com.intellisrc.core.LogTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LogTest.Test parameters" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="modules-core_test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.intellisrc.core.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.intellisrc.core" />
+      <option name="MAIN_CLASS_NAME" value="com.intellisrc.core.LogTest" />
+      <option name="METHOD_NAME" value="Test parameters" />
       <option name="TEST_OBJECT" value="method" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PoolConnectorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="db_test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.intellisrc.db.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.intellisrc.db" />
+      <option name="MAIN_CLASS_NAME" value="com.intellisrc.db.PoolConnectorTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <RunnerSettings RunnerId="Debug with VisualVM">
+        <option name="visualVMId" value="2961109950515911" />
+      </RunnerSettings>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -584,19 +620,19 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.ProgressTest" />
       <item itemvalue="Gradle.common [artifactoryPublish]" />
-      <item itemvalue="Gradle.common [publishToMavenLocal]" />
       <item itemvalue="Gradle.common [artifactoryDeploy]" />
-      <item itemvalue="JUnit.ProgressTest.Test summary" />
+      <item itemvalue="JUnit.LogTest" />
+      <item itemvalue="JUnit.LogTest.Test parameters" />
+      <item itemvalue="JUnit.PoolConnectorTest" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.common [artifactoryPublish]" />
+        <item itemvalue="JUnit.PoolConnectorTest" />
+        <item itemvalue="JUnit.LogTest.Test parameters" />
+        <item itemvalue="JUnit.LogTest" />
         <item itemvalue="Gradle.common [artifactoryDeploy]" />
-        <item itemvalue="Application.ProgressTest" />
-        <item itemvalue="JUnit.ProgressTest.Test summary" />
-        <item itemvalue="Gradle.common [publishToMavenLocal]" />
       </list>
     </recent_temporary>
   </component>
@@ -607,20 +643,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00068" summary="2.2.45.3 : Fixed issue with defaulTo">
-      <created>1519961602181</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1519961602181</updated>
-    </task>
-    <task id="LOCAL-00069" summary="2.2.45.3 : send using Email">
-      <created>1519961683195</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1519961683195</updated>
     </task>
     <task id="LOCAL-00070" summary="2.2.45.3 : Added types">
       <created>1519961774639</created>
@@ -951,22 +973,24 @@
       <option name="project" value="LOCAL" />
       <updated>1558799866335</updated>
     </task>
-    <option name="localTasksCounter" value="117" />
+    <task id="LOCAL-00117" summary="2.6: Gradle 5.4 updated.">
+      <created>1558929453271</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1558929453273</updated>
+    </task>
+    <task id="LOCAL-00118" summary="2.6.0: Fixed Log not printing">
+      <created>1558933109518</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1558933109518</updated>
+    </task>
+    <option name="localTasksCounter" value="119" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 19m 05s.xml">
-      <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 28m 00s.xml">
-      <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 28m 44s.xml">
-      <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 28m 52s.xml">
-      <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 29m 09s.xml">
       <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
     </history-entry>
@@ -985,6 +1009,18 @@
     <history-entry file="ProgressTest_Test_summary - 2019.04.15 at 12h 58m 54s.xml">
       <configuration name="ProgressTest.Test summary" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="LogTest - 2019.05.27 at 13h 56m 23s.xml">
+      <configuration name="LogTest" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="LogTest_Test_parameters - 2019.05.27 at 13h 56m 53s.xml">
+      <configuration name="LogTest.Test parameters" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="LogTest_Test_parameters - 2019.05.27 at 13h 57m 53s.xml">
+      <configuration name="LogTest.Test parameters" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="PoolConnectorTest - 2019.05.27 at 16h 25m 40s.xml">
+      <configuration name="PoolConnectorTest" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -996,17 +1032,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="33" width="1926" height="1170" extended-state="0" />
-    <editor active="true" />
+    <frame x="-3" y="33" width="1926" height="1170" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49748743" visible="true" weight="0.19509594" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49748743" visible="true" weight="0.13432837" />
       <window_info id="Structure" order="1" sideWeight="0.5025126" side_tool="true" weight="0.31996974" />
       <window_info id="Designer" order="2" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info id="UI Designer" order="4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.55789477" />
-      <window_info anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" weight="0.5228571" />
+      <window_info anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" weight="0.6685714" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.44049734" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1014,16 +1049,16 @@
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32761905" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" weight="0.3295238" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.15598086" />
-      <window_info anchor="bottom" id="Messages" order="10" visible="true" weight="0.1647619" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.1647619" />
       <window_info anchor="bottom" id="Run with VisualVM" order="11" />
       <window_info anchor="bottom" id="JFrog" order="12" weight="0.3295238" />
-      <window_info anchor="bottom" id="Debug with VisualVM" order="13" />
+      <window_info anchor="bottom" id="Debug with VisualVM" order="13" weight="0.3295238" />
       <window_info anchor="bottom" id="Build" order="14" weight="0.22952381" />
       <window_info anchor="bottom" id="Tail" order="15" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" show_stripe_button="false" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Gradle" order="3" visible="true" weight="0.20522387" />
+      <window_info anchor="right" id="Gradle" order="3" visible="true" weight="0.10714286" />
       <window_info anchor="right" id="Palette&#9;" order="4" />
       <window_info anchor="right" id="Maven Projects" order="5" weight="0.32954547" />
       <window_info anchor="right" id="Code Outline" order="6" />
@@ -1072,8 +1107,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.4.5 Added test for BerkeleyDB" />
-    <MESSAGE value="2.4.5 Added test for PGP" />
     <MESSAGE value="2.4.5 Added encoding/decoding exceptions" />
     <MESSAGE value="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set." />
     <MESSAGE value="2.4.5 Console: after password prompt, clear buffer and call garbage collection" />
@@ -1097,7 +1130,9 @@
     <MESSAGE value="2.5.5 : Updated to Groovy 2.5.5 (groovy-extends 1.8). Fixed broken unit tests" />
     <MESSAGE value="2.5.6 : Fixed timeout in Console and exit() in SysMain" />
     <MESSAGE value="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0" />
+    <MESSAGE value="2.6: Gradle 5.4 updated." />
+    <MESSAGE value="2.6.0: Fixed Log not printing" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.6.0: Fixed Log not printing" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -1113,41 +1148,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/MacAddress.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/ConsoleDefault.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="14" column="6" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/core/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="13" selection-start-column="13" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysMain.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="42" selection-start-line="42" selection-end-line="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/term/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/ProgressBar.groovy" />
     <entry file="file://$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/Consolable.groovy">
       <provider selected="true" editor-type-id="text-editor">
@@ -1222,13 +1222,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/ai/build.gradle" />
-    <entry file="file://$PROJECT_DIR$/modules/serial/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Serial.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -1394,10 +1387,32 @@
     </entry>
     <entry file="jar://$USER_HOME$/.sdkman/candidates/gradle/current/lib/gradle-core-api-4.10.3.jar!/org/gradle/api/artifacts/Configuration.class" />
     <entry file="jar://$USER_HOME$/.sdkman/candidates/gradle/current/lib/gradle-core-api-4.10.3.jar!/org/gradle/api/artifacts/ResolutionStrategy.class" />
-    <entry file="file://$PROJECT_DIR$/settings.gradle">
+    <entry file="jar://$MAVEN_REPOSITORY$/com/intellisrc/groovy-extend/2.0/groovy-extend-2.0.jar!/com/intellisrc/groovy/DateExt.class" />
+    <entry file="jar://$MAVEN_REPOSITORY$/com/intellisrc/groovy-extend/2.0/groovy-extend-2.0.jar!/com/intellisrc/groovy/LocalDateExt.class" />
+    <entry file="file://$PROJECT_DIR$/modules/net/src/test/resources/star.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/net/src/test/resources/smtp.properties">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/net/config.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        <state relative-caret-position="54">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2718">
+          <caret line="153" column="6" selection-start-line="153" selection-start-column="6" selection-end-line="153" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="558">
+          <caret line="31" column="35" selection-start-line="31" selection-start-column="35" selection-end-line="31" selection-end-column="35" />
         </state>
       </provider>
     </entry>
@@ -1411,35 +1426,35 @@
     <entry file="file://$PROJECT_DIR$/gradle.properties">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
-          <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/com/intellisrc/groovy-extend/2.0/groovy-extend-2.0.jar!/com/intellisrc/groovy/DateExt.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/com/intellisrc/groovy-extend/2.0/groovy-extend-2.0.jar!/com/intellisrc/groovy/LocalDateExt.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="47" column="41" selection-start-line="47" selection-start-column="41" selection-end-line="47" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2664">
-          <caret line="151" column="4" selection-start-line="151" selection-start-column="4" selection-end-line="151" selection-end-column="4" />
+          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="23" column="10" selection-start-line="23" selection-start-column="10" selection-end-line="23" selection-end-column="10" />
+        <state relative-caret-position="208">
+          <caret line="49" column="52" selection-start-line="49" selection-start-column="52" selection-end-line="49" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/serial/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/term/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/settings.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="21" selection-start-line="21" selection-end-line="21" />
         </state>
       </provider>
     </entry>
