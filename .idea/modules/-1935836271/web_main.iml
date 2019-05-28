@@ -8,8 +8,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="etc_main" />
-    <orderEntry type="module" module-name="com.intellisrc-core_main" />
+    <orderEntry type="module" module-name="com.intellisrc-etc_main" />
+    <orderEntry type="module" module-name="core_main" />
     <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:2.0.256" level="project" />
     <orderEntry type="library" name="Gradle: com.sparkjava:spark-core:2.7.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.2" level="project" />
