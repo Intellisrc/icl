@@ -128,7 +128,7 @@ final class Log {
                     logDate = newDate
                     cleanLogs()
                 }
-                logFile << getLogLine(lvl, stack, msg)
+                logFile << getLogLine(lvl, stack, msg, true)
             }
         }
     }
@@ -137,15 +137,15 @@ final class Log {
      * Return a line of the Log (automatically adding color or not)
      * @return
      */
-    private static String getLogLine(Level lvl, Info stack, String msg) {
+    private static String getLogLine(Level lvl, Info stack, String msg, boolean toFile = false) {
         String time = LocalDateTime.now().YMDHmsS
         String line = ""
-        if(colorAlways || SysInfo.isLinux() && color) {
+        if(colorAlways || SysInfo.isLinux() && color &&! toFile) {
             line = time +" [" + getLevelColor(lvl) + level + AnsiColor.RESET + "] " +
                     AnsiColor.GREEN + stack.className + AnsiColor.RESET +
                     " (" + AnsiColor.BLUE + stack.methodName + AnsiColor.RESET +
                     ":" + AnsiColor.CYAN + stack.lineNumber + AnsiColor.RESET + ") " +
-                    getLevelColor(lvl) + msg + AnsiColor.RESET
+                    getLevelColor(lvl) + msg + AnsiColor.RESET + "\n"
         } else {
             line = (time + "\t" + "[" + lvl + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
         }
