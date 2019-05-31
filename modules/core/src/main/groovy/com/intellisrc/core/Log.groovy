@@ -141,7 +141,7 @@ final class Log {
         String time = LocalDateTime.now().YMDHmsS
         String line = ""
         if(colorAlways || SysInfo.isLinux() && color &&! toFile) {
-            line = time +" [" + getLevelColor(lvl) + level + AnsiColor.RESET + "] " +
+            line = time +" [" + getLevelColor(lvl) + lvl + AnsiColor.RESET + "] " +
                     AnsiColor.GREEN + stack.className + AnsiColor.RESET +
                     " (" + AnsiColor.BLUE + stack.methodName + AnsiColor.RESET +
                     ":" + AnsiColor.CYAN + stack.lineNumber + AnsiColor.RESET + ") " +
