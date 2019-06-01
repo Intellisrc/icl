@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.intellisrc</groupId>
   <artifactId>db</artifactId>
-  <version>2.6.2</version>
+  <version>2.6.3</version>
   <packaging>pom</packaging>
   <dependencies>
     <dependency>
@@ -16,25 +16,25 @@
     <dependency>
       <groupId>com.intellisrc</groupId>
       <artifactId>etc</artifactId>
-      <version>2.6.2</version>
+      <version>2.6.3</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.40</version>
+      <version>8.0.16</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
-      <version>3.23.1</version>
+      <version>3.27.2.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.sleepycat</groupId>
       <artifactId>je</artifactId>
-      <version>18.3.1</version>
+      <version>18.3.12</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>

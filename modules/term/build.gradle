@@ -1,4 +1,4 @@
 dependencies {
     compile project(':core')
-    compile "org.jline:jline:3.9.0"
+    compile "org.jline:jline:3.11.0"
 }

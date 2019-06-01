@@ -4,6 +4,7 @@ import com.intellisrc.etc.Bytes
 import com.intellisrc.etc.CacheObj
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
+import com.intellisrc.etc.Zip
 
 import static com.intellisrc.web.Service.Method.*
 
@@ -13,7 +14,6 @@ import spark.Route
 import spark.Service as Srv
 
 import javax.servlet.MultipartConfigElement
-import javax.servlet.http.HttpServletResponse
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
@@ -45,6 +45,7 @@ class WebService {
     int cacheTime = 0
     int port = 80
     int threads = 20
+    int eTagMaxKB = 1024
     private boolean running = false
 
     /**
@@ -252,14 +253,13 @@ class WebService {
      * @param otype
      * @return
      */
-    private static Object getOutput(Response response, Object output, OutputType otype) {
+    private static Object getOutput(Object output, OutputType otype) {
         Object out
         switch(otype) {
             case OutputType.JSON:
                 out = JSON.encode(output)
                 break
             case OutputType.BINARY:
-                HttpServletResponse raw = response.raw()
                 byte[] content
                 switch (output) {
                     case File:
@@ -270,15 +270,19 @@ class WebService {
                         content = output.toString().bytes
                         break
                 }
-                raw.getOutputStream().write(content)
-                raw.getOutputStream().flush()
-                raw.getOutputStream().close()
-                raw.setContentLength(content.length)
-                out = raw
+                out = content
                 break
             case OutputType.PLAIN:
             default:
-                out = output.toString()
+                switch (output) {
+                    case File:
+                        out = (output as File).text
+                        break
+                    case String:
+                    default:
+                        out = output.toString()
+                        break
+                }
         }
         return out
     }
@@ -292,7 +296,8 @@ class WebService {
         return {
             Request request, Response response ->
                 Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
-                Object out = ""
+                Object out = ""     // Output to serve
+                Object res = null   // Response from Service
                 OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : (sp.contentType.contains("text") ? OutputType.PLAIN : OutputType.BINARY)
                 response.type(sp.contentType)
                 sp.headers.each {
@@ -300,7 +305,6 @@ class WebService {
                         response.header(key, val)
                 }
                 if(sp.allow.check(request)) {
-                    boolean isFile = false
                     if (sp.download) {
                         response.header("Content-Disposition", "attachment; filename=" + sp.download)
                         if (otype == OutputType.BINARY) {
@@ -322,14 +326,13 @@ class WebService {
                                         Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
                                         def file = new File(path.toString())
                                         try {
-                                            Object res
                                             switch (sp.upload) {
                                                 case Service.UploadRequestResponse: res = (sp.upload as Service.UploadRequestResponse).run(file, request, response); break
                                                 case Service.UploadRequest: res = (sp.upload as Service.UploadRequest).run(file, request); break
                                                 case Service.Upload:
                                                 default: res = (sp.upload as Service.Upload).run(file); break
                                             }
-                                            out = getOutput(response, res, otype)
+                                            out = getOutput(res, otype)
                                         } catch (Exception e) {
                                             response.status(500)
                                             Log.e("Service.upload closure failed", e)
@@ -360,14 +363,13 @@ class WebService {
                         out = CacheObj.instance.get(key, {
                             def toSave = ""
                             try {
-                                Object res
                                 switch (sp.action) {
                                     case Service.ActionRequestResponse: res = (sp.action as Service.ActionRequestResponse).run(request, response); break
                                     case Service.ActionRequest: res = (sp.action as Service.ActionRequest).run(request); break
                                     case Service.Action:
                                     default: res = (sp.action as Service.Action).run(); break
                                 }
-                                toSave = getOutput(response, res, otype)
+                                toSave = getOutput(res, otype)
                             } catch (Exception e) {
                                 response.status(500)
                                 Log.e("Service.action CACHE closure failed", e)
@@ -376,14 +378,13 @@ class WebService {
                         }, sp.cacheTime)
                     } else {
                         try {
-                            Object res
                             switch (sp.action) {
                                 case Service.ActionRequestResponse: res = (sp.action as Service.ActionRequestResponse).run(request, response); break
                                 case Service.ActionRequest: res = (sp.action as Service.ActionRequest).run(request); break
                                 case Service.Action:
                                 default: res = (sp.action as Service.Action).run(); break
                             }
-                            out = getOutput(response, res, otype)
+                            out = getOutput(res, otype)
                         } catch (Exception e) {
                             response.status(500)
                             Log.e("Service.action closure failed", e)
@@ -403,21 +404,44 @@ class WebService {
                             response.header("ETag", sp.etag.calc(out))
                         } else {
                             try {
-                                if(out instanceof File) {
-                                    etag = ((File) out).lastModified().toString()
-                                } else if (otype != OutputType.BINARY) {
-                                    etag = Integer.toHexString(Bytes.fromString(out.toString()).hashCode())
+                                if(res instanceof File) {
+                                    etag = ((File) res).lastModified().toString()
+                                } else if (otype == OutputType.BINARY) {
+                                    if((out as byte[]).length > 1024 * eTagMaxKB) {
+                                        Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
+                                    } else {
+                                        etag = (out as byte[]).encodeHex().toString().md5()
+                                    }
+                                } else {
+                                    etag = out.toString().md5()
                                 }
                                 if(etag) {
                                     response.header("ETag", etag)
-                                } else if(otype == OutputType.BINARY) {
-                                    Log.v("Unable to generate ETag for: %s, output is Binary", request.uri())
                                 } else {
                                     Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
                                 }
                             } catch (Exception e) {
                                 //Can't be converted to String
                                 Log.v("Unable to set etag for: %s, failed : %s", request.uri(), e.message)
+                            }
+                        }
+                    }
+                    // Set content-length and Gzip headers
+                    if (otype == OutputType.BINARY) {
+                        if (res instanceof File) {
+                            response.header("Content-Length", sprintf("%d", (res as File).size()))
+                        } else {
+                            response.header("Content-Length", sprintf("%d", (out as byte[]).length))
+                        }
+                    } else {
+                        if(request.headers("Accept-Encoding").contains("gzip")) {
+                            response.header("Content-Encoding", "gzip")
+                            //TODO: https://stackoverflow.com/questions/56404858/
+                        } else {
+                            if (res instanceof File) {
+                                response.header("Content-Length", sprintf("%d", (res as File).size()))
+                            } else {
+                                response.header("Content-Length", sprintf("%d", out.toString().length()))
                             }
                         }
                     }
