@@ -149,7 +149,7 @@ class JDBCConnector implements Connector {
         switch(type) {
             case MYSQL:
                 try {
-                    Class.forName("com.mysql.jdbc.Driver")
+                    Class.forName("com.mysql.cj.jdbc.Driver")
                     url += "?useSSL=false" //Disable SSL warning
                     url += "&autoReconnect=true" //Reconnect
                     //UTF-8 enable:
@@ -216,7 +216,7 @@ class JDBCConnector implements Connector {
 				} else if (o instanceof String) {
 					st.setString(index, (String) o)
 				} else if (o instanceof LocalDate) {
-					st.setDate(index, java.sql.Date.valueOf(o))
+					st.setDate(index, java.sql.Date.valueOf(o.toString()))
 				} else if (o instanceof LocalDateTime) {
 					long millis = o.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 					st.setTimestamp(index, new Timestamp(millis))

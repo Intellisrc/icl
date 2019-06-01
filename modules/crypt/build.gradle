@@ -1,6 +1,7 @@
 dependencies {
     compile project(':etc')
-    compile 'org.bouncycastle:bcprov-jdk15on:1.59'
-    compile 'org.bouncycastle:bcpg-jdk15on:1.59'
-    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.59'
+    def bouncyVersion = "1.61"
+    compile "org.bouncycastle:bcprov-jdk15on:${bouncyVersion}"
+    compile "org.bouncycastle:bcpg-jdk15on:${bouncyVersion}"
+    compile "org.bouncycastle:bcprov-ext-jdk15on:${bouncyVersion}"
 }
