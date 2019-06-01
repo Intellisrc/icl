@@ -391,7 +391,7 @@ class WebService {
                     }
                     if (sp.noStore) { //Never store in client
                         response.header("Cache-Control", "no-store")
-                    } else if (!sp.cacheTime) { //Revalidate each time
+                    } else if (!sp.cacheTime &&! sp.maxAge) { //Revalidate each time
                         response.header("Cache-Control", "no-cache")
                     } else {
                         String priv = (sp.isPrivate) ? "private," : "" //User-specific data
