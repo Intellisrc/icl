@@ -233,7 +233,7 @@ final class Log {
     private static class SystemOutPrinter implements Printer {
         @Override
         void print(Level lvl, Info stack, String msg) {
-            println(getLogLine(lvl, stack, msg, false))
+            print(getLogLine(lvl, stack, msg, false))
         }
     }
 
