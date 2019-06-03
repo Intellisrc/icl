@@ -30,6 +30,7 @@ class Config {
     static int getInt(String key)               { global.getInt(key) }
     static double getDbl(String key)            { global.getDbl(key) }
     static boolean getBool(String key)          { global.getBool(key) }
+    static File getFile(String key)             { global.getFile(key) }
     static void set(String key, Object value)   { global.set(key, value) }
 
     /**

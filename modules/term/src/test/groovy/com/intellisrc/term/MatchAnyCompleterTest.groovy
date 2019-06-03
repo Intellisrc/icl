@@ -4,7 +4,6 @@ import org.jline.reader.Candidate
 import org.jline.reader.ParsedLine
 import spock.lang.Specification
 
-
 /**
  * @since 18/07/13.
  */
