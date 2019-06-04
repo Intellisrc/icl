@@ -47,7 +47,7 @@ subprojects {
     apply plugin: "com.jfrog.artifactory"
 
     dependencies {
-        compile 'com.intellisrc:groovy-extend:2.0.256'  //Using groovy 2.5.6
+        compile 'com.intellisrc:groovy-extend:2.0.1.256'  //Using groovy 2.5.6
         testCompile 'org.spockframework:spock-unitils:1.2-groovy-2.5'
     }
     publishing {
