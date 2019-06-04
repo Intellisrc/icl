@@ -40,24 +40,33 @@ import java.lang.reflect.Method
 abstract class SysService {
     static SysService service
     static int exitCode = 0
+    static private boolean started = false
+    /**
+     * Initialize service with arguments
+     * @param args
+     */
     static void main(String[] args) {
         if(service == null) {
             Log.e("`service` is not defined. To define it, use: \n static {\n     service = new MyClass()\n }\n inside MyClass")
             System.exit(3)
         }
         def sysSrv = service
-        //Process args before starting
+        sysSrv.args.clear()
         sysSrv.args.addAll(args.toList())
-        //Initialize
-        sysSrv.onInit()
         String action = sysSrv.args.isEmpty() ? "start" : sysSrv.args.first()
+        if(action != "stop") {
+            //Initialize
+            sysSrv.onInit()
+        }
         def usrDir = SysInfo.getWritablePath()
         def lockFile = new File(usrDir + sysSrv.lockFile)
-        boolean startService = false
         switch(action) {
             case "stop" :
-                Log.v("Removing lock file")
-                lockFile.delete()
+                if(started) {
+                    Log.v("Removing lock file")
+                    lockFile.delete()
+                    started = false
+                }
                 service.kill(exitCode)
                 break
             case "restart":
@@ -70,7 +79,7 @@ abstract class SysService {
                 if(sysSrv.args.size() > 0 && sysSrv.args.first() == "start") {
                     sysSrv.args.poll()
                 }
-                startService = true
+                started = true
                 sysSrv.onStart()
                 break
             case "status":
@@ -91,12 +100,12 @@ abstract class SysService {
                         Log.e("Exception in method: on${action.capitalize()}", e)
                     }
                 } catch (NoSuchMethodException e) {
-                    startService = true
+                    started = true
                     sysSrv.onStart()
                 }
                 break
         }
-        if(startService) {
+        if(started) {
             if(lockFile.exists()) {
                 Log.v("Lock file was present... removing")
                 lockFile.delete()

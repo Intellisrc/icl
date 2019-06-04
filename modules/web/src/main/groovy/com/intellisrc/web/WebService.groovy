@@ -1,10 +1,8 @@
 package com.intellisrc.web
 
-import com.intellisrc.etc.Bytes
 import com.intellisrc.etc.CacheObj
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
-import com.intellisrc.etc.Zip
 
 import static com.intellisrc.web.Service.Method.*
 
@@ -434,7 +432,7 @@ class WebService {
                             response.header("Content-Length", sprintf("%d", (out as byte[]).length))
                         }
                     } else {
-                        if(request.headers("Accept-Encoding").contains("gzip")) {
+                        if(request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
                             response.header("Content-Encoding", "gzip")
                             //TODO: https://stackoverflow.com/questions/56404858/
                         } else {
