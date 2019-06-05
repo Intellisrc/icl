@@ -23,15 +23,17 @@ class Config {
      * @param key
      * @return
      */
-    static boolean exists()                     { global.exists() }
-    static boolean matchKey(String key)         { global.matchKey(key) }
-    static boolean hasKey(String key)           { global.hasKey(key) }
-    static String get(String key)               { global.get(key) }
-    static int getInt(String key)               { global.getInt(key) }
-    static double getDbl(String key)            { global.getDbl(key) }
-    static boolean getBool(String key)          { global.getBool(key) }
-    static File getFile(String key)             { global.getFile(key) }
-    static void set(String key, Object value)   { global.set(key, value) }
+    static boolean exists()                             { global.exists() }
+    static boolean matchKey(String key)                 { global.matchKey(key) }
+    static boolean hasKey(String key)                   { global.hasKey(key) }
+
+    static String get(String key, String defval = "")           { global.get(key, defval) }
+    static int getInt(String key, int defval = 0)               { global.getInt(key, defval) }
+    static double getDbl(String key, double defval = 0)         { global.getDbl(key, defval) }
+    static boolean getBool(String key, boolean defval = false)  { global.getBool(key, defval) }
+    static File getFile(String key, File defval = null)         { global.getFile(key, defval) }
+
+    static void set(String key, Object value)                   { global.set(key, value) }
 
     /**
      * Prevent instantiating this class
@@ -130,13 +132,13 @@ class Config {
          * @param key
          * @return
          */
-        String get(String key) {
+        String get(String key, String defval = "") {
             update()
-            String val = ""
+            String val = defval
             if (hasKey(key)) {
                 val = properties.getProperty(key)
                 if (val == null) {
-                    val = ""
+                    val = defval
                 }
                 if (val.startsWith('"') || val.startsWith("'")) {
                     Log.w("Settings in properties files don't need quotes. Please delete them to remove this warning.")
@@ -151,12 +153,15 @@ class Config {
          * @param key
          * @return
          */
-        int getInt(String key) {
-            String str = get(key)
-            if (str.isEmpty()) {
-                str = "0"
+        int getInt(String key, int defval = 0) {
+            int val = defval
+            if(hasKey(key)) {
+                String str = get(key)
+                if (! str.empty) {
+                    val = Integer.parseInt(str)
+                }
             }
-            return Integer.parseInt(str)
+            return val
         }
 
         /**
@@ -164,12 +169,15 @@ class Config {
          * @param key
          * @return
          */
-        double getDbl(String key) {
-            String str = get(key)
-            if (str.isEmpty()) {
-                str = "0.0"
+        double getDbl(String key, double defval = 0) {
+            double val = defval
+            if(hasKey(key)) {
+                String str = get(key)
+                if (! str.empty) {
+                    val = Double.parseDouble(str)
+                }
             }
-            return Double.parseDouble(str)
+            return val
         }
 
         /**
@@ -177,11 +185,11 @@ class Config {
          * @param key
          * @return
          */
-        boolean getBool(String key) {
-            boolean val = true
-            String str = get(key)
-            if (str == null || str.isEmpty() || str == "0" || str.toLowerCase() == "false") {
-                val = false
+        boolean getBool(String key, boolean defval = false) {
+            boolean val = defval
+            if(hasKey(key)) {
+                String str = get(key)
+                val = !(str == null || str.empty || str == "0" || str.toLowerCase() == "false")
             }
             return val
         }
@@ -191,19 +199,21 @@ class Config {
          * @param key
          * @return
          */
-        File getFile(String key) {
-            File pathFile = null
-            String path = get(key)
-            if(path) {
-                switch (path) {
-                    case ~/^\/.*$/:
-                        pathFile = new File(path)
-                        break
-                    case ~/^~.*$/:
-                        pathFile = new File(SysInfo.homeDir, path.replace('~/', ''))
-                        break
-                    default:
-                        pathFile = new File(SysInfo.userDir, path)
+        File getFile(String key, File defval = null) {
+            File pathFile = defval
+            if(hasKey(key)) {
+                String path = get(key)
+                if (path) {
+                    switch (path) {
+                        case ~/^\/.*$/:
+                            pathFile = new File(path)
+                            break
+                        case ~/^~.*$/:
+                            pathFile = new File(SysInfo.homeDir, path.replace('~/', ''))
+                            break
+                        default:
+                            pathFile = new File(SysInfo.userDir, path)
+                    }
                 }
             }
             return pathFile

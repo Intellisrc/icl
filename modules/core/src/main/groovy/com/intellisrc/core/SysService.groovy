@@ -67,7 +67,9 @@ abstract class SysService {
                     lockFile.delete()
                     started = false
                 }
+                service.onStop()
                 service.kill(exitCode)
+                // It will exit in the previous line
                 break
             case "restart":
                 if(sysSrv.args.size() > 0) {
@@ -153,7 +155,6 @@ abstract class SysService {
 
     void onStop() {
         Log.i("System exiting...")
-        System.exit(0)
     }
     void onStatus(boolean running) {
         Log.i("Status: "+(running ? "RUNNING" : "STOPPED"))
