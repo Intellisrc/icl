@@ -20,7 +20,7 @@ class WebServiceTest extends Specification {
 
     def "General Test"() {
         setup:
-            Log.logFile = "web.log"
+            Log.logFileName = "web.log"
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                 port : port,
@@ -37,7 +37,7 @@ class WebServiceTest extends Specification {
             assert web.isRunning()
             assert ("http://localhost:"+port).toURL().text.contains("Hello")
         when:
-            def number = new Random().nextInt(100)
+            int number = new Random().nextInt(100)
             def json = ("http://localhost:"+port+"/id?i="+number).toURL().text
         then:
             assert json
@@ -46,12 +46,14 @@ class WebServiceTest extends Specification {
             def res = JSON.decode(json).toMap()
         then:
             assert res instanceof Map
-            assert res.i == number
-            assert res.t > 0
+            assert (res.i as int) == number
+            assert res.t.toString().matches(/\d{2}:\d{2}:\d{2}/)    //res.t returns current time in HH:mm:ss
         when:
             web.stop()
         then:
             assert !web.isRunning()
+        cleanup:
+            Log.logFile.delete()
     }
 
     def "Testing auto cache"() {

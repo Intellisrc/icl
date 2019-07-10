@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.6.5: Same as 2.6.4, version was updated." />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.6.5: Added Config default values and improved SysService stop/exit">
+      <change afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/VersionTest.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressManualTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_api_1_7_25.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_api_1_7_25.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysMain.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysMain.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Version.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Version.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/hash/PasswordHash.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/hash/PasswordHash.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PasswordHashTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/PasswordHashTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/ZipTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/ZipTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Serial.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Serial.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/JSONTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/JSONTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -180,6 +216,12 @@
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="publishing" type="c8890929:TasksNode$1" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="verification" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -189,95 +231,87 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+            <state relative-caret-position="126">
+              <caret line="7" column="6" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="6" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy">
+        <entry file="file://$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressManualTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6228">
-              <caret line="360" column="35" selection-start-line="360" selection-start-column="35" selection-end-line="360" selection-end-column="35" />
+            <state relative-caret-position="324">
+              <caret line="18" selection-start-line="18" selection-end-line="18" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/CacheObj.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="14" column="24" selection-start-line="14" selection-start-column="24" selection-end-line="14" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy">
+        <entry file="file://$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/VersionTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="270">
-              <caret line="19" column="33" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
+              <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="251">
+              <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysService.groovy">
+        <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/HashTest.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="451">
+              <caret line="87" selection-start-line="87" selection-end-line="87" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/SQLiteTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="432">
-              <caret line="24" column="89" selection-start-line="24" selection-start-column="89" selection-end-line="24" selection-end-column="89" />
+              <caret line="25" column="13" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/CacheTest.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="70">
+              <caret line="14" column="25" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.spockframework/spock-core/1.2-groovy-2.5/61fafd5ed7e61dad39272618e84c8ae5004ffa7a/spock-core-1.2-groovy-2.5-sources.jar!/org/spockframework/runtime/ValueRecorder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="342">
+              <caret line="35" selection-start-line="35" selection-end-line="35" />
               <folding>
-                <element signature="e#29#66#0" expanded="true" />
+                <element signature="e#1071#1072#0" expanded="true" />
+                <element signature="e#1088#1089#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy">
+        <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Bytes.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="576">
-              <caret line="32" column="19" selection-start-line="32" selection-start-column="19" selection-end-line="32" selection-end-column="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/Progress.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build.gradle">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="52" column="15" selection-start-line="52" selection-start-column="15" selection-end-line="52" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/serial/build.gradle">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/term/build.gradle">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="36">
-              <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
+            <state relative-caret-position="181">
+              <caret line="90" selection-start-line="90" selection-end-line="90" />
             </state>
           </provider>
         </entry>
@@ -349,14 +383,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Config.groovy" />
-        <option value="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/dummy/SysServiceDummy.groovy" />
-        <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysMain.groovy" />
-        <option value="$PROJECT_DIR$/modules/tools/build.gradle" />
-        <option value="$PROJECT_DIR$/modules/tools/src/test/groovy/com/intellisrc/tools/ConsoleTester.groovy" />
-        <option value="$PROJECT_DIR$/modules/tools/src/test/groovy/com/intellisrc/tools/ConsoleDefaultTest.groovy" />
-        <option value="$PROJECT_DIR$/modules/tools/src/test/groovy/com/intellisrc/tools/TestConsole.groovy" />
-        <option value="$PROJECT_DIR$/modules/tools/src/test/groovy/com/intellisrc/tools/console/TestConsole.groovy" />
         <option value="$PROJECT_DIR$/modules/tools/src/main/groovy/com/intellisrc/tools/Console.groovy" />
         <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Hardware.groovy" />
         <option value="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/serial/SerialReader.groovy" />
@@ -368,7 +394,6 @@
         <option value="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Serial.groovy" />
         <option value="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/SerialDummy.groovy" />
         <option value="$PROJECT_DIR$/modules/serial/build.gradle" />
-        <option value="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy" />
         <option value="$PROJECT_DIR$/modules/term/src/main/groovy/com/intellisrc/term/Progress.groovy" />
         <option value="$PROJECT_DIR$/create_module.sh" />
         <option value="$PROJECT_DIR$/modules/ai/build.gradle" />
@@ -381,25 +406,34 @@
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/JpegFormat.groovy" />
         <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Zip.groovy" />
         <option value="$PROJECT_DIR$/modules/net/config.properties" />
-        <option value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Log.groovy" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" />
         <option value="$PROJECT_DIR$/../../groovy/common-java/modules/cv/src/main/groovy/com/inspeedia/common/cv/VideoGrab.groovy" />
-        <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" />
         <option value="$PROJECT_DIR$/modules/web/build.gradle" />
         <option value="$PROJECT_DIR$/modules/term/build.gradle" />
         <option value="$PROJECT_DIR$/modules/db/build.gradle" />
-        <option value="$PROJECT_DIR$/modules/crypt/build.gradle" />
         <option value="$PROJECT_DIR$/modules/cv/build.gradle" />
         <option value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/VideoGrab.groovy" />
         <option value="$PROJECT_DIR$/modules/net/build.gradle" />
         <option value="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" />
         <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" />
-        <option value="$PROJECT_DIR$/gradle.properties" />
         <option value="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" />
         <option value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" />
+        <option value="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/hash/PasswordHash.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/ZipTest.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" />
+        <option value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Log.groovy" />
+        <option value="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy" />
+        <option value="$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressManualTest.groovy" />
+        <option value="$PROJECT_DIR$/modules/crypt/build.gradle" />
+        <option value="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/VersionTest.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/CacheTest.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/CacheObj.groovy" />
+        <option value="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy" />
       </list>
     </option>
   </component>
@@ -424,6 +458,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -440,41 +476,48 @@
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="etc" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
               <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="net" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="term" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+            </path>
+            <path>
+              <item name="common" type="b2602c69:ProjectViewProjectNode" />
+              <item name="common" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="term" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
@@ -512,9 +555,7 @@
               <item name="modules" type="462c0819:PsiDirectoryNode" />
               <item name="web" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
-              <item name="groovy" type="462c0819:PsiDirectoryNode" />
-              <item name="web" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
             </path>
             <path>
               <item name="common" type="b2602c69:ProjectViewProjectNode" />
@@ -524,28 +565,26 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Config.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/test/groovy/com/inspeedia/common/core/LogTest.groovy" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Config.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/test/groovy/com/inspeedia/common/core/LogTest.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.intellisrc.core" />
+      <recent name="com.intellisrc.term" />
       <recent name="com.intellisrc.cv" />
       <recent name="com.intellisrc.serial" />
-      <recent name="com.intellisrc.core" />
       <recent name="com.intellisrc.etc" />
-      <recent name="jp.sharelock.etc" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv" />
@@ -599,73 +638,38 @@
       <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="publishToMavenLocal" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="LogTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="modules-core_test" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.intellisrc.core.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.intellisrc.core" />
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.core.LogTest" />
-      <option name="TEST_OBJECT" value="class" />
+    <configuration name="All in etc_test (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="etc_test" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="LogTest.Test parameters" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="modules-core_test" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.intellisrc.core.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.intellisrc.core" />
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.core.LogTest" />
-      <option name="METHOD_NAME" value="Test parameters" />
-      <option name="TEST_OBJECT" value="method" />
+    <configuration name="All in etc_test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="etc_test" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PoolConnectorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="db_test" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.intellisrc.db.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.intellisrc.db" />
-      <option name="MAIN_CLASS_NAME" value="com.intellisrc.db.PoolConnectorTest" />
-      <option name="TEST_OBJECT" value="class" />
+    <configuration name="All in term_test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="term_test" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <RunnerSettings RunnerId="Debug with VisualVM">
-        <option name="visualVMId" value="2961109950515911" />
-      </RunnerSettings>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All in web_test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="web_test" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -700,19 +704,19 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.All in term_test" />
+      <item itemvalue="JUnit.All in etc_test" />
+      <item itemvalue="JUnit.All in web_test" />
+      <item itemvalue="JUnit.All in etc_test (1)" />
       <item itemvalue="Gradle.common [artifactoryPublish]" />
-      <item itemvalue="Gradle.common [publishToMavenLocal]" />
-      <item itemvalue="JUnit.LogTest" />
-      <item itemvalue="JUnit.LogTest.Test parameters" />
-      <item itemvalue="JUnit.PoolConnectorTest" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.common [artifactoryPublish]" />
-        <item itemvalue="Gradle.common [publishToMavenLocal]" />
-        <item itemvalue="JUnit.PoolConnectorTest" />
-        <item itemvalue="JUnit.LogTest.Test parameters" />
-        <item itemvalue="JUnit.LogTest" />
+        <item itemvalue="JUnit.All in etc_test (1)" />
+        <item itemvalue="JUnit.All in web_test" />
+        <item itemvalue="JUnit.All in etc_test" />
+        <item itemvalue="JUnit.All in term_test" />
       </list>
     </recent_temporary>
   </component>
@@ -723,13 +727,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00081" summary="2.4.0 Changed addAutoComplete for updateAutoComplete in Console">
-      <created>1530343821304</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1530343821305</updated>
     </task>
     <task id="LOCAL-00082" summary="2.4.1 Updated groovy-extends">
       <created>1530499763507</created>
@@ -1067,39 +1064,46 @@
       <option name="project" value="LOCAL" />
       <updated>1559699636972</updated>
     </task>
-    <option name="localTasksCounter" value="130" />
+    <task id="LOCAL-00130" summary="2.6.5: Added Config default values and improved SysService stop/exit">
+      <created>1559717560587</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1559717560587</updated>
+    </task>
+    <option name="localTasksCounter" value="131" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 29m 09s.xml">
-      <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
+    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 37m 04s.xml">
+      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 31m 07s.xml">
-      <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
+    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 37m 48s.xml">
+      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ConsoleDefaultTest_Testing_Console - 2019.02.06 at 15h 51m 48s.xml">
-      <configuration name="ConsoleDefaultTest.Testing Console" configurationId="JUnit" />
+    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 38m 50s.xml">
+      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ProgressTest_Test_summary - 2019.04.15 at 12h 57m 33s.xml">
-      <configuration name="ProgressTest.Test summary" configurationId="JUnit" />
+    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 39m 37s.xml">
+      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ProgressTest_Test_summary - 2019.04.15 at 12h 58m 04s.xml">
-      <configuration name="ProgressTest.Test summary" configurationId="JUnit" />
+    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 41m 32s.xml">
+      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="ProgressTest_Test_summary - 2019.04.15 at 12h 58m 54s.xml">
-      <configuration name="ProgressTest.Test summary" configurationId="JUnit" />
+    <history-entry file="CacheTest - 2019.07.10 at 17h 43m 20s.xml">
+      <configuration name="CacheTest" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="LogTest - 2019.05.27 at 13h 56m 23s.xml">
-      <configuration name="LogTest" configurationId="JUnit" />
+    <history-entry file="All_in_term_test - 2019.07.10 at 17h 43m 49s.xml">
+      <configuration name="All in term_test" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="LogTest_Test_parameters - 2019.05.27 at 13h 56m 53s.xml">
-      <configuration name="LogTest.Test parameters" configurationId="JUnit" />
+    <history-entry file="All_in_etc_test - 2019.07.10 at 17h 44m 17s.xml">
+      <configuration name="All in etc_test" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="LogTest_Test_parameters - 2019.05.27 at 13h 57m 53s.xml">
-      <configuration name="LogTest.Test parameters" configurationId="JUnit" />
+    <history-entry file="All_in_web_test - 2019.07.10 at 17h 44m 28s.xml">
+      <configuration name="All in web_test" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="PoolConnectorTest - 2019.05.27 at 16h 25m 40s.xml">
-      <configuration name="PoolConnectorTest" configurationId="JUnit" />
+    <history-entry file="All_in_etc_test_(1) - 2019.07.10 at 17h 44m 58s.xml">
+      <configuration name="All in etc_test (1)" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -1115,19 +1119,19 @@
     <frame x="-3" y="33" width="1926" height="1170" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49748743" visible="true" weight="0.28304905" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49748743" visible="true" weight="0.15671642" />
       <window_info id="Structure" order="1" sideWeight="0.5025126" side_tool="true" weight="0.31996974" />
       <window_info id="Designer" order="2" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info id="UI Designer" order="4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.55789477" />
-      <window_info anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" weight="0.37333333" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.44049734" />
+      <window_info active="true" anchor="bottom" x="23" y="225" width="1320" height="350" id="Run" order="2" visible="true" weight="0.39333335" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.44" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32903227" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.17369309" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.35809523" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" weight="0.3295238" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.15598086" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.5364026" />
@@ -1188,7 +1192,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.4.9 : Added JarResource and logs should be printed when SNAPSHOT is used." />
     <MESSAGE value="2.4.10 : Do not log stderr by default. Allow unlimited wait time in commands." />
     <MESSAGE value="2.4.11 : WebService runs in foreground as default. Automatically detects absolute paths. Correct services path if required." />
     <MESSAGE value="2.4.11 : Changed WS test" />
@@ -1213,7 +1216,8 @@
     <MESSAGE value="2.6.3: Added Config.getFile" />
     <MESSAGE value="2.6.4: Fixed issue in SysService not stopping properly in alternative methods. Fixed WebService on empty headers" />
     <MESSAGE value="2.6.5: Same as 2.6.4, version was updated." />
-    <option name="LAST_COMMIT_MESSAGE" value="2.6.5: Same as 2.6.4, version was updated." />
+    <MESSAGE value="2.6.5: Added Config default values and improved SysService stop/exit" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.6.5: Added Config default values and improved SysService stop/exit" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -1229,79 +1233,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegInputStream.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="51" column="43" selection-start-line="51" selection-start-column="43" selection-end-line="51" selection-end-column="43" />
-          <folding>
-            <element signature="e#27#57#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFrame.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="32" column="6" selection-start-line="32" selection-start-column="6" selection-end-line="32" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFormat.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="24" column="6" selection-start-line="24" selection-start-column="6" selection-end-line="24" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/JpegFormat.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="36" column="6" selection-start-line="36" selection-start-column="6" selection-end-line="36" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/CvTools.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="84" column="20" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
-          <folding>
-            <element signature="e#27#57#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="60" selection-start-line="60" selection-end-line="60" />
-          <folding>
-            <element signature="e#27#57#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1905">
-          <caret line="153" column="16" selection-start-line="153" selection-start-column="16" selection-end-line="153" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebSocketService.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1665">
-          <caret line="121" column="32" selection-start-line="121" selection-start-column="32" selection-end-line="121" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Databases.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="12" column="6" selection-start-line="12" selection-start-column="6" selection-end-line="12" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.sdkman/candidates/gradle/current/lib/gradle-core-api-4.10.3.jar!/org/gradle/api/artifacts/Configuration.class" />
     <entry file="jar://$USER_HOME$/.sdkman/candidates/gradle/current/lib/gradle-core-api-4.10.3.jar!/org/gradle/api/artifacts/ResolutionStrategy.class" />
     <entry file="jar://$MAVEN_REPOSITORY$/com/intellisrc/groovy-extend/2.0/groovy-extend-2.0.jar!/com/intellisrc/groovy/DateExt.class" />
     <entry file="jar://$MAVEN_REPOSITORY$/com/intellisrc/groovy-extend/2.0/groovy-extend-2.0.jar!/com/intellisrc/groovy/LocalDateExt.class" />
@@ -1322,13 +1253,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="57" column="40" selection-start-line="57" selection-start-column="40" selection-end-line="57" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/crypt/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="66" selection-start-line="5" selection-start-column="66" selection-end-line="5" selection-end-column="66" />
         </state>
       </provider>
     </entry>
@@ -1491,6 +1415,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/gradle.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6228">
@@ -1498,23 +1429,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/CacheObj.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="14" column="24" selection-start-line="14" selection-start-column="24" selection-end-line="14" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="19" column="33" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysService.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
+        <state relative-caret-position="396">
           <caret line="24" column="89" selection-start-line="24" selection-start-column="89" selection-end-line="24" selection-end-column="89" />
           <folding>
             <element signature="e#29#66#0" expanded="true" />
@@ -1524,8 +1441,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="576">
-          <caret line="32" column="19" selection-start-line="32" selection-start-column="19" selection-end-line="32" selection-end-column="19" />
+        <state relative-caret-position="558">
+          <caret line="31" column="89" selection-start-line="31" selection-start-column="89" selection-end-line="31" selection-end-column="89" />
         </state>
       </provider>
     </entry>
@@ -1533,6 +1450,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
           <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="936">
+          <caret line="52" column="15" selection-start-line="52" selection-start-column="15" selection-end-line="52" selection-end-column="15" />
         </state>
       </provider>
     </entry>
@@ -1550,17 +1474,98 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
+    <entry file="file://$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/hash/PasswordHash.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="52" column="15" selection-start-line="52" selection-start-column="15" selection-end-line="52" selection-end-column="15" />
+        <state relative-caret-position="144">
+          <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gradle.properties">
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        <state relative-caret-position="288">
+          <caret line="16" column="35" selection-start-line="16" selection-start-column="35" selection-end-line="16" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="6" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/crypt/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="28" selection-start-line="2" selection-start-column="28" selection-end-line="2" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/VersionTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Bytes.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="90" selection-start-line="90" selection-end-line="90" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/crypt/src/test/groovy/com/intellisrc/crypt/HashTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="87" selection-start-line="87" selection-end-line="87" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/SQLiteTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="432">
+          <caret line="25" column="13" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.spockframework/spock-core/1.2-groovy-2.5/61fafd5ed7e61dad39272618e84c8ae5004ffa7a/spock-core-1.2-groovy-2.5-sources.jar!/org/spockframework/runtime/ValueRecorder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="35" selection-start-line="35" selection-end-line="35" />
+          <folding>
+            <element signature="e#1071#1072#0" expanded="true" />
+            <element signature="e#1088#1089#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/CacheTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="70">
+          <caret line="14" column="25" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/CacheObj.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="14" column="25" lean-forward="true" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/term/src/test/groovy/com/intellisrc/term/ProgressManualTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="251">
+          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
         </state>
       </provider>
     </entry>

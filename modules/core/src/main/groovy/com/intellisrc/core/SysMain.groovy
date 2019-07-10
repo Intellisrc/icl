@@ -18,6 +18,7 @@ abstract class SysMain {
             Log.e("`main` is not defined. To define it, use: \n static {\n     main = new MyClass()\n }\n inside MyClass")
             System.exit(3)
         }
+        Version.mainClass = main.class
         //Process args before starting
         main.args.addAll(args.toList())
         if(main.args.empty) {

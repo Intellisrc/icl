@@ -33,7 +33,7 @@ class LogService implements ServiciableSingle {
                     def meth = request.queryParams("method") ?: ""
                     def keyword = request.queryParams("key") ?: ""
                     def res = [:]
-                    File file = from ? new File(Log.logPath + File.separator + from.split(" ")[0].toDate().getYMD("-") + "-" + Log.logFileName) : Log.logFile
+                    File file = from ? new File(Log.directory, from.split(" ")[0].toDate().getYMD("-") + "-" + Log.logFileName) : Log.logFile
                     if(file.exists()) {
                         def logs = file.text.split("\n")
                         res = logs.findAll {

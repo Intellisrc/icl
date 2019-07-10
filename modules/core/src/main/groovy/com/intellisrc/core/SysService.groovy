@@ -50,6 +50,7 @@ abstract class SysService {
             Log.e("`service` is not defined. To define it, use: \n static {\n     service = new MyClass()\n }\n inside MyClass")
             System.exit(3)
         }
+        Version.mainClass = service.class
         def sysSrv = service
         sysSrv.args.clear()
         sysSrv.args.addAll(args.toList())
