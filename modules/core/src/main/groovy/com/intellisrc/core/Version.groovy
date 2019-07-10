@@ -11,6 +11,8 @@ import java.util.jar.Manifest
  */
 @CompileStatic
 class Version {
+    //This class will be changed by SysMain or SysService
+    static Class mainClass = Version.class
     private static enum Source {
         JAR, CONFIG, GRADLE, NONE
     }
@@ -45,33 +47,21 @@ class Version {
         return source.toString()
     }
     /**
-     * Return Main class canonical name (including package name)
-     * @return
-     */
-    static String getMainClass() {
-        String mainClass = mainfestAttributes?.getValue("Main-Class")
-        if(!mainClass) {
-            mainClass = gradleProps?.get("jarClass")
-        }
-        return mainClass
-    }
-    /**
      * Get Mainfest Attributes
      * @return
      */
     static private Attributes getMainfestAttributes() {
         Attributes attr = null
         try {
-            Class self = Version.class
-            def className = self.simpleName + ".class"
-            def classPath = self.getResource(className).toString()
+            String className = mainClass.simpleName + ".class"
+            String classPath = mainClass.getResource(className).toString()
             if (classPath.startsWith("jar")) {
-                def manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF"
-                def url = new URL(manifestPath)
+                String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF"
+                URL url = new URL(manifestPath)
                 Manifest manifest = new Manifest(url.openStream())
-                attr = manifest.getMainAttributes()
+                attr = manifest.mainAttributes
             }
-        } catch(Exception e) { /*IGNORE*/ }
+        } catch(Exception ignored) { /*IGNORE*/ }
         return attr
     }
     /**
@@ -80,7 +70,7 @@ class Version {
      */
     static private Config.Props getGradleProps() {
         Config.Props props = null
-        def bg = new File(SysInfo.userDir + "gradle.properties")
+        File bg = new File(SysInfo.userDir, "gradle.properties")
         if(bg.exists()) {
             props = new Config.Props(bg)
         }

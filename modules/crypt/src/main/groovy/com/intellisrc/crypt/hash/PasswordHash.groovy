@@ -3,6 +3,7 @@ package com.intellisrc.crypt.hash
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.crypt.Crypt.Complexity
 import com.intellisrc.etc.Bytes
+import groovy.transform.CompileStatic
 
 //Sometimes complains
 import org.bouncycastle.crypto.generators.BCrypt
@@ -12,7 +13,7 @@ import org.bouncycastle.crypto.generators.SCrypt
 /**
  * @since 17/04/07.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 class PasswordHash extends Crypt implements Hashable {
     enum Type implements Hashable.hashType {
         BCRYPT, SCRYPT, PBKDF2
@@ -60,7 +61,7 @@ class PasswordHash extends Crypt implements Hashable {
         String header = ""
         switch(type) {
             case Type.BCRYPT: header = sprintf("%02d", cost) + '$'; break
-            case Type.SCRYPT: header = (2^cost)+'$'+scryptBlockSize+'$'+scryptParallelization+'$'; break
+            case Type.SCRYPT: header = (2**cost)+'$'+scryptBlockSize+'$'+scryptParallelization+'$'; break
         }
         return header
     }
@@ -80,7 +81,7 @@ class PasswordHash extends Crypt implements Hashable {
                 if(keylen < 16 || keylen > 512) {
                     keylen = 32
                 }
-                hash = type.cryptHeader + getCryptParams(type) + Bytes.toHex(SCrypt.generate(Bytes.fromChars(password), key, 2^cost, scryptBlockSize, scryptParallelization, keylen))
+                hash = type.cryptHeader + getCryptParams(type) + Bytes.toHex(SCrypt.generate(Bytes.fromChars(password), key, (2**cost).toInteger(), scryptBlockSize, scryptParallelization, keylen))
                 break
             case Type.BCRYPT:
             default:

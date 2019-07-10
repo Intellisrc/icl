@@ -1,6 +1,8 @@
 package com.intellisrc.core
 
-@groovy.transform.CompileStatic
+import groovy.transform.CompileStatic
+
+@CompileStatic
 /**
  * This class provides an easy way to work with .properties files and Properties classes.
  * However, this class can also be used to create properties on memory, without any file:
@@ -32,6 +34,8 @@ class Config {
     static double getDbl(String key, double defval = 0)         { global.getDbl(key, defval) }
     static boolean getBool(String key, boolean defval = false)  { global.getBool(key, defval) }
     static File getFile(String key, File defval = null)         { global.getFile(key, defval) }
+    static List<String> getList(String key, List<String> defval = []) { global.getList(key, defval) }
+    static List<String> getList(String key, CharSequence separator, List<String> defval = []) { global.getList(key, separator, defval) }
 
     static void set(String key, Object value)                   { global.set(key, value) }
 
@@ -90,8 +94,6 @@ class Config {
                     if (!configFile.canWrite()) {
                         Log.w("Configuration configFile: " + configFile.toString() + " is not writable. Any attempt to change settings will fail.")
                     }
-                } else {
-                    Log.v("Configuration not found (" + configFile.toString() + "). All settings will be loaded from System")
                 }
             }
         }
@@ -217,6 +219,29 @@ class Config {
                 }
             }
             return pathFile
+        }
+
+        /**
+         * Return a list separated by custom separator
+         * @param key
+         * @param defval
+         * @return
+         */
+        List<String> getList(String key, CharSequence separator, List<String> defval = []) {
+            List<String> list = []
+            if(hasKey(key)) {
+                list = get(key).tokenize()
+            }
+            return list
+        }
+        /**
+         * Return a list separated by comma
+         * @param key
+         * @param defval
+         * @return
+         */
+        List<String> getList(String key, List<String> defval = []) {
+            return getList(key, ",", defval)
         }
 
         /**

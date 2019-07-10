@@ -52,7 +52,7 @@ class Serial extends Seriable {
      */
     void disconnect() {
         connected = false
-        if(portComm) {
+        if(portComm?.opened) {
             portComm.closePort()
         }
     }
