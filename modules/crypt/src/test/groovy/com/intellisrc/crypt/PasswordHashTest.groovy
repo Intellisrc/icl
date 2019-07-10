@@ -154,7 +154,7 @@ class PasswordHashTest extends Specification {
         println "SALT OUT " + Bytes.toString(saltout)
         assert saltin == saltout
         println "HASH using fixed salt: "+hash
-        assert hash == '$s0$14$8$1$DF7A3D360498325C72C983868BD378FF'
+        assert hash == '$s0$4096$8$1$145ADFA099ED84262B4D6D02BED7B0E0'
         assert hash == ph.SCrypt() //Be sure that repetition does not affect
     }
 

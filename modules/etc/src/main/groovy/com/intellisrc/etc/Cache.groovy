@@ -1,12 +1,13 @@
 package com.intellisrc.etc
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * Manage Cache of objects
  * @author Alberto Lepe <lepe@intellisrc.com>
@@ -22,7 +23,7 @@ class Cache<V> {
         V call()
     }
 	int gcInterval = 120 //seconds
-    int timeout = 0 //seconds
+    int timeout = DEFAULT //seconds
     boolean extend  = false
 
     /**
