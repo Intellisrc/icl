@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package com.intellisrc.cv
+package com.intellisrc.cv.video
 
 import groovy.transform.CompileStatic
 
@@ -50,8 +50,7 @@ class MjpegFormat extends JpegFormat {
 	/**
 	 * Expected length of an mjpeg frame
 	 */
-	static int FRAME_MAX_LENGTH = JpegFormat.JPEG_MAX_LENGTH +
-		HEADER_MAX_LENGTH
+	static int FRAME_MAX_LENGTH = JPEG_MAX_LENGTH + HEADER_MAX_LENGTH
 
 	/**
 	 * Parse the content length string for a MJPEG frame from the given bytes.

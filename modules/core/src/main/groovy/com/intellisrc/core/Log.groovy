@@ -3,10 +3,12 @@ package com.intellisrc.core
  * @since 2/11/17.
  */
 import groovy.transform.CompileStatic
+
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.nio.file.Files
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @CompileStatic
 /**
@@ -30,9 +32,9 @@ final class Log {
     static synchronized boolean initialized = false
     static boolean enabled = true
     static Level level = Level.INFO
-    static int logDays = 0
+    static int logDays = 7 // Days to keep as backup (doesn't include today)
     static final int MAX_LOG_LINE_LENGTH = 4000
-    static private final long ONE_DAY = 24*60*60*1000L
+    static final int maxTaskExecTimeMs = 60000 // 1 minute
 
     static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
     static final AndroidPrinter ANDROID = new AndroidPrinter()
@@ -43,7 +45,7 @@ final class Log {
 
     static final enum Level {
         VERBOSE, DEBUG, INFO, WARN, SECURITY, ERROR
-        String toString() {
+        String toChar() {
             return super.toString().substring(0,1)
         }
     }
@@ -75,19 +77,27 @@ final class Log {
         }
 
         logFileName = Config.get("log.file", "system.log")
+        logDays = Config.getInt("log.days", logDays)
+        enabled = !Config.getBool("log.disable")
+        printAlways = Config.getBool("log.print")
 
         if (Config.hasKey("log.dir")) {
             directory = Config.getFile("log.dir")
         } else if (Config.hasKey("log.path")) { //Support for old config
             directory = Config.getFile("log.path")
         }
-        if(!directory) {
-            directory = new File(SysInfo.userDir)
+        if(directory) {
+            if(!directory.exists()) {
+                if(!directory.mkdirs()) {
+                    logFileName = ""
+                    printAlways = true
+                    println AnsiColor.RED + "ERROR: Unable to create directory: " + directory.absolutePath + AnsiColor.RESET
+                }
+            }
+        } else {
+            logFileName = ""
+            printAlways = true
         }
-
-        logDays = Config.getInt("log.days", 30)
-        enabled = !Config.getBool("log.disable")
-        printAlways = Config.getBool("log.print")
 
         if (Config.hasKey("log.domain")) {
             domains << Config.get("log.domain")
@@ -125,16 +135,19 @@ final class Log {
     private static class FilePrinter implements Printer {
         @Override
         void print(Level lvl, Info stack, String msg) {
-            if(logFileName) {
+            File logToFile = logFile
+            if(logToFile) {
                 LocalDateTime newDate = LocalDateTime.now()
+                boolean dateChanged = false
                 // Change file and compress if date changed
                 if(newDate.toLocalDate().YMD != logDate.toLocalDate().YMD) {
-                    compressLog()
+                    compressLog(logToFile) //compress previous date log
                     logDate = newDate
-                    linkLast()
                     cleanLogs()
+                    dateChanged = true
                 }
-                logFile << getLogLine(lvl, stack, msg, true)
+                logFile << getLogLine(lvl, stack, msg, true) //log to last date
+                linkLast(dateChanged)
             }
         }
     }
@@ -147,13 +160,13 @@ final class Log {
         String time = LocalDateTime.now().YMDHmsS
         String line
         if(colorAlways || SysInfo.isLinux() && color &&! toFile) {
-            line = time +" [" + getLevelColor(lvl) + lvl + AnsiColor.RESET + "] " +
+            line = time +" [" + getLevelColor(lvl) + lvl.toChar() + AnsiColor.RESET + "] " +
                     AnsiColor.GREEN + stack.className + AnsiColor.RESET +
                     " (" + AnsiColor.BLUE + stack.methodName + AnsiColor.RESET +
                     ":" + AnsiColor.CYAN + stack.lineNumber + AnsiColor.RESET + ") " +
                     getLevelColor(lvl) + msg + AnsiColor.RESET + "\n"
         } else {
-            line = (time + "\t" + "[" + lvl + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
+            line = (time + "\t" + "[" + lvl.toChar() + "]\t" + stack.className + "\t" + stack.methodName + ":" + stack.lineNumber + "\t" + msg + "\n")
         }
         return line
     }
@@ -182,24 +195,26 @@ final class Log {
      * @return
      */
     static File getLogFile() {
-        return new File(directory, logDate.toLocalDate().YMD + "-" + logFileName)
+        return directory && logFileName ? new File(directory, logDate.toLocalDate().YMD + "-" + logFileName) : null
     }
 
     /**
      * Compress Log file if Zip is present
      */
-    static boolean compressLog(File logToCompress = logFile) {
+    static boolean compressLog(final File logToCompress) {
         boolean done = false
-        try {
-            Class[] parameters = [ File.class ]
-            Class zip = Class.forName(Log.class.package.name.replace('core','etc') + ".Zip")
-            Method method = zip.getMethod("gzip", parameters)
-            Object[] callParams = [ logToCompress ]
-            method.invoke(null, callParams)
-            done = true
-        } catch (Exception ignored) {
-            //Ignore... Zip class doesn't exists, so we don't compress them
-            //We can't use print here or it will loop forever
+        if(logToCompress?.exists()) {
+            try {
+                Class[] parameters = [File.class]
+                Class zip = Class.forName(Log.class.package.name.replace('core', 'etc') + ".Zip")
+                Method method = zip.getMethod("gzip", parameters)
+                Object[] callParams = [logToCompress]
+                method.invoke(null, callParams)
+                done = true
+            } catch (Exception ignored) {
+                //Ignore... Zip class doesn't exists, so we don't compress them
+                //We can't use print here or it will loop forever
+            }
         }
         return done
     }
@@ -210,32 +225,58 @@ final class Log {
      * @param logName : Name of log, e.g : system.log
      * @param days : number of logs to keep (usually 1 per day)
      */
-    static void cleanLogs(final File logsDir = directory, String logName = logFileName, int days = logDays) {
-        List<File> logs = logsDir.listFiles({
-            File file ->
-                file.name.contains(logName) &&!Files.isSymbolicLink(file.toPath())
-        } as FileFilter).toList()
-        if(logs && logs.size() > days) {
-            logs.sort().toList().reverse().subList(0, days).each {
-                it.delete()
-            }
-        }
-        // Compress old not compressed logs in directory:
-        logsDir.eachFileMatchAsync("*-${logName}") {
-            File log ->
-                if(System.currentTimeMillis() - log.lastModified() > ONE_DAY) {
-                    compressLog(log)
+    static void cleanLogs(final File logsDir = directory, int days = logDays) {
+        if(logsDir?.exists()) {
+            Runnable runnable = {
+                // Compress old not compressed logs in directory:
+                logsDir.eachFileMatchAsync("*.log") {
+                    File log ->
+                        if (!Files.isSymbolicLink(log.toPath())) { //Skip links
+                            LocalDateTime lastMod = LocalDateTime.fromMillis(log.lastModified())
+                            if (ChronoUnit.DAYS.between(lastMod, LocalDateTime.now()) > days) {
+                                log.delete()
+                            } else if (ChronoUnit.DAYS.between(lastMod, LocalDateTime.now()) > 0) {
+                                compressLog(log)
+                            }
+                        }
                 }
+            }
+            try {
+                Class tasks = Class.forName(Log.class.package.name.replace('core', 'thread') + ".Tasks")
+                Class priority = Class.forName(Log.class.package.name.replace('core', 'thread') + '.Task$Priority')
+                Class[] parameters = [Runnable.class, String.class, priority, Integer.TYPE]
+                Method method = tasks.getMethod("add", parameters)
+                Object low = Enum.valueOf(priority, "LOW")
+                Object[] callParams = [runnable, "Log.clean", low, maxTaskExecTimeMs]
+                method.invoke(null, callParams)
+            } catch (Exception ignored) {
+                //Ignore... Tasks class doesn't exists, so we use a normal Thread:
+                //We can't use print here or it will loop forever
+                new Thread(runnable).start()
+            }
         }
     }
 
     /**
      * Link last log
      */
-    static void linkLast() {
-        File link = new File(directory, "last-" + logFileName)
-        link.delete()
-        logFile.linkTo(link)
+    static void linkLast(boolean update = true) {
+        if(logFile?.exists()) {
+            File link = new File(directory, "last-" + logFileName)
+            if (link.exists()) {
+                if(update) {
+                    link.delete()
+                    logFile.linkTo(link)
+                }
+            } else {
+                try {
+                    link.toPath().toRealPath().toFile().absolutePath
+                } catch(Exception ignored) {
+                    link.delete() // link.exists will fail if link is broken. In that case is better to be sure to remove it
+                }
+                logFile.linkTo(link)
+            }
+        }
     }
 
     /**
@@ -290,7 +331,7 @@ final class Log {
         void print(Level level, Info stack, String msg) {
             try {
                 if (mLoaded) {
-                    (mLogMethods[level.toString()] as Method).invoke(null, stack, msg)
+                    (mLogMethods[level.toChar()] as Method).invoke(null, stack, msg)
                 }
             } catch (InvocationTargetException|IllegalAccessException ignored) {
                 // Ignore
@@ -344,10 +385,10 @@ final class Log {
             return
         }
         Info stack = stack()
-        Queue listArgs = args.toList() as Queue
+        LinkedList listArgs = args.toList() as LinkedList
         Throwable throwable = null
         if(!listArgs.isEmpty() && listArgs.last() instanceof Throwable) {
-            throwable = (Throwable) listArgs.poll()
+            throwable = (Throwable) listArgs.pollLast()
         } else if(lvl == Level.ERROR) {
             throwable = new Exception("Generic Exception generated in Log")
         }

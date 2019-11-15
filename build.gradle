@@ -47,14 +47,15 @@ subprojects {
     apply plugin: "com.jfrog.artifactory"
 
     dependencies {
-        compile 'com.intellisrc:groovy-extend:2.0.2.256'  //Using groovy 2.5.6
+        compile 'com.intellisrc:groovy-extend:2.5.6.1'  //Using groovy 2.5.6
         testCompile 'org.spockframework:spock-unitils:1.2-groovy-2.5'
+        testCompile 'net.bytebuddy:byte-buddy:1.10.2'
     }
     publishing {
         publications {
             mavenJava(MavenPublication) {
                 from components.java
-				artifact(file("$rootDir/gradle.properties"))
+                artifact(file("$rootDir/gradle.properties"))
             }
         }
     }

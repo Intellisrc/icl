@@ -15,9 +15,11 @@
             <option value="$PROJECT_DIR$/modules/cv" />
             <option value="$PROJECT_DIR$/modules/db" />
             <option value="$PROJECT_DIR$/modules/etc" />
+            <option value="$PROJECT_DIR$/modules/img" />
             <option value="$PROJECT_DIR$/modules/net" />
             <option value="$PROJECT_DIR$/modules/serial" />
             <option value="$PROJECT_DIR$/modules/term" />
+            <option value="$PROJECT_DIR$/modules/thread" />
             <option value="$PROJECT_DIR$/modules/web" />
           </set>
         </option>

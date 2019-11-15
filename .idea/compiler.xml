@@ -46,6 +46,8 @@
       <module name="etc_test" target="11" />
       <module name="groovy-extend_main" target="1.8" />
       <module name="groovy-extend_test" target="1.8" />
+      <module name="img_main" target="11" />
+      <module name="img_test" target="11" />
       <module name="lib-etc_main" target="1.8" />
       <module name="lib-etc_test" target="1.8" />
       <module name="modules-core_main" target="11" />
@@ -78,6 +80,8 @@
       <module name="srv_test" target="1.8" />
       <module name="term_main" target="11" />
       <module name="term_test" target="11" />
+      <module name="thread_main" target="11" />
+      <module name="thread_test" target="11" />
       <module name="tools_main" target="1.8" />
       <module name="tools_test" target="1.8" />
       <module name="web_main" target="11" />
