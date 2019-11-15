@@ -1,97 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version">
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/CvFrameShot.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Drawing.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/test/groovy/com/intellisrc/cv/ConverterTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/test/groovy/com/intellisrc/cv/CvFrameShotTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/test/groovy/com/intellisrc/cv/CvToolsTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Calc.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Hardware.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Metric.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/TimeClock.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/CalcTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/HardwareTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/BuffImgTools.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/Converter.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/FileImgTools.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/FrameShot.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/Metry.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img/BuffImgToolsTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img/ConverterTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img/FrameShotTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img/MetryTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img/TrigonometryTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/NetFace.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/serial/src/test/groovy/com/intellisrc/serial/SerialTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/BlockingTask.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/DelayedTask.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/IntervalTask.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Killable.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ParallelTask.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ServiceTask.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Task.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskInfo.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskLoggable.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskManager.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskPool.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ThreadPool.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/BlockingTaskTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/DelayedTaskTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/IntervalTaskTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/ParallelTaskTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/ServiceTaskTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/TaskPoolTest.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/TaskTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_api_1_7_25.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_slf4j_slf4j_nop_1_7_25.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies.">
+      <change afterPath="$PROJECT_DIR$/modules/cv/src/test/resources/test.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/img/src/test/resources/test.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compare.sh" beforeDir="false" afterPath="$PROJECT_DIR$/compare.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/Converter.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/CvTools.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/CvTools.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/JpegFormat.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/JpegFormat.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFormat.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/MjpegFormat.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegFrame.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/MjpegFrame.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/MjpegInputStream.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/MjpegInputStream.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/VideoGrab.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/VideoGrab.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Database.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Database.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/PoolConnectorTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/test/groovy/com/intellisrc/db/PoolConnectorTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Network.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Network.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Serial.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/serial/src/main/groovy/com/intellisrc/serial/Serial.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/term/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/HardwareTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/HardwareTest.groovy" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -129,11 +56,7 @@
     <system id="GRADLE">
       <state>
         <task path="$PROJECT_DIR$">
-          <activation>
-            <after_sync>
-              <task name="publishToMavenLocal" />
-            </after_sync>
-          </activation>
+          <activation />
         </task>
         <task path="$PROJECT_DIR$/../crypt">
           <activation />
@@ -239,7 +162,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/thread/src/main/groovy/com/inspeedia/common/thread/Tasks.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/modules/img/src/test" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
@@ -255,11 +178,11 @@
       <recent name="com.intellisrc.term" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/modules/img/src/test" />
+      <recent name="$PROJECT_DIR$/modules/cv/src/test" />
       <recent name="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread" />
       <recent name="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img" />
       <recent name="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc" />
-      <recent name="$PROJECT_DIR$/modules/cv/src/test/groovy/com/intellisrc/cv" />
-      <recent name="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -274,7 +197,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
+  <component name="RunManager" selected="Gradle.Tests in 'cv_test'">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
@@ -287,70 +210,105 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="common [artifactoryPublish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="BuffImgToolsTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="--tests &quot;com.intellisrc.img.BuffImgToolsTest&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="artifactoryPublish" />
+            <option value=":img:cleanTest" />
+            <option value=":img:test" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="BuffImgToolsTest.Rotate" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="--tests &quot;com.intellisrc.img.BuffImgToolsTest.Rotate&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value="publishToMavenLocal" />
+            <option value=":img:cleanTest" />
+            <option value=":img:test" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="All in etc_test (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="etc_test" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+    <configuration name="TaskTest.All threads must be executed but not more than once each" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests &quot;com.intellisrc.thread.TaskTest.All threads must be executed but not more than once each&quot;" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":thread:cleanTest" />
+            <option value=":thread:test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
     </configuration>
-    <configuration name="All in etc_test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="etc_test" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+    <configuration name="Tests in 'cv_test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests *" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":cv:cleanTest" />
+            <option value=":cv:test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
     </configuration>
-    <configuration name="All in web_test" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="web_test" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+    <configuration name="Tests in 'img_test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests *" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":img:cleanTest" />
+            <option value=":img:test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
+      <method v="2" />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <option name="TEST_OBJECT" value="class" />
@@ -382,19 +340,19 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.common [artifactoryPublish]" />
-      <item itemvalue="JUnit.All in etc_test" />
-      <item itemvalue="JUnit.All in web_test" />
-      <item itemvalue="JUnit.All in etc_test (1)" />
-      <item itemvalue="Gradle.common [publishToMavenLocal]" />
+      <item itemvalue="Gradle.Tests in 'cv_test'" />
+      <item itemvalue="Gradle.TaskTest.All threads must be executed but not more than once each" />
+      <item itemvalue="Gradle.BuffImgToolsTest.Rotate" />
+      <item itemvalue="Gradle.BuffImgToolsTest" />
+      <item itemvalue="Gradle.Tests in 'img_test'" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.common [publishToMavenLocal]" />
-        <item itemvalue="Gradle.common [artifactoryPublish]" />
-        <item itemvalue="JUnit.All in etc_test (1)" />
-        <item itemvalue="JUnit.All in web_test" />
-        <item itemvalue="JUnit.All in etc_test" />
+        <item itemvalue="Gradle.Tests in 'cv_test'" />
+        <item itemvalue="Gradle.Tests in 'img_test'" />
+        <item itemvalue="Gradle.BuffImgToolsTest.Rotate" />
+        <item itemvalue="Gradle.BuffImgToolsTest" />
+        <item itemvalue="Gradle.TaskTest.All threads must be executed but not more than once each" />
       </list>
     </recent_temporary>
   </component>
@@ -415,13 +373,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00082" summary="2.4.1 Updated groovy-extends">
-      <created>1530499763507</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1530499763507</updated>
     </task>
     <task id="LOCAL-00083" summary="2.4.2 Fixed console onCommand">
       <created>1530519946921</created>
@@ -759,40 +710,15 @@
       <option name="project" value="LOCAL" />
       <updated>1559717560587</updated>
     </task>
-    <option name="localTasksCounter" value="131" />
+    <task id="LOCAL-00131" summary="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies.">
+      <created>1573803699559</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1573803699559</updated>
+    </task>
+    <option name="localTasksCounter" value="132" />
     <servers />
-  </component>
-  <component name="TestHistory">
-    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 37m 04s.xml">
-      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 37m 48s.xml">
-      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 38m 50s.xml">
-      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 39m 37s.xml">
-      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest_Testing_cache - 2019.07.10 at 17h 41m 32s.xml">
-      <configuration name="CacheTest.Testing cache" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="CacheTest - 2019.07.10 at 17h 43m 20s.xml">
-      <configuration name="CacheTest" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="All_in_term_test - 2019.07.10 at 17h 43m 49s.xml">
-      <configuration name="All in term_test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="All_in_etc_test - 2019.07.10 at 17h 44m 17s.xml">
-      <configuration name="All in etc_test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="All_in_web_test - 2019.07.10 at 17h 44m 28s.xml">
-      <configuration name="All in web_test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="All_in_etc_test_(1) - 2019.07.10 at 17h 44m 58s.xml">
-      <configuration name="All in etc_test (1)" configurationId="JUnit" />
-    </history-entry>
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -831,7 +757,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.4.10 : Do not log stderr by default. Allow unlimited wait time in commands." />
     <MESSAGE value="2.4.11 : WebService runs in foreground as default. Automatically detects absolute paths. Correct services path if required." />
     <MESSAGE value="2.4.11 : Changed WS test" />
     <MESSAGE value="2.4.12 : Improved LogService filters" />
@@ -856,7 +781,8 @@
     <MESSAGE value="2.6.4: Fixed issue in SysService not stopping properly in alternative methods. Fixed WebService on empty headers" />
     <MESSAGE value="2.6.5: Same as 2.6.4, version was updated." />
     <MESSAGE value="2.6.5: Added Config default values and improved SysService stop/exit" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.6.5: Added Config default values and improved SysService stop/exit" />
+    <MESSAGE value="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies." />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies." />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />

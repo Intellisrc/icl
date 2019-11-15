@@ -1,6 +1,6 @@
 package com.intellisrc.etc
 
-import com.inspeedia.common.core.Log
+import com.intellisrc.core.Log
 import spock.lang.Specification
 
 /**
