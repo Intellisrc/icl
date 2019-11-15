@@ -8,6 +8,21 @@ import spock.lang.Specification
  * NOTE: compressing logs is tested in 'etc'
  */
 class LogTest extends Specification {
+    def setup() {
+        Log.initialized = false //Be sure it hasn't been initialized
+        Log.directory = null
+        Log.logFileName = ""
+        Log.level = Log.Level.VERBOSE
+        Log.printAlways = false
+        Log.colorAlways = false
+        Log.colorInvert = false
+        Log.enabled = true
+    }
+    def cleanup() {
+        if(Log.logFile?.exists()) {
+            Log.logFile.delete()
+        }
+    }
     /**
      * Check if link to last log is created successfully
      * The link should be created during initialization and even before printing any log (so the log file may not exists yet)
@@ -24,9 +39,8 @@ class LogTest extends Specification {
             Log.w("This is some warning")
             assert Log.logFile.exists()
             assert Log.logFile.text.contains("some warning")
-        cleanup:
-            Log.logFile.delete()
     }
+    
     def "Test parameters"() {
         setup:
             Log.level = Log.Level.VERBOSE
@@ -42,6 +56,7 @@ class LogTest extends Specification {
         then:
             notThrown Exception
     }
+    
     static class DummyTestException extends Exception {
         String message = "This is the message of the dummy exception"
     }
@@ -60,12 +75,13 @@ class LogTest extends Specification {
             Log.i("This should not be printed")
             try {
                 throwIt()
-            } catch(Exception e) {
-                Log.e("This is an exception: ",e)
+            } catch (Exception e) {
+                Log.e("This is an exception: ", e)
             }
         then:
             notThrown Exception
     }
+    
     def "Test Level"() {
         when:
             Log.level = Log.Level.ERROR
@@ -78,6 +94,7 @@ class LogTest extends Specification {
         then:
             notThrown Exception
     }
+    
     def "Respecting Level"() {
         when:
             Log.level = Log.Level.DEBUG
@@ -88,6 +105,7 @@ class LogTest extends Specification {
         then:
             notThrown Exception
     }
+    
     def "Disable colors"() {
         when:
             Log.color = false
@@ -95,6 +113,7 @@ class LogTest extends Specification {
         then:
             notThrown Exception
     }
+    
     def "Multiple onLog"() {
         setup:
             int incremental = 0
@@ -102,30 +121,33 @@ class LogTest extends Specification {
             Log.onLog = {
                 Log.Level level, String message, Log.Info info ->
                     incremental += 7
-                    println "Log One"
+                    println "[Multiple onLog]: Log One"
             } as Log.OnLog
             Log.onLog = {
                 Log.Level level, String message, Log.Info info ->
                     incremental += 100
-                    println "Log Two"
+                    println "[Multiple onLog]: Log Two"
             } as Log.OnLog
         then:
             Log.d("This is an message")
             assert incremental == 107
     }
-    def "Test disable" () {
+    
+    def "Test disable"() {
         setup:
             Log.level = Log.Level.VERBOSE
             Log.directory = new File(SysInfo.tempDir)
             Log.logFileName = "test.log"
-            if(Log.logFile.exists()) {
+            if (Log.logFile.exists()) {
                 Log.logFile.delete()
             }
+            Log.init() // Enable will be reset
             Log.enabled = false
             Log.e("Some random error")
         expect:
             assert !Log.logFile.exists()
     }
+    
     def "Test Domains in Exception"() {
         setup:
             Log.domains = ["invoke", "LogTest"]
@@ -137,8 +159,8 @@ class LogTest extends Specification {
         when:
             try {
                 throwIt()
-            } catch(Exception e) {
-                Log.e("This is an exception: ",e)
+            } catch (Exception e) {
+                Log.e("This is an exception: ", e)
             }
         then:
             /*
@@ -146,27 +168,52 @@ class LogTest extends Specification {
              */
             notThrown Exception
     }
+    
     def "Link log"() {
         setup:
-        Log.initialized = false //Be sure it hasn't been initialized
-        Log.level = Log.Level.VERBOSE
-        Log.directory = new File(SysInfo.tempDir)
-        Log.logFileName = "test.log"
-        if(Log.logFile.exists()) {
-            Log.logFile.delete()
-        }
-        Log.e("Some random error")
-        // We create a File object here, so we can test if it exists. It is not creating the file (it should have been created in the previous line).
-        File link = new File(Log.directory, "last-"+Log.logFileName)
+            Log.level = Log.Level.VERBOSE
+            Log.directory = new File(SysInfo.tempDir)
+            Log.logFileName = "test.log"
+            if (Log.logFile.exists()) {
+                Log.logFile.delete()
+            }
+            Log.e("Some random error")
+            // We create a File object here, so we can test if it exists. It is not creating the file (it should have been created in the previous line).
+            File link = new File(Log.directory, "last-" + Log.logFileName)
         expect:
-        assert Log.logFile.exists() : "Log file should have been created"
-        assert link.exists() : "Link was not created"
+            assert Log.logFile.exists(): "Log file should have been created"
+            assert link.exists(): "Link was not created"
         cleanup:
-        if(link?.exists()) {
-            link.delete()
-        }
-        if(Log.logFile.exists()) {
-            Log.logFile.delete()
-        }
+            if (link?.exists()) {
+                link.delete()
+            }
+    }
+    
+    def "Unable to create directory"() {
+        setup:
+            Log.level = Log.Level.VERBOSE
+            Log.directory = new File("/dev/null/err")
+            Log.logFileName = "test.log"
+            Log.printAlways = false
+            Log.i("It must not log this.. just display")
+        expect:
+            assert Log.logFileName.empty : ("Log has name: " + Log.logFileName)
+            assert ! Log.directory.exists() : ("Dir existed: " + Log.directory.absolutePath)
+            assert Log.logFile == null : ("Log existed: " + Log.logFile?.absolutePath)
+            assert Log.printAlways
+    }
+    
+    def "Variable with error"() {
+        setup:
+            Log.level = Log.Level.VERBOSE
+            String initializer = "me"
+        when:
+            try {
+                throw new Exception("Manually triggered")
+            } catch(Exception e) {
+                Log.e("This error was generated by %s.", initializer, e)
+            }
+        then:
+            notThrown Exception
     }
 }

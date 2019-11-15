@@ -28,6 +28,7 @@ class Database {
     }
     static void quit() {
         pool?.quit()
+        pool = null
     }
     static int getConnections() {
         return pool?.currentConnections ?: 0

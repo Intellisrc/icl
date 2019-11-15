@@ -1,6 +1,8 @@
 package com.intellisrc.net
 
-@groovy.transform.CompileStatic
+import groovy.transform.CompileStatic
+
+@CompileStatic
 /**
  * Methods related to Networking (not related to NetworkInterface)
  */
@@ -75,5 +77,13 @@ class Network {
         }
 
         return IPs
+    }
+    
+    /**
+     * List Network Intefaces
+     * @return
+     */
+    static List<NetFace> getNetworkInterfaces() {
+        return NetworkInterface.networkInterfaces.collect { NetworkInterface ni -> new NetFace(ni) }
     }
 }
