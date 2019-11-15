@@ -53,7 +53,9 @@ class WebServiceTest extends Specification {
         then:
             assert !web.isRunning()
         cleanup:
-            Log.logFile.delete()
+            if(Log.logFile && Log.logFile.exists()) {
+                Log.logFile.delete()
+            }
     }
 
     def "Testing auto cache"() {

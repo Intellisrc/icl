@@ -13,15 +13,19 @@ import jssc.SerialPortList
 @CompileStatic
 class Serial extends Seriable {
     final private SerialPort portComm
-    Serial(String port) {
+    Serial(String port, SerialPort comm = null) {
         serialPort = port
-        portComm = findPort()
+        portComm = comm ?: findPort()
     }
     static List<String> listPorts() {
         return SerialPortList.portNames.toList()
     }
-
-    private SerialPort findPort() {
+    
+    SerialPort getPort() {
+        return portComm
+    }
+    
+    SerialPort findPort() {
         return new SerialPort(serialPort)
     }
 
@@ -65,7 +69,7 @@ class Serial extends Seriable {
     void read(int byteCount, SerialReader onResponse) {
         if(connected) {
             try {
-                onResponse(portComm.readBytes(byteCount))
+                onResponse.call(portComm.readBytes(byteCount))
             } catch(Exception e) {
                 Log.e("unable to read from device: %s", serialPort, e)
             }

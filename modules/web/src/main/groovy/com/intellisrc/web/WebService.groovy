@@ -45,7 +45,11 @@ class WebService {
     int threads = 20
     int eTagMaxKB = 1024
     private boolean running = false
-
+    StartCallback onStart = null
+    
+    interface StartCallback {
+        void call(Srv srv)
+    }
     /**
      * Constructor: initializes Service instance
      */
@@ -68,17 +72,7 @@ class WebService {
                 srv.staticFiles.location(resources)
             }
         }
-
-        // Test port before initializing
-        boolean portAvailable = false
-        try {
-            new ServerSocket(port).close()
-            portAvailable = true
-        } catch (IOException e) {
-            Log.w("Port %d is in use", port)
-        }
-
-        if(portAvailable) {
+        if(NetworkInterface.isPortAvailable(port)) {
             srv.port(port).threadPool(threads) //Initialize it right away
             Log.i("Starting server in port $port with pool size of $threads")
             listServices.each {
@@ -156,6 +150,9 @@ class WebService {
             }
             srv.init()
             running = true
+            if(onStart) {
+                onStart.call(srv)
+            }
             if (!background) {
                 while (running) {
                     sleep 1000L
@@ -163,6 +160,8 @@ class WebService {
             }
             //Wait until the server is Up
             sleep 1000L
+        } else {
+            Log.w("Port %d is already in use", port)
         }
     }
 
