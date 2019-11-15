@@ -1,0 +1,4 @@
+dependencies {
+    compile project(':core')
+    compile "net.coobird:thumbnailator:0.4.8"
+}

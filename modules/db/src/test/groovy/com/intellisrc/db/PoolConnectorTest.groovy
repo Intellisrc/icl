@@ -6,8 +6,6 @@ import spock.lang.Specification
  * @since 17/03/02.
  */
 class PoolConnectorTest extends Specification {
-    def setup() {
-    }
     def "Testing return-to-pool"() {
         setup:
             Database.init(new Dummy())

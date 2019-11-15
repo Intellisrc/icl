@@ -1,6 +1,6 @@
 dependencies {
     compile project(':etc')
-    compile 'mysql:mysql-connector-java:8.0.16'
-    compile 'org.xerial:sqlite-jdbc:3.27.2.1'
+    compile 'mysql:mysql-connector-java:8.0.17'
+    compile 'org.xerial:sqlite-jdbc:3.28.0'
     compile "com.sleepycat:je:18.3.12"
 }

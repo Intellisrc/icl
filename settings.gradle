@@ -8,7 +8,9 @@ include ':net'
 include ':web'
 include ':term'
 include ':serial'
+include ':img'
 include ':cv'
+include ':thread'
 
 project(':core').projectDir     = new File(rootProject.projectDir, 'modules/core')
 project(':etc').projectDir      = new File(rootProject.projectDir, 'modules/etc')
@@ -18,4 +20,6 @@ project(':net').projectDir      = new File(rootProject.projectDir, 'modules/net'
 project(':web').projectDir      = new File(rootProject.projectDir, 'modules/web')
 project(':term').projectDir     = new File(rootProject.projectDir, 'modules/term')
 project(':serial').projectDir   = new File(rootProject.projectDir, 'modules/serial')
+project(':img').projectDir      = new File(rootProject.projectDir, 'modules/img')
 project(':cv').projectDir       = new File(rootProject.projectDir, 'modules/cv')
+project(':thread').projectDir   = new File(rootProject.projectDir, 'modules/thread')

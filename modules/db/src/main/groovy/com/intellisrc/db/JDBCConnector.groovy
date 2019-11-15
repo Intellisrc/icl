@@ -9,7 +9,6 @@ import com.intellisrc.db.DB.DBType
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 import static com.intellisrc.db.DB.DBType.*
 import static com.intellisrc.db.Query.Action.*
@@ -218,7 +217,7 @@ class JDBCConnector implements Connector {
 				} else if (o instanceof LocalDate) {
 					st.setDate(index, java.sql.Date.valueOf(o.toString()))
 				} else if (o instanceof LocalDateTime) {
-					long millis = o.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+					long millis = o.toMillis()
 					st.setTimestamp(index, new Timestamp(millis))
 				} else {
 					st.setNull(index, NULL)
