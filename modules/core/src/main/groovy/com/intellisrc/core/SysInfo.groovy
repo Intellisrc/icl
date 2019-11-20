@@ -1,8 +1,11 @@
 package com.intellisrc.core
+
+import groovy.transform.CompileStatic
+
 /**
  * @since 1/2/17.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * System Information class
  * For example: get OS type
@@ -67,6 +70,61 @@ class SysInfo {
         }
         return tmpDir
     }
+    
+    /**
+     * Alternative to `new File()` which is more flexible
+     * Examples:
+     *
+     * Convert path to home directory:
+     * SysInfo.getFile("~/system", "file.txt")
+     *
+     * Accepts multiple levels and automatically detect when reading from user directory:
+     * SysInfo.getFile("resources", "images", "thumbs", "logo.jpg")
+     *
+     * It accepts File objects and String as well:
+     * SysInfo.getFile(someDir, "directory", "file.txt")
+     *
+     * @param self
+     * @param path
+     * @return
+     */
+    static File getFile(Object... path) {
+        File pathFile
+        boolean isFirstInPath = true
+        path.each {
+            def part ->
+                String pathPart
+                switch (part) {
+                    case File:
+                        if (isFirstInPath) {
+                            pathPart = (part as File).absolutePath
+                        } else {
+                            pathPart = (part as File).name
+                        }
+                        break
+                    default:
+                        pathPart = part.toString()
+                        break
+                }
+                if (isFirstInPath) {
+                    switch (pathPart) {
+                        case ~/^\/.*$/:
+                            pathFile = new File(pathPart)
+                            break
+                        case ~/^~.*$/:
+                            pathFile = new File(homeDir, pathPart.replace('~/', ''))
+                            break
+                        default:
+                            pathFile = new File(userDir, pathPart)
+                    }
+                } else {
+                    pathFile = new File(pathFile, pathPart)
+                }
+                isFirstInPath = false
+        }
+        return pathFile
+    }
+    
     /**
      * Identify if OS is Windows
      * @return
