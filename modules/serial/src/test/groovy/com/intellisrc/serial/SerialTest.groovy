@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 class SerialTest extends Specification {
     static String serialPort = "FAKE"
-    def portSerial = Spy(SerialPort)
+    def portSerial
     Serial serialObj
     //Serial reader classes
     def reader
@@ -20,7 +20,7 @@ class SerialTest extends Specification {
         portSerial = Stub(SerialPort) {
             openPort() >> true
         }
-        serialObj = new Serial(serialPort,portSerial)
+        serialObj = new Serial(serialPort, portSerial)
         //Serial reader classes
         reader = Mock(Seriable.SerialReader.class)
         readerStr = Mock(Seriable.SerialReaderStr.class)
@@ -40,7 +40,7 @@ class SerialTest extends Specification {
             println("[INPUT]")
             println(port.toString())
         then:
-            assert serialObj.serialPort : " Serial Object must be null"
+            assert serialObj.serialPort: " Serial Object must be null"
         expect:
             println("[OUTPUT]")
             assert serialObj.serialPort == serialPort //constructor must be same
@@ -82,7 +82,8 @@ class SerialTest extends Specification {
         cleanup:
             listOfPort.clear()
     }
-    def "portComm must find the connectivity through findPort"(){
+    
+    def "portComm must find the connectivity through findPort"() {
         setup:
             serialObj.connect()
         when:
@@ -90,7 +91,7 @@ class SerialTest extends Specification {
         then:
             println("SerialPort of findPort should assigned only for SerialPort of portComm")
             def portFound = serialObj.findPort().portName
-            assert portFound : "Unable to find port"
+            assert portFound: "Unable to find port"
             println("Found port: " + portFound)
             assert portFound == serialPort
     }
@@ -102,12 +103,12 @@ class SerialTest extends Specification {
         setup:
             serialObj.connect()
         expect:
-            assert serialObj.connected : "Serial was not connected"
+            assert serialObj.connected: "Serial was not connected"
         when:
             println("Check if Serial port is disconnected :")
             serialObj.disconnect()
         then: "connection of port must be false"
-            assert ! serialObj.connected: " serialPort is not disConnected"
+            assert !serialObj.connected: " serialPort is not disConnected"
             println("disconnect Success")
     }
     /**read()
@@ -122,9 +123,9 @@ class SerialTest extends Specification {
             byte[] arr = portSerial.readBytes(3)
             serialObj.read(3, reader)
         then:
-            assert arr != []as byte[]: "array must not be empty"
+            assert arr != [] as byte[]: "array must not be empty"
         expect:
-            if(arr == [23, 10, 14] as byte[]) //output of byte array must be same
+            if (arr == [23, 10, 14] as byte[]) //output of byte array must be same
                 println("portComm reads the byte array value and it should be same value")
         where:
             byteArr << [[23, 10, 14] as byte[]]
@@ -145,7 +146,7 @@ class SerialTest extends Specification {
             assert strValue != null: "value of string must not be null"
             assert !strValue.isEmpty(): "value of string must not be empty"
         expect:
-            if(strValue == "Hello world !!") //output string must be same
+            if (strValue == "Hello world !!") //output string must be same
                 println("portcomm reads the string value and it should be the same value")
         where:
             strOutput << ["Hello world !!"]
@@ -164,7 +165,7 @@ class SerialTest extends Specification {
             assert portSerial.readString() != "": " Value of string must not be empty"
             assert portSerial.readString() != null: " value of string must not be null"
         expect:
-            if(Integer.parseInt(strOutput[0] as String) == 2) // string value must convert into integer type
+            if (Integer.parseInt(strOutput[0] as String) == 2) // string value must convert into integer type
                 println("readerint reads the integer value by converting string value into integer value and it should be the same value")
         where:
             strOutput << ["2"]
@@ -183,10 +184,10 @@ class SerialTest extends Specification {
             byteArrayOutput = writerObj.call()
             serialObj.write(writerObj)
         then:
-            assert byteArrayOutput : " byte array must not be null"
-            assert !byteArrayOutput.toList().empty : " byte array should not be empty"
+            assert byteArrayOutput: " byte array must not be null"
+            assert !byteArrayOutput.toList().empty: " byte array should not be empty"
         expect:
-            if(byteArrayOutput == [12, 45, 67] as byte[]) // output of byte array must be same
+            if (byteArrayOutput == [12, 45, 67] as byte[]) // output of byte array must be same
                 println("writer return the byte array and it assigned the same value")
         where:
             byteArr << [[12, 45, 67] as byte[]]
@@ -205,9 +206,9 @@ class SerialTest extends Specification {
             strOutput = writeStrObj.call()
             serialObj.writeStr(writeStrObj)
         then:
-            assert strOutput : " value of string must not be empty or null"
+            assert strOutput: " value of string must not be empty or null"
         expect:
-            if(strOutput == "Hello World") //output of string value must be same
+            if (strOutput == "Hello World") //output of string value must be same
                 println("writerstr return some string value and it assigned the same value")
         where:
             strValue << ["Hello World"]
@@ -230,7 +231,7 @@ class SerialTest extends Specification {
             assert number != 0: "must assign an integer value"
             assert number >= 0: "must be greater than zero and shouldn't assign any negative value"
         expect:
-            if(number == 128) // output of integer must be same
+            if (number == 128) // output of integer must be same
                 println("writenum return some integer value and it assigned the same value")
         where:
             intvalue << [128]
