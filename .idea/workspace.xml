@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies.">
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/test/resources/test.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/img/src/test/resources/test.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.1 : Added missing test image">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/HardwareTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc/HardwareTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysInfo.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysInfo.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/SysInfoTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/SysInfoTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/serial/src/test/groovy/com/intellisrc/serial/SerialTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/serial/src/test/groovy/com/intellisrc/serial/SerialTest.groovy" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -154,6 +148,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectId" id="1Trek1L3wyXXTm5pas3sYRigcuK" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="false" id="Update" />
     <ConfirmationsSetting value="1" id="Add" />
@@ -162,12 +157,12 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/modules/img/src/test" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/serial/src/test/groovy/com/inspeedia/common/serial/SerialTest.groovy" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/thread/src/main/groovy/com/inspeedia/common/thread/Tasks.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/serial/src/test/groovy/com/inspeedia/common/serial/SerialTest.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -373,13 +368,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00083" summary="2.4.2 Fixed console onCommand">
-      <created>1530519946921</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1530519946921</updated>
     </task>
     <task id="LOCAL-00084" summary="2.4.3 Improved Console : added onInit(args)">
       <created>1530522307889</created>
@@ -717,7 +705,14 @@
       <option name="project" value="LOCAL" />
       <updated>1573803699559</updated>
     </task>
-    <option name="localTasksCounter" value="132" />
+    <task id="LOCAL-00132" summary="2.7.1 : Added missing test image">
+      <created>1573804288674</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1573804288674</updated>
+    </task>
+    <option name="localTasksCounter" value="133" />
     <servers />
   </component>
   <component name="TodoView">
@@ -757,7 +752,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.4.11 : WebService runs in foreground as default. Automatically detects absolute paths. Correct services path if required." />
     <MESSAGE value="2.4.11 : Changed WS test" />
     <MESSAGE value="2.4.12 : Improved LogService filters" />
     <MESSAGE value="2.4.13 : Config.CfgFile added to allow any property file" />
@@ -782,7 +776,8 @@
     <MESSAGE value="2.6.5: Same as 2.6.4, version was updated." />
     <MESSAGE value="2.6.5: Added Config default values and improved SysService stop/exit" />
     <MESSAGE value="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies." />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies." />
+    <MESSAGE value="2.7.1 : Added missing test image" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.1 : Added missing test image" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
