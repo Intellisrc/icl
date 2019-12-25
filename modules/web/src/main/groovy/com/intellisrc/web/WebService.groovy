@@ -37,7 +37,7 @@ class WebService {
     private final Srv srv
     private List<Serviciable> listServices = []
     private List<String> listPaths = [] //mainly used to prevent collisions
-    private boolean resourcesAbsolute = false
+    private boolean embedded = false //Turn to true if resources are inside jar
     // Options:
     String resources = ""
     int cacheTime = 0
@@ -63,13 +63,11 @@ class WebService {
     void start(boolean background = false) {
         srv.staticFiles.expireTime(cacheTime)
         if(!resources.isEmpty()) {
-            if(resources.startsWith(File.separator) && new File(resources).exists()) {
-                resourcesAbsolute = true
-            }
-            if (resourcesAbsolute) {
-                srv.staticFiles.externalLocation(resources)
-            } else {
+            if (embedded) {
                 srv.staticFiles.location(resources)
+            } else {
+                File resFile = SysInfo.getFile(resources)
+                srv.staticFiles.externalLocation(resFile.absolutePath)
             }
         }
         if(NetworkInterface.isPortAvailable(port)) {
@@ -308,6 +306,7 @@ class WebService {
                             response.header("Content-Transfer-Encoding", "binary")
                         }
                     }
+                    //TODO: when its upload, its hard to work together with POST requests. Make it simpler
                     if (sp.upload) {
                         def tempDir = SysInfo.getTempDir()
                         def tempFileDir = new File(tempDir)
@@ -469,7 +468,7 @@ class WebService {
      */
     void setResources(String path, boolean absolute = false) {
         resources = path
-        resourcesAbsolute = absolute
+        embedded = absolute
     }
 
 }

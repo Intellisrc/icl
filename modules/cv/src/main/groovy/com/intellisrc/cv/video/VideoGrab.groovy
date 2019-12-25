@@ -2,6 +2,7 @@ package com.intellisrc.cv.video
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Config
+import com.intellisrc.core.SysClock
 import com.intellisrc.cv.Converter
 import com.intellisrc.cv.CvFrameShot
 import com.intellisrc.img.FrameShot
@@ -12,8 +13,6 @@ import java.awt.image.BufferedImage
 import org.bytedeco.opencv.opencv_core.IplImage
 
 import groovy.transform.CompileStatic
-
-import java.time.LocalDateTime
 
 /**
  * @since 18/08/20.
@@ -80,7 +79,7 @@ class VideoGrab {
             //OpenCVFrameConverter.ToIplImage toIplImage = new OpenCVFrameConverter.ToIplImage()
          */
         if(source == "camera") {
-            File last = new File(exportDir, LocalDateTime.now().format(timeFormat) + exportName)
+            File last = new File(exportDir, SysClock.dateTime.format(timeFormat) + exportName)
             switch (true) {
                 case framerCallback instanceof Framer<File> :
                     framerCallback.call(last)
@@ -116,7 +115,7 @@ class VideoGrab {
                     if(frame?.imageWidth) {
                         switch (true) {
                             case framerCallback instanceof Framer<File> :
-                                File last = new File(exportDir, LocalDateTime.now().format(timeFormat) + exportName)
+                                File last = new File(exportDir, SysClock.dateTime.format(timeFormat) + exportName)
                                 Converter.BufferedToFile(Converter.FrameToBuffered(frame), last)
                                 next = framerCallback.call(last)
                                 break
@@ -131,10 +130,10 @@ class VideoGrab {
                                 next = framerCallback.call(frame)
                                 break
                             case framerCallback instanceof Framer<FrameShot> :
-                                next = framerCallback.call(new FrameShot(Converter.FrameToBuffered(frame),"frame-" + LocalDateTime.now().format(timeFormat)))
+                                next = framerCallback.call(new FrameShot(Converter.FrameToBuffered(frame),"frame-" + SysClock.dateTime.format(timeFormat)))
                                 break
                             case framerCallback instanceof Framer<CvFrameShot> :
-                                next = framerCallback.call(new CvFrameShot(Converter.FrameToBuffered(frame),"frame-" + LocalDateTime.now().format(timeFormat)))
+                                next = framerCallback.call(new CvFrameShot(Converter.FrameToBuffered(frame),"frame-" + SysClock.dateTime.format(timeFormat)))
                                 break
                             default:
                                 Log.w("Framer type unknown")
@@ -171,7 +170,7 @@ class VideoGrab {
                         BufferedImage image = (BufferedImage) f.getImage()
                         switch (true) {
                             case framerCallback instanceof Framer<File>:
-                                File last = new File(exportDir, LocalDateTime.now().format(timeFormat) + exportName)
+                                File last = new File(exportDir, SysClock.dateTime.format(timeFormat) + exportName)
                                 Converter.BufferedToFile(image, last)
                                 next = framerCallback.call(last)
                                 break
@@ -186,10 +185,10 @@ class VideoGrab {
                                 Log.w("Framer format: <Frame> not implemented for mjpeg source")
                                 break
                             case framerCallback instanceof Framer<FrameShot>:
-                                next = framerCallback.call(new FrameShot(image, "frame-" + LocalDateTime.now().format(timeFormat)))
+                                next = framerCallback.call(new FrameShot(image, "frame-" + SysClock.dateTime.format(timeFormat)))
                                 break
                             case framerCallback instanceof Framer<CvFrameShot>:
-                                next = framerCallback.call(new CvFrameShot(image, "frame-" + LocalDateTime.now().format(timeFormat)))
+                                next = framerCallback.call(new CvFrameShot(image, "frame-" + SysClock.dateTime.format(timeFormat)))
                                 break
                             default:
                                 Log.w("Framer type unknown")

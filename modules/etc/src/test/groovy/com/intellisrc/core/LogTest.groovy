@@ -45,7 +45,7 @@ class LogTest extends Specification {
             Log.level = Log.Level.VERBOSE
             Log.directory = Files.createTempDirectory("log.test").toFile()
             Log.logDays = 5
-            LocalDateTime now = LocalDateTime.now()
+            LocalDateTime now = SysClock.dateTime
             int logsToCreate = 30
         when:
             (0..logsToCreate).each {
@@ -75,7 +75,7 @@ class LogTest extends Specification {
             Log.level = Log.Level.VERBOSE
             Log.directory = Files.createTempDirectory("log.test").toFile()
             Log.logDays = 0
-            LocalDateTime now = LocalDateTime.now()
+            LocalDateTime now = SysClock.dateTime
             int logsToCreate = 30
         when:
             (0..logsToCreate).each {

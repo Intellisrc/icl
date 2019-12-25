@@ -1,4 +1,5 @@
 #!/bin/bash
+SEE_MORE=$1
 echo -e "\e[93m STARTING COMPARISON ********************************************"
 echo -e "\e[39m"
 compare_with="../../groovy/common-java"
@@ -11,12 +12,16 @@ for M in modules/*; do
 		if [[ $with != "" ]]; then
 			diffwith=$(diff $F $with | egrep -v "intellisrc|inspeedia" | egrep "^[>|<]");
 			if [[ $diffwith != "" ]]; then
-				echo -e "\e[39m"
-				echo -e "\e[36m${F} ..."
-				echo -e "\e[39m"
-				output=$(echo "$diffwith" | sed 's/^</\\e[92m</' | sed 's/^>/\\e[91m>/')
-				echo -e "$output"
-				echo -e "\e[39m"
+				if [[ $SEE_MORE ]]; then
+					echo -e "\e[39m"
+					echo -e "\e[36m${F} ..."
+					echo -e "\e[39m"
+					output=$(echo "$diffwith" | sed 's/^</\\e[92m</' | sed 's/^>/\\e[91m>/')
+					echo -e "$output"
+					echo -e "\e[39m"
+				else 
+					echo $base;
+				fi
 			fi
 		fi
 	done

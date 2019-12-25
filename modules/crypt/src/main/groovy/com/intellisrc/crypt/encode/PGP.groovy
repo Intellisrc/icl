@@ -1,6 +1,7 @@
 package com.intellisrc.crypt.encode
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
 
@@ -25,8 +26,6 @@ import org.bouncycastle.util.io.Streams
 import java.security.Security
 
 import groovy.transform.CompileStatic
-
-import java.time.LocalDateTime
 
 /**
  * OpenPGP wrapper
@@ -151,7 +150,7 @@ class PGP extends Crypt implements Encodable {
                 PGPLiteralData.BINARY,
                 Bytes.toString(randomChars(16)),  // "filename" to store in headers
                 clearData.length, // length of clear data
-                LocalDateTime.now().toDate()  // current time
+                SysClock.dateTime.toDate()  // current time
         )
         pOut.write(clearData)
         pOut.close()

@@ -3,6 +3,8 @@ package com.intellisrc.thread
 import com.intellisrc.core.Log
 import spock.lang.Specification
 
+import java.util.concurrent.atomic.AtomicInteger
+
 /**
  * @since 2019/09/10.
  */
@@ -82,6 +84,31 @@ class ParallelTaskTest extends Specification {
         then:
             assert Tasks.taskManager.pools.first().executor.list.empty
     }
-    
-    // TODO: def "Creating ParallelTask inline"() {}
+    /**
+     * Test if tasks will last as long as the timeout
+     * increasing the sleep time was causing stack overflow exception.
+     * That was fixed in 2.7.4
+     */
+    def "ParallelTask should not expire before time"() {
+        setup :
+            AtomicInteger times = new AtomicInteger()
+            List<Runnable> runnables = []
+            (1..20).each {
+                int instance ->
+                runnables << {
+                    println "[$instance] starting ..."
+                    (1..10).each {
+                        sleep(Random.range(90,130))
+                    }
+                    
+                    println "[$instance] finished in "+times.incrementAndGet()+" place"
+                }
+            }
+            assert runnables.size() == 20
+            ParallelTask parallelTask = ParallelTask.create( runnables, "Sleeping", 5, 60 * 60 * 1000, Task.Priority.NORMAL, true)
+            Tasks.add(parallelTask)
+        expect :
+            assert times.get() == 20
+            
+    }
 }

@@ -4,10 +4,10 @@ import com.intellisrc.core.Log
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableSingle
 import com.intellisrc.web.Service.ActionRequestResponse
+import com.intellisrc.core.SysClock
 import spark.Request
 import spark.Response
 
-import java.time.LocalDateTime
 
 /**
  * @since 17/04/19.
@@ -31,7 +31,7 @@ class IDService implements ServiciableSingle {
                     }
                 return [
                     i : id,
-                    t : LocalDateTime.now().toLocalTime().HHmmss
+                    t : SysClock.dateTime.toLocalTime().HHmmss
                 ]
             } as ActionRequestResponse
         )

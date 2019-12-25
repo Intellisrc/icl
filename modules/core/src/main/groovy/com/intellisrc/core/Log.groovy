@@ -23,7 +23,7 @@ final class Log {
 
     static String mainClass = ""
     static List<String> domains = [] //Highlight one or more domains in logs (it will try to get it automatically)
-    static LocalDateTime logDate = LocalDateTime.now()
+    static LocalDateTime logDate = SysClock.dateTime
     static boolean color = true //When true, it will automatically set color. If false, it will disabled it
     static boolean colorInvert = false //When true BLACK/WHITE will be inverted <VERBOSE vs DEBUG> (depends on terminal)
     static boolean colorAlways = false //When true it will output log always in color
@@ -85,6 +85,8 @@ final class Log {
             directory = Config.getFile("log.dir")
         } else if (Config.hasKey("log.path")) { //Support for old config
             directory = Config.getFile("log.path")
+        } else {
+            directory = SysInfo.getFile("logs")
         }
         if(directory) {
             if(!directory.exists()) {
@@ -93,6 +95,9 @@ final class Log {
                     printAlways = true
                     println AnsiColor.RED + "ERROR: Unable to create directory: " + directory.absolutePath + AnsiColor.RESET
                 }
+            }
+            if(!directory.canWrite()) {
+                println AnsiColor.RED + "ERROR: Log directory is not writable: " + directory.absolutePath + AnsiColor.RESET
             }
         } else {
             logFileName = ""
@@ -137,7 +142,7 @@ final class Log {
         void print(Level lvl, Info stack, String msg) {
             File logToFile = logFile
             if(logToFile) {
-                LocalDateTime newDate = LocalDateTime.now()
+                LocalDateTime newDate = SysClock.dateTime
                 boolean dateChanged = false
                 // Change file and compress if date changed
                 if(newDate.toLocalDate().YMD != logDate.toLocalDate().YMD) {
@@ -157,7 +162,7 @@ final class Log {
      * @return
      */
     private static String getLogLine(Level lvl, Info stack, String msg, boolean toFile) {
-        String time = LocalDateTime.now().YMDHmsS
+        String time = SysClock.dateTime.YMDHmsS
         String line
         if(colorAlways || SysInfo.isLinux() && color &&! toFile) {
             line = time +" [" + getLevelColor(lvl) + lvl.toChar() + AnsiColor.RESET + "] " +
@@ -233,9 +238,9 @@ final class Log {
                     File log ->
                         if (!Files.isSymbolicLink(log.toPath())) { //Skip links
                             LocalDateTime lastMod = LocalDateTime.fromMillis(log.lastModified())
-                            if (ChronoUnit.DAYS.between(lastMod, LocalDateTime.now()) > days) {
+                            if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) > days) {
                                 log.delete()
-                            } else if (ChronoUnit.DAYS.between(lastMod, LocalDateTime.now()) > 0) {
+                            } else if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) > 0) {
                                 compressLog(log)
                             }
                         }

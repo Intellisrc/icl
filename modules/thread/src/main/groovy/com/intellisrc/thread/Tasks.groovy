@@ -3,12 +3,12 @@ package com.intellisrc.thread
 import static com.intellisrc.core.AnsiColor.*
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import com.intellisrc.core.SysInfo
-import com.intellisrc.etc.TimeClock
 import com.intellisrc.thread.Task.Priority
 import groovy.transform.CompileStatic
 
-import java.time.LocalDate
+import java.time.LocalTime
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -30,17 +30,21 @@ class Tasks {
     static boolean printChilds = Config.getBool("tasks.children")
     static boolean printOnChange = false    //Using in UnitTests to debug
     protected static TaskManager taskManager = new TaskManager()
-    private static LocalDateTime logLastUpdated = LocalDateTime.now()
+    private static LocalDateTime logLastUpdated = SysClock.dateTime
     private static ConcurrentLinkedQueue<String> logUpdatedList = new ConcurrentLinkedQueue<>()
     private static ConcurrentLinkedQueue<TaskSummary> summary = new ConcurrentLinkedQueue<>()
-    
+    /**
+     * Initialize resetTasks
+     */
     static {
         // Launch reset task
         if (resetTasks) {
             resetTask()
         }
     }
-    
+    /**
+     * Keep a summary of a task
+     */
     static class TaskSummary {
         final String key
         private double avgTime = 0
@@ -77,10 +81,13 @@ class Tasks {
     static void resetManager() {
         taskManager = new TaskManager()
     }
-    
+    /**
+     * Get current Log date
+     * @return
+     */
     private static File getLogFile() {
         File baseDir = Log.directory ?: new File(SysInfo.userDir, "log")
-        return new File(baseDir, LocalDate.now().YMD + "-" + logFileName)
+        return new File(baseDir, SysClock.date.YMD + "-" + logFileName)
     }
     
     /**
@@ -91,10 +98,19 @@ class Tasks {
     static boolean add(Runnable simpleProcess, String name, Priority priority = Priority.NORMAL, int maxExecuteMillis = 1000) {
         taskManager.add(Task.create(simpleProcess, name, priority, maxExecuteMillis))
     }
+    /**
+     * Add a task ot the Tasks
+     * @param task
+     * @return
+     */
     static boolean add(Task task) {
         return add([task])
     }
-    
+    /**
+     * Add a list of tasks to the Tasks
+     * @param tasks
+     * @return
+     */
     static boolean add(List<Task> tasks) {
         boolean added = false
         tasks.each {
@@ -122,7 +138,11 @@ class Tasks {
     static boolean runLater(Runnable delayedProcess, String name, int afterMillis) {
         taskManager.add(DelayedTask.create(delayedProcess, name, afterMillis))
     }
-    
+    /**
+     * Get Log date
+     * @param time
+     * @return
+     */
     static private String getLogDate(LocalDateTime time) {
         return time.format("MMdd HH:mm:ss.SSS").padRight(17)
     }
@@ -132,7 +152,7 @@ class Tasks {
      * @return
      */
     static void logStatus(final TaskInfo changedTask = null) {
-        LocalDateTime now = LocalDateTime.now()
+        LocalDateTime now = SysClock.dateTime
         if (changedTask) {
             TaskSummary summ = summary.find { it.key == changedTask.name }
             if (!summ) {
@@ -145,10 +165,10 @@ class Tasks {
                         summ.add(ChronoUnit.MILLIS.between(changedTask.startTime, changedTask.doneTime))
                     } else {
                         if (!changedTask.startTime) {
-                            Log.w("[%s] had no start time", changedTask.fullName)
+                            Log.d("[%s] had no start time", changedTask.fullName)
                         }
                         if (!changedTask.doneTime) {
-                            Log.w("[%s] had no done time", changedTask.fullName)
+                            Log.d("[%s] had no done time", changedTask.fullName)
                         }
                     }
                     break
@@ -204,9 +224,9 @@ class Tasks {
         boolean allChanged = list.size() == logUpdatedList.size()
         log += (allChanged ? GREEN : YELLOW) + "> " + TaskManager.class.simpleName.padRight(37) + RESET + " | " +
                 getLogDate(taskManager.initTime) + " " +
-                CYAN + TimeClock.getTimeSince(taskManager.initTime).padRight(5) + RESET + " | " +
+                CYAN + SysClock.getTimeSince(taskManager.initTime).padRight(5) + RESET + " | " +
                 getLogDate(taskManager.okTime) + " " +
-                CYAN + TimeClock.getTimeSince(taskManager.okTime).padRight(5) + RESET + " | " +
+                CYAN + SysClock.getTimeSince(taskManager.okTime).padRight(5) + RESET + " | " +
                 getLogDate(logLastUpdated) + (" " * 6) + " | " +
                 YELLOW + list.size().toString().padRight(7) + RESET + " | " +
                 GREEN + logUpdatedList.size().toString().padRight(5) + RESET + " | " +
@@ -253,32 +273,39 @@ class Tasks {
         //boolean changed = changedTask && item.task.taskName == changedTask.taskName
         String name = (changed ? GREEN : YELLOW) + item.fullName.padRight(35) + (isPool ? pool.executor.largestPoolSize.toString() : " ").padRight(2)
         return (isPool ? pool.priority : "└") + RESET + " " + name + RESET + (isPool ? item.indicator : " ") + "| " +
-                (item.setupTime ? getLogDate(item.setupTime) + " " + CYAN + TimeClock.getTimeSince(item.setupTime).padRight(5) : " " * 23) + RESET + " | " +
+                (item.setupTime ? getLogDate(item.setupTime) + " " + CYAN + SysClock.getTimeSince(item.setupTime).padRight(5) : " " * 23) + RESET + " | " +
                 // waitTime not logged for now
-                (item.startTime ? getLogDate(item.startTime) + " " + CYAN + TimeClock.getTimeSince(item.setupTime, item.startTime).padRight(5) : " " * 23) + RESET + " | " +
-                (item.doneTime ? getLogDate(item.doneTime) + " " + CYAN + TimeClock.getTimeSince(item.startTime, item.doneTime).padRight(5) + RESET + " " + item.executed.toString().padRight(7) : " " * 31) + RESET + " | " +
-                (item.failTime ? RED + getLogDate(item.failTime) + " " + CYAN + TimeClock.getTimeSince(item.failTime).padRight(5) + " " + RED + item.failed.toString().padRight(5) : " " * 29) + RESET + " | " +
+                (item.startTime ? getLogDate(item.startTime) + " " + CYAN + SysClock.getTimeSince(item.setupTime, item.startTime).padRight(5) : " " * 23) + RESET + " | " +
+                (item.doneTime ? getLogDate(item.doneTime) + " " + CYAN + SysClock.getTimeSince(item.startTime, item.doneTime).padRight(5) + RESET + " " + item.executed.toString().padRight(7) : " " * 31) + RESET + " | " +
+                (item.failTime ? RED + getLogDate(item.failTime) + " " + CYAN + SysClock.getTimeSince(item.failTime).padRight(5) + " " + RED + item.failed.toString().padRight(5) : " " * 29) + RESET + " | " +
                 (summ ? dangerColor(summ.average, 500, item.maxExec ?: 1000) : " ".padRight(5)) + " | " +
                 (summ ? dangerColor(summ.maxTime, 500, item.maxExec ?: 1000) : " ".padRight(5)) + " | " +
-                TimeClock.millisToString(item.maxExec).padRight(5) + " | " +
-                TimeClock.millisToString(item.sleep).padRight(5) + " | " +
+                SysClock.millisToString(item.maxExec).padRight(5) + " | " +
+                SysClock.millisToString(item.sleep).padRight(5) + " | " +
                 (item.running ? (changed ? GREEN : YELLOW) : RED) + item.status + RESET + "\n"
     }
     
     static String dangerColor(long value, long warnValue, long dangerValue) {
-        return RESET + ((value >= dangerValue ? RED : (value >= warnValue ? YELLOW : "")) + TimeClock.millisToString(value).padRight(5)) + RESET
+        return RESET + ((value >= dangerValue ? RED : (value >= warnValue ? YELLOW : "")) + SysClock.millisToString(value).padRight(5)) + RESET
     }
-    
+    /**
+     * Exit all tasks
+     */
     static void exit() {
         taskManager.exit()
     }
-    
+    /**
+     * Block while taskManager is running
+     */
     static void block() {
         while (taskManager.running) {
             sleep(100)
         }
     }
-    
+    /**
+     * Report every N ms the status of tasks
+     * @param each
+     */
     static void report(int each = 1000) {
         add(IntervalTask.create({
             logStatus()
@@ -290,7 +317,7 @@ class Tasks {
      */
     private static void resetTask() {
         add(IntervalTask.create({
-            if (ChronoUnit.SECONDS.between(LocalDateTime.MIN, LocalDateTime.now()) <= 1) {
+            if (ChronoUnit.SECONDS.between(SysClock.dateTime.with(LocalTime.MIN), SysClock.dateTime) <= 1) {
                 taskManager.pools.each {
                     TaskPool pool ->
                         pool.resetCounters()
@@ -298,11 +325,17 @@ class Tasks {
             }
         }, "Tasks.reset", 1000, 1000, Priority.MIN))
     }
-    
+    /**
+     * Get summary of all tasks <readonly>
+     * @return
+     */
     static List<TaskSummary> getSummary() {
         return Collections.unmodifiableList(summary.toList())
     }
-    
+    /**
+     * Get the status as Map
+     * @return
+     */
     static Map getStatus() {
         List<TaskPool> list = taskManager.pools
         return [
