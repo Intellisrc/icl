@@ -1,6 +1,7 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import com.intellisrc.thread.ThreadPool.ErrorCallback
 import groovy.transform.CompileStatic
 
@@ -47,7 +48,7 @@ class TaskPool implements TaskLoggable {
         assert timeout >= 0 : "Timeout can not be negative"
         executor = new ThreadPool(minThreads, maxThreads, timeout, onError)
         threads = maxThreads
-        setupTime = LocalDateTime.now()
+        setupTime = SysClock.dateTime
     }
     /**
      * Add one task to the pool to be executed
@@ -59,23 +60,22 @@ class TaskPool implements TaskLoggable {
         maxExecVal = info.maxExec
         indicator = info.indicator
         priority = info.task.priority.char
-        //if(taskList.size() > threads) {
-            taskList.removeAll {
-                boolean remove = false
-                if(it.state == TaskInfo.State.DONE) {
-                    info.executed += it.executed
-                    remove = true
-                } else if(it.state > TaskInfo.State.NEW && ChronoUnit.MILLIS.between(it.setupTime, LocalDateTime.now()) > it.task.maxExecutionTime) {
-                    remove = true
-                }
-                if(remove) {
-                    if(Tasks.debug) {
-                        Log.v("[%s] Removing idle task", it.fullName)
-                    }
-                }
-                return remove
+        // Clean unused tasks:
+        taskList.removeAll {
+            boolean remove = false
+            if(it.state == TaskInfo.State.DONE) {
+                info.executed += it.executed
+                remove = true
+            } else if(it.state > TaskInfo.State.NEW && ChronoUnit.MILLIS.between(it.setupTime, SysClock.dateTime) > it.task.maxExecutionTime) {
+                remove = true
             }
-        //}
+            if(remove) {
+                if(Tasks.debug) {
+                    Log.v("[%s] Removing idle task", it.fullName)
+                }
+            }
+            return remove
+        }
     }
     /**
      * Retry a task
@@ -96,24 +96,26 @@ class TaskPool implements TaskLoggable {
     void updateState(final TaskInfo info) {
         prevStatus = currStatus
         currStatus = info.state
-        //Log.v("[%s] changed to status: %s", info.fullName, status)
+        if(Tasks.debug) {
+            Log.d("[%s] changed to status: %s -> %s", info.fullName, prevStatus, currStatus)
+        }
         switch(currStatus) {
             case TaskInfo.State.SETUP:
-                info.setupTime = setupTime = LocalDateTime.now()
+                info.setupTime = setupTime = SysClock.dateTime
                 info.done = false
                 break
             case TaskInfo.State.WAITING:
-                info.waitTime = waitTime = LocalDateTime.now()
+                info.waitTime = waitTime = SysClock.dateTime
                 break
             case TaskInfo.State.RUNNING:
-                info.startTime = startTime = LocalDateTime.now()
+                info.startTime = startTime = SysClock.dateTime
                 //----------- TIME OUT -------------
                 //Do not timeout monitors:
                 if(!info.name.endsWith("-monitor") && info.task.maxExecutionTime) {
                     Tasks.add({
                         while(!(info.done || (info.doneTime && info.startTime <= info.doneTime))) {
                             sleep(10)
-                            long timed = ChronoUnit.MILLIS.between(info.startTime, LocalDateTime.now())
+                            long timed = ChronoUnit.MILLIS.between(info.startTime, SysClock.dateTime)
                             if (timed > info.task.maxExecutionTime) {
                                 Log.w("[%s] Timed out (Took: %d ms)", info.name, timed)
                                 info.state = TaskInfo.State.TIMEOUT
@@ -126,12 +128,12 @@ class TaskPool implements TaskLoggable {
                 break
             case TaskInfo.State.TERMINATED:
                 failedVal++
-                info.failTime = failTime = LocalDateTime.now()
+                info.failTime = failTime = SysClock.dateTime
                 info.done = true
                 break
             case TaskInfo.State.DONE:
                 executedVal++
-                info.doneTime = doneTime = LocalDateTime.now()
+                info.doneTime = doneTime = SysClock.dateTime
                 taskList.remove (info)
                 info.done = true
                 break
@@ -140,6 +142,7 @@ class TaskPool implements TaskLoggable {
     
     /**
      * Reset execution and failed counters
+     * TODO: this is not working properly
      */
     void resetCounters() {
         Log.v("Counters in pool %s will be reset", name)

@@ -2,6 +2,7 @@ package com.intellisrc.net
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
 import javax.activation.DataHandler
@@ -17,7 +18,6 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeBodyPart
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
-import java.time.LocalDateTime
 
 /**
  * References:
@@ -326,7 +326,7 @@ class Smtp {
             }
         }
         // Add headers
-        message.setSentDate(LocalDateTime.now().toDate())
+        message.setSentDate(SysClock.dateTime.toDate())
         try {
             if(!headers.isEmpty()) {
                 headers.each {

@@ -3,7 +3,7 @@ package com.intellisrc.thread
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime
-
+import com.intellisrc.core.SysClock
 import static com.intellisrc.core.AnsiColor.*
 
 /**
@@ -57,7 +57,7 @@ class TaskInfo implements TaskLoggable {
     }
     
     TaskInfo(final Task task) {
-        setupTime = LocalDateTime.now()
+        setupTime = SysClock.dateTime
         name = task.taskName
         this.task = task
         //Setup trigger to state change:
