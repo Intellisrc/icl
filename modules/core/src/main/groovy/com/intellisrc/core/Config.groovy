@@ -228,9 +228,11 @@ class Config {
          * @return
          */
         List<String> getList(String key, CharSequence separator, List<String> defval = []) {
-            List<String> list = []
+            List<String> list
             if(hasKey(key)) {
-                list = get(key).tokenize()
+                list = get(key).tokenize(separator)
+            } else {
+                list = defval
             }
             return list
         }
