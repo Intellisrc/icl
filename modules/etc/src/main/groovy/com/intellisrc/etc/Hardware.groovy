@@ -202,7 +202,7 @@ class Hardware {
                 if(total) {
                     pct = 100 - ((usable / total).toDouble() * 100d)
                     if(debug) {
-                        Log.d("GPU MEM: %.2f GB usable / %.2f GB total (%d ‰)", mbToGB(usable), mbToGB(total), pct)
+                        Log.d("GPU MEM: %.2f GB usable / %.2f GB total (%.2f ‰)", mbToGB(usable), mbToGB(total), pct)
                     }
                 }
                 callback(pct)
@@ -218,19 +218,43 @@ class Hardware {
      */
     static void getHddSpace(Metric.MetricChanged callback) {
         final File root = new File("/")
-        double usable = root.getUsableSpace().toDouble()
-        double total  = root.getTotalSpace().toDouble()
+        double usable = root.usableSpace.toDouble()
+        double total  = root.totalSpace.toDouble()
         double pct = 0
         if(total) {
             pct = 100 - ((usable / total) * 100d)
             if (pct > 90) {
-                Log.w("HDD space is very low. ") //TODO: What to do here?
+                Log.w("HDD space is very low. ")
             }
             if(debug) {
                 Log.d("HDD: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
             }
         }
         callback(pct)
+    }
+    /**
+     * Get total space in bytes
+     * @param root
+     * @return
+     */
+    static double getTotalSpace(File root = new File("/")) {
+        return root.totalSpace.toDouble()
+    }
+    /**
+     * Get free space in bytes
+     * @param root
+     * @return
+     */
+    static double getFreeSpace(File root = new File("/")) {
+        return root.freeSpace.toDouble()
+    }
+    /**
+     * Get Used space in bytes
+     * @param root
+     * @return
+     */
+    static double getUsedSpace(File root = new File("/")) {
+        return root.usableSpace.toDouble()
     }
     
     /**
@@ -239,8 +263,8 @@ class Hardware {
      * @param callback
      */
     static void getDriveSpace(File root, Metric.MetricChanged callback) {
-        double usable = root.getUsableSpace().toDouble()
-        double total  = root.getTotalSpace().toDouble()
+        double usable = root.usableSpace.toDouble()
+        double total  = root.totalSpace.toDouble()
         double pct = 0
         if(total) {
             pct = 100 - ((usable / total) * 100d)

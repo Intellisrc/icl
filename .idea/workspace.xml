@@ -1,20 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.1 : Added missing test image">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.2 : Added SysInfo.getFile(...)">
+      <change afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysClock.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare.sh" beforeDir="false" afterPath="$PROJECT_DIR$/compare.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysInfo.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysInfo.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/SysInfoTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/SysInfoTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/serial/src/test/groovy/com/intellisrc/serial/SerialTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/serial/src/test/groovy/com/intellisrc/serial/SerialTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/src/main/groovy/com/intellisrc/crypt/encode/PGP.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/VideoGrab.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/VideoGrab.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Cache.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Hardware.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Hardware.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/TimeClock.groovy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/ErrorMailer.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/ErrorMailer.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Smtp.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Smtp.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskInfo.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskInfo.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskManager.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskManager.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskPool.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/TaskPool.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ThreadPool.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ThreadPool.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/ParallelTaskTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread/ParallelTaskTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -63,23 +91,7 @@
         </task>
         <projects_view>
           <tree_state>
-            <expand>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="publishing" type="c8890929:TasksNode$1" />
-              </path>
-            </expand>
+            <expand />
             <select />
           </tree_state>
         </projects_view>
@@ -153,21 +165,26 @@
     <OptionsSetting value="false" id="Update" />
     <ConfirmationsSetting value="1" id="Add" />
   </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/serial/src/test/groovy/com/inspeedia/common/serial/SerialTest.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/samples/IDService.groovy" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/serial/src/test/groovy/com/inspeedia/common/serial/SerialTest.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/samples/IDService.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="com.intellisrc.net" />
       <recent name="com.intellisrc.core" />
+      <recent name="com.intellisrc.net" />
       <recent name="com.intellisrc.cv" />
       <recent name="com.intellisrc.serial" />
       <recent name="com.intellisrc.term" />
@@ -180,19 +197,7 @@
       <recent name="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
-  <component name="RunManager" selected="Gradle.Tests in 'cv_test'">
+  <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
@@ -245,26 +250,6 @@
       <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="TaskTest.All threads must be executed but not more than once each" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.intellisrc.thread.TaskTest.All threads must be executed but not more than once each&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":thread:cleanTest" />
-            <option value=":thread:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
     <configuration name="Tests in 'cv_test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -305,6 +290,25 @@
       <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="common [artifactoryPublish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="artifactoryPublish" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <option name="TEST_OBJECT" value="class" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -336,29 +340,31 @@
     </configuration>
     <list>
       <item itemvalue="Gradle.Tests in 'cv_test'" />
-      <item itemvalue="Gradle.TaskTest.All threads must be executed but not more than once each" />
       <item itemvalue="Gradle.BuffImgToolsTest.Rotate" />
       <item itemvalue="Gradle.BuffImgToolsTest" />
       <item itemvalue="Gradle.Tests in 'img_test'" />
+      <item itemvalue="Gradle.common [artifactoryPublish]" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.common [artifactoryPublish]" />
         <item itemvalue="Gradle.Tests in 'cv_test'" />
         <item itemvalue="Gradle.Tests in 'img_test'" />
         <item itemvalue="Gradle.BuffImgToolsTest.Rotate" />
         <item itemvalue="Gradle.BuffImgToolsTest" />
-        <item itemvalue="Gradle.TaskTest.All threads must be executed but not more than once each" />
       </list>
     </recent_temporary>
   </component>
   <component name="ServiceViewManager">
-    <option name="allServicesViewState">
-      <serviceView>
-        <treeState>
-          <expand />
-          <select />
-        </treeState>
-      </serviceView>
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
     </option>
   </component>
   <component name="TaskManager">
@@ -368,13 +374,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00084" summary="2.4.3 Improved Console : added onInit(args)">
-      <created>1530522307889</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
-      <option name="project" value="LOCAL" />
-      <updated>1530522307889</updated>
     </task>
     <task id="LOCAL-00085" summary="2.4.4 Changed the way onInit works in Consoles">
       <created>1530523337324</created>
@@ -712,7 +711,14 @@
       <option name="project" value="LOCAL" />
       <updated>1573804288674</updated>
     </task>
-    <option name="localTasksCounter" value="133" />
+    <task id="LOCAL-00133" summary="2.7.2 : Added SysInfo.getFile(...)">
+      <created>1574223048480</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1574223048480</updated>
+    </task>
+    <option name="localTasksCounter" value="134" />
     <servers />
   </component>
   <component name="TodoView">
@@ -752,7 +758,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.4.11 : Changed WS test" />
     <MESSAGE value="2.4.12 : Improved LogService filters" />
     <MESSAGE value="2.4.13 : Config.CfgFile added to allow any property file" />
     <MESSAGE value="2.5.0 : Config changed to allow Properties management" />
@@ -777,7 +782,18 @@
     <MESSAGE value="2.6.5: Added Config default values and improved SysService stop/exit" />
     <MESSAGE value="2.7.1 : Added img and thread packages. Redesigned cv package and created several classes like Hardware, Metric, TimeClock, Calc, Drawing, etc. Log was improved and fixed some bugs in previous version. Updated dependencies." />
     <MESSAGE value="2.7.1 : Added missing test image" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.1 : Added missing test image" />
+    <MESSAGE value="2.7.2 : Added SysInfo.getFile(...)" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.2 : Added SysInfo.getFile(...)" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog" timestamp="1577246200442">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1577246200442" />
+    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl" timestamp="1577246200047">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1577246200047" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />

@@ -1,6 +1,7 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime
@@ -18,8 +19,8 @@ class TaskManager {
     //---- Non-Static:
     final private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Tasks.maxPoolSize)
     final private ConcurrentLinkedQueue<TaskPool> taskPools = new ConcurrentLinkedQueue<>()
-    LocalDateTime initTime = LocalDateTime.now()
-    LocalDateTime okTime = LocalDateTime.now()
+    LocalDateTime initTime = SysClock.dateTime
+    LocalDateTime okTime = SysClock.dateTime
     private AtomicInteger failedCount = new AtomicInteger()
     boolean running = true
     long queueTimeout = 1000L
@@ -51,7 +52,7 @@ class TaskManager {
                             task.maxThreads,
                             queueTimeout, {
                         failedCount.incrementAndGet()
-                        okTime = LocalDateTime.now()
+                        okTime = SysClock.dateTime
                     })
                 } catch(AssertionError e) {
                     Log.e("Unable to create pool", e)
@@ -69,7 +70,7 @@ class TaskManager {
             taskInfo.onStateChange = {
                 final TaskInfo taskChanged ->
                     if(Tasks.debug) {
-                        Log.v("[%s] New state: %s", taskChanged.name, taskChanged.state)
+                        Log.v("[%s] New state: %s", taskChanged.fullName, taskChanged.state)
                     }
                     taskPool.updateState(taskChanged)
                     Tasks.logStatus(taskChanged)
@@ -83,7 +84,7 @@ class TaskManager {
             }
             switch (taskInfo.task) {
                 case ServiceTask:
-                    Log.i("[%s] Will be run as a service", taskInfo.name)
+                    Log.i("[%s] Will run as a service", taskInfo.name)
                     if (recycled) {
                         Log.w("[%s] Trying to add a ServiceTask when there is one already running", taskInfo.name)
                     } else {
@@ -108,7 +109,7 @@ class TaskManager {
                     }
                     break
                 case IntervalTask:
-                    Log.i("[%s] Will be run under schedule", taskInfo.name)
+                    Log.i("[%s] Will run under schedule", taskInfo.name)
                     added = scheduledExecutorService.scheduleAtFixedRate({
                         if (running) {
                             if (!taskPool.executor.execute(taskInfo)) {
@@ -121,7 +122,7 @@ class TaskManager {
                     break
                 case ParallelTask:
                     if(Tasks.debug) {
-                        Log.v("[%s] Will be run in multiple threads", taskInfo.name)
+                        Log.v("[%s] Will run in multiple threads", taskInfo.name)
                     }
                     added = taskPool.executor.executeParallel(taskInfo)
                     break

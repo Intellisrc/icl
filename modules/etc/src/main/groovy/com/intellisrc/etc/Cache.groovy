@@ -1,6 +1,7 @@
 package com.intellisrc.etc
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime
@@ -42,7 +43,7 @@ class Cache<V> {
             if(timeToStoreSec != 0) { //Do not store if its disabled
                 value = obj
                 if (timeToStoreSec > 0) {
-                    expire = LocalDateTime.now().plusSeconds(timeToStoreSec)
+                    expire = SysClock.dateTime.plusSeconds(timeToStoreSec)
                     length = timeToStoreSec
                 } else if (timeToStoreSec == FOREVER) {
                     forever = true
@@ -92,7 +93,7 @@ class Cache<V> {
         def obj = cache.get(key)
         if(obj) {
             if(!obj.forever) {
-                def now = LocalDateTime.now()
+                def now = SysClock.dateTime
                 if (obj.expire < now) {
                     Log.v("Key [$key] expired.")
                     del(key)

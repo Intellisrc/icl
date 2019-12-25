@@ -2,10 +2,9 @@ package com.intellisrc.net
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Log.Level
+import com.intellisrc.core.SysClock
 import com.intellisrc.core.Version
 import groovy.transform.CompileStatic
-
-import java.time.LocalDateTime
 
 /**
  * Send error and security alerts to administrator
@@ -34,7 +33,7 @@ class ErrorMailer {
             Level level, String message, Log.Info info ->
                 // We don't send any issue with the Smtp class as it may loop forever
                 if(level >= minLevel &&! reported.find{ it.className == info.className && it.lineNumber == it.lineNumber }) {
-                    def body  = "Date:" + LocalDateTime.now().YMDHms + "\n" +
+                    def body  = "Date:" + SysClock.dateTime.YMDHms + "\n" +
                                 "Message: $message" + "\n" +
                                 "At: " + info.fileName + ":" + info.lineNumber + "\n" +
                                 "Class: " + info.className + "\n" +

@@ -1,9 +1,9 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.*
 
@@ -64,19 +64,23 @@ class ThreadPool extends ThreadPoolExecutor {
      */
     boolean submit(ExecutorItem executorItem) {
         boolean submitted = false
-        try {
-            executorItem.future = submit(executorItem.runnable)
-            submitted = true
-        } catch(RejectedExecutionException ignored) {
-            Task task = executorItem.info.task
-            if(task.retry)  {
-                if(task.maxExecutionTime > 0 && ChronoUnit.MILLIS.between(executorItem.info.setupTime, LocalDateTime.now()) > task.maxExecutionTime) {
-                    Log.w("[%s] Got tired of waiting... it left", executorItem.info.fullName)
-                    //TODO: count times it gets rejected so we can adjust pool size
+        boolean rejected = false
+        while(!(submitted || rejected)) {
+            try {
+                executorItem.future = submit(executorItem.runnable)
+                submitted = true
+            } catch (RejectedExecutionException ignored) {
+                Task task = executorItem.info.task
+                if (task.retry) {
+                    if (task.maxExecutionTime > 0 && ChronoUnit.MILLIS.between(executorItem.info.setupTime, SysClock.dateTime) > task.maxExecutionTime) {
+                        Log.w("[%s] Got tired of waiting... it left", executorItem.info.fullName)
+                        //TODO: count times it gets rejected so we can adjust pool size
+                    } else {
+                        executorItem.info.state = TaskInfo.State.WAITING
+                        sleep(10)
+                    }
                 } else {
-                    executorItem.info.state = TaskInfo.State.WAITING
-                    sleep(10)
-                    submit(executorItem)
+                    rejected = true
                 }
             }
         }
@@ -152,7 +156,7 @@ class ThreadPool extends ThreadPoolExecutor {
         } catch(InterruptedException ignored) {
             //Task was interrupted
         } catch(Exception | Error e) {
-            Log.w("Error in thread: %s", e.message)
+            Log.e("Error in thread: ", e)
             //It should have been reported inside ThreadPool
         }
         return executed
@@ -211,10 +215,16 @@ class ThreadPool extends ThreadPoolExecutor {
             item.info.done = false
             //Starting...
             item.info.state = TaskInfo.State.RUNNING
+            if(!item.info.startTime) {
+                if(Tasks.debug) {
+                    Log.v("Fixing start time")
+                }
+                item.info.startTime = SysClock.dateTime
+            }
             // Set name and priority
             future.name = item.info.fullName
             if(Tasks.debug) {
-                Log.v("[%s] Running task", item.info.fullName)
+                Log.v("[%s] Running task with hash: %s", item.info.fullName, runnable.hashCode())
             }
             future.priority = item.info.task.priority.value
         } else {
@@ -285,6 +295,12 @@ class ThreadPool extends ThreadPoolExecutor {
                 } else {
                     taskInfo.executed++
                     taskInfo.state = TaskInfo.State.DONE
+                    if(!item.info.doneTime) {
+                        if(Tasks.debug) {
+                            Log.v("Fixing done time")
+                        }
+                        item.info.doneTime = SysClock.dateTime
+                    }
                     if(Tasks.debug) {
                         Log.v("[%s] completed... done.", taskInfo.fullName)
                     }
@@ -308,14 +324,15 @@ class ThreadPool extends ThreadPoolExecutor {
      * Kill some task
      * @param info
      */
-    void kill(TaskInfo info) {
+    boolean kill(TaskInfo info) {
+        boolean killed = false
         ExecutorItem item = items.find { it.info.fullName == info.fullName }
         if(item) {
             if(item.future) {
                 if(Tasks.debug) {
                     Log.v("[%s] Cancelling task", info.fullName)
                 }
-                item.future.cancel(true)
+                killed = item.future.cancel(true)
                 sleep(10)
             } else {
                 if(Tasks.debug) {
@@ -334,6 +351,7 @@ class ThreadPool extends ThreadPoolExecutor {
                     //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
                     item.thread.stop() //Force it to finish
                 }
+                killed = true
             } else {
                 if(Tasks.debug) {
                     Log.v("[%s] Unable to find thread to stop", info.fullName)
@@ -344,6 +362,7 @@ class ThreadPool extends ThreadPoolExecutor {
                 Log.w("[%s] Unable to find item", info.fullName)
             }
         }
+        return killed
     }
     
     /**
