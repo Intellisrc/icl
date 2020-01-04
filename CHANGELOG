@@ -1,0 +1,42 @@
+# Main Changes
+
+## 2.6 (Groovy 2.5.6+, Java 11)
+
+* Added module `cv`
+* `tools` module renamed to `term`
+* Implemented better cache management in WebService
+    - added `maxAge`,`etag`,`isPrivate`,`noStore` into `Service`
+    - added `Cache.FOREVER`
+    - modified behavior of `cacheTime` when its zero (before was forever, now its off)
+* Added support for log files with color. Add: `color=true` in config.properties
+* Added `Progress` into `term`
+* Added default values argument in `Config` and `Config.Props`
+
+## 2.5 (Groovy 2.5.5)
+
+* Added Config.Props to manage .properties files
+* Added color.invert in Logs
+* Added serial module
+
+## 2.4
+* Added BerkeleyDB
+* Added Console
+* Added UDP in `net`
+* Added PGP in `crypt`
+* Moved SysMain and SysService into `core`
+* Added JarResource
+
+## 2.3
+* Replaced `Date` with `LocalDate*`
+
+## 2.2 (Groovy 1.6.4+)
+
+* Added export log to file
+* Added SMTP class in `net`
+* Added Log and Login services in `web`
+* Added cache to WebService
+* Improved Command and replaced by Cmd
+* Automatic version detection
+* Removed dependency on Android
+* Added JSON class
+* Added automatic ZIP compression in Logs
