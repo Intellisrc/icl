@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @CompileStatic
 class Metric {
-    static ConcurrentLinkedQueue<Metric> metrics = new ConcurrentLinkedQueue<>()
+    static public ConcurrentLinkedQueue<Metric> metrics = new ConcurrentLinkedQueue<>()
     
     interface MetricChanged {
         void call(double value)

@@ -14,7 +14,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 abstract class IntervalTask extends Task {
-    boolean warnOnSkip = true //Turn to off to disable warning about unable to execute Task
+    public boolean warnOnSkip = true //Turn to off to disable warning about unable to execute Task
     
     IntervalTask(int maxExecutionMillis, int sleepMillis) {
         maxExecutionTime = maxExecutionMillis

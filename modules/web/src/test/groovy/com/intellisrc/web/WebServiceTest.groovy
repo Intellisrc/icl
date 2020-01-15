@@ -29,7 +29,7 @@ class WebServiceTest extends Specification {
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             println "RES DIR: $publicDir"
-            web.setResources(publicDir, true)
+            web.setResources(publicDir)
             web.addService(new IDService())
         when:
             web.start(true)

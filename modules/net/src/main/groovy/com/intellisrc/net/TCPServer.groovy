@@ -1,10 +1,11 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 import java.nio.charset.Charset
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * TCP Server
  * It is abstract because execCommand must be implemented
