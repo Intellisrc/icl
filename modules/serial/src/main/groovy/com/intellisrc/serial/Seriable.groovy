@@ -14,25 +14,25 @@ abstract class Seriable {
     public int baudRate = 9600
     public String serialPort
 
-    interface SerialReader {
+    static interface SerialReader {
         void call(byte[] response)
     }
-    interface SerialWriter {
+    static interface SerialWriter {
         byte[] call()
     }
-    interface SerialReaderStr {
+    static interface SerialReaderStr {
         void call(String response)
     }
-    interface SerialWriterStr {
+    static interface SerialWriterStr {
         String call()
     }
-    interface SerialReaderInt {
+    static interface SerialReaderInt {
         void call(Integer response)
     }
-    interface SerialWriterInt {
+    static interface SerialWriterInt {
         Integer call()
     }
-    interface SerialEvent {
+    static interface SerialEvent {
         void call(SerialPortEvent event)
     }
     abstract void connect(SerialEvent event = null)
