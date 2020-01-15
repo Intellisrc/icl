@@ -19,11 +19,12 @@ class TaskManager {
     //---- Non-Static:
     final private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Tasks.maxPoolSize)
     final private ConcurrentLinkedQueue<TaskPool> taskPools = new ConcurrentLinkedQueue<>()
-    LocalDateTime initTime = SysClock.dateTime
-    LocalDateTime okTime = SysClock.dateTime
     private AtomicInteger failedCount = new AtomicInteger()
-    boolean running = true
-    long queueTimeout = 1000L
+    
+    public LocalDateTime initTime = SysClock.dateTime
+    public LocalDateTime okTime = SysClock.dateTime
+    public boolean running = true
+    public long queueTimeout = 1000L
     /**
      * Setup task
      * @param taskable

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 @CompileStatic
 class SysClock {
-    static Clock clock = Clock.systemDefaultZone()
+    static public Clock clock = Clock.systemDefaultZone()
     static void setClockAt(LocalDateTime ldt) {
         ZonedDateTime ldtZoned = ldt.atZone(ZoneId.systemDefault())
         ZonedDateTime utcZoned = ldtZoned.withZoneSameInstant(ZoneId.of("UTC"))

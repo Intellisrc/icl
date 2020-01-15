@@ -1,12 +1,13 @@
 package com.intellisrc.web
 
+import groovy.transform.CompileStatic
 import spark.Request
 import spark.Response
 
-@groovy.transform.CompileStatic
 /**
  * @since 17/04/04.
  */
+@CompileStatic
 class Service {
     /**
      * Execute an action and return for example, JSON data

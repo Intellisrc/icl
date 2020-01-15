@@ -12,7 +12,7 @@ import java.util.jar.Manifest
 @CompileStatic
 class Version {
     //This class will be changed by SysMain or SysService
-    static Class mainClass = Version.class
+    static public Class mainClass = Version.class
     private static enum Source {
         JAR, CONFIG, GRADLE, NONE
     }

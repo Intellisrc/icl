@@ -189,20 +189,6 @@ class LogTest extends Specification {
             }
     }
     
-    def "Unable to create directory"() {
-        setup:
-            Log.level = Log.Level.VERBOSE
-            Log.directory = new File("/dev/null/err")
-            Log.logFileName = "test.log"
-            Log.printAlways = false
-            Log.i("It must not log this.. just display")
-        expect:
-            assert Log.logFileName.empty : ("Log has name: " + Log.logFileName)
-            assert ! Log.directory.exists() : ("Dir existed: " + Log.directory.absolutePath)
-            assert Log.logFile == null : ("Log existed: " + Log.logFile?.absolutePath)
-            assert Log.printAlways
-    }
-    
     def "Variable with error"() {
         setup:
             Log.level = Log.Level.VERBOSE

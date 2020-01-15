@@ -18,27 +18,27 @@ import java.time.temporal.ChronoUnit
  */
 final class Log {
     //When logFile is not empty, it will export log to that file
-    static String logFileName = ""
-    static File directory
+    static public String logFileName = ""
+    static public File directory
 
-    static String mainClass = ""
-    static List<String> domains = [] //Highlight one or more domains in logs (it will try to get it automatically)
-    static LocalDateTime logDate = SysClock.dateTime
-    static boolean color = true //When true, it will automatically set color. If false, it will disabled it
-    static boolean colorInvert = false //When true BLACK/WHITE will be inverted <VERBOSE vs DEBUG> (depends on terminal)
-    static boolean colorAlways = false //When true it will output log always in color
-    static boolean printAlways = false //When true it will always output to screen (it won't print if Log is disabled)
-    static boolean isSnapShot
-    static synchronized boolean initialized = false
-    static boolean enabled = true
-    static Level level = Level.INFO
-    static int logDays = 7 // Days to keep as backup (doesn't include today)
-    static final int MAX_LOG_LINE_LENGTH = 4000
-    static final int maxTaskExecTimeMs = 60000 // 1 minute
+    static public String mainClass = ""
+    static public List<String> domains = [] //Highlight one or more domains in logs (it will try to get it automatically)
+    static public LocalDateTime logDate = SysClock.dateTime
+    static public boolean color = true //When true, it will automatically set color. If false, it will disabled it
+    static public boolean colorInvert = false //When true BLACK/WHITE will be inverted <VERBOSE vs DEBUG> (depends on terminal)
+    static public boolean colorAlways = false //When true it will output log always in color
+    static public boolean printAlways = false //When true it will always output to screen (it won't print if Log is disabled)
+    static public boolean isSnapShot
+    static public synchronized boolean initialized = false
+    static public boolean enabled = true
+    static public Level level = Level.INFO
+    static public int logDays = 7 // Days to keep as backup (doesn't include today)
+    static public final int MAX_LOG_LINE_LENGTH = 4000
+    static public final int maxTaskExecTimeMs = 60000 // 1 minute
 
-    static final SystemOutPrinter SYSTEM = new SystemOutPrinter()
-    static final AndroidPrinter ANDROID = new AndroidPrinter()
-    static final FilePrinter LOGFILE = new FilePrinter()
+    static public final SystemOutPrinter SYSTEM = new SystemOutPrinter()
+    static public final AndroidPrinter ANDROID = new AndroidPrinter()
+    static public final FilePrinter LOGFILE = new FilePrinter()
 
     private static final Set<Printer> mPrinters = []
     private static final int STACK_DEPTH = 4
