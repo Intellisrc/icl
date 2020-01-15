@@ -12,13 +12,14 @@ class Service {
     /**
      * Execute an action and return for example, JSON data
      */
-    static interface Action {
+    static interface ActionCommon {}
+    static interface Action extends ActionCommon {
         Object run()
     }
-    static interface ActionRequest extends Action {
+    static interface ActionRequest extends ActionCommon {
         Object run(Request request)
     }
-    static interface ActionRequestResponse extends Action {
+    static interface ActionRequestResponse extends ActionCommon {
         Object run(Request request, Response response)
     }
     /**
@@ -59,7 +60,7 @@ class Service {
     String path                 = ""                    // URL path relative to parent
     String download             = ""                    // Specify if instead of display, show download dialog with the name of the file.
     Method method               = Method.GET            // HTTP Method to be used
-    Action action               = { } as Action         // Closure that will return an Object (usually Map) to be converted to JSON as response
+    ActionCommon action         = { } as ActionCommon   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String uploadField          = "upload"              // Name of the HTML input[type=file]
     Upload upload               = null                  // When uploading files to server, use this parameter
