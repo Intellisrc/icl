@@ -47,7 +47,7 @@ class WebService {
     public int eTagMaxKB = 1024
     public StartCallback onStart = null
     
-    interface StartCallback {
+    static interface StartCallback {
         void call(Srv srv)
     }
     /**

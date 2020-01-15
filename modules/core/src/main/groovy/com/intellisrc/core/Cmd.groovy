@@ -23,10 +23,10 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class Cmd {
-    interface Done {
+    static interface Done {
         void done(String out)
     }
-    interface Fail {
+    static interface Fail {
         void fail(String out, int code)
     }
     static class Command {

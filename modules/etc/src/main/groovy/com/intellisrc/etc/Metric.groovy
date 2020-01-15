@@ -14,11 +14,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
 class Metric {
     static public ConcurrentLinkedQueue<Metric> metrics = new ConcurrentLinkedQueue<>()
     
-    interface MetricChanged {
+    static interface MetricChanged {
         void call(double value)
     }
     
-    interface MetricFormatter {
+    static interface MetricFormatter {
         String call(double value)
     }
     

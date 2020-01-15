@@ -40,11 +40,11 @@ class DB {
 		TEXT, INTEGER, DOUBLE, BLOB, DATE, NULL
 	}
     ////////////////////////// Interfaces ////////////////////////////////
-    interface Starter {
+    static interface Starter {
         Connector getNewConnection()
     }
 
-	interface Connector {
+	static interface Connector {
 		void open()
 		void close()
         boolean isOpen()
