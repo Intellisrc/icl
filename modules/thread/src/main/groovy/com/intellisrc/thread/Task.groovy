@@ -20,8 +20,8 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 abstract class Task {
-    boolean retry    = false //retry on fail (like queue full)
-    boolean waitResponse = false
+    public boolean retry    = false //retry on fail (like queue full)
+    public boolean waitResponse = false
     
     protected int minThreads = Tasks.minPoolSize
     protected int maxThreads = Tasks.maxPoolSize

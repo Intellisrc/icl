@@ -10,10 +10,10 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class NetFace {
-    final String name
-    final String mac
-    final List<Inet4Address> ip4List = []
-    final List<Inet6Address> ip6List = []
+    public final String name
+    public final String mac
+    public final List<Inet4Address> ip4List = []
+    public final List<Inet6Address> ip6List = []
     /**
      * Create a NetFace instance based in a NetworkInterface
      * @param iface

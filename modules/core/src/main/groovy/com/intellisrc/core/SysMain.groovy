@@ -11,8 +11,8 @@ import java.lang.reflect.Method
  */
 @CompileStatic
 abstract class SysMain {
-    static SysMain main
-    static int exitCode = 0
+    static public SysMain main
+    static public int exitCode = 0
     static void main(String[] args) {
         if(main == null) {
             Log.e("`main` is not defined. To define it, use: \n static {\n     main = new MyClass()\n }\n inside MyClass")
@@ -48,7 +48,7 @@ abstract class SysMain {
         System.exit(code)
     }
     //------------------------------ NON STATIC ---------------------------------
-    final Queue<String> args = [] as Queue<String>
+    public final Queue<String> args = [] as Queue<String>
     /**
      * Required to implement onStart()
      */

@@ -31,13 +31,13 @@ import java.util.concurrent.TimeUnit
  */
 @CompileStatic
 class Console {
-    static String prompt = Config.get("console.prompt") ?: "> "
-    static Character mask = (Config.get("console.mask") ?: "*")[0] as Character
-    static LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
-    static int timeout = Config.getInt("console.timeout") ?: 0
-    static final boolean addDefault = Config.getBool("console.default") ?: true
-    static final String ANSI_BACKLINE = '\033[1A'
-    static final LinkedList<String> commandBuffer = new LinkedList<>()
+    static public String prompt = Config.get("console.prompt") ?: "> "
+    static public Character mask = (Config.get("console.mask") ?: "*")[0] as Character
+    static public LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
+    static public int timeout = Config.getInt("console.timeout") ?: 0
+    static public final boolean addDefault = Config.getBool("console.default") ?: true
+    static public final String ANSI_BACKLINE = '\033[1A'
+    static public final LinkedList<String> commandBuffer = new LinkedList<>()
 
     static private ScheduledFuture timer
     static private boolean timerRunning = false
