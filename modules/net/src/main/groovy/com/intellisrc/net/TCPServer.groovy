@@ -11,7 +11,7 @@ import java.nio.charset.Charset
  * It is abstract because execCommand must be implemented
  */
 class TCPServer {
-	interface ServerCallback {
+	static interface ServerCallback {
         String exec(String clientCommand)
     }
 

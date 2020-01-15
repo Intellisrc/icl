@@ -27,7 +27,7 @@ class HTTPServer {
     String indexFile = "index.html"
     ServerSocket serverSocket
 
-    interface Action {
+    static interface Action {
         Response call(Map<String,String> headers, Map<String,String> params, String output)
     }
     Action action = {

@@ -58,7 +58,7 @@ class WebSocketServiceClient {
     /**
      * Interface used as callback for onMessage and onError
      */
-    interface Callable {
+    static interface Callable {
         void call(Map message)
     }
     /**
