@@ -10,10 +10,10 @@ import java.nio.charset.Charset
  */
 @CompileStatic
 class TCPClient {
-	interface ClientCallback {
+	static interface ClientCallback {
 		void call(Response response)
 	}
-    interface Parser {
+    static interface Parser {
         Object call(String msg)
     }
     protected InetAddress dstAddress
