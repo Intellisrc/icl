@@ -2,6 +2,7 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Log
 import com.intellisrc.web.ServiciableWebSocket.WSMessage
+import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.WriteCallback
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -21,7 +22,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket
  *
  * @since 17/04/21.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 @WebSocket
 class WebSocketService {
     private ServiciableWebSocket listener

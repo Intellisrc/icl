@@ -15,7 +15,7 @@ import java.util.regex.Matcher
  */
 @CompileStatic
 class Hardware {
-    static boolean debug = Config.getInt("hardware.debug")
+    static public boolean debug = Config.getInt("hardware.debug")
     static private OperatingSystemMXBean os
     
     /**

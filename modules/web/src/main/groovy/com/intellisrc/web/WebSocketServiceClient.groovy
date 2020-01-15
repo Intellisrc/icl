@@ -1,5 +1,6 @@
 package com.intellisrc.web
 
+import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError
@@ -14,7 +15,7 @@ import java.util.concurrent.Future
  * to connect to a WebSocket Server
  * @since 17/04/24.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 class WebSocketServiceClient {
     private JettySession clientSession
     private Callable onMessageReceived
@@ -22,9 +23,9 @@ class WebSocketServiceClient {
     private WebSocketClient client
 
     // To be filled
-    String hostname = "localhost"
-    int port = 8888
-    String path = ""
+    public String hostname = "localhost"
+    public int port = 8888
+    public String path = ""
     /**
      * WebSocket which will handle the connection
      */

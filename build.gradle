@@ -20,6 +20,8 @@ plugins {
     id "com.jfrog.artifactory" version "4.9.6"
 }
 
+def currentVersion = "2.7.7"
+
 allprojects {
     group = groupName
     version = currentVersion
@@ -47,7 +49,7 @@ subprojects {
     apply plugin: "com.jfrog.artifactory"
 
     dependencies {
-        compile 'com.intellisrc:groovy-extend:2.5.6.1'  //Using groovy 2.5.6
+        compile 'com.intellisrc:groovy-extend:2.5.6.3'  //Using groovy 2.5.6
         testCompile 'org.spockframework:spock-unitils:1.2-groovy-2.5'
         testCompile 'net.bytebuddy:byte-buddy:1.10.2'
     }

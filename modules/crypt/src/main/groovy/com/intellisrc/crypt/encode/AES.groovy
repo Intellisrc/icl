@@ -2,6 +2,7 @@ package com.intellisrc.crypt.encode
 
 import com.intellisrc.core.Log
 import com.intellisrc.crypt.Crypt
+import groovy.transform.CompileStatic
 import org.bouncycastle.crypto.CipherParameters
 import org.bouncycastle.crypto.engines.AESEngine
 import org.bouncycastle.crypto.modes.CBCBlockCipher
@@ -13,7 +14,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV
  * @since 17/04/07.
  * based on: http://stackoverflow.com/questions/4243650/
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 class AES extends Crypt implements Encodable {
     private static final int IV_LENGTH = 16 //That is 128bits for AESEngine
     private byte[] iv
