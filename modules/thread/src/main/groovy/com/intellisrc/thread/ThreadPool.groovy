@@ -18,7 +18,7 @@ import java.util.concurrent.*
 @CompileStatic
 class ThreadPool extends ThreadPoolExecutor {
     private ConcurrentLinkedQueue<ExecutorItem> items = new ConcurrentLinkedQueue<>()
-    interface ErrorCallback {
+    static interface ErrorCallback {
         void call(TaskInfo info)
     }
     private ErrorCallback onError

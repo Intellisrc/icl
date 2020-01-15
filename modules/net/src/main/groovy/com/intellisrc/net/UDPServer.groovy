@@ -8,7 +8,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class UDPServer {
-    interface ServerCallback {
+    static interface ServerCallback {
         String exec(String clientCommand)
     }
     /**

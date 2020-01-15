@@ -28,10 +28,14 @@
       <module name="com.intellisrc-cv_test" target="11" />
       <module name="com.intellisrc-etc_main" target="11" />
       <module name="com.intellisrc-etc_test" target="11" />
+      <module name="com.intellisrc-img_main" target="11" />
+      <module name="com.intellisrc-img_test" target="11" />
       <module name="com.intellisrc-serial_main" target="11" />
       <module name="com.intellisrc-serial_test" target="11" />
       <module name="com.intellisrc-term_main" target="11" />
       <module name="com.intellisrc-term_test" target="11" />
+      <module name="com.intellisrc-thread_main" target="11" />
+      <module name="com.intellisrc-thread_test" target="11" />
       <module name="common_main" target="11" />
       <module name="common_test" target="11" />
       <module name="core_main" target="11" />
@@ -48,24 +52,32 @@
       <module name="groovy-extend_test" target="1.8" />
       <module name="img_main" target="11" />
       <module name="img_test" target="11" />
+      <module name="intellisrc-common_main" target="11" />
+      <module name="intellisrc-common_test" target="11" />
       <module name="lib-etc_main" target="1.8" />
       <module name="lib-etc_test" target="1.8" />
       <module name="modules-core_main" target="11" />
       <module name="modules-core_test" target="11" />
       <module name="modules-crypt_main" target="1.8" />
       <module name="modules-crypt_test" target="1.8" />
+      <module name="modules-cv_main" target="11" />
+      <module name="modules-cv_test" target="11" />
       <module name="modules-db_main" target="1.8" />
       <module name="modules-db_test" target="1.8" />
-      <module name="modules-etc_main" target="1.8" />
-      <module name="modules-etc_test" target="1.8" />
+      <module name="modules-etc_main" target="11" />
+      <module name="modules-etc_test" target="11" />
       <module name="modules-groovy-extend_main" target="1.8" />
       <module name="modules-groovy-extend_test" target="1.8" />
       <module name="modules-net_main" target="1.8" />
       <module name="modules-net_test" target="1.8" />
       <module name="modules-os_main" target="1.8" />
       <module name="modules-os_test" target="1.8" />
+      <module name="modules-serial_main" target="11" />
+      <module name="modules-serial_test" target="11" />
       <module name="modules-srv_main" target="1.8" />
       <module name="modules-srv_test" target="1.8" />
+      <module name="modules-term_main" target="11" />
+      <module name="modules-term_test" target="11" />
       <module name="modules-tools_main" target="1.8" />
       <module name="modules-tools_test" target="1.8" />
       <module name="modules-web_main" target="1.8" />

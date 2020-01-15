@@ -12,25 +12,25 @@ class Service {
     /**
      * Execute an action and return for example, JSON data
      */
-    interface Action {
+    static interface Action {
         Object run()
     }
-    interface ActionRequest extends Action {
+    static interface ActionRequest extends Action {
         Object run(Request request)
     }
-    interface ActionRequestResponse extends Action {
+    static interface ActionRequestResponse extends Action {
         Object run(Request request, Response response)
     }
     /**
      * Check if client is allowed or not
      */
-    interface Allow {
+    static interface Allow {
         boolean check(Request request)
     }
     /**
      * Return the ETag of the output
      */
-    interface ETag {
+    static interface ETag {
         String calc(Object out)
     }
     /**
@@ -38,13 +38,13 @@ class Service {
      * is the temporally file uploaded
      * Its almost the same as Action but it includes the uploaded file
      */
-    interface Upload {
+    static interface Upload {
         Object run(File tmpFile)
     }
-    interface UploadRequest extends Upload {
+    static interface UploadRequest extends Upload {
         Object run(File tmpFile, Request request)
     }
-    interface UploadRequestResponse extends Upload {
+    static interface UploadRequestResponse extends Upload {
         Object run(File tmpFile, Request request, Response response)
     }
     static enum Method {

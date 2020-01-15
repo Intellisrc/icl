@@ -30,7 +30,7 @@ abstract class Task {
     protected Priority priority = Priority.NORMAL
 
     StateUpdater taskState = (StateUpdater) {} //To be used by TaskInfo
-    interface StateUpdater {
+    static interface StateUpdater {
         void update(TaskInfo.State State)
     }
 
