@@ -58,11 +58,11 @@ final class Log {
     /**
      * Used to hook something on any event
      */
-    interface OnLog {
+    static interface OnLog {
         void call(Level level, String message, Info stack)
     }
 
-    interface Printer {
+    static interface Printer {
         void print(Level level, Info stack, String msg)
     }
 

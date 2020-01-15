@@ -33,13 +33,13 @@ class WebSocketService {
      * contains Async operations, clients will need this interface
      * to send their messages in another thread.
      */
-    interface MsgBroadCaster {
+    static interface MsgBroadCaster {
         void call(WSMessage message, SuccessCallback onSuccess, FailCallback onFail)
     }
-    interface FailCallback {
+    static interface FailCallback {
         void call(Throwable e)
     }
-    interface SuccessCallback {
+    static interface SuccessCallback {
         void call()
     }
     /**
