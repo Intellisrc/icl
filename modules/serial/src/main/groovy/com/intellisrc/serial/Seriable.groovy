@@ -9,10 +9,10 @@ import jssc.SerialPortEvent
  */
 @CompileStatic
 abstract class Seriable {
-    boolean connected = false
-    int parity = SerialPort.PARITY_NONE
-    int baudRate = 9600
-    String serialPort
+    public boolean connected = false
+    public int parity = SerialPort.PARITY_NONE
+    public int baudRate = 9600
+    public String serialPort
 
     interface SerialReader {
         void call(byte[] response)

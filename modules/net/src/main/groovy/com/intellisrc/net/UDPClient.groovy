@@ -1,10 +1,12 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 /**
  * @since 12/29/17.
  */
+@CompileStatic
 class UDPClient {
     UDPClient(Inet4Address host, int port) {
         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in))

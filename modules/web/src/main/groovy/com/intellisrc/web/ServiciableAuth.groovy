@@ -1,8 +1,9 @@
 package com.intellisrc.web
 
+import groovy.transform.CompileStatic
 import spark.Request
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * @since 17/04/03.
  */
