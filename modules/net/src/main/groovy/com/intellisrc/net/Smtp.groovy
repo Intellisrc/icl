@@ -29,17 +29,17 @@ import javax.mail.internet.MimeMultipart
  */
 @CompileStatic
 class Smtp {
-    String username     = ""
-    String password     = ""
-    String host         = "localhost"
-    String from         = ""
-    String fromName     = ""
-    String defaultTo    = ""
-    String replyTo      = ""
-    boolean startTLS    = false
-    boolean simulate    = false //If true, it won't send any email
-    int port            = 25
-    Map<String,String> headers = [:] //custom headers
+    public String username     = ""
+    public String password     = ""
+    public String host         = "localhost"
+    public String from         = ""
+    public String fromName     = ""
+    public String defaultTo    = ""
+    public String replyTo      = ""
+    public boolean startTLS    = false
+    public boolean simulate    = false //If true, it won't send any email
+    public int port            = 25
+    public Map<String,String> headers = [:] //custom headers
 
     static enum Mode {
         TO, CC, BCC
@@ -232,8 +232,8 @@ class Smtp {
             Log.e("Sender email is not correct: $from", e)
             return false
         }
-        def session = Session.getDefaultInstance(Config.system.properties)
-        def message = new MimeMessage(session)
+        Session session = Session.getDefaultInstance(Config.system.properties as Properties)
+        MimeMessage message = new MimeMessage(session)
         try {
             if(fromName) {
                 message.setFrom(new InternetAddress(emailFrom.toString(), fromName))

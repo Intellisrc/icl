@@ -1,6 +1,7 @@
 package com.intellisrc.web
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -15,7 +16,7 @@ import java.text.SimpleDateFormat
  * @since 17/07/28.
  * based in: https://github.com/markwinter/simple-web-server/blob/master/WebServer.java
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 class HTTPServer {
     private boolean running = false
     //public
@@ -229,8 +230,11 @@ class HTTPServer {
      */
     static Map<String, String> parseURLParams(String url, String charset = "UTF-8") {
         url = url.substring(url.indexOf('?') + 1)
-        def queryParams = url?.split('&')
-        def mapParams = queryParams.collectEntries { param -> param.split('=').collect { String it -> URLDecoder.decode(it, charset) }}
+        List<String> queryParams = url ? url.tokenize('&') : []
+        Map<String, String> mapParams = queryParams.collectEntries {
+            String param ->
+                param.split('=').collect { String it -> URLDecoder.decode(it, charset) }
+        }
         return mapParams
     }
 

@@ -1,6 +1,7 @@
 package com.intellisrc.web
 
-@groovy.transform.CompileStatic
+import groovy.transform.CompileStatic
+
 /**
  * This is the common interface to define Services.
  * By itself is useless. Please extend it and implement
@@ -19,6 +20,7 @@ package com.intellisrc.web
  *
  * @since 17/04/03.
  */
+@CompileStatic
 trait Serviciable {
     String getPath() { return "/" }
 }
