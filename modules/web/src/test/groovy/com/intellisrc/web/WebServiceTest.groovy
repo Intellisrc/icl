@@ -68,7 +68,7 @@ class WebServiceTest extends Specification {
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             println "RES DIR: $publicDir"
-            web.setResources(publicDir, true)
+            web.setResources(publicDir)
             web.addService(new IDService())
         when:
             web.start(true)
@@ -101,7 +101,7 @@ class WebServiceTest extends Specification {
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             println "RES DIR: $publicDir"
-            web.setResources(publicDir, true)
+            web.setResources(publicDir)
             web.addService(new EmailService())
         when:
             web.start(true)
@@ -128,7 +128,7 @@ class WebServiceTest extends Specification {
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             println "RES DIR: $publicDir"
-            web.setResources(publicDir, true)
+            web.setResources(publicDir)
             web.addService(new UploadService())
         when:
             web.start(true)
@@ -159,7 +159,7 @@ class WebServiceTest extends Specification {
                     cacheTime: 60
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
-            web.setResources(System.getProperty("user.dir") + "/res/public", true)
+            web.setResources(System.getProperty("user.dir") + "/res/public")
             web.addService(new SSLService())
             web.start(true)
         expect:
