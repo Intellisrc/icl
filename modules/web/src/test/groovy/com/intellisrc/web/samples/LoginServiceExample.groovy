@@ -6,6 +6,7 @@ package com.intellisrc.web.samples
 import com.intellisrc.web.Service.Allow
 import com.intellisrc.web.ServiciableAuth
 import spark.Request
+import spark.Response
 
 @groovy.transform.CompileStatic
 /**
@@ -53,7 +54,7 @@ class LoginServiceExample implements ServiciableAuth {
      *
      */
     @Override
-    Map onLogin(Request request) {
+    Map onLogin(Request request, Response response) {
         if(canLogin.check(request)) {
             String user = request.queryParams("my-user")
             String pass = request.queryParams("my-pass")
@@ -66,12 +67,14 @@ class LoginServiceExample implements ServiciableAuth {
                 ]
             }
         }
+        response.status(403)
         return [:]
     }
 
     @Override
-    boolean onLogout() {
-        return false
+    boolean onLogout(Request request, Response response) {
+        request?.session()?.invalidate()
+        return true
     }
 
     @Override
