@@ -2,6 +2,7 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Log
 import com.intellisrc.web.ServiciableWebSocket.WSMessage
+import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.WriteCallback
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -21,7 +22,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket
  *
  * @since 17/04/21.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 @WebSocket
 class WebSocketService {
     private ServiciableWebSocket listener
@@ -32,13 +33,13 @@ class WebSocketService {
      * contains Async operations, clients will need this interface
      * to send their messages in another thread.
      */
-    interface MsgBroadCaster {
+    static interface MsgBroadCaster {
         void call(WSMessage message, SuccessCallback onSuccess, FailCallback onFail)
     }
-    interface FailCallback {
+    static interface FailCallback {
         void call(Throwable e)
     }
-    interface SuccessCallback {
+    static interface SuccessCallback {
         void call()
     }
     /**
