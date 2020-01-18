@@ -28,7 +28,7 @@ class TaskInfo implements TaskLoggable {
     protected State threadState = State.NEW
     protected StateChangeCallback onStateChange = {} as StateChangeCallback
     
-    interface StateChangeCallback {
+    static interface StateChangeCallback {
         void call(TaskInfo task)
     }
     

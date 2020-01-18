@@ -1,12 +1,14 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 /**
  * @since 12/29/17.
  */
+@CompileStatic
 class UDPServer {
-    interface ServerCallback {
+    static interface ServerCallback {
         String exec(String clientCommand)
     }
     /**

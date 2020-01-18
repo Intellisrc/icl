@@ -1,24 +1,25 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 import java.nio.charset.Charset
 
-@groovy.transform.CompileStatic
 /**
  * TCP Client
  */
+@CompileStatic
 class TCPClient {
-	interface ClientCallback {
+	static interface ClientCallback {
 		void call(Response response)
 	}
-    interface Parser {
+    static interface Parser {
         Object call(String msg)
     }
     protected InetAddress dstAddress
     protected int dstPort
 	protected final synchronized Queue<Request> requestList = [] as Queue<Request>
-    int timeout = 20000
+    public int timeout = 20000
 
 	static enum TCPStatus {
 		SENT, NO_CONN, ERROR, NO_RESPONSE

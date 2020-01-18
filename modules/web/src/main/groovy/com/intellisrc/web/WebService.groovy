@@ -38,16 +38,16 @@ class WebService {
     private List<Serviciable> listServices = []
     private List<String> listPaths = [] //mainly used to prevent collisions
     private boolean embedded = false //Turn to true if resources are inside jar
-    // Options:
-    String resources = ""
-    int cacheTime = 0
-    int port = 80
-    int threads = 20
-    int eTagMaxKB = 1024
     private boolean running = false
-    StartCallback onStart = null
+    // Options:
+    public String resources = ""
+    public int cacheTime = 0
+    public int port = 80
+    public int threads = 20
+    public int eTagMaxKB = 1024
+    public StartCallback onStart = null
     
-    interface StartCallback {
+    static interface StartCallback {
         void call(Srv srv)
     }
     /**
@@ -460,15 +460,22 @@ class WebService {
             listServices << srv
         }
     }
-
+    
+    /**
+     * Add resources by File (recommended method)
+     * @param path
+     */
+    void setResources(File path) {
+        setResources(path.absolutePath)
+    }
     /**
      * Add Resources
      * @param path
-     * @param absolute : if set, absolute path will be allowed (not recommended due to security reasons)
+     * @param embed: if true, path should point to a directory inside the jar
      */
-    void setResources(String path, boolean absolute = false) {
+    void setResources(String path, boolean embed = false) {
         resources = path
-        embedded = absolute
+        embedded = embed
     }
 
 }

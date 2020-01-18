@@ -17,8 +17,8 @@ import groovy.transform.CompileStatic
  * @author Alberto Lepe <lepe@intellisrc.com>
  */
 class Config {
-    static Props global = new Props(new File(SysInfo.userDir, "config.properties"))
-    static Props system = new Props(System.properties)
+    static public Props global = new Props(new File(SysInfo.userDir, "config.properties"))
+    static public Props system = new Props(System.properties)
 
     /**
      * Static methods will call global instance
@@ -47,8 +47,8 @@ class Config {
      * CfgFile can be used with any file
      */
     static class Props {
-        final Properties properties
-        final File configFile
+        public final Properties properties
+        public final File configFile
 
         /**
          * Constructor to create new properties on memory

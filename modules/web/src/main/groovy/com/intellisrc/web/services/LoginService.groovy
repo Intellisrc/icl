@@ -67,13 +67,13 @@ class LoginService implements ServiciableAuth {
     /**
      * This interface will include full request
      */
-    interface LoginAction {
+    static interface LoginAction {
         Map<String,Object> call(Request request)
     }
     /**
-     * This interface will only send login auth information
+     * This static interface will only send login auth information
      */
-    interface LoginAuth {
+    static interface LoginAuth {
         Level call(String user, String password)
     }
 
