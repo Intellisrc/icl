@@ -40,11 +40,11 @@ class VideoGrab {
         }
     }
     
-    interface Framer<T> {
+    static interface Framer<T> {
         boolean call(T frame)
     }
     
-    interface Finish {
+    static interface Finish {
         void call()
     }
 

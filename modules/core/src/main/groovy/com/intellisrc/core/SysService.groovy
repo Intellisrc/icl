@@ -38,8 +38,8 @@ import java.lang.reflect.Method
  */
 @CompileStatic
 abstract class SysService {
-    static SysService service
-    static int exitCode = 0
+    static public SysService service
+    static public int exitCode = 0
     static private boolean started = false
     /**
      * Initialize service with arguments
@@ -138,8 +138,8 @@ abstract class SysService {
         System.exit(code)
     }
     //------------------------------ NON STATIC ---------------------------------
-    String lockFile = "service.lock"
-    final Queue<String> args = [] as Queue<String>
+    public String lockFile = "service.lock"
+    public final Queue<String> args = [] as Queue<String>
     /**
      * Required to implement onStart()
      */

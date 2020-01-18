@@ -1,8 +1,11 @@
 package com.intellisrc.web
+
+import groovy.transform.CompileStatic
+
 /**
  * @since 17/04/19.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 interface ServiciableWebSocket extends Serviciable {
     /**
      * Class used to specify WHOM and WHAT to send

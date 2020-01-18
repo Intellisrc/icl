@@ -19,16 +19,16 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @CompileStatic
 class Tasks {
-    static String logFileName = Config.get("tasks.logfile", "status.log")
-    static int minPoolSize = Config.getInt("tasks.pool.min", 1)
-    static int maxPoolSize = Config.getInt("tasks.pool.max", 30)
-    static int bufferMillis = Config.getInt("tasks.buffer", 1000)
-    static int timeout = Config.getInt("tasks.timeout", 1000)
-    static boolean logToFile = Config.getBool("tasks.log")
-    static boolean debug = Config.getBool("tasks.debug")
-    static boolean resetTasks = !Config.getBool("tasks.noreset")
-    static boolean printChilds = Config.getBool("tasks.children")
-    static boolean printOnChange = false    //Using in UnitTests to debug
+    static public String logFileName = Config.get("tasks.logfile", "status.log")
+    static public int minPoolSize = Config.getInt("tasks.pool.min", 1)
+    static public int maxPoolSize = Config.getInt("tasks.pool.max", 30)
+    static public int bufferMillis = Config.getInt("tasks.buffer", 1000)
+    static public int timeout = Config.getInt("tasks.timeout", 1000)
+    static public boolean logToFile = Config.getBool("tasks.log")
+    static public boolean debug = Config.getBool("tasks.debug")
+    static public boolean resetTasks = !Config.getBool("tasks.noreset")
+    static public boolean printChilds = Config.getBool("tasks.children")
+    static public boolean printOnChange = false    //Using in UnitTests to debug
     protected static TaskManager taskManager = new TaskManager()
     private static LocalDateTime logLastUpdated = SysClock.dateTime
     private static ConcurrentLinkedQueue<String> logUpdatedList = new ConcurrentLinkedQueue<>()

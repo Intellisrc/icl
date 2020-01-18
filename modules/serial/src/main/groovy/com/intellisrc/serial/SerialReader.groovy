@@ -7,7 +7,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class SerialReader {
-    final Serial reader
+    public final Serial reader
     SerialReader(String serialPort) {
         reader = new Serial(serialPort)
     }

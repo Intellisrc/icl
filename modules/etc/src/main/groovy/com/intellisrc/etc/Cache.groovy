@@ -18,14 +18,14 @@ import java.util.concurrent.ConcurrentMap
  * extend       : if true, it will extend time upon access. If false, it will expire when the time is due (without changing expire value).
  */
 class Cache<V> {
-    static final int FOREVER = -1
-    static final int DEFAULT = 600
+    static public final int FOREVER = -1
+    static public final int DEFAULT = 600
     interface onNotFound {
         V call()
     }
-	int gcInterval = 120 //seconds
-    int timeout = DEFAULT //seconds
-    boolean extend  = false
+	public int gcInterval = 120 //seconds
+    public int timeout = DEFAULT //seconds
+    public boolean extend  = false
 
     /**
      * Object used as data structure inside Cache

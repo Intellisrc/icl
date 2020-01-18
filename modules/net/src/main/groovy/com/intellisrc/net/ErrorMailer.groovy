@@ -12,14 +12,14 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class ErrorMailer {
-    static Level minLevel = Level.SECURITY
+    static public Level minLevel = Level.SECURITY
     /**
      * Override the next strings in case
      * it is displaying incorrect information
      */
-    static String sysVersion = ""
-    static String hostName = ""
-    static String ipAddress = ""
+    static public String sysVersion = ""
+    static public String hostName = ""
+    static public String ipAddress = ""
     /**
      * Prevent sending over and over the same error
      */

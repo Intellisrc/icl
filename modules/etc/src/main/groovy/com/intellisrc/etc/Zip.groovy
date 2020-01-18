@@ -13,7 +13,7 @@ import java.util.zip.GZIPOutputStream
  */
 @CompileStatic
 class Zip {
-    static class InvalidExtensionException extends Exception {}
+    static public class InvalidExtensionException extends Exception {}
     /**
      * Compress a file and rename it to *.gz
      * @param file
