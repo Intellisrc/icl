@@ -2,35 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.2 : Added SysInfo.getFile(...)">
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/tmp/jar/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/tmp/jar/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/tmp/jar/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/tmp/jar/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/tmp/jar/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/LoginServiceExample.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/LoginServiceExample.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +117,7 @@
       <recent name="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
+  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
@@ -292,8 +266,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.common [artifactoryPublish]" />
         <item itemvalue="Gradle.common [publishToMavenLocal]" />
+        <item itemvalue="Gradle.common [artifactoryPublish]" />
         <item itemvalue="Gradle.WebServiceTest" />
         <item itemvalue="Gradle.Tests in 'cv_test'" />
         <item itemvalue="Gradle.Tests in 'img_test'" />
@@ -319,13 +293,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00086" summary="2.4.4 Cleaning code">
-      <created>1530583607262</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
-      <option name="project" value="LOCAL" />
-      <updated>1530583607263</updated>
     </task>
     <task id="LOCAL-00087" summary="2.4.4 Cleaning code">
       <created>1530598936613</created>
@@ -663,7 +630,14 @@
       <option name="project" value="LOCAL" />
       <updated>1579062456663</updated>
     </task>
-    <option name="localTasksCounter" value="135" />
+    <task id="LOCAL-00135" summary="2.7.8 : HTTP status code was mistaken in Example">
+      <created>1579328453541</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1579328453541</updated>
+    </task>
+    <option name="localTasksCounter" value="136" />
     <servers />
   </component>
   <component name="TodoView">
@@ -703,7 +677,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.4.13 : Config.CfgFile added to allow any property file" />
     <MESSAGE value="2.5.0 : Config changed to allow Properties management" />
     <MESSAGE value="2.5.1 : Added 'domain' into Log to track important lines in stack" />
     <MESSAGE value="2.5.2 : Fixed visibility in logs and added color.invert" />
@@ -728,16 +701,18 @@
     <MESSAGE value="2.7.1 : Added missing test image" />
     <MESSAGE value="2.7.2 : Added SysInfo.getFile(...)" />
     <MESSAGE value="2.7.7 : Added 'static' to inner interfaces, so they can be used from Java" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.7 : Added 'static' to inner interfaces, so they can be used from Java" />
+    <MESSAGE value="2.7.8 : HTTP status code was mistaken in Example" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.8 : HTTP status code was mistaken in Example" />
   </component>
   <component name="WindowStateProjectService">
     <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser" timestamp="1579319382277">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser/0.29.1366.739@0.29.1366.739" timestamp="1579319382277" />
-    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1579062456491">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="327" y="67" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1579328453109">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
+    <state x="327" y="67" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1579328453109" />
     <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062456491" />
     <state x="97" y="133" width="1726" height="970" key="DiffContextDialog" timestamp="1577246200442">
       <screen x="0" y="0" width="1920" height="1200" />
@@ -747,29 +722,30 @@
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1577246200047" />
-    <state width="1310" height="295" key="GridCell.Tab.0.bottom" timestamp="1579322422491">
+    <state width="1310" height="295" key="GridCell.Tab.0.bottom" timestamp="1579329008153">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1579322422491" />
+    <state width="1310" height="295" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
     <state width="1876" height="353" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935126" />
-    <state width="1310" height="295" key="GridCell.Tab.0.center" timestamp="1579322422490">
+    <state width="1310" height="295" key="GridCell.Tab.0.center" timestamp="1579329008152">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1579322422490" />
+    <state width="1310" height="295" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
     <state width="1876" height="353" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935126" />
-    <state width="1310" height="295" key="GridCell.Tab.0.left" timestamp="1579322422489">
+    <state width="1310" height="295" key="GridCell.Tab.0.left" timestamp="1579329008152">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1579322422489" />
+    <state width="1310" height="295" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
     <state width="1876" height="353" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935125" />
-    <state width="1310" height="295" key="GridCell.Tab.0.right" timestamp="1579322422491">
+    <state width="1310" height="295" key="GridCell.Tab.0.right" timestamp="1579329008153">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1579322422491" />
+    <state width="1310" height="295" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
     <state width="1876" height="353" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935126" />
-    <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2" timestamp="1579062473549">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1579328468533">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1579328468533" />
     <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062473549" />
     <state x="631" y="353" width="658" height="530" key="find.popup" timestamp="1579062087208">
       <screen x="0" y="0" width="1920" height="1200" />
