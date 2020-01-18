@@ -36,6 +36,16 @@
       <module name="com.intellisrc-term_test" target="11" />
       <module name="com.intellisrc-thread_main" target="11" />
       <module name="com.intellisrc-thread_test" target="11" />
+      <module name="common-modules-core_main" target="11" />
+      <module name="common-modules-core_test" target="11" />
+      <module name="common-modules-cv_main" target="11" />
+      <module name="common-modules-cv_test" target="11" />
+      <module name="common-modules-etc_main" target="11" />
+      <module name="common-modules-etc_test" target="11" />
+      <module name="common-modules-serial_main" target="11" />
+      <module name="common-modules-serial_test" target="11" />
+      <module name="common-modules-term_main" target="11" />
+      <module name="common-modules-term_test" target="11" />
       <module name="common_main" target="11" />
       <module name="common_test" target="11" />
       <module name="core_main" target="11" />
@@ -68,6 +78,8 @@
       <module name="modules-etc_test" target="11" />
       <module name="modules-groovy-extend_main" target="1.8" />
       <module name="modules-groovy-extend_test" target="1.8" />
+      <module name="modules-img_main" target="11" />
+      <module name="modules-img_test" target="11" />
       <module name="modules-net_main" target="1.8" />
       <module name="modules-net_test" target="1.8" />
       <module name="modules-os_main" target="1.8" />
@@ -78,6 +90,8 @@
       <module name="modules-srv_test" target="1.8" />
       <module name="modules-term_main" target="11" />
       <module name="modules-term_test" target="11" />
+      <module name="modules-thread_main" target="11" />
+      <module name="modules-thread_test" target="11" />
       <module name="modules-tools_main" target="1.8" />
       <module name="modules-tools_test" target="1.8" />
       <module name="modules-web_main" target="1.8" />
@@ -86,6 +100,8 @@
       <module name="net_test" target="11" />
       <module name="os_main" target="1.8" />
       <module name="os_test" target="1.8" />
+      <module name="Projects-intellisrc-common_main" target="11" />
+      <module name="Projects-intellisrc-common_test" target="11" />
       <module name="serial_main" target="11" />
       <module name="serial_test" target="11" />
       <module name="srv_main" target="1.8" />
