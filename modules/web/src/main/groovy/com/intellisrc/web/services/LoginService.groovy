@@ -4,6 +4,7 @@ import com.intellisrc.core.Log
 import com.intellisrc.web.Service.Allow
 import com.intellisrc.web.ServiciableAuth
 import spark.Request
+import spark.Response
 
 /**
  * Generic class to allow access to private content
@@ -119,7 +120,7 @@ class LoginService implements ServiciableAuth {
      * @return
      */
     @Override
-    Map<String,Object> onLogin(final Request request) {
+    Map<String,Object> onLogin(final Request request, final Response response) {
         return onLoginAction.call(request)
     }
 
@@ -133,8 +134,8 @@ class LoginService implements ServiciableAuth {
     String getLogoutPath() { logoutPath }
 
     @Override
-    boolean onLogout() {
-        return true
+    boolean onLogout(final Request request, final Response response) {
+        return request?.session()?.invalidate()
     }
 
 }

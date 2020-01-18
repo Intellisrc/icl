@@ -119,7 +119,7 @@ class WebService {
                             srv.post(auth.path + auth.loginPath, {
                                 Request request, Response response ->
                                     def ok = false
-                                    def sessionMap = auth.onLogin(request)
+                                    def sessionMap = auth.onLogin(request, response)
                                     def id = 0
                                     if (!sessionMap.isEmpty()) {
                                         ok = true
@@ -140,7 +140,7 @@ class WebService {
                                     response.type("application/json")
                                     request.session().invalidate()
                                     return JSON.encode(
-                                            y: auth.onLogout()
+                                            y: auth.onLogout(request, response)
                                     )
                             })
                             break
