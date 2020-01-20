@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.2 : Added SysInfo.getFile(...)">
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.7 : Forced to">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,31 +117,9 @@
       <recent name="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/etc" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
+  <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType" factoryName="Kotlin">
-      <module name="modules-db" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="WORKING_DIRECTORY" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="TestNG">
-      <option name="TEST_OBJECT" value="CLASS" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <properties />
-      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -257,6 +235,28 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="JetRunConfigurationType" factoryName="Kotlin">
+      <module name="modules-db" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="WORKING_DIRECTORY" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="TestNG">
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Gradle.Tests in 'cv_test'" />
       <item itemvalue="Gradle.Tests in 'img_test'" />
@@ -266,8 +266,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.common [publishToMavenLocal]" />
         <item itemvalue="Gradle.common [artifactoryPublish]" />
+        <item itemvalue="Gradle.common [publishToMavenLocal]" />
         <item itemvalue="Gradle.WebServiceTest" />
         <item itemvalue="Gradle.Tests in 'cv_test'" />
         <item itemvalue="Gradle.Tests in 'img_test'" />
@@ -709,11 +709,11 @@
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser/0.29.1366.739@0.29.1366.739" timestamp="1579319382277" />
-    <state x="327" y="67" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1579328453109">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1579512420195">
+      <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="327" y="67" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1579328453109" />
-    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062456491" />
+    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512420195" />
     <state x="97" y="133" width="1726" height="970" key="DiffContextDialog" timestamp="1577246200442">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
@@ -722,26 +722,26 @@
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1577246200047" />
-    <state width="1310" height="295" key="GridCell.Tab.0.bottom" timestamp="1579329008153">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state width="1876" height="580" key="GridCell.Tab.0.bottom" timestamp="1579512385373">
+      <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state width="1310" height="295" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
-    <state width="1876" height="353" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935126" />
-    <state width="1310" height="295" key="GridCell.Tab.0.center" timestamp="1579329008152">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state width="1876" height="580" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512385373" />
+    <state width="1876" height="580" key="GridCell.Tab.0.center" timestamp="1579512385372">
+      <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state width="1310" height="295" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
-    <state width="1876" height="353" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935126" />
-    <state width="1310" height="295" key="GridCell.Tab.0.left" timestamp="1579329008152">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state width="1876" height="580" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512385372" />
+    <state width="1876" height="580" key="GridCell.Tab.0.left" timestamp="1579512385372">
+      <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state width="1310" height="295" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
-    <state width="1876" height="353" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935125" />
-    <state width="1310" height="295" key="GridCell.Tab.0.right" timestamp="1579329008153">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state width="1876" height="580" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512385372" />
+    <state width="1876" height="580" key="GridCell.Tab.0.right" timestamp="1579512385372">
+      <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state width="1310" height="295" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
-    <state width="1876" height="353" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062935126" />
+    <state width="1876" height="580" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512385372" />
     <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1579328468533">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
