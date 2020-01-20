@@ -146,6 +146,13 @@ class JDBCConnector implements Connector {
         }
         //Additional params
         switch(type) {
+            case SQLITE:
+                    try {
+						Class.forName("org.sqlite.JDBC")
+					} catch (ClassNotFoundException e) {
+						Log.e("SQLite Driver not found", e);
+					}
+				break
             case MYSQL:
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver")
@@ -157,7 +164,7 @@ class JDBCConnector implements Connector {
                     url += "&characterSetResults=utf8"
                     url += "&connectionCollation=utf8_general_ci"
                 } catch(Exception e) {
-                    Log.e( "Driver not found: ",e)
+                    Log.e( "MySQL Driver not found: ",e)
                     url = ""
                 }
                 break
