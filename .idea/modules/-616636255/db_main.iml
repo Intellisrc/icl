@@ -8,8 +8,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="common-modules-etc_main" />
-    <orderEntry type="module" module-name="common-modules-core_main" />
+    <orderEntry type="module" module-name="modules-etc_main" />
+    <orderEntry type="module" module-name="modules-core_main" />
     <orderEntry type="library" name="Gradle: com.intellisrc:groovy-extend:2.5.6.3" level="project" />
     <orderEntry type="library" name="Gradle: mysql:mysql-connector-java:8.0.17" level="project" />
     <orderEntry type="library" name="Gradle: org.xerial:sqlite-jdbc:3.28.0" level="project" />
