@@ -2,6 +2,7 @@ package com.intellisrc.web
 
 import groovy.transform.CompileStatic
 import spark.Request
+import spark.Response
 
 @CompileStatic
 /**
@@ -10,6 +11,6 @@ import spark.Request
 interface ServiciableAuth extends Serviciable {
     String getLoginPath()
     String getLogoutPath()
-    Map<String, Object> onLogin(Request request)
-    boolean onLogout()
+    Map<String, Object> onLogin(Request request, Response response)
+    boolean onLogout(Request request, Response response)
 }
