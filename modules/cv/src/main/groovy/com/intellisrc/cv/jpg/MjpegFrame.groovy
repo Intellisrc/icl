@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package com.intellisrc.cv.video
+package com.intellisrc.cv.jpg
 
 import groovy.transform.CompileStatic
 
@@ -79,7 +79,7 @@ class MjpegFrame {
     static StringBuffer createHeader(int contentLength) {
         StringBuffer header = new StringBuffer(100)
         header.append(
-                "\r\n\r\n--${boundary}\r\nContent-Type: image/jpeg\r\nContent-Length: ")
+                "--${boundary}\r\nContent-Type: image/jpeg\r\nContent-Length: ")
         header.append(contentLength)
         header.append("\r\n\r\n")
         
