@@ -460,7 +460,7 @@ class WebService {
             listServices << srv
         }
     }
-    
+
     /**
      * Add resources by File (recommended method)
      * @param path

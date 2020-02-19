@@ -9,9 +9,10 @@ Note: classes marked with `@`, are unlikely to be used directly.
 Basic functionality that is usually needed in any project.
 
  * `AnsiColor`  : Color dictionary for Linux terminal
- * `Config`     : Manage configuration files (by default config.properties)
  * `Cmd`        : Execute system commands
+ * `Config`     : Manage configuration files (by default config.properties)
  * `Log`        : Log messages
+ * `SysClock`   : Provides simple methods to interact with LocalDateTime. Useful for Unit Testing.
  * `SysInfo`    : Get information about the system (usually paths)
  * `SysMain`    : Convert class into runnable class
  * `SysService` : Convert class into service (only one by project)
@@ -25,13 +26,12 @@ Basic functionality that is usually needed in any project.
  * `Bytes`      : Common operations with byte[]
  * `Cache`      : Keep objects in memory to speed-up applications
  * `CacheObj`   : Generic implementation of `Cache`
- * @ `JarResource`: Store resources in JAR
- * `Pack`       : Methods to convert byte[] to int, long and back again
- * `Zip`        : Compress files
  * `Calc`       : Provide common math calculations
  * `Hardware`   : Get information about OS
+ * @ `JarResource`: Store resources in JAR
  * @ `Metric`   : Keep track of changes in values (used by Hardware)
- * `TimeClock`  : Provides common methods related to time
+ * `Pack`       : Methods to convert byte[] to int, long and back again
+ * `Zip`        : Compress files
  
 ## db 
 Depends on : etc
@@ -166,4 +166,7 @@ Classes for Computer Vision (extension to OpenCV)
  * @ `MjpegFormat` : MJPEG Format
  * @ `MjpegFrame` : MJPEG single frame
  * @ `MjpegInputStream` : Provides MJPEG as InputStream
- * `VideoGrab` : Extract frames from most of video formats
+ * @ `VideoGrab` : Extract frames from most of video formats
+ * `BufferedVideoGrab` : Get BufferedImages or FrameShot/CvFrameShot from a MJPEG stream
+ * `FileVideoGrab` : Get File or FrameShot/CvFrameShot images from a directory (as frames)
+ * `FrameVideoGrab` : Get Frame or FrameShot/CvFrameShot objects from video files
