@@ -1,5 +1,12 @@
 # Main Changes
 
+## 2.7 (Groovy 2.5.6)
+
+* Added modules `thread`, `serial`, `img`
+* Added classes: core.SysClock, etc.Hardware, etc.Metric
+* Improved compatibility with Java
+* Log, WebServer were improved
+
 ## 2.6 (Groovy 2.5.6+, Java 11)
 
 * Added module `cv`

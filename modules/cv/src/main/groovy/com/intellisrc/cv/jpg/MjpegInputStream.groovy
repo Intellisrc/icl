@@ -1,4 +1,4 @@
-package com.intellisrc.cv.video
+package com.intellisrc.cv.jpg
 
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
