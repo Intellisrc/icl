@@ -26,10 +26,11 @@ class FileVideoGrab extends VideoGrab {
      * @param directory
      * @param extension
      */
-    FileVideoGrab(File directory = new File(Config.get("video.dir") ?: "/tmp"),
-                  String extension = "jpg", int fps = 24) {
-
-        this.directory = directory
+    FileVideoGrab(String source = "", File directory = null, String extension = "jpg", int fps = 24) {
+        if(source) {
+            this.source = source
+        }
+        this.directory = directory ?: new File(Config.get("video.dir", "/tmp"))
         this.extension = extension
         this.fps = fps
     }
@@ -51,35 +52,36 @@ class FileVideoGrab extends VideoGrab {
      * @param frameCallback
      * @param loopWait
      */
-    void grabForever(FileFramer frameCallback, int loopWait = 500) {
+    void grabForever(FileFramer frameCallback, int loopWait = 500, GrabFinished onFinish = null) {
         Log.i("Grabbing forever (*.%s) images at : %s", extension, directory.absolutePath)
         running = true
         while(running) {
             grab(frameCallback)
             sleep(loopWait)
         }
+        onFinish.call()
     }
     /**
      * Same as grabForever() but returning FrameShot instead of File
      * @param frameCallback
      * @param loopWait
      */
-    void grabForeverFrameShot(FrameShotCallback frameCallback, int loopWait = 500) {
+    void grabForeverFrameShot(FrameShotCallback frameCallback, int loopWait = 500, GrabFinished onFinish = null) {
         grabForever((FileFramer) {
             File file ->
                 frameCallback.call(new FrameShot(file))
-        }, loopWait)
+        }, loopWait, onFinish)
     }
     /**
      * Same as grabForever() but returning CvFrameShot instead of File
      * @param frameCallback
      * @param loopWait
      */
-    void grabForeverCvFrameShot(CvFrameShotCallback frameCallback, int loopWait = 500) {
+    void grabForeverCvFrameShot(CvFrameShotCallback frameCallback, int loopWait = 500, GrabFinished onFinish = null) {
         grabForever((FileFramer) {
             File file ->
                 frameCallback.call(new CvFrameShot(file))
-        }, loopWait)
+        }, loopWait, onFinish)
     }
     /**
      * Stop loop started by `grabForever`
@@ -94,11 +96,11 @@ class FileVideoGrab extends VideoGrab {
      * @param finishCallback
      */
     @Override
-    void grabFrameShot(FrameShotCallback frameCallback) {
+    void grabFrameShot(FrameShotCallback frameCallback, GrabFinished onFinish = null) {
         grab((FileFramer) {
             File file ->
                 frameCallback.call(new FrameShot(file))
-        })
+        }, onFinish)
     }
 
     /**
@@ -107,7 +109,7 @@ class FileVideoGrab extends VideoGrab {
      * @param frameCallback
      * @param finishCallback
      */
-    void grab(FileFramer frameCallback) {
+    void grab(FileFramer frameCallback, GrabFinished onFinish = null) {
         assert directory.exists() : "Directory: " + directory.absolutePath + " doesn't exists"
         Log.i("Grabbing (*.%s) images from : %s", extension, directory.absolutePath)
         List<File> files = directory.listFiles("*." + extension)
@@ -118,5 +120,6 @@ class FileVideoGrab extends VideoGrab {
                     return ! frameCallback.call(file)
             }
         }
+        onFinish.call()
     }
 }
