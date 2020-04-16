@@ -322,12 +322,7 @@ class WebService {
                                         Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
                                         def file = new File(path.toString())
                                         try {
-                                            switch (sp.upload) {
-                                                case Service.UploadRequestResponse: res = (sp.upload as Service.UploadRequestResponse).run(file, request, response); break
-                                                case Service.UploadRequest: res = (sp.upload as Service.UploadRequest).run(file, request); break
-                                                case Service.Upload:
-                                                default: res = (sp.upload as Service.Upload).run(file); break
-                                            }
+                                            res = (sp.upload as Service.Upload).run(file, request, response)
                                             out = getOutput(res, otype)
                                         } catch (Exception e) {
                                             response.status(500)
@@ -359,12 +354,7 @@ class WebService {
                         out = CacheObj.instance.get(key, {
                             def toSave = ""
                             try {
-                                switch (sp.action) {
-                                    case Service.ActionRequestResponse: res = (sp.action as Service.ActionRequestResponse).run(request, response); break
-                                    case Service.ActionRequest: res = (sp.action as Service.ActionRequest).run(request); break
-                                    case Service.Action:
-                                    default: res = (sp.action as Service.Action).run(); break
-                                }
+                                res = (sp.action as Service.Action).run(request, response)
                                 toSave = getOutput(res, otype)
                             } catch (Exception e) {
                                 response.status(500)
@@ -374,17 +364,15 @@ class WebService {
                         }, sp.cacheTime)
                     } else {
                         try {
-                            switch (sp.action) {
-                                case Service.ActionRequestResponse: res = (sp.action as Service.ActionRequestResponse).run(request, response); break
-                                case Service.ActionRequest: res = (sp.action as Service.ActionRequest).run(request); break
-                                case Service.Action:
-                                default: res = (sp.action as Service.Action).run(); break
-                            }
+                            res = (sp.action as Service.Action).run(request, response)
                             out = getOutput(res, otype)
                         } catch (Exception e) {
                             response.status(500)
                             Log.e("Service.action closure failed", e)
                         }
+                    }
+                    if(sp.allowOrigin) {
+                        response.header("Access-Control-Allow-Origin", sp.allowOrigin)
                     }
                     if (sp.noStore) { //Never store in client
                         response.header("Cache-Control", "no-store")

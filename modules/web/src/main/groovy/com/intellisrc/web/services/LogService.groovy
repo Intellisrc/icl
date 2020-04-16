@@ -76,7 +76,7 @@ class LogService implements ServiciableSingle {
                         }
                     }
                     return res
-            } as Service.ActionRequest
+            } as Service.Action
         )
     }
 }
