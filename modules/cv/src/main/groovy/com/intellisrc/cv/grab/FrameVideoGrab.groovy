@@ -24,16 +24,26 @@ class FrameVideoGrab extends VideoGrab {
     }
 
     /**
+     * Initialize Frame Grab with source
+     * @param source
+     */
+    FrameVideoGrab(String source = "") {
+        if(source) {
+            this.source = source
+        }
+    }
+
+    /**
      * Return a FrameShot instead of Frame
      * @param frameCallback
      * @param finishCallback
      */
     @Override
-    void grabFrameShot(FrameShotCallback frameCallback) {
+    void grabFrameShot(FrameShotCallback frameCallback, GrabFinished onFinish = null) {
         grab((FrameFramer) {
             Frame frame ->
                 frameCallback.call(new FrameShot(Converter.FrameToBuffered(frame), "frame-" + SysClock.dateTime.format(timeFormat)))
-        })
+        }, onFinish)
     }
 
     /**
@@ -42,19 +52,26 @@ class FrameVideoGrab extends VideoGrab {
      * @param frameCallback
      * @param finishCallback
      */
-    void grab(FrameFramer frameCallback) {
-        assert isVideoFile(source) : "Only video files are accepted"
+    void grab(FrameFramer frameCallback, GrabFinished onFinish = null) {
+        if(!isVideoFile(source)) {
+            Log.w("Source doesn't seems to be a video file: %s", source)
+        }
         Log.v("Reading encoded video: %s", source)
         boolean next = true
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(source)
-        grabber.setFormat(source.split(/\./).last())
+        grabber.setFormat(format ?: source.split(/\./).last())
         grabber.start()
 
         while (next) {
             Frame frame = grabber.grab()
-            if (frame?.imageWidth) {
-                next = frameCallback.call(frame)
+            if(frame) {
+                if (frame.imageWidth) {
+                    next = frameCallback.call(frame)
+                }
+            } else {
+                next = false
             }
         }
+        onFinish.call()
     }
 }
