@@ -3,7 +3,6 @@ package com.intellisrc.web.samples
 import com.intellisrc.core.Log
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableSingle
-import com.intellisrc.web.Service.ActionRequestResponse
 import com.intellisrc.core.SysClock
 import spark.Request
 import spark.Response
@@ -33,7 +32,7 @@ class IDService implements ServiciableSingle {
                     i : id,
                     t : SysClock.dateTime.toLocalTime().HHmmss
                 ]
-            } as ActionRequestResponse
+            } as Service.Action
         )
     }
 
