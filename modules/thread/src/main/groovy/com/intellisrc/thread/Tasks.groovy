@@ -8,7 +8,7 @@ import com.intellisrc.core.SysInfo
 import com.intellisrc.thread.Task.Priority
 import groovy.transform.CompileStatic
 
-import java.time.LocalTime
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -24,9 +24,10 @@ class Tasks {
     static public int maxPoolSize = Config.getInt("tasks.pool.max", 30)
     static public int bufferMillis = Config.getInt("tasks.buffer", 1000)
     static public int timeout = Config.getInt("tasks.timeout", 1000)
+    static public boolean printStatus = Config.getBool("tasks.print")
     static public boolean logToFile = Config.getBool("tasks.log")
     static public boolean debug = Config.getBool("tasks.debug")
-    static public boolean resetTasks = !Config.getBool("tasks.noreset")
+    static public boolean resetTasks = Config.getBool("tasks.reset")
     static public boolean printChilds = Config.getBool("tasks.children")
     static public boolean printOnChange = false    //Using in UnitTests to debug
     protected static TaskManager taskManager = new TaskManager()
@@ -40,6 +41,9 @@ class Tasks {
         // Launch reset task
         if (resetTasks) {
             resetTask()
+        }
+        if(!printStatus) {
+            Log.d("Task report is not enabled. You can enable it by setting 'tasks.print' and/or 'tasks.log' in your config.properties.")
         }
     }
     /**
@@ -72,6 +76,39 @@ class Tasks {
         
         long getMax() {
             return maxTime
+        }
+    }
+    /**
+     * Class to keep track of 1 reset per day
+     */
+    static class TaskReset extends IntervalTask {
+        LocalDate lastReset
+        TaskReset() {
+            super(1000, 1000)
+            warnOnSkip = false
+        }
+
+        @Override
+        void setup() {
+            lastReset = SysClock.date.minusDays(1)
+        }
+
+        @Override
+        Runnable process() throws InterruptedException {
+            return {
+                if (ChronoUnit.DAYS.between(lastReset, SysClock.date) > 0) {
+                    lastReset = SysClock.date
+                    taskManager.pools.each {
+                        TaskPool pool ->
+                            pool.resetCounters()
+                    }
+                }
+            }
+        }
+
+        @Override
+        boolean reset() {
+            return true
         }
     }
     /**
@@ -252,7 +289,8 @@ class Tasks {
         log += ("-" * infoSize) + "\n"
         if (logToFile) {
             logFile.text = log
-        } else {
+        }
+        if (printStatus) {
             print(log)
         }
     }
@@ -316,14 +354,7 @@ class Tasks {
      * Clear counters
      */
     private static void resetTask() {
-        add(IntervalTask.create({
-            if (ChronoUnit.SECONDS.between(SysClock.dateTime.with(LocalTime.MIN), SysClock.dateTime) <= 1) {
-                taskManager.pools.each {
-                    TaskPool pool ->
-                        pool.resetCounters()
-                }
-            }
-        }, "Tasks.reset", 1000, 1000, Priority.MIN))
+        add(new TaskReset())
     }
     /**
      * Get summary of all tasks <readonly>

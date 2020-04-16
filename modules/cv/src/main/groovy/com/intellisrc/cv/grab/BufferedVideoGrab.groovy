@@ -21,6 +21,12 @@ class BufferedVideoGrab extends VideoGrab {
         boolean call(BufferedImage img)
     }
 
+    BufferedVideoGrab(String source = "") {
+        if(source) {
+            this.source = source
+        }
+    }
+
     /**
      * Adds the protocol to a file if it doesn't have it
      */
@@ -42,11 +48,11 @@ class BufferedVideoGrab extends VideoGrab {
      * @param finishCallback
      */
     @Override
-    void grabFrameShot(FrameShotCallback frameCallback) {
+    void grabFrameShot(FrameShotCallback frameCallback, GrabFinished onFinish = null) {
         grab((BufferedFramer) {
             BufferedImage image ->
                 frameCallback.call(new FrameShot(image, "frame-" + SysClock.dateTime.format(timeFormat)))
-        })
+        }, onFinish)
     }
 
     /**
@@ -55,7 +61,7 @@ class BufferedVideoGrab extends VideoGrab {
      * @param frameCallback
      * @param finishCallback
      */
-    void grab(BufferedFramer frameCallback) {
+    void grab(BufferedFramer frameCallback, GrabFinished onFinish = null) {
         addProtocolToSource()
         URL url = new URL(source)
         Log.v("Reading MJPG from: %s", url.toString())
@@ -67,6 +73,11 @@ class BufferedVideoGrab extends VideoGrab {
                 if (frame) {
                     next = frameCallback.call(frame.image as BufferedImage)
                 }
+            }
+        } catch(EOFException ignored) {
+            Log.i("Video stream ended.")
+            if(onFinish) {
+                onFinish.call()
             }
         } catch (Exception e) {
             Log.e("Video playing failed.", e)

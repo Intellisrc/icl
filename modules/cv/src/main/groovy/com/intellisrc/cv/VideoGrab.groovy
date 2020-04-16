@@ -31,9 +31,28 @@ abstract class VideoGrab {
     interface CvFrameShotCallback {
         boolean call(CvFrameShot frame)
     }
+    interface GrabFinished {
+        void call()
+    }
 
     protected String source = Config.get("video.source")
+    protected String format = "" //auto
     protected String timeFormat = "yyMMdd-HHmmss.SSS"
+
+    /**
+     * Set source
+     * @param source
+     */
+    void setSource(String source) {
+        this.source = source
+    }
+    /**
+     * Set video format
+     * @param format
+     */
+    void setFormat(String format) {
+        this.format = format
+    }
 
     static boolean isVideoFile(String source) {
         return source =~ /(?i)\.(mpe?g|mp4|avi|mov|ogv|3gp|m4a)$/
@@ -63,17 +82,17 @@ abstract class VideoGrab {
         return url
     }
 
-    abstract void grabFrameShot(FrameShotCallback frameCallback)
+    abstract void grabFrameShot(FrameShotCallback frameCallback, GrabFinished onFinish = null)
 
     /**
      * Return a CvFrameShot instead of FrameShot
      * @param frameCallback
      * @param finishCallback
      */
-    void grabCvFrameShot(CvFrameShotCallback frameCallback) {
+    void grabCvFrameShot(CvFrameShotCallback frameCallback, GrabFinished onFinish = null) {
         grabFrameShot({
             FrameShot shot ->
                 frameCallback.call(new CvFrameShot(shot))
-        })
+        }, onFinish)
     }
 }

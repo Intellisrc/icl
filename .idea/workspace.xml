@@ -1,33 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.8 : Forced to load SQLite Driver">
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab/BufferedVideoGrab.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab/FileVideoGrab.groovy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab/FrameVideoGrab.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.9 : VideoGrab became abstract and its now extended depending on expected format. MjpegFrame fixed to work in Webkit browsers. Updated groovy-extends.">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/JpegFormat.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/jpg/JpegFormat.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/MjpegFormat.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/jpg/MjpegFormat.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/MjpegFrame.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/jpg/MjpegFrame.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/MjpegInputStream.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/jpg/MjpegInputStream.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/video/VideoGrab.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/VideoGrab.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab/BufferedVideoGrab.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab/BufferedVideoGrab.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,19 +86,18 @@
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/cv/src/main/groovy/com/inspeedia/common/cv/grab/BufferedVideoGrab.groovy" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/cv/src/main/groovy/com/inspeedia/common/cv/video/VideoGrab.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/cv/src/main/groovy/com/inspeedia/common/cv/grab/BufferedVideoGrab.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -247,7 +233,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="JetRunConfigurationType" factoryName="Kotlin">
+    <configuration default="true" type="JetRunConfigurationType">
       <module name="modules-db" />
       <option name="VM_PARAMETERS" />
       <option name="PROGRAM_PARAMETERS" />
@@ -286,18 +272,6 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="ServiceViewManager">
-    <option name="viewStates">
-      <list>
-        <serviceView>
-          <treeState>
-            <expand />
-            <select />
-          </treeState>
-        </serviceView>
-      </list>
-    </option>
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="" />
@@ -305,13 +279,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00088" summary="2.4.4.1 Added Console.out">
-      <created>1530666945528</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1530666945529</updated>
     </task>
     <task id="LOCAL-00089" summary="2.4.4.2 Crypt.key is now public">
       <created>1530668984122</created>
@@ -649,7 +616,14 @@
       <option name="project" value="LOCAL" />
       <updated>1579512461686</updated>
     </task>
-    <option name="localTasksCounter" value="137" />
+    <task id="LOCAL-00137" summary="2.7.9 : VideoGrab became abstract and its now extended depending on expected format. MjpegFrame fixed to work in Webkit browsers. Updated groovy-extends.">
+      <created>1582104725108</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1582104725109</updated>
+    </task>
+    <option name="localTasksCounter" value="138" />
     <servers />
   </component>
   <component name="TodoView">
@@ -666,9 +640,7 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
@@ -687,9 +659,9 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.5.1 : Added 'domain' into Log to track important lines in stack" />
     <MESSAGE value="2.5.2 : Fixed visibility in logs and added color.invert" />
     <MESSAGE value="2.5.5 : Updated to Groovy 2.5.5 (groovy-extends 1.8). Fixed broken unit tests" />
     <MESSAGE value="2.5.6 : Fixed timeout in Console and exit() in SysMain" />
@@ -714,26 +686,27 @@
     <MESSAGE value="2.7.7 : Added 'static' to inner interfaces, so they can be used from Java" />
     <MESSAGE value="2.7.8 : HTTP status code was mistaken in Example" />
     <MESSAGE value="2.7.8 : Forced to load SQLite Driver" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.8 : Forced to load SQLite Driver" />
+    <MESSAGE value="2.7.9 : VideoGrab became abstract and its now extended depending on expected format. MjpegFrame fixed to work in Webkit browsers. Updated groovy-extends." />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.9 : VideoGrab became abstract and its now extended depending on expected format. MjpegFrame fixed to work in Webkit browsers. Updated groovy-extends." />
   </component>
   <component name="WindowStateProjectService">
     <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser" timestamp="1579319382277">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser/0.29.1366.739@0.29.1366.739" timestamp="1579319382277" />
-    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1582104687272">
+    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1582104724891">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="327" y="67" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1579328453109" />
-    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1582104687272" />
-    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog" timestamp="1582017517146">
+    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1582104724891" />
+    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog" timestamp="1587022319377">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
-    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1582017517146" />
-    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl" timestamp="1582104626832">
+    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022319377" />
+    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl" timestamp="1587022298068">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
-    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1582104626832" />
+    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022298068" />
     <state x="777" y="522" key="GitRewordDialog" timestamp="1579512521920">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
@@ -758,11 +731,11 @@
     </state>
     <state width="1310" height="295" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
     <state width="1876" height="228" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1579328468533">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state x="555" y="354" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1582104726550">
+      <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1579328468533" />
-    <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579062473549" />
+    <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1582104726550" />
     <state x="631" y="353" width="658" height="538" key="find.popup" timestamp="1581669576819">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
