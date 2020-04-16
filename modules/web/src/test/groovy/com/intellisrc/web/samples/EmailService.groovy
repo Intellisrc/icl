@@ -87,7 +87,7 @@ class EmailService implements ServiciableMultiple {
                                 def user = request.params("user") //It can be ":user" or "user"
                                 def domain = request.splat()[0]
                                 return user + "@" + domain
-                        } as Service.ActionRequest
+                        } as Action
                 )
         ]
     }
