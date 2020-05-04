@@ -1,14 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="8" />
+    <option name="CUSTOM_SCOPE_NAME" value="src" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.10 : VideoGrab and implementations now accept source as argument and no longer depends on configuration file. Added interface to be called on finish. Tasks: status is not printed by default.">
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__ognl_ognl_2_6_9.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__ognl_ognl_2_6_9.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_unitils_unitils_core_3_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_unitils_unitils_core_3_3.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1205155756/intellisrc-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935836271/web_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-1935844902/net_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-616636255/db_test.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/-635874709/crypt_test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties.example" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/publications/mavenJava/pom-default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build/tmp/jar/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/publications/mavenJava/pom-default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build/tmp/jar/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/publications/mavenJava/pom-default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build/tmp/jar/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/publications/mavenJava/pom-default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build/tmp/jar/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build/publications/mavenJava/pom-default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build/tmp/jar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build/tmp/jar/MANIFEST.MF" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,12 +86,32 @@
         <task path="$PROJECT_DIR$/modules/web">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/modules/core">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="upload" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -73,6 +123,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="NamedScopeManager">
+    <scope name="src" pattern="src[group:core]:*..*||src[group:crypt]:*..*||src[group:cv]:*..*||src[group:db]:*..*||src[group:etc]:*..*||src[group:img]:*..*||src[group:net]:*..*||src[group:serial]:*..*||src[group:term]:*..*||src[group:thread]:*..*||src[group:web]:*..*||test[group:core]:*..*||test[group:crypt]:*..*||test[group:cv]:*..*||test[group:db]:*..*||test[group:etc]:*..*||test[group:img]:*..*||test[group:net]:*..*||test[group:serial]:*..*||test[group:term]:*..*||test[group:thread]:*..*||test[group:web]:*..*" />
+  </component>
   <component name="ProjectId" id="1Trek1L3wyXXTm5pas3sYRigcuK" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="false" id="Update" />
@@ -80,9 +133,11 @@
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
@@ -109,120 +164,9 @@
       <recent name="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
+  <component name="RunManager" selected="Gradle.common [clean]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Application" factoryName="Application">
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Tests in 'cv_test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests *" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":cv:cleanTest" />
-            <option value=":cv:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="Tests in 'img_test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests *" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":img:cleanTest" />
-            <option value=":img:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="WebServiceTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.intellisrc.web.WebServiceTest&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":web:cleanTest" />
-            <option value=":web:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="common [artifactoryPublish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="artifactoryPublish" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="publishToMavenLocal" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="JUnit" factoryName="JUnit">
-      <option name="TEST_OBJECT" value="class" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -249,20 +193,128 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="common [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [publishMaven]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="publishMaven" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [signJars]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="signJars" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [uploadArchives]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="uploadArchives" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common:modules:core [uploadArchives]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/modules/core" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="uploadArchives" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
-      <item itemvalue="Gradle.Tests in 'cv_test'" />
-      <item itemvalue="Gradle.Tests in 'img_test'" />
-      <item itemvalue="Gradle.common [artifactoryPublish]" />
-      <item itemvalue="Gradle.common [publishToMavenLocal]" />
-      <item itemvalue="Gradle.WebServiceTest" />
+      <item itemvalue="Gradle.common [clean]" />
+      <item itemvalue="Gradle.common [signJars]" />
+      <item itemvalue="Gradle.common [uploadArchives]" />
+      <item itemvalue="Gradle.common [publishMaven]" />
+      <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.common [artifactoryPublish]" />
-        <item itemvalue="Gradle.common [publishToMavenLocal]" />
-        <item itemvalue="Gradle.WebServiceTest" />
-        <item itemvalue="Gradle.Tests in 'cv_test'" />
-        <item itemvalue="Gradle.Tests in 'img_test'" />
+        <item itemvalue="Gradle.common [clean]" />
+        <item itemvalue="Gradle.common [uploadArchives]" />
+        <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
+        <item itemvalue="Gradle.common [signJars]" />
+        <item itemvalue="Gradle.common [publishMaven]" />
       </list>
     </recent_temporary>
   </component>
@@ -634,7 +686,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
@@ -653,7 +707,6 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="2.5.5 : Updated to Groovy 2.5.5 (groovy-extends 1.8). Fixed broken unit tests" />
@@ -684,56 +737,69 @@
     <option name="LAST_COMMIT_MESSAGE" value="2.7.10 : VideoGrab and implementations now accept source as argument and no longer depends on configuration file. Added interface to be called on finish. Tasks: status is not printed by default." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser" timestamp="1579319382277">
+    <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1587870876330">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser/0.29.1366.739@0.29.1366.739" timestamp="1579319382277" />
-    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1587022559155">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.29.1366.739@0.29.1366.739" timestamp="1587870876330" />
+    <state x="327" y="67" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1588571254623">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="327" y="67" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1579328453109" />
+    <state x="327" y="67" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1588571254623" />
     <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022559155" />
-    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog" timestamp="1587023688197">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog" timestamp="1588563853939">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
+    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog/0.29.1366.739@0.29.1366.739" timestamp="1588563853939" />
     <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023688197" />
-    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl" timestamp="1587023613805">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="-1" y="29" width="1368" height="744" key="FileChooserDialogImpl" timestamp="1587870320196">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
+    <state x="-1" y="29" width="1368" height="744" key="FileChooserDialogImpl/0.29.1366.739@0.29.1366.739" timestamp="1587870320196" />
     <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023613805" />
-    <state x="777" y="522" key="GitRewordDialog" timestamp="1579512521920">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="264" key="GridCell.Tab.0.bottom" timestamp="1588571257856">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="777" y="522" key="GitRewordDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512521920" />
-    <state width="1876" height="228" key="GridCell.Tab.0.bottom" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="264" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588571257856" />
+    <state width="1320" height="264" key="GridCell.Tab.0.center" timestamp="1588571257855">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
-    <state width="1876" height="228" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state width="1876" height="228" key="GridCell.Tab.0.center" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="264" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1588571257855" />
+    <state width="1320" height="264" key="GridCell.Tab.0.left" timestamp="1588571257855">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
-    <state width="1876" height="228" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state width="1876" height="228" key="GridCell.Tab.0.left" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="264" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1588571257855" />
+    <state width="1320" height="264" key="GridCell.Tab.0.right" timestamp="1588571257856">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
-    <state width="1876" height="228" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state width="1876" height="228" key="GridCell.Tab.0.right" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="264" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1588571257856" />
+    <state width="1320" height="210" key="GridCell.Tab.1.bottom" timestamp="1588560237104">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
-    <state width="1876" height="228" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
+    <state width="1320" height="210" key="GridCell.Tab.1.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588560237104" />
+    <state width="1320" height="210" key="GridCell.Tab.1.center" timestamp="1588560237103">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state width="1320" height="210" key="GridCell.Tab.1.center/0.29.1366.739@0.29.1366.739" timestamp="1588560237103" />
+    <state width="1320" height="210" key="GridCell.Tab.1.left" timestamp="1588560237103">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state width="1320" height="210" key="GridCell.Tab.1.left/0.29.1366.739@0.29.1366.739" timestamp="1588560237103" />
+    <state width="1320" height="210" key="GridCell.Tab.1.right" timestamp="1588560237104">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state width="1320" height="210" key="GridCell.Tab.1.right/0.29.1366.739@0.29.1366.739" timestamp="1588560237104" />
     <state x="555" y="354" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1587022560879">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
-    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1579328468533" />
     <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022560879" />
     <state x="631" y="353" width="658" height="538" key="find.popup" timestamp="1581669576819">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="631" y="353" width="658" height="538" key="find.popup/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1581669576819" />
+    <state x="274" y="63" width="802" height="678" key="scopes" timestamp="1587870875322">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state x="274" y="63" width="802" height="678" key="scopes/0.29.1366.739@0.29.1366.739" timestamp="1587870875322" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -747,94 +813,5 @@
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
-  </component>
-  <component name="masterDetails">
-    <states>
-      <state key="ArtifactsStructureConfigurable.UI">
-        <settings>
-          <artifact-editor />
-          <last-edited>common:jar</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2472752" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="FacetStructureConfigurable.UI">
-        <settings>
-          <last-edited>No facets are configured</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="GlobalLibrariesConfigurable.UI">
-        <settings>
-          <last-edited>groovy-2.5.6</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2472752" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="JdkListConfigurable.UI">
-        <settings>
-          <last-edited>11</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.3549133" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ModuleStructureConfigurable.UI">
-        <settings>
-          <last-edited>serial_test|serial|common</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.3549133" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectJDKs.UI">
-        <settings>
-          <last-edited>1.8</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectLibrariesConfigurable.UI">
-        <settings>
-          <last-edited>Gradle: com.beust:jcommander:1.72</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.4429066" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-    </states>
   </component>
 </project>
