@@ -5,18 +5,9 @@
     <option name="CUSTOM_SCOPE_NAME" value="src" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.11 : Added &quot;Usage&quot; to documentation">
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.12 : Simplified WebService related usage.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/TCPServer.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/TCPServer.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Serviciable.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Serviciable.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/UploadService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/UploadService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,6 +69,12 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -290,13 +287,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00092" summary="2.4.5 BerkeleyDB.destroy added">
-      <created>1530684767732</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1530684767732</updated>
     </task>
     <task id="LOCAL-00093" summary="2.4.5 Added test for BerkeleyDB">
       <created>1530688999878</created>
@@ -634,7 +624,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588646281542</updated>
     </task>
-    <option name="localTasksCounter" value="141" />
+    <task id="LOCAL-00141" summary="2.7.12 : Simplified WebService related usage.">
+      <created>1588648507477</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1588648507477</updated>
+    </task>
+    <option name="localTasksCounter" value="142" />
     <servers />
   </component>
   <component name="TodoView">
@@ -673,7 +670,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0" />
     <MESSAGE value="2.6: Gradle 5.4 updated." />
     <MESSAGE value="2.6.0: Fixed Log not printing" />
     <MESSAGE value="2.6.1: Updated to groovy-extends 2.0.256" />
@@ -698,44 +694,45 @@
     <MESSAGE value="2.7.10 : VideoGrab and implementations now accept source as argument and no longer depends on configuration file. Added interface to be called on finish. Tasks: status is not printed by default." />
     <MESSAGE value="2.7.11 : Repository changed to sonatype" />
     <MESSAGE value="2.7.11 : Added &quot;Usage&quot; to documentation" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.11 : Added &quot;Usage&quot; to documentation" />
+    <MESSAGE value="2.7.12 : Simplified WebService related usage." />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.12 : Simplified WebService related usage." />
   </component>
   <component name="WindowStateProjectService">
     <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1587870876330">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.29.1366.739@0.29.1366.739" timestamp="1587870876330" />
-    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2" timestamp="1588646281155">
+    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2" timestamp="1588648507256">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1588646281155" />
+    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1588648507256" />
     <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022559155" />
     <state x="69" y="111" width="1228" height="598" key="DiffContextDialog" timestamp="1588648123427">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state x="69" y="111" width="1228" height="598" key="DiffContextDialog/0.29.1366.739@0.29.1366.739" timestamp="1588648123427" />
     <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023688197" />
-    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl" timestamp="1588648023362">
+    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl" timestamp="1588648560132">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl/0.29.1366.739@0.29.1366.739" timestamp="1588648023362" />
+    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl/0.29.1366.739@0.29.1366.739" timestamp="1588648560132" />
     <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023613805" />
-    <state width="1320" height="210" key="GridCell.Tab.0.bottom" timestamp="1588571315449">
+    <state width="1320" height="82" key="GridCell.Tab.0.bottom" timestamp="1588648732399">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1320" height="210" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588571315449" />
-    <state width="1320" height="210" key="GridCell.Tab.0.center" timestamp="1588571315449">
+    <state width="1320" height="82" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588648732399" />
+    <state width="1320" height="82" key="GridCell.Tab.0.center" timestamp="1588648732398">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1320" height="210" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1588571315449" />
-    <state width="1320" height="210" key="GridCell.Tab.0.left" timestamp="1588571315448">
+    <state width="1320" height="82" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1588648732398" />
+    <state width="1320" height="82" key="GridCell.Tab.0.left" timestamp="1588648732398">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1320" height="210" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1588571315448" />
-    <state width="1320" height="210" key="GridCell.Tab.0.right" timestamp="1588571315449">
+    <state width="1320" height="82" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1588648732398" />
+    <state width="1320" height="82" key="GridCell.Tab.0.right" timestamp="1588648732399">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1320" height="210" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1588571315449" />
+    <state width="1320" height="82" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1588648732399" />
     <state width="1320" height="210" key="GridCell.Tab.1.bottom" timestamp="1588571315450">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
@@ -752,10 +749,10 @@
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state width="1320" height="210" key="GridCell.Tab.1.right/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
-    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1588646283355">
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1588648509740">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1588646283355" />
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1588648509740" />
     <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022560879" />
     <state x="631" y="353" width="658" height="538" key="find.popup" timestamp="1581669576819">
       <screen x="0" y="0" width="1920" height="1200" />
