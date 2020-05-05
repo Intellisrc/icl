@@ -2,9 +2,10 @@ plugins {
     id 'idea'
     id 'groovy'
     id 'maven'
+    id 'maven-publish'
 }
 
-def currentVersion = "2.7.11"
+def currentVersion = "2.7.12"
 
 allprojects {
     group = groupName
@@ -20,6 +21,7 @@ subprojects {
     apply plugin: 'idea'
     apply plugin: 'maven'
     apply plugin: 'signing'
+    apply plugin: 'maven-publish'
 
     configurations {
         clientArchives

@@ -16,6 +16,14 @@ class Service {
         Object run(Request request, Response response)
     }
     /**
+     * Method to run on Upload, as parameter
+     * is the temporally file uploaded
+     * Its almost the same as Action but it includes the uploaded file
+     */
+    static interface Upload extends Action {
+        Object run(File tmpFile, Request request, Response response)
+    }
+    /**
      * Check if client is allowed or not
      */
     static interface Allow {
@@ -26,14 +34,6 @@ class Service {
      */
     static interface ETag {
         String calc(Object out)
-    }
-    /**
-     * Method to run on Upload, as parameter
-     * is the temporally file uploaded
-     * Its almost the same as Action but it includes the uploaded file
-     */
-    static interface Upload {
-        Object run(File tmpFile, Request request, Response response)
     }
     static enum Method {
         GET, POST, PUT, DELETE, OPTIONS
@@ -47,11 +47,10 @@ class Service {
     String path                 = ""                    // URL path relative to parent
     String download             = ""                    // Specify if instead of display, show download dialog with the name of the file.
     Method method               = Method.GET            // HTTP Method to be used
-    Action action               = { } as Action         // Closure that will return an Object (usually Map) to be converted to JSON as response
+    Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
-    String allowOrigin          = ""                    // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
-    String uploadField          = "upload"              // Name of the HTML input[type=file]
-    Upload upload               = null                  // When uploading files to server, use this parameter
+    String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
+    String uploadField          = ""                    // Name of the HTML input[type=file]
     Map<String,String> headers  = [:]                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
 }

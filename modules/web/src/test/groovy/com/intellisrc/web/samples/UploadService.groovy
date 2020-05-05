@@ -2,6 +2,7 @@ package com.intellisrc.web.samples
 
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableSingle
+import spark.Request
 
 /**
  * @since 11/30/17.
@@ -14,10 +15,10 @@ class UploadService implements ServiciableSingle {
             path: "/upload",
             contentType: "image/gif",
             uploadField: fieldName,
-            upload: {
+            action: {
                 File tmpFile ->
                     return tmpFile
-            } as Service.Upload
+            }
         )
     }
 }

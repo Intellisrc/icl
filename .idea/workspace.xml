@@ -5,10 +5,18 @@
     <option name="CUSTOM_SCOPE_NAME" value="src" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.11 : Repository changed to sonatype">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.11 : Added &quot;Usage&quot; to documentation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/TCPServer.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/TCPServer.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Serviciable.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Serviciable.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/WebServiceTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/UploadService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/UploadService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,18 +79,6 @@
                 <item name="common" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="upload" type="c8890929:TasksNode$1" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -110,12 +106,12 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/Service.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../lepe/Projects/groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/WebServiceTest.groovy" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/Service.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../../../lepe/Projects/groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/WebServiceTest.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -133,7 +129,7 @@
       <recent name="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [clean]">
+  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
@@ -187,7 +183,7 @@
       <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="common [publishMaven]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -198,7 +194,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="publishMaven" />
+            <option value="publishToMavenLocal" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -274,16 +270,16 @@
       <item itemvalue="Gradle.common [clean]" />
       <item itemvalue="Gradle.common [signJars]" />
       <item itemvalue="Gradle.common [uploadArchives]" />
-      <item itemvalue="Gradle.common [publishMaven]" />
       <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
+      <item itemvalue="Gradle.common [publishToMavenLocal]" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.common [publishToMavenLocal]" />
         <item itemvalue="Gradle.common [clean]" />
         <item itemvalue="Gradle.common [uploadArchives]" />
         <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
         <item itemvalue="Gradle.common [signJars]" />
-        <item itemvalue="Gradle.common [publishMaven]" />
       </list>
     </recent_temporary>
   </component>
@@ -294,13 +290,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00091" summary="2.4.5 Added PGP armor test">
-      <created>1530673438328</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1530673438328</updated>
     </task>
     <task id="LOCAL-00092" summary="2.4.5 BerkeleyDB.destroy added">
       <created>1530684767732</created>
@@ -638,7 +627,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588571295829</updated>
     </task>
-    <option name="localTasksCounter" value="140" />
+    <task id="LOCAL-00140" summary="2.7.11 : Added &quot;Usage&quot; to documentation">
+      <created>1588646281541</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1588646281542</updated>
+    </task>
+    <option name="localTasksCounter" value="141" />
     <servers />
   </component>
   <component name="TodoView">
@@ -677,7 +673,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.5.6 : Fixed timeout in Console and exit() in SysMain" />
     <MESSAGE value="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0" />
     <MESSAGE value="2.6: Gradle 5.4 updated." />
     <MESSAGE value="2.6.0: Fixed Log not printing" />
@@ -702,27 +697,28 @@
     <MESSAGE value="2.7.9 : VideoGrab became abstract and its now extended depending on expected format. MjpegFrame fixed to work in Webkit browsers. Updated groovy-extends." />
     <MESSAGE value="2.7.10 : VideoGrab and implementations now accept source as argument and no longer depends on configuration file. Added interface to be called on finish. Tasks: status is not printed by default." />
     <MESSAGE value="2.7.11 : Repository changed to sonatype" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.11 : Repository changed to sonatype" />
+    <MESSAGE value="2.7.11 : Added &quot;Usage&quot; to documentation" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.11 : Added &quot;Usage&quot; to documentation" />
   </component>
   <component name="WindowStateProjectService">
     <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1587870876330">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.29.1366.739@0.29.1366.739" timestamp="1587870876330" />
-    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2" timestamp="1588571293993">
+    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2" timestamp="1588646281155">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1588571293993" />
+    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1588646281155" />
     <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022559155" />
-    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog" timestamp="1588563853939">
+    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog" timestamp="1588648123427">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog/0.29.1366.739@0.29.1366.739" timestamp="1588563853939" />
+    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog/0.29.1366.739@0.29.1366.739" timestamp="1588648123427" />
     <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023688197" />
-    <state x="-1" y="29" width="1368" height="744" key="FileChooserDialogImpl" timestamp="1587870320196">
+    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl" timestamp="1588648023362">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="-1" y="29" width="1368" height="744" key="FileChooserDialogImpl/0.29.1366.739@0.29.1366.739" timestamp="1587870320196" />
+    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl/0.29.1366.739@0.29.1366.739" timestamp="1588648023362" />
     <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023613805" />
     <state width="1320" height="210" key="GridCell.Tab.0.bottom" timestamp="1588571315449">
       <screen x="0" y="29" width="1366" height="739" />
@@ -756,10 +752,10 @@
       <screen x="0" y="29" width="1366" height="739" />
     </state>
     <state width="1320" height="210" key="GridCell.Tab.1.right/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
-    <state x="395" y="247" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1588571298427">
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1588646283355">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="395" y="247" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1588571298427" />
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1588646283355" />
     <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022560879" />
     <state x="631" y="353" width="658" height="538" key="find.popup" timestamp="1581669576819">
       <screen x="0" y="0" width="1920" height="1200" />
