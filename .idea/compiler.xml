@@ -44,12 +44,14 @@
       <module name="common-modules-cv_test" target="11" />
       <module name="common-modules-etc_main" target="11" />
       <module name="common-modules-etc_test" target="11" />
+      <module name="common-modules-img" target="11" />
       <module name="common-modules-img_main" target="11" />
       <module name="common-modules-img_test" target="11" />
       <module name="common-modules-serial_main" target="11" />
       <module name="common-modules-serial_test" target="11" />
       <module name="common-modules-term_main" target="11" />
       <module name="common-modules-term_test" target="11" />
+      <module name="common-modules-thread" target="11" />
       <module name="common-modules-thread_main" target="11" />
       <module name="common-modules-thread_test" target="11" />
       <module name="common_main" target="11" />
@@ -71,14 +73,19 @@
       <module name="img_main" target="11" />
       <module name="img_test" target="11" />
       <module name="intellisrc-common" target="11" />
+      <module name="intellisrc-common-modules-core" target="11" />
       <module name="intellisrc-common-modules-core_main" target="11" />
       <module name="intellisrc-common-modules-core_test" target="11" />
+      <module name="intellisrc-common-modules-cv" target="11" />
       <module name="intellisrc-common-modules-cv_main" target="11" />
       <module name="intellisrc-common-modules-cv_test" target="11" />
+      <module name="intellisrc-common-modules-etc" target="11" />
       <module name="intellisrc-common-modules-etc_main" target="11" />
       <module name="intellisrc-common-modules-etc_test" target="11" />
+      <module name="intellisrc-common-modules-serial" target="11" />
       <module name="intellisrc-common-modules-serial_main" target="11" />
       <module name="intellisrc-common-modules-serial_test" target="11" />
+      <module name="intellisrc-common-modules-term" target="11" />
       <module name="intellisrc-common-modules-term_main" target="11" />
       <module name="intellisrc-common-modules-term_test" target="11" />
       <module name="intellisrc-common_main" target="11" />

@@ -1,4 +1,37 @@
-This project is a series of modules which makes system developement a lot more easier and faster.
+This project is a series of modules which makes system development a lot easier and faster.
+
+# Usage
+How to use it in your project:
+
+Maven:
+```xml
+<dependency>
+  <groupId>com.intellisrc</groupId>
+  <artifactId>MODULE</artifactId>
+  <version>VERSION</version>
+</dependency>
+```
+Gradle:
+```groovy
+dependecies {
+    implementation 'com.intellisrc:MODULE:VERSION'
+    // or extended annotation:
+    compile group: 'com.intellisrc', name: 'MODULE', version: 'VERSION'
+}
+```
+
+In which `VERSION` is for example: `2.7.11`, and MODULE any of these: 
+* `core`
+* `crypt`
+* `cv`
+* `db`
+* `etc`
+* `img`
+* `net`
+* `serial`
+* `term`
+* `thread` 
+* `web`
 
 # Modules 
 
