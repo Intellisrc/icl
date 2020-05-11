@@ -33,6 +33,10 @@ In which `VERSION` is for example: `2.7.11`, and MODULE any of these:
 * `thread` 
 * `web`
 
+# Example Codes
+
+You can find some examples for each module here: https://gitlab.com/intellisrc/common_examples/
+
 # Modules 
 
 Note: classes marked with `@`, are unlikely to be used directly. 
