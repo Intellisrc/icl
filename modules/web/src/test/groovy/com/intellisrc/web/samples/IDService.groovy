@@ -12,20 +12,25 @@ import spark.Response
  * @since 17/04/19.
  */
 class IDService implements ServiciableSingle {
+
+    String getPath() {
+        return "/id"
+    }
     Service getService() {
         return new Service(
+            path: "/:id/",
             cacheTime: 10,
             cacheExtend: true,
             action: {
                 Request request, Response response ->
                     int id = 0
                     //Example use of Response
-                    if(request.queryParams().isEmpty()) {
+                    if(request.params().isEmpty()) {
                         Log.e("No parameters found")
                         response.status(404)
                         response.redirect("/")
                     } else {
-                        id = request.queryParams("i") as Integer
+                        id = request.params("id") as Integer
                         Log.v("ID requested: %d", id)
                     }
                 return [
@@ -34,10 +39,6 @@ class IDService implements ServiciableSingle {
                 ]
             } as Service.Action
         )
-    }
-
-    String getPath() {
-        return "/id"
     }
 }
 

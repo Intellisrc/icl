@@ -3,6 +3,7 @@ package com.intellisrc.web
 import com.intellisrc.etc.CacheObj
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
+import groovy.transform.CompileStatic
 
 import static com.intellisrc.web.Service.Method.*
 
@@ -16,7 +17,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * This class offers an easy way to run web services
  * It uses mainly 2 types of Services:
@@ -37,16 +38,16 @@ class WebService {
     private final Srv srv
     private List<Serviciable> listServices = []
     private List<String> listPaths = [] //mainly used to prevent collisions
-    private boolean embedded = false //Turn to true if resources are inside jar
     private boolean running = false
+    private String resources = ""
     // Options:
-    public String resources = ""
     public int cacheTime = 0
     public int port = 80
     public int threads = 20
     public int eTagMaxKB = 1024
-    public StartCallback onStart = null
-    
+    public boolean embedded = false //Turn to true if resources are inside jar
+    public String allowOrigin = "" //apply by default to all
+
     static interface StartCallback {
         void call(Srv srv)
     }
@@ -56,111 +57,128 @@ class WebService {
     WebService() {
         srv = Srv.ignite()
     }
-
+    /**
+     * start and specify callback "onStart"
+     * @param onStart
+     * @return
+     */
+    WebService start(StartCallback onStart) {
+        start(false, onStart)
+    }
     /**
      * start web service
+     * this method is chainable
      */
-    void start(boolean background = false) {
-        srv.staticFiles.expireTime(cacheTime)
-        if(!resources.isEmpty()) {
-            if (embedded) {
-                srv.staticFiles.location(resources)
-            } else {
-                File resFile = SysInfo.getFile(resources)
-                srv.staticFiles.externalLocation(resFile.absolutePath)
-            }
-        }
-        if(NetworkInterface.isPortAvailable(port)) {
-            srv.port(port).threadPool(threads) //Initialize it right away
-            Log.i("Starting server in port $port with pool size of $threads")
-            listServices.each {
-                Serviciable serviciable ->
-                    switch (serviciable) {
-                        case ServiciableMultiple:
-                            ServiciableMultiple serviciables = serviciable as ServiciableMultiple
-                            serviciables.services.each {
-                                Service sp ->
-                                    if (serviciable instanceof ServiciableWebSocket) {
-                                        addWebSocketService(serviciable, (serviciables.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/'))
-                                    } else if (serviciable instanceof ServiciableHTTPS) {
-                                        addSSLService(serviciable)
-                                        addServicePath(sp, serviciables.path)
-                                    } else {
-                                        addServicePath(sp, serviciables.path)
-                                    }
-                            }
-                            break
-                        case ServiciableSingle:
-                            ServiciableSingle single = serviciable as ServiciableSingle
-                            if (serviciable instanceof ServiciableWebSocket) {
-                                addWebSocketService(single, single.path)
-                            } else if (serviciable instanceof ServiciableHTTPS) {
-                                addSSLService(serviciable)
-                                addServicePath(single.service, single.path)
-                            } else {
-                                addServicePath(single.service, single.path)
-                            }
-                            break
-                        case ServiciableWebSocket:
-                            addWebSocketService(serviciable, serviciable.path)
-                            break
-                        case ServiciableAuth:
-                            //do nothing, skip
-                            //TODO: do it for Multiple
-                            /*ServiciableSingle single = serviciable as ServiciableSingle
-                        srv.before("somePath", new SecurityFilter(single.service.config.build(), "Login"))*/
-                            break
-                        default:
-                            Log.e("Interface not implemented")
-                    }
-                    switch (serviciable) {
-                        case ServiciableAuth:
-                            ServiciableAuth auth = serviciable as ServiciableAuth
-                            srv.post(auth.path + auth.loginPath, {
-                                Request request, Response response ->
-                                    def ok = false
-                                    def sessionMap = auth.onLogin(request, response)
-                                    def id = 0
-                                    if (!sessionMap.isEmpty()) {
-                                        ok = true
-                                        request.session(true)
-                                        sessionMap.each {
-                                            request.session().attribute(it.key, it.value)
-                                        }
-                                        id = request.session().id()
-                                    }
-                                    response.type("application/json")
-                                    return JSON.encode(
-                                            y: ok,
-                                            id: id
-                                    )
-                            })
-                            srv.get(auth.path + auth.logoutPath, {
-                                Request request, Response response ->
-                                    response.type("application/json")
-                                    request.session().invalidate()
-                                    return JSON.encode(
-                                            y: auth.onLogout(request, response)
-                                    )
-                            })
-                            break
-                    }
-            }
-            srv.init()
-            running = true
-            if(onStart) {
-                onStart.call(srv)
-            }
-            if (!background) {
-                while (running) {
-                    sleep 1000L
+    WebService start(boolean background = false, StartCallback onStart = null) {
+        try {
+            srv.staticFiles.expireTime(cacheTime)
+            if (!resources.isEmpty()) {
+                if (embedded) {
+                    srv.staticFiles.location(resources)
+                } else {
+                    File resFile = SysInfo.getFile(resources)
+                    srv.staticFiles.externalLocation(resFile.absolutePath)
                 }
             }
-            //Wait until the server is Up
-            sleep 1000L
-        } else {
-            Log.w("Port %d is already in use", port)
+            if (NetworkInterface.isPortAvailable(port)) {
+                srv.port(port).threadPool(threads) //Initialize it right away
+                Log.i("Starting server in port $port with pool size of $threads")
+                listServices.each {
+                    final Serviciable serviciable ->
+                        switch (serviciable) {
+                            case ServiciableMultiple:
+                                ServiciableMultiple serviciables = serviciable as ServiciableMultiple
+                                serviciables.services.each {
+                                    Service sp ->
+                                        // If Serviciable specifies allowOrigin and the Service doesn't, set it.
+                                        if(serviciable.allowOrigin != null && sp.allowOrigin == null) {
+                                            sp.allowOrigin = serviciable.allowOrigin
+                                        }
+                                        if (serviciable instanceof ServiciableWebSocket) {
+                                            addWebSocketService(serviciable, (serviciables.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/'))
+                                        } else if (serviciable instanceof ServiciableHTTPS) {
+                                            addSSLService(serviciable)
+                                            addServicePath(sp, serviciables.path)
+                                        } else {
+                                            addServicePath(sp, serviciables.path)
+                                        }
+                                }
+                                break
+                            case ServiciableSingle:
+                                ServiciableSingle single = serviciable as ServiciableSingle
+                                if (serviciable instanceof ServiciableWebSocket) {
+                                    addWebSocketService(single, single.path)
+                                } else if (serviciable instanceof ServiciableHTTPS) {
+                                    addSSLService(serviciable)
+                                    addServicePath(single.service, single.path)
+                                } else {
+                                    addServicePath(single.service, single.path)
+                                }
+                                break
+                            case ServiciableWebSocket:
+                                addWebSocketService(serviciable, serviciable.path)
+                                break
+                            case ServiciableAuth:
+                                //do nothing, skip
+                                //TODO: do it for Multiple
+                                /*ServiciableSingle single = serviciable as ServiciableSingle
+                        srv.before("somePath", new SecurityFilter(single.service.config.build(), "Login"))*/
+                                break
+                            default:
+                                Log.e("Interface not implemented")
+                        }
+                        switch (serviciable) {
+                            case ServiciableAuth:
+                                ServiciableAuth auth = serviciable as ServiciableAuth
+                                srv.post(auth.path + auth.loginPath, {
+                                    Request request, Response response ->
+                                        def ok = false
+                                        def sessionMap = auth.onLogin(request, response)
+                                        def id = 0
+                                        if (!sessionMap.isEmpty()) {
+                                            ok = true
+                                            request.session(true)
+                                            sessionMap.each {
+                                                request.session().attribute(it.key, it.value)
+                                            }
+                                            id = request.session().id()
+                                        }
+                                        response.type("application/json")
+                                        return JSON.encode(
+                                                y: ok,
+                                                id: id
+                                        )
+                                })
+                                srv.get(auth.path + auth.logoutPath, {
+                                    Request request, Response response ->
+                                        response.type("application/json")
+                                        request.session().invalidate()
+                                        return JSON.encode(
+                                                y: auth.onLogout(request, response)
+                                        )
+                                })
+                                break
+                        }
+                }
+                srv.init()
+                running = true
+                if (onStart) {
+                    onStart.call(srv)
+                }
+                if (!background) {
+                    while (running) {
+                        sleep 1000L
+                    }
+                }
+                //Wait until the server is Up
+                sleep 1000L
+            } else {
+                Log.w("Port %d is already in use", port)
+            }
+        } catch(Throwable e) {
+            Log.e("Unable to start WebService", e)
         }
+        return this
     }
 
     /**
@@ -192,7 +210,7 @@ class WebService {
     private void addServicePath(Service service, String rootPath) {
         def fullPath = rootPath + service.path
         if (listPaths.contains(service.method.toString() + fullPath)) {
-            Log.w( "Warning, duplicated path ["+fullPath+"] and method [" + service.method.toString() + "] found.")
+            Log.w("Warning, duplicated path [" + fullPath + "] and method [" + service.method.toString() + "] found.")
         } else {
             listPaths << service.method.toString() + fullPath
             addAction(fullPath, service)
@@ -203,7 +221,7 @@ class WebService {
      * stop web service
      */
     void stop() {
-        Log.i( "Stopping server running at port: $port")
+        Log.i("Stopping server running at port: $port")
         srv.stop()
         running = false
     }
@@ -219,21 +237,22 @@ class WebService {
     /**
      * Adds some action to the Spark.Service
      * @param fullPath : path of service
-     * @param sp       : Service object
-     * @param srv      : Spark.Service instance
+     * @param sp : Service object
+     * @param srv : Spark.Service instance
      */
     private void addAction(final String fullPath, final Service sp) {
         //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
         //Automatic set POST for uploads
-        if(sp.upload && sp.method == GET) {
+        if (sp.uploadField && sp.method == GET) {
             sp.method = POST
+            Log.w("%s is set to Upload a file, but GET method was used. Setting POST", fullPath)
         }
-        switch(sp.method) {
-            case GET:       srv.get(fullPath, onAction(sp));     break
-            case POST:      srv.post(fullPath, onAction(sp));    break
-            case PUT:       srv.put(fullPath, onAction(sp));     break
-            case DELETE:    srv.delete(fullPath, onAction(sp));  break
-            case OPTIONS:   srv.options(fullPath, onAction(sp)); break
+        switch (sp.method) {
+            case GET: srv.get(fullPath, onAction(sp)); break
+            case POST: srv.post(fullPath, onAction(sp)); break
+            case PUT: srv.put(fullPath, onAction(sp)); break
+            case DELETE: srv.delete(fullPath, onAction(sp)); break
+            case OPTIONS: srv.options(fullPath, onAction(sp)); break
         }
     }
     /**
@@ -250,7 +269,7 @@ class WebService {
      */
     private static Object getOutput(Object output, OutputType otype) {
         Object out
-        switch(otype) {
+        switch (otype) {
             case OutputType.JSON:
                 out = JSON.encode(output)
                 break
@@ -260,20 +279,20 @@ class WebService {
                     case File:
                         content = (output as File).bytes
                         break
-                    case String:
+                //case String:
                     default:
                         content = output.toString().bytes
                         break
                 }
                 out = content
                 break
-            case OutputType.PLAIN:
+        //case OutputType.PLAIN:
             default:
                 switch (output) {
                     case File:
                         out = (output as File).text
                         break
-                    case String:
+                //case String:
                     default:
                         out = output.toString()
                         break
@@ -287,183 +306,278 @@ class WebService {
      * @param sp : Service object
      * @return
      */
-    private static Route onAction(final Service sp) {
+    private Route onAction(final Service sp) {
         return {
             Request request, Response response ->
-                Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
-                Object out = ""     // Output to serve
-                Object res = null   // Response from Service
-                OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : (sp.contentType.contains("text") ? OutputType.PLAIN : OutputType.BINARY)
-                response.type(sp.contentType)
-                sp.headers.each {
-                    String key, String val ->
-                        response.header(key, val)
-                }
-                if(sp.allow.check(request)) {
-                    if (sp.download) {
-                        response.header("Content-Disposition", "attachment; filename=" + sp.download)
-                        if (otype == OutputType.BINARY) {
-                            response.header("Content-Transfer-Encoding", "binary")
-                        }
+                try {
+                    Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
+                    Object out = ""     // Output to serve
+                    Object res = null   // Response from Service
+                    OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : (sp.contentType.contains("text") ? OutputType.PLAIN : OutputType.BINARY)
+                    response.type(sp.contentType)
+                    sp.headers.each {
+                        String key, String val ->
+                            response.header(key, val)
                     }
-                    //TODO: when its upload, its hard to work together with POST requests. Make it simpler
-                    if (sp.upload) {
-                        def tempDir = SysInfo.getTempDir()
-                        def tempFileDir = new File(tempDir)
-                        if (tempFileDir.canWrite()) {
-                            request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
-                            Path path = Files.createTempFile("upload", ".file")
-                            def raw = request.raw()
-                            if (raw.contentLength > 0) {
-                                try {
-                                    def part = raw.getPart(sp.uploadField)
-                                    if (part) {
-                                        InputStream input = part.getInputStream()
-                                        Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
-                                        def file = new File(path.toString())
-                                        try {
-                                            res = (sp.upload as Service.Upload).run(file, request, response)
-                                            out = getOutput(res, otype)
-                                        } catch (Exception e) {
+                    // Apply general allow origin rule:
+                    if (allowOrigin) {
+                        response.header("Access-Control-Allow-Origin", allowOrigin)
+                    }
+                    if (sp.allow.check(request)) {
+                        if (sp.download) {
+                            response.header("Content-Disposition", "attachment; filename=" + sp.download)
+                            if (otype == OutputType.BINARY) {
+                                response.header("Content-Transfer-Encoding", "binary")
+                            }
+                        }
+                        if (sp.uploadField) {
+                            def tempDir = SysInfo.getTempDir()
+                            def tempFileDir = new File(tempDir)
+                            if (tempFileDir.canWrite()) {
+                                request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
+                                Path path = Files.createTempFile("upload", ".file")
+                                def raw = request.raw()
+                                if (raw.contentLength > 0) {
+                                    try {
+                                        def part = raw.getPart(sp.uploadField)
+                                        if (part) {
+                                            InputStream input = part.getInputStream()
+                                            Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
+                                            def file = new File(path.toString())
+                                            try {
+                                                res = callAction(sp.action, request, response, file)
+                                                out = getOutput(res, otype)
+                                            } catch (Exception e) {
+                                                response.status(500)
+                                                Log.e("Service.upload closure failed", e)
+                                            }
+                                            if (file.exists()) {
+                                                file.delete()
+                                            }
+                                            return out
+                                        } else {
                                             response.status(500)
-                                            Log.e("Service.upload closure failed", e)
+                                            Log.e("Upload field name does not matches Service.uploadField value: %s", sp.uploadField)
                                         }
-                                        if (file.exists()) {
-                                            file.delete()
-                                        }
-                                        return out
-                                    } else {
+                                    } catch (Exception e) {
                                         response.status(500)
-                                        Log.e("Upload field name does not matches Service.uploadField value: %s", sp.uploadField)
+                                        Log.e("Unable to upload file.", e)
                                     }
-                                } catch (Exception e) {
-                                    response.status(500)
-                                    Log.e("Unable to upload file.", e)
+                                } else {
+                                    response.status(411)
+                                    Log.e("Uploaded file is empty")
                                 }
                             } else {
-                                response.status(411)
-                                Log.e("Uploaded file is empty")
+                                response.status(503)
+                                Log.e("Temporally directory %s is not writable", tempDir)
                             }
+                        } else if (sp.cacheTime) {
+                            String query = request.queryString()
+                            String key = request.uri() + (query ? "?" + query : "")
+                            out = CacheObj.instance.get(key, {
+                                def toSave = ""
+                                try {
+                                    res = callAction(sp.action, request, response)
+                                    toSave = getOutput(res, otype)
+                                } catch (Exception e) {
+                                    response.status(500)
+                                    Log.e("Service.action CACHE closure failed", e)
+                                }
+                                return toSave
+                            }, sp.cacheTime)
                         } else {
-                            response.status(503)
-                            Log.e("Temporally directory %s is not writable", tempDir)
-                        }
-                    } else if (sp.cacheTime) {
-                        String query = request.queryString()
-                        String key = request.uri() + (query ? "?" + query : "")
-                        out = CacheObj.instance.get(key, {
-                            def toSave = ""
                             try {
-                                res = (sp.action as Service.Action).run(request, response)
-                                toSave = getOutput(res, otype)
+                                res = callAction(sp.action, request, response)
+                                out = getOutput(res, otype)
                             } catch (Exception e) {
                                 response.status(500)
-                                Log.e("Service.action CACHE closure failed", e)
+                                Log.e("Service.action closure failed", e)
                             }
-                            return toSave
-                        }, sp.cacheTime)
-                    } else {
-                        try {
-                            res = (sp.action as Service.Action).run(request, response)
-                            out = getOutput(res, otype)
-                        } catch (Exception e) {
-                            response.status(500)
-                            Log.e("Service.action closure failed", e)
                         }
-                    }
-                    if(sp.allowOrigin) {
-                        response.header("Access-Control-Allow-Origin", sp.allowOrigin)
-                    }
-                    if (sp.noStore) { //Never store in client
-                        response.header("Cache-Control", "no-store")
-                    } else if (!sp.cacheTime &&! sp.maxAge) { //Revalidate each time
-                        response.header("Cache-Control", "no-cache")
-                    } else {
-                        String priv = (sp.isPrivate) ? "private," : "" //User-specific data
-                        response.header("Cache-Control", priv + "max-age=" + sp.maxAge)
-                    }
-                    if (sp.etag != null) {
-                        String etag = sp.etag.calc(out)
-                        if(etag) {
-                            response.header("ETag", sp.etag.calc(out))
+                        if (sp.allowOrigin) {
+                            response.header("Access-Control-Allow-Origin", sp.allowOrigin)
+                        }
+                        if (sp.noStore) { //Never store in client
+                            response.header("Cache-Control", "no-store")
+                        } else if (!sp.cacheTime && !sp.maxAge) { //Revalidate each time
+                            response.header("Cache-Control", "no-cache")
                         } else {
-                            try {
-                                if(res instanceof File) {
-                                    etag = ((File) res).lastModified().toString()
-                                } else if (otype == OutputType.BINARY) {
-                                    if((out as byte[]).length > 1024 * eTagMaxKB) {
-                                        Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
+                            String priv = (sp.isPrivate) ? "private," : "" //User-specific data
+                            response.header("Cache-Control", priv + "max-age=" + sp.maxAge)
+                        }
+                        if (sp.etag != null) {
+                            String etag = sp.etag.calc(out)
+                            if (etag) {
+                                response.header("ETag", sp.etag.calc(out))
+                            } else {
+                                try {
+                                    if (res instanceof File) {
+                                        etag = ((File) res).lastModified().toString()
+                                    } else if (otype == OutputType.BINARY) {
+                                        if ((out as byte[]).length > 1024 * eTagMaxKB) {
+                                            Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
+                                        } else {
+                                            etag = (out as byte[]).encodeHex().toString().md5()
+                                        }
                                     } else {
-                                        etag = (out as byte[]).encodeHex().toString().md5()
+                                        etag = out.toString().md5()
                                     }
-                                } else {
-                                    etag = out.toString().md5()
+                                    if (etag) {
+                                        response.header("ETag", etag)
+                                    } else {
+                                        Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
+                                    }
+                                } catch (Exception e) {
+                                    //Can't be converted to String
+                                    Log.v("Unable to set etag for: %s, failed : %s", request.uri(), e.message)
                                 }
-                                if(etag) {
-                                    response.header("ETag", etag)
-                                } else {
-                                    Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
-                                }
-                            } catch (Exception e) {
-                                //Can't be converted to String
-                                Log.v("Unable to set etag for: %s, failed : %s", request.uri(), e.message)
                             }
                         }
-                    }
-                    // Set content-length and Gzip headers
-                    if (otype == OutputType.BINARY) {
-                        if (res instanceof File) {
-                            response.header("Content-Length", sprintf("%d", (res as File).size()))
-                        } else {
-                            response.header("Content-Length", sprintf("%d", (out as byte[]).length))
-                        }
-                    } else {
-                        if(request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
-                            response.header("Content-Encoding", "gzip")
-                            //TODO: https://stackoverflow.com/questions/56404858/
-                        } else {
+                        // Set content-length and Gzip headers
+                        if (otype == OutputType.BINARY) {
                             if (res instanceof File) {
                                 response.header("Content-Length", sprintf("%d", (res as File).size()))
                             } else {
-                                response.header("Content-Length", sprintf("%d", out.toString().length()))
+                                response.header("Content-Length", sprintf("%d", (out as byte[]).length))
+                            }
+                        } else {
+                            if (request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
+                                response.header("Content-Encoding", "gzip")
+                                //TODO: https://stackoverflow.com/questions/56404858/
+                            } else {
+                                if (res instanceof File) {
+                                    response.header("Content-Length", sprintf("%d", (res as File).size()))
+                                } else {
+                                    response.header("Content-Length", sprintf("%d", out.toString().length()))
+                                }
                             }
                         }
+                    } else {
+                        response.status(403)
+                        out = otype == OutputType.JSON ? JSON.encode(y: false) : ""
                     }
-                } else {
-                    response.status(403)
-                    out = otype == OutputType.JSON ? JSON.encode(y : false) : ""
+                    return out
+                } catch(Throwable e) {
+                    Log.e("Unexpected Exception", e)
                 }
-                return out
         } as Route
     }
 
+    /**
+     * This method handles the action
+     * It will work with either a Closure or a Service.Action interface
+     * In the case of a Closure, it will try different possibilities for the parameters
+     * so it is more flexible and allow only those required.
+     * Although we could allow to set Response before Request, its logically better to
+     * only allow Response after Request (File can be set before or after them).
+     * @param action
+     * @param request
+     * @param response
+     * @return
+     */
+    private static Object callAction(final Object action, final Request request, final Response response, final File upload = null) {
+        Object returned = null
+        if (action instanceof Service.Action) {
+            returned = action.run(request, response)
+        } else if (action instanceof Service.Upload) {
+            returned = action.run(upload, request, response)
+        } else if (action instanceof Closure) {
+            if (upload) {
+                switch (true) {
+                    case tryCall(action, { returned = it }, upload, request, response): break
+                    case tryCall(action, { returned = it }, request, response, upload): break
+                    case tryCall(action, { returned = it }, upload, request): break
+                    case tryCall(action, { returned = it }, upload, response): break
+                    case tryCall(action, { returned = it }, request, upload): break
+                    case tryCall(action, { returned = it }, response, upload): break
+                    case tryCall(action, { returned = it }, upload): break
+                    default:
+                        Log.w("Unknown parameters expected in Service.Action as Closure. Request must be before Response and at least File must be specified.")
+                }
+            } else {
+                switch (true) {
+                    case tryCall(action, { returned = it }, request, response): break
+                    case tryCall(action, { returned = it }, request): break
+                    case tryCall(action, { returned = it }, response): break
+                    case tryCall(action, { returned = it }): break
+                    default:
+                        Log.w("Unknown parameters expected in Service.Action as Closure. Request must be before Response")
+                }
+            }
+        }
+        return returned
+    }
+
+    /**
+     * Try to call a closure with different parameters
+     * @param action
+     * @param returnValue
+     * @param params
+     */
+    private static boolean tryCall(Closure action, Closure returnValue, Object... params) {
+        boolean called = false
+        try {
+            switch (params.size()) {
+                case 3:
+                    returnValue(action.call(params[0], params[1], params[2]))
+                    break
+                case 2:
+                    returnValue(action.call(params[0], params[1]))
+                    break
+                case 1:
+                    returnValue(action.call(params[0]))
+                    break
+                case 0:
+                    returnValue(action.call())
+            }
+            called = true
+        } catch (MissingMethodException ignore) {
+        }
+        return called
+    }
+
+    /**
+     * Add a Service to the controller
+     * This method is chainable
+     * @param srv
+     * @return
+     */
+    WebService add(Serviciable srv) {
+        addService(srv)
+        return this
+    }
     /**
      * Adds Services to the controller
      * @param srv : Serviciable implementation
      */
     void addService(Serviciable srv) {
-        if(srv instanceof ServiciableWebSocket || srv instanceof ServiciableHTTPS) {
-            listServices.add(0, srv)
+        if (!running) {
+            if (srv instanceof ServiciableWebSocket || srv instanceof ServiciableHTTPS) {
+                listServices.add(0, srv)
+            } else {
+                listServices << srv
+            }
         } else {
-            listServices << srv
+            Log.w("WebService is already running. You can not add more services")
         }
     }
 
     /**
-     * Add resources by File (recommended method)
+     * Add resources either by File (recommended method) or String
      * @param path
      */
-    void setResources(File path) {
-        setResources(path.absolutePath)
-    }
-    /**
-     * Add Resources
-     * @param path
-     * @param embed: if true, path should point to a directory inside the jar
-     */
-    void setResources(String path, boolean embed = false) {
-        resources = path
-        embedded = embed
+    void setResources(Object path) {
+        if (!running) {
+            if (path instanceof File) {
+                resources = path.absolutePath
+            } else if (path instanceof String) {
+                resources = path
+            } else {
+                Log.w("Value passed to resources is not a File or String: %s", path.toString())
+            }
+        } else {
+            Log.w("WebService is already running. You can not change the resource path")
+        }
     }
 
 }

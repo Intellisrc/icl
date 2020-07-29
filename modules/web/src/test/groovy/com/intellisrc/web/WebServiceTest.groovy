@@ -11,6 +11,7 @@ import com.intellisrc.web.samples.StackOverflowChatClient
 import com.intellisrc.web.samples.UploadService
 import spock.lang.Ignore
 import spock.lang.Specification
+import spock.util.concurrent.AsyncConditions
 
 /**
  * @since 17/04/19.
@@ -28,7 +29,7 @@ class WebServiceTest extends Specification {
                 cacheTime: 60
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
-            println "RES DIR: $publicDir"
+            println "Running in port: $port with resources at: $publicDir"
             web.setResources(publicDir)
             web.addService(new IDService())
         when:
@@ -38,7 +39,7 @@ class WebServiceTest extends Specification {
             assert ("http://localhost:"+port).toURL().text.contains("Hello")
         when:
             int number = new Random().nextInt(100)
-            def json = ("http://localhost:"+port+"/id?i="+number).toURL().text
+            def json = ("http://localhost:"+port+"/id/"+number+"/").toURL().text
         then:
             assert json
             assert !json.contains("<html>")
@@ -58,30 +59,30 @@ class WebServiceTest extends Specification {
             }
     }
 
+    /**
+     * Testing also resources as File
+     */
     def "Testing auto cache"() {
         setup:
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                     port : port,
-                    //resources : 'public'    <--- this is the recommended way to specify resources
+                    resources : publicDir,
                     cacheTime: 60
             )
-            // Resources set as full path because code is executed under /tst/ usually use above method
-            println "RES DIR: $publicDir"
-            web.setResources(publicDir)
             web.addService(new IDService())
         when:
             web.start(true)
         then:
             assert web.isRunning()
         when:
-            def json = new URL("http://localhost:${port}/id?i=1").text
+            def json = new URL("http://localhost:${port}/id/1/").text
         then:
             assert json
             println "Json: "+json
         when:
             sleep(2000)
-            def json_new = new URL("http://localhost:${port}/id?i=1").text
+            def json_new = new URL("http://localhost:${port}/id/1/").text
         then:
             //TODO: count if method was called
             assert json == json_new
@@ -91,22 +92,27 @@ class WebServiceTest extends Specification {
             assert !web.isRunning()
     }
 
+    /**
+     * Testing also string as resources, callback 'onStart' and chained calls
+     */
     def "Test parameters and splat"() {
         setup:
+            def conds = new AsyncConditions()
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                     port : port,
-                    //resources : 'public'    <--- this is the recommended way to specify resources
-                    cacheTime: 60
-            )
-            // Resources set as full path because code is executed under /tst/ usually use above method
-            println "RES DIR: $publicDir"
-            web.setResources(publicDir)
-            web.addService(new EmailService())
-        when:
-            web.start(true)
-        then:
+                    resources : 'res/public/',
+                    cacheTime: 60,
+                    allowOrigin: "*"
+            ).add(new EmailService()).start(true, {
+                conds.evaluate {
+                    assert true
+                }
+            })
+        expect:
+            conds.await()
             assert web.isRunning()
+            println "Server running on port: $port"
         when:
             def text = new URL("http://localhost:${port}/emails/john/example.com").text
             println "Email is: $text"

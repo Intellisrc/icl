@@ -89,7 +89,7 @@ class TCPServer {
 	/**
 	 * For each client, this method will be started
 	 */
-	class ClientServiceThread extends Thread {
+	static class ClientServiceThread extends Thread {
 		private Socket clientSocket
 		private final ServerCallback execCommand
 		/**

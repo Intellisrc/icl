@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="8" />
+    <option name="CUSTOM_SCOPE_NAME" value="src" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.10 : VideoGrab and implementations now accept source as argument and no longer depends on configuration file. Added interface to be called on finish. Tasks: status is not printed by default.">
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.12 : Simplified WebService related usage.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/Service.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LogService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/EmailService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/test/groovy/com/intellisrc/web/samples/IDService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,12 +55,26 @@
         <task path="$PROJECT_DIR$/modules/web">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/modules/core">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -73,6 +86,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="NamedScopeManager">
+    <scope name="src" pattern="src[group:core]:*..*||src[group:crypt]:*..*||src[group:cv]:*..*||src[group:db]:*..*||src[group:etc]:*..*||src[group:img]:*..*||src[group:net]:*..*||src[group:serial]:*..*||src[group:term]:*..*||src[group:thread]:*..*||src[group:web]:*..*||test[group:core]:*..*||test[group:crypt]:*..*||test[group:cv]:*..*||test[group:db]:*..*||test[group:etc]:*..*||test[group:img]:*..*||test[group:net]:*..*||test[group:serial]:*..*||test[group:term]:*..*||test[group:thread]:*..*||test[group:web]:*..*" />
+  </component>
   <component name="ProjectId" id="1Trek1L3wyXXTm5pas3sYRigcuK" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="false" id="Update" />
@@ -83,15 +99,16 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/Service.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../lepe/Projects/groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/WebServiceTest.groovy" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/Service.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../../../lepe/Projects/groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/WebServiceTest.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -109,120 +126,9 @@
       <recent name="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [artifactoryPublish]">
+  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Application" factoryName="Application">
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Tests in 'cv_test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests *" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":cv:cleanTest" />
-            <option value=":cv:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="Tests in 'img_test'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests *" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":img:cleanTest" />
-            <option value=":img:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="WebServiceTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.intellisrc.web.WebServiceTest&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":web:cleanTest" />
-            <option value=":web:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>false</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="common [artifactoryPublish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="artifactoryPublish" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="publishToMavenLocal" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="JUnit" factoryName="JUnit">
-      <option name="TEST_OBJECT" value="class" />
-      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -249,20 +155,128 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="common [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="publishToMavenLocal" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [signJars]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="signJars" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [uploadArchives]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="uploadArchives" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common:modules:core [uploadArchives]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/modules/core" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="uploadArchives" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
-      <item itemvalue="Gradle.Tests in 'cv_test'" />
-      <item itemvalue="Gradle.Tests in 'img_test'" />
-      <item itemvalue="Gradle.common [artifactoryPublish]" />
+      <item itemvalue="Gradle.common [clean]" />
+      <item itemvalue="Gradle.common [signJars]" />
+      <item itemvalue="Gradle.common [uploadArchives]" />
+      <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
       <item itemvalue="Gradle.common [publishToMavenLocal]" />
-      <item itemvalue="Gradle.WebServiceTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.common [artifactoryPublish]" />
         <item itemvalue="Gradle.common [publishToMavenLocal]" />
-        <item itemvalue="Gradle.WebServiceTest" />
-        <item itemvalue="Gradle.Tests in 'cv_test'" />
-        <item itemvalue="Gradle.Tests in 'img_test'" />
+        <item itemvalue="Gradle.common [clean]" />
+        <item itemvalue="Gradle.common [uploadArchives]" />
+        <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
+        <item itemvalue="Gradle.common [signJars]" />
       </list>
     </recent_temporary>
   </component>
@@ -273,27 +287,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
-    </task>
-    <task id="LOCAL-00090" summary="2.4.5 Added PGP encryption">
-      <created>1530673190978</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1530673190978</updated>
-    </task>
-    <task id="LOCAL-00091" summary="2.4.5 Added PGP armor test">
-      <created>1530673438328</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1530673438328</updated>
-    </task>
-    <task id="LOCAL-00092" summary="2.4.5 BerkeleyDB.destroy added">
-      <created>1530684767732</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1530684767732</updated>
     </task>
     <task id="LOCAL-00093" summary="2.4.5 Added test for BerkeleyDB">
       <created>1530688999878</created>
@@ -617,7 +610,28 @@
       <option name="project" value="LOCAL" />
       <updated>1587022559534</updated>
     </task>
-    <option name="localTasksCounter" value="139" />
+    <task id="LOCAL-00139" summary="2.7.11 : Repository changed to sonatype">
+      <created>1588571295828</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1588571295829</updated>
+    </task>
+    <task id="LOCAL-00140" summary="2.7.11 : Added &quot;Usage&quot; to documentation">
+      <created>1588646281541</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1588646281542</updated>
+    </task>
+    <task id="LOCAL-00141" summary="2.7.12 : Simplified WebService related usage.">
+      <created>1588648507477</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1588648507477</updated>
+    </task>
+    <option name="localTasksCounter" value="142" />
     <servers />
   </component>
   <component name="TodoView">
@@ -656,9 +670,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.5.5 : Updated to Groovy 2.5.5 (groovy-extends 1.8). Fixed broken unit tests" />
-    <MESSAGE value="2.5.6 : Fixed timeout in Console and exit() in SysMain" />
-    <MESSAGE value="2.6: Added CV, Term and Serial Modules. Updated groovy-extend to 2.0" />
     <MESSAGE value="2.6: Gradle 5.4 updated." />
     <MESSAGE value="2.6.0: Fixed Log not printing" />
     <MESSAGE value="2.6.1: Updated to groovy-extends 2.0.256" />
@@ -681,59 +692,76 @@
     <MESSAGE value="2.7.8 : Forced to load SQLite Driver" />
     <MESSAGE value="2.7.9 : VideoGrab became abstract and its now extended depending on expected format. MjpegFrame fixed to work in Webkit browsers. Updated groovy-extends." />
     <MESSAGE value="2.7.10 : VideoGrab and implementations now accept source as argument and no longer depends on configuration file. Added interface to be called on finish. Tasks: status is not printed by default." />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.10 : VideoGrab and implementations now accept source as argument and no longer depends on configuration file. Added interface to be called on finish. Tasks: status is not printed by default." />
+    <MESSAGE value="2.7.11 : Repository changed to sonatype" />
+    <MESSAGE value="2.7.11 : Added &quot;Usage&quot; to documentation" />
+    <MESSAGE value="2.7.12 : Simplified WebService related usage." />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.12 : Simplified WebService related usage." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser" timestamp="1579319382277">
+    <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1587870876330">
       <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="487" y="111" width="376" height="576" key="#com.intellij.ide.util.MemberChooser/0.29.1366.739@0.29.1366.739" timestamp="1579319382277" />
-    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2" timestamp="1587022559155">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.29.1366.739@0.29.1366.739" timestamp="1587870876330" />
+    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2" timestamp="1588648507256">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="327" y="67" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1579328453109" />
+    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1588648507256" />
     <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022559155" />
-    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog" timestamp="1587023688197">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog" timestamp="1588648123427">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
+    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog/0.29.1366.739@0.29.1366.739" timestamp="1588648123427" />
     <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023688197" />
-    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl" timestamp="1587023613805">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl" timestamp="1588648560132">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
+    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl/0.29.1366.739@0.29.1366.739" timestamp="1588648560132" />
     <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023613805" />
-    <state x="777" y="522" key="GitRewordDialog" timestamp="1579512521920">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="82" key="GridCell.Tab.0.bottom" timestamp="1588648732399">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="777" y="522" key="GitRewordDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512521920" />
-    <state width="1876" height="228" key="GridCell.Tab.0.bottom" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="82" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588648732399" />
+    <state width="1320" height="82" key="GridCell.Tab.0.center" timestamp="1588648732398">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
-    <state width="1876" height="228" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state width="1876" height="228" key="GridCell.Tab.0.center" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="82" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1588648732398" />
+    <state width="1320" height="82" key="GridCell.Tab.0.left" timestamp="1588648732398">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
-    <state width="1876" height="228" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state width="1876" height="228" key="GridCell.Tab.0.left" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="82" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1588648732398" />
+    <state width="1320" height="82" key="GridCell.Tab.0.right" timestamp="1588648732399">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1579329008152" />
-    <state width="1876" height="228" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state width="1876" height="228" key="GridCell.Tab.0.right" timestamp="1579512469069">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="82" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1588648732399" />
+    <state width="1320" height="210" key="GridCell.Tab.1.bottom" timestamp="1588571315450">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state width="1310" height="295" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1579329008153" />
-    <state width="1876" height="228" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1579512469069" />
-    <state x="555" y="354" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1587022560879">
-      <screen x="0" y="0" width="1920" height="1200" />
+    <state width="1320" height="210" key="GridCell.Tab.1.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
+    <state width="1320" height="210" key="GridCell.Tab.1.center" timestamp="1588571315450">
+      <screen x="0" y="29" width="1366" height="739" />
     </state>
-    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1579328468533" />
+    <state width="1320" height="210" key="GridCell.Tab.1.center/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
+    <state width="1320" height="210" key="GridCell.Tab.1.left" timestamp="1588571315450">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state width="1320" height="210" key="GridCell.Tab.1.left/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
+    <state width="1320" height="210" key="GridCell.Tab.1.right" timestamp="1588571315450">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state width="1320" height="210" key="GridCell.Tab.1.right/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1588648509740">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1588648509740" />
     <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022560879" />
     <state x="631" y="353" width="658" height="538" key="find.popup" timestamp="1581669576819">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="631" y="353" width="658" height="538" key="find.popup/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1581669576819" />
+    <state x="274" y="63" width="802" height="678" key="scopes" timestamp="1587870875322">
+      <screen x="0" y="29" width="1366" height="739" />
+    </state>
+    <state x="274" y="63" width="802" height="678" key="scopes/0.29.1366.739@0.29.1366.739" timestamp="1587870875322" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
@@ -747,94 +775,5 @@
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
-  </component>
-  <component name="masterDetails">
-    <states>
-      <state key="ArtifactsStructureConfigurable.UI">
-        <settings>
-          <artifact-editor />
-          <last-edited>common:jar</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2472752" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="FacetStructureConfigurable.UI">
-        <settings>
-          <last-edited>No facets are configured</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="GlobalLibrariesConfigurable.UI">
-        <settings>
-          <last-edited>groovy-2.5.6</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2472752" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="JdkListConfigurable.UI">
-        <settings>
-          <last-edited>11</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.3549133" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ModuleStructureConfigurable.UI">
-        <settings>
-          <last-edited>serial_test|serial|common</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.3549133" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectJDKs.UI">
-        <settings>
-          <last-edited>1.8</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectLibrariesConfigurable.UI">
-        <settings>
-          <last-edited>Gradle: com.beust:jcommander:1.72</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.4429066" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-    </states>
   </component>
 </project>
