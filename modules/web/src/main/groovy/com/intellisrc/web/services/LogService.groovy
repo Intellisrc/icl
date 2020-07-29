@@ -1,10 +1,11 @@
 package com.intellisrc.web.services
 
-import com.intellisrc.web.Service
-import com.intellisrc.web.ServiciableSingle
 import groovy.transform.CompileStatic
 import com.intellisrc.core.Log
+import com.intellisrc.web.Service
+import com.intellisrc.web.ServiciableSingle
 import spark.Request
+import spark.Response
 
 import java.time.LocalDateTime
 
@@ -23,7 +24,7 @@ class LogService implements ServiciableSingle {
     Service getService() {
         return new Service(
             action : {
-                Request request ->
+                Request request, Response response ->
                     //specify in Log if we want to export it, then read it here and return it with parameters
                     //like: from to, date, etc... (filters)
                     def from = request.queryParams("from") ?: ""

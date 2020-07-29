@@ -1,0 +1,19 @@
+# suppress inspection "UnusedProperty" for whole file
+groupName=com.intellisrc
+artifact=common
+
+projectName=IntelliSrc Common Library
+projectURL=https://gitlab.com/intellisrc/common
+projectDevURL=git@gitlab.com:intellisrc/common.git
+projectDescription=Modules which makes system development easier and faster.
+projectSince=2017
+
+ossrhUsername=
+ossrhPassword=
+
+# gpg --full-generate-key
+signing.password=
+# gpg --list-secret-keys --keyid-format SHORT
+signing.keyId=
+# gpg --export-secret-key KEYID > private.bin.key
+signing.secretKeyRingFile=private.bin.key

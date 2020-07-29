@@ -87,3 +87,4 @@ out/
 /modules/crypt/build/
 /modules/net/build/
 /modules/web/build/
+gradle.properties

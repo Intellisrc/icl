@@ -18,7 +18,7 @@ class EmailService implements ServiciableMultiple {
     Action getEmails = {
         Request request ->
             return [
-                    "lepe@intellisrc.com",
+                    "lepe@inspeedia.com",
                     "lepe@support.ne.jp",
                     "webmaster@support.ne.jp"
             ]
@@ -34,7 +34,7 @@ class EmailService implements ServiciableMultiple {
     Action getEmailsNew = {
         Request request ->
             return [
-                    "new_lepe@intellisrc.com"
+                    "new_lepe@inspeedia.com"
             ]
     } as Action
 
@@ -42,7 +42,7 @@ class EmailService implements ServiciableMultiple {
         Request request ->
             println "We are here to see and hear..."
             return [
-                    "more_lepe@intellisrc.com"
+                    "more_lepe@inspeedia.com"
             ]
     } as Action
 
@@ -87,7 +87,7 @@ class EmailService implements ServiciableMultiple {
                                 def user = request.params("user") //It can be ":user" or "user"
                                 def domain = request.splat()[0]
                                 return user + "@" + domain
-                        } as Action
+                        }
                 )
         ]
     }
