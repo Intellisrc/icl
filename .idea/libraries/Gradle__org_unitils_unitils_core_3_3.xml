@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="Gradle: org.unitils:unitils-core:3.3">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/unitils/unitils-core/3.3/unitils-core-3.3.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.unitils/unitils-core/3.3/39773cd6fec4840cf8a112f93070ba882418b4eb/unitils-core-3.3.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

@@ -4,10 +4,41 @@
     <option name="SCOPE_TYPE" value="8" />
     <option name="CUSTOM_SCOPE_NAME" value="src" />
   </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.12 : Simplified WebService related usage.">
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__ognl_ognl_2_6_9.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__ognl_ognl_2_6_9.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_unitils_unitils_core_3_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_unitils_unitils_core_3_3.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,12 +134,12 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../lepe/Projects/groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/WebServiceTest.groovy" />
-    <property name="project.structure.last.edited" value="SDKs" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
+    <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../../../lepe/Projects/groovy/common-java/modules/web/src/test/groovy/com/inspeedia/common/web/WebServiceTest.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -129,19 +160,6 @@
   <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="modules-db" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="WORKING_DIRECTORY" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -263,6 +281,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="modules-db" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="WORKING_DIRECTORY" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Gradle.common [clean]" />
       <item itemvalue="Gradle.common [signJars]" />
@@ -280,6 +311,7 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="" />
@@ -698,70 +730,39 @@
     <option name="LAST_COMMIT_MESSAGE" value="2.7.12 : Simplified WebService related usage." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1587870876330">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state x="69" y="108" width="1098" height="565" key="DiffContextDialog" timestamp="1598488019212">
+      <screen x="0" y="33" width="1366" height="676" />
     </state>
-    <state x="431" y="117" width="496" height="568" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.29.1366.739@0.29.1366.739" timestamp="1587870876330" />
-    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2" timestamp="1588648507256">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state x="327" y="29" width="802" height="739" key="CommitChangelistDialog2/0.29.1366.739@0.29.1366.739" timestamp="1588648507256" />
-    <state x="460" y="61" width="1385" height="956" key="CommitChangelistDialog2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022559155" />
-    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog" timestamp="1588648123427">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state x="69" y="111" width="1228" height="598" key="DiffContextDialog/0.29.1366.739@0.29.1366.739" timestamp="1588648123427" />
-    <state x="97" y="133" width="1726" height="970" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023688197" />
-    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl" timestamp="1588648560132">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state x="-1" y="29" width="1366" height="739" key="FileChooserDialogImpl/0.29.1366.739@0.29.1366.739" timestamp="1588648560132" />
-    <state x="743" y="376" width="810" height="479" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587023613805" />
-    <state width="1320" height="82" key="GridCell.Tab.0.bottom" timestamp="1588648732399">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="82" key="GridCell.Tab.0.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588648732399" />
-    <state width="1320" height="82" key="GridCell.Tab.0.center" timestamp="1588648732398">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="82" key="GridCell.Tab.0.center/0.29.1366.739@0.29.1366.739" timestamp="1588648732398" />
-    <state width="1320" height="82" key="GridCell.Tab.0.left" timestamp="1588648732398">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="82" key="GridCell.Tab.0.left/0.29.1366.739@0.29.1366.739" timestamp="1588648732398" />
-    <state width="1320" height="82" key="GridCell.Tab.0.right" timestamp="1588648732399">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="82" key="GridCell.Tab.0.right/0.29.1366.739@0.29.1366.739" timestamp="1588648732399" />
-    <state width="1320" height="210" key="GridCell.Tab.1.bottom" timestamp="1588571315450">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="210" key="GridCell.Tab.1.bottom/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
-    <state width="1320" height="210" key="GridCell.Tab.1.center" timestamp="1588571315450">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="210" key="GridCell.Tab.1.center/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
-    <state width="1320" height="210" key="GridCell.Tab.1.left" timestamp="1588571315450">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="210" key="GridCell.Tab.1.left/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
-    <state width="1320" height="210" key="GridCell.Tab.1.right" timestamp="1588571315450">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state width="1320" height="210" key="GridCell.Tab.1.right/0.29.1366.739@0.29.1366.739" timestamp="1588571315450" />
-    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2" timestamp="1588648509740">
-      <screen x="0" y="29" width="1366" height="739" />
-    </state>
-    <state x="395" y="239" width="802" height="529" key="Vcs.Push.Dialog.v2/0.29.1366.739@0.29.1366.739" timestamp="1588648509740" />
-    <state x="555" y="354" width="806" height="523" key="Vcs.Push.Dialog.v2/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1587022560879" />
-    <state x="631" y="353" width="658" height="538" key="find.popup" timestamp="1581669576819">
+    <state x="69" y="108" width="1098" height="565" key="DiffContextDialog/0.33.1366.676@0.33.1366.676" timestamp="1598488019212" />
+    <state x="97" y="133" width="1727" height="972" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596009366316" />
+    <state x="-3" y="33" width="1920" height="1170" key="FileChooserDialogImpl" timestamp="1596073063526">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
-    <state x="631" y="353" width="658" height="538" key="find.popup/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1581669576819" />
-    <state x="274" y="63" width="802" height="678" key="scopes" timestamp="1587870875322">
-      <screen x="0" y="29" width="1366" height="739" />
+    <state x="-3" y="33" width="1920" height="1170" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596073063526" />
+    <state width="1876" height="228" key="GridCell.Tab.0.bottom" timestamp="1596094565818">
+      <screen x="0" y="0" width="1920" height="1200" />
     </state>
-    <state x="274" y="63" width="802" height="678" key="scopes/0.29.1366.739@0.29.1366.739" timestamp="1587870875322" />
+    <state width="1876" height="228" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
+    <state width="1876" height="228" key="GridCell.Tab.0.center" timestamp="1596094565818">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state width="1876" height="228" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
+    <state width="1876" height="228" key="GridCell.Tab.0.left" timestamp="1596094565818">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state width="1876" height="228" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
+    <state width="1876" height="228" key="GridCell.Tab.0.right" timestamp="1596094565818">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state width="1876" height="228" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
+    <state x="126" y="253" width="1360" height="840" key="SettingsEditor" timestamp="1596073471907">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state x="126" y="253" width="1360" height="840" key="SettingsEditor/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596073471907" />
+    <state x="278" y="108" width="806" height="523" key="Vcs.Push.Dialog.v2" timestamp="1598488048816">
+      <screen x="0" y="33" width="1366" height="676" />
+    </state>
+    <state x="278" y="108" width="806" height="523" key="Vcs.Push.Dialog.v2/0.33.1366.676@0.33.1366.676" timestamp="1598488048816" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />

@@ -5,6 +5,10 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 
+import javax.imageio.ImageIO
+import java.awt.image.BufferedImage
+import java.awt.image.DataBufferByte
+
 import static com.intellisrc.web.Service.Method.*
 
 import spark.Request
@@ -259,7 +263,7 @@ class WebService {
      * Output types used in getOutput
      */
     private final static enum OutputType {
-        JSON, PLAIN, BINARY
+        JSON, PLAIN, BINARY, JPG, PNG, GIF
     }
     /**
      * Gets the output and convert it
@@ -273,16 +277,31 @@ class WebService {
             case OutputType.JSON:
                 out = JSON.encode(output)
                 break
+            case OutputType.JPG:
+            case OutputType.PNG:
+            case OutputType.GIF:
             case OutputType.BINARY:
                 byte[] content
                 switch (output) {
                     case File:
                         content = (output as File).bytes
                         break
-                //case String:
-                    default:
+                    case BufferedImage:
+                        BufferedImage img = output as BufferedImage
+                        if(otype == OutputType.BINARY) {
+                            content = ((DataBufferByte) img.raster.dataBuffer).data
+                        } else {
+                            ByteArrayOutputStream os = new ByteArrayOutputStream()
+                            ImageIO.write(img, otype.toString().toLowerCase(), os)
+                            content = os.toByteArray()
+                            os.close()
+                        }
+                        break
+                    case String:
                         content = output.toString().bytes
                         break
+                    default:
+                        content = output as byte[]
                 }
                 out = content
                 break
@@ -313,7 +332,16 @@ class WebService {
                     Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
                     Object out = ""     // Output to serve
                     Object res = null   // Response from Service
-                    OutputType otype = sp.contentType.contains("json") ? OutputType.JSON : (sp.contentType.contains("text") ? OutputType.PLAIN : OutputType.BINARY)
+                    OutputType otype
+                    switch (sp.contentType.toLowerCase()) {
+                        case ~/.*json.*/  : otype = OutputType.JSON; break
+                        case ~/.*text.*/  : otype = OutputType.PLAIN; break
+                        case "image/jpeg" : otype = OutputType.JPG; break
+                        case "image/png"  : otype = OutputType.PNG; break
+                        case "image/gif"  : otype = OutputType.GIF; break
+                        default:
+                            otype = OutputType.BINARY
+                    }
                     response.type(sp.contentType)
                     sp.headers.each {
                         String key, String val ->
@@ -413,7 +441,7 @@ class WebService {
                                 try {
                                     if (res instanceof File) {
                                         etag = ((File) res).lastModified().toString()
-                                    } else if (otype == OutputType.BINARY) {
+                                    } else if (otype == OutputType.BINARY || otype == OutputType.JPG || otype == OutputType.PNG) {
                                         if ((out as byte[]).length > 1024 * eTagMaxKB) {
                                             Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
                                         } else {
@@ -434,7 +462,7 @@ class WebService {
                             }
                         }
                         // Set content-length and Gzip headers
-                        if (otype == OutputType.BINARY) {
+                        if (otype == OutputType.BINARY || otype == OutputType.JPG || otype == OutputType.PNG) {
                             if (res instanceof File) {
                                 response.header("Content-Length", sprintf("%d", (res as File).size()))
                             } else {
