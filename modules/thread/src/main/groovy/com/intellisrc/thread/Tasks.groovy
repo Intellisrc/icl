@@ -200,24 +200,24 @@ class Tasks {
                 case TaskInfo.State.DONE:
                     if (changedTask.startTime && changedTask.doneTime) {
                         summ.add(ChronoUnit.MILLIS.between(changedTask.startTime, changedTask.doneTime))
-                    } else {
+                    } else if(debug) {
                         if (!changedTask.startTime) {
-                            Log.d("[%s] had no start time", changedTask.fullName)
+                            Log.v("[%s] had no start time", changedTask.fullName)
                         }
                         if (!changedTask.doneTime) {
-                            Log.d("[%s] had no done time", changedTask.fullName)
+                            Log.v("[%s] had no done time", changedTask.fullName)
                         }
                     }
                     break
                 case TaskInfo.State.TERMINATED:
                     if (changedTask.startTime && changedTask.failTime) {
                         summ.add(ChronoUnit.MILLIS.between(changedTask.startTime, changedTask.failTime))
-                    } else {
+                    } else if(debug) {
                         if (!changedTask.startTime) {
-                            Log.d("[%s] had no start time", changedTask.fullName)
+                            Log.v("[%s] had no start time", changedTask.fullName)
                         }
                         if (!changedTask.failTime) {
-                            Log.d("[%s] had no fail time", changedTask.fullName)
+                            Log.v("[%s] had no fail time", changedTask.fullName)
                         }
                     }
                     break

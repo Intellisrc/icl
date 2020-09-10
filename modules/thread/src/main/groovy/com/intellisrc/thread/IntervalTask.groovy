@@ -16,7 +16,7 @@ import groovy.transform.CompileStatic
 abstract class IntervalTask extends Task {
     public boolean warnOnSkip = true //Turn to off to disable warning about unable to execute Task
     
-    IntervalTask(int maxExecutionMillis, int sleepMillis) {
+    IntervalTask(long maxExecutionMillis, int sleepMillis) {
         maxExecutionTime = maxExecutionMillis
         sleepTime = sleepMillis
         minThreads = 1
@@ -31,7 +31,7 @@ abstract class IntervalTask extends Task {
      * @param sleepMillis
      * @return
      */
-    static IntervalTask create(final Runnable runnable, String name, int maxExecutionMillis = 1000, int sleepMillis = 1000, Priority priority = Priority.NORMAL) {
+    static IntervalTask create(final Runnable runnable, String name, long maxExecutionMillis = 1000, int sleepMillis = 1000, Priority priority = Priority.NORMAL) {
         return new IntervalTask(maxExecutionMillis, sleepMillis) {
             @Override
             void setup() {}
