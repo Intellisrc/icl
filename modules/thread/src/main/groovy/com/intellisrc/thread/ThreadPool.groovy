@@ -149,7 +149,11 @@ class ThreadPool extends ThreadPoolExecutor {
             }
             if (taskInfo.task.waitResponse) {
                 items.each {
-                    it.future.get(taskInfo.task.maxExecutionTime, TimeUnit.MILLISECONDS)
+                    if(taskInfo.task.maxExecutionTime) {
+                        it.future.get(taskInfo.task.maxExecutionTime, TimeUnit.MILLISECONDS)
+                    } else {
+                        it.future.get()
+                    }
                 }
             }
             executed = true

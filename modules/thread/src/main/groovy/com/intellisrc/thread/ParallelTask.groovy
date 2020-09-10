@@ -13,7 +13,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 abstract class ParallelTask extends Task {
-    ParallelTask(int threads, int maxExecutionMillis = 1000, boolean waitToEnd = false) {
+    ParallelTask(int threads, long maxExecutionMillis = 0, boolean waitToEnd = false) {
         minThreads = 1
         maxThreads = threads
         retry = true
