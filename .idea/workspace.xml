@@ -26,21 +26,9 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.12 : Simplified WebService related usage.">
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_collections_commons_collections_3_2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_collections_commons_collections_3_2.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_lang_commons_lang_2_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_lang_commons_lang_2_3.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_logging_commons_logging_1_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__commons_logging_commons_logging_1_1.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__javax_servlet_javax_servlet_api_3_1_0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__javax_servlet_javax_servlet_api_3_1_0.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/IntervalTask.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/IntervalTask.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ParallelTask.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ParallelTask.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ThreadPool.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/ThreadPool.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,7 +95,19 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="publishing" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="upload" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -118,6 +118,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="SET_USER_NAME_GLOBALLY" value="false" />
   </component>
   <component name="NamedScopeManager">
     <scope name="src" pattern="src[group:core]:*..*||src[group:crypt]:*..*||src[group:cv]:*..*||src[group:db]:*..*||src[group:etc]:*..*||src[group:img]:*..*||src[group:net]:*..*||src[group:serial]:*..*||src[group:term]:*..*||src[group:thread]:*..*||src[group:web]:*..*||test[group:core]:*..*||test[group:crypt]:*..*||test[group:cv]:*..*||test[group:db]:*..*||test[group:etc]:*..*||test[group:img]:*..*||test[group:net]:*..*||test[group:serial]:*..*||test[group:term]:*..*||test[group:thread]:*..*||test[group:web]:*..*" />
@@ -138,6 +139,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
@@ -323,14 +325,11 @@
       <option name="presentableId" value="Default" />
       <updated>1507354592734</updated>
       <workItem from="1599723400441" duration="104000" />
-      <workItem from="1599723620932" duration="347000" />
-    </task>
-    <task id="LOCAL-00093" summary="2.4.5 Added test for BerkeleyDB">
-      <created>1530688999878</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1530688999878</updated>
+      <workItem from="1599723620932" duration="593000" />
+      <workItem from="1599724472537" duration="16000" />
+      <workItem from="1600653675751" duration="136000" />
+      <workItem from="1601795296698" duration="432000" />
+      <workItem from="1601796290486" duration="3562000" />
     </task>
     <task id="LOCAL-00094" summary="2.4.5 Added test for PGP">
       <created>1530689654588</created>
@@ -668,7 +667,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588648507477</updated>
     </task>
-    <option name="localTasksCounter" value="142" />
+    <task id="LOCAL-00142" summary="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks">
+      <created>1599724201235</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1599724201235</updated>
+    </task>
+    <option name="localTasksCounter" value="143" />
     <servers />
   </component>
   <component name="TodoView">
@@ -710,7 +716,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.6: Gradle 5.4 updated." />
     <MESSAGE value="2.6.0: Fixed Log not printing" />
     <MESSAGE value="2.6.1: Updated to groovy-extends 2.0.256" />
     <MESSAGE value="2.6.1: Disable colog to file by default" />
@@ -735,7 +740,8 @@
     <MESSAGE value="2.7.11 : Repository changed to sonatype" />
     <MESSAGE value="2.7.11 : Added &quot;Usage&quot; to documentation" />
     <MESSAGE value="2.7.12 : Simplified WebService related usage." />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.12 : Simplified WebService related usage." />
+    <MESSAGE value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
   </component>
   <component name="WindowStateProjectService">
     <state x="69" y="108" width="1098" height="565" key="DiffContextDialog" timestamp="1598488019212">
@@ -747,33 +753,34 @@
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="-3" y="33" width="1920" height="1170" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596073063526" />
-    <state width="1320" height="262" key="GridCell.Tab.0.bottom" timestamp="1598497690977">
+    <state width="1320" height="262" key="GridCell.Tab.0.bottom" timestamp="1599724218891">
       <screen x="0" y="24" width="1366" height="744" />
     </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.bottom/0.24.1366.744@0.24.1366.744" timestamp="1598497690977" />
+    <state width="1320" height="262" key="GridCell.Tab.0.bottom/0.24.1366.744@0.24.1366.744" timestamp="1599724218891" />
     <state width="1876" height="228" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
-    <state width="1320" height="262" key="GridCell.Tab.0.center" timestamp="1598497690977">
+    <state width="1320" height="262" key="GridCell.Tab.0.center" timestamp="1599724218890">
       <screen x="0" y="24" width="1366" height="744" />
     </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.center/0.24.1366.744@0.24.1366.744" timestamp="1598497690977" />
+    <state width="1320" height="262" key="GridCell.Tab.0.center/0.24.1366.744@0.24.1366.744" timestamp="1599724218890" />
     <state width="1876" height="228" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
-    <state width="1320" height="262" key="GridCell.Tab.0.left" timestamp="1598497690976">
+    <state width="1320" height="262" key="GridCell.Tab.0.left" timestamp="1599724218890">
       <screen x="0" y="24" width="1366" height="744" />
     </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.left/0.24.1366.744@0.24.1366.744" timestamp="1598497690976" />
+    <state width="1320" height="262" key="GridCell.Tab.0.left/0.24.1366.744@0.24.1366.744" timestamp="1599724218890" />
     <state width="1876" height="228" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
-    <state width="1320" height="262" key="GridCell.Tab.0.right" timestamp="1598497690977">
+    <state width="1320" height="262" key="GridCell.Tab.0.right" timestamp="1599724218891">
       <screen x="0" y="24" width="1366" height="744" />
     </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.right/0.24.1366.744@0.24.1366.744" timestamp="1598497690977" />
+    <state width="1320" height="262" key="GridCell.Tab.0.right/0.24.1366.744@0.24.1366.744" timestamp="1599724218891" />
     <state width="1876" height="228" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
     <state x="126" y="253" width="1360" height="840" key="SettingsEditor" timestamp="1596073471907">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="126" y="253" width="1360" height="840" key="SettingsEditor/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596073471907" />
-    <state x="278" y="108" width="806" height="523" key="Vcs.Push.Dialog.v2" timestamp="1598488048816">
-      <screen x="0" y="33" width="1366" height="676" />
+    <state x="278" y="107" width="806" height="523" key="Vcs.Push.Dialog.v2" timestamp="1599724479670">
+      <screen x="0" y="24" width="1366" height="744" />
     </state>
+    <state x="278" y="107" key="Vcs.Push.Dialog.v2/0.24.1366.744@0.24.1366.744" timestamp="1599724479670" />
     <state x="278" y="108" width="806" height="523" key="Vcs.Push.Dialog.v2/0.33.1366.676@0.33.1366.676" timestamp="1598488048816" />
     <state x="387" y="137" width="592" height="522" key="find.popup" timestamp="1599723709559">
       <screen x="0" y="24" width="1366" height="744" />
