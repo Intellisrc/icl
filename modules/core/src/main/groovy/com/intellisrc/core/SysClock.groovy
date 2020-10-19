@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
  * need of mocking core classes.
  *
  * Usage:
- * LocalDateTime myTime = SysClock.dateTime
+ * LocalDateTime myTime = SysClock.now
  *
  * @since 2019/12/10.
  */
