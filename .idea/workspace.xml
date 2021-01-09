@@ -26,11 +26,9 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.13 : Improved Web and Task modules.">
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Cmd.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Cmd.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Smtp.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Smtp.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -352,14 +350,8 @@
       <workItem from="1606832062246" duration="15000" />
       <workItem from="1606832882814" duration="604000" />
       <workItem from="1608637115025" duration="400000" />
-      <workItem from="1610164610995" duration="171000" />
-    </task>
-    <task id="LOCAL-00095" summary="2.4.5 Added encoding/decoding exceptions">
-      <created>1531111721988</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1531111721990</updated>
+      <workItem from="1610164610995" duration="715000" />
+      <workItem from="1610176634798" duration="932000" />
     </task>
     <task id="LOCAL-00096" summary="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set.">
       <created>1531112023870</created>
@@ -697,7 +689,14 @@
       <option name="project" value="LOCAL" />
       <updated>1601803693606</updated>
     </task>
-    <option name="localTasksCounter" value="144" />
+    <task id="LOCAL-00144" summary="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes">
+      <created>1610165223258</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1610165223259</updated>
+    </task>
+    <option name="localTasksCounter" value="145" />
     <servers />
   </component>
   <component name="TodoView">
@@ -739,7 +738,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.6.1: Updated to groovy-extends 2.0.256" />
     <MESSAGE value="2.6.1: Disable colog to file by default" />
     <MESSAGE value="2.6.1: Removed reported errors" />
     <MESSAGE value="2.6.1: Added encoder to URL in webservice" />
@@ -764,52 +762,8 @@
     <MESSAGE value="2.7.12 : Simplified WebService related usage." />
     <MESSAGE value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
     <MESSAGE value="2.7.13 : Improved Web and Task modules." />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.13 : Improved Web and Task modules." />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="69" y="108" width="1098" height="565" key="DiffContextDialog" timestamp="1598488019212">
-      <screen x="0" y="33" width="1366" height="676" />
-    </state>
-    <state x="69" y="108" width="1098" height="565" key="DiffContextDialog/0.33.1366.676@0.33.1366.676" timestamp="1598488019212" />
-    <state x="97" y="133" width="1727" height="972" key="DiffContextDialog/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596009366316" />
-    <state x="-3" y="33" width="1920" height="1170" key="FileChooserDialogImpl" timestamp="1596073063526">
-      <screen x="0" y="0" width="1920" height="1200" />
-    </state>
-    <state x="-3" y="33" width="1920" height="1170" key="FileChooserDialogImpl/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596073063526" />
-    <state width="1320" height="262" key="GridCell.Tab.0.bottom" timestamp="1599724218891">
-      <screen x="0" y="24" width="1366" height="744" />
-    </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.bottom/0.24.1366.744@0.24.1366.744" timestamp="1599724218891" />
-    <state width="1876" height="228" key="GridCell.Tab.0.bottom/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
-    <state width="1320" height="262" key="GridCell.Tab.0.center" timestamp="1599724218890">
-      <screen x="0" y="24" width="1366" height="744" />
-    </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.center/0.24.1366.744@0.24.1366.744" timestamp="1599724218890" />
-    <state width="1876" height="228" key="GridCell.Tab.0.center/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
-    <state width="1320" height="262" key="GridCell.Tab.0.left" timestamp="1599724218890">
-      <screen x="0" y="24" width="1366" height="744" />
-    </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.left/0.24.1366.744@0.24.1366.744" timestamp="1599724218890" />
-    <state width="1876" height="228" key="GridCell.Tab.0.left/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
-    <state width="1320" height="262" key="GridCell.Tab.0.right" timestamp="1599724218891">
-      <screen x="0" y="24" width="1366" height="744" />
-    </state>
-    <state width="1320" height="262" key="GridCell.Tab.0.right/0.24.1366.744@0.24.1366.744" timestamp="1599724218891" />
-    <state width="1876" height="228" key="GridCell.Tab.0.right/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596094565818" />
-    <state x="126" y="253" width="1360" height="840" key="SettingsEditor" timestamp="1596073471907">
-      <screen x="0" y="0" width="1920" height="1200" />
-    </state>
-    <state x="126" y="253" width="1360" height="840" key="SettingsEditor/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596073471907" />
-    <state x="278" y="107" width="806" height="523" key="Vcs.Push.Dialog.v2" timestamp="1601803705688">
-      <screen x="0" y="24" width="1366" height="744" />
-    </state>
-    <state x="278" y="107" key="Vcs.Push.Dialog.v2/0.24.1366.744/5206.0.1024.768@0.24.1366.744" timestamp="1601803705688" />
-    <state x="278" y="107" key="Vcs.Push.Dialog.v2/0.24.1366.744@0.24.1366.744" timestamp="1599724479670" />
-    <state x="278" y="108" width="806" height="523" key="Vcs.Push.Dialog.v2/0.33.1366.676@0.33.1366.676" timestamp="1598488048816" />
-    <state x="387" y="137" width="592" height="522" key="find.popup" timestamp="1599723709559">
-      <screen x="0" y="24" width="1366" height="744" />
-    </state>
-    <state x="387" y="137" width="592" height="522" key="find.popup/0.24.1366.744@0.24.1366.744" timestamp="1599723709558" />
+    <MESSAGE value="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
