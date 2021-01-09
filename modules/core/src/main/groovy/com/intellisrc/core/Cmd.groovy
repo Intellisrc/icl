@@ -138,15 +138,14 @@ class Cmd {
         void exec(final String cmd, final List args = [], final Done onDone = null, final Fail onFail = null) {
             assert cmd: "Invalid Command"
 
-            final std_out = new StringBuilder(), std_err = new StringBuilder()
-            final prc
+            final StringBuilder stdOut = new StringBuilder(), stdErr = new StringBuilder()
             int exitCode
-            final arg_str = args.collect{ it.toString() }.join(" ")
+            final String arg_str = args.collect{ it.toString() }.join(" ")
 
             String command = "$cmd $arg_str"
             try {
-                prc = ["sh","-c", command].execute()
-                prc.consumeProcessOutput(std_out, std_err)
+                final Process prc = ["sh","-c", command].execute()
+                prc.consumeProcessOutput(stdOut, stdErr)
                 if(timeout > 0) {
                     prc.waitForOrKill(timeout)
                 } else {
@@ -155,7 +154,7 @@ class Cmd {
                 exitCode = prc.exitValue()
             } catch (Exception e) {
                 exitCode = 1
-                std_err << e.message
+                stdErr << e.message
             }
             if (secret) {
                 Log.v("> " + cmd + " ( " +args.size() + " hidden args )")
@@ -163,21 +162,21 @@ class Cmd {
                 Log.v("> " + command)
             }
             if (exitCode == exit) {
-                if (std_err) {
+                if (stdErr) {
                     if(sendErr && onFail) {
-                        onFail.fail(std_err.toString(), exitCode)
+                        onFail.fail(stdErr.toString(), exitCode)
                     } else { //Log any output to std_err
-                        Log.v(std_err.toString())
+                        Log.v(stdErr.toString())
                     }
                 }
                 if(onDone) {
-                    onDone.done(std_out.toString().trim())
+                    onDone.done(stdOut.toString().trim())
                 }
             } else {
                 if (onFail) {
-                    onFail.fail(std_err.toString().trim(), exitCode)
+                    onFail.fail(stdErr.toString().trim(), exitCode)
                 } else {
-                    Log.e("Command failed with exit code %d and message: %s", exitCode, std_err.toString())
+                    Log.e("Command failed with exit code %d and message: %s", exitCode, stdErr.toString())
                 }
             }
         }
