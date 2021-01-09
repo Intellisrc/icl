@@ -305,7 +305,7 @@ class Smtp {
                             try {
                                 DataSource source = new FileDataSource(file)
                                 def messageBodyPart = new MimeBodyPart(
-                                        dataHandler: new DataHandler(source),
+                                        dataHandler: new DataHandler(source, "text/plain; charset=UTF-8"),
                                         fileName: file.name
                                 )
                                 relatedPart.addBodyPart(messageBodyPart)

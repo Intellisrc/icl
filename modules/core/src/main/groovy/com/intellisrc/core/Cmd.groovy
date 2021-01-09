@@ -145,7 +145,7 @@ class Cmd {
 
             String command = "$cmd $arg_str"
             try {
-                prc = command.execute()
+                prc = ["sh","-c", command].execute()
                 prc.consumeProcessOutput(std_out, std_err)
                 if(timeout > 0) {
                     prc.waitForOrKill(timeout)

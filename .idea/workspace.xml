@@ -26,9 +26,11 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks">
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.13 : Improved Web and Task modules.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Cmd.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Cmd.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Smtp.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/Smtp.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -200,7 +202,9 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
     <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -219,7 +223,9 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
     <configuration name="common [signJars]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -238,7 +244,9 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
     <configuration name="common [uploadArchives]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -257,7 +265,9 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
     <configuration name="common:modules:core [uploadArchives]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -276,7 +286,9 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
@@ -329,14 +341,18 @@
       <workItem from="1599724472537" duration="16000" />
       <workItem from="1600653675751" duration="136000" />
       <workItem from="1601795296698" duration="432000" />
-      <workItem from="1601796290486" duration="3562000" />
-    </task>
-    <task id="LOCAL-00094" summary="2.4.5 Added test for PGP">
-      <created>1530689654588</created>
-      <option name="number" value="00094" />
-      <option name="presentableId" value="LOCAL-00094" />
-      <option name="project" value="LOCAL" />
-      <updated>1530689654588</updated>
+      <workItem from="1601796290486" duration="4091000" />
+      <workItem from="1601889639925" duration="195000" />
+      <workItem from="1604309835449" duration="83000" />
+      <workItem from="1604738109773" duration="971000" />
+      <workItem from="1605935593671" duration="77000" />
+      <workItem from="1605939530681" duration="1134000" />
+      <workItem from="1606542047124" duration="3362000" />
+      <workItem from="1606548908856" duration="99000" />
+      <workItem from="1606832062246" duration="15000" />
+      <workItem from="1606832882814" duration="604000" />
+      <workItem from="1608637115025" duration="400000" />
+      <workItem from="1610164610995" duration="171000" />
     </task>
     <task id="LOCAL-00095" summary="2.4.5 Added encoding/decoding exceptions">
       <created>1531111721988</created>
@@ -674,7 +690,14 @@
       <option name="project" value="LOCAL" />
       <updated>1599724201235</updated>
     </task>
-    <option name="localTasksCounter" value="143" />
+    <task id="LOCAL-00143" summary="2.7.13 : Improved Web and Task modules.">
+      <created>1601803693605</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
+      <option name="project" value="LOCAL" />
+      <updated>1601803693606</updated>
+    </task>
+    <option name="localTasksCounter" value="144" />
     <servers />
   </component>
   <component name="TodoView">
@@ -716,7 +739,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.6.0: Fixed Log not printing" />
     <MESSAGE value="2.6.1: Updated to groovy-extends 2.0.256" />
     <MESSAGE value="2.6.1: Disable colog to file by default" />
     <MESSAGE value="2.6.1: Removed reported errors" />
@@ -741,7 +763,8 @@
     <MESSAGE value="2.7.11 : Added &quot;Usage&quot; to documentation" />
     <MESSAGE value="2.7.12 : Simplified WebService related usage." />
     <MESSAGE value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
+    <MESSAGE value="2.7.13 : Improved Web and Task modules." />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.13 : Improved Web and Task modules." />
   </component>
   <component name="WindowStateProjectService">
     <state x="69" y="108" width="1098" height="565" key="DiffContextDialog" timestamp="1598488019212">
@@ -777,9 +800,10 @@
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="126" y="253" width="1360" height="840" key="SettingsEditor/1920.0.1024.768/0.0.1920.1200@0.0.1920.1200" timestamp="1596073471907" />
-    <state x="278" y="107" width="806" height="523" key="Vcs.Push.Dialog.v2" timestamp="1599724479670">
+    <state x="278" y="107" width="806" height="523" key="Vcs.Push.Dialog.v2" timestamp="1601803705688">
       <screen x="0" y="24" width="1366" height="744" />
     </state>
+    <state x="278" y="107" key="Vcs.Push.Dialog.v2/0.24.1366.744/5206.0.1024.768@0.24.1366.744" timestamp="1601803705688" />
     <state x="278" y="107" key="Vcs.Push.Dialog.v2/0.24.1366.744@0.24.1366.744" timestamp="1599724479670" />
     <state x="278" y="108" width="806" height="523" key="Vcs.Push.Dialog.v2/0.33.1366.676@0.33.1366.676" timestamp="1598488048816" />
     <state x="387" y="137" width="592" height="522" key="find.popup" timestamp="1599723709559">
