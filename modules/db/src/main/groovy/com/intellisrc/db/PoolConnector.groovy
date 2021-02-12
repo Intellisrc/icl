@@ -4,8 +4,9 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.DB.Connector
 import com.intellisrc.db.DB.DBType
 import com.intellisrc.db.DB.Statement
+import groovy.transform.CompileStatic
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * Implements a Connector to be used in DBPool
  * @author Alberto Lepe <lepe@intellisrc.com>

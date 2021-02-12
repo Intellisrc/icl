@@ -1,11 +1,14 @@
 package com.intellisrc.web
 
+import com.intellisrc.etc.Cache
 import com.intellisrc.etc.CacheObj
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 
 import javax.imageio.ImageIO
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.Part
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
 
@@ -136,22 +139,24 @@ class WebService {
                                 ServiciableAuth auth = serviciable as ServiciableAuth
                                 srv.post(auth.path + auth.loginPath, {
                                     Request request, Response response ->
-                                        def ok = false
-                                        def sessionMap = auth.onLogin(request, response)
-                                        def id = 0
+                                        boolean ok = false
+                                        Map<String, Object> sessionMap = auth.onLogin(request, response)
+                                        Map res = [:]
                                         if (!sessionMap.isEmpty()) {
                                             ok = true
                                             request.session(true)
                                             sessionMap.each {
-                                                request.session().attribute(it.key, it.value)
+                                                if(it.key == "response" && it.value instanceof Map) {
+                                                    res += (it.value as Map)
+                                                } else {
+                                                    request.session().attribute(it.key, it.value)
+                                                }
                                             }
-                                            id = request.session().id()
+                                            res.id = request.session().id()
                                         }
                                         response.type("application/json")
-                                        return JSON.encode(
-                                                y: ok,
-                                                id: id
-                                        )
+                                        res.y = ok
+                                        return JSON.encode(res)
                                 })
                                 srv.get(auth.path + auth.logoutPath, {
                                     Request request, Response response ->
@@ -212,7 +217,7 @@ class WebService {
      * @return
      */
     private void addServicePath(Service service, String rootPath) {
-        def fullPath = rootPath + service.path
+        String fullPath = rootPath + service.path
         if (listPaths.contains(service.method.toString() + fullPath)) {
             Log.w("Warning, duplicated path [" + fullPath + "] and method [" + service.method.toString() + "] found.")
         } else {
@@ -359,19 +364,19 @@ class WebService {
                             }
                         }
                         if (sp.uploadField) {
-                            def tempDir = SysInfo.getTempDir()
-                            def tempFileDir = new File(tempDir)
+                            String tempDir = SysInfo.getTempDir()
+                            File tempFileDir = new File(tempDir)
                             if (tempFileDir.canWrite()) {
                                 request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
                                 Path path = Files.createTempFile("upload", ".file")
-                                def raw = request.raw()
+                                HttpServletRequest raw = request.raw()
                                 if (raw.contentLength > 0) {
                                     try {
-                                        def part = raw.getPart(sp.uploadField)
+                                        Part part = raw.getPart(sp.uploadField)
                                         if (part) {
                                             InputStream input = part.getInputStream()
                                             Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
-                                            def file = new File(path.toString())
+                                            File file = new File(path.toString())
                                             try {
                                                 res = callAction(sp.action, request, response, file)
                                                 out = getOutput(res, otype)
@@ -403,7 +408,7 @@ class WebService {
                             String query = request.queryString()
                             String key = request.uri() + (query ? "?" + query : "")
                             out = CacheObj.instance.get(key, {
-                                def toSave = ""
+                                String toSave = ""
                                 try {
                                     res = callAction(sp.action, request, response)
                                     toSave = getOutput(res, otype)

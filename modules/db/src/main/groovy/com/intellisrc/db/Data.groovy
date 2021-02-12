@@ -1,19 +1,18 @@
 package com.intellisrc.db
 
-@groovy.transform.CompileStatic
+import groovy.transform.CompileStatic
+
+@CompileStatic
 /**
  * The goal of this class is to
  * convert the Database result into
  * something more useful
- *
- * //TODO: documentation
  *
  * @author A.Lepe
  */
 class Data {
     private List<Map> data = []
 
-    Data() {}
     Data(List<Map> data) {
         this.data = data
     }
@@ -22,6 +21,10 @@ class Data {
         return this.data.isEmpty()
     }
 
+    /**
+     * Returns the first column of the first row as String
+     * @return
+     */
 	@Override
     String toString() {
         String str = ""
@@ -33,6 +36,10 @@ class Data {
         }
         return str
     }
+    /**
+     * Returns the first column of the first row as int
+     * @return
+     */
     Integer toInt() {
         int val = 0
         if(!data.isEmpty()) {
@@ -53,6 +60,24 @@ class Data {
         }
         return val
     }
+    /**
+     * Returns the first column of the first row as float
+     * @return
+     */
+    Float toFloat() {
+        Float val = 0
+        if(!data.isEmpty()) {
+            Map map = data.get(0)
+            if(!map.isEmpty()) {
+                val = (Float) getFirstElement(map)
+            }
+        }
+        return val
+    }
+    /**
+     * Returns the first column of the first row as double
+     * @return
+     */
     Double toDbl() {
         Double val = 0
         if(!data.isEmpty()) {
@@ -62,8 +87,11 @@ class Data {
             }
         }
         return val
-    }	
-    // Will return the first element of each row
+    }
+    /**
+     * Returns the first element of each row
+     * @return
+     */
     List toList() {
         List al = []
         if(!data.isEmpty()) {
@@ -73,7 +101,10 @@ class Data {
         }
         return al as List
     }
-    // It will return the first row as Hash
+    /**
+     * Returns the first row as Map
+     * @return
+     */
     Map toMap() {
         Map map = [:]
         if(!data.isEmpty()) {
@@ -82,15 +113,20 @@ class Data {
         return map
     }
 
+    /**
+     * Returns all rows as Map
+     * @return
+     */
     List<Map> toListMap() {
         return data
     }
 
-    void addRow(Map row) {
-        data.add(row)
-    }
-
-    private Object getFirstElement(Map map) {
+    /**
+     * Returns the first element of a Map
+     * @param map
+     * @return
+     */
+    private static Object getFirstElement(Map map) {
         Iterator it = map.entrySet().iterator()
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next()

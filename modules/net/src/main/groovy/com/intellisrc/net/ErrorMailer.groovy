@@ -12,7 +12,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class ErrorMailer {
-    static public Level minLevel = Level.SECURITY
+    static public Level minLevel = Level.SPECIAL
     /**
      * Override the next strings in case
      * it is displaying incorrect information

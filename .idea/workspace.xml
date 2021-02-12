@@ -26,9 +26,27 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes">
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.13 : Added SysClockTest">
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Cmd.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Cmd.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DB.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DB.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DBPool.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DBPool.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Data.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Data.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DummyConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DummyConnector.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/PoolConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/PoolConnector.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Query.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Query.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/BuffImgTools.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/BuffImgTools.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/ErrorMailer.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/ErrorMailer.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LoginService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LoginService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,29 +104,6 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="other" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="publishing" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="upload" type="c8890929:TasksNode$1" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -148,8 +143,8 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="com.intellisrc.cv" />
       <recent name="com.intellisrc.core" />
+      <recent name="com.intellisrc.cv" />
       <recent name="com.intellisrc.net" />
       <recent name="com.intellisrc.serial" />
       <recent name="com.intellisrc.term" />
@@ -162,7 +157,7 @@
       <recent name="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
+  <component name="RunManager" selected="Gradle.common [publish]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
@@ -226,7 +221,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="common [signJars]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="common [publish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -237,7 +232,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="signJars" />
+            <option value="publish" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -311,18 +306,18 @@
     </configuration>
     <list>
       <item itemvalue="Gradle.common [clean]" />
-      <item itemvalue="Gradle.common [signJars]" />
       <item itemvalue="Gradle.common [uploadArchives]" />
       <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
       <item itemvalue="Gradle.common [publishToMavenLocal]" />
+      <item itemvalue="Gradle.common [publish]" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.common [publish]" />
         <item itemvalue="Gradle.common [publishToMavenLocal]" />
         <item itemvalue="Gradle.common [clean]" />
         <item itemvalue="Gradle.common [uploadArchives]" />
         <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
-        <item itemvalue="Gradle.common [signJars]" />
       </list>
     </recent_temporary>
   </component>
@@ -339,19 +334,14 @@
       <workItem from="1599724472537" duration="16000" />
       <workItem from="1600653675751" duration="136000" />
       <workItem from="1601795296698" duration="432000" />
-      <workItem from="1601796290486" duration="4091000" />
-      <workItem from="1601889639925" duration="195000" />
-      <workItem from="1604309835449" duration="83000" />
-      <workItem from="1604738109773" duration="971000" />
-      <workItem from="1605935593671" duration="77000" />
-      <workItem from="1605939530681" duration="1134000" />
-      <workItem from="1606542047124" duration="3362000" />
-      <workItem from="1606548908856" duration="99000" />
-      <workItem from="1606832062246" duration="15000" />
-      <workItem from="1606832882814" duration="604000" />
-      <workItem from="1608637115025" duration="400000" />
-      <workItem from="1610164610995" duration="715000" />
-      <workItem from="1610176634798" duration="932000" />
+      <workItem from="1601796290486" duration="3562000" />
+    </task>
+    <task id="LOCAL-00095" summary="2.4.5 Added encoding/decoding exceptions">
+      <created>1531111721988</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1531111721990</updated>
     </task>
     <task id="LOCAL-00096" summary="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set.">
       <created>1531112023870</created>
@@ -682,21 +672,14 @@
       <option name="project" value="LOCAL" />
       <updated>1599724201235</updated>
     </task>
-    <task id="LOCAL-00143" summary="2.7.13 : Improved Web and Task modules.">
-      <created>1601803693605</created>
+    <task id="LOCAL-00143" summary="2.7.13 : Added SysClockTest">
+      <created>1603071210490</created>
       <option name="number" value="00143" />
       <option name="presentableId" value="LOCAL-00143" />
       <option name="project" value="LOCAL" />
-      <updated>1601803693606</updated>
+      <updated>1603071210491</updated>
     </task>
-    <task id="LOCAL-00144" summary="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes">
-      <created>1610165223258</created>
-      <option name="number" value="00144" />
-      <option name="presentableId" value="LOCAL-00144" />
-      <option name="project" value="LOCAL" />
-      <updated>1610165223259</updated>
-    </task>
-    <option name="localTasksCounter" value="145" />
+    <option name="localTasksCounter" value="144" />
     <servers />
   </component>
   <component name="TodoView">
@@ -738,6 +721,7 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="2.6.1: Updated to groovy-extends 2.0.256" />
     <MESSAGE value="2.6.1: Disable colog to file by default" />
     <MESSAGE value="2.6.1: Removed reported errors" />
     <MESSAGE value="2.6.1: Added encoder to URL in webservice" />
@@ -761,9 +745,8 @@
     <MESSAGE value="2.7.11 : Added &quot;Usage&quot; to documentation" />
     <MESSAGE value="2.7.12 : Simplified WebService related usage." />
     <MESSAGE value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
-    <MESSAGE value="2.7.13 : Improved Web and Task modules." />
-    <MESSAGE value="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.14 : added charset into smtp; Cmd is executed with &quot;sh -c&quot; to handle quotes" />
+    <MESSAGE value="2.7.13 : Added SysClockTest" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.13 : Added SysClockTest" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />

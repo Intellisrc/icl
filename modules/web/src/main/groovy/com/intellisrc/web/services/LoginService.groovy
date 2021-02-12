@@ -79,9 +79,8 @@ class LoginService implements ServiciableAuth {
     }
 
     //Variables
-    LoginAction onLoginAction = new LoginAction() {
-        @Override
-        Map<String, Object> call(Request request) {
+    LoginAction onLoginAction = {
+        Request request ->
             def user = request.queryParams("user") ?:
                        request.queryParams("usr") ?:
                        request.queryParams("u") ?: ""
@@ -100,19 +99,16 @@ class LoginService implements ServiciableAuth {
                 level : level,
                 login : level > Level.GUEST
             ] as Map<String, Object>
-        }
-    }
+    } as LoginAction
 
     /**
      * This property must be defined to allow login
      */
-    LoginAuth onLoginAuth = new LoginAuth() {
-        @Override
-        Level call(String user, String password) {
+    LoginAuth onLoginAuth = {
+        String user, String password ->
             Log.e( "No login authorization has been implemented.")
             return Level.GUEST
-        }
-    }
+    } as LoginAuth
 
     /**
      * Is recommended to override this method in child classes.

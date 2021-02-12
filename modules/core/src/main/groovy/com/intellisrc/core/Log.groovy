@@ -18,8 +18,8 @@ import java.time.temporal.ChronoUnit
  */
 final class Log {
     //When logFile is not empty, it will export log to that file
-    static public String logFileName = ""
-    static public File directory
+    static public String logFileName = "system.log"
+    static public File directory = SysInfo.getFile("log")
 
     static public String mainClass = ""
     static public List<String> domains = [] //Highlight one or more domains in logs (it will try to get it automatically)
@@ -27,11 +27,13 @@ final class Log {
     static public boolean color = true //When true, it will automatically set color. If false, it will disabled it
     static public boolean colorInvert = false //When true BLACK/WHITE will be inverted <VERBOSE vs DEBUG> (depends on terminal)
     static public boolean colorAlways = false //When true it will output log always in color
-    static public boolean printAlways = false //When true it will always output to screen (it won't print if Log is disabled)
+    static public boolean printAlways = true  //When true it will always output to screen (it won't print if Log is disabled)
     static public boolean isSnapShot
     static public synchronized boolean initialized = false
     static public boolean enabled = true
-    static public Level level = Level.INFO
+    static public Level level = Level.INFO //Global level. It will be used to print (unless printLevel is set) and to store
+    static public Level printLevel = level //Level to print on screen
+    static public Level fileLevel = level //Level to export to file
     static public int logDays = 7 // Days to keep as backup (doesn't include today)
     static public final int MAX_LOG_LINE_LENGTH = 4000
     static public final int maxTaskExecTimeMs = 60000 // 1 minute
@@ -40,11 +42,11 @@ final class Log {
     static public final AndroidPrinter ANDROID = new AndroidPrinter()
     static public final FilePrinter LOGFILE = new FilePrinter()
 
-    private static final Set<Printer> mPrinters = []
+    private static final List<Printer> mPrinters = []
     private static final int STACK_DEPTH = 4
 
     static final enum Level {
-        VERBOSE, DEBUG, INFO, WARN, SECURITY, ERROR
+        VERBOSE, DEBUG, INFO, WARN, SPECIAL, ERROR
         String toChar() {
             return super.toString().substring(0,1)
         }
@@ -69,24 +71,39 @@ final class Log {
     //Execute on load
     static void init() {
         isSnapShot = Version.get().contains("SNAPSHOT")
-        if(isSnapShot) {
-            level = Level.VERBOSE
-        } else {
-            def sLevel = Config.get("log.level", "verbose").toUpperCase()
-            level = sLevel as Level
+        if(Config.hasKey("log.level")) {
+            level = Config.get("log.level").toUpperCase() as Level
+        } else if(isSnapShot) {
+            level = Config.get("log.level.snapshot", "verbose").toUpperCase() as Level
         }
 
-        logFileName = Config.get("log.file", "system.log")
-        logDays = Config.getInt("log.days", logDays)
-        enabled = !Config.getBool("log.disable")
-        printAlways = Config.getBool("log.print")
+        if(Config.hasKey("log.file")) {
+            logFileName = Config.get("log.file")
+        }
+        if(Config.hasKey("log.days")) {
+            logDays = Config.getInt("log.days")
+        }
+        if(Config.hasKey("log.disable")) {
+            enabled = !Config.getBool("log.disable")
+        }
+        if(Config.hasKey("log.print")) {
+            printAlways = Config.getBool("log.print")
+        }
+        if(Config.hasKey("log.print.level")) {
+            printLevel = Config.get("log.print.level").toUpperCase() as Level
+        }
+        if(Config.hasKey("log.file.level")) {
+            fileLevel = Config.get("log.file.level").toUpperCase() as Level
+        }
+        //Fix level in case is set incorrectly:
+        if(printLevel < level || fileLevel < level) {
+            level = [printLevel, fileLevel].min()
+        }
 
         if (Config.hasKey("log.dir")) {
             directory = Config.getFile("log.dir")
         } else if (Config.hasKey("log.path")) { //Support for old config
             directory = Config.getFile("log.path")
-        } else {
-            directory = SysInfo.getFile("logs")
         }
         if(directory) {
             if(!directory.exists()) {
@@ -140,19 +157,21 @@ final class Log {
     private static class FilePrinter implements Printer {
         @Override
         void print(Level lvl, Info stack, String msg) {
-            File logToFile = logFile
-            if(logToFile) {
-                LocalDateTime newDate = SysClock.dateTime
-                boolean dateChanged = false
-                // Change file and compress if date changed
-                if(newDate.toLocalDate().YMD != logDate.toLocalDate().YMD) {
-                    compressLog(logToFile) //compress previous date log
-                    logDate = newDate
-                    cleanLogs()
-                    dateChanged = true
+            if(lvl >= fileLevel) {
+                File logToFile = logFile
+                if (logToFile) {
+                    LocalDateTime newDate = SysClock.dateTime
+                    boolean dateChanged = false
+                    // Change file and compress if date changed
+                    if (newDate.toLocalDate().YMD != logDate.toLocalDate().YMD) {
+                        compressLog(logToFile) //compress previous date log
+                        logDate = newDate
+                        cleanLogs()
+                        dateChanged = true
+                    }
+                    logFile << getLogLine(lvl, stack, msg, true) //log to last date
+                    linkLast(dateChanged)
                 }
-                logFile << getLogLine(lvl, stack, msg, true) //log to last date
-                linkLast(dateChanged)
             }
         }
     }
@@ -294,7 +313,7 @@ final class Log {
             case Level.DEBUG: color = colorInvert ? AnsiColor.BLACK : AnsiColor.WHITE; break
             case Level.INFO: color = AnsiColor.CYAN; break
             case Level.WARN: color = AnsiColor.YELLOW; break
-            case Level.SECURITY: color = AnsiColor.PURPLE; break
+            case Level.SPECIAL: color = AnsiColor.PURPLE; break
             case Level.ERROR: color = AnsiColor.RED; break
         }
         return color
@@ -303,7 +322,9 @@ final class Log {
     private static class SystemOutPrinter implements Printer {
         @Override
         void print(Level lvl, Info stack, String msg) {
-            print(getLogLine(lvl, stack, msg, false))
+            if(lvl >= printLevel) {
+                print(getLogLine(lvl, stack, msg, false))
+            }
         }
     }
 
@@ -372,7 +393,7 @@ final class Log {
         log(Level.WARN, msg, args)
     }
     static synchronized void s(String msg, Object... args) {
-        log(Level.SECURITY, msg, args)
+        log(Level.SPECIAL, msg, args)
     }
     static synchronized void e(String msg, Object... args) {
         log(Level.ERROR, msg, args)

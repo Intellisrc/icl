@@ -2,6 +2,7 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB.DBType
+import groovy.transform.CompileStatic
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -9,7 +10,7 @@ import java.time.LocalDateTime
 import static com.intellisrc.db.DB.DBType.*
 import static com.intellisrc.db.Query.Action.*
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * Generates a Query based on rules
  * Created by A.Lepe on 16/11/11.
@@ -339,12 +340,21 @@ class Query {
         return squery
     }
 
-    private static String sqlName(final Object obj) {
+    private String sqlName(final Object obj) {
         return sqlName(obj.toString())
     }
     // Return column or table name clean and with ``
-    private static String sqlName(final String str) {
-        return "`" + str.toLowerCase().replaceAll("/[^a-z0-9._]/","") + "`"
+    private String sqlName(final String str) {
+        String result = str
+        switch(dbType) {
+            case SQLITE:
+            case MYSQL:
+                result = "`" + result.toLowerCase().replaceAll("/[^a-z0-9._]/","") + "`"
+                break
+            case POSTGRESQL: //No special quotation is required in PostgreSQL
+                break
+        }
+        return result
     }
 	/**
 	 * Clean a SQL query removing invalid characters like unicode, comments, semicolon, etc

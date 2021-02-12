@@ -5,6 +5,7 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.DB.Connector
 import com.intellisrc.db.DB.ColumnType
 import com.intellisrc.db.DB.DBType
+import groovy.transform.CompileStatic
 
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -21,7 +22,7 @@ import java.sql.SQLException
 import java.sql.PreparedStatement
 import static java.sql.Types.*
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * SQL connector for Java using JDBC
  * It supports mysql, postgres, sqlite and a dummy connection
@@ -52,7 +53,7 @@ class JDBCConnector implements Connector {
 	private String host = ""
 	private int port
 	private static Connection db
-	private DBType type = JAVADB
+	private DBType type = SQLITE
 	long lastUsed = 0
 
 	/**
@@ -138,7 +139,7 @@ class JDBCConnector implements Connector {
 				}
                 url += "${stype}:${dbname}"
                 break
-            case POSGRESQL:
+            case POSTGRESQL:
             case MYSQL:
             default:
                 url += "${stype}://${host}:${port}/${dbname}"
@@ -146,12 +147,19 @@ class JDBCConnector implements Connector {
         }
         //Additional params
         switch(type) {
-            case SQLITE:
+			case SQLITE:
                     try {
 						Class.forName("org.sqlite.JDBC")
 					} catch (ClassNotFoundException e) {
-						Log.e("SQLite Driver not found", e);
+						Log.e("SQLite Driver not found", e)
 					}
+				break
+			case POSTGRESQL:
+				try {
+					Class.forName("org.postgresql.Driver")
+				} catch (ClassNotFoundException e) {
+					Log.e("PostgreSQL Driver not found", e)
+				}
 				break
             case MYSQL:
                 try {
@@ -168,6 +176,8 @@ class JDBCConnector implements Connector {
                     url = ""
                 }
                 break
+			default:
+				Log.w("Database type: [%s] doesn't include the driver. You will need to add it separately.", type)
         }
         return url
 	}
@@ -211,6 +221,8 @@ class JDBCConnector implements Connector {
 				Object o = values[index - 1]
 				if (o == null) {
 					st.setNull(index, NULL)
+				} else if (o instanceof Float) {
+					st.setFloat(index, (Float) o)
 				} else if (o instanceof Double) {
 					st.setDouble(index, (Double) o)
 				} else if (o instanceof Integer) {
@@ -301,8 +313,9 @@ class JDBCConnector implements Connector {
                             case BOOLEAN:
                             case BIT:
 								ct = ColumnType.INTEGER; break
-							case BIGINT:
 							case FLOAT:
+								ct = ColumnType.FLOAT; break
+							case BIGINT:
 							case DOUBLE:
 							case DECIMAL:
 							case NUMERIC:
@@ -356,6 +369,16 @@ class JDBCConnector implements Connector {
 					} catch (SQLException ex) {
 						Log.e( "column Int failed: ",ex)
 						return 0
+					}
+				}
+
+				@Override
+				Float columnFloat(int index) {
+					try {
+						return rs.getFloat(index)
+					} catch (SQLException ex) {
+						Log.e( "column Float failed: ",ex)
+						return 0f
 					}
 				}
 
