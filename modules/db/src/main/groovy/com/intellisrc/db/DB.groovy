@@ -1,13 +1,14 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 import static com.intellisrc.db.DB.ColumnType.*
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * This class uses an interface of Connector to
  * interact with the Database
@@ -33,11 +34,11 @@ class DB {
 	}
 
 	static enum DBType {
-		DUMMY, SQLITE, MYSQL, POSGRESQL, JAVADB, ORACLE, DB2, SUN
+		DUMMY, SQLITE, MYSQL, POSTGRESQL, JAVADB, ORACLE, DB2, SUN
 	}
 
 	static enum ColumnType {
-		TEXT, INTEGER, DOUBLE, BLOB, DATE, NULL
+		TEXT, INTEGER, FLOAT, DOUBLE, BLOB, DATE, NULL
 	}
     ////////////////////////// Interfaces ////////////////////////////////
     static interface Starter {
@@ -65,6 +66,7 @@ class DB {
 		String columnStr(int index)
 		Integer columnInt(int index)
 		Double columnDbl(int index)
+        Float columnFloat(int index)
 		LocalDateTime columnDate(int index)
 		byte[] columnBlob(int index)
 		boolean isColumnNull(int index)
@@ -538,6 +540,7 @@ class DB {
         Data data = null
         openIfClosed()
         if(db.isOpen()) {
+            query.setType(getType())
             Log.v( "GET ::: " + query.toString())
             query.argsList.each {
                 Log.v( " --> " + it)
@@ -558,6 +561,9 @@ class DB {
                                     break
                                 case INTEGER:
                                     row.put(column, st.columnInt(i))
+                                    break
+                                case FLOAT:
+                                    row.put(column, st.columnFloat(i))
                                     break
                                 case DOUBLE:
                                     row.put(column, st.columnDbl(i))

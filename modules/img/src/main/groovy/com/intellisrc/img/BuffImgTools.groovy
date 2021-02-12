@@ -92,17 +92,31 @@ class BuffImgTools {
     }
     /**
      * Rotate a BufferedImage
+     * This method won't enlarge the dimensions of the image
+     * FIXME: it doesn't work for angles rather than 90, 180, 270
      * @param image
      * @param angle
      * @return
      */
     static BufferedImage rotate(BufferedImage image, int angle) {
         assert image: "Image was empty"
-        int w = image.getWidth()
-        int h = image.getHeight()
-        BufferedImage rotated = new BufferedImage(w, h, image.getType())
+        assert [0,90,180,270].contains(angle) : "Angle $angle is not supported yet"
+        boolean flip = (angle > 45 && angle < 135) || (angle > 225 && angle < 315)
+        int w = image.width
+        int h = image.height
+        int fw = flip ? h : w
+        int fh = flip ? w : h
+        BufferedImage rotated = new BufferedImage(fw, fh, image.getType())
         Graphics2D graphic = rotated.createGraphics()
-        graphic.rotate(Math.toRadians(angle), (w / 2).toDouble(), (h / 2).toDouble())
+        if(angle > 45 && angle < 135) {
+            graphic.translate((h - w) / 2d, (h - w) / 2d)
+            graphic.rotate(Math.toRadians(angle), (h / 2d), (w / 2d))
+        } else if(angle > 225 && angle < 315) {
+            graphic.translate((w - h) / 2d, (w - h) / 2d)
+            graphic.rotate(Math.toRadians(angle), (h / 2d), (w / 2d))
+        } else {
+            graphic.rotate(Math.toRadians(angle), (w / 2d), (h / 2d))
+        }
         graphic.drawImage(image, null, 0, 0)
         graphic.dispose()
         return rotated

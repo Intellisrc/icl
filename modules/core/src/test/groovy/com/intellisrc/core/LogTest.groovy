@@ -202,4 +202,22 @@ class LogTest extends Specification {
         then:
             notThrown Exception
     }
+
+    def "Print Log and Log to file levels should be respected"() {
+        setup:
+            Log.logFileName = "test.log"
+            Log.directory = SysInfo.getFile("test-log")
+            Log.level = Log.Level.DEBUG
+            Log.printAlways = true
+            Log.fileLevel = Log.Level.WARN
+            Log.printLevel = Log.Level.DEBUG
+        when:
+            Log.w("This should be in file and on screen")
+            Log.i("This should be only on screen")
+        then:
+            assert Log.logFile.text.contains("file")
+            assert ! Log.logFile.text.contains("only")
+        cleanup:
+            Log.directory.delete()
+    }
 }

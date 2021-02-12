@@ -1,10 +1,12 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * This class is to simulate and log DB connections
  * It is specially useful for Unit testing
@@ -46,7 +48,7 @@ class DummyConnector implements DB.Connector {
         return DB.DBType.DUMMY
     }
 
-    class DummyStatement implements DB.Statement {
+    static class DummyStatement implements DB.Statement {
         List<Map<String,Object>> data = []
         private int dataIndex = 0
 
@@ -91,6 +93,10 @@ class DummyConnector implements DB.Connector {
 
         Integer columnInt(int index) {
             return Integer.parseInt(columnStr(index))
+        }
+
+        Float columnFloat(int index) {
+            return Float.parseFloat(columnStr(index))
         }
 
         Double columnDbl(int index) {

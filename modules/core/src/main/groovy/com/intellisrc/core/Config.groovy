@@ -32,6 +32,7 @@ class Config {
     static String get(String key, String defval = "")           { global.get(key, defval) }
     static int getInt(String key, int defval = 0)               { global.getInt(key, defval) }
     static double getDbl(String key, double defval = 0)         { global.getDbl(key, defval) }
+    static float getFloat(String key, float defval = 0)         { global.getFloat(key, defval) }
     static boolean getBool(String key, boolean defval = false)  { global.getBool(key, defval) }
     static File getFile(String key, File defval = null)         { global.getFile(key, defval) }
     static List<String> getList(String key, List<String> defval = []) { global.getList(key, defval) }
@@ -161,6 +162,22 @@ class Config {
                 String str = get(key)
                 if (! str.empty) {
                     val = Integer.parseInt(str)
+                }
+            }
+            return val
+        }
+
+        /**
+         * Get value as double
+         * @param key
+         * @return
+         */
+        float getFloat(String key, float defval = 0) {
+            float val = defval
+            if(hasKey(key)) {
+                String str = get(key)
+                if (! str.empty) {
+                    val = Float.parseFloat(str)
                 }
             }
             return val

@@ -1,8 +1,9 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
-@groovy.transform.CompileStatic
+@CompileStatic
 /**
  * Manage the DB connection pool
  * It handles automatically the number of connections as it
