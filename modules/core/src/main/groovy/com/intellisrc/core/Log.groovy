@@ -70,6 +70,8 @@ final class Log {
 
     //Execute on load
     static void init() {
+        if(initialized) { return }
+        initialized = true
         isSnapShot = Version.get().contains("SNAPSHOT")
         if(Config.hasKey("log.level")) {
             level = Config.get("log.level").toUpperCase() as Level
@@ -151,7 +153,6 @@ final class Log {
         setPrinter()
         cleanLogs()
         linkLast()
-        initialized = true
     }
 
     private static class FilePrinter implements Printer {
@@ -374,7 +375,9 @@ final class Log {
 
     static synchronized void usePrinter(Printer p, boolean on) {
         if (on) {
-            mPrinters.add(p)
+            if(!mPrinters.contains(p)) {
+                mPrinters.add(p)
+            }
         } else {
             mPrinters.remove(p)
         }

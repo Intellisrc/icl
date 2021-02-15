@@ -32,21 +32,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DB.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DB.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DBPool.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DBPool.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Data.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Data.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DummyConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DummyConnector.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/PoolConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/PoolConnector.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Query.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Query.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/BuffImgTools.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/img/src/main/groovy/com/intellisrc/img/BuffImgTools.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/ErrorMailer.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/src/main/groovy/com/intellisrc/net/ErrorMailer.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LoginService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/services/LoginService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,6 +90,17 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -133,7 +130,7 @@
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
@@ -142,6 +139,13 @@
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab" />
+      <recent name="$PROJECT_DIR$/modules/img/src/test" />
+      <recent name="$PROJECT_DIR$/modules/cv/src/test" />
+      <recent name="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.intellisrc.core" />
       <recent name="com.intellisrc.cv" />
@@ -149,15 +153,8 @@
       <recent name="com.intellisrc.serial" />
       <recent name="com.intellisrc.term" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab" />
-      <recent name="$PROJECT_DIR$/modules/img/src/test" />
-      <recent name="$PROJECT_DIR$/modules/cv/src/test" />
-      <recent name="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread" />
-      <recent name="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img" />
-    </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [publish]">
+  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
@@ -179,7 +176,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="common [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="common [javadocJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -190,7 +187,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="clean" />
+            <option value="javadocJar" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -221,7 +218,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="common [publish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="common [signJars]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -232,7 +229,28 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="publish" />
+            <option value="signJars" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [sourceJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="sourceJar" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -246,27 +264,6 @@
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="uploadArchives" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="common:modules:core [uploadArchives]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/modules/core" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -305,19 +302,19 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.common [clean]" />
+      <item itemvalue="Gradle.common [signJars]" />
+      <item itemvalue="Gradle.common [sourceJar]" />
+      <item itemvalue="Gradle.common [javadocJar]" />
       <item itemvalue="Gradle.common [uploadArchives]" />
-      <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
       <item itemvalue="Gradle.common [publishToMavenLocal]" />
-      <item itemvalue="Gradle.common [publish]" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.common [publish]" />
         <item itemvalue="Gradle.common [publishToMavenLocal]" />
-        <item itemvalue="Gradle.common [clean]" />
         <item itemvalue="Gradle.common [uploadArchives]" />
-        <item itemvalue="Gradle.common:modules:core [uploadArchives]" />
+        <item itemvalue="Gradle.common [signJars]" />
+        <item itemvalue="Gradle.common [javadocJar]" />
+        <item itemvalue="Gradle.common [sourceJar]" />
       </list>
     </recent_temporary>
   </component>
@@ -335,6 +332,10 @@
       <workItem from="1600653675751" duration="136000" />
       <workItem from="1601795296698" duration="432000" />
       <workItem from="1601796290486" duration="3562000" />
+      <workItem from="1613123090597" duration="136000" />
+      <workItem from="1613123317922" duration="52000" />
+      <workItem from="1613181541580" duration="377000" />
+      <workItem from="1613362102611" duration="1562000" />
     </task>
     <task id="LOCAL-00095" summary="2.4.5 Added encoding/decoding exceptions">
       <created>1531111721988</created>
