@@ -65,11 +65,11 @@ class BuffImgToolsTest extends Specification{
         setup:
             BufferedImage img = Converter.FileToBuffered(imgTest)
             //BuffImgTools.show(img)
-            BufferedImage rotated = BuffImgTools.rotate(img, 10)
+            BufferedImage rotated = BuffImgTools.rotate(img, 90)
             //BuffImgTools.show(rotated)
         expect:
-            assert rotated.width == img.width
-            assert rotated.height == img.height
+            assert rotated.width == img.height
+            assert rotated.height == img.width
     }
 
     def "Crop BufferedImage"() {

@@ -44,7 +44,7 @@ class CmdTest extends Specification {
                 assert out == "done"
         },
  {
-            assert false //Should not endup here
+            assert false //Should not end up here
         })
     }
     def "Command Exec Multiple Using Map"() {
@@ -56,7 +56,7 @@ class CmdTest extends Specification {
                 assert out == "done"
             },
      {
-            assert false //Should not endup here
+            assert false //Should not end up here
             })
     }
     def "Command Exec Async"() {
@@ -70,7 +70,7 @@ class CmdTest extends Specification {
                 },
          {
                 String out, int code ->
-                    assert false //Should not endup here
+                    assert false //Should not end up here
                 })
             println "Waiting for command to finish..."
             async.await(5)

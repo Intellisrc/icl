@@ -48,21 +48,21 @@ class Config {
      * CfgFile can be used with any file
      */
     static class Props {
-        public final Properties properties
-        public final File configFile
+        public final Properties props
+        public File configFile = null
 
         /**
          * Constructor to create new properties on memory
          */
         Props() {
-            properties = new Properties()
+            props = new Properties()
         }
         /**
          * Initialize with properties
          * @param props
          */
         Props(Properties props) {
-            properties = props
+            this.props = props
         }
         /**
          * Constructor using File
@@ -71,7 +71,8 @@ class Config {
          */
         Props(File cfgFile, Properties props = null) {
             configFile = cfgFile
-            properties = props ?: new Properties()
+            this.props = props ?: new Properties()
+            update()
         }
         /**
          * Constructor using only configuration name: new Config("database")
@@ -79,8 +80,9 @@ class Config {
          * @param props
          */
         Props(String configName, Properties props = null) {
-            configFile = new File(SysInfo.userDir + configName + ".properties")
-            properties = props ?: new Properties()
+            configFile = SysInfo.getFile(configName + ".properties")
+            this.props = props ?: new Properties()
+            update()
         }
 
         /**
@@ -90,7 +92,7 @@ class Config {
             if(configFile) {
                 if (configFile.exists()) {
                     if (configFile.canRead()) {
-                        properties.load(configFile.newDataInputStream())
+                        props.load(configFile.newDataInputStream())
                     }
                     if (!configFile.canWrite()) {
                         Log.w("Configuration configFile: " + configFile.toString() + " is not writable. Any attempt to change settings will fail.")
@@ -114,7 +116,7 @@ class Config {
          */
         boolean matchKey(String key) {
             update()
-            properties.keys().find {
+            props.keys().find {
                 String pkey ->
                     pkey.startsWith(key)
             }
@@ -127,7 +129,7 @@ class Config {
          */
         boolean hasKey(String key) {
             update()
-            return properties.containsKey(key)
+            return props.containsKey(key)
         }
 
         /**
@@ -139,7 +141,7 @@ class Config {
             update()
             String val = defval
             if (hasKey(key)) {
-                val = properties.getProperty(key)
+                val = props.getProperty(key)
                 if (val == null) {
                     val = defval
                 }
@@ -270,10 +272,10 @@ class Config {
          */
         void set(String key, Object value) {
             update()
-            properties.setProperty(key, value.toString())
+            props.setProperty(key, value.toString())
             if(configFile) {
                 if (configFile.parentFile.canWrite()) {
-                    properties.store(configFile.newWriter(), null)
+                    props.store(configFile.newWriter(), null)
                 } else {
                     Log.e("Unable to write to: " + configFile.toString())
                 }

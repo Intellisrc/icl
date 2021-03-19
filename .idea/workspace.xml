@@ -26,13 +26,20 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.13 : Added SysClockTest">
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.16.1 : Web Cache was not handling some objects correctly">
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Log.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysClock.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysClock.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/CmdTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/CmdTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/SysClockTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/SysClockTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img/BuffImgToolsTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/img/src/test/groovy/com/intellisrc/img/BuffImgToolsTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/src/main/groovy/com/intellisrc/web/WebService.groovy" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,17 +97,6 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="publishing" type="c8890929:TasksNode$1" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -130,7 +126,7 @@
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
@@ -336,13 +332,6 @@
       <workItem from="1613123317922" duration="52000" />
       <workItem from="1613181541580" duration="377000" />
       <workItem from="1613362102611" duration="1562000" />
-    </task>
-    <task id="LOCAL-00095" summary="2.4.5 Added encoding/decoding exceptions">
-      <created>1531111721988</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1531111721990</updated>
     </task>
     <task id="LOCAL-00096" summary="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set.">
       <created>1531112023870</created>
@@ -680,7 +669,14 @@
       <option name="project" value="LOCAL" />
       <updated>1603071210491</updated>
     </task>
-    <option name="localTasksCounter" value="144" />
+    <task id="LOCAL-00144" summary="2.7.16.1 : Web Cache was not handling some objects correctly">
+      <created>1616120014756</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1616120014756</updated>
+    </task>
+    <option name="localTasksCounter" value="145" />
     <servers />
   </component>
   <component name="TodoView">
@@ -694,6 +690,16 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -722,7 +728,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.6.1: Updated to groovy-extends 2.0.256" />
     <MESSAGE value="2.6.1: Disable colog to file by default" />
     <MESSAGE value="2.6.1: Removed reported errors" />
     <MESSAGE value="2.6.1: Added encoder to URL in webservice" />
@@ -747,7 +752,8 @@
     <MESSAGE value="2.7.12 : Simplified WebService related usage." />
     <MESSAGE value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
     <MESSAGE value="2.7.13 : Added SysClockTest" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.13 : Added SysClockTest" />
+    <MESSAGE value="2.7.16.1 : Web Cache was not handling some objects correctly" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.16.1 : Web Cache was not handling some objects correctly" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
