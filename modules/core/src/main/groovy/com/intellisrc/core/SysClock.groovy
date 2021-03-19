@@ -22,9 +22,19 @@ import java.util.concurrent.TimeUnit
 class SysClock {
     static public Clock clock = Clock.systemDefaultZone()
     static void setClockAt(LocalDateTime ldt) {
-        ZonedDateTime ldtZoned = ldt.atZone(ZoneId.systemDefault())
-        ZonedDateTime utcZoned = ldtZoned.withZoneSameInstant(ZoneId.of("UTC"))
-        clock = Clock.fixed(utcZoned.toInstant(), ZoneId.systemDefault())
+        clock = Clock.offset(Clock.system(clock.zone), Duration.between(LocalDateTime.now(), ldt))
+    }
+    /**
+     * Change timeZone of clock
+     * @param timeZone
+     */
+    static void setTimeZone(String timeZone) {
+        try {
+            ZoneId zone = ZoneId.of(timeZone)
+            clock = clock.withZone(zone)
+        } catch(Exception ignored) {
+            Log.e("Wrong timezone: %s", timeZone)
+        }
     }
     // Alias:
     static LocalDateTime getNow() {
