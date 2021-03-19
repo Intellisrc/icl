@@ -408,7 +408,7 @@ class WebService {
                             String query = request.queryString()
                             String key = request.uri() + (query ? "?" + query : "")
                             out = CacheObj.instance.get(key, {
-                                String toSave = ""
+                                Object toSave = null
                                 try {
                                     res = callAction(sp.action, request, response)
                                     toSave = getOutput(res, otype)
