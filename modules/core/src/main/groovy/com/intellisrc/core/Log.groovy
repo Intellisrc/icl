@@ -9,6 +9,7 @@ import java.lang.reflect.Method
 import java.nio.file.Files
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.regex.Matcher
 
 @CompileStatic
 /**
@@ -16,7 +17,7 @@ import java.time.temporal.ChronoUnit
  * @author Alberto Lepe <lepe@intellisrc.com>
  *
  */
-final class Log {
+class Log {
     //When logFile is not empty, it will export log to that file
     static public String logFileName = "system.log"
     static public File directory = SysInfo.getFile("log")
@@ -28,12 +29,13 @@ final class Log {
     static public boolean colorInvert = false //When true BLACK/WHITE will be inverted <VERBOSE vs DEBUG> (depends on terminal)
     static public boolean colorAlways = false //When true it will output log always in color
     static public boolean printAlways = true  //When true it will always output to screen (it won't print if Log is disabled)
+    static public boolean rotateOtherLogs = false //When true it will also remove other old logs in the log directory
     static public boolean isSnapShot
     static public synchronized boolean initialized = false
     static public boolean enabled = true
     static public Level level = Level.INFO //Global level. It will be used to print (unless printLevel is set) and to store
-    static public Level printLevel = level //Level to print on screen
-    static public Level fileLevel = level //Level to export to file
+    static public Level printLevel = null //Level to print on screen
+    static public Level fileLevel = null //Level to export to file
     static public int logDays = 7 // Days to keep as backup (doesn't include today)
     static public final int MAX_LOG_LINE_LENGTH = 4000
     static public final int maxTaskExecTimeMs = 60000 // 1 minute
@@ -42,8 +44,8 @@ final class Log {
     static public final AndroidPrinter ANDROID = new AndroidPrinter()
     static public final FilePrinter LOGFILE = new FilePrinter()
 
-    private static final List<Printer> mPrinters = []
-    private static final int STACK_DEPTH = 4
+    protected static final List<Printer> mPrinters = []
+    protected static final int STACK_DEPTH = 4
 
     static final enum Level {
         VERBOSE, DEBUG, INFO, WARN, SPECIAL, ERROR
@@ -51,10 +53,14 @@ final class Log {
             return super.toString().substring(0,1)
         }
     }
-    private Log() {}
-    private static synchronized final List<OnLog> onLogList = []
+    protected Log() {}
+    protected static synchronized final List<OnLog> onLogList = []
+    protected static synchronized final List<OnCleanDone> onCleanList = []
     static void setOnLog(OnLog toSet) {
         onLogList << toSet
+    }
+    static void setOnCleanDone(OnCleanDone toSet) {
+        onCleanList << toSet
     }
 
     /**
@@ -62,6 +68,13 @@ final class Log {
      */
     static interface OnLog {
         void call(Level level, String message, Info stack)
+    }
+
+    /**
+     * Called after we are done cleaning
+     */
+    static interface OnCleanDone {
+        void call()
     }
 
     static interface Printer {
@@ -93,9 +106,13 @@ final class Log {
         }
         if(Config.hasKey("log.print.level")) {
             printLevel = Config.get("log.print.level").toUpperCase() as Level
+        } else if(!printLevel) {
+            printLevel = level
         }
         if(Config.hasKey("log.file.level")) {
             fileLevel = Config.get("log.file.level").toUpperCase() as Level
+        } else if(!fileLevel) {
+            fileLevel = level
         }
         //Fix level in case is set incorrectly:
         if(printLevel < level || fileLevel < level) {
@@ -155,7 +172,7 @@ final class Log {
         linkLast()
     }
 
-    private static class FilePrinter implements Printer {
+    protected static class FilePrinter implements Printer {
         @Override
         void print(Level lvl, Info stack, String msg) {
             if(lvl >= fileLevel) {
@@ -181,7 +198,7 @@ final class Log {
      * Return a line of the Log (automatically adding color or not)
      * @return
      */
-    private static String getLogLine(Level lvl, Info stack, String msg, boolean toFile) {
+    protected static String getLogLine(Level lvl, Info stack, String msg, boolean toFile) {
         String time = SysClock.dateTime.YMDHmsS
         String line
         if(colorAlways || SysInfo.isLinux() && color &&! toFile) {
@@ -198,7 +215,7 @@ final class Log {
     /**
      * Decide which printer to use
      */
-    private static void setPrinter() {
+    protected static void setPrinter() {
         if(enabled) {
             if (ANDROID.mLoaded) {
                 usePrinter(ANDROID, true)
@@ -230,12 +247,15 @@ final class Log {
         boolean done = false
         if(logToCompress?.exists()) {
             try {
+                long modified = logToCompress.lastModified()
                 Class[] parameters = [File.class]
                 Class zip = Class.forName(Log.class.package.name.replace('core', 'etc') + ".Zip")
                 Method method = zip.getMethod("gzip", parameters)
                 Object[] callParams = [logToCompress]
                 method.invoke(null, callParams)
-                done = true
+                File gziped = new File(logToCompress.parentFile, logToCompress.name + ".gz")
+                gziped.setLastModified(modified) //Set the date and time in which was last modified
+                done = gziped.exists()
             } catch (Exception ignored) {
                 //Ignore... Zip class doesn't exists, so we don't compress them
                 //We can't use print here or it will loop forever
@@ -254,16 +274,34 @@ final class Log {
         if(logsDir?.exists()) {
             Runnable runnable = {
                 // Compress old not compressed logs in directory:
-                logsDir.eachFileMatchAsync("*.log") {
+                String pattern = rotateOtherLogs ? "*.log" : "*-" + logFileName
+                logsDir.eachFileMatchAsync(pattern) {
                     File log ->
                         if (!Files.isSymbolicLink(log.toPath())) { //Skip links
                             LocalDateTime lastMod = LocalDateTime.fromMillis(log.lastModified())
-                            if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) > days) {
-                                log.delete()
+                            if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) >= days) {
+                                log.delete() // This removes old logs when ZIP is not available
                             } else if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) > 0) {
                                 compressLog(log)
                             }
                         }
+                }
+                // Compress old not compressed logs in directory:
+                String patternZip = rotateOtherLogs ? "*.gz" : "*-" + logFileName + "*.gz"
+                logsDir.eachFileMatchAsync(patternZip) {
+                    File log ->
+                        if (!Files.isSymbolicLink(log.toPath())) { //Skip links
+                            LocalDateTime lastMod = LocalDateTime.fromMillis(log.lastModified())
+                            if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) >= days) {
+                                log.delete() // This removes old logs when they are compressed
+                            }
+                        }
+                }
+                if(!onCleanList.isEmpty()) {
+                    onCleanList.each {
+                        OnCleanDone onDone ->
+                            onDone.call()
+                    }
                 }
             }
             try {
@@ -271,7 +309,7 @@ final class Log {
                 Class priority = Class.forName(Log.class.package.name.replace('core', 'thread') + '.Task$Priority')
                 Class[] parameters = [Runnable.class, String.class, priority, Integer.TYPE]
                 Method method = tasks.getMethod("add", parameters)
-                Object low = Enum.valueOf(priority, "LOW")
+                Object low = Enum.valueOf(priority as Class, "LOW")
                 Object[] callParams = [runnable, "Log.clean", low, maxTaskExecTimeMs]
                 method.invoke(null, callParams)
             } catch (Exception ignored) {
@@ -307,7 +345,7 @@ final class Log {
     /**
      * Return color depending on level
      */
-    private static getLevelColor(Level lvl) {
+    protected static getLevelColor(Level lvl) {
         def color
         switch(lvl) {
             case Level.VERBOSE: color = colorInvert ? AnsiColor.WHITE : AnsiColor.BLACK; break
@@ -320,7 +358,7 @@ final class Log {
         return color
     }
 
-    private static class SystemOutPrinter implements Printer {
+    protected static class SystemOutPrinter implements Printer {
         @Override
         void print(Level lvl, Info stack, String msg) {
             if(lvl >= printLevel) {
@@ -329,12 +367,12 @@ final class Log {
         }
     }
 
-    private static class AndroidPrinter implements Printer {
+    protected static class AndroidPrinter implements Printer {
 
-        private static final List<String> METHOD_NAMES = ["v", "d", "i", "w", "s", "e"]
-        private final Class<?> mLogClass
-        private final Method[] mLogMethods
-        private final boolean mLoaded
+        protected static final List<String> METHOD_NAMES = ["v", "d", "i", "w", "s", "e"]
+        protected final Class<?> mLogClass
+        protected final Method[] mLogMethods
+        protected final boolean mLoaded
 
         AndroidPrinter() {
             Class logClass = null
@@ -402,11 +440,11 @@ final class Log {
         log(Level.ERROR, msg, args)
     }
 
-    private static isPrintable(Level lvl) {
+    protected static isPrintable(Level lvl) {
         return enabled && lvl >= level
     }
 
-    private static void log(Level lvl, String msg, Object... args) {
+    protected static void log(Level lvl, String msg, Object... args) {
         if(!initialized) {
             init()
         }
@@ -433,7 +471,7 @@ final class Log {
         }
     }
 
-    private static String format(String msg, Queue args) {
+    protected static String format(String msg, Queue args) {
         if (msg.indexOf('%') != -1 &&! args.isEmpty()) {
             return String.format(msg, args.toArray())
         }
@@ -446,7 +484,7 @@ final class Log {
         return sb.toString()
     }
 
-    private static void printStack(Info stack, Throwable throwable) {
+    protected static void printStack(Info stack, Throwable throwable) {
         if(throwable) {
             boolean verboseOk = isPrintable(Level.VERBOSE)
             print(Level.VERBOSE, stack, "STACK START ------------------------------------------------------------------------------")
@@ -475,7 +513,7 @@ final class Log {
         }
     }
 
-    private static void print(Level level, Info stack, String msg) {
+    protected static void print(Level level, Info stack, String msg) {
         msg.eachLine {
             String line ->
                 while( line.length() > 0) {
@@ -502,7 +540,7 @@ final class Log {
         }
     }
 
-    private static Info stack() {
+    protected static Info stack() {
         Info stack
         def stackTrace = new Throwable().getStackTrace()
         if (stackTrace.length < STACK_DEPTH) {

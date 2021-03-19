@@ -1,6 +1,10 @@
 package com.intellisrc.core
 
 import spock.lang.Specification
+import spock.lang.Unroll
+
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 /**
  * @since 17/10/23.
@@ -8,20 +12,30 @@ import spock.lang.Specification
  * NOTE: compressing logs is tested in 'etc'
  */
 class LogTest extends Specification {
+    class LogChanger extends Log {
+        static void clearOnDone() {
+            onCleanList.clear()
+        }
+    }
+
     def setup() {
         Log.initialized = false //Be sure it hasn't been initialized
-        Log.directory = null
-        Log.logFileName = ""
+        Log.directory = SysInfo.getFile("test-log")
+        Log.logFileName = "test.log"
         Log.level = Log.Level.VERBOSE
+        Log.printLevel = null
+        Log.fileLevel = null
         Log.printAlways = false
         Log.colorAlways = false
         Log.colorInvert = false
         Log.enabled = true
-    }
-    def cleanup() {
-        if(Log.logFile?.exists()) {
+        if (Log.logFile.exists()) {
             Log.logFile.delete()
         }
+    }
+    def cleanup() {
+        Log.directory.listFiles().each { it.delete() }
+        Log.directory.deleteDir()
     }
     /**
      * Check if link to last log is created successfully
@@ -32,8 +46,6 @@ class LogTest extends Specification {
      */
     def "Simple test"() {
         setup:
-            Log.directory = new File(SysInfo.tempDir)
-            Log.logFileName = "test.log"
             println "Log file to be created in: ${Log.logFile.absolutePath}"
         expect:
             Log.w("This is some warning")
@@ -43,7 +55,6 @@ class LogTest extends Specification {
     
     def "Test parameters"() {
         setup:
-            Log.level = Log.Level.VERBOSE
             Log.colorInvert = true
             Log.domains << this.class.canonicalName.tokenize('.').subList(0, 2).join('.')
         when:
@@ -135,12 +146,6 @@ class LogTest extends Specification {
     
     def "Test disable"() {
         setup:
-            Log.level = Log.Level.VERBOSE
-            Log.directory = new File(SysInfo.tempDir)
-            Log.logFileName = "test.log"
-            if (Log.logFile.exists()) {
-                Log.logFile.delete()
-            }
             Log.init() // Enable will be reset
             Log.enabled = false
             Log.e("Some random error")
@@ -151,7 +156,6 @@ class LogTest extends Specification {
     def "Test Domains in Exception"() {
         setup:
             Log.domains = ["invoke", "LogTest"]
-            Log.level = Log.Level.VERBOSE
             Log.colorInvert = true
             def throwIt = {
                 throw new DummyTestException()
@@ -171,12 +175,6 @@ class LogTest extends Specification {
     
     def "Link log"() {
         setup:
-            Log.level = Log.Level.VERBOSE
-            Log.directory = new File(SysInfo.tempDir)
-            Log.logFileName = "test.log"
-            if (Log.logFile.exists()) {
-                Log.logFile.delete()
-            }
             Log.e("Some random error")
             // We create a File object here, so we can test if it exists. It is not creating the file (it should have been created in the previous line).
             File link = new File(Log.directory, "last-" + Log.logFileName)
@@ -191,7 +189,6 @@ class LogTest extends Specification {
     
     def "Variable with error"() {
         setup:
-            Log.level = Log.Level.VERBOSE
             String initializer = "me"
         when:
             try {
@@ -205,19 +202,156 @@ class LogTest extends Specification {
 
     def "Print Log and Log to file levels should be respected"() {
         setup:
-            Log.logFileName = "test.log"
-            Log.directory = SysInfo.getFile("test-log")
             Log.level = Log.Level.DEBUG
             Log.printAlways = true
             Log.fileLevel = Log.Level.WARN
             Log.printLevel = Log.Level.DEBUG
         when:
-            Log.w("This should be in file and on screen")
+            Log.w("This should be in both: file and on screen")
             Log.i("This should be only on screen")
         then:
-            assert Log.logFile.text.contains("file")
+            assert Log.logFile.text.contains("both")
             assert ! Log.logFile.text.contains("only")
         cleanup:
             Log.directory.delete()
+    }
+
+    def "On initialization fileLevel and printLevel should use Log.level"() {
+        setup:
+            Log.level = Log.Level.DEBUG
+            Log.init()
+        expect:
+            assert Log.fileLevel == Log.level
+            assert Log.printLevel == Log.level
+        cleanup:
+            Log.directory.delete()
+    }
+
+    def "Changing date should create a new log"() {
+        setup:
+            SysClock.setClockAt("2000-01-01 23:59:55".toDateTime())
+        when:
+            Log.w("Reaching the end of day")
+            String yesterday = Log.logFile.name
+            println "Yesterday log: " + yesterday
+        then:
+            Log.directory.eachFile {
+                println " > " + it.name
+            }
+            assert Log.logFile.exists()
+            assert Log.logFile.text.contains("end")
+            assert Log.directory.listFiles().size() == 2 //Including last-test.log link
+        when:
+            SysClock.setClockAt("2000-01-02 00:00:00".toDateTime())
+            Log.i("This is the start of the day")
+            println "Today log: " + Log.logFile.name
+        then:
+            Log.directory.eachFile {
+                println " > " + it.name
+            }
+            assert Log.logFile.exists()
+            assert ! Log.logFile.text.contains("end")
+            assert Log.logFile.text.contains("start")
+            assert Log.directory.listFiles().size() == 3 //Including last-test.log link
+            assert yesterday != Log.logFile.name
+    }
+
+    //@Unroll
+    def "Cleaning should remove old logs"() {
+        setup:
+            Log.directory = SysInfo.getFile(dir + "-test-log")
+            Log.logDays = keep
+            LocalDateTime now = SysClock.now
+            int logsToCreate = create
+            boolean done = false
+            LogChanger.clearOnDone()
+        when:
+            (0..logsToCreate - 1).each {
+                SysClock.setClockAt(now.minus(it, ChronoUnit.DAYS).clearTime())
+                Log.i("This log is for day: %s", SysClock.now.toLocalDate().YMD)
+                Log.logFile.setLastModified(SysClock.now.toMillis())
+            }
+            println "------- Before cleaning -----------"
+            Log.directory.eachFile {
+                println " > " + it.name + "\t" + LocalDateTime.fromMillis(it.lastModified()).YMDHmsS
+            }
+            SysClock.setClockAt(now) //Reset time back to today
+        then:
+            assert Log.directory.listFiles().size() == logsToCreate + 1 // plus 1 link
+        when:
+            Log.onCleanDone = {
+                println "------- After cleaning -----------"
+                Log.directory.eachFile {
+                    println " > " + it.name
+                }
+                done = true
+            }
+            Log.cleanLogs()
+            while(!done) { sleep(50) }
+        then:
+            assert Log.directory.listFiles().find { it.name == "last-" + Log.logFileName }
+            assert Log.directory.listFiles().size() == expected + 1
+            noExceptionThrown()
+        cleanup :
+            LogChanger.clearOnDone()
+        where:
+            dir | keep | create | expected
+             1  |  5   |   10   |    5
+             2  |  10  |   12   |    10
+             3  |  3   |   5    |    3
+             4  |  4   |   3    |    3
+             5  |  5   |   5    |    5
+             6  |  1   |   8    |    1
+             7  |  1   |   1    |    1
+    }
+
+    //@Unroll
+    def "When rotateOtherLogs is false it should not remove other logs, when its true, it should remove them"() {
+        setup:
+            Log.directory = SysInfo.getFile(dir + "-test-log")
+            Log.logDays = keep
+            Log.rotateOtherLogs = rotateOthers
+            LocalDateTime now = SysClock.now
+            int logsToCreate = create
+            boolean done = false
+            LogChanger.clearOnDone()
+        when:
+            (0..logsToCreate - 1).each {
+                SysClock.setClockAt(now.minus(it, ChronoUnit.DAYS).clearTime())
+                Log.i("This log is for day: %s", SysClock.now.toLocalDate().YMD)
+                Log.logFile.setLastModified(SysClock.now.toMillis())
+                File otherFile = SysInfo.getFile(Log.directory, SysClock.now.toLocalDate().YMD + "-other.log")
+                otherFile.text = "Whatever"
+                otherFile.setLastModified(SysClock.now.toMillis())
+            }
+            println "------- Before cleaning [OTHER: ${rotateOthers ? "YES" : "NO"}] -----------"
+            Log.directory.eachFile {
+                println " > " + it.name + "\t" + LocalDateTime.fromMillis(it.lastModified()).YMDHmsS
+            }
+            SysClock.setClockAt(now) //Reset time back to today
+        then:
+            assert Log.directory.listFiles().size() == (logsToCreate * 2) + 1 // plus 1 link
+        when:
+            Log.onCleanDone = {
+                println "------- After cleaning -----------"
+                Log.directory.eachFile {
+                    println " > " + it.name
+                }
+                done = true
+            }
+            Log.cleanLogs()
+            while(!done) { sleep(50) }
+        then:
+            assert Log.directory.listFiles().find { it.name == "last-" + Log.logFileName }
+            assert Log.directory.listFiles().size() == expected + 1
+            noExceptionThrown()
+        cleanup :
+            LogChanger.clearOnDone()
+        where:
+            dir | keep | create | expected | rotateOthers
+            1   |  2   |   7    |    9     | false
+            2   |  7   |   2    |    4     | false
+            3   |  2   |   7    |    4     | true
+            4   |  7   |   2    |    4     | true
     }
 }
