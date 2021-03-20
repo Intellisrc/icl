@@ -60,7 +60,7 @@ abstract class SysService {
             sysSrv.onInit()
         }
         def usrDir = SysInfo.getWritablePath()
-        def lockFile = new File(usrDir + sysSrv.lockFile)
+        def lockFile = new File(usrDir, sysSrv.lockFile)
         switch(action) {
             case "stop" :
                 if(started) {

@@ -305,7 +305,7 @@ class LogTest extends Specification {
              7  |  1   |   1    |    1
     }
 
-    //@Unroll
+    @Unroll
     def "When rotateOtherLogs is false it should not remove other logs, when its true, it should remove them"() {
         setup:
             Log.directory = SysInfo.getFile(dir + "-test-log")

@@ -8,8 +8,12 @@ https://www.ibm.com/developerworks/java/tutorials/j-sec1/j-sec1.html
 
 ### Install
 * Copy the JAR into $JAVA_HOME/jre/lib/ext/
-* Add the next line into: $JAVA_HOME/jre/lib/security/java.security 
+* Add the next line into: 
+  $JAVA_HOME/jre/lib/security/java.security  or
+  $JAVA_HOME/conf/security/java.security
 
 `security.provider.10=org.bouncycastle.jce.provider.BouncyCastleProvider`
+
+(you may change the number "10" for the next in the list)
 
 below the other similar lines.

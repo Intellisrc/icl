@@ -38,9 +38,9 @@ class SysInfo {
      * Returns a path in which can be written. It will try
      * current path first, then temporally directory
      */
-    static String getWritablePath() {
-        def usrDir = getUserDir()
-        if(!new File(usrDir).canWrite()) {
+    static File getWritablePath() {
+        File usrDir = getUserDir()
+        if(!usrDir.canWrite()) {
             usrDir = getTempDir()
         }
         return usrDir
@@ -49,26 +49,22 @@ class SysInfo {
      * Return the User's home directory
      * @return
      */
-    static String getHomeDir() {
-        return System.getProperty('user.home') + File.separator
+    static File getHomeDir() {
+        return new File(System.getProperty('user.home'))
     }
     /**
      * Returns the root path of the application
      * @return
      */
-    static String getUserDir() {
-        return System.getProperty("user.dir") + File.separator
+    static File getUserDir() {
+        return new File(System.getProperty("user.dir"))
     }
     /**
      * Returns the temporally directory path
      * @return
      */
-    static String getTempDir() {
-        def tmpDir = System.getProperty("java.io.tmpdir")
-        if (!tmpDir.endsWith(File.separator)) {
-            tmpDir += File.separator
-        }
-        return tmpDir
+    static File getTempDir() {
+        return new File(System.getProperty("java.io.tmpdir"))
     }
     
     /**

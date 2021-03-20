@@ -5,6 +5,8 @@ import spock.lang.Specification
 
 /**
  * @since 19/01/10.
+ *
+ * NOTE: testing file description exhaustion issue in etc module
  */
 class ConfigTest extends Specification {
     def "Simple config file"() {

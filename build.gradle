@@ -5,7 +5,7 @@ plugins {
     id 'maven-publish'
 }
 
-def currentVersion = "2.7.16"
+def currentVersion = "2.7.17"
 
 allprojects {
     group = groupName

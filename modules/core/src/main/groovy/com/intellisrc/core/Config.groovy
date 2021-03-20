@@ -92,7 +92,9 @@ class Config {
             if(configFile) {
                 if (configFile.exists()) {
                     if (configFile.canRead()) {
-                        props.load(configFile.newDataInputStream())
+                        DataInputStream dis = configFile.newDataInputStream()
+                        props.load(dis)
+                        dis.close()
                     }
                     if (!configFile.canWrite()) {
                         Log.w("Configuration configFile: " + configFile.toString() + " is not writable. Any attempt to change settings will fail.")

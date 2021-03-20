@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
  * Log Zip is tested here because of package dependency
  * @since 19/07/10.
  */
-class LogTest extends Specification {
+class LogEtcTest extends Specification {
     class LogChanger extends Log {
         static void clearOnDone() {
             onCleanList.clear()
@@ -49,7 +49,7 @@ class LogTest extends Specification {
             assert gzLog.exists()
             assert !Log.logFile.exists()
     }
-    //@Unroll
+    @Unroll
     def "Cleaning should remove old logs"() {
         setup:
             Log.directory = SysInfo.getFile(dir + "-test-log")

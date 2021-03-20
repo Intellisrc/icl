@@ -6,6 +6,7 @@
 * Added classes: core.SysClock, etc.Hardware, etc.Metric
 * Improved compatibility with Java
 * Log, WebServer were improved
+* SysInfo tmpDir, homeDir, etc. are now File instead of String
 
 ## 2.6 (Groovy 2.5.6+, Java 11)
 

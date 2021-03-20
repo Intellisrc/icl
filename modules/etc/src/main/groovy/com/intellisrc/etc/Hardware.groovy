@@ -4,6 +4,7 @@ import com.intellisrc.core.Cmd
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.sun.management.OperatingSystemMXBean
+import com.sun.management.UnixOperatingSystemMXBean
 import groovy.transform.CompileStatic
 
 import java.lang.management.ManagementFactory
@@ -297,6 +298,31 @@ class Hardware {
             }
         }
         callback(pct)
+    }
+
+    /**
+     * Get the pct of open files in the OS (only Linux is supported for now)
+     * @param callback
+     * @param maxOpen : if set, it will use that to calculate pct instead the one from OS
+     * @param absolute: if true, will return the absolute number of file opened and not a percentage
+     *
+     * NOTE: You can also check it with: lsof -c java | wc -l
+     */
+    static void getOpenFiles(Metric.MetricChanged callback) {
+        getOpenFiles(callback, 0, true)
+    }
+    static void getOpenFilesPct(Metric.MetricChanged callback, long maxOpen = 0) {
+        getOpenFiles(callback, maxOpen, false)
+    }
+    protected static void getOpenFiles(Metric.MetricChanged callback, long maxOpen, boolean absolute) {
+        if(operatingSystem instanceof UnixOperatingSystemMXBean) {
+            UnixOperatingSystemMXBean unix = operatingSystem as UnixOperatingSystemMXBean
+            long max = maxOpen ?: unix.getMaxFileDescriptorCount()
+            long current = unix.getOpenFileDescriptorCount()
+            callback(absolute ? current : (current / max) as double)
+        } else {
+            Log.d("Unsupported OS")
+        }
     }
     
     /**
