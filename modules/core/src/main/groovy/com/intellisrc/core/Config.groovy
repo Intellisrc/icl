@@ -2,6 +2,8 @@ package com.intellisrc.core
 
 import groovy.transform.CompileStatic
 
+import java.nio.charset.Charset
+
 @CompileStatic
 /**
  * This class provides an easy way to work with .properties files and Properties classes.
@@ -92,9 +94,9 @@ class Config {
             if(configFile) {
                 if (configFile.exists()) {
                     if (configFile.canRead()) {
-                        DataInputStream dis = configFile.newDataInputStream()
-                        props.load(dis)
-                        dis.close()
+                        FileInputStream input = new FileInputStream(configFile)
+                        props.load(new InputStreamReader(input, Charset.forName("UTF-8")))
+                        input.close()
                     }
                     if (!configFile.canWrite()) {
                         Log.w("Configuration configFile: " + configFile.toString() + " is not writable. Any attempt to change settings will fail.")
