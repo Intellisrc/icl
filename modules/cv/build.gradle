@@ -1,4 +1,4 @@
 dependencies {
-    compile project(':img')
-    compile "org.bytedeco:javacv-platform:1.5"
+    implementation project(':img')
+    implementation "org.bytedeco:javacv-platform:1.5"
 }

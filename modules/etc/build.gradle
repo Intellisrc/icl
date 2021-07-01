@@ -1,3 +1,6 @@
 dependencies {
-    compile project(':core')
+    implementation project(':core')
+    implementation "redis.clients:jedis:3.6.1"
+    implementation "org.reflections:reflections:0.9.12" //Same as in DB
+    implementation "org.yaml:snakeyaml:1.21" //Same as in DB
 }

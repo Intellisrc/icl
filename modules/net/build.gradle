@@ -1,6 +1,6 @@
 dependencies {
-    compile project(':core')
-    compile project(':crypt')
-    compile 'com.sun.mail:javax.mail:1.6.2'
-    compile 'javax.activation:activation:1.1.1'
+    implementation project(':core')
+    implementation project(':crypt')
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+    implementation 'javax.activation:activation:1.1.1'
 }

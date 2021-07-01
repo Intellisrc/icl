@@ -57,13 +57,7 @@ abstract class IntervalTask extends Task {
             }
         }
     }
-    
-    @Override
-    abstract void setup()
-    
+
     @Override
     abstract Runnable process() throws InterruptedException
-    
-    @Override
-    abstract boolean reset()
 }

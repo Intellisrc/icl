@@ -202,13 +202,16 @@ class JDBCConnector implements Connector {
 	}
 
 	@Override
-	void close() {
+	boolean close() {
+		boolean closed = false
 		try {
 			db.close()
 			Log.v( "Disconnecting from DB")
+			closed = true
 		} catch (SQLException e) {
 			Log.e( "Unable to close ",e)
 		}
+		return closed
 	}
 
 	@Override

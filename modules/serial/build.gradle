@@ -1,5 +1,5 @@
 dependencies {
-    compile project(':core')
-    compile project(':etc')
-    compile 'org.scream3r:jssc:2.8.0'
+    implementation project(':core')
+    implementation project(':etc')
+    implementation 'org.scream3r:jssc:2.8.0'
 }

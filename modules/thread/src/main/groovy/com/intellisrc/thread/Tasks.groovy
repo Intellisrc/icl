@@ -23,7 +23,7 @@ class Tasks {
     static public int minPoolSize = Config.getInt("tasks.pool.min", 1)
     static public int maxPoolSize = Config.getInt("tasks.pool.max", 30)
     static public int bufferMillis = Config.getInt("tasks.buffer", 1000)
-    static public int timeout = Config.getInt("tasks.timeout", 1000)
+    static public int timeout = Config.getInt("tasks.timeout", 0)
     static public boolean printStatus = Config.getBool("tasks.print")
     static public boolean logToFile = Config.getBool("tasks.log")
     static public boolean debug = Config.getBool("tasks.debug")

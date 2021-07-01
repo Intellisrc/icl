@@ -26,22 +26,39 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.16.1 : Web Cache was not handling some objects correctly">
-      <change afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/ConfigEtcTest.groovy" afterDir="false" />
+    <list default="true" id="9a931065-8d3e-4b25-8ed6-07ab3d8c13eb" name="Default" comment="2.7.17.1 : Added UTF-8 support for Config.Props">
+      <change afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Model.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/Table.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/annot/Column.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/annot/DeleteActions.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/annot/TableMeta.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Instanciable.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config/AutoConfig.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config/ConfigAuto.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config/PropertiesGet.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config/PropertiesSet.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config/SavedProperties.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config/SavedPropertiesRedis.groovy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/tasks/ConfigAutoTask.groovy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__junit_junit_4_12.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__org_hamcrest_hamcrest_core_1_3.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__javax_servlet_javax_servlet_api_3_1_0.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/Config.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysInfo.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysInfo.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysService.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/main/groovy/com/intellisrc/core/SysService.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/ConfigTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/ConfigTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/src/test/groovy/com/intellisrc/core/LogTest.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/crypt/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Hardware.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/Hardware.groovy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogTest.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/src/test/groovy/com/intellisrc/core/LogEtcTest.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/core/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/core/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/crypt/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/crypt/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/cv/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/cv/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DB.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/DB.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db/JDBCConnector.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/etc/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/etc/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/img/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/img/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/net/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/net/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/serial/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/serial/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/term/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/term/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/IntervalTask.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/IntervalTask.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" beforeDir="false" afterPath="$PROJECT_DIR$/modules/thread/src/main/groovy/com/intellisrc/thread/Tasks.groovy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/web/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/modules/web/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,29 +116,6 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="common" type="f1a62948:ProjectNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="other" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="publishing" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="common" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="upload" type="c8890929:TasksNode$1" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -146,36 +140,37 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ToolWindowMaven.ShowToolbar" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.3549133" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/web/src/main/groovy/com/inspeedia/common/web/WebService.groovy" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../../groovy/common-java/modules/core/src/main/groovy/com/inspeedia/common/core/Config.groovy" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/modules/etc/src/main/groovy/com/intellisrc/etc/config" />
+      <recent name="$PROJECT_DIR$/modules/db/src/main/groovy/com/intellisrc/db" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/modules/cv/src/main/groovy/com/intellisrc/cv/grab" />
       <recent name="$PROJECT_DIR$/modules/img/src/test" />
-      <recent name="$PROJECT_DIR$/modules/cv/src/test" />
-      <recent name="$PROJECT_DIR$/modules/thread/src/test/groovy/com/intellisrc/thread" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.intellisrc.etc" />
       <recent name="com.intellisrc.core" />
       <recent name="com.intellisrc.cv" />
       <recent name="com.intellisrc.net" />
       <recent name="com.intellisrc.serial" />
-      <recent name="com.intellisrc.term" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.common [uploadArchives]">
+  <component name="RunManager" selected="Gradle.common [publishToMavenLocal]">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
@@ -239,27 +234,6 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="Tests in 'common.img'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests *" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":img:test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
     <configuration name="Tests in 'common.serial'" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -277,6 +251,27 @@
         <option name="vmOptions" />
       </ExternalSystemSettings>
       <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="common [publishToMavenLocal]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="publishToMavenLocal" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
@@ -311,31 +306,24 @@
     </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="modules-db" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="WORKING_DIRECTORY" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.Tests in 'common.img'" />
       <item itemvalue="Gradle.Tests in 'common.etc'" />
       <item itemvalue="Gradle.ConfigEtcTest.Reading multiple times a value in config.properties should not exhaust resources" />
       <item itemvalue="Gradle.Tests in 'common.serial'" />
       <item itemvalue="Gradle.common [uploadArchives]" />
+      <item itemvalue="Gradle.common [publishToMavenLocal]" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.common [publishToMavenLocal]" />
         <item itemvalue="Gradle.common [uploadArchives]" />
         <item itemvalue="Gradle.Tests in 'common.serial'" />
         <item itemvalue="Gradle.ConfigEtcTest.Reading multiple times a value in config.properties should not exhaust resources" />
         <item itemvalue="Gradle.Tests in 'common.etc'" />
-        <item itemvalue="Gradle.Tests in 'common.img'" />
       </list>
     </recent_temporary>
   </component>
@@ -358,13 +346,6 @@
       <workItem from="1613181541580" duration="377000" />
       <workItem from="1613362102611" duration="1562000" />
       <workItem from="1616213136494" duration="1429000" />
-    </task>
-    <task id="LOCAL-00096" summary="2.4.5 Bug Fix: Logs being printed on screen even when log.file is set.">
-      <created>1531112023870</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1531112023870</updated>
     </task>
     <task id="LOCAL-00097" summary="2.4.5 Console: after password prompt, clear buffer and call garbage collection">
       <created>1531124018405</created>
@@ -702,7 +683,14 @@
       <option name="project" value="LOCAL" />
       <updated>1616120014756</updated>
     </task>
-    <option name="localTasksCounter" value="145" />
+    <task id="LOCAL-00145" summary="2.7.17.1 : Added UTF-8 support for Config.Props">
+      <created>1616495019167</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1616495019167</updated>
+    </task>
+    <option name="localTasksCounter" value="146" />
     <servers />
   </component>
   <component name="TodoView">
@@ -754,7 +742,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="2.6.1: Disable colog to file by default" />
     <MESSAGE value="2.6.1: Removed reported errors" />
     <MESSAGE value="2.6.1: Added encoder to URL in webservice" />
     <MESSAGE value="2.6.1: Fixed log not showing correct letter (level)" />
@@ -779,7 +766,8 @@
     <MESSAGE value="2.7.13-SNAPSHOT : Fixed maxExecution when using ParallelTasks" />
     <MESSAGE value="2.7.13 : Added SysClockTest" />
     <MESSAGE value="2.7.16.1 : Web Cache was not handling some objects correctly" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.7.16.1 : Web Cache was not handling some objects correctly" />
+    <MESSAGE value="2.7.17.1 : Added UTF-8 support for Config.Props" />
+    <option name="LAST_COMMIT_MESSAGE" value="2.7.17.1 : Added UTF-8 support for Config.Props" />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
