@@ -4,16 +4,21 @@ import com.intellisrc.core.AnsiColor
 import groovy.transform.CompileStatic
 
 /**
- * Simple task that will be run once
- * They share pool with tasks with the same name
+ * Simple task that will be run once in the background
  *
- * For other cases, please use:
+ * Use any of the following implementations for more advanced usages:
  *
  * IntervalTask : Process to run over and over
  * ParallelTask : Process to be run in several threads (for performance)
- * ServiceTask  : Process to be run forever (blocking)
+ * ServiceTask  : Process to be run forever (blocking in a background thread)
+ * DelayedTask  : Process to be run after some time
+ * BlockingTask : Process to be run blocking in the foreground (until its finished)
  *
- * Additionally, this class provides the basic functionality for the above classes
+ * NOTE: Tasks share pool with tasks with the same name
+ *
+ * NOTE: This Task can not be cancelled, just interrupted (which may leave it in an unknown state)
+ * In order to cancel it, you need to implement you own logic
+ * or use any of the implementations which implements TaskCancellable
  *
  * @since 2019/08/26.
  *

@@ -14,7 +14,7 @@ class TaskTest extends Specification {
         Tasks.printOnChange = true
         Tasks.logToFile = false
     }
-    class FrozenSimpleTest extends Task implements Killable {
+    class FrozenSimpleTest extends Task implements TaskKillable {
         int callTimes = 0
         long maxExecutionTime = 500
         int frozenId = 0

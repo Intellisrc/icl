@@ -53,4 +53,37 @@ class DelayedTaskTest extends Specification {
         cleanup:
             Tasks.exit()
     }
+    class DelayedTest extends DelayedTask {
+        boolean called = false
+        String taskName = "DelayTest"
+
+        DelayedTest(int delayedMillis) {
+            super(delayedMillis)
+        }
+        @Override
+        Runnable process() throws InterruptedException {
+            return {
+                called = true
+                Log.i("Method was executed")
+            }
+        }
+    }
+    def "Cancel a delayed process"() {
+        setup:
+            DelayedTest delayedTest = new DelayedTest(1000)
+            Tasks.add(delayedTest)
+        expect:
+            assert !delayedTest.called : "Starting, it should not be called"
+        when:
+            sleep(500)
+            delayedTest.cancel()
+        then:
+            sleep(1000)
+            assert !delayedTest.called : "Ending: it should have been cancelled"
+            assert delayedTest.cancelled
+        cleanup:
+            Tasks.printOnScreen = true
+            Tasks.printStatus()
+            Tasks.exit()
+    }
 }

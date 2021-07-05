@@ -33,15 +33,14 @@ class LoginService implements ServiciableAuth {
         GUEST, USER, MODERATOR, ADMIN
     }
 
-    Level getUserLevel(Request request) {
-        return request.session().attribute("level").toString().toUpperCase() as Level
+    static Level getUserLevel(Request request) {
+        return (request?.session()?.attribute("level") ?: "GUEST").toString().toUpperCase() as Level
     }
 
     static final Allow User = {
         Request request ->
             if(request.session()) {
-                Level level = request.session().attribute("level").toString().toUpperCase() as Level
-                return level >= Level.USER
+                return getUserLevel(request) >= Level.USER
             } else {
                 return false
             }
@@ -49,8 +48,7 @@ class LoginService implements ServiciableAuth {
     static final Allow Moderator = {
         Request request ->
             if(request.session()) {
-                Level level = request.session().attribute("level").toString().toUpperCase() as Level
-                return level >= Level.MODERATOR
+                return getUserLevel(request) >= Level.MODERATOR
             } else {
                 return false
             }
@@ -58,8 +56,7 @@ class LoginService implements ServiciableAuth {
     static final Allow Admin = {
         Request request ->
             if(request.session()) {
-                Level level = request.session().attribute("level").toString().toUpperCase() as Level
-                return level >= Level.ADMIN
+                return getUserLevel(request) >= Level.ADMIN
             } else {
                 return false
             }
@@ -81,10 +78,10 @@ class LoginService implements ServiciableAuth {
     //Variables
     LoginAction onLoginAction = {
         Request request ->
-            def user = request.queryParams("user") ?:
+            String user = request.queryParams("user") ?:
                        request.queryParams("usr") ?:
                        request.queryParams("u") ?: ""
-            def pass = request.queryParams("pass") ?:
+            String pass = request.queryParams("pass") ?:
                        request.queryParams("password") ?:
                        request.queryParams("pwd") ?:
                        request.queryParams("p") ?: ""

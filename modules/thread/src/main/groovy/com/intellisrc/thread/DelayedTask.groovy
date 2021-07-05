@@ -7,9 +7,9 @@ import groovy.transform.CompileStatic
  * @since 2019/09/18.
  */
 @CompileStatic
-abstract class DelayedTask extends Task {
+abstract class DelayedTask extends Task implements TaskCancellable {
     abstract Runnable process() throws InterruptedException
-    
+
     DelayedTask(int delayedMillis) {
         maxExecutionTime = 0
         sleepTime = delayedMillis
@@ -19,7 +19,7 @@ abstract class DelayedTask extends Task {
         retry = true
         priority = Priority.LOW
     }
-    
+
     static DelayedTask create(final Runnable runnable, String name, int delayedMillis) {
         return new DelayedTask(delayedMillis) {
             @Override

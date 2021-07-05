@@ -14,6 +14,7 @@ class ParallelTaskTest extends Specification {
         Tasks.printOnChange = true
         Tasks.logToFile = false
     }
+
     class MouseRace extends ParallelTask {
         boolean smallFinished = false
         boolean bigFinished = false
@@ -110,5 +111,36 @@ class ParallelTaskTest extends Specification {
         expect :
             assert times.get() == 20
             
+    }
+
+    def "If task is cancelled, it should not execute pending threads"() {
+        setup :
+            AtomicInteger times = new AtomicInteger()
+            List<Runnable> runnables = []
+            (1..6).each {
+                int instance ->
+                    runnables << {
+                        println "[$instance] starting ..."
+                        (1..10).each {
+                            sleep(100)
+                        }
+                        println "[$instance] finished in "+times.incrementAndGet()+" place"
+                    }
+            }
+            assert runnables.size() == 6
+            ParallelTask parallelTask
+            Tasks.runLater({
+                parallelTask.cancel()
+            }, "Later", 300)
+            parallelTask = ParallelTask.create(runnables, "Sleeping", 2, 10 * 1000, Task.Priority.NORMAL, true)
+            Tasks.add(parallelTask)
+        when:
+            sleep(200)
+        then:
+            assert parallelTask.cancelled
+            assert times.get() < 4
+        cleanup:
+            Tasks.printOnScreen = true
+            Tasks.printStatus()
     }
 }

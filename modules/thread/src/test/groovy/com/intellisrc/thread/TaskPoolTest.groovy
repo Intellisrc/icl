@@ -35,6 +35,7 @@ class TaskPoolTest extends Specification {
     def "Reset exceptions"() {
         setup:
             int counter = 1
+            Tasks.printOnScreen = true
             Tasks.add(IntervalTask.create({
                 print "."
                 if(counter && counter++ > 50) {

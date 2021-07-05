@@ -24,7 +24,7 @@ class Tasks {
     static public int maxPoolSize = Config.getInt("tasks.pool.max", 30)
     static public int bufferMillis = Config.getInt("tasks.buffer", 1000)
     static public int timeout = Config.getInt("tasks.timeout", 0)
-    static public boolean printStatus = Config.getBool("tasks.print")
+    static public boolean printOnScreen = Config.getBool("tasks.print")
     static public boolean logToFile = Config.getBool("tasks.log")
     static public boolean debug = Config.getBool("tasks.debug")
     static public boolean resetTasks = Config.getBool("tasks.reset")
@@ -42,7 +42,7 @@ class Tasks {
         if (resetTasks) {
             resetTask()
         }
-        if(!printStatus) {
+        if(!printOnScreen &&! logToFile) {
             Log.d("Task report is not enabled. You can enable it by setting 'tasks.print' and/or 'tasks.log' in your config.properties.")
         }
     }
@@ -290,7 +290,7 @@ class Tasks {
         if (logToFile) {
             logFile.text = log
         }
-        if (printStatus) {
+        if (printOnScreen) {
             print(log)
         }
     }
