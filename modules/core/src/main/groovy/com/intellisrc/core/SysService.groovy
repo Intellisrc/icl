@@ -20,6 +20,11 @@ import java.lang.reflect.Method
  * }
  * </code>
  *
+ * or in config.properties:
+ * main.class = my.domain.pkg.Main
+ *
+ * or as System Property (environment) with key 'main.class'
+ *
  * NOTE:
  * ---------------------------------------------------------------------------------------------
  * Setting lockFile may be required when two services are running in the same directory or
@@ -47,8 +52,18 @@ abstract class SysService {
      */
     static void main(String[] args) {
         if(service == null) {
-            Log.e("`service` is not defined. To define it, use: \n static {\n     service = new MyClass()\n }\n inside MyClass")
-            System.exit(3)
+            String cfgMain = Config.get("main.class", Config.system.get("main.class"))
+            if(cfgMain) {
+                try {
+                    Class c = Class.forName(cfgMain)
+                    service = c.getConstructor().newInstance() as SysService
+                } catch(Exception e) {
+                    Log.e("Unable to initialize main class", e)
+                }
+            } else {
+                Log.e("`service` is not defined. To define it, set it in 'config.properties' e.g. 'main.class = org.example.app.MyClass' or use: \n static { service = new MyClass() }\n inside MyClass")
+                System.exit(3)
+            }
         }
         Version.mainClass = service.class
         def sysSrv = service

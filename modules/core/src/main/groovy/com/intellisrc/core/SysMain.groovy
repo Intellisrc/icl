@@ -7,16 +7,31 @@ import java.lang.reflect.Method
 /**
  * This class is similar to SysService but it doesn't
  * require start/stop
+ *
+ * @see SysService : for documentation
+ *
  * @since 18/06/30.
  */
 @CompileStatic
 abstract class SysMain {
     static public SysMain main
     static public int exitCode = 0
+    static public boolean exitJava = true //turn false to prevent System.exit() on exit() : used for testing
+
     static void main(String[] args) {
         if(main == null) {
-            Log.e("`main` is not defined. To define it, use: \n static {\n     main = new MyClass()\n }\n inside MyClass")
-            System.exit(3)
+            String cfgMain = Config.get("main.class", Config.system.get("main.class"))
+            if(cfgMain) {
+                try {
+                    Class c = Class.forName(cfgMain)
+                    main = c.getConstructor().newInstance() as SysMain
+                } catch(Exception e) {
+                    Log.e("Unable to initialize main class", e)
+                }
+            } else {
+                Log.e("`main` is not defined. To define it, set it in 'config.properties' e.g. 'main.class = org.example.app.MyClass' or use: \n static { main = new MyClass() }\n inside MyClass")
+                System.exit(3)
+            }
         }
         Version.mainClass = main.class
         //Process args before starting
@@ -40,12 +55,15 @@ abstract class SysMain {
             }
         }
         //When onStart() finish, call onStop(), then exit
-        main.exit(0)
+        exit(0)
     }
-    void exit(int code = 0) {
+
+    static void exit(int code = 0) {
         exitCode = code
         main.onStop()
-        System.exit(code)
+        if(exitJava) {
+            System.exit(code)
+        }
     }
     //------------------------------ NON STATIC ---------------------------------
     public final Queue<String> args = [] as Queue<String>
@@ -56,6 +74,7 @@ abstract class SysMain {
     /**
      * (Optional) what to do when system exits
      */
+    @SuppressWarnings('GrMethodMayBeStatic')
     void onStop() {
         Log.i("System exiting...")
     }
