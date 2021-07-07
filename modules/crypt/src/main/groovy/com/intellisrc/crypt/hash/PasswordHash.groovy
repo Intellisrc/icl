@@ -1,12 +1,9 @@
 package com.intellisrc.crypt.hash
 
 import com.intellisrc.crypt.Crypt
-import com.intellisrc.crypt.Crypt.Complexity
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 
-//Sometimes complains
-import org.bouncycastle.crypto.generators.BCrypt
 import org.bouncycastle.crypto.generators.OpenBSDBCrypt
 import org.bouncycastle.crypto.generators.SCrypt
 
@@ -15,21 +12,6 @@ import org.bouncycastle.crypto.generators.SCrypt
  */
 @CompileStatic
 class PasswordHash extends Crypt implements Hashable {
-    enum Type implements Hashable.hashType {
-        BCRYPT, SCRYPT, PBKDF2
-        String getCryptHeader() {
-            String header = ""
-            switch(this) {
-                case BCRYPT: header = '$2y$'; break
-                case SCRYPT: header = '$s0$'; break
-            }
-            return header
-        }
-        static Type fromString(String stype) {
-            Type type = stype
-            return type
-        }
-    }
     protected int keylen = 16 //BCrypt requires 16 bytes for salt
     protected int cost = 10 //Workload
     //SCRYPT unique parameters
@@ -57,11 +39,11 @@ class PasswordHash extends Crypt implements Hashable {
      * Return crypt parameters based on Type
      * @return
      */
-    private String getCryptParams(Type type) {
+    protected String getCryptParams(HashType type) {
         String header = ""
         switch(type) {
-            case Type.BCRYPT: header = sprintf("%02d", cost) + '$'; break
-            case Type.SCRYPT: header = (2**cost)+'$'+scryptBlockSize+'$'+scryptParallelization+'$'; break
+            case HashType.BCRYPT: header = sprintf("%02d", cost) + '$'; break
+            case HashType.SCRYPT: header = (2**cost)+'$'+scryptBlockSize+'$'+scryptParallelization+'$'; break
         }
         return header
     }
@@ -75,15 +57,15 @@ class PasswordHash extends Crypt implements Hashable {
         genIfNoKey(keylen)
         genIfNoPass()
         String hash
-        Type type = Type.fromString(algorithm)
+        HashType type = HashType.fromString(algorithm)
         switch(type) {
-            case Type.SCRYPT:
+            case HashType.SCRYPT:
                 if(keylen < 16 || keylen > 512) {
                     keylen = 32
                 }
                 hash = type.cryptHeader + getCryptParams(type) + Bytes.toHex(SCrypt.generate(Bytes.fromChars(password), key, (2**cost).toInteger(), scryptBlockSize, scryptParallelization, keylen))
                 break
-            case Type.BCRYPT:
+            //case HashType.BCRYPT:
             default:
                 if(keylen != 16) {
                     keylen = 16
@@ -156,7 +138,7 @@ class PasswordHash extends Crypt implements Hashable {
      */
     boolean verify(String hash, String algorithm = "BCRYPT") {
         genIfNoKey(keylen)
-        Type type = Type.fromString(algorithm)
+        HashType type = HashType.fromString(algorithm)
         if(!hash.startsWith(type.cryptHeader)) {
             hash = type.cryptHeader + getCryptParams(type) + hash
         }

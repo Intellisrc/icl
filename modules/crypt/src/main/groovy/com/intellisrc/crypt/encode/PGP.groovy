@@ -138,7 +138,7 @@ class PGP extends Crypt implements Encodable {
      * @return
      * @throws IOException
      */
-    private static byte[] compress(byte[] clearData, int algorithm) throws IOException
+    protected static byte[] compress(byte[] clearData, int algorithm) throws IOException
     {
         ByteArrayOutputStream bOut = new ByteArrayOutputStream()
         PGPCompressedDataGenerator comData = new PGPCompressedDataGenerator(algorithm)

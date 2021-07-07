@@ -1,9 +1,11 @@
 package com.intellisrc.crypt.encode
 
+import groovy.transform.CompileStatic
+
 /**
  * @since 17/04/07.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 trait Encodable {
     /**
      * Error thrown while encoding data

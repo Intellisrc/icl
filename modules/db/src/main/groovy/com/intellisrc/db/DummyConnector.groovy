@@ -29,10 +29,11 @@ class DummyConnector implements DB.Connector {
         Log.v( "Database opened")
     }
 
-    void close() {
+    boolean close() {
         Log.v( "Database closed")
         opened = false
         connected = false
+        return true
     }
 
     DB.Statement prepare(Query query) {

@@ -218,57 +218,57 @@ class ConfigAuto {
      * @param storage
      */
     void setConfig(final Storage storage) {
-        storage.with {
-            if (prepare(field)) {
-                switch (field.type) {
-                    case boolean: case Boolean:
-                        field.setBoolean(null, props.get(key, field.getBoolean(null)))
-                        break
-                    case short: case Short:
-                        field.setShort(null, props.get(key, field.getShort(null)))
-                        break
-                    case int: case Integer:
-                        field.setInt(null, props.get(key, field.getInt(null)))
-                        break
-                    case long: case Long: case BigInteger:
-                        field.setLong(null, props.get(key, field.getLong(null)))
-                        break
-                    case float: case Float:
-                        field.setFloat(null, props.get(key, field.getFloat(null)))
-                        break
-                    case double: case Double: case BigDecimal:
-                        field.setDouble(null, props.get(key, field.getDouble(null)))
-                        break
-                    case File:
-                        field.set(null, props.get(key, field.get(null) as File))
-                        break
-                    case LocalDateTime:
-                        field.set(null, props.get(key, field.get(null) as LocalDateTime))
-                        break
-                    case LocalDate:
-                        field.set(null, props.get(key, field.get(null) as LocalDate))
-                        break
-                    case LocalTime:
-                        field.set(null, props.get(key, field.get(null) as LocalTime))
-                        break
-                    case Inet4Address:
-                        field.set(null, props.get(key, field.get(null) as Inet4Address))
-                        break
-                    case List:
-                        field.set(null, props.get(key, field.get(null) as List))
-                        break
-                    case Map:
-                        field.set(null, props.get(key, field.get(null) as Map))
-                        break
-                    case String:
-                        field.set(null, props.get(key, field.get(null).toString()))
-                        break
-                    default:
-                        Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
-                        return
-                }
-                update()
+        Field field = storage.field
+        String key = storage.key
+        if (prepare(field)) {
+            switch (field.type) {
+                case boolean: case Boolean:
+                    field.setBoolean(null, props.get(key, field.getBoolean(null)))
+                    break
+                case short: case Short:
+                    field.setShort(null, props.get(key, field.getShort(null)))
+                    break
+                case int: case Integer:
+                    field.setInt(null, props.get(key, field.getInt(null)))
+                    break
+                case long: case Long: case BigInteger:
+                    field.setLong(null, props.get(key, field.getLong(null)))
+                    break
+                case float: case Float:
+                    field.setFloat(null, props.get(key, field.getFloat(null)))
+                    break
+                case double: case Double: case BigDecimal:
+                    field.setDouble(null, props.get(key, field.getDouble(null)))
+                    break
+                case File:
+                    field.set(null, props.get(key, field.get(null) as File))
+                    break
+                case LocalDateTime:
+                    field.set(null, props.get(key, field.get(null) as LocalDateTime))
+                    break
+                case LocalDate:
+                    field.set(null, props.get(key, field.get(null) as LocalDate))
+                    break
+                case LocalTime:
+                    field.set(null, props.get(key, field.get(null) as LocalTime))
+                    break
+                case Inet4Address:
+                    field.set(null, props.get(key, field.get(null) as Inet4Address))
+                    break
+                case List:
+                    field.set(null, props.get(key, field.get(null) as List))
+                    break
+                case Map:
+                    field.set(null, props.get(key, field.get(null) as Map))
+                    break
+                case String:
+                    field.set(null, props.get(key, field.get(null).toString()))
+                    break
+                default:
+                    Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
+                    return
             }
+            update()
         }
     }
 
@@ -277,58 +277,57 @@ class ConfigAuto {
      * @param storage
      */
     void setValueFromString(final Storage storage, String value) {
-        storage.with {
-            if (prepare(field)) {
-                switch (field.type) {
-                    case boolean: case Boolean:
-                        field.setBoolean(null, value == "true")
-                        break
-                    case short: case Short:
-                        field.setShort(null, Short.parseShort(value))
-                        break
-                    case int: case Integer:
-                        field.setInt(null, Integer.parseInt(value))
-                        break
-                    case long: case Long: case BigInteger:
-                        field.setLong(null, Long.parseLong(value))
-                        break
-                    case float: case Float:
-                        field.setFloat(null, Float.parseFloat(value))
-                        break
-                    case double: case Double: case BigDecimal:
-                        field.setDouble(null, Double.parseDouble(value))
-                        break
-                    case File:
-                        field.set(null, SysInfo.getFile(value))
-                        break
-                    case LocalDateTime:
-                        field.set(null, value.toDateTime())
-                        break
-                    case LocalDate:
-                        field.set(null, value.toDate())
-                        break
-                    case LocalTime:
-                        field.set(null, value.toTime())
-                        break
-                    case Inet4Address:
-                        field.set(null, value.toInet4Address())
-                        break
-                    case Inet6Address:
-                        field.set(null, value.toInet6Address())
-                        break
-                    case Collection:
-                        field.set(null, new Yaml().load(value) as List)
-                        break
-                    case Map:
-                        field.set(null, new Yaml().load(value) as Map)
-                        break
-                    case String:
-                        field.set(null, value)
-                        break
-                    default:
-                        Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
-                        return
-                }
+        Field field = storage.field
+        if (prepare(field)) {
+            switch (field.type) {
+                case boolean: case Boolean:
+                    field.setBoolean(null, value == "true")
+                    break
+                case short: case Short:
+                    field.setShort(null, Short.parseShort(value))
+                    break
+                case int: case Integer:
+                    field.setInt(null, Integer.parseInt(value))
+                    break
+                case long: case Long: case BigInteger:
+                    field.setLong(null, Long.parseLong(value))
+                    break
+                case float: case Float:
+                    field.setFloat(null, Float.parseFloat(value))
+                    break
+                case double: case Double: case BigDecimal:
+                    field.setDouble(null, Double.parseDouble(value))
+                    break
+                case File:
+                    field.set(null, SysInfo.getFile(value))
+                    break
+                case LocalDateTime:
+                    field.set(null, value.toDateTime())
+                    break
+                case LocalDate:
+                    field.set(null, value.toDate())
+                    break
+                case LocalTime:
+                    field.set(null, value.toTime())
+                    break
+                case Inet4Address:
+                    field.set(null, value.toInet4Address())
+                    break
+                case Inet6Address:
+                    field.set(null, value.toInet6Address())
+                    break
+                case Collection:
+                    field.set(null, new Yaml().load(value) as List)
+                    break
+                case Map:
+                    field.set(null, new Yaml().load(value) as Map)
+                    break
+                case String:
+                    field.set(null, value)
+                    break
+                default:
+                    Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
+                    return
             }
         }
     }
@@ -371,58 +370,58 @@ class ConfigAuto {
      */
     boolean save(Storage storage) {
         boolean updated = true
-        storage.with {
-            if (prepare(field)) {
-                if (changed) {
-                    Log.d("Config value changed: %s, Prev: %s, Now: %s", key, previous, current)
-                    switch (field.type) {
-                        case boolean: case Boolean:
-                            props.set(it.key, field.getBoolean(null))
-                            break
-                        case int: case Integer:
-                            props.set(it.key, field.getInt(null))
-                            break
-                        case long: case Long:
-                            props.set(it.key, field.getLong(null))
-                            break
-                        case float: case Float:
-                            props.set(it.key, field.getFloat(null))
-                            break
-                        case double: case Double:
-                            props.set(it.key, field.getDouble(null))
-                            break
-                        case File:
-                            props.set(it.key, field.get(null) as File)
-                            break
-                        case LocalDateTime:
-                            props.set(it.key, field.get(null) as LocalDateTime)
-                            break
-                        case LocalDate:
-                            props.set(it.key, field.get(null) as LocalDate)
-                            break
-                        case LocalTime:
-                            props.set(it.key, field.get(null) as LocalTime)
-                            break
-                        case Inet4Address:
-                            props.set(it.key, field.get(null) as Inet4Address)
-                            break
-                        case List:
-                            props.set(it.key, field.get(null) as List)
-                            break
-                        case Map:
-                            props.set(it.key, field.get(null) as Map)
-                            break
-                        case String:
-                            props.set(it.key, field.get(null).toString())
-                            break
-                        default:
-                            Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
-                            updated = false
-                    }
-                    update()
-                } else {
-                    updated = false
+        Field field = storage.field
+        String key = storage.key
+        if (prepare(field)) {
+            if (storage.changed) {
+                Log.d("Config value changed: %s, Prev: %s, Now: %s", key, storage.previous, storage.current)
+                switch (field.type) {
+                    case boolean: case Boolean:
+                        props.set(key, field.getBoolean(null))
+                        break
+                    case int: case Integer:
+                        props.set(key, field.getInt(null))
+                        break
+                    case long: case Long:
+                        props.set(key, field.getLong(null))
+                        break
+                    case float: case Float:
+                        props.set(key, field.getFloat(null))
+                        break
+                    case double: case Double:
+                        props.set(key, field.getDouble(null))
+                        break
+                    case File:
+                        props.set(key, field.get(null) as File)
+                        break
+                    case LocalDateTime:
+                        props.set(key, field.get(null) as LocalDateTime)
+                        break
+                    case LocalDate:
+                        props.set(key, field.get(null) as LocalDate)
+                        break
+                    case LocalTime:
+                        props.set(key, field.get(null) as LocalTime)
+                        break
+                    case Inet4Address:
+                        props.set(key, field.get(null) as Inet4Address)
+                        break
+                    case List:
+                        props.set(key, field.get(null) as List)
+                        break
+                    case Map:
+                        props.set(key, field.get(null) as Map)
+                        break
+                    case String:
+                        props.set(key, field.get(null).toString())
+                        break
+                    default:
+                        Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
+                        updated = false
                 }
+                update()
+            } else {
+                updated = false
             }
         }
         return updated

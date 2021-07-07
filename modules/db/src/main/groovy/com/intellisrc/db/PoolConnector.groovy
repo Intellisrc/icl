@@ -51,9 +51,10 @@ class PoolConnector implements Connector {
 	}
 
 	@Override
-	void close() {
+	boolean close() {
 		pool?.returnConnectionToPool(connector)
 		Log.v( "DB returned.")
+		return true
 	}
 
 	@Override

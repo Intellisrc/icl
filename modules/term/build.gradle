@@ -1,4 +1,5 @@
 dependencies {
-    implementation project(':core')
-    implementation "org.jline:jline:3.20.0"
+    api project(':core')
+    // As we expose 'LineReaderImpl' in Console, we use 'api' here:
+    api "org.jline:jline:3.20.0"
 }

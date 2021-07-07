@@ -1,11 +1,10 @@
 plugins {
-    id 'idea'
     id 'groovy'
-    id 'maven'
+    id 'java-library'
     id 'maven-publish'
 }
 
-def currentVersion = "2.7.18"
+def currentVersion = "2.8.0"
 
 allprojects {
     group = groupName
@@ -18,39 +17,29 @@ allprojects {
 
 subprojects {
     apply plugin: 'groovy'
-    apply plugin: 'idea'
-    apply plugin: 'signing'
+    apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
-    configurations {
-        clientArchives
-        ascSignatures
-    }
-
-    task sourceJar(type: Jar) {
-        archiveClassifier = "sources"
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar) {
-        archiveClassifier = "javadoc"
-        dependsOn("groovydoc")
-        from tasks.groovydoc.destinationDir
-    }
-
-    jar.dependsOn( sourceJar, javadocJar )
-    test.dependsOn( jar )
-
-    artifacts {
-        clientArchives jar
-        clientArchives sourceJar
-        clientArchives javadocJar
-    }
-
     dependencies {
-        implementation 'com.intellisrc:groovy-extend:2.5.6.6'
-        testImplementation 'org.spockframework:spock-unitils:1.3-groovy-2.5'
-        testImplementation 'net.bytebuddy:byte-buddy:1.10.2'
+        //def groovyVer = "2.5.14"
+        def groovyVer = "3.0.7"
+        def groovyExt = "3.0.8.7"
+        def spock = "2.0-groovy-3.0"
+        def junit = "4.13.2"
+        def byteBuddy = "1.11.6"
+
+        boolean isDev = currentVersion.contains("SNAPSHOT")
+        def deps = ["org.codehaus.groovy:groovy-all:${groovyVer}"]
+        if(isDev) {
+            deps.each { api it }
+        } else {
+            deps.each { compileOnly it } //Link it so we can choose version
+        }
+        // Always include groovy-extend and expose it to consumers:
+        api "com.intellisrc:groovy-extend:${groovyExt}"
+        testImplementation "org.spockframework:spock-core:${spock}"
+        testImplementation "junit:junit:${junit}"
+        //testImplementation "net.bytebuddy:byte-buddy:${byteBuddy}"
     }
     // Used to publish to MavenLocal
     publishing {
@@ -62,7 +51,12 @@ subprojects {
        }
     }
 
-    uploadArchives {
+    tasks.named('test') {
+        // Use JUnit Platform for unit tests.
+        useJUnitPlatform()
+    }
+
+/*    uploadArchives {
         repositories {
             mavenDeployer {
                 beforeDeployment { deployment ->
@@ -142,4 +136,10 @@ subprojects {
     }
 
     uploadArchives.dependsOn(signJars)
+ */
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }

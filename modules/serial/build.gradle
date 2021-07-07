@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(':core')
-    implementation project(':etc')
-    implementation 'org.scream3r:jssc:2.8.0'
+    api project(':etc')
+    // SerialPort is used in method arguments. Using 'api' :
+    api 'org.scream3r:jssc:2.8.0'
 }

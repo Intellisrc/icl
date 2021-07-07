@@ -256,8 +256,8 @@ class Table<T extends Model> implements Instanciable<T> {
                         type[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString())
                         break
                     case Model:
-                        Constructor<?> ctor = field.type.getConstructor()
-                        Model refType = (ctor.newInstance() as Model)
+                        Constructor<?> c = field.type.getConstructor()
+                        Model refType = (c.newInstance() as Model)
                         type[origName] = refType.table.get(it.value as int)
                         break
                     default:
@@ -453,9 +453,18 @@ class Table<T extends Model> implements Instanciable<T> {
         return getAll([id])
     }
 
-    List<T> getAll(Model type) {
-        String id = type.pk?.name ?: "id"
-        return getAll([(id) : type.id] as Map<String, Object>)
+    List<T> findAll(String fieldName, Model type) {
+        Field f = getFields().find {
+            it.name == fieldName
+        }
+        List<T> list = []
+        if(f) {
+            String id = getColumnName(f)
+            list = table.get([(id): type.id] as Map<String, Object>).toListMap().collect { setMap(it) }
+        } else {
+            Log.w("Unable to find field: %s", fieldName)
+        }
+        return list
     }
 
     List<T> getAll(List<Integer> ids) {
