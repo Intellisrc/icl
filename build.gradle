@@ -26,7 +26,6 @@ subprojects {
         def groovyExt = "3.0.8.7"
         def spock = "2.0-groovy-3.0"
         def junit = "4.13.2"
-        def byteBuddy = "1.11.6"
 
         boolean isDev = currentVersion.contains("SNAPSHOT")
         def deps = ["org.codehaus.groovy:groovy-all:${groovyVer}"]
@@ -39,7 +38,6 @@ subprojects {
         api "com.intellisrc:groovy-extend:${groovyExt}"
         testImplementation "org.spockframework:spock-core:${spock}"
         testImplementation "junit:junit:${junit}"
-        //testImplementation "net.bytebuddy:byte-buddy:${byteBuddy}"
     }
     // Used to publish to MavenLocal
     publishing {
