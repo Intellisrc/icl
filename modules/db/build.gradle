@@ -1,7 +1,19 @@
 dependencies {
-    compile project(':etc')
-    compile 'mysql:mysql-connector-java:8.0.17'
-    compile 'org.postgresql:postgresql:42.2.18'
-    compile 'org.xerial:sqlite-jdbc:3.28.0'
-    compile "com.sleepycat:je:18.3.12"
+    api project(':etc')
+    implementation "org.reflections:reflections:0.9.12" //Same as in etc
+    implementation "org.yaml:snakeyaml:1.21" //Same as in etc
+    boolean isDev = project.version.contains("SNAPSHOT")
+    // We set connectors as optional because most likely only one will be used and
+    // depending on which server its being used, another version may be required.
+    def optional = [
+        'com.sleepycat:je:18.3.12',
+        'mysql:mysql-connector-java:8.0.25',
+        'org.postgresql:postgresql:42.2.22',
+        'org.xerial:sqlite-jdbc:3.36.0'
+    ]
+    if(isDev) {
+        optional.each { api it }
+    } else {
+        optional.each { compileOnly it }
+    }
 }

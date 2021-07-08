@@ -1,4 +1,14 @@
 dependencies {
-    compile project(':img')
-    compile "org.bytedeco:javacv-platform:1.5"
+    api project(':img')
+    boolean isDev = project.version.contains("SNAPSHOT")
+    // We set it optional to allow developers to choose their javacv version
+    // (in case there is a bug in the version used here).
+    def optional = [
+        "org.bytedeco:javacv-platform:1.5"
+    ]
+    if(isDev) {
+        optional.each { api it }
+    } else {
+        optional.each { compileOnly it }
+    }
 }

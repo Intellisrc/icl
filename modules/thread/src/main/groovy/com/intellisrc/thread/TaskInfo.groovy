@@ -43,6 +43,7 @@ class TaskInfo implements TaskLoggable {
         WAITING,        // Waiting for pool queue to become available
         DONE,           // Task done
         RUNNING,        // Task is being executed
+        CANCELLED,      // Task was cancelled
         TERMINATED,     // Task finalized in exception / error
         //---------- Only to display in Tasks:
         CLEANING,       // ** Task is running a cleaning procedure

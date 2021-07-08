@@ -3,6 +3,7 @@ package com.intellisrc.crypt.hash
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 import org.bouncycastle.crypto.Digest
 import org.bouncycastle.crypto.digests.MD5Digest
 import org.bouncycastle.crypto.digests.SHA1Digest
@@ -21,7 +22,7 @@ import java.security.Security
 /**
  * @since 17/04/07.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 class Hash extends Crypt implements Hashable {
     /**
      * Note: Using cost will reuse the bytes returned to rehash it again

@@ -33,11 +33,11 @@ class Cache<V> {
      * length      : time in milliseconds that will be stored (used to extend cache)
      * value       : value to store
      */
-    private static class CacheItem<V> {
+    protected static class CacheItem<V> {
         V               value
         LocalDateTime   expire
-        private int     length = 0
-        private boolean forever = false
+        protected int     length = 0
+        protected boolean forever = false
 
         CacheItem(V obj, int timeToStoreSec = DEFAULT) {
             if(timeToStoreSec != 0) { //Do not store if its disabled
@@ -88,9 +88,9 @@ class Cache<V> {
      * @param key
      * @return
      */
-    private boolean expired(final String key) {
-        def expired = false
-        def obj = cache.get(key)
+    protected boolean expired(final String key) {
+        boolean expired = false
+        CacheItem<V> obj = cache.get(key)
         if(obj) {
             if(!obj.forever) {
                 def now = SysClock.dateTime
@@ -183,7 +183,7 @@ class Cache<V> {
      * Will remove expired elements
      * It is initialized automatically
      */
-    private garbageCollect() {
+    protected garbageCollect() {
         cache.each {
             String key, CacheItem co ->
                 expired(key)

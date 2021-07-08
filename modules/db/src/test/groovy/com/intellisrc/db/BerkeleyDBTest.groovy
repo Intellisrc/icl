@@ -1,6 +1,5 @@
 package com.intellisrc.db
 
-import org.apache.commons.lang.RandomStringUtils
 import spock.lang.Specification
 
 import java.security.SecureRandom
@@ -23,8 +22,9 @@ class BerkeleyDBTest extends Specification {
     def "General test"() {
         setup:
             int randomStringLength = 32
-            String charset = (('a'..'z') + ('A'..'Z') + ('0'..'9')).join()
-            String randomString = RandomStringUtils.random(randomStringLength, charset.toCharArray())
+            List<String> charset = (('a'..'z') + ('A'..'Z') + ('0'..'9'))
+            String randomString = (0..randomStringLength).collect {charset.random(1).first() }.join("")
+            println "Random String: $randomString"
             db.add("some","value")
             db.add("other","val")
             db.add(randomString,"moons")

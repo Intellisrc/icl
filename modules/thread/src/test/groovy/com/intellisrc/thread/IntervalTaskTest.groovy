@@ -70,7 +70,7 @@ class IntervalTaskTest extends Specification {
             Tasks.exit()
     }
     
-    class FrozenIntervalTest extends IntervalTask implements Killable {
+    class FrozenIntervalTest extends IntervalTask implements TaskKillable {
         int callTimes = 0
         int frozenId = 0
         FrozenIntervalTest(int maxExec, int sleepMillis) {
@@ -150,16 +150,38 @@ class IntervalTaskTest extends Specification {
         setup:
             IntervalTask task = IntervalTask.create({
                 println ("Doing...")
-                sleep(9000)
+                sleep(900)
                 println ("Done")
-            },"IntervalTest", 10000, 10)
+            },"IntervalTest", 1000, 10)
             task.warnOnSkip = false
             Tasks.add(task)
-            sleep(10000)
+            sleep(1000)
         expect:
             assert Tasks.taskManager.pools.findAll { it.name.contains("Interval") }.size() == 2 // + 1 Timeout
             assert Tasks.taskManager.pools.find { it.name.contains("Interval") }.executed < 3
         cleanup:
             Tasks.exit()
+    }
+
+    def "Should cancel interval"() {
+        setup:
+            int counter = 0
+            IntervalTask task = IntervalTask.create({
+                println (++counter)
+            },"IntervalTest", 200, 100)
+            Tasks.add(task)
+            sleep(500)
+        when:
+            task.cancel()
+        then:
+            assert task.cancelled
+            assert counter > 4 && counter < 8
+        when:
+            sleep(800)
+        then:
+            assert counter > 4 && counter < 8
+        cleanup:
+            Tasks.printOnScreen = true
+            Tasks.printStatus()
     }
 }

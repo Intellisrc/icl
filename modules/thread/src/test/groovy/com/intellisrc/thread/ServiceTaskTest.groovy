@@ -91,7 +91,8 @@ class ServiceTaskTest extends Specification {
     
     def "Services should recover from Exiting"() {
         setup:
-            ServiceTest st = new ServiceTest(exit: true)
+            ServiceTest st = new ServiceTest()
+            st.exit = true
             int called
         expect:
             assert Tasks.add(st) : "Adding the first one should be ok"
@@ -110,5 +111,4 @@ class ServiceTaskTest extends Specification {
             assert Tasks.taskManager.pools.findAll { it.name.contains("ServiceTest") }.size() == 2 // Plus the monitor
             assert Tasks.taskManager.failed == 1
     }
-    // TODO: def "Creating ServiceTask inline"() {}
 }

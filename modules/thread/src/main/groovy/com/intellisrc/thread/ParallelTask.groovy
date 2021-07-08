@@ -12,7 +12,7 @@ import groovy.transform.CompileStatic
  * @since 2019/09/09.
  */
 @CompileStatic
-abstract class ParallelTask extends Task {
+abstract class ParallelTask extends Task implements TaskCancellable {
     ParallelTask(int threads, long maxExecutionMillis = 0, boolean waitToEnd = false) {
         minThreads = 1
         maxThreads = threads
@@ -73,7 +73,7 @@ abstract class ParallelTask extends Task {
     }
     
     abstract List<Runnable> processes() throws InterruptedException
-    
+
     @Override
     Runnable process() throws InterruptedException {
         return { Log.w("[%s] has no process", taskName) }

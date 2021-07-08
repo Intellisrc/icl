@@ -1,5 +1,5 @@
 dependencies {
-    compile project(':core')
-    compile project(':etc')
-    compile 'org.scream3r:jssc:2.8.0'
+    api project(':etc')
+    // SerialPort is used in method arguments. Using 'api' :
+    api 'org.scream3r:jssc:2.8.0'
 }

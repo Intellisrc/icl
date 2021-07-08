@@ -13,9 +13,9 @@ import groovy.transform.CompileStatic
  * @since 2019/09/09.
  */
 @CompileStatic
-abstract class IntervalTask extends Task {
+abstract class IntervalTask extends Task implements TaskCancellable {
     public boolean warnOnSkip = true //Turn to off to disable warning about unable to execute Task
-    
+
     IntervalTask(long maxExecutionMillis, int sleepMillis) {
         maxExecutionTime = maxExecutionMillis
         sleepTime = sleepMillis
@@ -57,13 +57,7 @@ abstract class IntervalTask extends Task {
             }
         }
     }
-    
-    @Override
-    abstract void setup()
-    
+
     @Override
     abstract Runnable process() throws InterruptedException
-    
-    @Override
-    abstract boolean reset()
 }

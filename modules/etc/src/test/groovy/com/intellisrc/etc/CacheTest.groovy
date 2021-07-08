@@ -1,26 +1,31 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import spock.lang.Specification
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 /**
  * @since 17/10/30.
- //TODO: use fake clock (if possible)
  */
 class CacheTest extends Specification {
+    void setup() {
+        Log.enabled = false
+    }
     def "Testing cache"() {
         setup:
             def oc = CacheObj.instance
             oc.set("Hello","World")
-            oc.set("Date", LocalDate.now())
+            oc.set("Date", SysClock.now.toLocalDate())
         expect:
             assert !oc.isEmpty()
             assert oc.contains("Hello")
             assert !oc.contains("Bla")
             assert oc.get("Hello") == "World"
-            assert oc.get("Date").class.isInstance(LocalDate.now())
+            assert oc.get("Date") instanceof LocalDate
         when:
             LocalDate d = oc.get("Date") as LocalDate
             println d.YMD

@@ -47,7 +47,7 @@ class DB {
 
 	static interface Connector {
 		void open()
-		void close()
+		boolean close()
         boolean isOpen()
 		Statement prepare(Query query)
 		void onError(Exception ex)
@@ -314,9 +314,23 @@ class DB {
     }
 
     /** Quit **/
-    void close() {
+    boolean close() {
 		Log.v( "Closing connection...")
-    	db.close()
+    	return db.close()
+    }
+    /**
+     * Return true if connection is closed
+     * @return
+     */
+    boolean isClosed() {
+        return ! db.isOpen()
+    }
+    /**
+     * Return true if connection is opened
+     * @return
+     */
+    boolean isOpened() {
+        return db.isOpen()
     }
 
     /** Execute a Query **/
@@ -523,6 +537,7 @@ class DB {
     private Query getQuery() {
         if(query == null) {
             query = new Query()
+            query.setType(getType())
             Log.v("Initializing Query")
             if(!this.table.isEmpty()) {
                 query.setTable(this.table)

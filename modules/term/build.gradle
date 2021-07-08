@@ -1,4 +1,5 @@
 dependencies {
-    compile project(':core')
-    compile "org.jline:jline:3.12.1"
+    api project(':core')
+    // As we expose 'LineReaderImpl' in Console, we use 'api' here:
+    api "org.jline:jline:3.20.0"
 }

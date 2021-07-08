@@ -21,7 +21,7 @@ abstract class ServiceTask extends Task {
         maxThreads = 1
         retry = true
     }
-    
+
     /**
      * Inline creation of a ServiceTask
      * @param runnable

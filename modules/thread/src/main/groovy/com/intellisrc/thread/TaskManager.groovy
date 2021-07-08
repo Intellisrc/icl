@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -110,16 +111,24 @@ class TaskManager {
                     }
                     break
                 case IntervalTask:
+                    ScheduledFuture future  //Need to be declared before assign it so its available inside the runnable
                     Log.i("[%s] Will run under schedule", taskInfo.name)
-                    added = scheduledExecutorService.scheduleAtFixedRate({
-                        if (running) {
+                    IntervalTask intervalTask = (taskInfo.task as IntervalTask)
+                    future = scheduledExecutorService.scheduleAtFixedRate({
+                        if(intervalTask.cancelled) {
+                            Log.d("Task %s was cancelled", task.taskName)
+                            future.cancel(true)
+                            taskInfo.state = TaskInfo.State.CANCELLED
+                            task.reset()
+                        } else if (running) {
                             if (!taskPool.executor.execute(taskInfo)) {
-                                if((taskInfo.task as IntervalTask).warnOnSkip) {
+                                if(intervalTask.warnOnSkip) {
                                     Log.w("[%s] Task was not executed. Disable this warning setting: warnOnSkip to false", taskInfo.name)
                                 }
                             }
                         }
                     }, 0, task.sleepTime, TimeUnit.MILLISECONDS)
+                    added = true
                     break
                 case ParallelTask:
                     if(Tasks.debug) {

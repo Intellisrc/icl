@@ -159,6 +159,8 @@ class ThreadPool extends ThreadPoolExecutor {
             executed = true
         } catch(InterruptedException ignored) {
             //Task was interrupted
+        } catch(CancellationException ignored) {
+            //Task was cancelled
         } catch(Exception | Error e) {
             Log.e("Error in thread: ", e)
             //It should have been reported inside ThreadPool
@@ -213,24 +215,39 @@ class ThreadPool extends ThreadPoolExecutor {
             }
         }
         if (item) {
-            item.finished = false
-            item.thread = future
-            item.info.threadID = future.id
-            item.info.done = false
-            //Starting...
-            item.info.state = TaskInfo.State.RUNNING
-            if(!item.info.startTime) {
-                if(Tasks.debug) {
-                    Log.v("Fixing start time")
+            boolean cancelled = false
+            if(item.info.task instanceof TaskCancellable) {
+                cancelled = (item.info.task as TaskCancellable).cancelled
+                if(cancelled) {
+                    item.future.cancel(true)
+                    item.info.state = TaskInfo.State.CANCELLED
+                    item.info.task.reset()
                 }
-                item.info.startTime = SysClock.dateTime
             }
-            // Set name and priority
-            future.name = item.info.fullName
-            if(Tasks.debug) {
-                Log.v("[%s] Running task with hash: %s", item.info.fullName, runnable.hashCode())
+            if(cancelled) {
+                if (Tasks.debug) {
+                    Log.d("Task: %s was cancelled, so it was not executed", item.info.task.taskName)
+                }
+            } else {
+                item.finished = false
+                item.thread = future
+                item.info.threadID = future.id
+                item.info.done = false
+                //Starting...
+                item.info.state = TaskInfo.State.RUNNING
+                if (!item.info.startTime) {
+                    if (Tasks.debug) {
+                        Log.v("Fixing start time")
+                    }
+                    item.info.startTime = SysClock.dateTime
+                }
+                // Set name and priority
+                future.name = item.info.fullName
+                if (Tasks.debug) {
+                    Log.v("[%s] Running task with hash: %s", item.info.fullName, runnable.hashCode())
+                }
+                future.priority = item.info.task.priority.value
             }
-            future.priority = item.info.task.priority.value
         } else {
             if(Tasks.debug) {
                 Log.w("Unable to find Task with ID: %d", runnable.hashCode())
@@ -250,7 +267,7 @@ class ThreadPool extends ThreadPoolExecutor {
             TaskInfo taskInfo = item.info
             if (throwable == null && future instanceof Future<?>) {
                 try {
-                    if(taskInfo.task.maxExecutionTime) {
+                    if (taskInfo.task.maxExecutionTime) {
                         ((Future<?>) future).get(taskInfo.task.maxExecutionTime, TimeUnit.MILLISECONDS)
                     } else {
                         ((Future<?>) future).get()
@@ -264,20 +281,23 @@ class ThreadPool extends ThreadPoolExecutor {
             item.finished = true
             try {
                 if(throwable) {
-                    taskInfo.failed++
-                    taskInfo.state = TaskInfo.State.TERMINATED
-                    if (taskInfo.task.onException(throwable)) {
-                        Log.w("[%s] was terminated", taskInfo.name)
-                    } else {
-                        if (!taskInfo.task.reset()) {
-                            Log.w("[%s] Unable to reset task", taskInfo.name)
+                    // Do not count as failed if it was cancelled:
+                    if(taskInfo.state != TaskInfo.State.CANCELLED) {
+                        taskInfo.failed++
+                        taskInfo.state = TaskInfo.State.TERMINATED
+                        if (taskInfo.task.onException(throwable)) {
+                            Log.w("[%s] was terminated", taskInfo.name)
+                        } else {
+                            if (!taskInfo.task.reset()) {
+                                Log.w("[%s] Unable to reset task", taskInfo.name)
+                            }
                         }
                     }
                     switch (throwable) {
                         case TimeoutException:
                             Log.w("[%s] timed out", taskInfo.fullName)
-                            if(item.info.task instanceof Killable) {
-                                (item.info.task as Killable).kill()
+                            if(item.info.task instanceof TaskKillable) {
+                                (item.info.task as TaskKillable).kill()
                                 //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
                                 item.thread.stop()
                             }
@@ -348,8 +368,8 @@ class ThreadPool extends ThreadPoolExecutor {
                     Log.v("[%s] Interrupting thread", info.fullName)
                 }
                 item.thread.interrupt()
-                if(item.info.task instanceof Killable) {
-                    (item.info.task as Killable).kill()
+                if(item.info.task instanceof TaskKillable) {
+                    (item.info.task as TaskKillable).kill()
                     sleep(10)
                     Log.i("[%s] Killing thread", info.fullName)
                     //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread

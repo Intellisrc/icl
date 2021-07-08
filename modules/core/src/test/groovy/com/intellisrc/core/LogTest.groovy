@@ -256,10 +256,11 @@ class LogTest extends Specification {
             assert yesterday != Log.logFile.name
     }
 
-    //@Unroll
+    @Unroll
     def "Cleaning should remove old logs"() {
         setup:
-            Log.directory = SysInfo.getFile(dir + "-test-log")
+            println "[$base : Create: $create, Keep: $keep = $expected]"
+            Log.directory = SysInfo.getFile(base + "-test-log")
             Log.logDays = keep
             LocalDateTime now = SysClock.now
             int logsToCreate = create
@@ -295,14 +296,14 @@ class LogTest extends Specification {
         cleanup :
             LogChanger.clearOnDone()
         where:
-            dir | keep | create | expected
-             1  |  5   |   10   |    5
-             2  |  10  |   12   |    10
-             3  |  3   |   5    |    3
-             4  |  4   |   3    |    3
-             5  |  5   |   5    |    5
-             6  |  1   |   8    |    1
-             7  |  1   |   1    |    1
+            base | keep | create | expected
+             1   |  5   |   10   |    5
+             2   |  10  |   12   |    10
+             3   |  3   |   5    |    3
+             4   |  4   |   3    |    3
+             5   |  5   |   5    |    5
+             6   |  1   |   8    |    1
+             7   |  1   |   1    |    1
     }
 
     @Unroll

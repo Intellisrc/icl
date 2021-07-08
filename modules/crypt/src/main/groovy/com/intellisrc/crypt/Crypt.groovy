@@ -2,6 +2,7 @@ package com.intellisrc.crypt
 
 import com.intellisrc.etc.Bytes
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 import java.security.SecureRandom
 
@@ -19,7 +20,7 @@ import java.security.SecureRandom
      You can use etc.Bytes.* to convert from/to char[], byte[] and String
  *
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 class Crypt {
     protected static SecureRandom random = new SecureRandom()
 

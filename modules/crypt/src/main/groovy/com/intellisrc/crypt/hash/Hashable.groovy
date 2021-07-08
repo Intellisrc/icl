@@ -7,7 +7,6 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 interface Hashable {
-    static interface hashType {}
     void setCost(int costSet)
     String hash(String algorithm)
     boolean verify(String hash, String algorithm)
