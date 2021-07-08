@@ -25,37 +25,37 @@ static String getProjectDescription(String name) {
     String desc = ""
     switch (name) {
         case "core":
-            desc = "Basic functionality that is usually needed in any project: Config, Log and more..."
+            desc = "Basic functionality that is usually needed in any project. For example, configuration, logging, executing commands, controlling services and displaying colors in console."
             break
         case "etc":
-            desc = "Extra functionality which is usually very useful in any project."
+            desc = "Extra functionality which is usually very useful in any project. For example, monitoring Hardware, compressing or decompressing data, store data in memory cache, manage system configuration in a multithreading safe environment (using Redis as default), simple operations with bytes, etc."
             break
         case "db":
-            desc = "Manage databases, such as MySQL, SQLite, Berkeley, Postgresql"
+            desc = "Manage databases, such as MySQL, SQLite, Berkeley, Postgresql. Create, store and perform CRUD operations to data without having to use SQL (a light-weight implementation as alternative to Hibernate)."
             break
         case "net":
-            desc = "Classes related to networking"
+            desc = "Classes related to networking. For example, sending emails through SMTP, connecting or creating TCP/UDP servers, getting network interfaces and perform netmask calculations, etc."
             break
         case "serial":
-            desc = "Manage serial communication"
+            desc = "Manage serial communication easily. It uses JSSC library on the background."
             break
         case "web":
-            desc = "Classes related to HTTP or alike protocols"
+            desc = "Create restful HTTP (GET, POST, PUT, DELETE, etc) or WebSocket application services. Manage JSON data from and to the server easily. It is build on top of Spark-Java Web Framework, so it is very flexible and powerful, but designed to be elegant and easier to use."
             break
         case "crypt":
-            desc = "Offers methods to encode, decode and encrypt information"
+            desc = "Offers methods to encode, decode, hash and encrypt information. It is built using the BountyCastle library and simplifying its usage without reducing its safety."
             break
         case "thread":
-            desc = "Manage Tasks (Threads) with priority and watches its performance"
+            desc = "Manage Tasks (Threads) with priority and watches its performance. You can create parallel processes easily, processes which are executed in an interval, as a service or after a specified amount of time. This module is very useful to help you to identify bottlenecks and to manage your main threads in a single place."
             break
         case "term":
-            desc = "Anything related to terminal is in this module (except AnsiColor, which is in core)"
+            desc = "Anything related to terminal is in this module (except AnsiColor, which is in core). It uses JLine to help you create interactive terminal (console) applications easily. It also contains some tools to display progress with colors."
             break
         case "img":
-            desc = "Classes for using Images (BufferedImage, File, FrameShot) and non-opencv related code, trying to keep dependencies to a minimum. It also include common geometric operation"
+            desc = "Classes for using Images (BufferedImage, File, FrameShot) and non-opencv related code, trying to keep dependencies to a minimum. It also includes common geometric operations."
             break
         case "cv":
-            desc = "Classes for Computer Vision (extension to OpenCV)"
+            desc = "Classes for Computer Vision (extension to OpenCV). Convert image formats, crop, rotate images or draw objects on top of them. It simplifies grabbing images from any video source."
             break
     }
     return desc
