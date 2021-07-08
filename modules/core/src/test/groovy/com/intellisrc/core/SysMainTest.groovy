@@ -9,6 +9,7 @@ import spock.lang.Specification
 class SysMainTest extends Specification {
     def "Must execute onStart without static block"() {
         setup:
+            Log.enabled = false
             Config.system.set("main.class","com.intellisrc.core.dummy.SysMainDummy")
             SysMain.exitJava = false
             SysMainDummy.main([] as String[])

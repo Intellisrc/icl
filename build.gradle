@@ -45,7 +45,7 @@ subprojects {
     publishing {
        publications {
            mavenJava(MavenPublication) {
-               artifactId project.name
+               artifactId "intellisrc-" + project.name
                from components.java
            }
        }

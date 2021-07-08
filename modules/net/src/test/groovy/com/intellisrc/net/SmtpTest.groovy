@@ -57,7 +57,7 @@ class SmtpTest extends Specification {
      */
     def "SendAttachment"() {
         setup:
-            def file = new File(SysInfo.getWritablePath()+"example.txt")
+            def file = new File(SysInfo.getWritablePath(), "example.txt")
             file << "Hello this is just a test"
             smtp.addAttachment(file)
             smtp.addAttachment(attachFile)
@@ -77,7 +77,7 @@ class SmtpTest extends Specification {
     }
     def "HTML and text with Attachments"() {
         setup:
-        def file = new File(SysInfo.getWritablePath()+"example.txt")
+        def file = new File(SysInfo.getWritablePath(),"example.txt")
         file << "Hello this is just a test"
         smtp.addAttachment(file)
         expect: assert smtp.send(recipient1,"Testing HTML and text", "<h1>Hello! this is <i>H1</i></h1>", "This is TXT format")
@@ -85,7 +85,7 @@ class SmtpTest extends Specification {
         file.delete()
     }
     def "Specifying recipient type"() {
-        def sendTo = [:]
+        def sendTo = [:] as Map<String, Smtp.Mode>
         sendTo[recipient1] = Smtp.Mode.CC
         sendTo[recipient2] = Smtp.Mode.BCC
         expect: assert smtp.send(sendTo,"Testing recipient Type", "This is body")
@@ -93,8 +93,8 @@ class SmtpTest extends Specification {
     def "Mail magazine"() {
         setup:
             def to = [ "test@example.com" ]
-            def html = new File(SysInfo.tempDir + "magazine.html")
-            def plain = new File(SysInfo.tempDir + "magazine.txt")
+            def html = new File(SysInfo.tempDir,  "magazine.html")
+            def plain = new File(SysInfo.tempDir,  "magazine.txt")
             html.text = "<h1>Hello</h1>"
             plain.text = "Hello"
         expect:
