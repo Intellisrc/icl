@@ -249,7 +249,7 @@ you to choose your desired versions, and reduce the compilation time. Below each
 including the recommended version (the one used during compilation).
 
 * `core` : Groovy version is now up to you. 
-    * `org.codehaus.groovy:groovy-all:3.0.8`
+    * `org.codehaus.groovy:groovy-all:3.0.7`
 * `etc`  : Jedis needs to be included if you use @AutoConfig
     * `redis.clients:jedis:3.6.1`
 * `cv`   : JavaCV needs to be included.
