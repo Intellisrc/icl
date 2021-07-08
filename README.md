@@ -250,7 +250,7 @@ including the recommended version (the one used during compilation).
 
 * `core` : Groovy version is now up to you. 
     * `org.codehaus.groovy:groovy-all:3.0.7`
-* `etc`  : Jedis needs to be included if you use @AutoConfig
+* `etc`  : Jedis needs to be included if you use `@AutoConfig`
     * `redis.clients:jedis:3.6.1`
 * `cv`   : JavaCV needs to be included.
     * `org.bytedeco:javacv-platform:1.5`
