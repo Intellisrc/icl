@@ -4,7 +4,7 @@ plugins {
     id 'maven-publish'
 }
 
-def currentVersion = "2.8.0"
+def currentVersion = "2.8.0-SNAPSHOT"
 
 allprojects {
     group = groupName
@@ -39,11 +39,15 @@ subprojects {
         testImplementation "org.spockframework:spock-core:${spock}"
         testImplementation "junit:junit:${junit}"
     }
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
     // Used to publish to MavenLocal
     publishing {
        publications {
            mavenJava(MavenPublication) {
-               artifactId "intellisrc-" + project.name
+               artifactId project.name
                from components.java
            }
        }
@@ -135,9 +139,4 @@ subprojects {
 
     uploadArchives.dependsOn(signJars)
  */
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
 }
