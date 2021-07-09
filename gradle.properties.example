@@ -2,6 +2,10 @@
 groupName=com.intellisrc
 artifact=common
 
+authorId=
+authorName=
+authorEmail=
+
 projectName=IntelliSrc Common Library
 projectURL=https://gitlab.com/intellisrc/common
 projectDevURL=git@gitlab.com:intellisrc/common.git
