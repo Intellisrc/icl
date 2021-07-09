@@ -248,7 +248,7 @@ add them separately as you need. This was done to make this library more flexibl
 you to choose your desired versions, and reduce the compilation time. Below each module I'm
 including the recommended version (the one used during compilation).
 
-* `core` : Groovy version is now up to you. 
+* `core` : Groovy version is now up to you (required by any module). 
     * `org.codehaus.groovy:groovy-all:3.0.7`
 * `etc`  : Jedis needs to be included if you use `@AutoConfig`
     * `redis.clients:jedis:3.6.1`
