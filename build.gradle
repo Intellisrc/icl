@@ -5,11 +5,9 @@ plugins {
     id 'signing'
 }
 
-def currentVersion = "2.8.0-SNAPSHOT"
-
 allprojects {
     group = groupName
-    version = currentVersion
+    version = "2.8.0-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -107,6 +105,8 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
+    boolean isDev = version.contains("SNAPSHOT")
+
     dependencies {
         //def groovyVer = "2.5.14"
         def groovyVer = "3.0.7"
@@ -114,7 +114,6 @@ subprojects {
         def spock = "2.0-groovy-3.0"
         def junit = "4.13.2"
 
-        boolean isDev = currentVersion.contains("SNAPSHOT")
         def deps = ["org.codehaus.groovy:groovy-all:${groovyVer}"]
         if(isDev) {
             deps.each { api it }
@@ -126,20 +125,18 @@ subprojects {
         testImplementation "org.spockframework:spock-core:${spock}"
         testImplementation "junit:junit:${junit}"
     }
-    /*jar {
-        archiveBaseName.set("intellisrc-" + archiveBaseName.get())
-    }*/
     java {
-        withSourcesJar()
-        withJavadocJar()
+        if(!isDev) {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
-    // Used to publish to MavenLocal
     publishing {
         repositories {
             maven {
                 def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
                 def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                url = isDev ? snapshotsRepoUrl : releasesRepoUrl
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -156,11 +153,6 @@ subprojects {
                    description = getProjectDescription(project.name) ?: projectDescription
                    url = projectURL
                    inceptionYear = projectSince
-                   /*archivesBaseName = "intellisrc-" + project.name
-                   properties = [
-                        "jar.finalName" : archivesBaseName + "-" + project.version
-                   ]*/
-
                    licenses {
                        license {
                            name = 'GNU General Public License v3.0'
@@ -184,14 +176,11 @@ subprojects {
            }
        }
     }
-
     signing {
-        required {
-            !version.endsWith("SNAPSHOT")
+        if(! isDev) {
+            sign publishing.publications.mavenJava
         }
-        sign publishing.publications.mavenJava
     }
-
     tasks.named('test') {
         // Use JUnit Platform for unit tests.
         useJUnitPlatform()
