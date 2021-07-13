@@ -167,7 +167,7 @@ Includes : core, etc
 Includes : core, etc    
 
 > Offers methods to encode, decode, hash and encrypt information. It is built using 
-> the BountyCastle library and simplifying its usage without reducing its safety.
+> the BouncyCastle library and simplifying its usage without reducing its safety.
 
  * `Crypt` : Base class for all other classes in this module. It provides random generators and byte[] related methods
  * `AES` : Two way encryption (required fixed key length)

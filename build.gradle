@@ -64,7 +64,7 @@ static String getProjectDescription(String name) {
             break
         case "crypt":
             desc = "Offers methods to encode, decode, hash and encrypt " +
-                    "information. It is built using the BountyCastle " +
+                    "information. It is built using the BouncyCastle " +
                     "library and simplifying its usage without reducing " +
                     "its safety."
             break
