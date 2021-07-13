@@ -268,7 +268,7 @@ class ConfigAuto {
                     Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
                     return
             }
-            update()
+            storage.update()
         }
     }
 
@@ -419,7 +419,7 @@ class ConfigAuto {
                         Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
                         updated = false
                 }
-                update()
+                storage.update()
             } else {
                 updated = false
             }
