@@ -3,6 +3,7 @@ package com.intellisrc.web.services
 import com.intellisrc.core.Log
 import com.intellisrc.web.Service.Allow
 import com.intellisrc.web.ServiciableAuth
+import groovy.transform.CompileStatic
 import spark.Request
 import spark.Response
 
@@ -23,7 +24,7 @@ import spark.Response
  * @since 10/19/17.
  */
 
-@groovy.transform.CompileStatic
+@CompileStatic
 class LoginService implements ServiciableAuth {
     String rootPath  = ""
     String loginPath = "/login"
