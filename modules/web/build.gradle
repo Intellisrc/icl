@@ -4,7 +4,7 @@ dependencies {
     // We use Response, Request... so we use 'api' here:
     api 'com.sparkjava:spark-core:2.9.3'
     // JSON wraps GSON so the consumer doesn't need it:
-    compileOnly 'com.google.code.gson:gson:2.8.7'
+    implementation 'com.google.code.gson:gson:2.8.7'
     // Required to turn slf4j off:
     api 'org.slf4j:slf4j-nop:1.7.31'
     // Do not include Yaml

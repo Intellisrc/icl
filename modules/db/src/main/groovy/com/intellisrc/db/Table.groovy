@@ -134,12 +134,12 @@ class Table<T extends Model> implements Instanciable<T> {
 
     /**
      * Get fields names with values as Map from a Type Object
-     * @param type
+     * @param model
      * @return
      */
-    Map<String, Object> getMap(T type) {
+    Map<String, Object> getMap(T model) {
         Map<String, Object> map = fields.collectEntries {
-            [(getColumnName(it)) : type[it.name]]
+            [(getColumnName(it)) : model[it.name]]
         }
         return convertToDB(map)
     }
@@ -209,7 +209,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     T setMap(Map<String, Object> map) {
-        T type = parametrizedInstance
+        T model = parametrizedInstance
         map.each {
             String origName = it.key.toCamelCase()
             Field field = getFields().find { it.name == origName }
@@ -222,52 +222,52 @@ class Table<T extends Model> implements Instanciable<T> {
                 switch (field.type) {
                     case boolean:
                     case Boolean:
-                        type[origName] = it.value.toString() == "true"
+                        model[origName] = it.value.toString() == "true"
                         break
                     case Collection:
                         try {
-                            type[origName] = new Yaml().load((it.value ?: "").toString()) as List
+                            model[origName] = new Yaml().load((it.value ?: "").toString()) as List
                         } catch (Exception e) {
                             Log.w("Unable to parse list value in field %s: %s", origName, e.message)
-                            type[origName] = []
+                            model[origName] = []
                         }
                         break
                     case Map:
                         try {
-                            type[origName] = new Yaml().load((it.value ?: "").toString()) as Map
+                            model[origName] = new Yaml().load((it.value ?: "").toString()) as Map
                         } catch (Exception e) {
                             Log.w("Unable to parse map value in field %s: %s", origName, e.message)
-                            type[origName] = [:]
+                            model[origName] = [:]
                         }
                         break
                     case LocalDate:
-                        type[origName] = (it.value as LocalDateTime).toLocalDate()
+                        model[origName] = (it.value as LocalDateTime).toLocalDate()
                         break
                     case LocalTime:
-                        type[origName] = (it.value as LocalDateTime).toLocalTime()
+                        model[origName] = (it.value as LocalDateTime).toLocalTime()
                         break
                     case URI:
-                        type[origName] = new URI(it.value.toString())
+                        model[origName] = new URI(it.value.toString())
                         break
                     case URL:
-                        type[origName] = new URL(it.value.toString())
+                        model[origName] = new URL(it.value.toString())
                         break
                     case Enum:
-                        type[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString())
+                        model[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString())
                         break
                     case Model:
                         Constructor<?> c = field.type.getConstructor()
                         Model refType = (c.newInstance() as Model)
-                        type[origName] = refType.table.get(it.value as int)
+                        model[origName] = refType.table.get(it.value as int)
                         break
                     default:
-                        type[origName] = it.value
+                        model[origName] = it.value
                 }
             } else {
                 Log.w("Field not found: %s", origName)
             }
         }
-        return type
+        return model
     }
 
     /**
@@ -277,8 +277,8 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     String getDefaultValue(Field field, boolean nullable = false) {
-        T t = parametrizedInstance
-        Object val = field.get(t)
+        T model = parametrizedInstance
+        Object val = field.get(model)
         String defaultVal = ""
         Column column = field.getAnnotation(Column)
         boolean primary = column?.primary()
@@ -394,8 +394,8 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     static String getFieldName(final String columnName) {
-        String fname = columnName.toCamelCase()
-        return fname
+        String name = columnName.toCamelCase()
+        return name
     }
 
     /**
@@ -441,33 +441,23 @@ class Table<T extends Model> implements Instanciable<T> {
         }
         return pk
     }
-
+    /**
+     * Get one item using ID
+     * @param id
+     * @return
+     */
     T get(int id) {
         Map map = table.key(pk).get(id).toMap()
-        T type = setMap(map)
+        T model = setMap(map)
         table.close()
-        return type
+        return model
     }
-
-    List<T> getAll(int id) {
-        return getAll([id])
-    }
-
-    List<T> findAll(String fieldName, Model type) {
-        Field f = getFields().find {
-            it.name == fieldName
-        }
-        List<T> list = []
-        if(f) {
-            String id = getColumnName(f)
-            list = table.get([(id): type.id] as Map<String, Object>).toListMap().collect { setMap(it) }
-        } else {
-            Log.w("Unable to find field: %s", fieldName)
-        }
-        return list
-    }
-
-    List<T> getAll(List<Integer> ids) {
+    /**
+     * Get a list of items using ids
+     * @param ids
+     * @return
+     */
+    List<T> get(List<Integer> ids) {
         List<Map> list = table.key(pk).get(ids).toListMap()
         List<T> all = list.collect {
             Map map ->
@@ -476,8 +466,17 @@ class Table<T extends Model> implements Instanciable<T> {
         table.close()
         return all
     }
-
-    List<T> getAll(Map<String, Object> options = [:]) {
+    /**
+     * Get all with options:
+     * limit : Total of items to get
+     * offset : Starting from...
+     * sort : Sort by
+     * order : ASC or DESC
+     *
+     * @param options
+     * @return
+     */
+    List<T> getAll(Map options = [:]) {
         DB con = table
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
@@ -494,15 +493,61 @@ class Table<T extends Model> implements Instanciable<T> {
         return all
     }
 
-    T find(String column, Object value) {
-        Map map = table.get([(column): value]).toMap()
-        T type = setMap(map)
-        table.close()
-        return type
+    /**
+     * Find all of a kind of model
+     * @param fieldName
+     * @param type
+     * @return
+     */
+    List<T> findAll(String fieldName, Model model) {
+        Field f = getFields().find {
+            it.name == fieldName
+        }
+        List<T> list = []
+        if(f) {
+            String id = getColumnName(f)
+            list = table.get([(id): model.id] as Map<String, Object>).toListMap().collect { setMap(it) }
+        } else {
+            Log.w("Unable to find field: %s", fieldName)
+        }
+        return list
     }
-
+    /**
+     * Find a single item which matches some column an some value
+     * @param column
+     * @param value
+     * @return
+     */
+    T find(String column, Object value) {
+        return find([(column): value])
+    }
+    /**
+     * Find a single item using multiple columns
+     * @param criteria
+     * @return
+     */
+    T find(Map criteria) {
+        Map map = table.get(criteria).toMap()
+        T model = setMap(map)
+        table.close()
+        return model
+    }
+    /**
+     * Find all items which matches a column and a value
+     * @param column
+     * @param value
+     * @return
+     */
     List<T> findAll(String column, Object value) {
-        List<Map> list = table.get([(column): value]).toListMap()
+        return findAll([(column): value])
+    }
+    /**
+     * Find all items matching multiple columns
+     * @param criteria
+     * @return
+     */
+    List<T> findAll(Map criteria) {
+        List<Map> list = table.get(criteria).toListMap()
         List<T> all = list.collect {
             Map map ->
                 return setMap(map)
@@ -510,37 +555,66 @@ class Table<T extends Model> implements Instanciable<T> {
         table.close()
         return all
     }
-
-    boolean update(T type, List<String> exclude = []) {
-        int id = type.id
-        Map map = getMap(type)
+    /**
+     * Update a model
+     * @param model
+     * @param exclude : columns to exclude during update
+     * @return
+     */
+    boolean update(T model, List<String> exclude = []) {
+        int id = model.id
+        Map map = getMap(model)
         exclude.each {
             map.remove(it)
         }
         boolean ok = table.key(pk).update(map, id)
         return table.close() && ok
     }
-
+    /**
+     * Delete using model
+     * @param model
+     * @return
+     */
+    boolean delete(T model) {
+        return delete(model.id)
+    }
+    /**
+     * Delete with ID
+     * @param id
+     * @return
+     */
     boolean delete(int id) {
         boolean ok = table.key(pk).delete(id)
         return table.close() && ok
     }
-
+    /**
+     * Delete using multiple columns
+     * @param map
+     * @return
+     */
     boolean delete(Map map) {
         boolean ok = table.key(pk).delete(map)
         return table.close() && ok
     }
-
+    /**
+     * Delete using multiple IDs
+     * @param ids
+     * @return
+     */
     boolean delete(List<Integer> ids) {
         boolean ok = table.key(pk).delete(ids)
         return table.close() && ok
     }
-
-    int insert(T type) {
-        int id = type.id
+    /**
+     * Insert a model
+     * @param model
+     * @return
+     */
+    int insert(T model) {
+        int id = model.id
         int lastId = 0
         try {
-            Map<String, Object> map = getMap(type)
+            Map<String, Object> map = getMap(model)
             boolean ok = table.insert(map)
             lastId = 0
             if (ok) {
@@ -554,7 +628,6 @@ class Table<T extends Model> implements Instanciable<T> {
         }
         return lastId ?: id
     }
-
     /**
      * Returns a new instance of this class's generic type
      * @return
@@ -579,7 +652,9 @@ class Table<T extends Model> implements Instanciable<T> {
         }
         return currentTable
     }
-
+    /**
+     * Close all connections (in all threads) to the database
+     */
     static void quit() {
         Database.quit()
     }
