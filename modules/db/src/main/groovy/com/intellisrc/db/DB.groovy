@@ -12,7 +12,7 @@ import static com.intellisrc.db.DB.ColumnType.*
 /**
  * This class uses an interface of Connector to
  * interact with the Database
- * @author A.Lepe (lepe@support.ne.jp)
+ * @author A.Lepe (lepe@intellisrc.com)
  * @since 2016-10
  */
 class DB {

@@ -18,9 +18,9 @@ class EmailService implements ServiciableMultiple {
     Action getEmails = {
         Request request ->
             return [
-                    "lepe@inspeedia.com",
-                    "lepe@support.ne.jp",
-                    "webmaster@support.ne.jp"
+                    "admin@example.com",
+                    "info@example.com",
+                    "webmaster@example.com"
             ]
     } as Action
 
@@ -34,7 +34,7 @@ class EmailService implements ServiciableMultiple {
     Action getEmailsNew = {
         Request request ->
             return [
-                    "new_lepe@inspeedia.com"
+                    "new@example.com"
             ]
     } as Action
 
@@ -42,7 +42,7 @@ class EmailService implements ServiciableMultiple {
         Request request ->
             println "We are here to see and hear..."
             return [
-                    "more_lepe@inspeedia.com"
+                    "new@example.com"
             ]
     } as Action
 

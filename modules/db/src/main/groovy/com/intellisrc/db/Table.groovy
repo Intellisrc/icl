@@ -82,7 +82,7 @@ class Table<T extends Model> implements Instanciable<T> {
                             }
 
                             List<String> extra = []
-                            if (column.unique()) {
+                            if (column.unique() || column.uniqueGroup()) {
                                 if(column.uniqueGroup()) {
                                     if(! uniqueGroups.containsKey(column.uniqueGroup())) {
                                         uniqueGroups[column.uniqueGroup()] = []

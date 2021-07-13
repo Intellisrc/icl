@@ -109,7 +109,7 @@ subprojects {
 
     dependencies {
         //def groovyVer = "2.5.14"
-        def groovyVer = "3.0.7"
+        def groovyVer = "3.0.8"   //3.0.8 is failing to compile
         def groovyExt = "3.0.8.7"
         def spock = "2.0-groovy-3.0"
         def junit = "4.13.2"
