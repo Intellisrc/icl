@@ -264,6 +264,4 @@ The following modules already include the needed libraries (no need to add them)
 
 * `serial` : JSSC library (`org.scream3r:jssc:2.8.0`) 
 * `term`   : JLine library (`org.jline:jline:3.20.0`)
-* `web`  : Spark Framework and GSON libraries:
-    * `com.sparkjava:spark-core:2.9.3`
-    * `com.google.code.gson:gson:2.8.7`
+* `web`  : Spark Framework (`com.sparkjava:spark-core:2.9.3`)

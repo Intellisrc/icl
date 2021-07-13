@@ -5,6 +5,7 @@ import com.intellisrc.etc.CacheObj
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
+import org.yaml.snakeyaml.Yaml
 
 import javax.imageio.ImageIO
 import javax.servlet.http.HttpServletRequest
@@ -155,7 +156,7 @@ class WebService {
                                             res.id = request.session().id()
                                         }
                                         response.type("application/json")
-                                        res.y = ok
+                                        res.ok = ok
                                         return JSON.encode(res)
                                 })
                                 srv.get(auth.path + auth.logoutPath, {
@@ -163,7 +164,7 @@ class WebService {
                                         response.type("application/json")
                                         request.session().invalidate()
                                         return JSON.encode(
-                                                y: auth.onLogout(request, response)
+                                                ok : auth.onLogout(request, response)
                                         )
                                 })
                                 break
@@ -251,11 +252,6 @@ class WebService {
      */
     private void addAction(final String fullPath, final Service sp) {
         //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
-        //Automatic set POST for uploads
-        if (sp.uploadField && sp.method == GET) {
-            sp.method = POST
-            Log.w("%s is set to Upload a file, but GET method was used. Setting POST", fullPath)
-        }
         switch (sp.method) {
             case GET: srv.get(fullPath, onAction(sp)); break
             case POST: srv.post(fullPath, onAction(sp)); break
@@ -268,7 +264,7 @@ class WebService {
      * Output types used in getOutput
      */
     private final static enum OutputType {
-        JSON, PLAIN, BINARY, JPG, PNG, GIF
+        JSON, YAML, PLAIN, BINARY, JPG, PNG, GIF
     }
     /**
      * Gets the output and convert it
@@ -281,6 +277,9 @@ class WebService {
         switch (otype) {
             case OutputType.JSON:
                 out = JSON.encode(output)
+                break
+            case OutputType.YAML:
+                out = new Yaml().dump(output)
                 break
             case OutputType.JPG:
             case OutputType.PNG:
@@ -340,6 +339,7 @@ class WebService {
                     OutputType otype
                     switch (sp.contentType.toLowerCase()) {
                         case ~/.*json.*/  : otype = OutputType.JSON; break
+                        case ~/.*yaml.*/  : otype = OutputType.YAML; break
                         case ~/.*text.*/  : otype = OutputType.PLAIN; break
                         case "image/jpeg" : otype = OutputType.JPG; break
                         case "image/png"  : otype = OutputType.PNG; break
@@ -363,39 +363,44 @@ class WebService {
                                 response.header("Content-Transfer-Encoding", "binary")
                             }
                         }
-                        if (sp.uploadField) {
-                            String tempDir = SysInfo.getTempDir()
+                        HttpServletRequest raw = request.raw()
+                        String tempDir = SysInfo.getTempDir()
+                        request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
+                        if (!raw.parts.empty) {
                             File tempFileDir = new File(tempDir)
                             if (tempFileDir.canWrite()) {
-                                request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
-                                Path path = Files.createTempFile("upload", ".file")
-                                HttpServletRequest raw = request.raw()
+                                List<UploadFile> uploadFiles = []
                                 if (raw.contentLength > 0) {
+                                    raw.parts.each {
+                                        Part part ->
+                                            if(part.size) {
+                                                try {
+                                                    InputStream input = part.getInputStream()
+                                                    Path path = Files.createTempFile("upload", ".file")
+                                                    Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
+                                                    UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
+                                                    uploadFiles << file
+                                                } catch (Exception e) {
+                                                    response.status(500)
+                                                    Log.e("Unable to upload file: %s", part.submittedFileName, e)
+                                                }
+                                            } else {
+                                                Log.w("File: %s was empty", part.submittedFileName)
+                                            }
+                                    }
                                     try {
-                                        Part part = raw.getPart(sp.uploadField)
-                                        if (part) {
-                                            InputStream input = part.getInputStream()
-                                            Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
-                                            File file = new File(path.toString())
-                                            try {
-                                                res = callAction(sp.action, request, response, file)
-                                                out = getOutput(res, otype)
-                                            } catch (Exception e) {
-                                                response.status(500)
-                                                Log.e("Service.upload closure failed", e)
-                                            }
-                                            if (file.exists()) {
-                                                file.delete()
-                                            }
-                                            return out
-                                        } else {
-                                            response.status(500)
-                                            Log.e("Upload field name does not matches Service.uploadField value: %s", sp.uploadField)
-                                        }
+                                        res = callAction(sp.action, request, response, uploadFiles)
+                                        out = getOutput(res, otype)
                                     } catch (Exception e) {
                                         response.status(500)
-                                        Log.e("Unable to upload file.", e)
+                                        Log.e("Service.upload closure failed", e)
                                     }
+                                    uploadFiles.each {
+                                        if (it.exists()) {
+                                            it.delete()
+                                        }
+                                    }
+                                    return out
                                 } else {
                                     response.status(411)
                                     Log.e("Uploaded file is empty")
@@ -487,7 +492,16 @@ class WebService {
                         }
                     } else {
                         response.status(403)
-                        out = otype == OutputType.JSON ? JSON.encode(y: false) : ""
+                        switch (otype) {
+                            case OutputType.JSON:
+                                out = JSON.encode(ok : false, error : 403)
+                                break
+                            case OutputType.YAML:
+                                out = new Yaml().dump(ok : false, error : 403)
+                                break
+                            default:
+                                out = ""
+                        }
                     }
                     return out
                 } catch(Throwable e) {
@@ -508,22 +522,43 @@ class WebService {
      * @param response
      * @return
      */
-    private static Object callAction(final Object action, final Request request, final Response response, final File upload = null) {
+    private static Object callAction(final Object action, final Request request, final Response response, final List<UploadFile> upload = null) {
         Object returned = null
         if (action instanceof Service.Action) {
+            returned = action.run()
+        } else if (action instanceof Service.ActionRequest) {
+            returned = action.run(request)
+        } else if (action instanceof Service.ActionResponse) {
             returned = action.run(request, response)
         } else if (action instanceof Service.Upload) {
+            returned = action.run(upload.first())
+        } else if (action instanceof Service.UploadRequest) {
+            returned = action.run(upload.first(), request)
+        } else if (action instanceof Service.UploadResponse) {
+            returned = action.run(upload.first(), request, response)
+        } else if (action instanceof Service.Uploads) {
+            returned = action.run(upload)
+        } else if (action instanceof Service.UploadsRequest) {
+            returned = action.run(upload, request)
+        } else if (action instanceof Service.UploadsResponse) {
             returned = action.run(upload, request, response)
         } else if (action instanceof Closure) {
             if (upload) {
                 switch (true) {
                     case tryCall(action, { returned = it }, upload, request, response): break
+                    case tryCall(action, { returned = it }, upload.first(), request, response): break
                     case tryCall(action, { returned = it }, request, response, upload): break
+                    case tryCall(action, { returned = it }, request, response, upload.first()): break
                     case tryCall(action, { returned = it }, upload, request): break
+                    case tryCall(action, { returned = it }, upload.first(), request): break
                     case tryCall(action, { returned = it }, upload, response): break
+                    case tryCall(action, { returned = it }, upload.first(), response): break
                     case tryCall(action, { returned = it }, request, upload): break
+                    case tryCall(action, { returned = it }, request, upload.first()): break
                     case tryCall(action, { returned = it }, response, upload): break
+                    case tryCall(action, { returned = it }, response, upload.first()): break
                     case tryCall(action, { returned = it }, upload): break
+                    case tryCall(action, { returned = it }, upload.first()): break
                     default:
                         Log.w("Unknown parameters expected in Service.Action as Closure. Request must be before Response and at least File must be specified.")
                 }

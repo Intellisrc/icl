@@ -13,6 +13,12 @@ class Service {
      * Execute an action and return for example, JSON data
      */
     static interface Action {
+        Object run()
+    }
+    static interface ActionRequest extends Action {
+        Object run(Request request)
+    }
+    static interface ActionResponse extends Action {
         Object run(Request request, Response response)
     }
     /**
@@ -21,7 +27,26 @@ class Service {
      * Its almost the same as Action but it includes the uploaded file
      */
     static interface Upload extends Action {
-        Object run(File tmpFile, Request request, Response response)
+        Object run(UploadFile tmpFile)
+    }
+    static interface UploadRequest extends Action {
+        Object run(UploadFile tmpFile, Request request)
+    }
+    static interface UploadResponse extends Action {
+        Object run(UploadFile tmpFile, Request request, Response response)
+    }
+    /**
+     * Method to run on Upload multiple files
+     * similar to Upload, but returns a list
+     */
+    static interface Uploads extends Action {
+        Object run(List<UploadFile> tmpFiles)
+    }
+    static interface UploadsRequest extends Action {
+        Object run(List<UploadFile> tmpFiles, Request request)
+    }
+    static interface UploadsResponse extends Action {
+        Object run(List<UploadFile> tmpFiles, Request request, Response response)
     }
     /**
      * Check if client is allowed or not
@@ -50,7 +75,6 @@ class Service {
     Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
-    String uploadField          = ""                    // Name of the HTML input[type=file]
     Map<String,String> headers  = [:]                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
 }
