@@ -506,7 +506,7 @@ class Table<T extends Model> implements Instanciable<T> {
         List<T> list = []
         if(f) {
             String id = getColumnName(f)
-            list = table.get([(id): model.id] as Map<String, Object>).toListMap().collect { setMap(it) }
+            list = table.get([(id): model.id]).toListMap().collect { setMap(it) }
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
@@ -527,6 +527,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     T find(Map criteria) {
+        criteria = convertToDB(criteria)
         Map map = table.get(criteria).toMap()
         T model = setMap(map)
         table.close()
@@ -547,6 +548,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     List<T> findAll(Map criteria) {
+        criteria = convertToDB(criteria)
         List<Map> list = table.get(criteria).toListMap()
         List<T> all = list.collect {
             Map map ->
