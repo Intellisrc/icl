@@ -81,6 +81,7 @@ Includes : core
  * `CacheObj`   : Generic implementation of `Cache`
  * `Calc`       : Provide common math calculations
  * `Hardware`   : Get information about OS
+ * `Mime`       : Get Mime types from files or streams  
  * @ `JarResource`: Store resources in JAR
  * @ `Metric`   : Keep track of changes in values (used by Hardware)
  * `Pack`       : Methods to convert byte[] to int, long and back again
@@ -124,6 +125,7 @@ Includes : core, etc, crypt
  * `Network` : Methods related to networking but not to NetworkInterface
  * `NetFace` : Simple representation of a Network Interface
  * `Smtp` : Class to send emails using SMTP server
+ * `FtpClient` : FTP client  
  * `TCPClient` : TCP client
  * `TCPServer` : TCP server
  * `UDPClient` : UDP client

@@ -4,6 +4,9 @@ import groovy.transform.CompileStatic
 
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 /**
  * @since 18/03/09.
@@ -20,8 +23,8 @@ class Zip {
      */
     static boolean gzip(File file) {
         boolean ok = false
-        if(file.exists()) {
-            if(!file.name.endsWith(".gz")) {
+        if (file.exists()) {
+            if (!file.name.endsWith(".gz")) {
                 file.bytes = gzip(file.bytes)
                 ok = file.renameTo(file.path + ".gz")
             } else {
@@ -37,7 +40,7 @@ class Zip {
      * @param uncompressed
      * @return
      */
-    static byte[] gzip(byte[] uncompressed){
+    static byte[] gzip(byte[] uncompressed) {
         def targetStream = new ByteArrayOutputStream()
         def zipStream = new GZIPOutputStream(targetStream)
         zipStream.write(uncompressed)
@@ -52,10 +55,10 @@ class Zip {
      */
     static boolean gunzip(File file) {
         boolean ok = false
-        if(file.exists()) {
-            if(file.name.endsWith(".gz")) {
+        if (file.exists()) {
+            if (file.name.endsWith(".gz")) {
                 file.bytes = gunzip(file.bytes)
-                ok = file.renameTo(file.name.replace(/\.gz$/,''))
+                ok = file.renameTo(file.name.replace(/\.gz$/, ''))
             } else {
                 throw new InvalidExtensionException()
             }
@@ -69,8 +72,75 @@ class Zip {
      * @param compressed
      * @return
      */
-    static byte[] gunzip(byte[] compressed){
+    static byte[] gunzip(byte[] compressed) {
         def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(compressed))
         return inflaterStream.getBytes()
+    }
+    /**
+     * Compress a directory and create a zip file (v.2 : not compatible with Windows compress directory)
+     * code posted here: https://stackoverflow.com/a/67295386/196507
+     * @since 2021/04/28.
+     * @param srcDir
+     * @param zipFile
+     * @return
+     */
+    static File compressDir(final File srcDir, final File zipFile) {
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))
+        srcDir.eachFileRecurse({
+            zos.putNextEntry(new ZipEntry(it.path - srcDir.path + (it.directory ? "/" : "")))
+            if (it.file) {
+                zos << it.bytes
+            }
+            zos.closeEntry()
+        })
+        zos.close()
+        return zipFile
+    }
+
+    private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+        File destFile = new File(destinationDir, zipEntry.name)
+        String destDirPath = destinationDir.canonicalPath
+        String destFilePath = destFile.canonicalPath
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.name)
+        }
+        return destFile
+    }
+    /**
+     * From https://www.baeldung.com/java-compress-and-uncompress
+     * @param zipFile
+     * @param destDir
+     * @return
+     */
+    static File decompressZip(final File zipFile, final File destDir) {
+        byte[] buffer = new byte[1024]
+        ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))
+        ZipEntry zipEntry = zis.nextEntry
+        while (zipEntry != null) {
+            File newFile = newFile(destDir, zipEntry)
+            if (zipEntry.directory) {
+                if (!newFile.directory && !newFile.mkdirs()) {
+                    throw new IOException("Failed to create directory " + newFile)
+                }
+            } else {
+                // fix for Windows-created archives
+                File parent = newFile.parentFile
+                if (!parent.directory && !parent.mkdirs()) {
+                    throw new IOException("Failed to create directory " + parent)
+                }
+
+                // write file content
+                FileOutputStream fos = new FileOutputStream(newFile)
+                int len
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len)
+                }
+                fos.close()
+            }
+            zipEntry = zis.nextEntry
+        }
+        zis.closeEntry()
+        zis.close()
+        return destDir
     }
 }
