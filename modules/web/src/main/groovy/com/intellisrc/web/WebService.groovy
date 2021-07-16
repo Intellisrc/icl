@@ -622,8 +622,10 @@ class WebService {
         if (!running) {
             if (srv instanceof ServiciableWebSocket || srv instanceof ServiciableHTTPS) {
                 listServices.add(0, srv)
-            } else {
+            } else if(srv) {
                 listServices << srv
+            } else {
+                Log.e("Invalid instance added as service: %s", srv)
             }
         } else {
             Log.w("WebService is already running. You can not add more services")

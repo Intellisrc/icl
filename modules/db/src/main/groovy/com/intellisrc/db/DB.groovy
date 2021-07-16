@@ -210,7 +210,6 @@ class DB {
 	 * @return 
      **/
     boolean insert(List<Map> insvals) {
-		//TODO prepare..commit
 		boolean ok = true
 		for(Map<String, Object> row: insvals) {
 	        ok = insert(row)
@@ -432,12 +431,12 @@ class DB {
 
     /**
      * Specify keys for the query (multiple keys)
-     * //TODO: still not supported
 	 * @param keys
 	 * @return 
      */
     DB keys(List<String> keys) {
         getQuery().setKeys(keys)
+        Log.w("Multiple keys is not yet supported, use a single key.")
         return this
     }
 

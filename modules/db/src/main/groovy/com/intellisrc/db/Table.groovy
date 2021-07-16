@@ -121,7 +121,7 @@ class Table<T extends Model> implements Instanciable<T> {
             println createSQL
             if (!table.exec(new Query(createSQL))) {
                 println createSQL
-                Log.e("Unable to create table.") //TODO: show error
+                Log.e("Unable to create table.")
             }
         }
         table.close()
@@ -198,6 +198,7 @@ class Table<T extends Model> implements Instanciable<T> {
             case BigDecimal:
             case String:
             case char:
+            case null:
                 return val
             default:
                 return val.toString()

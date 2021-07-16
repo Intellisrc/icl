@@ -180,10 +180,10 @@ class Query {
         String updstr = ""
         values.each {
             String key, Object val ->
-            inspre += (inspre.isEmpty() ? "" : ',') + sqlName(key)
-            inspst += (inspst.isEmpty() ? "" : ',') + "?"
-            updstr += (updstr.isEmpty() ? "" : ',') + sqlName(key) + " = ?"
-            argList << val
+                inspre += (inspre.isEmpty() ? "" : ',') + sqlName(key)
+                inspst += (inspst.isEmpty() ? "" : ',') + "?"
+                updstr += (updstr.isEmpty() ? "" : ',') + sqlName(key) + " = ?"
+                argList << val
         }
         insvalsStr = "("+inspre+") VALUES ("+inspst+")"
         updvalsStr = updstr

@@ -104,7 +104,7 @@ class SavedPropertiesRedis extends SavedProperties {
         Map<String, String> map = [:]
         try {
             Jedis jedis = new Jedis()
-            map = jedis.hgetAll(propKey) //FIXME: I guess Lists and Map are not in this list?
+            map = jedis.hgetAll(propKey)
             jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)

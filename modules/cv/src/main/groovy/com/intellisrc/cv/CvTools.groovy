@@ -98,8 +98,6 @@ class CvTools {
      * @return
      */
     static IplImage crop(final IplImage original, RectangularShape rect) {
-        //TODO: sometimes rect seems to be incorrect. Check error:
-        //Assertion failed: rect.width >= 0 && rect.height >= 0 && rect.x < image.width && rect.y < image.height && rect.x + rect.width >= (int)(rect.width > 0) && rect.y + rect.height >= (int)(rect.height > 0)
         cvSetImageROI(original, fromRectangle(rect) as CvRect)
         IplImage cropped = cvCreateImage(cvGetSize(original), original.depth(), original.nChannels())
         cvCopy(original, cropped)
