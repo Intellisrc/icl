@@ -436,7 +436,9 @@ class DB {
      */
     DB keys(List<String> keys) {
         getQuery().setKeys(keys)
-        Log.w("Multiple keys is not yet supported, use a single key.")
+        if(keys.size() > 1) {
+            Log.w("Multiple keys is not yet supported, use a single key.")
+        }
         return this
     }
 

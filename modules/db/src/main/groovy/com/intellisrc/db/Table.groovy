@@ -24,7 +24,7 @@ class Table<T extends Model> implements Instanciable<T> {
         if(!Database.initialized) {
             Database.init()
         }
-        this.name = name ?: this.class.getAnnotation(TableMeta)?.name() ?: this.class.simpleName.toLowerCase()
+        this.name = name ?: this.class.getAnnotation(TableMeta)?.name() ?: this.class.simpleName.toSnakeCase()
         createTable()
     }
 
@@ -149,18 +149,23 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     static Map<String, Object> convertToDB(Map<String, Object> map) {
+        Map<String, Object> res = [:]
         map.each {
             key, val ->
-                map[key] = toDBValue(val)
+                if(val instanceof Model &&! key.endsWith("_id")) {
+                    res[key + "_id"] = toDBValue(val)
+                } else {
+                    res[key] = toDBValue(val)
+                }
         }
-        return map
+        return res
     }
     /**
      * Converts any Object to DB value
      * @param val
      * @return
      */
-    static toDBValue(Object val) {
+    static Object toDBValue(Object val) {
         switch (val) {
             case LocalTime:
                 return  (val as LocalTime).HHmmss
@@ -448,7 +453,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     T get(int id) {
-        Map map = table.key(pk).get(id).toMap()
+        Map map = table.key(pk).get(id)?.toMap() ?: [:]
         T model = setMap(map)
         table.close()
         return model
@@ -529,7 +534,7 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     T find(Map criteria) {
         criteria = convertToDB(criteria)
-        Map map = table.get(criteria).toMap()
+        Map map = table.get(criteria)?.toMap() ?: [:]
         T model = setMap(map)
         table.close()
         return model
@@ -596,6 +601,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     boolean delete(Map map) {
+        map = convertToDB(map)
         boolean ok = table.key(pk).delete(map)
         return table.close() && ok
     }

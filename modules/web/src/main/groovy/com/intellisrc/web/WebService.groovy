@@ -161,10 +161,13 @@ class WebService {
                                 })
                                 srv.get(auth.path + auth.logoutPath, {
                                     Request request, Response response ->
+                                        boolean  ok = auth.onLogout(request, response)
+                                        if(ok) {
+                                            request.session()?.invalidate()
+                                        }
                                         response.type("application/json")
-                                        request.session().invalidate()
                                         return JSON.encode(
-                                                ok : auth.onLogout(request, response)
+                                                ok : ok
                                         )
                                 })
                                 break
@@ -366,8 +369,12 @@ class WebService {
                         HttpServletRequest raw = request.raw()
                         String tempDir = SysInfo.getTempDir()
                         request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
-                        if (!raw.parts.empty) {
-                            File tempFileDir = new File(tempDir)
+                        boolean hasParts = false
+                        try {
+                            hasParts = !raw.parts.empty
+                        } catch(Exception ignored) {}
+                        if (hasParts) {
+                            File tempFileDir = SysInfo.getFile(tempDir)
                             if (tempFileDir.canWrite()) {
                                 List<UploadFile> uploadFiles = []
                                 if (raw.contentLength > 0) {

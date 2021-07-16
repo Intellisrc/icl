@@ -14,7 +14,7 @@ class DBPool {
     private int timeoutSeconds = 600
 	private boolean initialized = false
     private int currentConnections
-	List<DB.Connector> availableConnections = []
+	Set<DB.Connector> availableConnections = Collections.synchronizedSet([] as Set<DB.Connector>)
 	DB.Starter starter
 
 	/**
@@ -122,7 +122,9 @@ class DBPool {
 	}
 
 	synchronized void returnConnectionToPool(DB.Connector connection) {
-        currentConnections--
+		if(currentConnections > 0) {
+			currentConnections--
+		}
         availableConnections.add(connection)
 	}
 }

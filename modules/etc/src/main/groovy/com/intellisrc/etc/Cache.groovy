@@ -71,15 +71,11 @@ class Cache<V> {
 	boolean isEmpty() {
 		return cache.isEmpty()
 	}
-	/**
-	 * Returns true if key exists
-	 * @param key
-	 * @return 
-	 */
-    @Deprecated
-    boolean exists(final String key) {
-        return contains(key)
-    }
+    /**
+     * Returns true if key exists
+     * @param key
+     * @return
+     */
     boolean contains(final String key) {
         return cache.containsKey(key) &&! expired(key)
     }
@@ -88,7 +84,7 @@ class Cache<V> {
      * @param key
      * @return
      */
-    protected boolean expired(final String key) {
+    boolean expired(final String key) {
         boolean expired = false
         CacheItem<V> obj = cache.get(key)
         if(obj) {
