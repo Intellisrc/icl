@@ -10,11 +10,11 @@ class SQLiteTest extends Specification {
     def "Create database"() {
         setup:
             Log.level = Log.Level.VERBOSE
-            Database.init(new SQLite(
+            Database database = new Database(new SQLite(
                 dbname: "test.db"
             ))
         when: "Create connection"
-            DB db = Database.connect()
+            DB db = database.connect()
         then: "Create table"
             assert db.set("""CREATE TABLE `test` (
                 `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,7 +34,7 @@ class SQLiteTest extends Specification {
             assert db.table("test").field("name").key("id").get(2).toString() == "Sampler"
         cleanup:
             new File("test.db").delete()
-            Database.quit()
+            database.quit()
     }
 
 

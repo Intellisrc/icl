@@ -8,11 +8,11 @@ import spock.lang.Specification
 class PoolConnectorTest extends Specification {
     def "Testing return-to-pool"() {
         setup:
-            Database.init(new Dummy())
+            Database database = new Database(new Dummy())
         when:
             List<DB> dbArr = []
             (1..10).each {
-                DB db = Database.connect()
+                DB db = database.connect()
                 assert db: "Failed to connect to Database"
                 dbArr << db
             }
@@ -21,7 +21,7 @@ class PoolConnectorTest extends Specification {
                 dbArr.remove(0)
             }
             (1..8).each {
-                DB db = Database.connect()
+                DB db = database.connect()
                 assert db: "Failed to initialize DB"
                 dbArr << db
             }
@@ -30,29 +30,29 @@ class PoolConnectorTest extends Specification {
                 dbArr.remove(0)
             }
         then:
-            Database.connections == 0
+            database.connections == 0
         cleanup:
-            Database.quit()
+            database.quit()
     }
     def "Testing disable Pool"() {
         setup:
-            Database.init(new Dummy())
+            Database database = new Database(new Dummy())
         when:
-            DB db = Database.connect()
+            DB db = database.connect()
         then:
             assert db : "Failed to initialize DB"
-            assert Database.connections == 1
+            assert database.connections == 1
         and:
-            DB db2 = Database.connect()
+            DB db2 = database.connect()
         then:
             assert db2 : "Failed to initialize DB"
-            assert Database.connections == 2
+            assert database.connections == 2
         and:
             db.close()
             db2.close()
         then:
-            assert Database.connections == 0
+            assert database.connections == 0
         cleanup:
-            Database.quit()
+            database.quit()
     }
 }

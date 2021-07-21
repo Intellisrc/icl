@@ -52,7 +52,7 @@ class JDBCConnector implements Connector {
 	private String pass = ""
 	private String host = ""
 	private int port
-	private static Connection db
+	private Connection db
 	private DBType type = SQLITE
 	long lastUsed = 0
 
@@ -206,7 +206,7 @@ class JDBCConnector implements Connector {
 		boolean closed = false
 		try {
 			db.close()
-			Log.v( "Disconnecting from DB")
+			//Log.v( "Disconnecting from DB")
 			closed = true
 		} catch (SQLException e) {
 			Log.e( "Unable to close ",e)
@@ -249,6 +249,7 @@ class JDBCConnector implements Connector {
 			boolean updaction = false
 			switch(query.getAction()) {
 				case INSERT:
+				case REPLACE:
 				case DELETE:
 				case DROP:
 				case RAW:

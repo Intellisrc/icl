@@ -19,7 +19,7 @@ class Query {
 	private DBType dbType = DUMMY
     // Action type (RAW is default)
     static enum Action {
-        RAW, SELECT, UPDATE, INSERT, DELETE, DROP, INFO, LASTID, EXISTS
+        RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, DROP, INFO, LASTID, EXISTS
     }
     // Field type (NOSET is default)
     static enum FieldType {
@@ -112,8 +112,10 @@ class Query {
 
     Query setWhere(final Integer where) {
         String key = getKey() //For the moment no multiple keys allowed
-        whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-        argList << where
+        if(key &&! whereStr.contains(sqlName(key))) {
+            whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+            argList << where
+        }
         return this
     }
 
@@ -123,8 +125,10 @@ class Query {
 			setWhere(where, params)
 		} else {
 			String key = getKey() //For the moment no multiple keys allowed
-			whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-			argList << where
+            if(key &&! whereStr.contains(sqlName(key))) {
+                whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+                argList << where
+            }
 		}
         return this
     }
@@ -143,33 +147,43 @@ class Query {
     Query setWhere(final List where) {
         String key = getKey() //For the moment no multiple keys allowed
         String marks = ""
-        where.each {
-            marks += (marks.isEmpty() ? "" : ",") + '?'
-            argList << it
+        if(key &&! whereStr.contains(sqlName(key))) {
+            where.each {
+                marks += (marks.isEmpty() ? "" : ",") + '?'
+                argList << it
+            }
+            whereStr += sqlName(key) + " IN (" + marks + ")"
+        } else {
+            Log.w("Where for key: %s already existed.", key)
         }
-        whereStr += sqlName(key) + " IN ("+marks+")"
         return this
     }
 
     Query setWhere(final LocalDate where) {
         String key = getKey() //For the moment no multiple keys allowed
-        whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-        argList << where
+        if(key &&! whereStr.contains(sqlName(key))) {
+            whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+            argList << where
+        }
         return this
     }
 
     Query setWhere(final LocalDateTime where) {
         String key = getKey() //For the moment no multiple keys allowed
-        whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-        argList << where
+        if(key &&! whereStr.contains(sqlName(key))) {
+            whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+            argList << where
+        }
         return this
     }
 
     Query setWhere(final Map<String,Object> where) {
         where.each {
             String key, Object val ->
-                whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-                argList << val
+                if(! whereStr.contains(sqlName(key))) {
+                    whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
+                    argList << val
+                }
         }
         return this
     }
@@ -221,14 +235,13 @@ class Query {
     }
     List<String> getKeys() {
         if(keyList.isEmpty()) {
-            Log.e( "Keys were not set")
-            keyList << "id" //Generic ID name
+            Log.w( "Keys were not set in table: %s", table)
         }
         return keyList
     }
     // Returns the first specified key
     String getKey() {
-        return getKeys().get(0)
+        return getKeys().empty ? null : getKeys().get(0)
     }
     String getFields() {
         String fieldstr = ""
@@ -296,6 +309,8 @@ class Query {
 				break
             case INSERT: squery = "INSERT INTO "+getTable()+getInsertValues()
 				break
+            case REPLACE: squery = "REPLACE INTO "+getTable()+getInsertValues()
+                break
             case UPDATE: squery = "UPDATE "+getTable()+" SET "+getUpdateValues()+getWhere()
 				break
             case DELETE: squery = "DELETE FROM "+getTable()+getWhere()

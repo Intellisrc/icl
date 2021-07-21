@@ -220,6 +220,30 @@ class DB {
 		return ok
     }
     /**
+     * Inserts row using key => values
+     * @param insvals
+     * @return
+     **/
+    boolean replace(Map insvals) {
+        getQuery().setAction(Query.Action.REPLACE).setValues(insvals)
+        return exec_set()
+    }
+    /**
+     * Replace multiple rows using List(Map).
+     * @param repvals
+     * @return
+     **/
+    boolean replace(List<Map> repvals) {
+        boolean ok = true
+        for(Map<String, Object> row: repvals) {
+            ok = replace(row)
+            if(!ok) {
+                break
+            }
+        }
+        return ok
+    }
+    /**
      * Delete a single ID
 	 * @param id
 	 * @return 
@@ -425,7 +449,9 @@ class DB {
      */
     DB key(String key) {
         List<String> akeys = []
-        akeys.add(key)
+        if(key) {
+            akeys.add(key)
+        }
         return keys(akeys)
     }
 
@@ -435,7 +461,9 @@ class DB {
 	 * @return 
      */
     DB keys(List<String> keys) {
-        getQuery().setKeys(keys)
+        if(!keys.empty) {
+            getQuery().setKeys(keys)
+        }
         if(keys.size() > 1) {
             Log.w("Multiple keys is not yet supported, use a single key.")
         }
@@ -558,7 +586,7 @@ class DB {
         if(db.isOpen()) {
             query.setType(getType())
             Log.v( "GET ::: " + query.toString())
-            query.argsList.each {
+            query.argsList?.each {
                 Log.v( " --> " + it)
             }
             List<Map> rows = []
@@ -616,14 +644,13 @@ class DB {
         openIfClosed()
         if(db.isOpen()) {
 			Log.v( "SET ::: " + query.toString())
-			query.argsList.each {
-				Object it ->
-					Log.v( " --> " + it)
+			query.argsList?.each {
+				Log.v( " --> " + it)
 			}
             Statement st
             try {
                 st = db.prepare(query)
-            } catch (e) {
+            } catch (Exception e) {
                 Log.e( "Query Syntax error: ",e)
             }
             if(st != null) {
@@ -635,8 +662,8 @@ class DB {
                         this.last_id = exec_get().toInt()
                     }
                     ok = true
-                } catch (e) {
-                    Log.e( "Insert failed. ", e)
+                } catch (Exception e) {
+                    Log.e( "%s failed. ", query.getAction().name(), e)
                 }
                 st.close()
             }
