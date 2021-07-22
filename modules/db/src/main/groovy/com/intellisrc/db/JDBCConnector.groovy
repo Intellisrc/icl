@@ -46,14 +46,14 @@ import static java.sql.Types.*
  * @author Alberto Lepe <lepe@intellisrc.com>
  */
 class JDBCConnector implements Connector {
-	private static int TIMEOUT = 1000
-	private String dbname = ""
-	private String user = ""
-	private String pass = ""
-	private String host = ""
-	private int port
-	private static Connection db
-	private DBType type = SQLITE
+	protected static int TIMEOUT = 1000
+	protected String dbname = ""
+	protected String user = ""
+	protected String pass = ""
+	protected String host = ""
+	protected int port
+	protected Connection db
+	protected DBType type = DUMMY
 	long lastUsed = 0
 
 	/**
@@ -68,11 +68,15 @@ class JDBCConnector implements Connector {
             }
             if(!Config.hasKey("db.jdbc.url")) {
                 if(Config.hasKey("db.type")) {
-                    type = (Config.get("db.type") ?: "mysql").toUpperCase() as DBType
+					try {
+						type = (Config.get("db.type") ?: "mysql").toUpperCase() as DBType
+					} catch(Exception ignore) {
+						Log.w("Specified database type is not supported: %s", Config.get("db.type"))
+					}
                     host = Config.get("db.host") ?: "localhost"
                     user = Config.get("db.user") ?: "root"
                     pass = Config.get("db.pass") ?: ""
-                    port = Config.getInt("db.port") ?: (type == MYSQL ? 3306 : 5432)
+                    port = Config.getInt("db.port") ?: type.port
                 }
             } else {
                 parseJDBC(Config.get("db.jdbc.url"))
@@ -81,6 +85,14 @@ class JDBCConnector implements Connector {
             parseJDBC(conn_url)
         }
 		assert dbname
+	}
+	/**
+	 * Returns database name
+	 * @return
+	 */
+	@Override
+	String getName() {
+		return dbname
 	}
 
     /**
@@ -206,7 +218,7 @@ class JDBCConnector implements Connector {
 		boolean closed = false
 		try {
 			db.close()
-			Log.v( "Disconnecting from DB")
+			//Log.v( "Disconnecting from DB")
 			closed = true
 		} catch (SQLException e) {
 			Log.e( "Unable to close ",e)
@@ -247,14 +259,30 @@ class JDBCConnector implements Connector {
 				}
 			}
 			boolean updaction = false
-			switch(query.getAction()) {
+			//noinspection GroovyFallthrough
+			switch(query.action) {
+				case RAW:
+					if(["SELECT", "SHOW", "GET"].any {
+						query.toString().toUpperCase().startsWith(it + " ")
+					}) {
+						break
+					}
 				case INSERT:
+				case REPLACE:
 				case DELETE:
 				case DROP:
-				case RAW:
 				case UPDATE:
-					st.executeUpdate()
-					updaction = true
+					try {
+						st.executeUpdate()
+						updaction = true
+					} catch(Exception e) {
+						if(query.action == RAW) {
+							Log.w("An update action was inferred but it seems it is not correct." +
+								  " To remove this error, set action to 'SELECT'")
+							Log.w("Query is: %s", query.toString())
+						}
+						Log.e("Unable to set update statement. ", e)
+					}
 				break
 			}
 			final ResultSet rs = updaction ? null : st.executeQuery()

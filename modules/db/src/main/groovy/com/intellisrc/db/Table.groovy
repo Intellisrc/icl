@@ -1,8 +1,8 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
 import com.intellisrc.etc.Instanciable
 import groovy.transform.CompileStatic
@@ -14,28 +14,44 @@ import java.lang.reflect.Field
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.regex.Matcher
 
 @CompileStatic
 class Table<T extends Model> implements Instanciable<T> {
+    boolean autoUpdate = true // set to false if you don't want the table to update automatically
+    protected Database database
     protected final String name
-    protected DB currentTable
-
-    Table(String name = "") {
-        if(!Database.initialized) {
-            Database.init()
-        }
+    protected Set<DB> activeConnections = []
+    /**
+     * Constructor. A Database object can be passed
+     * when using multiple databases.
+     *
+     * @param name
+     * @param database
+     */
+    Table(String name = "", Database database = null) {
+        this.database = database ?: Database.getDefault()
         this.name = name ?: this.class.getAnnotation(TableMeta)?.name() ?: this.class.simpleName.toSnakeCase()
+        assert this.name : "Table name not set"
         createTable()
     }
-
+    /**
+     * Create the database based on @Column and @TableMeta
+     */
     void createTable() {
-        boolean exists = table.exists()
-        if(exists) {
-            boolean drop = Config.getBool("db.table.${tableName}.drop")
-            boolean dropAll = Config.getBool("db.tables.drop")
-            if (drop || dropAll) {
-                table.exec(new Query("DROP TABLE IF EXISTS ${tableName}"))
-                exists = false
+        boolean exists = tableConnect.exists()
+        if(tableConnect.type != DB.DBType.MYSQL) {
+            Log.w("Only MySQL/MariaDB is supported for now.")
+            return
+        }
+        if(exists && autoUpdate) {
+            if(definedVersion > tableVersion) {
+                Log.i("Table [%s] is going to be updated from version: %d to %d",
+                        tableName, tableVersion, definedVersion)
+                TableUpdater.update([this])
+            } else {
+                Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                        tableName, tableVersion, definedVersion)
             }
         }
         if(!exists) {
@@ -117,14 +133,51 @@ class Table<T extends Model> implements Instanciable<T> {
             if(engine) {
                 engine = "ENGINE=${engine}"
             }
-            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}"
-            println createSQL
-            if (!table.exec(new Query(createSQL))) {
-                println createSQL
+            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
+            if (!tableConnect.exec(new Query(createSQL))) {
+                Log.v(createSQL)
                 Log.e("Unable to create table.")
             }
         }
-        table.close()
+        closeConnections()
+    }
+
+    /**
+     * Returns the table comment
+     * @return
+     */
+    String getComment() {
+        DB connection = database.connect()
+        Query query = new Query("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=? AND table_name=?",
+                [connection.db.name, tableName])
+        String comment = connection.exec(query).toString()
+        connection.close()
+        return comment
+    }
+    /**
+     * Get the defined version in code
+     * @return
+     */
+    int getDefinedVersion() {
+        int version = 1
+        if(parametrizedInstance.class.isAnnotationPresent(ModelMeta)) {
+            ModelMeta meta = parametrizedInstance.class.getAnnotation(ModelMeta)
+            version = meta.version()
+        }
+        return version
+    }
+    /**
+     * Get the defined version in the database
+     * @return
+     */
+    int getTableVersion() {
+        int version = 1
+        String comm = getComment()
+        Matcher matcher = (comm =~ /v.(\d+)/)
+        if(matcher.find()) {
+            version = matcher.group(1) as int
+        }
+        return version
     }
 
     List<Field> getFields() {
@@ -400,8 +453,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     static String getFieldName(final String columnName) {
-        String name = columnName.toCamelCase()
-        return name
+        return columnName.toCamelCase()
     }
 
     /**
@@ -438,12 +490,17 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     String getPk() {
-        String pk = "id"
+        String pk = null
         Field field = getFields().find {
             it.getAnnotation(Column)?.primary()
         }
         if(field) {
             pk = getColumnName(field)
+        } else {
+            // By default, search for "id"
+            if(getFields().find { it.name == "id"} ) {
+                pk = "id"
+            }
         }
         return pk
     }
@@ -453,9 +510,9 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     T get(int id) {
-        Map map = table.key(pk).get(id)?.toMap() ?: [:]
+        Map map = tableConnect.key(pk).get(id)?.toMap() ?: [:]
         T model = setMap(map)
-        table.close()
+        closeConnections()
         return model
     }
     /**
@@ -464,12 +521,12 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     List<T> get(List<Integer> ids) {
-        List<Map> list = table.key(pk).get(ids).toListMap()
+        List<Map> list = tableConnect.key(pk).get(ids).toListMap()
         List<T> all = list.collect {
             Map map ->
                 return setMap(map)
         }
-        table.close()
+        closeConnections()
         return all
     }
     /**
@@ -483,7 +540,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     List<T> getAll(Map options = [:]) {
-        DB con = table
+        DB con = tableConnect
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
         }
@@ -495,7 +552,7 @@ class Table<T extends Model> implements Instanciable<T> {
             Map map ->
                 return setMap(map)
         }
-        table.close()
+        closeConnections()
         return all
     }
 
@@ -512,10 +569,11 @@ class Table<T extends Model> implements Instanciable<T> {
         List<T> list = []
         if(f) {
             String id = getColumnName(f)
-            list = table.get([(id): model.id]).toListMap().collect { setMap(it) }
+            list = tableConnect.get([(id): model.id]).toListMap().collect { setMap(it) }
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
+        closeConnections()
         return list
     }
     /**
@@ -534,9 +592,9 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     T find(Map criteria) {
         criteria = convertToDB(criteria)
-        Map map = table.get(criteria)?.toMap() ?: [:]
+        Map map = tableConnect.get(criteria)?.toMap() ?: [:]
         T model = setMap(map)
-        table.close()
+        closeConnections()
         return model
     }
     /**
@@ -555,12 +613,12 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     List<T> findAll(Map criteria) {
         criteria = convertToDB(criteria)
-        List<Map> list = table.get(criteria).toListMap()
+        List<Map> list = tableConnect.get(criteria).toListMap()
         List<T> all = list.collect {
             Map map ->
                 return setMap(map)
         }
-        table.close()
+        closeConnections()
         return all
     }
     /**
@@ -575,8 +633,9 @@ class Table<T extends Model> implements Instanciable<T> {
         exclude.each {
             map.remove(it)
         }
-        boolean ok = table.key(pk).update(map, id)
-        return table.close() && ok
+        boolean ok = tableConnect.key(pk).update(map, id)
+        closeConnections()
+        return ok
     }
     /**
      * Delete using model
@@ -584,7 +643,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     boolean delete(T model) {
-        return delete(model.id)
+        return model.id ? delete(model.id) : delete(getMap(model))
     }
     /**
      * Delete with ID
@@ -592,8 +651,9 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     boolean delete(int id) {
-        boolean ok = table.key(pk).delete(id)
-        return table.close() && ok
+        boolean ok = tableConnect.key(pk).delete(id)
+        closeConnections()
+        return ok
     }
     /**
      * Delete using multiple columns
@@ -602,8 +662,9 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     boolean delete(Map map) {
         map = convertToDB(map)
-        boolean ok = table.key(pk).delete(map)
-        return table.close() && ok
+        boolean ok = tableConnect.key(pk).delete(map)
+        closeConnections()
+        return ok
     }
     /**
      * Delete using multiple IDs
@@ -611,8 +672,9 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     boolean delete(List<Integer> ids) {
-        boolean ok = table.key(pk).delete(ids)
-        return table.close() && ok
+        boolean ok = tableConnect.key(pk).delete(ids)
+        closeConnections()
+        return ok
     }
     /**
      * Insert a model
@@ -622,20 +684,41 @@ class Table<T extends Model> implements Instanciable<T> {
     int insert(T model) {
         int id = model.id
         int lastId = 0
+        DB db
         try {
             Map<String, Object> map = getMap(model)
-            boolean ok = table.insert(map)
+            db = tableConnect
+            boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
-                lastId = table.lastID
+                lastId = db.lastID
             } else {
                 Log.w("Unable to insert row : %s", map.toSpreadMap())
             }
-            table.close()
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
+        } finally {
+            closeConnections()
         }
         return lastId ?: id
+    }
+    /**
+     * Replace a model
+     * @param model
+     * @return
+     */
+    boolean replace(T model) {
+        int id = model.id
+        boolean ok = false
+        try {
+            Map<String, Object> map = getMap(model)
+            ok = tableConnect.replace(map)
+        } catch(Exception e) {
+            Log.e("Unable to insert record", e)
+        } finally {
+            closeConnections()
+        }
+        return ok
     }
     /**
      * Returns a new instance of this class's generic type
@@ -655,16 +738,30 @@ class Table<T extends Model> implements Instanciable<T> {
      * Get a connection. If its already opened, reuse
      * @return
      */
-    DB getTable() {
-        if(!currentTable || currentTable.closed) {
-            currentTable = Database.connect().table(tableName)
+    synchronized DB getTableConnect() {
+        DB db = database.connect().table(tableName)
+        activeConnections.add(db)
+        return db
+    }
+    /**
+     * Close active connections
+     */
+    synchronized void closeConnections() {
+        activeConnections.each {
+            it.close()
         }
-        return currentTable
+        activeConnections.clear()
     }
     /**
      * Close all connections (in all threads) to the database
      */
-    static void quit() {
-        Database.quit()
+    void quit() {
+        database.quit()
+    }
+    /**
+     * Drops the table
+     */
+    void drop() {
+        tableConnect.exec(new Query("DROP TABLE IF EXISTS ${tableName}"))
     }
 }

@@ -9,8 +9,7 @@ import groovy.transform.CompileStatic
 class SQLite extends JDBC {
     String dbname = "local.db"
     @Override
-    DB.Connector getNewConnection() {
-        connectionString = "sqlite://localhost/$dbname"
-        return new JDBCConnector(connectionString)
+    String getConnectionString() {
+        return "sqlite://localhost/$dbname"
     }
 }

@@ -16,10 +16,10 @@ import static com.intellisrc.db.DB.ColumnType.*
  * @since 2016-10
  */
 class DB {
-    private Connector db
-    private String table = ""
-    private int last_id = 0
-    private Query query = null
+    protected Connector db
+    protected String table = ""
+    protected int last_id = 0
+    protected Query query = null
 	//Setter / Getters
 	Map<String, List<String>> priKeys = [:]
 
@@ -34,7 +34,19 @@ class DB {
 	}
 
 	static enum DBType {
-		DUMMY, SQLITE, MYSQL, POSTGRESQL, JAVADB, ORACLE, DB2, SUN
+		DUMMY, SQLITE, MYSQL, POSTGRESQL, JAVADB, ORACLE, DB2, SQLSERVER
+        int getPort() {
+            int port = 0
+            switch (this) {
+                case MYSQL:         port = 3306; break
+                case POSTGRESQL:    port = 5432; break
+                case ORACLE:        port = 1521; break
+                case SQLSERVER:     port = 1433; break
+                case JAVADB:        port = 1527; break //Derby
+                case DB2:           port = 50000; break
+            }
+            return port
+        }
 	}
 
 	static enum ColumnType {
@@ -42,10 +54,13 @@ class DB {
 	}
     ////////////////////////// Interfaces ////////////////////////////////
     static interface Starter {
+        String getName()
+        String getConnectionString()
         Connector getNewConnection()
     }
 
 	static interface Connector {
+        String getName()
 		void open()
 		boolean close()
         boolean isOpen()
@@ -218,6 +233,30 @@ class DB {
 			}
 		}
 		return ok
+    }
+    /**
+     * Inserts row using key => values
+     * @param insvals
+     * @return
+     **/
+    boolean replace(Map insvals) {
+        getQuery().setAction(Query.Action.REPLACE).setValues(insvals)
+        return exec_set()
+    }
+    /**
+     * Replace multiple rows using List(Map).
+     * @param repvals
+     * @return
+     **/
+    boolean replace(List<Map> repvals) {
+        boolean ok = true
+        for(Map<String, Object> row: repvals) {
+            ok = replace(row)
+            if(!ok) {
+                break
+            }
+        }
+        return ok
     }
     /**
      * Delete a single ID
@@ -425,7 +464,9 @@ class DB {
      */
     DB key(String key) {
         List<String> akeys = []
-        akeys.add(key)
+        if(key) {
+            akeys.add(key)
+        }
         return keys(akeys)
     }
 
@@ -435,7 +476,9 @@ class DB {
 	 * @return 
      */
     DB keys(List<String> keys) {
-        getQuery().setKeys(keys)
+        if(!keys.empty) {
+            getQuery().setKeys(keys)
+        }
         if(keys.size() > 1) {
             Log.w("Multiple keys is not yet supported, use a single key.")
         }
@@ -558,7 +601,7 @@ class DB {
         if(db.isOpen()) {
             query.setType(getType())
             Log.v( "GET ::: " + query.toString())
-            query.argsList.each {
+            query.argsList?.each {
                 Log.v( " --> " + it)
             }
             List<Map> rows = []
@@ -616,14 +659,13 @@ class DB {
         openIfClosed()
         if(db.isOpen()) {
 			Log.v( "SET ::: " + query.toString())
-			query.argsList.each {
-				Object it ->
-					Log.v( " --> " + it)
+			query.argsList?.each {
+				Log.v( " --> " + it)
 			}
             Statement st
             try {
                 st = db.prepare(query)
-            } catch (e) {
+            } catch (Exception e) {
                 Log.e( "Query Syntax error: ",e)
             }
             if(st != null) {
@@ -635,8 +677,8 @@ class DB {
                         this.last_id = exec_get().toInt()
                     }
                     ok = true
-                } catch (e) {
-                    Log.e( "Insert failed. ", e)
+                } catch (Exception e) {
+                    Log.e( "%s failed. ", query.getAction().name(), e)
                 }
                 st.close()
             }

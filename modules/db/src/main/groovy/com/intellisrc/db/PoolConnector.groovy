@@ -35,6 +35,11 @@ class PoolConnector implements Connector {
 	}
 
 	@Override
+	String getName() {
+		return connector?.name
+	}
+
+	@Override
 	void open() {
         if(!isOpen()) {
             connector = pool?.getConnectionFromPool()

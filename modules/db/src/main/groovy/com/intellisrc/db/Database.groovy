@@ -1,42 +1,57 @@
 package com.intellisrc.db
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 /**
- * Main Database initialization class
- *
- * When the application only uses a single database
- * this class must be used. If it uses more than one,
- * use "Databases"
+ * Database initialization class
+ * If one database is used, you can use static "default".
+ * No need to initialize it if default values (config) are used
+ * if other than default is needed, use: Database.defaultInit(...)
  *
  * @since 17/12/13.
  */
 @CompileStatic
 class Database {
-    static private DBPool pool
-    static void init(String urlstr, int timeout = 0) {
-		init(new JDBC(connectionString : urlstr), timeout)
+    protected DBPool pool
+    Database(String connectionString, int timeout = 0) {
+		this(new JDBC(connectionString), timeout)
 	}
-    static void init(DB.Starter type = null, int timeout = 0) {
+    Database(DB.Starter type = null, int timeout = 0) {
 		if(type == null) {
 			type = new JDBC()
+            Log.w("Database connection had no settings.")
 		}
         if(!pool) {
             pool = new DBPool()
-              pool.init(type, timeout)
+            pool.init(type, timeout)
         }
     }
-    static void quit() {
+    DB connect() {
+        return new PoolConnector(pool).getDB()
+    }
+    int getConnections() {
+        return pool?.active ?: 0
+    }
+    boolean isInitialized() {
+        return pool?.initialized ?: false
+    }
+    void quit() {
         pool?.quit()
         pool = null
     }
-    static int getConnections() {
-        return pool?.currentConnections ?: 0
+    // Static --------------------------------
+    static protected Database defaultDB
+    static Database getDefault() {
+        if(!defaultDB || !defaultDB?.initialized) {
+            defaultInit()
+        }
+        return defaultDB
     }
-    static boolean isInitialized() {
-        return pool?.initialized ?: false
+    static void defaultInit(String urlstr, int timeout = 0) {
+        defaultDB = new Database(urlstr, timeout)
     }
-    static DB connect() {
-        return new PoolConnector(pool).getDB()
+    static void defaultInit(DB.Starter type = null, int timeout = 0) {
+        defaultDB = new Database(type, timeout)
     }
 }
