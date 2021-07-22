@@ -96,22 +96,23 @@ Includes : core, etc
 
 **NOTE** : You may need to include your database driver as dependency in order to use this module.
 
- * `Table`, `Model` : Similar to Hibernate but easier (and not dependent on Spring Framework)
- * `BerkeleyDB` : Key - Value No-SQL database which requires almost no configuration
- * @ `Data`       : Object returned by SQL databases and which can be converted into different classes
  * `Database`   : Main class which will handle connections to SQL databases
- * `Databases`  : Enable to use more than one database per application
  * `DB`         : Object to interact with the databases
+ * `Query`      : Handles SQL queries
+ * `Table`, `Model` : Similar to Hibernate (automatic database generation) but easier. 
+ * `@TableMeta`, `@ModelMeta` : Additional options to the above classes 
+ * @ `Data`       : Object returned by SQL databases and which can be converted into different classes
  * @ `DBPool`     : Keep connections in a pool to increase performance
  * @ `Dummy`      : Dummy database (used for unit testing)
  * @ `DummyConnector` : Simulate and log DB connections (used for unite testing)
- * @ `JDBC`       : Manage JDBC connections
  * @ `JDBCConnector`  : A single JDBC connection
- * @ `MySQL`      : Default JDBC settings for MySQL databases
  * @ `PoolConnector`  : Implements a connector to be used in `DBPool`
- * @ `Query`      : Handles SQL queries
- * @ `SQLite`     : Default JDBC settings for SQLite databases
- 
+ * `JDBC`       : Manage JDBC connections (to connect to other databases)
+ * `MySQL`      : JDBC implementation for MySQL databases
+ * `PostgreSQL` : JDBC implementation for PostgreSQL databases
+ * `SQLite`     : JDBC implementation for SQLite databases
+ * `BerkeleyDB` : Key - Value No-SQL database which requires almost no configuration
+
 ## net         
 Includes : core, etc, crypt
 
