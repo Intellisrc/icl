@@ -14,6 +14,8 @@ class SavedPropertiesRedis extends SavedProperties {
     SavedPropertiesRedis(String root) {
         super(root)
     }
+
+    @Override
     void set(String key, String value) {
         try {
             Jedis jedis = new Jedis()
@@ -23,6 +25,8 @@ class SavedPropertiesRedis extends SavedProperties {
             Log.e("Exception in Jedis connection ", jce)
         }
     }
+
+    @Override
     void set(String key, Collection<String> list) {
         try {
             Jedis jedis = new Jedis()
@@ -35,6 +39,8 @@ class SavedPropertiesRedis extends SavedProperties {
             Log.e("Exception in Jedis connection ", jce)
         }
     }
+
+    @Override
     void set(String key, Map<String, String> map) {
         try {
             Jedis jedis = new Jedis()
@@ -45,6 +51,7 @@ class SavedPropertiesRedis extends SavedProperties {
         }
     }
 
+    @Override
     String get(String key, String defVal) {
         String value = ""
         try {
@@ -59,6 +66,8 @@ class SavedPropertiesRedis extends SavedProperties {
         }
         return value
     }
+
+    @Override
     Collection<String> get(String key, Collection<String> defVal) {
         Collection<String> vals = []
         try {
@@ -73,6 +82,8 @@ class SavedPropertiesRedis extends SavedProperties {
         }
         return vals
     }
+
+    @Override
     Map<String, String> get(String key, Map<String, String> defVal) {
         Map<String, String> vals = [:]
         try {
@@ -88,6 +99,7 @@ class SavedPropertiesRedis extends SavedProperties {
         return vals
     }
 
+    @Override
     boolean exists(String key) {
         boolean exists = false
         try {
@@ -99,7 +111,8 @@ class SavedPropertiesRedis extends SavedProperties {
         }
         return exists
     }
-    
+
+    @Override
     Map<String, String> getAll() {
         Map<String, String> map = [:]
         try {
@@ -111,7 +124,8 @@ class SavedPropertiesRedis extends SavedProperties {
         }
         return map
     }
-    
+
+    @Override
     boolean delete(String key) {
         long deleted = 0
         try {
@@ -123,7 +137,8 @@ class SavedPropertiesRedis extends SavedProperties {
         }
         return deleted > 0
     }
-    
+
+    @Override
     boolean clear() {
         long deleted = 0
         try {

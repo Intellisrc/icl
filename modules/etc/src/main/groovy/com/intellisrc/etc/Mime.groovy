@@ -1,6 +1,6 @@
 package com.intellisrc.etc
 
-import com.inspeedia.common.core.Config
+import com.intellisrc.core.Config
 import groovy.transform.CompileStatic
 
 import java.nio.file.Files

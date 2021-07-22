@@ -1,5 +1,6 @@
 package com.intellisrc.db
 
+import com.intellisrc.etc.BerkeleyDB
 import spock.lang.Specification
 
 import java.security.SecureRandom
@@ -33,7 +34,7 @@ class BerkeleyDBTest extends Specification {
             db = new BerkeleyDB("test")
         expect: "Not empty"
             assert db.size == 3
-            assert db.getStr("some") == "value"
+            assert db.get("some") == "value"
         when:
             db.delete("other")
         then: "Delete successfully"
@@ -53,8 +54,8 @@ class BerkeleyDBTest extends Specification {
             db.add("strkey", bytes)
             db.add(kbyte, bytes)
         expect:
-            assert db.get("strkey") == bytes
-            assert db.get(kbyte) == bytes
+            assert db.getBytes("strkey") == bytes
+            assert db.getBytes(kbyte) == bytes
         cleanup:
             db.destroy()
     }

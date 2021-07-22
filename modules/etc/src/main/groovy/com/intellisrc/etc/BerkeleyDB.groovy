@@ -1,6 +1,6 @@
-package com.intellisrc.db
+package com.intellisrc.etc
 
-import com.intellisrc.etc.Bytes
+import com.intellisrc.core.SysInfo
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.sleepycat.je.Cursor
@@ -20,28 +20,44 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class BerkeleyDB {
+    static File databaseDir = Config.getFile("berkeley.dir", SysInfo.getFile(".berkeley"))
     String encoding = "UTF-8"
-    Environment dbEnv = null
-    Database dbB = null
-    final DatabaseConfig dbConfig = new DatabaseConfig()
+    protected Environment dbEnv = null
+    protected Database dbB = null
+    protected final DatabaseConfig dbConfig = new DatabaseConfig()
     final String databaseName
-
+    /**
+     * Constructor specifying database file
+     * @param dbFile
+     */
+    BerkeleyDB(File dbFile) {
+        databaseDir = dbFile.parentFile
+        databaseName = databaseDir.name
+        setupEnvironment()
+    }
+    /**
+     * Constructor using default directory
+     * @param dbName
+     */
     BerkeleyDB(String dbName = "") {
-        File dbDir = new File(Config.get("berkeley.dir") ?: ".berkeley")
-        if(!dbDir.exists()) {
-            dbDir.mkdirs()
+        if(!databaseDir.exists()) {
+            databaseDir.mkdirs()
         }
-        if(!dbName) {
-            dbName = Config.get("berkeley.db") ?: "default"
-        }
-        databaseName = dbName
+        databaseName = Config.get("berkeley.db", dbName)
+        setupEnvironment()
+    }
+    /**
+     * Setup database environment
+     * @return
+     */
+    private setupEnvironment() {
         try {
             // create a configuration for DB environment
             EnvironmentConfig envConf = new EnvironmentConfig()
             envConf.allowCreate = true
-            dbEnv = new Environment(dbDir, envConf)
+            dbEnv = new Environment(databaseDir, envConf)
             dbConfig.allowCreate = true
-            dbB = dbEnv.openDatabase(null, dbName, dbConfig)
+            dbB = dbEnv.openDatabase(null, databaseName, dbConfig)
         } catch (DatabaseException dbe) {
             Log.e("Error while creating database :", dbe)
         }
@@ -52,9 +68,9 @@ class BerkeleyDB {
      * @param value
      * @return
      */
-    boolean add(String key, String value) {
+    boolean set(String key, String value) {
         if(!key) { return false }
-        return add(Bytes.fromString(key, encoding), Bytes.fromString(value, encoding))
+        return set(Bytes.fromString(key, encoding), Bytes.fromString(value, encoding))
     }
     /**
      * Adds a record with string as key and byte[] as value
@@ -62,9 +78,9 @@ class BerkeleyDB {
      * @param value
      * @return
      */
-    boolean add(String key, byte[] value) {
+    boolean set(String key, byte[] value) {
         if(!key) { return false }
-        return add(Bytes.fromString(key, encoding), value)
+        return set(Bytes.fromString(key, encoding), value)
     }
     /**
      * Adds a record using bytes
@@ -72,7 +88,7 @@ class BerkeleyDB {
      * @param value
      * @return
      */
-    boolean add(byte[] key, byte[] value) {
+    boolean set(byte[] key, byte[] value) {
         if(!key) { return false }
         return dbB.put(null, new DatabaseEntry(key), new DatabaseEntry(value)) == OperationStatus.SUCCESS
     }
@@ -81,7 +97,7 @@ class BerkeleyDB {
      * @param key
      * @return
      */
-    byte[] get(byte[] key) {
+    byte[] getBytes(byte[] key) {
         if(!key) { return new byte[0] }
         DatabaseEntry value = new DatabaseEntry()
         dbB.get(null, new DatabaseEntry(key), value, LockMode.DEFAULT)
@@ -92,27 +108,27 @@ class BerkeleyDB {
      * @param key
      * @return
      */
-    byte[] get(String key) {
+    byte[] getBytes(String key) {
         if(!key) { return new byte[0] }
-        return get(Bytes.fromString(key, encoding))
+        return getBytes(Bytes.fromString(key, encoding))
     }
     /**
      * Get String value using raw key (byte[])
      * @param key
      * @return
      */
-    String getStr(byte[] key) {
+    String get(byte[] key) {
         if(!key) { return "" }
-        return Bytes.toString(get(key), encoding)
+        return Bytes.toString(getBytes(key), encoding)
     }
     /**
      * Get String value using string key
      * @param key
      * @return
      */
-    String getStr(String key) {
+    String get(String key) {
         if(!key) { return "" }
-        return getStr(Bytes.fromString(key, encoding))
+        return get(Bytes.fromString(key, encoding))
     }
 
     /**

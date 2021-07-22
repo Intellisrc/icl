@@ -1,7 +1,7 @@
 package com.intellisrc.net
 
-import com.inspeedia.common.core.Config
-import com.inspeedia.common.core.Log
+import com.intellisrc.core.Config
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import org.apache.commons.net.ftp.*
 

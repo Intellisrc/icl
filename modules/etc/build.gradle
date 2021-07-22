@@ -5,6 +5,7 @@ dependencies {
     boolean isDev = project.version.contains("SNAPSHOT")
     // We set Jedis to be optional so it is not always required, only when AutoConfig is being used.
     def optional = [
+       'com.sleepycat:je:18.3.12',
        "redis.clients:jedis:3.6.1"
     ]
     if(isDev) {

@@ -6,7 +6,6 @@ dependencies {
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
     def optional = [
-        'com.sleepycat:je:18.3.12',
         'mysql:mysql-connector-java:8.0.25',
         'org.postgresql:postgresql:42.2.22',
         'org.xerial:sqlite-jdbc:3.36.0'

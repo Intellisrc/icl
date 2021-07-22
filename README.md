@@ -72,10 +72,11 @@ Includes : core
  
 > Extra functionality which is usually very useful in any project.
 > For example, monitoring Hardware, compressing or decompressing data, store data in memory cache,
-> manage system configuration in a multithreading safe environment (using Redis as default), 
+> manage system configuration in a multithreading safe environment (using Redis or BerkeyleyDB)
 > simple operations with bytes, etc. 
 
  * `AutoConfig` : A set of classes to automate changes in configuration, backed up on disk (multithreading safe)
+ * `BerkeleyDB` : Key - Value No-SQL database which requires almost no configuration
  * `Bytes`      : Common operations with byte[]
  * `Cache`      : Keep objects in memory to speed-up applications
  * `CacheObj`   : Generic implementation of `Cache`
@@ -90,7 +91,8 @@ Includes : core
 ## db 
 Includes : core, etc
  
-> Manage databases, such as MySQL, SQLite, Berkeley, Postgresql. 
+> Manage SQL databases, such as MySQL, SQLite, Berkeley, Postgresql. 
+> (for no-sql databases, see `etc` module)
 > Create, store and perform CRUD operations to data without
 > having to use SQL (a light-weight implementation as alternative to Hibernate).
 
@@ -111,7 +113,6 @@ Includes : core, etc
  * `MySQL`      : JDBC implementation for MySQL databases
  * `PostgreSQL` : JDBC implementation for PostgreSQL databases
  * `SQLite`     : JDBC implementation for SQLite databases
- * `BerkeleyDB` : Key - Value No-SQL database which requires almost no configuration
 
 ## net         
 Includes : core, etc, crypt

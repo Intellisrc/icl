@@ -31,7 +31,7 @@ import java.time.LocalTime
  */
 @CompileStatic
 class ConfigAuto {
-    final SavedPropertiesRedis props //FIXME: allow other kind of SavedProperties (like BerkeleyDB)
+    final SavedProperties props
     protected Set<Storage> storedValues = []
     protected String basePkg
 
@@ -76,8 +76,8 @@ class ConfigAuto {
      * @param basePackage
      * @param documentationFile
      */
-    ConfigAuto(String basePackage, String rootKey = SavedProperties.defaultRoot) {
-        props = new SavedPropertiesRedis(rootKey)
+    ConfigAuto(String basePackage, SavedProperties savedProperties) {
+        props = savedProperties
         try {
             basePkg = basePackage
             // Verify current config:
