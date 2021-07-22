@@ -16,10 +16,10 @@ import static com.intellisrc.db.DB.ColumnType.*
  * @since 2016-10
  */
 class DB {
-    private Connector db
-    private String table = ""
-    private int last_id = 0
-    private Query query = null
+    protected Connector db
+    protected String table = ""
+    protected int last_id = 0
+    protected Query query = null
 	//Setter / Getters
 	Map<String, List<String>> priKeys = [:]
 
@@ -34,7 +34,19 @@ class DB {
 	}
 
 	static enum DBType {
-		DUMMY, SQLITE, MYSQL, POSTGRESQL, JAVADB, ORACLE, DB2, SUN
+		DUMMY, SQLITE, MYSQL, POSTGRESQL, JAVADB, ORACLE, DB2, SQLSERVER
+        int getPort() {
+            int port = 0
+            switch (this) {
+                case MYSQL:         port = 3306; break
+                case POSTGRESQL:    port = 5432; break
+                case ORACLE:        port = 1521; break
+                case SQLSERVER:     port = 1433; break
+                case JAVADB:        port = 1527; break //Derby
+                case DB2:           port = 50000; break
+            }
+            return port
+        }
 	}
 
 	static enum ColumnType {
@@ -42,10 +54,13 @@ class DB {
 	}
     ////////////////////////// Interfaces ////////////////////////////////
     static interface Starter {
+        String getName()
+        String getConnectionString()
         Connector getNewConnection()
     }
 
 	static interface Connector {
+        String getName()
 		void open()
 		boolean close()
         boolean isOpen()

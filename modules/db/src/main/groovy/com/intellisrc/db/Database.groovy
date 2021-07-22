@@ -1,5 +1,6 @@
 package com.intellisrc.db
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 /**
@@ -13,21 +14,21 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Database {
     protected DBPool pool
-    Database(String urlstr, int timeout = 0) {
-		this(new JDBC(connectionString : urlstr), timeout)
+    Database(String connectionString, int timeout = 0) {
+		this(new JDBC(connectionString), timeout)
 	}
     Database(DB.Starter type = null, int timeout = 0) {
 		if(type == null) {
 			type = new JDBC()
+            Log.w("Database connection had no settings.")
 		}
         if(!pool) {
             pool = new DBPool()
             pool.init(type, timeout)
         }
     }
-    void quit() {
-        pool?.quit()
-        pool = null
+    DB connect() {
+        return new PoolConnector(pool).getDB()
     }
     int getConnections() {
         return pool?.active ?: 0
@@ -35,8 +36,9 @@ class Database {
     boolean isInitialized() {
         return pool?.initialized ?: false
     }
-    DB connect() {
-        return new PoolConnector(pool).getDB()
+    void quit() {
+        pool?.quit()
+        pool = null
     }
     // Static --------------------------------
     static protected Database defaultDB

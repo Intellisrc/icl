@@ -24,6 +24,11 @@ class DummyConnector implements DB.Connector {
         return opened
     }
 
+    @Override
+    String getName() {
+        return "dummy"
+    }
+
     void open() {
         opened = true
         Log.v( "Database opened")

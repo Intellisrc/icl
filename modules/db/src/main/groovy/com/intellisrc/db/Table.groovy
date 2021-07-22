@@ -1,8 +1,8 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
 import com.intellisrc.etc.Instanciable
 import groovy.transform.CompileStatic
@@ -14,28 +14,44 @@ import java.lang.reflect.Field
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.regex.Matcher
 
 @CompileStatic
 class Table<T extends Model> implements Instanciable<T> {
+    boolean autoUpdate = true // set to false if you don't want the table to update automatically
     protected Database database
     protected final String name
     protected Set<DB> activeConnections = []
-
+    /**
+     * Constructor. A Database object can be passed
+     * when using multiple databases.
+     *
+     * @param name
+     * @param database
+     */
     Table(String name = "", Database database = null) {
         this.database = database ?: Database.getDefault()
         this.name = name ?: this.class.getAnnotation(TableMeta)?.name() ?: this.class.simpleName.toSnakeCase()
         assert this.name : "Table name not set"
         createTable()
     }
-
+    /**
+     * Create the database based on @Column and @TableMeta
+     */
     void createTable() {
         boolean exists = tableConnect.exists()
-        if(exists) {
-            boolean drop = Config.getBool("db.table.${tableName}.drop")
-            boolean dropAll = Config.getBool("db.tables.drop")
-            if (drop || dropAll) {
-                tableConnect.exec(new Query("DROP TABLE IF EXISTS ${tableName}"))
-                exists = false
+        if(tableConnect.type != DB.DBType.MYSQL) {
+            Log.w("Only MySQL/MariaDB is supported for now.")
+            return
+        }
+        if(exists && autoUpdate) {
+            if(definedVersion > tableVersion) {
+                Log.i("Table [%s] is going to be updated from version: %d to %d",
+                        tableName, tableVersion, definedVersion)
+                TableUpdater.update([this])
+            } else {
+                Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                        tableName, tableVersion, definedVersion)
             }
         }
         if(!exists) {
@@ -117,14 +133,51 @@ class Table<T extends Model> implements Instanciable<T> {
             if(engine) {
                 engine = "ENGINE=${engine}"
             }
-            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}"
-            println createSQL
+            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
             if (!tableConnect.exec(new Query(createSQL))) {
-                println createSQL
+                Log.v(createSQL)
                 Log.e("Unable to create table.")
             }
         }
         closeConnections()
+    }
+
+    /**
+     * Returns the table comment
+     * @return
+     */
+    String getComment() {
+        DB connection = database.connect()
+        Query query = new Query("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=? AND table_name=?",
+                [connection.db.name, tableName])
+        String comment = connection.exec(query).toString()
+        connection.close()
+        return comment
+    }
+    /**
+     * Get the defined version in code
+     * @return
+     */
+    int getDefinedVersion() {
+        int version = 1
+        if(parametrizedInstance.class.isAnnotationPresent(ModelMeta)) {
+            ModelMeta meta = parametrizedInstance.class.getAnnotation(ModelMeta)
+            version = meta.version()
+        }
+        return version
+    }
+    /**
+     * Get the defined version in the database
+     * @return
+     */
+    int getTableVersion() {
+        int version = 1
+        String comm = getComment()
+        Matcher matcher = (comm =~ /v.(\d+)/)
+        if(matcher.find()) {
+            version = matcher.group(1) as int
+        }
+        return version
     }
 
     List<Field> getFields() {
@@ -704,5 +757,11 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     void quit() {
         database.quit()
+    }
+    /**
+     * Drops the table
+     */
+    void drop() {
+        tableConnect.exec(new Query("DROP TABLE IF EXISTS ${tableName}"))
     }
 }

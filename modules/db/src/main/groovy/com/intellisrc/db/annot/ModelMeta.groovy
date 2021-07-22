@@ -9,13 +9,11 @@ import static java.lang.annotation.ElementType.TYPE
 import static java.lang.annotation.RetentionPolicy.RUNTIME
 
 /**
- * Annotation for Table classes
+ * Annotations for Model classes
  */
 @Target([TYPE])
 @Retention(RUNTIME)
 @CompileStatic
-@interface TableMeta {
-    String name() default ""
-    String engine() default "auto"
-    String charset() default "UTF8"
+@interface ModelMeta {
+    int version() default 1
 }

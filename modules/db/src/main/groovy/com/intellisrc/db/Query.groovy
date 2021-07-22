@@ -16,7 +16,6 @@ import static com.intellisrc.db.Query.Action.*
  * Created by A.Lepe on 16/11/11.
  */
 class Query {
-	private DBType dbType = DUMMY
     // Action type (RAW is default)
     static enum Action {
         RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, DROP, INFO, LASTID, EXISTS
@@ -41,20 +40,21 @@ class Query {
     static enum SortOrder {
         ASC, DESC
     }
-    private String queryStr     = ""
-    private String tableStr     = ""
-    private String groupbyStr   = ""
-    private String whereStr     = ""
-    private String insvalsStr   = ""
-    private String updvalsStr   = ""
-    private int limitInt        = 0
-    private int offsetInt       = 0
-    private Action actionType   = RAW //Database action for query, like: SELECT, INSERT...
-    private Map<String, SortOrder> sort = [:]
-    private List<String> fieldList = []
-    private List<String> keyList = []
-    private List<Object> argList = []
-    private FieldType fieldtype = FieldType.NOSET
+    protected DBType dbType = DUMMY
+    protected String queryStr     = ""
+    protected String tableStr     = ""
+    protected String groupbyStr   = ""
+    protected String whereStr     = ""
+    protected String insvalsStr   = ""
+    protected String updvalsStr   = ""
+    protected int limitInt        = 0
+    protected int offsetInt       = 0
+    protected Action actionType   = RAW //Database action for query, like: SELECT, INSERT...
+    protected Map<String, SortOrder> sort = [:]
+    protected List<String> fieldList = []
+    protected List<String> keyList = []
+    protected List<Object> argList = []
+    protected FieldType fieldtype = FieldType.NOSET
 
     Query() {
         actionType = RAW
