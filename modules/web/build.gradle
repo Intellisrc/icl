@@ -6,9 +6,9 @@ dependencies {
     // JSON wraps GSON so the consumer doesn't need it:
     implementation 'com.google.code.gson:gson:2.8.7'
     // Required to turn slf4j off:
-    api 'org.slf4j:slf4j-nop:1.7.31'
+    api 'org.slf4j:slf4j-nop:1.7.32'
     // Do not include Yaml
-    implementation "org.yaml:snakeyaml:1.21" //Same as in DB
+    implementation 'org.yaml:snakeyaml:1.29' //Same as in DB
     //TODO: reimplement security (LoginService) :
     //implementation 'org.pac4j:spark-pac4j:2.1.0'
     //implementation 'org.pac4j:pac4j-http:2.1.0'

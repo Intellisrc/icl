@@ -16,11 +16,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 class DBPool {
 	// Time before a connection is discarded if it is not returned to the pool (usually it means close() is missing)
-    protected int timeoutSeconds = Config.getInt("db.timeout", 60)
+    protected int timeoutSeconds = Config.get("db.timeout", 60)
 	// Max life of a connection. Once it expires, a new connection should be created.
-	protected int expireSeconds = Config.getInt("db.expire", 600)
+	protected int expireSeconds = Config.get("db.expire", 600)
 	// Turn it true to debug connections
-	protected boolean debugTimeout = Config.getBool("db.timeout.debug", false)
+	protected boolean debugTimeout = Config.get("db.timeout.debug", false)
 	protected boolean initialized = false
 	Map<DB.Connector, List<StackTraceElement>> connTrace = [:]
 	ConcurrentLinkedQueue<DB.Connector> availableConnections = new ConcurrentLinkedQueue<>()

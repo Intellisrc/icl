@@ -42,6 +42,7 @@ class Crypt {
         String Safe     = "@.,:;\$=-+_"
         String Ext      = "'\"<>\\[]{}|^%`?!~#&()/*"
         String chars    = ""
+        //noinspection GroovyFallthrough
         switch(type) {
             case Complexity.HIGH:
                 chars += Ext

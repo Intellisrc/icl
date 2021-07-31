@@ -20,10 +20,10 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @CompileStatic
 class Tasks {
     static public String logFileName = Config.get("tasks.logfile", "status.log")
-    static public int minPoolSize = Config.getInt("tasks.pool.min", 1)
-    static public int maxPoolSize = Config.getInt("tasks.pool.max", 30)
-    static public int bufferMillis = Config.getInt("tasks.buffer", 1000)
-    static public int timeout = Config.getInt("tasks.timeout", 0)
+    static public int minPoolSize = Config.get("tasks.pool.min", 1)
+    static public int maxPoolSize = Config.get("tasks.pool.max", 30)
+    static public int bufferMillis = Config.get("tasks.buffer", 1000)
+    static public int timeout = Config.getInt("tasks.timeout")
     static public boolean printOnScreen = Config.getBool("tasks.print")
     static public boolean logToFile = Config.getBool("tasks.log")
     static public boolean debug = Config.getBool("tasks.debug")

@@ -1,4 +1,4 @@
-package com.intellisrc.etc
+package com.intellisrc.core
 
 import groovy.transform.CompileStatic
 import spock.lang.Specification

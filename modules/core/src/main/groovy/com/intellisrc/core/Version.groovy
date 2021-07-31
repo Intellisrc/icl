@@ -25,16 +25,20 @@ class Version {
         String version = mainfestAttributes?.getValue("Implementation-Version")
         if(version) {
             source = Source.JAR
-        } else {
-            version = gradleProps?.get("currentVersion")
-            if(version) {
-                source = Source.GRADLE
-            }
         }
         if(!version && Config.exists()) {
             version = Config.get("version")
             if(version) {
                 source = Source.CONFIG
+            }
+        }
+        if(!version) {
+            Config.Props gradle = gradleProps
+            if(gradle) {
+                version = gradle.keys.find { it.toLowerCase().contains("version") }
+                if (version) {
+                    source = Source.GRADLE
+                }
             }
         }
         return version ?: "0.0"

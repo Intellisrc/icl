@@ -11,6 +11,8 @@ import groovy.transform.CompileStatic
  * For example: get OS type
  */
 class SysInfo {
+    static String newLine = getNewLineForCurrentOS() //Keep in memory
+
     static final enum OSType {
         UNKNOWN, LINUX, WINDOWS, ANDROID, IOS
     }
@@ -167,5 +169,31 @@ class SysInfo {
      */
     static String getOSArch() {
         return System.getProperty("os.arch")
+    }
+
+    /**
+     * New Line by OS
+     */
+    enum NewLine {
+        LINUX("\n"), IOS("\r"), WIN("\r\n")
+        final String value
+        NewLine(String nl) { value = nl }
+    }
+
+    /**
+     * Return NewLine depending on on OS
+     * @return
+     */
+    static private String getNewLineForCurrentOS() {
+        String nl = NewLine.LINUX.value
+        switch (getOS()) {
+            case OSType.IOS:
+                nl = NewLine.IOS.value
+                break
+            case OSType.WINDOWS:
+                nl = NewLine.IOS.value
+                break
+        }
+        return nl
     }
 }

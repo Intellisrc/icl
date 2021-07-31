@@ -20,7 +20,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 abstract class VideoGrab {
     static {
-        if(Config.hasKey("video.device")) {
+        if(Config.exists("video.device")) {
             Log.w("[video.device] config key was renamed to [video.source]. Please fix it.")
         }
     }
