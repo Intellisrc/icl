@@ -1,6 +1,5 @@
 package com.intellisrc.web
 
-import com.intellisrc.etc.Cache
 import com.intellisrc.etc.CacheObj
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
@@ -221,7 +220,7 @@ class WebService {
      * @return
      */
     private void addServicePath(Service service, String rootPath) {
-        String fullPath = rootPath + service.path
+        String fullPath = (rootPath + service.path).replaceAll(/\/\//,"/") //Remove double "/"
         if (listPaths.contains(service.method.toString() + fullPath)) {
             Log.w("Warning, duplicated path [" + fullPath + "] and method [" + service.method.toString() + "] found.")
         } else {

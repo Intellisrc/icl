@@ -1,5 +1,6 @@
 package com.intellisrc.web.samples
 
+import com.intellisrc.core.SysInfo
 import com.intellisrc.web.Service
 import com.intellisrc.web.Service.Action
 import com.intellisrc.web.ServiciableHTTPS
@@ -7,12 +8,11 @@ import com.intellisrc.web.ServiciableSingle
 import spark.Request
 
 /**
+ * Example of HTTPS Service
  * @since 17/04/24.
  *
- * Certificate valid for: ssltest.lp
- * if its self-signed, use:
- * java-cert-importer.sh from:
- * http://stackoverflow.com/questions/6908948/
+ * 1. Issue a certificate (self-signed or not)
+ * 2. Execute: java-cert-importer.sh (inside res/public/)
  * in order to import keystore file into trusted certs
  */
 class SSLService implements ServiciableHTTPS, ServiciableSingle {
@@ -28,7 +28,7 @@ class SSLService implements ServiciableHTTPS, ServiciableSingle {
 
     String getKeyStoreFile() {
         //Must be absolute path. Do not store it in public directory
-        return System.getProperty("user.dir") + "/res/key.store"
+        return SysInfo.getFile(SysInfo.userDir, "res", "key.store")
     }
 
     String getPassword() {

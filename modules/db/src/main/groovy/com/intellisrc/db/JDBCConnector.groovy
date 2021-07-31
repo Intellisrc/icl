@@ -63,20 +63,20 @@ class JDBCConnector implements Connector {
 	 */
 	JDBCConnector(String conn_url = "") {
         if(conn_url.isEmpty()) {
-            if(Config.hasKey("db.name")) {
+            if(Config.exists("db.name")) {
                 this.dbname = Config.get("db.name")  //    database name
             }
-            if(!Config.hasKey("db.jdbc.url")) {
-                if(Config.hasKey("db.type")) {
+            if(!Config.exists("db.jdbc.url")) {
+                if(Config.exists("db.type")) {
 					try {
-						type = (Config.get("db.type") ?: "mysql").toUpperCase() as DBType
+						type = Config.get("db.type", "mysql").toUpperCase() as DBType
 					} catch(Exception ignore) {
 						Log.w("Specified database type is not supported: %s", Config.get("db.type"))
 					}
-                    host = Config.get("db.host") ?: "localhost"
-                    user = Config.get("db.user") ?: "root"
-                    pass = Config.get("db.pass") ?: ""
-                    port = Config.getInt("db.port") ?: type.port
+                    host = Config.get("db.host", "localhost")
+                    user = Config.get("db.user", "root")
+                    pass = Config.get("db.pass")
+                    port = Config.get("db.port", type.port)
                 }
             } else {
                 parseJDBC(Config.get("db.jdbc.url"))
@@ -109,7 +109,7 @@ class JDBCConnector implements Connector {
                 URI url = new URI(sUrl)
                 type = url.scheme.toUpperCase() as DBType
                 host = url.host
-                port = url.port ?: (type == MYSQL ? 3306 : 5432)
+                port = url.port ?: type.port
                 def userpass = url.userInfo?.split(":")
                 if(userpass) {
                     user = userpass[0]
@@ -151,8 +151,8 @@ class JDBCConnector implements Connector {
 				}
                 url += "${stype}:${dbname}"
                 break
-            case POSTGRESQL:
-            case MYSQL:
+            //case POSTGRESQL:
+            //case MYSQL:
             default:
                 url += "${stype}://${host}:${port}/${dbname}"
                 break

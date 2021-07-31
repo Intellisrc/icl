@@ -43,7 +43,7 @@ class AutoConfigService implements ServiciableMultiple {
                             Map val = JSON.decode(request.body()).toMap()
                             boolean ok = true
                             val.any {
-                                ok = configAuto.update(it.key.toString(), it.value.toString())
+                                ok = configAuto.update(it.key.toString(), it.value)
                                 return !ok //This will stop if the previous was false
                             }
                             return [ ok : ok ]

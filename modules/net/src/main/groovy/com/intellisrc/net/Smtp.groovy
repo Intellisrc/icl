@@ -79,23 +79,23 @@ class Smtp {
             String key, String rule ->
                 switch (rule) {
                     case "simulate":
-                        if(fileSettings && Config.hasKey("${cfgKey}.$rule")) {
+                        if(fileSettings && Config.exists("${cfgKey}.$rule")) {
                             this.setProperty(key, Config.getBool("${cfgKey}.$rule"))
-                        } else if(fileSettingsDefault && Config.hasKey("${defaultKey}.$rule")) {
+                        } else if(fileSettingsDefault && Config.exists("${defaultKey}.$rule")) {
                             this.setProperty(key, Config.getBool("${defaultKey}.$rule"))
                         }
                         break
                     case "port":
-                        if(fileSettings && Config.hasKey("${cfgKey}.$rule")) {
+                        if(fileSettings && Config.exists("${cfgKey}.$rule")) {
                             this.setProperty(key, Config.getInt("${cfgKey}.$rule"))
-                        } else if(fileSettingsDefault && Config.hasKey("${defaultKey}.$rule")) {
+                        } else if(fileSettingsDefault && Config.exists("${defaultKey}.$rule")) {
                             this.setProperty(key, Config.getInt("${defaultKey}.$rule"))
                         }
                         break
                     default:
-                        if(fileSettings && Config.hasKey("${cfgKey}.$rule")) {
+                        if(fileSettings && Config.exists("${cfgKey}.$rule")) {
                             this.setProperty(key, Config.get("${cfgKey}.$rule"))
-                        } else if(fileSettingsDefault && Config.hasKey("${defaultKey}.$rule")) {
+                        } else if(fileSettingsDefault && Config.exists("${defaultKey}.$rule")) {
                             this.setProperty(key, Config.get("${defaultKey}.$rule"))
                         }
                 }

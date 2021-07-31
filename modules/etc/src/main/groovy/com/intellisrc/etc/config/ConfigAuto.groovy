@@ -2,12 +2,15 @@ package com.intellisrc.etc.config
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.props.PrefixedPropertiesRW
+import com.intellisrc.core.props.PropertiesGet
+import com.intellisrc.core.props.StringPropertiesYaml
 import com.intellisrc.core.SysInfo
+import com.intellisrc.etc.BerkeleyDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
 import org.reflections.Reflections
 import org.reflections.scanners.FieldAnnotationsScanner
-import org.yaml.snakeyaml.Yaml
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.Field
@@ -31,13 +34,65 @@ import java.time.LocalTime
  */
 @CompileStatic
 class ConfigAuto {
-    final SavedProperties props
+    static int columnDocWrap = Config.get("config.auto.width", 75)
+    // If `configAutoExport` is true, each time a value is updated in the db, it will also update the config file
+    boolean exportOnSave = Config.getBool("config.auto.export")
+    // If true, it will remove missing keys
+    static boolean removeMissing = Config.get("config.auto.remove", true)
+    static List<String> removeIgnore = Config.getList("config.auto.ignore")
+    // Where to export configuration:
+    File cfgFile = Config.getFile("config.auto.file", "system.properties")
+    final PrefixedPropertiesRW props
     protected Set<Storage> storedValues = []
     protected String basePkg
+    Closer onClose = null
 
-    static class Storage {
+    interface Closer {
+        void call()
+    }
+
+    /**
+     * Dummy implementation of StringPropertiesYaml
+     * used to convert objects into string
+     */
+    class ConfigProps extends StringPropertiesYaml {
+        Map<String, String> cache = [:]
+        @Override
+        Set<String> getKeys() {
+            cache.keySet()
+        }
+        @Override
+        String get(String key, String val) {
+            return cache.containsKey(key) ? cache.get(key) : val
+        }
+        @Override
+        boolean set(String key, String val) {
+            cache[key] = val
+            return true
+        }
+        @Override
+        boolean exists(String key) {
+            return cache.containsKey(key)
+        }
+        @Override
+        boolean delete(String key) {
+            return cache.remove(key)
+        }
+        @Override
+        boolean clear() {
+            cache.clear()
+            return cache.keySet().empty
+        }
+    }
+
+    /**
+     * Main class used to store and manage field values
+     */
+    class Storage {
+        final Class parent
         final Field field
         final Object initial
+        final String description
         Object previous
         boolean export
         boolean userFriendly
@@ -45,15 +100,18 @@ class ConfigAuto {
         Storage(Field field) {
             this.field = field
             this.initial = this.previous = field.get(null)
+            parent = field.declaringClass
             // Check for class annotation
             Annotation classAnnotation = field.declaringClass.getAnnotation(AutoConfig)
             boolean classExport = classAnnotation ? classAnnotation.export() : true
             boolean classUserFriendly = classAnnotation ? classAnnotation.userFriendly() : false
-            this.export = field.getAnnotation(AutoConfig).export() && classExport
-            this.userFriendly = field.getAnnotation(AutoConfig).userFriendly() || classUserFriendly
+            Annotation fieldAnnotation = field.getAnnotation(AutoConfig)
+            this.export = fieldAnnotation.export() && classExport
+            this.userFriendly = fieldAnnotation.userFriendly() || classUserFriendly
+            this.description = fieldAnnotation.description()
         }
 
-        void update() {
+        void resetChange() {
             previous = current
         }
 
@@ -68,27 +126,64 @@ class ConfigAuto {
         boolean isChanged() {
             return previous != current
         }
-    }
-    /**
-     * Constructor. If File (.properties) is passed, it will be compared
-     * against configuration
-     *
-     * @param basePackage
-     * @param documentationFile
-     */
-    ConfigAuto(String basePackage, SavedProperties savedProperties) {
-        props = savedProperties
-        try {
-            basePkg = basePackage
-            // Verify current config:
-            check()
-            storedValues.each {
-                try {
-                    setConfig(it)
-                } catch (Exception ex) {
-                    Log.w("Unable to set auto configuration for field: %s (%s)", it.key, ex.message)
+
+        boolean isSameAsDefault() {
+            return initial == current
+        }
+
+        boolean isStored() {
+            return props.exists(key)
+        }
+
+        void updateFieldValueAndSave(Object object) {
+            updateFieldValue(object)
+            if(stored && sameAsDefault) {
+                removeFromStorage()
+            } else {
+                save() // Save as well in database
+            }
+        }
+
+        void updateFieldValue(Object object) {
+            setFieldValue(field, object, key)
+        }
+
+        boolean save() {
+            boolean updated = true
+            if (changed) {
+                updated = props.set(key, field)
+                Log.d("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
+                resetChange()
+                if(exportOnSave) {
+                    exportValues()
                 }
             }
+            return updated
+        }
+
+        boolean removeFromStorage() {
+            return props.delete(key)
+        }
+    }
+    /**
+     * Constructor
+     *
+     * @param basePackage : package name in which we will search for annotations (e.g: com.example.project)
+     * @param storage : Storage used to save properties (Berkeley by default)
+     */
+    ConfigAuto(String basePackage, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
+        props = storage
+        try {
+            assert basePackage : "Package was not specified."
+            assert basePackage != "java.lang" : "Package was not correctly specified."
+            if(storage instanceof BerkeleyDB &&! onClose) {
+                onClose = { (storage as BerkeleyDB).close() } as Closer
+            }
+            basePkg = basePackage
+            // Initialize stored values
+            updateStoredValues()
+            // Verify current config:
+            cleanseStoredValues()
         } catch (Exception e) {
             Log.e("Unable to start AutoConfig", e)
         }
@@ -110,8 +205,8 @@ class ConfigAuto {
      *  Return all keys in config
      * @return
      */
-    List<String> getAllKeys() {
-        return allAnnotatedFields.collect { getKey(it) }
+    Set<String> getAllKeys() {
+        return allAnnotatedFields.collect { getKey(it) }.toSet()
     }
 
     /**
@@ -169,10 +264,10 @@ class ConfigAuto {
     boolean prepare(Field field) {
         boolean ok = true
         // Filter by root (class and field roots must match to be included)
-        String classRoot = field.declaringClass.getAnnotation(AutoConfig)?.root() ?: props.defaultRoot
-        String fieldRoot = field.getAnnotation(AutoConfig)?.root() ?: props.defaultRoot
-        if(props.propKey != classRoot || props.propKey != fieldRoot) {
-            Log.v("Field [%s] was skipped as roots: [%s,%s] don't match current: %s", classRoot, fieldRoot, props.propKey)
+        String classRoot = field.declaringClass.getAnnotation(AutoConfig)?.prefix() ?: props.prefix
+        String fieldRoot = field.getAnnotation(AutoConfig)?.prefix() ?: props.prefix
+        if(props.prefix != classRoot || props.prefix != fieldRoot) {
+            Log.v("Field [%s] was skipped as roots: [%s,%s] don't match current: %s", classRoot, fieldRoot, props.prefix)
             ok = false
         }
         if(ok) {
@@ -203,127 +298,92 @@ class ConfigAuto {
         return field.declaringClass.getAnnotation(AutoConfig)?.key() ?: field.declaringClass.simpleName.toLowerCase()
     }
     /**
-     * Get Key in configuration
+     * Get Key in configuration, for example:
+     *
+     * my_class.my_field
+     *
      * @param field
      * @return
      */
-    static protected String getKey(final Field field) {
+    protected String getKey(final Field field) {
         // Get key from field. If its not present, use field name
         String key = field.getAnnotation(AutoConfig).key() ?: field.name.toLowerCase()
-        return getBaseKey(field) + "." + key
+        return getBaseKey(field) + props.prefixSeparator + key
     }
 
     /**
-     * Automatic assign props default values to fields
-     * @param storage
+     * Set field value
+     * @param field
+     * @param obj : Can be PropertiesGet (from where we are going to read the value) or Object (value)
+     * @param key
      */
-    void setConfig(final Storage storage) {
-        Field field = storage.field
-        String key = storage.key
-        if (prepare(field)) {
-            switch (field.type) {
-                case boolean: case Boolean:
-                    field.setBoolean(null, props.get(key, field.getBoolean(null)))
-                    break
-                case short: case Short:
-                    field.setShort(null, props.get(key, field.getShort(null)))
-                    break
-                case int: case Integer:
-                    field.setInt(null, props.get(key, field.getInt(null)))
-                    break
-                case long: case Long: case BigInteger:
-                    field.setLong(null, props.get(key, field.getLong(null)))
-                    break
-                case float: case Float:
-                    field.setFloat(null, props.get(key, field.getFloat(null)))
-                    break
-                case double: case Double: case BigDecimal:
-                    field.setDouble(null, props.get(key, field.getDouble(null)))
-                    break
-                case File:
-                    field.set(null, props.get(key, field.get(null) as File))
-                    break
-                case LocalDateTime:
-                    field.set(null, props.get(key, field.get(null) as LocalDateTime))
-                    break
-                case LocalDate:
-                    field.set(null, props.get(key, field.get(null) as LocalDate))
-                    break
-                case LocalTime:
-                    field.set(null, props.get(key, field.get(null) as LocalTime))
-                    break
-                case Inet4Address:
-                    field.set(null, props.get(key, field.get(null) as Inet4Address))
-                    break
-                case List:
-                    field.set(null, props.get(key, field.get(null) as List))
-                    break
-                case Map:
-                    field.set(null, props.get(key, field.get(null) as Map))
-                    break
-                case String:
-                    field.set(null, props.get(key, field.get(null).toString()))
-                    break
-                default:
-                    Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
-                    return
-            }
-            storage.update()
+    static void setFieldValue(Field field, Object obj, String key) {
+        PropertiesGet getter = null
+        if(obj instanceof PropertiesGet) {
+            getter = obj
         }
-    }
-
-    /**
-     * Set field value to a new one
-     * @param storage
-     */
-    void setValueFromString(final Storage storage, String value) {
-        Field field = storage.field
-        if (prepare(field)) {
+        // Only set field values when we have such key in getter or we are passing the value
+        if (getter ? getter.exists(key) : obj != null) {
             switch (field.type) {
                 case boolean: case Boolean:
-                    field.setBoolean(null, value == "true")
+                    field.setBoolean(null, getter ? getter.getBool(key) : obj as boolean)
                     break
                 case short: case Short:
-                    field.setShort(null, Short.parseShort(value))
+                    field.setShort(null, getter ? getter.getShort(key) : obj as short)
                     break
                 case int: case Integer:
-                    field.setInt(null, Integer.parseInt(value))
+                    field.setInt(null, getter ? getter.getInt(key) : obj as int)
                     break
                 case long: case Long: case BigInteger:
-                    field.setLong(null, Long.parseLong(value))
+                    field.setLong(null, getter ? getter.getLong(key) : obj as long)
                     break
                 case float: case Float:
-                    field.setFloat(null, Float.parseFloat(value))
+                    field.setFloat(null, getter ? getter.getFloat(key) : obj as float)
                     break
-                case double: case Double: case BigDecimal:
-                    field.setDouble(null, Double.parseDouble(value))
+                case double: case Double:
+                    field.setDouble(null, getter ? getter.getDbl(key) : obj as double)
+                    break
+                case BigDecimal:
+                    field.set(null, getter ? getter.getBigDec(key) : obj as BigDecimal)
                     break
                 case File:
-                    field.set(null, SysInfo.getFile(value))
+                    field.set(null, getter ? getter.getFile(key)?.get() : (obj instanceof File ? obj : SysInfo.getFile(obj.toString())))
                     break
                 case LocalDateTime:
-                    field.set(null, value.toDateTime())
+                    field.set(null, getter ? getter.getDateTime(key)?.get() : (obj instanceof LocalDateTime ? obj : obj.toString().toDateTime()))
                     break
                 case LocalDate:
-                    field.set(null, value.toDate())
+                    field.set(null, getter ? getter.getDate(key)?.get() : (obj instanceof LocalDate ? obj : obj.toString().toDate()))
                     break
                 case LocalTime:
-                    field.set(null, value.toTime())
+                    field.set(null, getter ? getter.getTime(key)?.get() : (obj instanceof LocalTime ? obj : obj.toString().toTime()))
                     break
                 case Inet4Address:
-                    field.set(null, value.toInet4Address())
+                    field.set(null, getter ? getter.getInet4(key)?.get() : (obj instanceof Inet4Address ? obj : obj.toString().toInet4Address()))
                     break
                 case Inet6Address:
-                    field.set(null, value.toInet6Address())
+                    field.set(null, getter ? getter.getInet6(key)?.get() : (obj instanceof Inet6Address ? obj : obj.toString().toInet6Address()))
                     break
-                case Collection:
-                    field.set(null, new Yaml().load(value) as List)
+                case URI:
+                    field.set(null, getter ? getter.getURI(key)?.get() : (obj instanceof URI ? obj : obj.toString().toURI()))
+                    break
+                case URL:
+                    field.set(null, getter ? getter.getURL(key)?.get() : (obj instanceof URL ? obj : obj.toString().toURL()))
+                    break
+                case List:
+                    field.set(null, getter ? getter.getList(key) : obj as List)
+                    break
+                case Set:
+                    field.set(null, getter ? getter.getSet(key) : obj as Set)
                     break
                 case Map:
-                    field.set(null, new Yaml().load(value) as Map)
+                    field.set(null, getter ? getter.getMap(key) : obj as Map)
+                    break
+                case byte[]:
+                    field.set(null, getter ? getter.getBytes(key)?.get() : obj as byte[])
                     break
                 case String:
-                    field.set(null, value)
+                    field.set(null, getter ? getter.get(key) : obj.toString())
                     break
                 default:
                     Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
@@ -334,19 +394,31 @@ class ConfigAuto {
 
     /**
      * Recreate StoredValues
+     * 1. import values from annotated fields
+     * 2. update values from storage (db)
      */
     void updateStoredValues() {
         if(storedValues.empty) {
             allAnnotatedFields.each {
                 Field field ->
-                    if (prepare(field)) {
-                        // Checks if the key already exists:
-                        Storage nameSake = storedValues.find { it.key == getKey(field) }
-                        if (nameSake) {
-                            Log.w("Duplicated key found in code: %s in field: %s.%s", getKey(field), field.declaringClass.toString(), field.name)
-                        } else {
-                            storedValues << new Storage(field)
-                        }
+                    // Checks if the key already exists:
+                    Storage storedField = storedValues.find { it.key == getKey(field) }
+                    if (storedField) {
+                        Log.w("Duplicated key found in code: %s in field: %s.%s", getKey(field), field.declaringClass.toString(), field.name)
+                    } else {
+                        storedValues << new Storage(field)
+                    }
+            }
+            props.keys.each {
+                String key ->
+                    Storage storedField = storedValues.find {
+                        it.key == key
+                    }
+                    if(storedField) {
+                        storedField.updateFieldValue(props)
+                        storedField.resetChange() //Initial state: without change
+                    } else if(! removeIgnore.contains(props.getFullKey(key))) {
+                        Log.w("Key not found in stored values: %s", props.getFullKey(key))
                     }
             }
         }
@@ -354,227 +426,72 @@ class ConfigAuto {
 
     /**
      * Update database with current values
+     * This method is used to monitor changes on values
+     * Used in @ConfigAutoTask (thread module)
+     * //TODO: Observe changes and update immediately
      */
     void update() {
-        updateStoredValues()
         storedValues.each {
             Storage storage ->
-                save(storage)
+                storage.save()
         }
     }
 
     /**
-     * Save storage value if changed
-     * @param storage
-     * @return
-     */
-    boolean save(Storage storage) {
-        boolean updated = true
-        Field field = storage.field
-        String key = storage.key
-        if (prepare(field)) {
-            if (storage.changed) {
-                Log.d("Config value changed: %s, Prev: %s, Now: %s", key, storage.previous, storage.current)
-                switch (field.type) {
-                    case boolean: case Boolean:
-                        props.set(key, field.getBoolean(null))
-                        break
-                    case int: case Integer:
-                        props.set(key, field.getInt(null))
-                        break
-                    case long: case Long:
-                        props.set(key, field.getLong(null))
-                        break
-                    case float: case Float:
-                        props.set(key, field.getFloat(null))
-                        break
-                    case double: case Double:
-                        props.set(key, field.getDouble(null))
-                        break
-                    case File:
-                        props.set(key, field.get(null) as File)
-                        break
-                    case LocalDateTime:
-                        props.set(key, field.get(null) as LocalDateTime)
-                        break
-                    case LocalDate:
-                        props.set(key, field.get(null) as LocalDate)
-                        break
-                    case LocalTime:
-                        props.set(key, field.get(null) as LocalTime)
-                        break
-                    case Inet4Address:
-                        props.set(key, field.get(null) as Inet4Address)
-                        break
-                    case List:
-                        props.set(key, field.get(null) as List)
-                        break
-                    case Map:
-                        props.set(key, field.get(null) as Map)
-                        break
-                    case String:
-                        props.set(key, field.get(null).toString())
-                        break
-                    default:
-                        Log.w("Unable to handle type: %s of field: %s.%s", field.type, field.declaringClass.toString(), field.name)
-                        updated = false
-                }
-                storage.update()
-            } else {
-                updated = false
-            }
-        }
-        return updated
-    }
-
-    /**
-     * Update a single value
+     * Update a single value using PropertiesGet
      * @param key
      * @param val
      * @return
      */
-    boolean update(String key, String val) {
+    boolean update(String key, Object object) {
         boolean updated = false
         updateStoredValues()
         Storage storage = storedValues.find { it.key == key }
         if(storage) {
-            setValueFromString(storage, val)
-            updated = save(storage)
-        }
-        return updated
-    }
-
-    /**
-     * Update method for Map
-     * @param key
-     * @param val
-     * @return
-     */
-    boolean update(String key, Map val) {
-        boolean updated = false
-        updateStoredValues()
-        Storage storage = storedValues.find { it.key == key && it.field.type instanceof Map }
-        if(storage) {
-            storage.field.set(null, val)
-            updated = save(storage)
-        }
-        return updated
-    }
-
-    /**
-     * Check if all keys are explained in documentation
-     * @param documentationFile (.properties file)
-     * @return
-     */
-    boolean checkDocumentation(File documentationFile) {
-        boolean ok = true
-        if (documentationFile.exists()) {
-            try {
-                // Update Stored Values with default ones
-                updateStoredValues()
-                Config.Props defaults = new Config.Props(documentationFile) //defaults values are String
-                List<String> missingKeysInFile = storedValues.sort { it.key }.findAll {
-                    Storage storage ->
-                        boolean export = storage.export
-                        boolean documented = true
-                        if(export) {
-                            documented = defaults.hasKey(storage.key)
-                            if (documented) {
-                                boolean same
-                                //noinspection GroovyFallthrough
-                                switch (storage.field.type) {
-                                    case boolean: case Boolean:
-                                        same = (storage.initial as boolean) == defaults.getBool(storage.key)
-                                        break
-                                    case short: case Short:
-                                    case int: case Integer:
-                                    case long: case Long: case BigInteger:
-                                    case float: case Float:
-                                    case double: case Double: case BigDecimal:
-                                        same = (storage.initial as double) == defaults.getDbl(storage.key)
-                                        break
-                                    case File:
-                                        File keyFile = (storage.initial as File)
-                                        File defFile = defaults.getFile(storage.key)
-                                        same = keyFile && defFile ? keyFile.name == defFile.name : keyFile == defFile
-                                        break
-                                    case Inet4Address:
-                                        same = (storage.initial as Inet4Address).hostAddress == defaults.get(storage.key).toInet4Address().hostAddress
-                                        break
-                                    case Inet6Address:
-                                        same = (storage.initial as Inet6Address).hostAddress == defaults.get(storage.key).toInet6Address().hostAddress
-                                        break
-                                    case Collection:
-                                        same = (storage.initial as List).join(",") == defaults.getList(storage.key).join(",")
-                                        break
-                                    case Map:
-                                        Log.w("Map is not supported yet in config.properties, it will be compared as string")
-                                    default:
-                                        same = storage.initial.toString() == defaults.get(storage.key)
-                                }
-                                if (!same) {
-                                    Log.w("Documentation has a wrong default value: %s in %s, it should be: %s", defaults.get(storage.key), storage.key, storage.initial)
-                                    ok = false
-                                }
-                            }
-                        }
-                        return !documented
-                }.collect { it.key }.toList()
-                missingKeysInFile.each {
-                    Log.w("Missing documentation of key: %s", it)
-                    ok = false
-                }
-                // Now check which keys we have in documentation that are no longer in code
-                defaults.props.sort { it.key.toString() }.each {
-                    Map.Entry entry ->
-                        if(! storedValues.find { it.key == entry.key.toString() }) {
-                            // Only report those in which we have other key with same class key:
-                            if(storedValues.find { it.key.startsWith(entry.key.toString().tokenize(".").first()) }) {
-                                Log.w("Documentation contains key : %s which seems not to be in code", entry.key.toString())
-                            } else {
-                                Log.d("Documentation contains key : %s which is not AutoConfig", entry.key.toString())
-                            }
-                        }
-                }
-            } catch (Exception e) {
-                Log.e("Unable to verify documentation:", e)
-                ok = false
-            }
+            storage.updateFieldValueAndSave(object)
+            updated = true
         } else {
-            Log.w("Default config doesn't exist: %s", documentationFile.absolutePath)
+            Log.w("Unable to find key: %s in storage", key)
         }
-        return ok
+        return updated
     }
+
     /**
-     * Check configuration
+     * Check configuration for no-longer existing keys and default values stored.
+     * The goal of this method is to keep the storage clean
      */
-    boolean check() {
+    boolean cleanseStoredValues() {
         boolean ok = true
         // If defaults match, check current configuration against code:
         try {
-            updateStoredValues()
             Map<String, Object> keys = initialValues
-            props.all.each {
-                Map.Entry<String, String> entry ->
-                    boolean export = storedValues.find { getKey(it.field) == entry.key }.export
-                    if(export) {
-                        if (!keys.containsKey(entry.key)) {
-                            Log.w("Config key: %s='%s' doesn't exists. Removed.", entry.key, entry.value)
-                            props.delete(entry.key)
-                            ok = false
-                        } else if (entry.value == keys[entry.key].toString()) {
-                            Log.i("Config key: %s='%s' is the same as default. Removed.", entry.key, entry.value)
-                            props.delete(entry.key)
+            props.keys.each {
+                String key ->
+                    String fullKey = props.getFullKey(key)
+                    Storage storage = storedValues.find { getKey(it.field) == key }
+                    if(storage) {
+                        if (storage.export) {
+                            String value = props.get(key)
+                            if (value == keys[key].toString()) {
+                                Log.i("Config key: %s='%s' is the same as default. Removed.", fullKey, value)
+                                props.delete(key)
+                                ok = false
+                            }
+                        }
+                    } else if(removeMissing) {
+                        if(! removeIgnore.contains(fullKey)) {
+                            String value = props.get(key)
+                            Log.w("Config key: %s='%s' doesn't exists. Removed.", fullKey, value)
+                            props.delete(key)
                             ok = false
                         }
+                    } else {
+                        Log.w("Key [%s] found saved in configuration which no longer exists.", fullKey)
                     }
             }
         } catch (Exception e) {
-            Log.e("Unable to check configuration", e)
+            Log.e("Unable to cleanse configuration", e)
             ok = false
-        }
-        if (ok) {
-            Log.s("Configuration is OK")
         }
         return ok
     }
@@ -582,44 +499,109 @@ class ConfigAuto {
     /**
      * Import from properties file
      */
-    void 'import'(File cfgFile = Config.global.configFile) {
-        Log.i("Importing config from %s ...", cfgFile.name)
-        Config.Props sysProps = new Config.Props(cfgFile)
-        sysProps.props.each {
-            update(it.key.toString(), it.value.toString())
-        }
+    void importValues(File propertiesFile = cfgFile) {
+        Log.i("Importing config from %s ...", propertiesFile.name)
+        Config.Props appProps = new Config.Props(propertiesFile)
+
         // Keys not present in configuration, will be set to default
-        props.all.each {
-            Map.Entry<String,String> item ->
-            if(!sysProps.hasKey(item.key)) {
-                Storage st = storedValues.find { it.key == item.key }
-                if(st && st.export) {
-                    String defaultVal = st.initial.toString()
-                    Log.d("Key removed as it is not present in config: %s = %s (default: %s)", item.key, item.value, defaultVal)
-                    props.delete(item.key)
+        storedValues.each {
+            Storage storage ->
+                if(appProps.exists(storage.key) && storage.export) {
+                    storage.updateFieldValueAndSave(appProps)
                 }
-            }
         }
-        check()
     }
     /**
      * Export to properties file
      */
-    void export(File cfgFile = Config.global.configFile) {
-        if (cfgFile.exists()) {
-            cfgFile.delete()
+    boolean exportValues(File propertiesFile = cfgFile) {
+        if(!propertiesFile.parentFile.exists()) {
+            propertiesFile.parentFile.mkdirs()
         }
-        Config.Props sysProps = new Config.Props(cfgFile)
-        props.all.each {
-            Map.Entry<String,String> prop ->
-                boolean export = storedValues.find { it.key == prop.key }.export
-                if(export) {
-                    sysProps.set(prop.key, prop.value) //FIXME: I guess it won't work for Map and List
+        List<String> buffer = ["# suppress inspection \"UnusedProperty\" for whole file"]
+        // Group all fields by class
+        String currentClass = null
+        storedValues.sort { it.parent.simpleName + "_" + it.key }.each {
+            Storage storage ->
+                if(currentClass != storage.parent.simpleName) {
+                    currentClass = storage.parent.simpleName
+                    Annotation classAnnotation = storage.parent.getAnnotation(AutoConfig) as AutoConfig
+                    String desc = classAnnotation?.description() ?: ""
+                    boolean hasExport = storedValues.find { it.parent == storage.parent && it.export }
+                    if(hasExport) {
+                        buffer << "##############################################################################"
+                        buffer << wordWrap("# [${getBaseKey(storage.field)}] ${desc} (${currentClass})".toString())
+                        buffer << "##############################################################################"
+                    }
+                }
+                if(storage.export) {
+                    ConfigProps configProps = new ConfigProps()
+                    configProps.setObj("initial", storage.initial)
+                    configProps.setObj("current", storage.current)
+
+                    buffer << wordWrap("# (${storage.field.type.simpleName}) ${storage.description}".toString())
+                    if(! storage.sameAsDefault) {
+                        buffer << "#${storage.key}=${configProps.get("initial")}".toString()
+                        buffer << "${storage.key}=${configProps.get("current")}".toString()
+                    } else {
+                        buffer << "#${storage.key}=${configProps.get("current")}".toString()
+                    }
+                    buffer << ""
+                    configProps.clear()
                 }
         }
-        check()
-        // Sort it: (as Config.set by nature will not keep order)
-        cfgFile.text = cfgFile.readLines().sort().join("\n")
-        Log.i("Configuration exported to: %s", cfgFile.absolutePath)
+        propertiesFile.text = buffer.join(SysInfo.newLine)
+        Log.v("Settings file updated: %s", propertiesFile.absolutePath)
+        return propertiesFile.exists()
+    }
+    /**
+     * Split string based on width
+     * @param input
+     * @return
+     */
+    static String wordWrap(String input) {
+        LinkedList<String> words = input.tokenize(" ")
+                .collect { it.trim() }
+                .findAll {it } as LinkedList
+        List<String> lines = []
+        while(! words.empty) {
+            List<String> buffer = []
+            while (! words.empty && buffer.join(" ").length() < columnDocWrap) {
+                buffer << words.poll()
+            }
+            if(! words.empty && words.join(" ").length() < 10) {
+                buffer.addAll(words)
+                words.clear()
+            }
+            lines << buffer.join(" ")
+        }
+        return lines.join(SysInfo.newLine + "# ")
+    }
+    /**
+     * Return changed values in configuration
+     * 'changed' means values which differ from default
+     * @return
+     */
+    Map<String, String> getChanged(boolean exportOnly = false) {
+        return storedValues.findAll {
+            return exportOnly ? it.export &&! it.sameAsDefault : it.changed
+        }.collectEntries {
+            Storage storage ->
+                return [(storage.key) : storage.current.toString() ]
+        }
+    }
+    /**
+     * Drop storage
+     */
+    void clear() {
+        props.clear()
+    }
+    /**
+     * Call closing interface
+     */
+    void close() {
+        if(onClose) {
+            onClose.call()
+        }
     }
 }

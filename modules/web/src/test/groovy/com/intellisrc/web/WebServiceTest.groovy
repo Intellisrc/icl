@@ -2,6 +2,7 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import com.intellisrc.web.samples.ChatClient
 import com.intellisrc.web.samples.ChatService
 import com.intellisrc.web.samples.EmailService
@@ -17,7 +18,7 @@ import spock.util.concurrent.AsyncConditions
  * @since 17/04/19.
  */
 class WebServiceTest extends Specification {
-    def publicDir = System.getProperty("user.dir") + "/res/public/"
+    File publicDir = SysInfo.getFile(SysInfo.userDir, "res", "public")
 
     def "General Test"() {
         setup:
@@ -25,12 +26,11 @@ class WebServiceTest extends Specification {
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                 port : port,
-              //resources : 'public'    <--- this is the recommended way to specify resources
+                resources: publicDir,
                 cacheTime: 60
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
-            println "Running in port: $port with resources at: $publicDir"
-            web.setResources(publicDir)
+            Log.i("Running in port: %d with resources at: %s", port, publicDir)
             web.addService(new IDService())
         when:
             web.start(true)
@@ -101,7 +101,7 @@ class WebServiceTest extends Specification {
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                     port : port,
-                    resources : 'res/public/',
+                    resources: publicDir,
                     cacheTime: 60,
                     allowOrigin: "*"
             ).add(new EmailService()).start(true, {
@@ -129,43 +129,54 @@ class WebServiceTest extends Specification {
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                     port : port,
-                    //resources : 'public'    <--- this is the recommended way to specify resources
-                    cacheTime: 60
+                    resources: publicDir
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
-            println "RES DIR: $publicDir"
-            web.setResources(publicDir)
-            web.addService(new UploadService())
+            Log.i("Public directory is: %s", publicDir.absolutePath)
+            File uploadDir = new File(publicDir, "upload")
+            Log.i("Upload directory is: %s", uploadDir.absolutePath)
+            if(!uploadDir.exists()) {
+                uploadDir.mkdirs()
+            }
+            web.addService(new UploadService(uploadDir))
         when:
             web.start(true)
         then:
             assert web.isRunning()
         when:
-            def emptyGif = publicDir + "empty.gif"
-            def field = UploadService.fieldName
+            URL chkUrl = "http://localhost:$port/check".toURL()
         then:
-            Cmd.exec("curl",["-s", "-F", "$field=@$emptyGif", "http://localhost:$port/upload"], {
+            assert chkUrl.text == "ok" : "Web Server failed to respond"
+            Log.i("Web server responded 'ok'")
+        when:
+            File emptyGif = new File(publicDir, "empty.gif")
+        then:
+            URL url = "http://localhost:$port/upload".toURL()
+            Log.i("Uploading file to: %s", url.toExternalForm())
+            Cmd.exec("curl",["-s", "-F", "image_name=@${emptyGif.absolutePath}", url.toExternalForm()], {
                 String out ->
                     assert out.startsWith("GIF89a")
+                    assert new File(uploadDir, "empty.gif").exists()
+                    Log.i("File uploaded successfully")
             })
         when:
             web.stop()
         then:
             assert !web.isRunning()
-
+        cleanup:
+            uploadDir.eachFile { it.delete() }
     }
 
-    @Ignore("Broken")
+    @Ignore("Broken") // Requires a valid certificate
     def "HTTPS"() {
         setup:
             def port = NetworkInterface.getFreePort()
             def web = new WebService(
                     port : port,
-                    //resources : 'public'    <--- this is the recommended way to specify resources
+                    resources: publicDir,
                     cacheTime: 60
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
-            web.setResources(System.getProperty("user.dir") + "/res/public")
             web.addService(new SSLService())
             web.start(true)
         expect:
