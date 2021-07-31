@@ -86,30 +86,30 @@ class Log {
         if(initialized) { return }
         initialized = true
         isSnapShot = Version.get().contains("SNAPSHOT")
-        if(Config.hasKey("log.level")) {
+        if(Config.exists("log.level")) {
             level = Config.get("log.level").toUpperCase() as Level
         } else if(isSnapShot) {
             level = Config.get("log.level.snapshot", "verbose").toUpperCase() as Level
         }
 
-        if(Config.hasKey("log.file")) {
+        if(Config.exists("log.file")) {
             logFileName = Config.get("log.file")
         }
-        if(Config.hasKey("log.days")) {
+        if(Config.exists("log.days")) {
             logDays = Config.getInt("log.days")
         }
-        if(Config.hasKey("log.disable")) {
+        if(Config.exists("log.disable")) {
             enabled = !Config.getBool("log.disable")
         }
-        if(Config.hasKey("log.print")) {
+        if(Config.exists("log.print")) {
             printAlways = Config.getBool("log.print")
         }
-        if(Config.hasKey("log.print.level")) {
+        if(Config.exists("log.print.level")) {
             printLevel = Config.get("log.print.level").toUpperCase() as Level
         } else if(!printLevel) {
             printLevel = level
         }
-        if(Config.hasKey("log.file.level")) {
+        if(Config.exists("log.file.level")) {
             fileLevel = Config.get("log.file.level").toUpperCase() as Level
         } else if(!fileLevel) {
             fileLevel = level
@@ -119,10 +119,10 @@ class Log {
             level = [printLevel, fileLevel].min()
         }
 
-        if (Config.hasKey("log.dir")) {
-            directory = Config.getFile("log.dir")
-        } else if (Config.hasKey("log.path")) { //Support for old config
-            directory = Config.getFile("log.path")
+        if (Config.exists("log.dir")) {
+            directory = Config.getFile("log.dir").get()
+        } else if (Config.exists("log.path")) { //Support for old config
+            directory = Config.getFile("log.path").get()
         }
         if(directory) {
             if(!directory.exists()) {
@@ -140,19 +140,19 @@ class Log {
             printAlways = true
         }
 
-        if (Config.hasKey("log.domain")) {
+        if (Config.exists("log.domain")) {
             domains << Config.get("log.domain")
         }
-        if (Config.hasKey("log.domains")) {
+        if (Config.exists("log.domains")) {
             domains = Config.getList("log.domains")
         }
-        if (Config.hasKey("log.color")) {
+        if (Config.exists("log.color")) {
             color = Config.getBool("log.color")
             if(color) {
                 colorAlways = true //We set it true if we have explicitly in the configuration
             }
         }
-        if (Config.hasKey("log.color.invert")) {
+        if (Config.exists("log.color.invert")) {
             colorInvert = Config.getBool("log.color.invert")
         }
 

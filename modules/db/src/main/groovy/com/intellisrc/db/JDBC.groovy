@@ -10,9 +10,17 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class JDBC implements DB.Starter {
-    String connectionString
+    protected String connStr
     JDBC(String connectionString = "") {
-        this.connectionString = connectionString
+        connStr = connectionString
+    }
+    /**
+     * Override this method for custom classes
+     * @return
+     */
+    @Override
+    String getConnectionString() {
+        return connStr
     }
     @Override
     String getName() {

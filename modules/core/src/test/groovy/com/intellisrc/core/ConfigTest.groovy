@@ -22,8 +22,11 @@ class ConfigTest extends Specification {
             assert !testCfg.text.empty
             assert cfg.get("text") == "something"
             assert cfg.getInt("number") == 10
+            assert cfg.get("number", 99) == 10
             assert cfg.getDbl("double") == 1.1d
+            assert cfg.get("double", 2d) == 1.1d
             assert cfg.getBool("istrue")
+            assert cfg.get("istrue", false)
             assert !cfg.getBool("isfalse")
         cleanup:
             testCfg.delete()

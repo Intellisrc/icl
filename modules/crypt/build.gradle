@@ -1,11 +1,8 @@
 dependencies {
     api project(':etc')
-    def bouncyVersion = "1.62"
+    def bouncyVersion = '1.69'
 
-    // As we don't expose any type in BouncyCastle, we use "implementation"
-    [
-        "org.bouncycastle:bcprov-jdk15on:${bouncyVersion}",
-        "org.bouncycastle:bcpg-jdk15on:${bouncyVersion}",
-        "org.bouncycastle:bcprov-ext-jdk15on:${bouncyVersion}"
-    ].each { implementation it }
+    api "org.bouncycastle:bcprov-jdk15on:${bouncyVersion}"
+    api "org.bouncycastle:bcpg-jdk15on:${bouncyVersion}"
+    api "org.bouncycastle:bcprov-ext-jdk15on:${bouncyVersion}"
 }

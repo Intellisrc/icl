@@ -26,8 +26,11 @@ import java.lang.annotation.Target
 ])
 @Retention(RetentionPolicy.RUNTIME)
 @interface AutoConfig {
-    String root() default "config" // This serves as a filter so only those marked with the same root will processed together
+    // 'Prefix' serves as a filter so only those marked with the same prefix will processed together.
+    // It should match the prefix used in ConfigAuto
+    String prefix() default "config"
     String key() default ""
+    String description() default ""
     boolean export() default true // If a key should be exported into the configuration file or not (false = internal use only)
     boolean userFriendly() default false // Specify which of the fields can be modified by the end user (false = developer only)
 }

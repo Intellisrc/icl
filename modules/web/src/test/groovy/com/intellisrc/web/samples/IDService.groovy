@@ -7,7 +7,6 @@ import com.intellisrc.core.SysClock
 import spark.Request
 import spark.Response
 
-
 /**
  * @since 17/04/19.
  */
@@ -37,7 +36,7 @@ class IDService implements ServiciableSingle {
                     i : id,
                     t : SysClock.dateTime.toLocalTime().HHmmss
                 ]
-            } as Service.Action
+            }
         )
     }
 }
