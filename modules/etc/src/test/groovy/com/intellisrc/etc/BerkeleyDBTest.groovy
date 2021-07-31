@@ -1,6 +1,5 @@
-package com.intellisrc.db
+package com.intellisrc.etc
 
-import com.intellisrc.etc.BerkeleyDB
 import spock.lang.Specification
 
 import java.security.SecureRandom
