@@ -35,9 +35,10 @@ import java.time.LocalTime
 @CompileStatic
 class ConfigAuto {
     static int columnDocWrap = Config.get("config.auto.width", 75)
+    boolean importOnStart = Config.get("config.auto.import", true)
     // If `exportOnSave` is true, each time a value is updated in the db, it will also update
     // the config file (by default will save on exit)
-    boolean exportOnSave = Config.getBool("config.auto.export")
+    boolean exportOnSave = Config.get("config.auto.export", false)
     // If true, it will remove missing keys
     static boolean removeMissing = Config.get("config.auto.remove", true)
     static List<String> removeIgnore = Config.getList("config.auto.ignore")
@@ -185,6 +186,10 @@ class ConfigAuto {
             updateStoredValues()
             // Verify current config:
             cleanseStoredValues()
+            // Import on Start
+            if(importOnStart) {
+                importValues()
+            }
         } catch (Exception e) {
             Log.e("Unable to start AutoConfig", e)
         }
@@ -501,15 +506,19 @@ class ConfigAuto {
      * Import from properties file
      */
     void importValues(File propertiesFile = cfgFile) {
-        Log.i("Importing config from %s ...", propertiesFile.name)
-        Config.Props appProps = new Config.Props(propertiesFile)
+        if(propertiesFile.exists()) {
+            Log.i("Importing config from %s ...", propertiesFile.name)
+            Config.Props appProps = new Config.Props(propertiesFile)
 
-        // Keys not present in configuration, will be set to default
-        storedValues.each {
-            Storage storage ->
-                if(appProps.exists(storage.key) && storage.export) {
-                    storage.updateFieldValueAndSave(appProps)
-                }
+            // Keys not present in configuration, will be set to default
+            storedValues.each {
+                Storage storage ->
+                    if (appProps.exists(storage.key) && storage.export) {
+                        storage.updateFieldValueAndSave(appProps)
+                    }
+            }
+        } else {
+            Log.w("Properties file doesn't exists: %s", propertiesFile.absolutePath)
         }
     }
     /**
