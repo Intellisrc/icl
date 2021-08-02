@@ -5,7 +5,7 @@ dependencies {
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
-    implementation 'mysql:mysql-connector-java:8.0.25'
-    implementation 'org.postgresql:postgresql:42.2.23.jre7'
-    implementation 'org.xerial:sqlite-jdbc:3.36.0.1'
+    compileOnly 'mysql:mysql-connector-java:8.0.25'
+    compileOnly 'org.postgresql:postgresql:42.2.23.jre7'
+    compileOnly 'org.xerial:sqlite-jdbc:3.36.0.1'
 }

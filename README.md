@@ -258,18 +258,16 @@ Includes : core, img
 
 # Notes about upgrading to 2.8.x from 2.7.x
 
-Starting from 2.8, this library no longer includes many dependencies, so you need to 
+Starting from 2.8, this library no longer includes some dependencies, so you need to 
 add them separately as you need. This was done to make this library more flexible by allowing
 you to choose your desired versions, reduce the compilation time and the jar size. 
-Below each module I'm including the recommended version (the one used during compilation).
+Below each module, I'm including the recommended version (the one used during compilation).
 
 * `core` : Groovy version is now up to you (required by any module). 
     * `org.codehaus.groovy:groovy-all:3.0.7`
 * `etc`  : if you use `@AutoConfig`, Redis or Berkeley, you will need to add one of these:
     * `redis.clients:jedis:3.6.3`
     * `com.sleepycat:je:18.3.12` (BarkeleyDB)
-* `cv`   : JavaCV needs to be included.
-    * `org.bytedeco:javacv-platform:1.5`
 * `db`   : Database drivers need to be included:
     * `mysql:mysql-connector-java:8.0.25`
     * `org.postgresql:postgresql:42.2.23.jre7`
@@ -277,7 +275,9 @@ Below each module I'm including the recommended version (the one used during com
   
 The following modules already include the needed libraries (no need to add them):
 
+* `cv`     : JavaCV (`org.bytedeco:javacv-platform:1.5`)
 * `crypt`  : Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.69`, `org.bouncycastle:bcpg-jdk15on:1.69`, `org.bouncycastle:bcprov-ext-jdk15on:1.69`)
+* `net`    : Apache Common Net (`commons-net:commons-net:3.8.0`) && JavaX Mail(`com.sun.mail:javax.mail:1.6.2`)
 * `serial` : JSSC library (`org.scream3r:jssc:2.8.0`) 
 * `term`   : JLine library (`org.jline:jline:3.20.0`)
 * `web`    : Spark Framework (`com.sparkjava:spark-core:2.9.3`)

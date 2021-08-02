@@ -3,6 +3,6 @@ dependencies {
     implementation "org.reflections:reflections:0.9.12" //Same as in DB
 
     // We set Jedis to be optional so it is not always required, only when AutoConfig is being used.
-    implementation "com.sleepycat:je:18.3.12"
-    implementation 'redis.clients:jedis:3.6.3'
+    compileOnly "com.sleepycat:je:18.3.12"
+    compileOnly 'redis.clients:jedis:3.6.3'
 }
