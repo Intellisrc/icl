@@ -46,6 +46,7 @@ class PrintLogger extends BaseLogger implements LoggableOutputLevels {
             dateFormatter     = Config.get("log.print.show.time.format", baseLogger.dateFormatter)
             showThreadHead    = Config.get("log.print.show.thread.head", baseLogger.showThreadHead)
             showThreadTail    = Config.get("log.print.show.thread.tail", baseLogger.showThreadTail)
+            showStackTrace    = Config.get("log.print.show.stack", baseLogger.showStackTrace)
             ignoreList        = Config.get("log.print.ignore", baseLogger.ignoreList)
             ignoreLevel       = Config.get("log.print.ignore.level", baseLogger.ignoreLevel) as Level
 

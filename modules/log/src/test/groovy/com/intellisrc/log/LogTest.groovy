@@ -10,6 +10,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
 /**
@@ -77,16 +78,43 @@ class LogTest extends Specification {
     def "Test parameters"() {
         setup:
             fileLogger.colorInvert = true
+            printLogger.showStackTrace = false
+            StringLogger stringLogger = new StringLogger()
+            stringLogger.level = Level.TRACE
+            logger.addPrinter(stringLogger)
             logger.domains << this.class.canonicalName.tokenize('.').subList(0, 2).join('.')
+            SysClock.setClockAt("2021-08-11 14:44:32".toDateTime())
         when:
+            Log.i("[%d] This message (%s) has many %.2f parameters: {}", 1, SysClock.now, 10/3d, new File("/tmp/test.txt"))
+            assert stringLogger.content.contains("[1] This message (2021-08-11 14:44:32) has many 3.33 parameters") && stringLogger.clear()
+            Log.i("Mixing %d arg with {} arg", 1, 2)
+            assert stringLogger.content.contains("Mixing 1 arg with 2 arg") && stringLogger.clear()
+            Log.w("Other way could be: {}%", 100)
+            assert stringLogger.content.contains("Other way could be: 100%") && stringLogger.clear()
+            Log.w("What does SLF4J does here? {}", 10/3d)
+            assert stringLogger.content.contains("What does SLF4J does here? 3.3333") && stringLogger.clear()
             Log.v("This is more than you need to know... %s", "SECRET")
+            assert stringLogger.content.contains("This is more than you need to know... SECRET") && stringLogger.clear()
             Log.t("This is the {}% same as verbose", 100)
+            assert stringLogger.content.contains("This is the 100% same as verbose") && stringLogger.clear()
             Log.d("I'm %d%% that this is correct.", 80)
+            assert stringLogger.content.contains("I'm 80% that this is correct.") && stringLogger.clear()
             Log.i("Somewhere between {}% and {}%", 100, 200)
+            assert stringLogger.content.contains("Somewhere between 100% and 200%") && stringLogger.clear()
             Log.w("This is a %s", "warning")
+            assert stringLogger.content.contains("This is a warning") && stringLogger.clear()
             Log.e("This failed 100%")
+            assert stringLogger.content.contains("This failed 100%") && stringLogger.clear()
+            Log.i("The percentage is 100%, but it could be: %d%%", 99)
+            assert stringLogger.content.contains("The percentage is 100%, but it could be: 99%") && stringLogger.clear()
+            Log.w("What %s... nooo wait!!!", "???")
+            assert stringLogger.content.contains("What ???... nooo wait!!!") && stringLogger.clear()
+            Log.e("Upps! too late! its now: %s", SysClock.now)
+            assert stringLogger.content.contains("Upps! too late! its now: 2021-08-11 14:44:32") && stringLogger.clear()
         then:
             notThrown Exception
+        cleanup:
+            stringLogger.close()
     }
 
     static class DummyTestException extends Exception {

@@ -38,6 +38,7 @@ class PrintStdErrLogger extends PrintLogger {
             dateFormatter     = Config.get("log.print.stderr.show.time.format", baseLogger.dateFormatter)
             showThreadHead    = Config.get("log.print.stderr.show.thread.head", baseLogger.showThreadHead)
             showThreadTail    = Config.get("log.print.stderr.show.thread.tail", baseLogger.showThreadTail)
+            showStackTrace    = Config.get("log.print.stderr.show.stack", baseLogger.showStackTrace)
             ignoreList        = Config.get("log.print.stderr.ignore", baseLogger.ignoreList)
             ignoreLevel       = Config.get("log.print.stderr.ignore.level", baseLogger.ignoreLevel) as Level
             output = new Output(cache ? CACHED_SYS_ERR : SYS_ERR)

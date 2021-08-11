@@ -25,6 +25,7 @@ class BaseLogger implements Loggable {
     boolean showClassName     = Config.get("log.show.class", true)
     boolean showMethod        = Config.get("log.show.method", true)
     boolean showLineNumber    = Config.get("log.show.line.number", true)
+    boolean showStackTrace    = Config.get("log.show.stack", true)
     String dateFormatter      = Config.get("log.show.time.format","yyyy-MM-dd HH:mm:ss.SSS")
     int showThreadHead        = Config.get("log.show.thread.head", 2)
     int showThreadTail        = Config.get("log.show.thread.tail", 2)

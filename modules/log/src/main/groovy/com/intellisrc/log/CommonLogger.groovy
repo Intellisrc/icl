@@ -304,9 +304,16 @@ class CommonLogger extends MarkerIgnoringBase {
      *            a list of 3 ore more arguments
      */
     protected void formatAndLog(Level level, String format, Object... arguments) {
-        format = Log.formatString(format, arguments)
-        FormattingTuple tp = MessageFormatter.arrayFormat(format, arguments)
-        log(level, tp.getMessage(), tp.getThrowable())
+        LinkedList args = List.of(arguments) as LinkedList
+        if(args.first instanceof Object[]) {
+            args = args.first as LinkedList
+        }
+        Throwable t = null
+        if(args.last instanceof Throwable) {
+            t = args.pollLast() as Throwable
+        }
+        String formatted = Log.formatString(format, args)
+        log(level, formatted, t)
     }
 
     /**
@@ -443,8 +450,14 @@ class CommonLogger extends MarkerIgnoringBase {
                         }
 
                         PrintStream targetStream = printer.output.targetPrintStream
-                        targetStream.println(buf.toString())
-                        writeThrowable(printer, t, targetStream)
+                        String output = buf.toString()
+                        targetStream.println(output)
+                        if(printer.output.onPrint) {
+                            printer.output.onPrint.call(output)
+                        }
+                        if(printer.showStackTrace) {
+                            writeThrowable(printer, t, targetStream)
+                        }
                         targetStream.flush()
                     }
                 }

@@ -11,6 +11,9 @@ import static com.intellisrc.log.Output.OutputType.*
  */
 @CompileStatic
 class Output {
+    interface OnPrint {
+        void call(String msg)
+    }
     enum OutputType {
         SYS_OUT, CACHED_SYS_OUT, SYS_ERR, CACHED_SYS_ERR, FILE
         PrintStream getPrintStream() {
@@ -28,22 +31,25 @@ class Output {
     }
     protected OutputType outputChoiceTypeValue = null
     protected PrintStream targetPrintStreamValue = null
+    protected OnPrint onPrint = null
 
-    Output(OutputType outputChoiceType) {
+    Output(OutputType outputChoiceType, OnPrint onPrint = null) {
         outputChoiceTypeValue = outputChoiceType
         targetPrintStreamValue = outputChoiceType.printStream
+        this.onPrint = onPrint
         if (outputChoiceType == FILE) {
             throw new IllegalArgumentException()
         }
     }
 
-    Output(PrintStream printStream) {
+    Output(PrintStream printStream, OnPrint onPrint = null) {
         outputChoiceTypeValue = FILE
         targetPrintStreamValue = printStream
+        this.onPrint = onPrint
     }
 
-    Output(File file) {
-        this(new PrintStream(file.absolutePath))
+    Output(File file, OnPrint onPrint = null) {
+        this(new PrintStream(file.absolutePath), onPrint)
     }
 
     PrintStream getTargetPrintStream() {

@@ -22,6 +22,7 @@ trait Loggable {
     abstract boolean getShowClassName()
     abstract boolean getShowMethod()
     abstract boolean getShowLineNumber()
+    abstract boolean getShowStackTrace()
     abstract String getDateFormatter()
     abstract int getShowThreadHead()
     abstract int getShowThreadTail()

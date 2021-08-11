@@ -67,6 +67,7 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
             dateFormatter     = Config.get("log.file.show.time.format", baseLogger.dateFormatter)
             showThreadHead    = Config.get("log.file.show.thread.head", baseLogger.showThreadHead)
             showThreadTail    = Config.get("log.file.show.thread.tail", baseLogger.showThreadTail)
+            showStackTrace    = Config.get("log.file.show.stack", baseLogger.showStackTrace)
             ignoreList        = Config.get("log.file.ignore", baseLogger.ignoreList)
             ignoreLevel       = Config.get("log.file.ignore.level", baseLogger.ignoreLevel) as Level
 

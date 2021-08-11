@@ -7,6 +7,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.util.regex.Matcher
+
 import static com.intellisrc.core.AnsiColor.*
 
 @CompileStatic
@@ -37,7 +42,7 @@ class Log {
      * Main interface to use to send log messages to
      */
     static interface Printer {
-        void print(Level level, Info stack, String msg, Throwable throwable, Object[] args)
+        void print(Level level, Info stack, String msg, List<Object> args, Throwable throwable)
     }
     /**
      * Default printer: SLF4J
@@ -61,22 +66,58 @@ class Log {
             logger = LoggerFactory.getLogger(Config.get("log.name", "app"))
             if (logger?.name && logger.name != "NOP") {
                 printers << (Printer) {
-                    Level level, Info stack, String msg, Throwable throwable, Object[] args ->
+                    Level level, Info stack, String msg, List<Object> args, Throwable throwable ->
                         switch (level) {
                             case Level.TRACE:
-                                logger.trace(msg, args)
+                                if(args.size()) {
+                                    logger.trace(msg, args.size() == 1 ? args.first() : args.toArray())
+                                } else {
+                                    logger.trace(msg)
+                                }
                                 break
                             case Level.DEBUG:
-                                logger.debug(msg, args)
+                                if(args.size()) {
+                                    logger.debug(msg, args.size() == 1 ? args.first() : args.toArray())
+                                } else {
+                                    logger.debug(msg)
+                                }
                                 break
                             case Level.INFO:
-                                logger.info(msg, args)
+                                if(args.size()) {
+                                    logger.info(msg, args.size() == 1 ? args.first() : args.toArray(Object.class))
+                                } else {
+                                    logger.info(msg)
+                                }
                                 break
                             case Level.WARN:
-                                logger.warn(formatString(msg, args), throwable)
+                                if(throwable) {
+                                    if(args.size()) {
+                                        logger.warn(msg, args.size() == 1 ? args.first() : args.toArray(), throwable)
+                                    } else {
+                                        logger.warn(msg, throwable)
+                                    }
+                                } else {
+                                    if(args.size()) {
+                                        logger.warn(msg, args.size() == 1 ? args.first() : args.toArray())
+                                    } else {
+                                        logger.warn(msg)
+                                    }
+                                }
                                 break
                             case Level.ERROR:
-                                logger.error(formatString(msg, args), throwable)
+                                if(throwable) {
+                                    if(args.size()) {
+                                        logger.error(msg, args.size() == 1 ? args.first() : args.toArray(), throwable)
+                                    } else {
+                                        logger.error(msg, throwable)
+                                    }
+                                } else {
+                                    if (args.size()) {
+                                        logger.error(msg, args.size() == 1 ? args.first() : args.toArray())
+                                    } else {
+                                        logger.error(msg)
+                                    }
+                                }
                                 break
                         }
                 }
@@ -91,7 +132,7 @@ class Log {
                 println YELLOW + "  * LogBack                   : " + CYAN + "ch.qos.logback:logback-classic" + RESET
                 println "---------------------------------------------------------------------------------------------"
                 printers << (Printer) {
-                    Level level, Info stack, String msg, Throwable throwable, Object[] args ->
+                    Level level, Info stack, String msg, List<Object> args, Throwable throwable ->
                         println getLogLine(level, stack, formatString(msg, args))
                         if (level == Level.ERROR) {
                             if (throwable) {
@@ -171,7 +212,7 @@ class Log {
      */
     protected static void log(Level lvl, String msg, Object... args) {
         Info stack = stack()
-        LinkedList listArgs = args.toList() as LinkedList
+        LinkedList listArgs = List.of(args) as LinkedList
         Throwable throwable = null
         if(!listArgs.isEmpty() && listArgs.last() instanceof Throwable) {
             throwable = (Throwable) listArgs.pollLast()
@@ -180,14 +221,14 @@ class Log {
         }
         printers.each {
             Printer printer ->
-                printWrap(printer, lvl, stack, msg, throwable, listArgs.toArray())
+                printWrap(printer, lvl, stack, msg, throwable, listArgs)
         }
     }
 
     /**
      * This method will try to wrap messages in multiple lines when they are too long
      */
-    protected static void printWrap(Printer printer, Level level, Info stack, String msg, Throwable throwable, Object... args) {
+    protected static void printWrap(Printer printer, Level level, Info stack, String msg, Throwable throwable, List<Object> args) {
         msg.eachLine {
             String line ->
                 while( line.length() > 0) {
@@ -201,7 +242,7 @@ class Log {
                     splitPos = Math.min(splitPos + 1, line.length())
                     msg = line.substring(0, splitPos)
                     line = line.substring(splitPos)
-                    printer.print(level, stack, msg, throwable, args)
+                    printer.print(level, stack, msg, args, throwable)
                 }
         }
     }
@@ -263,16 +304,67 @@ class Log {
      * @param args
      * @return
      */
-    static String formatString(String msg, Object[] args) {
-        String formatted = msg
-        if (msg =~ /%[$0-9.,a-zA-Z()+-]+/ && args.size()) {
+    static String formatString(String msg, List<Object> args) {
+        if(!args.empty) {
+            LinkedList params = args as LinkedList
+            List convParams = []
+            String newMsg = msg
+            msg.findAll(/(\{}|%[$0-9.(a-zA-Z+-])/).each {
+                String found ->
+                    if (found == "{}" || found == "%s") {
+                        newMsg = newMsg.replaceFirst(/\{}/, "%s")
+                        Object val = params.empty ? "" : params.pollFirst()
+                        String converted
+                        switch (val) {
+                            case float: case Float: case double: case Double: case BigDecimal:
+                                converted = String.format("%.4f", val)
+                                break
+                            case LocalTime:
+                                converted = (val as LocalTime).HHmmss
+                                break
+                            case LocalDate:
+                                converted = (val as LocalDate).YMD
+                                break
+                            case LocalDateTime:
+                                converted = (val as LocalDateTime).YMDHms
+                                break
+                            case InetAddress:
+                                converted = (val as InetAddress).hostAddress
+                                break
+                            case File:
+                                converted = (val as File).absolutePath
+                                break
+                            case byte[]:
+                                converted = (val as byte[]).encodeHex()
+                                break
+                            default:
+                                converted = val.toString()
+                        }
+                        convParams << converted
+                    } else {
+                        convParams << params.pollFirst()
+                    }
+            }
             try {
-                formatted = String.format(formatted, args)
-            } catch(Exception e) {
-                Log.e("Invalid format in message: [$msg]", e) //Set inline to prevent stack overflow
+                [   // Support for single '%' in messages, like: ("This is %d% supported", 100)
+                    /%%/ : '%',
+                    /%$/ : '%%',
+                    /%([^0-9.a-zA-Z(%+-])/ : '%%$1'
+                ].each {
+                    newMsg = newMsg.replaceAll(it.key, it.value)
+                }
+                newMsg = String.format(newMsg, convParams.toArray())
+                msg = newMsg
+            } catch (Exception ignore) { // If something fails, try to execute it just like that:
+                try {
+                    newMsg = String.format(msg, args)
+                    msg = newMsg
+                } catch(Exception e) {
+                    Log.e("Invalid format in message: [$msg]", e) //Set inline to prevent stack overflow
+                }
             }
         }
-        return formatted
+        return msg
     }
 }
 
