@@ -306,7 +306,7 @@ class WebService {
      * @param res (response from Service.Action)
      * @param contentType
      */
-    protected static Output handleContentType(Object res, String contentType) {
+    protected static Output handleContentType(Object res, String contentType, boolean forceBinary = false) {
         Output output = new Output(contentType: contentType.toLowerCase(), content: res)
         // All Collection objects convert them to List so they are cleanly converted
         if(res instanceof Collection) {
@@ -346,7 +346,7 @@ class WebService {
                     }
                     break
                 case File:
-                    File file = output.type as File
+                    File file = output.content as File
                     output.contentType = Mime.getType(file)
                     output.type = getTypeFromContentTypeString(output.contentType)
                     output.fileName = file.name
@@ -366,23 +366,25 @@ class WebService {
                     output.fileName = "download.json"
                     break
                 case URL:
-                    URL url = output.type as URL
+                    URL url = output.content as URL
                     HttpURLConnection conn = url.openConnection() as HttpURLConnection
                     conn.setRequestMethod("GET")
                     conn.connect()
-                    output.contentType = conn.contentType
+                    output.contentType = conn.contentType ?: Mime.getType(url)
                     output.content = conn.content
                     output.responseCode = conn.responseCode
                     output.type = getTypeFromContentTypeString(output.contentType)
                     output.fileName = url.file
                     return output // Do not proceed to prevent changing content
-
                     break
                 default:
                     output.type = OutputType.BINARY
                     output.contentType = "" //Unknown type
                     output.fileName = "download.bin"
             }
+        }
+        if(forceBinary) {
+            output.type = OutputType.BINARY
         }
         // Set content
         switch (output.type) {
@@ -536,7 +538,8 @@ class WebService {
                                     }
                                     try {
                                         Object res = callAction(sp.action, request, response, uploadFiles)
-                                        output = handleContentType(res, sp.contentType)
+                                        output = handleContentType(res, response.type() ?: sp.contentType,
+                                                response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                     } catch (Exception e) {
                                         response.status(500)
                                         Log.e("Service.upload closure failed", e)
@@ -559,7 +562,8 @@ class WebService {
                                 Output toSave = null
                                 try {
                                     Object res = callAction(sp.action, request, response)
-                                    toSave = handleContentType(res, sp.contentType)
+                                    toSave = handleContentType(res,  response.type() ?: sp.contentType,
+                                            response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } catch (Exception e) {
                                     response.status(500)
                                     Log.e("Service.action CACHE closure failed", e)
@@ -569,7 +573,8 @@ class WebService {
                         } else { // Normal requests: (no cache, no file upload)
                             try {
                                 Object res = callAction(sp.action, request, response)
-                                output = handleContentType(res, sp.contentType)
+                                output = handleContentType(res,  response.type() ?: sp.contentType,
+                                        response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                             } catch (Exception e) {
                                 response.status(500)
                                 Log.e("Service.action closure failed", e)
@@ -587,7 +592,7 @@ class WebService {
                                 response.status(output.responseCode)
                             }
 
-                            // Set download
+                            // Set download : if "Content-Disposition" is set on headers this is not required:
                             if (sp.download || output.contentType == "application/octet-stream") {
                                 String fileName = sp.downloadFileName ?: output.fileName
                                 response.header("Content-Disposition", "attachment; filename=" + fileName)

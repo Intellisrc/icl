@@ -3,8 +3,7 @@ package com.intellisrc.etc
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
-
-import java.nio.file.Files
+import org.apache.tika.Tika
 
 /**
  * @since 2021/07/14.
@@ -92,7 +91,7 @@ class Mime {
      * @return
      */
     static String getType(final File file) {
-        String type = (file.exists() ? Files.probeContentType(file.toPath()) : "")
+        String type = (file.exists() ? new Tika().detect(file) : "")
         if(!type) {
             type = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
         }
@@ -103,6 +102,14 @@ class Mime {
             Log.w("Unknown mime type for file: %s", file.name)
         }
         return type ?: "" //Prevent NULL value
+    }
+    /**
+     * Return
+     * @param url
+     * @return
+     */
+    static String getType(URL url) {
+        return new Tika().detect(url) ?: getType(new File(url.getFile()))
     }
     /**
      * Return the mime type of a file or extension type:
@@ -126,7 +133,7 @@ class Mime {
      * @return
      */
     static String getType(InputStream stream) {
-        return URLConnection.guessContentTypeFromStream(stream)
+        return new Tika().detect(stream) ?: URLConnection.guessContentTypeFromStream(stream)
     }
     /**
      * Look for mime type in config, for example:

@@ -289,6 +289,55 @@ File file2 = SysInfo.getFile("relative/file.txt")
 File file3 = SysInfo.getFile(SysInfo.tempDir, "dir1", "dir2", "file.txt")
 ```
 
+## SysMain and SysService
+
+A more elegant way to start your applications. It is an alternative to `public static void main(String[] args)`.
+
+### Example:
+
+```groovy
+class Main extends SysMain {
+    // The following line is required:
+    static { main = new Main() }
+
+    @Override
+    void onStart() {
+        // Your code goes here
+        String firstArg = args.first()
+        Log.i("The first argument was: %s", firstArg)
+    }
+}
+```
+```groovy
+class Main extends SysService {
+  // The following line is required:
+  static { service = new Main() }
+
+  @Override
+  void onStart() {
+    // Your code goes here
+    String firstArg = args.first()
+    Log.i("The first argument was: %s", firstArg)
+  }
+
+  @Override
+  void onSleep() {
+    Log.i("Service is running...")
+  }
+
+  @Override
+  void onStop() {
+    Log.i("The service has stopped.")
+  }
+}
+```
+
+
+The main difference between `SysMain` and `SysService` is that the later 
+will not exit after the last line of execution, it contains the method 
+`onSleep()` which is executed every second and it is ready to be used 
+as a service.
+
 ## Version
 
 This class is mainly used to try to find the package version in different sources:
