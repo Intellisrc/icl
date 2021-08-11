@@ -165,6 +165,18 @@ try {
 }
 ```
 
+Strings and SLF4J parameters do automatic conversion from some objects:
+
+**NOTE** : SLF4J parameters `{}` are the same as `%s`:
+```groovy
+Log.i("float, doubles, etc are displayed with 4 digits: %s", 100/3d) 
+Log.i("LocalTime, LocalDate and LocalDateTime are converted automatically: {}", SysClock.now)
+Log.i("IpAddress are printed correctly: %s", someInet4Address)
+Log.i("Files print absolute path: %s", new File("my.file"))
+Log.i("Byte arrays are printed as HEX string: {}", "hello".bytes)
+Log.i("Any other object is printed using 'toString()' method: %s", myObject)
+```
+
 ## AnsiColor
 
 Add colors to your terminal (Linux and Mac only). Used by `Log` class and `term` module.
