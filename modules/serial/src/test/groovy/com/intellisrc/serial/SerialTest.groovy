@@ -204,7 +204,7 @@ class SerialTest extends Specification {
         when:
             writeStrObj.call() >> strValue
             strOutput = writeStrObj.call()
-            serialObj.writeStr(writeStrObj)
+            serialObj.write(writeStrObj)
         then:
             assert strOutput: " value of string must not be empty or null"
         expect:
@@ -226,7 +226,7 @@ class SerialTest extends Specification {
         when:
             writerIntObj.call() >> intvalue
             number = writerIntObj.call()
-            serialObj.writeNum(writerIntObj)
+            serialObj.write(writerIntObj)
         then:
             assert number != 0: "must assign an integer value"
             assert number >= 0: "must be greater than zero and shouldn't assign any negative value"

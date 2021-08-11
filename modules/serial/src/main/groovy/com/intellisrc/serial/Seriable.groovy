@@ -7,6 +7,7 @@ import jssc.SerialPortEvent
 /**
  * @since 19/03/06.
  */
+@SuppressWarnings('SpellCheckingInspection')
 @CompileStatic
 abstract class Seriable {
     public boolean connected = false
@@ -40,7 +41,20 @@ abstract class Seriable {
     abstract void read(int byteCount, SerialReader onResponse)
     abstract void readLine(SerialReaderStr onResponse)
     abstract void readNum(SerialReaderInt onResponse)
-    abstract void write(SerialWriter writer)
-    abstract void writeStr(SerialWriterStr writer)
-    abstract void writeNum(SerialWriterInt writer)
+    abstract void write(byte[] bytes)
+    abstract void write(String str)
+    abstract void write(Integer num)
+
+    void write(SerialWriter writer) {
+        byte[] toSend = writer.call()
+        write(toSend)
+    }
+    void write(SerialWriterStr writer) {
+        String toSend = writer.call()
+        write(toSend)
+    }
+    void write(SerialWriterInt writer) {
+        Integer toSend = writer.call()
+        write(toSend)
+    }
 }

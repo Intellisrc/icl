@@ -91,6 +91,14 @@ class FtpClient {
         }
         return changed
     }
+
+    /**
+     * Go to parent directory
+     */
+    void cdToParent() {
+        client.changeToParentDirectory()
+    }
+
     /**
      * Get files at path
      * @param filePath
@@ -167,6 +175,32 @@ class FtpClient {
     }
 
     /**
+     * Upload a file
+     * @param file
+     * @return
+     */
+    boolean uploadFile(final File file) {
+        boolean uploaded = false
+        try {
+            InputStream input = new FileInputStream(file)
+            client.storeFile(file.name, input)
+            uploaded = true
+        } catch(Exception e) {
+            Log.w("Unable to upload file [%s] : %s", file.name, e.message)
+        }
+        return uploaded
+    }
+
+    /**
+     * Delete a file in remote server
+     * @param path
+     * @return
+     */
+    boolean delete(String path) {
+        return client.deleteFile(path)
+    }
+
+    /**
      * Noop
      */
     void noop() {
@@ -176,6 +210,15 @@ class FtpClient {
             }
         } catch(Exception ignore) {}
     }
+
+    /**
+     * Abort transfer
+     * @return
+     */
+    boolean abort() {
+        client.abort()
+    }
+
     /**
      * Disconnects
      */

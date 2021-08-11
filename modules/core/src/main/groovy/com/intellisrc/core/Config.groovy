@@ -53,9 +53,11 @@ class Config {
     static BigInteger get(String key, BigInteger defVal)        { global.get(key, defVal) }
     static BigDecimal getBigDec(String key)                     { global.getBigDec(key) }
     static BigDecimal get(String key, BigDecimal defVal)        { global.get(key, defVal) }
+    static Enum get(String key, Enum defVal)                    { global.get(key, defVal) }
 
     static File getFile(String key, String defVal)              { global.getFile(key, defVal) }
     static File getFile(String key, File defVal)                { global.getFile(key, defVal) }
+    static File get(String key, File defVal)                    { global.getFile(key, defVal) }
     static Optional<File> getFile(String key)                   { global.getFile(key) }
 
     static Optional<URI> getURI(String key)                     { global.getURI(key) }
@@ -66,6 +68,8 @@ class Config {
     static Optional<Inet4Address> getInet4(String key)          { global.getInet4(key) }
     static Optional<Inet6Address> getInet6(String key)          { global.getInet6(key) }
     static Optional<byte[]> getBytes(String key)                { global.getBytes(key) }
+    static Optional<Enum> getEnum(String key, Class<Enum> cls)  { global.getEnum(key, cls) }
+    static Optional<Enum> get(String key, Class<Enum> cls)      { global.getEnum(key, cls) }
 
     static List getList(String key)                     { global.getList(key) }
     static List get(String key, List defVal)            { global.get(key, defVal) }
@@ -89,6 +93,7 @@ class Config {
     static boolean set(String key, LocalDateTime val)   { global.set(key, val) }
     static boolean set(String key, Collection val)      { global.set(key, val) }
     static boolean set(String key, Map val)             { global.set(key, val) }
+    static boolean set(String key, Enum val)            { global.set(key, val) }
 
     static boolean delete(String key) { return global.delete(key) }
     static boolean clear() {  return global.clear() }

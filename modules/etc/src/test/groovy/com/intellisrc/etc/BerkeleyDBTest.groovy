@@ -25,9 +25,9 @@ class BerkeleyDBTest extends Specification {
             List<String> charset = (('a'..'z') + ('A'..'Z') + ('0'..'9'))
             String randomString = (0..randomStringLength).collect {charset.random(1).first() }.join("")
             println "Random String: $randomString"
-            db.add("some","value")
-            db.add("other","val")
-            db.add(randomString,"moons")
+            db.set("some","value")
+            db.set("other","val")
+            db.set(randomString,"moons")
             // Close it to be sure data is written to disk
             db.close()
             db = new BerkeleyDB("test")
@@ -50,10 +50,10 @@ class BerkeleyDBTest extends Specification {
             byte[] bytes = new byte[2000]
             byte[] kbyte = new byte[20]
             new SecureRandom().nextBytes(bytes)
-            db.add("strkey", bytes)
-            db.add(kbyte, bytes)
+            db.set("strkey", bytes)
+            db.setBytes(kbyte, bytes)
         expect:
-            assert db.getBytes("strkey") == bytes
+            assert db.getBytes("strkey").get() == bytes
             assert db.getBytes(kbyte) == bytes
         cleanup:
             db.destroy()

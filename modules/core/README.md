@@ -1,9 +1,86 @@
-# CORE MODULE
+# CORE Module
 
 Basic functionality that is usually needed in any project. For example, configuration, 
 logging, executing commands, controlling services and displaying colors in console.
 
 The following is an overview of this module:
+
+## SysMain and SysService
+
+A more elegant way to start your applications. It is an alternative to `public static void main(String[] args)`.
+
+### Example:
+
+```groovy
+class Main extends SysMain {
+    // The following line is required:
+    static { main = new Main() }
+
+    @Override
+    void onStart() {
+        // Your code goes here
+        String firstArg = args.first()
+        Log.i("The first argument was: %s", firstArg)
+    }
+}
+```
+```groovy
+class Main extends SysService {
+  // The following line is required:
+  static { service = new Main() }
+
+  @Override
+  void onStart() {
+    // Your code goes here
+    String firstArg = args.first()
+    Log.i("The first argument was: %s", firstArg)
+  }
+
+  @Override
+  void onSleep() {
+    Log.i("Service is running...")
+  }
+
+  @Override
+  void onStop() {
+    Log.i("The service has stopped.")
+  }
+}
+```
+
+The main difference between `SysMain` and `SysService` is that the later
+will not exit after the last line of execution, it contains the method
+`onSleep()` which is executed every second, and it is ready to be used
+as a service.
+
+You can add custom methods, for example:
+
+```groovy
+class Main extends SysMain {
+  // The following line is required:
+  static { main = new Main() }
+
+  @Override
+  void onStart() {
+    // Your code goes here
+    String firstArg = args.first()
+    Log.i("The first argument was: %s", firstArg)
+  }
+  
+  void onCustom() {
+    args.each {
+      println it
+    }
+  }
+}
+```
+To call `onCustom` method, you need to pass as argument `custom` to your 
+execution command line:
+
+```bash
+java -jar my-app-1.0.jar custom firstArg secondArg
+```
+if there is no `onCustom` method, then the arguments will be sent to `onStart` method.
 
 ## Config
 
@@ -18,6 +95,9 @@ configuration from multiple threads, use `AutoConfig` in the `etc` module.
 ### Example:
 
 ```groovy
+enum Continent {
+  AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA 
+}
 class Test {
     String systemName               = Config.get("system.name", "Default Name")
     int threads                     = Config.get("system.threads", 4)
@@ -28,6 +108,8 @@ class Test {
     Optional<File> dataFile         = Config.getFile("system.data.file")
     List flags                      = Config.getList("system.flags")
     Map options                     = Config.getMap("system.options")
+    Continent continent1            = Config.getEnum("system.continent", Continent)  //For Enum, you need to pass the class
+    Continent continent2            = Config.getEnum("system.continent", Continent.ASIA)  //In case of default value
 }
 ```
 
@@ -47,26 +129,20 @@ system.options={ debug: false, export: true }
 
 ## Log 
 
-A simple colorful logger which is very flexible an easy to use. Automatically compress 
-and rotate logs, filter verbosity, and more. By default, logs are stored in `log` directory.
+Provides a simpler interface to `SLF4J`. If no SLF4J logger is present, it provides a very simple
+printer to stdout. We recommend you to use the `log` package, which provides many options, colorful
+outputs (optional) and log file management (rotation, compression, etc)
 
 ### Settings:
 
-The most common settings are: (Please see Log class for full documentation)
+Without any `SLF4J` logger, only stdout will be used. For extended options,
+you need to use `log` module.
 
 ```properties
-# config.properties:
-# Choose from which level you want to log:
-# verbose, debug, info, warning, error, special  (default: info)
-log.level=verbose
-# Always print to screen (default: true)
-log.print=true
-# Enable log color output (default: true)
-log.color=true
-# When true, white/black will be inverted (default: false)
-log.color.invert=true
-# You can specify your domain to highlight it:
-log.domain=com.example
+# file: config.properties
+
+# If you want to turn OFF the logs:
+log.enable=false
 ```
 
 ### Example:
@@ -74,10 +150,10 @@ log.domain=com.example
 ```groovy
 // Verbose level, for maximum output details (gray color):
 Log.v("This is very verbose output: %.2f", 99.9999d)
-// Debug level, for details (white color):
-Log.d("When you want to debug something: %d", 1000)
+// Debug level, for details - SLF4J parametrization supported - (white color): 
+Log.d("When you want to debug something: {}", 1000)
 // Logging some information (blue color):
-Log.i("This is some information about %s", "Log")
+Log.i("This is {}% about %s", 90, "Log")
 // Displaying a warning (yellow color):
 Log.w("Beware! this is a warning")
 
@@ -87,8 +163,6 @@ try {
     // Exception is passed to Log, so it can print all the detail (red color):
     Log.e("You can't do that", e)
 }
-// This is a special Log which will be displayed in purple:
-Log.s("Hey!")
 ```
 
 ## AnsiColor
@@ -202,55 +276,6 @@ File file1 = SysInfo.getFile("~/home.cfg")
 File file2 = SysInfo.getFile("relative/file.txt")
 File file3 = SysInfo.getFile(SysInfo.tempDir, "dir1", "dir2", "file.txt")
 ```
-
-## SysMain and SysService
-
-A more elegant way to start your applications. It is an alternative to `public static void main(String[] args)`.
-
-### Example:
-
-```groovy
-class Main extends SysMain {
-    // The following line is required:
-    static { main = new Main() }
-
-    @Override
-    void onStart() {
-        // Your code goes here
-        String firstArg = args.first()
-        Log.i("The first argument was: %s", firstArg)
-    }
-}
-```
-```groovy
-class Main extends SysService {
-  // The following line is required:
-  static { service = new Main() }
-
-  @Override
-  void onStart() {
-    // Your code goes here
-    String firstArg = args.first()
-    Log.i("The first argument was: %s", firstArg)
-  }
-
-  @Override
-  void onSleep() {
-    Log.i("Service is running...")
-  }
-
-  @Override
-  void onStop() {
-    Log.i("The service has stopped.")
-  }
-}
-```
-
-
-The main difference between `SysMain` and `SysService` is that the later 
-will not exit after the last line of execution, it contains the method 
-`onSleep()` which is executed every second and it is ready to be used 
-as a service.
 
 ## Version
 

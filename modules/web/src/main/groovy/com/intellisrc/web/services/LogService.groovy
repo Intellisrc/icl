@@ -1,5 +1,6 @@
 package com.intellisrc.web.services
 
+import com.intellisrc.core.Config
 import groovy.transform.CompileStatic
 import com.intellisrc.core.Log
 import com.intellisrc.web.Service
@@ -14,6 +15,8 @@ import java.time.LocalDateTime
  */
 @CompileStatic
 class LogService implements ServiciableSingle {
+    final File logDir = Config.getFile("log.dir", "log")
+    final String logFileName = Config.get("log.file.name", "system.log")
 
     @Override
     String getPath() {
@@ -34,7 +37,8 @@ class LogService implements ServiciableSingle {
                     def meth = request.queryParams("method") ?: ""
                     def keyword = request.queryParams("key") ?: ""
                     def res = [:]
-                    File file = from ? new File(Log.directory, from.split(" ")[0].toDate().getYMD("-") + "-" + Log.logFileName) : Log.logFile
+                    File file = from ? new File(logDir, from.split(" ")[0].toDate().getYMD("-") + "-" + logFileName)
+                                     : new File(logDir, logFileName)
                     if(file.exists()) {
                         def logs = file.text.split("\n")
                         res = logs.findAll {

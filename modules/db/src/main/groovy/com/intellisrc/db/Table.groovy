@@ -243,6 +243,7 @@ class Table<T extends Model> implements Instanciable<T> {
                 return (val as InetAddress).hostAddress
             case Model:
                 return (val as Model).id
+            case byte[]:
             case int:
             case short:
             case Integer:
@@ -427,6 +428,14 @@ class Table<T extends Model> implements Instanciable<T> {
             case Enum:
                 type = "ENUM('" + field.type.getEnumConstants().join("','") + "')"
                 break
+            case byte[]:
+                int len = column?.length() ?: 65535
+                switch (true) {
+                    case len < 256      : type = "TINYBLOB"; break
+                    case len < 65536    : type = "BLOB"; break
+                    case len < 16777216 : type = "MEDIUMBLOB"; break
+                    default             : type = "LONGBLOB"; break
+                }
             default:
                 Log.w("Unknown field type: %s", field.type.class.simpleName)
         }

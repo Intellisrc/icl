@@ -11,7 +11,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class NetFace {
     public final String name
-    public final String mac
+    public final MacAddress mac
     public final List<Inet4Address> ip4List = []
     public final List<Inet6Address> ip6List = []
     /**
@@ -20,7 +20,7 @@ class NetFace {
      */
     NetFace(NetworkInterface iface) {
         name = iface.name
-        mac = iface.hardwareAddress ? Bytes.toHex(iface.hardwareAddress) : ""
+        mac = iface.hardwareAddress ? new MacAddress(iface.hardwareAddress) : null
         iface.inetAddresses.each {
             InetAddress ip ->
                 if (ip.address.length == 4) { //IP4

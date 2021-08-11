@@ -62,7 +62,7 @@ For more detailed explanation, click on the module title.<br>
  * `AnsiColor`  : Color dictionary for Linux terminal
  * `Cmd`        : Execute system commands
  * `Config`     : Manage configuration files (by default config.properties)
- * `Log`        : Log messages
+ * `Log`        : Log messages to `SLF4J`
  * @ `StringProperties` : Base class for properties setters and getters
  * `SysClock`   : Provides simple methods to interact with LocalDateTime. Useful for Unit Testing.
  * `SysInfo`    : Get information about the system (usually paths)
@@ -70,6 +70,23 @@ For more detailed explanation, click on the module title.<br>
  * `SysService` : Convert class into service (only one by project)
  * `Version`    : Return system version
  
+## [log](modules/log/README.md)
+Includes : core
+
+> SLF4J colorful logger with many options and easy to use.
+> You can add customized loggers and personalize
+> the way your logs look.
+> Generally you will use this module through `core.Log` class.
+> [read more...](modules/log/README.md)
+
+* @ `CommonLogger`        : Main logger which will handle multiple printers
+* @ `BaseLogger`          : Provides basic settings for printers
+* @ `PrintLogger`         : Prints to stdout (supports cache)
+* @ `PrintStdErrLogger`   : Prints to stderr (supports cache)
+* @ `FileLogger`          : Prints to a file
+* @ `CommonLoggerFactory` : Used by SLF4J to get `CommonLogger` instance
+* @ `CommonLoggerService` : Service provider for SLF4J
+
 ## [etc](modules/etc/README.md)
 Includes : core
  
@@ -258,6 +275,8 @@ Includes : core, img
 
 # Notes about upgrading to 2.8.x from 2.7.x
 
+### Dependencies
+
 Starting from 2.8, this library no longer includes some dependencies, so you need to 
 add them separately as you need. This was done to make this library more flexible by allowing
 you to choose your desired versions, reduce the compilation time and the jar size. 
@@ -265,19 +284,44 @@ Below each module, I'm including the recommended version (the one used during co
 
 * `core` : Groovy version is now up to you (required by any module). 
     * `org.codehaus.groovy:groovy-all:3.0.7`
-* `etc`  : if you use `@AutoConfig`, Redis or Berkeley, you will need to add one of these:
-    * `redis.clients:jedis:3.6.3`
-    * `com.sleepycat:je:18.3.12` (BarkeleyDB)
 * `db`   : Database drivers need to be included:
     * `mysql:mysql-connector-java:8.0.25`
     * `org.postgresql:postgresql:42.2.23.jre7`
     * `org.xerial:sqlite-jdbc:3.36.0.1`
-  
+* `etc`  :
+  * Jedis (`redis.clients:jedis:3.6.3`)
+  * BerkeleyDB (`com.sleepycat:je:18.3.12`)
+
 The following modules already include the needed libraries (no need to add them):
 
 * `cv`     : JavaCV (`org.bytedeco:javacv-platform:1.5`)
 * `crypt`  : Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.69`, `org.bouncycastle:bcpg-jdk15on:1.69`, `org.bouncycastle:bcprov-ext-jdk15on:1.69`)
-* `net`    : Apache Common Net (`commons-net:commons-net:3.8.0`) && JavaX Mail(`com.sun.mail:javax.mail:1.6.2`)
+* `net`    : 
+  * Apache Common Net (`commons-net:commons-net:3.8.0`) 
+  * JavaX Mail(`com.sun.mail:javax.mail:1.6.2`)
 * `serial` : JSSC library (`org.scream3r:jssc:2.8.0`) 
 * `term`   : JLine library (`org.jline:jline:3.20.0`)
 * `web`    : Spark Framework (`com.sparkjava:spark-core:2.9.3`)
+
+### Log
+
+`Log` class now logs using `SLF4J` interface, so logs reported from other
+libraries are no longer ignored and any `SLF4J` logger can be used,
+for example: `Log4J`, `slf4j-simple`, `JDK Logging`, `Jakarta Commons`, `LogBack`, etc.
+We provide an easy-to-use `SLF4J` compatible logger that needs to be included separately 
+(see `log` module).
+
+#### Removed Features
+* `Log.s` is no longer available (to comply with SLF4J)
+* `Log.v` is alias of `Log.t` (verbose vs trace)
+
+#### Additional Features (core module)
+* Support for SLF4J parametrization: `Log.i("Key: {}, Value: {}", key, value)`
+
+#### Additional Features (log module)
+* Customized log output through more specific settings, like: `log.print.show.level.short=true`
+* Customized date/time format: `log.show.time.format=yyyy-MM-dd HH:mm:ss.SSS`
+* Show millis instead of time: `log.show.time=false`
+* Showing thread in logs: `log.show.thread` and enable short format: `log.show.thread.short`
+* Highlighting domains without color (marked with '-->')
+* Add custom printers

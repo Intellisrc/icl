@@ -80,7 +80,7 @@ class Network {
     }
     
     /**
-     * List Network Intefaces
+     * List Network Interfaces
      * @return
      */
     static List<NetFace> getNetworkInterfaces() {

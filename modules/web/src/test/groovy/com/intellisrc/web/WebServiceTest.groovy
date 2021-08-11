@@ -22,7 +22,6 @@ class WebServiceTest extends Specification {
 
     def "General Test"() {
         setup:
-            Log.logFileName = "web.log"
             int port = NetworkInterface.getFreePort()
             def web = new WebService(
                 port : port,
@@ -53,10 +52,6 @@ class WebServiceTest extends Specification {
             web.stop()
         then:
             assert !web.isRunning()
-        cleanup:
-            if(Log.logFile && Log.logFile.exists()) {
-                Log.logFile.delete()
-            }
     }
 
     /**
@@ -189,9 +184,8 @@ class WebServiceTest extends Specification {
     def "Websocket Test"() {
         setup:
         def keepalive = false // change to 'true' to test manually WebSocket Clients
-        //def port = NetworkInterface.getFreePort()
         def web = new WebService(
-                port : 8888,
+                port : NetworkInterface.getFreePort(),
                 // Resources set as full path because code is executed under /tst/
                 resources : System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60

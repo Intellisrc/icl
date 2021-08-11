@@ -35,16 +35,18 @@ import java.time.LocalTime
 @CompileStatic
 class ConfigAuto {
     static int columnDocWrap = Config.get("config.auto.width", 75)
-    boolean importOnStart = Config.get("config.auto.import", true)
-    // If `exportOnSave` is true, each time a value is updated in the db, it will also update
-    // the config file (by default will save on exit)
-    boolean exportOnSave = Config.get("config.auto.export", false)
     // If true, it will remove missing keys
     static boolean removeMissing = Config.get("config.auto.remove", true)
     static List<String> removeIgnore = Config.getList("config.auto.ignore")
     // Where to export configuration:
-    File cfgFile = Config.getFile("config.auto.file", "system.properties")
+    static File defaultCfgFile = Config.getFile("config.auto.file", "system.properties")
+
+    final File cfgFile
     final PrefixedPropertiesRW props
+    boolean importOnStart = Config.get("config.auto.import", true)
+    // If `exportOnSave` is true, each time a value is updated in the db, it will also update
+    // the config file (by default will save on exit)
+    boolean exportOnSave = Config.get("config.auto.export", false)
     protected Set<Storage> storedValues = []
     protected String basePkg
     Closer onClose = null
@@ -171,10 +173,12 @@ class ConfigAuto {
      * Constructor
      *
      * @param basePackage : package name in which we will search for annotations (e.g: com.example.project)
+     * @param configFile : where to store the configuration
      * @param storage : Storage used to save properties (Berkeley by default)
      */
-    ConfigAuto(String basePackage, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
+    ConfigAuto(String basePackage, File configFile = defaultCfgFile, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
         props = storage
+        cfgFile = configFile
         try {
             assert basePackage : "Package was not specified."
             assert basePackage != "java.lang" : "Package was not correctly specified."

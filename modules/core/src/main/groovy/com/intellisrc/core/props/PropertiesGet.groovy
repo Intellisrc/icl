@@ -27,6 +27,10 @@ trait PropertiesGet {
     abstract BigDecimal get(String key, BigDecimal defVal)
     abstract List get(String key, List defVal)
     abstract Map get(String key, Map defVal)
+    abstract File getFile(String key, String defVal)
+    abstract File getFile(String key, File defVal)
+    abstract File get(String key, File defVal)
+    abstract Enum get(String key, Enum defVal)
 
     // Simple implementation to return Set instead of List
     Set get(String key, Set defVal) {
@@ -57,6 +61,7 @@ trait PropertiesGet {
     abstract Optional<LocalTime> getTime(String key)
     abstract Optional<LocalDate> getDate(String key)
     abstract Optional<LocalDateTime> getDateTime(String key)
+    abstract Optional<Enum> getEnum(String key, Class<Enum> type)
 
     abstract boolean exists(String key)
     abstract Set<String> getKeys()

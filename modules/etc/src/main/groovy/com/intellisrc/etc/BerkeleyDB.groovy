@@ -60,7 +60,7 @@ class BerkeleyDB extends StringPropertiesYaml {
      * Setup database environment
      * @return
      */
-    private setupEnvironment() {
+    private void setupEnvironment() {
         try {
             // create a configuration for DB environment
             EnvironmentConfig envConf = new EnvironmentConfig()

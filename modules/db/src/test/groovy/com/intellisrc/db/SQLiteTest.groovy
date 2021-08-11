@@ -1,6 +1,5 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.Log
 import spock.lang.Specification
 
 /**
@@ -9,7 +8,6 @@ import spock.lang.Specification
 class SQLiteTest extends Specification {
     def "Create database"() {
         setup:
-            Log.level = Log.Level.VERBOSE
             Database database = new Database(new SQLite(
                 dbname: "test.db"
             ))

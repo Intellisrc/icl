@@ -4,7 +4,6 @@ import static com.intellisrc.core.AnsiColor.*
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
-import com.intellisrc.core.SysInfo
 import com.intellisrc.thread.Task.Priority
 import groovy.transform.CompileStatic
 
@@ -19,17 +18,18 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @CompileStatic
 class Tasks {
-    static public String logFileName = Config.get("tasks.logfile", "status.log")
-    static public int minPoolSize = Config.get("tasks.pool.min", 1)
-    static public int maxPoolSize = Config.get("tasks.pool.max", 30)
-    static public int bufferMillis = Config.get("tasks.buffer", 1000)
-    static public int timeout = Config.getInt("tasks.timeout")
-    static public boolean printOnScreen = Config.getBool("tasks.print")
-    static public boolean logToFile = Config.getBool("tasks.log")
-    static public boolean debug = Config.getBool("tasks.debug")
-    static public boolean resetTasks = Config.getBool("tasks.reset")
-    static public boolean printChilds = Config.getBool("tasks.children")
-    static public boolean printOnChange = false    //Using in UnitTests to debug
+    static File logDir        = Config.getFile("tasks.log.dir", Config.getFile("log.dir", "log"))
+    static String logFileName = Config.get("tasks.log.file", "status.log")
+    static int minPoolSize = Config.get("tasks.pool.min", 1)
+    static int maxPoolSize = Config.get("tasks.pool.max", 30)
+    static int bufferMillis = Config.get("tasks.buffer", 1000)
+    static int timeout = Config.getInt("tasks.timeout")
+    static boolean printOnScreen = Config.getBool("tasks.print")
+    static boolean logToFile = Config.getBool("tasks.log")
+    static boolean debug = Config.getBool("tasks.debug")
+    static boolean resetTasks = Config.getBool("tasks.reset")
+    static boolean printChildren = Config.getBool("tasks.children")
+    static boolean printOnChange = false    //Using in UnitTests to debug
     protected static TaskManager taskManager = new TaskManager()
     private static LocalDateTime logLastUpdated = SysClock.dateTime
     private static ConcurrentLinkedQueue<String> logUpdatedList = new ConcurrentLinkedQueue<>()
@@ -44,6 +44,10 @@ class Tasks {
         }
         if(!printOnScreen &&! logToFile) {
             Log.d("Task report is not enabled. You can enable it by setting 'tasks.print' and/or 'tasks.log' in your config.properties.")
+        } else if(logToFile) {
+            if(!logDir.exists()) {
+                logDir.mkdirs()
+            }
         }
     }
     /**
@@ -123,8 +127,7 @@ class Tasks {
      * @return
      */
     private static File getLogFile() {
-        File baseDir = Log.directory ?: new File(SysInfo.userDir, "log")
-        return new File(baseDir, SysClock.date.YMD + "-" + logFileName)
+        return new File(logDir, SysClock.date.YMD + "-" + logFileName)
     }
     
     /**
@@ -279,7 +282,7 @@ class Tasks {
         list.each {
             TaskPool pool ->
                 log += getRow(pool)
-                if (printChilds) {
+                if (printChildren) {
                     pool.tasks.each {
                         TaskInfo info ->
                             log += getRow(info)
