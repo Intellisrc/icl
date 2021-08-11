@@ -1,5 +1,7 @@
 package com.intellisrc.web.services
 
+import com.intellisrc.core.Config
+import com.intellisrc.core.Log
 import com.intellisrc.etc.config.ConfigAuto
 import com.intellisrc.web.JSON
 import com.intellisrc.web.Service
@@ -13,14 +15,16 @@ import spark.Request
 @CompileStatic
 class AutoConfigService implements ServiciableMultiple {
     final ConfigAuto configAuto
+    final String srvPath
 
-    AutoConfigService(ConfigAuto configAuto) {
+    AutoConfigService(ConfigAuto configAuto, path) {
         this.configAuto = configAuto
+        this.srvPath = path
     }
 
     @Override
     String getPath() {
-        return "/cfg"
+        return "/" + srvPath
     }
 
     @Override
@@ -70,13 +74,26 @@ class AutoConfigService implements ServiciableMultiple {
             ),
             // Update Map value of key
             new Service (
-                    path : "/:key",
+                    path : "/:type/:key/",
                     method: Service.Method.PUT,
                     action: {
                         Request request ->
                             String key = request.params("key")
-                            Map val = JSON.decode(request.body()).toMap()
-                            return [ ok : configAuto.update(key, val) ]
+                            String type = request.params("type")
+                            boolean ok = false
+                            switch (type) {
+                                case "map" :
+                                    Map val = JSON.decode ( request.body()).toMap()
+                                    ok = configAuto.update(key, val)
+                                    break
+                                case "list" :
+                                    List val = JSON.decode ( request.body()).toList()
+                                    ok = configAuto.update(key, val)
+                                    break
+                                default:
+                                    Log.w("Unknown type: %s", type)
+                            }
+                            return [ ok : ok ]
                     }
             )
         ]

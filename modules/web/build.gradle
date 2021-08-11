@@ -3,10 +3,8 @@ dependencies {
     //https://github.com/perwendel/spark
     // We use Response, Request... so we use 'api' here:
     api 'com.sparkjava:spark-core:2.9.3'
-    // JSON wraps GSON so the consumer doesn't need it:
     implementation 'com.google.code.gson:gson:2.8.7'
-    // Do not include Yaml
-    implementation 'org.yaml:snakeyaml:1.29' //Same as in DB
+    implementation 'org.yaml:snakeyaml:1.29' //Added in DB
     //TODO: reimplement security (LoginService) :
     //implementation 'org.pac4j:spark-pac4j:2.1.0'
     //implementation 'org.pac4j:pac4j-http:2.1.0'

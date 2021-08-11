@@ -1,25 +1,27 @@
 rootProject.name = 'common'
 
 include ':core'
-include ':etc'
 include ':crypt'
-include ':db'
-include ':net'
-include ':web'
-include ':term'
-include ':serial'
-include ':img'
 include ':cv'
+include ':db'
+include ':etc'
+include ':img'
+include ':log'
+include ':net'
+include ':serial'
+include ':term'
 include ':thread'
+include ':web'
 
 project(':core').projectDir     = new File(rootProject.projectDir, 'modules/core')
-project(':etc').projectDir      = new File(rootProject.projectDir, 'modules/etc')
 project(':crypt').projectDir    = new File(rootProject.projectDir, 'modules/crypt')
-project(':db').projectDir       = new File(rootProject.projectDir, 'modules/db')
-project(':net').projectDir      = new File(rootProject.projectDir, 'modules/net')
-project(':web').projectDir      = new File(rootProject.projectDir, 'modules/web')
-project(':term').projectDir     = new File(rootProject.projectDir, 'modules/term')
-project(':serial').projectDir   = new File(rootProject.projectDir, 'modules/serial')
-project(':img').projectDir      = new File(rootProject.projectDir, 'modules/img')
 project(':cv').projectDir       = new File(rootProject.projectDir, 'modules/cv')
+project(':db').projectDir       = new File(rootProject.projectDir, 'modules/db')
+project(':etc').projectDir      = new File(rootProject.projectDir, 'modules/etc')
+project(':img').projectDir      = new File(rootProject.projectDir, 'modules/img')
+project(':log').projectDir      = new File(rootProject.projectDir, 'modules/log')
+project(':net').projectDir      = new File(rootProject.projectDir, 'modules/net')
+project(':serial').projectDir   = new File(rootProject.projectDir, 'modules/serial')
+project(':term').projectDir     = new File(rootProject.projectDir, 'modules/term')
 project(':thread').projectDir   = new File(rootProject.projectDir, 'modules/thread')
+project(':web').projectDir      = new File(rootProject.projectDir, 'modules/web')

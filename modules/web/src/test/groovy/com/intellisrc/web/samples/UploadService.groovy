@@ -38,6 +38,7 @@ class UploadService implements ServiciableMultiple {
 
                         // Example on how to move the uploaded file into a specific directory:
                         File dstFile = SysInfo.getFile(uploadDir, upFile.originalName)
+                        if(dstFile.exists()) { dstFile.delete() }
                         upFile.moveTo(dstFile)
 
                         return dstFile

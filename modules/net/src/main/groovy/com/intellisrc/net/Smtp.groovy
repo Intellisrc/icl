@@ -47,7 +47,7 @@ class Smtp {
             switch (this) {
                 case CC: return Message.RecipientType.CC
                 case BCC: return Message.RecipientType.BCC
-                case TO:
+                //case TO:
                 default: return Message.RecipientType.TO
             }
         }
@@ -170,15 +170,16 @@ class Smtp {
 
     /**
      * Sends an email to two or more recipients all using TO:
+     * it can be a List<String> or List<Email>
      * @param tos
      * @param subject
      * @param body
      * @return
      */
-    boolean send(List<String> tos, String subject = "", String body = "", String bodyText = "") {
+    boolean send(List tos, String subject = "", String body = "", String bodyText = "") {
         Map<String,Mode> map = [:]
         tos.each {
-            map[it] = Mode.TO
+            map[it.toString()] = Mode.TO
         }
         send(map, subject, body, bodyText)
     }

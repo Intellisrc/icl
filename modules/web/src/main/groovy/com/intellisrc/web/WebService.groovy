@@ -1,12 +1,15 @@
 package com.intellisrc.web
 
-import com.intellisrc.etc.CacheObj
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
+import com.intellisrc.etc.Cache
+import com.intellisrc.etc.Mime
 import groovy.transform.CompileStatic
+import org.apache.tools.ant.types.resources.StringResource
 import org.yaml.snakeyaml.Yaml
 
 import javax.imageio.ImageIO
+import javax.imageio.ImageWriter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.Part
 import java.awt.image.BufferedImage
@@ -42,11 +45,12 @@ import java.nio.file.StandardCopyOption
  *
  */
 class WebService {
-    private final Srv srv
-    private List<Serviciable> listServices = []
-    private List<String> listPaths = [] //mainly used to prevent collisions
-    private boolean running = false
-    private String resources = ""
+    protected final Srv srv
+    protected List<Serviciable> listServices = []
+    protected List<String> listPaths = [] //mainly used to prevent collisions
+    protected boolean running = false
+    protected String resources = ""
+    protected Cache<Output> cache = new Cache<Output>()
     // Options:
     public int cacheTime = 0
     public int port = 80
@@ -57,6 +61,26 @@ class WebService {
 
     static interface StartCallback {
         void call(Srv srv)
+    }
+    /**
+     * Output types used in getOutput
+     */
+    protected static enum OutputType {
+        JSON, YAML, TEXT, IMAGE, BINARY
+    }
+    protected static class Output {
+        OutputType type     = OutputType.BINARY
+        Object content      = null
+        String contentType  = ""
+
+        // Used by URL
+        int responseCode    = 0
+        // Name used to download
+        String fileName     = ""
+        // Size of content
+        long size           = 0
+        // Store eTag in some cases
+        String etag         = ""
     }
     /**
      * Constructor: initializes Service instance
@@ -198,7 +222,7 @@ class WebService {
      * @param serviciable
      * @param path
      */
-    private void addWebSocketService(Serviciable serviciable, String path) {
+    protected void addWebSocketService(Serviciable serviciable, String path) {
         ServiciableWebSocket webSocket = serviciable as ServiciableWebSocket
         srv.webSocket(path, new WebSocketService(webSocket))
     }
@@ -207,7 +231,7 @@ class WebService {
      * Add SSL to connection
      * @param serviciable
      */
-    private void addSSLService(Serviciable serviciable) {
+    protected void addSSLService(Serviciable serviciable) {
         ServiciableHTTPS ssl = serviciable as ServiciableHTTPS
         srv.secure(ssl.getKeyStoreFile(), ssl.getPassword(), null, null)
     }
@@ -219,7 +243,7 @@ class WebService {
      * @param rootPath
      * @return
      */
-    private void addServicePath(Service service, String rootPath) {
+    protected void addServicePath(Service service, String rootPath) {
         String fullPath = (rootPath + service.path).replaceAll(/\/\//,"/") //Remove double "/"
         if (listPaths.contains(service.method.toString() + fullPath)) {
             Log.w("Warning, duplicated path [" + fullPath + "] and method [" + service.method.toString() + "] found.")
@@ -252,7 +276,7 @@ class WebService {
      * @param sp : Service object
      * @param srv : Spark.Service instance
      */
-    private void addAction(final String fullPath, final Service sp) {
+    protected void addAction(final String fullPath, final Service sp) {
         //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
         switch (sp.method) {
             case GET: srv.get(fullPath, onAction(sp)); break
@@ -263,93 +287,201 @@ class WebService {
         }
     }
     /**
-     * Output types used in getOutput
-     */
-    private final static enum OutputType {
-        JSON, YAML, PLAIN, BINARY, JPG, PNG, GIF
-    }
-    /**
-     * Gets the output and convert it
-     * @param output
-     * @param otype
+     * From content type, get OutputType
+     * @param contentType
      * @return
      */
-    private static Object getOutput(Object output, OutputType otype) {
-        Object out
-        switch (otype) {
+    protected static OutputType getTypeFromContentTypeString(String contentType) {
+        OutputType type
+        switch (contentType) {
+            case ~/.*json.*/  : type = OutputType.JSON; break
+            case ~/.*yaml.*/  : type = OutputType.YAML; break
+            case ~/.*text.*/  : type = OutputType.TEXT; break
+            case ~/.*image.*/ : type = OutputType.IMAGE; break
+            default:
+                type = OutputType.BINARY
+        }
+        return type
+    }
+    /**
+     * Get output content type and content
+     * @param res (response from Service.Action)
+     * @param contentType
+     */
+    protected static Output handleContentType(Object res, String contentType) {
+        Output output = new Output(contentType: contentType.toLowerCase(), content: res)
+        // All Collection objects convert them to List so they are cleanly converted
+        if(res instanceof Collection) {
+            output.content = res.toList()
+        }
+        if(res instanceof Number) {
+            output.content = res.toString()
+        }
+        if(output.contentType) {
+            output.type = getTypeFromContentTypeString(output.contentType)
+            output.fileName = "download." + output.contentType.tokenize("/").last()
+        } else { // Auto detect contentType:
+            switch (output.content) {
+                case String:
+                    String resStr = output.type.toString()
+                    output.type = OutputType.TEXT
+                    switch (true) {
+                        case resStr.contains("<html") :
+                            output.contentType = Mime.getType("html")
+                            output.fileName = "download.html"
+                            break
+                        case resStr.contains("<?xml") :
+                            output.contentType = Mime.getType("xml")
+                            output.fileName = "download.xml"
+                            break
+                        case resStr.contains("<svg") :
+                            output.contentType = Mime.getType("svg")
+                            output.fileName = "download.svg"
+                            break
+                        default :
+                            output.contentType = Mime.getType(new StringResource(resStr).inputStream) ?: "text/plain"
+                            if(output.contentType == "text/plain") {
+                                output.fileName = "download.txt"
+                            } else {
+                                output.fileName = "download." + output.contentType.tokenize("/").last()
+                            }
+                    }
+                    break
+                case File:
+                    File file = output.type as File
+                    output.contentType = Mime.getType(file)
+                    output.type = getTypeFromContentTypeString(output.contentType)
+                    output.fileName = file.name
+                    break
+                case BufferedImage:
+                    BufferedImage img = output.content as BufferedImage
+                    boolean hasAlpha = img.colorModel.hasAlpha()
+                    String ext = hasAlpha ? "png" : "jpg"
+                    output.type = OutputType.IMAGE
+                    output.contentType = Mime.getType(ext)
+                    output.fileName = "download.${ext}"
+                    break
+                case List:
+                case Map:
+                    output.type = OutputType.JSON
+                    output.contentType = Mime.getType("json")
+                    output.fileName = "download.json"
+                    break
+                case URL:
+                    URL url = output.type as URL
+                    HttpURLConnection conn = url.openConnection() as HttpURLConnection
+                    conn.setRequestMethod("GET")
+                    conn.connect()
+                    output.contentType = conn.contentType
+                    output.content = conn.content
+                    output.responseCode = conn.responseCode
+                    output.type = getTypeFromContentTypeString(output.contentType)
+                    output.fileName = url.file
+                    return output // Do not proceed to prevent changing content
+
+                    break
+                default:
+                    output.type = OutputType.BINARY
+                    output.contentType = "" //Unknown type
+                    output.fileName = "download.bin"
+            }
+        }
+        // Set content
+        switch (output.type) {
+            case OutputType.TEXT:
+                switch (output.content) {
+                    case File :
+                        File file = output.content as File
+                        output.content = file.text
+                        output.size = file.size()
+                        output.etag = file.lastModified().toString()
+                        break
+                    default:
+                        output.content = output.content.toString()
+                        output.size = (output.content as String).size()
+                }
+                break
             case OutputType.JSON:
-                out = JSON.encode(output)
+                switch (output.content) {
+                    case Collection:
+                    case Map:
+                        output.content = JSON.encode(output.content)
+                        output.size = (output.content as String).size()
+                        break
+                }
                 break
             case OutputType.YAML:
-                out = new Yaml().dump(output)
+                switch (output.content) {
+                    case Collection:
+                    case Map:
+                        output.content = new Yaml().dump(output.content)
+                        output.size = (output.content as String).size()
+                        break
+                }
                 break
-            case OutputType.JPG:
-            case OutputType.PNG:
-            case OutputType.GIF:
-            case OutputType.BINARY:
-                byte[] content
-                switch (output) {
+            case OutputType.IMAGE:
+                switch (output.content) {
                     case File:
-                        content = (output as File).bytes
+                        output.content = (output.content as File).bytes
                         break
                     case BufferedImage:
-                        BufferedImage img = output as BufferedImage
-                        if(otype == OutputType.BINARY) {
-                            content = ((DataBufferByte) img.raster.dataBuffer).data
-                        } else {
-                            ByteArrayOutputStream os = new ByteArrayOutputStream()
-                            ImageIO.write(img, otype.toString().toLowerCase(), os)
-                            content = os.toByteArray()
-                            os.close()
+                        BufferedImage img = output.content as BufferedImage
+                        ByteArrayOutputStream os = new ByteArrayOutputStream()
+                        ImageWriter iw = ImageIO.getImageWritersByMIMEType(output.contentType).next()
+                        if(iw) {
+                            iw.setOutput(ImageIO.createImageOutputStream(os))
+                            iw.write(img)
+                            output.content = os.toByteArray()
                         }
+                        os.close()
                         break
-                    case String:
-                        content = output.toString().bytes
-                        break
-                    default:
-                        content = output as byte[]
                 }
-                out = content
+                // Replace it with "Binary"
+                output.type = OutputType.BINARY
+                output.size = (output.content as byte[]).length
                 break
-        //case OutputType.PLAIN:
-            default:
-                switch (output) {
+            case OutputType.BINARY:
+                switch (output.content) {
+                    case String:
+                        output.content = output.content.toString().bytes
+                        break
                     case File:
-                        out = (output as File).text
+                        output.content = (output.content as File).bytes
                         break
-                //case String:
+                    case BufferedImage: // Output raw bytes:
+                        BufferedImage img = output.content as BufferedImage
+                        output.content = ((DataBufferByte) img.raster.dataBuffer).data
+                        break
                     default:
-                        out = output.toString()
-                        break
+                        output.content = output.content as byte[]
                 }
+                output.size = (output.content as byte[]).length
         }
-        return out
+        return output
     }
 
+    /**
+     * Get current request key
+     * @param request
+     * @return
+     */
+    protected static String getCacheKey(Request request) {
+        String query = request.queryString()
+        return request.uri() + (query ? "?" + query : "")
+    }
     /**
      * Returns the Route to be added into Spark.Service based in Service object
      * @param sp : Service object
      * @return
      */
-    private Route onAction(final Service sp) {
+    protected Route onAction(final Service sp) {
         return {
             Request request, Response response ->
                 try {
                     Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
-                    Object out = ""     // Output to serve
-                    Object res = null   // Response from Service
-                    OutputType otype
-                    switch (sp.contentType.toLowerCase()) {
-                        case ~/.*json.*/  : otype = OutputType.JSON; break
-                        case ~/.*yaml.*/  : otype = OutputType.YAML; break
-                        case ~/.*text.*/  : otype = OutputType.PLAIN; break
-                        case "image/jpeg" : otype = OutputType.JPG; break
-                        case "image/png"  : otype = OutputType.PNG; break
-                        case "image/gif"  : otype = OutputType.GIF; break
-                        default:
-                            otype = OutputType.BINARY
-                    }
-                    response.type(sp.contentType)
+                    Output output
+
+                    // Apply headers (initial): -----------------------
                     sp.headers.each {
                         String key, String val ->
                             response.header(key, val)
@@ -358,13 +490,21 @@ class WebService {
                     if (allowOrigin) {
                         response.header("Access-Control-Allow-Origin", allowOrigin)
                     }
+                    if (sp.allowOrigin) {
+                        response.header("Access-Control-Allow-Origin", sp.allowOrigin)
+                    }
+                    if (sp.noStore) { //Never store in client
+                        response.header("Cache-Control", "no-store")
+                    } else if (!sp.cacheTime && !sp.maxAge) { //Revalidate each time
+                        response.header("Cache-Control", "no-cache")
+                    } else {
+                        String priv = (sp.isPrivate) ? "private," : "" //User-specific data
+                        response.header("Cache-Control", priv + "max-age=" + sp.maxAge)
+                    }
+                    // ------------------------------------------------
+
+                    // Only Allowed clients:
                     if (sp.allow.check(request)) {
-                        if (sp.download) {
-                            response.header("Content-Disposition", "attachment; filename=" + sp.download)
-                            if (otype == OutputType.BINARY) {
-                                response.header("Content-Transfer-Encoding", "binary")
-                            }
-                        }
                         HttpServletRequest raw = request.raw()
                         String tempDir = SysInfo.getTempDir()
                         request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
@@ -372,6 +512,7 @@ class WebService {
                         try {
                             hasParts = !raw.parts.empty
                         } catch(Exception ignored) {}
+                        // If we have uploads:
                         if (hasParts) {
                             File tempFileDir = SysInfo.getFile(tempDir)
                             if (tempFileDir.canWrite()) {
@@ -391,12 +532,13 @@ class WebService {
                                                     Log.e("Unable to upload file: %s", part.submittedFileName, e)
                                                 }
                                             } else {
+                                                response.status(500)
                                                 Log.w("File: %s was empty", part.submittedFileName)
                                             }
                                     }
                                     try {
-                                        res = callAction(sp.action, request, response, uploadFiles)
-                                        out = getOutput(res, otype)
+                                        Object res = callAction(sp.action, request, response, uploadFiles)
+                                        output = handleContentType(res, sp.contentType)
                                     } catch (Exception e) {
                                         response.status(500)
                                         Log.e("Service.upload closure failed", e)
@@ -406,7 +548,6 @@ class WebService {
                                             it.delete()
                                         }
                                     }
-                                    return out
                                 } else {
                                     response.status(411)
                                     Log.e("Uploaded file is empty")
@@ -415,101 +556,108 @@ class WebService {
                                 response.status(503)
                                 Log.e("Temporally directory %s is not writable", tempDir)
                             }
-                        } else if (sp.cacheTime) {
-                            String query = request.queryString()
-                            String key = request.uri() + (query ? "?" + query : "")
-                            out = CacheObj.instance.get(key, {
-                                Object toSave = null
+                        } else if (sp.cacheTime) { // Check if its in Cache
+                            output = cache.get(getCacheKey(request), {
+                                Output toSave = null
                                 try {
-                                    res = callAction(sp.action, request, response)
-                                    toSave = getOutput(res, otype)
+                                    Object res = callAction(sp.action, request, response)
+                                    toSave = handleContentType(res, sp.contentType)
                                 } catch (Exception e) {
                                     response.status(500)
                                     Log.e("Service.action CACHE closure failed", e)
                                 }
                                 return toSave
                             }, sp.cacheTime)
-                        } else {
+                        } else { // Normal requests: (no cache, no file upload)
                             try {
-                                res = callAction(sp.action, request, response)
-                                out = getOutput(res, otype)
+                                Object res = callAction(sp.action, request, response)
+                                output = handleContentType(res, sp.contentType)
                             } catch (Exception e) {
                                 response.status(500)
                                 Log.e("Service.action closure failed", e)
                             }
                         }
-                        if (sp.allowOrigin) {
-                            response.header("Access-Control-Allow-Origin", sp.allowOrigin)
-                        }
-                        if (sp.noStore) { //Never store in client
-                            response.header("Cache-Control", "no-store")
-                        } else if (!sp.cacheTime && !sp.maxAge) { //Revalidate each time
-                            response.header("Cache-Control", "no-cache")
-                        } else {
-                            String priv = (sp.isPrivate) ? "private," : "" //User-specific data
-                            response.header("Cache-Control", priv + "max-age=" + sp.maxAge)
-                        }
-                        if (sp.etag != null) {
-                            String etag = sp.etag.calc(out)
-                            if (etag) {
-                                response.header("ETag", sp.etag.calc(out))
-                            } else {
-                                try {
-                                    if (res instanceof File) {
-                                        etag = ((File) res).lastModified().toString()
-                                    } else if (otype == OutputType.BINARY || otype == OutputType.JPG || otype == OutputType.PNG) {
-                                        if ((out as byte[]).length > 1024 * eTagMaxKB) {
-                                            Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
-                                        } else {
-                                            etag = (out as byte[]).encodeHex().toString().md5()
-                                        }
-                                    } else {
-                                        etag = out.toString().md5()
-                                    }
-                                    if (etag) {
-                                        response.header("ETag", etag)
-                                    } else {
-                                        Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
-                                    }
-                                } catch (Exception e) {
-                                    //Can't be converted to String
-                                    Log.v("Unable to set etag for: %s, failed : %s", request.uri(), e.message)
+
+                        // ------------------- After content is processed ----------------
+                        if(output) {
+                            // Apply content-type:
+                            if(output.contentType) {
+                                response.type(output.contentType)
+                            }
+                            // Pass response code from output:
+                            if(output.responseCode) {
+                                response.status(output.responseCode)
+                            }
+
+                            // Set download
+                            if (sp.download || output.contentType == "application/octet-stream") {
+                                String fileName = sp.downloadFileName ?: output.fileName
+                                response.header("Content-Disposition", "attachment; filename=" + fileName)
+                                if (output.type == OutputType.BINARY) {
+                                    response.header("Content-Transfer-Encoding", "binary")
                                 }
                             }
-                        }
-                        // Set content-length and Gzip headers
-                        if (otype == OutputType.BINARY || otype == OutputType.JPG || otype == OutputType.PNG) {
-                            if (res instanceof File) {
-                                response.header("Content-Length", sprintf("%d", (res as File).size()))
-                            } else {
-                                response.header("Content-Length", sprintf("%d", (out as byte[]).length))
-                            }
-                        } else {
-                            if (request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
-                                response.header("Content-Encoding", "gzip")
-                                //TODO: https://stackoverflow.com/questions/56404858/
-                            } else {
-                                if (res instanceof File) {
-                                    response.header("Content-Length", sprintf("%d", (res as File).size()))
+
+                            // Set ETag:
+                            if (sp.etag != null) {
+                                String etag = sp.etag.calc(output.content) ?: output.etag
+                                if (etag) {
+                                    output.etag = etag
+                                    response.header("ETag", etag)
                                 } else {
-                                    response.header("Content-Length", sprintf("%d", out.toString().length()))
+                                    try {
+                                        if (output.type == OutputType.BINARY) {
+                                            if (output.size > 1024 * eTagMaxKB) {
+                                                Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
+                                            } else {
+                                                etag = (output.content as byte[]).md5()
+                                            }
+                                        } else {
+                                            etag = output.content.toString().md5()
+                                        }
+                                        if (etag) {
+                                            output.etag = etag
+                                            response.header("ETag", etag)
+                                        } else {
+                                            Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
+                                        }
+                                    } catch (Exception e) {
+                                        //Can't be converted to String
+                                        Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e.message)
+                                    }
                                 }
                             }
+
+                            // Set content-length and Gzip headers
+                            if (output.type != OutputType.BINARY && request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
+                                response.header("Content-Encoding", "gzip")
+                                //TODO: Spark does not calculate size of gzip automatically:
+                                // https://stackoverflow.com/questions/56404858/
+                            } else {
+                                response.header("Content-Length", sprintf("%d", output.size))
+                            }
+                        } else {
+                            response.status(404)
+                            output.content = "Not Found"
                         }
-                    } else {
+                    } else { // Unauthorized
                         response.status(403)
-                        switch (otype) {
+                        if(output == null) {
+                            output = new Output(contentType: sp.contentType, type: getTypeFromContentTypeString(sp.contentType))
+                        }
+                        switch (output.type) {
                             case OutputType.JSON:
-                                out = JSON.encode(ok : false, error : 403)
+                                output.content = JSON.encode(ok : false, error : 403)
                                 break
                             case OutputType.YAML:
-                                out = new Yaml().dump(ok : false, error : 403)
+                                output.content = new Yaml().dump(ok : false, error : 403)
                                 break
                             default:
-                                out = ""
+                                response.type(Mime.getType("txt"))
+                                output.content = "Unauthorized"
                         }
                     }
-                    return out
+                    return output.content
                 } catch(Throwable e) {
                     Log.e("Unexpected Exception", e)
                 }
@@ -528,7 +676,7 @@ class WebService {
      * @param response
      * @return
      */
-    private static Object callAction(final Object action, final Request request, final Response response, final List<UploadFile> upload = null) {
+    protected static Object callAction(final Object action, final Request request, final Response response, final List<UploadFile> upload = null) {
         Object returned = null
         if (action instanceof Service.Action) {
             returned = action.run()
@@ -588,7 +736,7 @@ class WebService {
      * @param returnValue
      * @param params
      */
-    private static boolean tryCall(Closure action, Closure returnValue, Object... params) {
+    protected static boolean tryCall(Closure action, Closure returnValue, Object... params) {
         boolean called = false
         try {
             switch (params.size()) {

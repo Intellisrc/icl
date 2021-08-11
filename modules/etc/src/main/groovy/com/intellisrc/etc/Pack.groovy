@@ -8,7 +8,7 @@ import groovy.transform.CompileStatic
  * Utility methods for converting byte arrays into ints and longs, and back again.
  */
 @CompileStatic
-abstract class Pack {
+class Pack {
     static short bigEndianToShort(byte[] bs, int off) {
         int n = (bs[off] & 0xff) << 8
         n |= (bs[++off] & 0xff)

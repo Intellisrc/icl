@@ -1,8 +1,10 @@
 package com.intellisrc.etc
 
 import com.intellisrc.core.Config
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
+import java.awt.image.BufferedImage
 import java.nio.file.Files
 
 /**
@@ -18,13 +20,90 @@ import java.nio.file.Files
  */
 @CompileStatic
 class Mime {
+    //
+    static protected Map<String,String> types = [
+        au 	    : "audio/basic",
+        avi 	: "video/msvideo,video/avi,video/x-msvideo",
+        bmp 	: "image/bmp",
+        bz2 	: "application/x-bzip2",
+        css 	: "text/css",
+        dtd 	: "application/xml-dtd",
+        doc 	: "application/msword",
+        docx 	: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        dotx 	: "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+        eot 	: "application/vnd.ms-fontobject",
+        es 	    : "application/ecmascript",
+        exe 	: "application/octet-stream",
+        gif 	: "image/gif",
+        gz 	    : "application/x-gzip",
+        ico 	: "image/x-icon",
+        hqx 	: "application/mac-binhex40",
+        htm 	: "text/html",
+        html 	: "text/html",
+        jar 	: "application/java-archive",
+        jpg 	: "image/jpeg",
+        js 	    : "application/javascript",
+        mjs 	: "application/javascript",
+        json 	: "application/json",
+        midi 	: "audio/x-midi",
+        mp3 	: "audio/mpeg",
+        mp4 	: "video/mp4",
+        mpeg 	: "video/mpeg",
+        ogg     : "audio/vorbis,application/ogg",
+        otf     : "application/font-otf",
+        pdf     : "application/pdf",
+        pl      : "application/x-perl",
+        png     : "image/png",
+        potx    : "application/vnd.openxmlformats-officedocument.presentationml.template",
+        ppsx    : "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+        ppt     : "application/vnd.ms-powerpointtd",
+        pptx    : "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        ps      : "application/postscript",
+        qt      : "video/quicktime",
+        ra      : "audio/x-pn-realaudio,audio/vnd.rn-realaudio",
+        rar     : "application/x-rar-compressed",
+        ram     : "audio/x-pn-realaudio,audio/vnd.rn-realaudio",
+        rdf     : "application/rdf,application/rdf+xml",
+        rtf     : "application/rtf",
+        sgml    : "text/sgml",
+        sit     : "application/x-stuffit",
+        sldx    : "application/vnd.openxmlformats-officedocument.presentationml.slide",
+        svg     : "image/svg+xml",
+        swf     : "application/x-shockwave-flash",
+        tgz     : "application/x-tar",
+        tiff    : "image/tiff",
+        tsv     : "text/tab-separated-values",
+        ttf     : "application/font-ttf",
+        txt     : "text/plain",
+        wav     : "audio/wav,audio/x-wav",
+        woff    : "application/font-woff",
+        woff2   : "application/font-woff2",
+        xlam    : "application/vnd.ms-excel.addin.macroEnabled.12",
+        xls     : "application/vnd.ms-excel",
+        xlsb    : "application/vnd.ms-excel.sheet.binary.macroEnabled.12",
+        xlsx    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        xltx    : "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+        xml     : "text/xml",
+        yaml    : "text/yaml",
+        zip     : "application/zip,application/x-compressed-zip"
+    ]
     /**
      * Return the mime type of a file
      * @param file
      * @return
      */
     static String getType(final File file) {
-        return file.exists() ? Files.probeContentType(file.toPath()) : URLConnection.guessContentTypeFromName(file.name)
+        String type = (file.exists() ? Files.probeContentType(file.toPath()) : "")
+        if(!type) {
+            type = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
+        }
+        if(!type) {
+            type = getTypeFromConfig(file.name)
+        }
+        if(!type) {
+            Log.w("Unknown mime type for file: %s", file.name)
+        }
+        return type ?: "" //Prevent NULL value
     }
     /**
      * Return the mime type of a file or extension type:
@@ -33,7 +112,13 @@ class Mime {
      * @return
      */
     static String getType(final String fileNameOrExt) {
-        File file = new File(fileNameOrExt.contains(".") ? fileNameOrExt : "example." + fileNameOrExt.tokenize('.').last())
+        String fileName
+        if(fileNameOrExt.contains(".")) {
+            fileName = fileNameOrExt
+        } else {
+            fileName = "example." + fileNameOrExt.toLowerCase()
+        }
+        File file = new File(fileName)
         return getType(file)
     }
     /**

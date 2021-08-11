@@ -1,13 +1,14 @@
 package com.intellisrc.etc
 
 import com.intellisrc.core.Log
+import groovy.transform.CompileStatic
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.Charset
 /**
  * This class contains a rewrite of some methods without using String class.
- * The reason is because String class keep values in memory and thus poses a security risk according to some sources.
+ * The reason is that String class keep values in memory and thus poses a security risk according to some sources.
  * While all methods in this class exists natively in Groovy/Java, those requires to change values to String, e.g:
  *
  * char[] password = ...
@@ -22,7 +23,7 @@ import java.nio.charset.Charset
  *
  * @since 17/04/11.
  */
-@groovy.transform.CompileStatic
+@CompileStatic
 class Bytes {
     /**
      * Converts a char[] to byte[]

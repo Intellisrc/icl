@@ -32,6 +32,7 @@ interface PropertiesSet {
     boolean set(String key, Collection list)
     boolean set(String key, Map map)
     boolean set(String key, Field field)
+    boolean set(String key, Enum val)
 
     boolean delete(String key)
     boolean clear()

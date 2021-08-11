@@ -75,7 +75,7 @@ class Converter {
      * @return
      */
     //TODO: Untested
-    static byte[] BufferedToBytes(BufferedImage input) {
+    static byte[] bufferedToBytes(BufferedImage input) {
         byte[] array = []
         switch ( input.type ) {
             case BufferedImage.TYPE_BYTE_GRAY :
@@ -97,7 +97,7 @@ class Converter {
      * @return
      */
     //TODO: Untested
-    static short[] BufferedToShortArray(BufferedImage input) {
+    static short[] bufferedToShortArray(BufferedImage input) {
         short[] array = []
         switch ( input.type ) {
             case BufferedImage.TYPE_USHORT_GRAY :
@@ -116,7 +116,7 @@ class Converter {
      * @return
      */
     //TODO: Untested
-    static int[] BufferedToIntArray(BufferedImage input) {
+    static int[] bufferedToIntArray(BufferedImage input) {
         int[] array = []
         switch ( input.type ) {
             case BufferedImage.TYPE_INT_RGB :

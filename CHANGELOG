@@ -1,5 +1,16 @@
 # Main Changes
 
+## 2.8
+* Groovy version is no longer enforced. Compiled with Groovy 3, but any version can theoretically be used.
+* Some dependencies are no longer included by default (e.g: `db` drivers)
+* Added package: `log`, which replaces `Log` class in core with SLF4J support
+* Added @AutoConfig and related classes in `etc`
+* Added Model and related classes to automatically create tables and provide easy access to databases.
+* BerkeleyDB moved to `etc`
+* Created `Redis` class
+* Added support to upload multiples files in `web` and simplified its usage
+* All Properties set/get got standardized and moved into `core`
+
 ## 2.7 (Groovy 2.5.6)
 
 * Added modules `thread`, `serial`, `img`

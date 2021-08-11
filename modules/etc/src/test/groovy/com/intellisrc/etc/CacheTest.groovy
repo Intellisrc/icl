@@ -11,9 +11,6 @@ import java.time.LocalDate
  * @since 17/10/30.
  */
 class CacheTest extends Specification {
-    void setup() {
-        Log.enabled = false
-    }
     def "Testing cache"() {
         setup:
             def oc = CacheObj.instance

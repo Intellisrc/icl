@@ -22,6 +22,8 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     // if they are not specified, this code fails to compile:
     abstract Set<String> getKeys()
     abstract String get(String key, String val)
+    abstract List get(String key, List defVal)
+    abstract Map get(String key, Map defVal)
     abstract boolean set(String key, String val)
     abstract boolean set(String key, Collection list)
     abstract boolean set(String key, Map map)
@@ -101,16 +103,7 @@ abstract class StringProperties implements PrefixedPropertiesRW {
         return exists(key) ? (get(key,"0")) as BigDecimal : defVal
     }
 
-    @Override
-    List get(String key, List defVal) {
-        return null
-    }
-
-    @Override
-    Map get(String key, Map defVal) {
-        return null
-    }
-/**
+    /**
      * Get value as boolean
      * @param key
      * @return
@@ -128,6 +121,7 @@ abstract class StringProperties implements PrefixedPropertiesRW {
      * @param key
      * @return
      */
+    @Override
     File getFile(String key, String defPath) {
         return getFile(key, SysInfo.getFile(defPath))
     }
@@ -137,9 +131,31 @@ abstract class StringProperties implements PrefixedPropertiesRW {
      * @param defFile
      * @return
      */
+    @Override
     File getFile(String key, File defFile) {
         Optional<File> fileOpt = getFile(key)
         return fileOpt.present ? fileOpt.get() : defFile
+    }
+    /**
+     * Alternative getter to getFile()
+     * @param key
+     * @param defFile
+     * @return
+     */
+    @Override
+    File get(String key, File defFile) {
+        return getFile(key, defFile)
+    }
+    /**
+     * Get Enum using default Enum object
+     * @param key
+     * @param defEnum
+     * @return
+     */
+    @Override
+    Enum get(String key, Enum defEnum) {
+        Optional<Enum> enumOpt = getEnum(key, (Class<Enum>) defEnum.class)
+        return enumOpt.present ? enumOpt.get() : defEnum
     }
     /**
      * Get File (optional)
@@ -166,10 +182,12 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     @Override
     Optional<URI> getURI(String key) {
         URI uri = null
-        try {
-            uri = exists(key) ? get(key).toURI() : null
-        } catch(Exception ignore) {
-            Log.w("value of: %s can not be parsed to URI", key)
+        if(exists(key)) {
+            try {
+                uri = get(key).toURI()
+            } catch (Exception ignore) {
+                Log.w("value of: %s can not be parsed to URI", key)
+            }
         }
         return Optional.ofNullable(uri)
     }
@@ -181,10 +199,12 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     @Override
     Optional<URL> getURL(String key) {
         URL url = null
-        try {
-            url = exists(key) ? get(key).toURL() : null
-        } catch(Exception ignore) {
-            Log.w("value of: %s can not be parsed to URL", key)
+        if(exists(key)) {
+            try {
+                url = get(key).toURL()
+            } catch (Exception ignore) {
+                Log.w("value of: %s can not be parsed to URL", key)
+            }
         }
         return Optional.ofNullable(url)
     }
@@ -196,10 +216,12 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     @Override
     Optional<LocalTime> getTime(String key) {
         LocalTime time = null
-        try {
-            time = exists(key) ? get(key).toTime() : null
-        } catch(Exception ignore) {
-            Log.w("value of: %s can not be parsed to LocalTime", key)
+        if(exists(key)) {
+            try {
+                time = get(key).toTime()
+            } catch (Exception ignore) {
+                Log.w("value of: %s can not be parsed to LocalTime", key)
+            }
         }
         return Optional.ofNullable(time)
     }
@@ -211,10 +233,12 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     @Override
     Optional<LocalDate> getDate(String key) {
         LocalDate date = null
-        try {
-            date = exists(key) ? get(key).toDate() : null
-        } catch(Exception ignore) {
-            Log.w("value of: %s can not be parsed to LocalDate", key)
+        if(exists(key)) {
+            try {
+                date = get(key).toDate()
+            } catch (Exception ignore) {
+                Log.w("value of: %s can not be parsed to LocalDate", key)
+            }
         }
         return Optional.ofNullable(date)
     }
@@ -226,10 +250,12 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     @Override
     Optional<LocalDateTime> getDateTime(String key) {
         LocalDateTime time = null
-        try {
-            time = exists(key) ? get(key).toDateTime() : null
-        } catch(Exception ignore) {
-            Log.w("value of: %s can not be parsed to LocalDateTime", key)
+        if(exists(key)) {
+            try {
+                time = get(key).toDateTime()
+            } catch (Exception ignore) {
+                Log.w("value of: %s can not be parsed to LocalDateTime", key)
+            }
         }
         return Optional.ofNullable(time)
     }
@@ -241,10 +267,12 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     @Override
     Optional<Inet4Address> getInet4(String key) {
         Inet4Address ip = null
-        try {
-            ip = exists(key) ? get(key).toInet4Address() : null
-        } catch(Exception ignore) {
-            Log.w("value of: %s can not be parsed to Inet4Address", key)
+        if(exists(key)) {
+            try {
+                ip = get(key).toInet4Address()
+            } catch (Exception ignore) {
+                Log.w("value of: %s can not be parsed to Inet4Address", key)
+            }
         }
         return Optional.ofNullable(ip)
     }
@@ -256,10 +284,12 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     @Override
     Optional<Inet6Address> getInet6(String key) {
         Inet6Address ip = null
-        try {
-            ip = exists(key) ? get(key).toInet6Address() : null
-        } catch(Exception ignore) {
-            Log.w("value of: %s can not be parsed to Inet6Address", key)
+        if(exists(key)) {
+            try {
+                ip = get(key).toInet6Address()
+            } catch (Exception ignore) {
+                Log.w("value of: %s can not be parsed to Inet6Address", key)
+            }
         }
         return Optional.ofNullable(ip)
     }
@@ -279,6 +309,26 @@ abstract class StringProperties implements PrefixedPropertiesRW {
             }
         }
         return Optional.ofNullable(bytes)
+    }
+    /**
+     * Get value as enum
+     * @param key
+     * @return
+     */
+    @Override
+    Optional<Enum> getEnum(String key, Class<Enum> type) {
+        Enum e = null
+        if(exists(key)) {
+            try {
+                e = Enum.valueOf(type, get(key).toUpperCase())
+            } catch(Exception ignore) {
+                Log.w("value of: %s can not be converted to Enum", key)
+            }
+        }
+        return Optional.ofNullable(e)
+    }
+    Optional<Enum> get(String key, Class<Enum> type) {
+        return getEnum(key, type)
     }
 
     /**
@@ -309,6 +359,7 @@ abstract class StringProperties implements PrefixedPropertiesRW {
                 case LocalDateTime: ok = set(key, value as LocalDateTime);  break
                 case Collection:    ok = set(key, value as Collection);     break
                 case Map:           ok = set(key, value as Map);            break
+                case Enum:          ok = set(key, value as Enum);           break
                 case byte[]:        ok = set(key, value as byte[]);         break
                 default:
                     ok = set(key, value.toString())
@@ -341,6 +392,8 @@ abstract class StringProperties implements PrefixedPropertiesRW {
     boolean set(String key, LocalDateTime val)  { setObj(key, val.YMDHmsS) }
     @Override
     boolean set(String key, byte[] val)         { setObj(key, Base64.encoder.encodeToString(val)) }
+    @Override
+    boolean set(String key, Enum val)           { setObj(key, val.toString()) }
 
     /**
      * Special method to set value from field automatically
@@ -404,6 +457,9 @@ abstract class StringProperties implements PrefixedPropertiesRW {
                 break
             case byte[]:
                 set(key, field.get(null) as byte[])
+                break
+            case Enum:
+                set(key, field.get(null) as Enum)
                 break
             case String:
                 updated = set(key, field.get(null).toString())

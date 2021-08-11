@@ -29,6 +29,7 @@ class Serial extends Seriable {
         return new SerialPort(serialPort)
     }
 
+    @Override
     void connect(SerialEvent event = null) {
         if(portComm) {
             Log.i("Connecting to device: %s", serialPort)
@@ -54,6 +55,7 @@ class Serial extends Seriable {
     /**
      * Terminate
      */
+    @Override
     void disconnect() {
         connected = false
         if(portComm?.opened) {
@@ -66,6 +68,7 @@ class Serial extends Seriable {
      * @param byteCount
      * @param onResponse
      */
+    @Override
     void read(int byteCount, SerialReader onResponse) {
         if(connected) {
             try {
@@ -82,6 +85,7 @@ class Serial extends Seriable {
      * Read one line from the buffer
      * @param onResponse
      */
+    @Override
     void readLine(SerialReaderStr onResponse) {
         String str = portComm.readString()
         onResponse.call(str)
@@ -91,6 +95,7 @@ class Serial extends Seriable {
      * Return a digit from the serial
      * @param onResponse
      */
+    @Override
     void readNum(SerialReaderInt onResponse) {
         String buff = portComm.readString()
         if(buff != null) {
@@ -102,32 +107,49 @@ class Serial extends Seriable {
      * Send to port some character
      * @param msg
      */
-    void write(SerialWriter writer) {
+    @Override
+    void write(byte[] toSend) {
         if(portComm) {
-            byte[] toSend = writer.call()
             if (toSend != null) {
                 try {
                     Log.v("Sending to port %s : %s", serialPort, Bytes.toString(toSend))
                     portComm.writeBytes(toSend)
                 } catch(Exception e) {
-                    Log.w("Unable to write to port: %s", serialPort)
+                    Log.w("Unable to write to port: %s", serialPort, e)
                 }
             }
         } else {
             Log.w("Port: $serialPort not found.")
         }
     }
-
-    void writeStr(SerialWriterStr writer) {
-        String toSend = writer.call()
-        if(toSend != null) {
-            portComm.writeString(toSend)
+    @Override
+    void write(String toSend) {
+        if(portComm) {
+            if(toSend != null) {
+                try {
+                    Log.v("Sending to port %s : %s", serialPort, toSend)
+                    portComm.writeString(toSend)
+                } catch(Exception e) {
+                    Log.w("Unable to write to port: %s", serialPort, e)
+                }
+            }
+        } else {
+            Log.w("Port: $serialPort not found.")
         }
     }
-    void writeNum(SerialWriterInt writer) {
-        Integer toSend = writer.call()
-        if(toSend != null) {
-            portComm.writeInt(toSend)
+    @Override
+    void write(Integer toSend) {
+        if(portComm) {
+            if(toSend != null) {
+                try {
+                    Log.v("Sending to port %s : %d", serialPort, toSend)
+                    portComm.writeInt(toSend)
+                } catch(Exception e) {
+                    Log.w("Unable to write to port: %s", serialPort, e)
+                }
+            }
+        } else {
+            Log.w("Port: $serialPort not found.")
         }
     }
 }

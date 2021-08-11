@@ -1,5 +1,6 @@
 package com.intellisrc.thread.tasks
 
+import com.intellisrc.core.Config
 import com.intellisrc.etc.config.ConfigAuto
 import com.intellisrc.thread.IntervalTask
 import groovy.transform.CompileStatic
@@ -12,8 +13,8 @@ import groovy.transform.CompileStatic
 class ConfigAutoTask extends IntervalTask {
     final ConfigAuto configAuto
 
-    ConfigAutoTask(ConfigAuto configAuto, long maxExecutionMillis = 900, int sleepMillis = 1000) {
-        super(maxExecutionMillis, sleepMillis)
+    ConfigAutoTask(ConfigAuto configAuto, int sleepMillis = 1000) {
+        super([sleepMillis - 100, 100].max(), sleepMillis)
         this.configAuto = configAuto
     }
 

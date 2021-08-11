@@ -48,7 +48,7 @@ class ParallelTaskTest extends Specification {
                         bigFinished = true
                     },
                     {
-                        //Ratatuille mouse
+                        //Ratatouille mouse
                         (1..20).each {
                             print "r"
                             sleep(20)

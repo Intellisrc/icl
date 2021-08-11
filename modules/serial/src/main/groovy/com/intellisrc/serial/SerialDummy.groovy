@@ -28,16 +28,13 @@ class SerialDummy extends Seriable {
     void readNum(SerialReaderInt onResponse) {
         onResponse.call(0) //TODO: simulate
     }
-    void write(SerialWriter writer) {
-        byte[] toSend = writer.call()
+    void write(byte[] toSend) {
         Log.i("Sending: %s", Bytes.toString(toSend))
     }
-    void writeStr(SerialWriterStr writer) {
-        String toSend = writer.call()
+    void write(String toSend) {
         Log.i("Sending: %s", toSend)
     }
-    void writeNum(SerialWriterInt writer) {
-        int toSend = writer.call()
+    void write(Integer toSend) {
         Log.i("Sending: %s", toSend)
     }
 }

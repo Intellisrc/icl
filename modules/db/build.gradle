@@ -1,11 +1,15 @@
 dependencies {
     api project(':etc')
     implementation "org.reflections:reflections:0.9.12" //Same as in core
-    implementation 'org.yaml:snakeyaml:1.29' //Same as in etc
+    implementation 'org.yaml:snakeyaml:1.29' //Same as in core
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
     compileOnly 'mysql:mysql-connector-java:8.0.25'
     compileOnly 'org.postgresql:postgresql:42.2.23.jre7'
     compileOnly 'org.xerial:sqlite-jdbc:3.36.0.1'
+
+    testImplementation 'mysql:mysql-connector-java:8.0.25'
+    testImplementation 'org.postgresql:postgresql:42.2.23.jre7'
+    testImplementation 'org.xerial:sqlite-jdbc:3.36.0.1'
 }

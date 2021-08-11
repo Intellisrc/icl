@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.0-SNAPSHOT"
+    version = "2.8.0-log1-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -28,13 +28,18 @@ static String getProjectDescription(String name) {
                     "logging, executing commands, controlling " +
                     "services and displaying colors in console."
             break
+        case "log":
+            desc = "SLF4J colorful logger with many options and easy to use." +
+                    "You can add customized loggers and personalize " +
+                    "the way your logs look."
+            break
         case "etc":
             desc = "Extra functionality which is usually very " +
                     "useful in any project. For example, monitoring " +
                     "Hardware, compressing or decompressing data, " +
                     "store data in memory cache, manage system " +
                     "configuration in a multithreading safe environment " +
-                    "(using Redis as default), simple operations with " +
+                    "(BerkeleyDB or Redis), simple operations with " +
                     "bytes, etc."
             break
         case "db":
@@ -106,6 +111,7 @@ subprojects {
     apply plugin: 'signing'
 
     boolean isDev = version.contains("SNAPSHOT")
+    boolean publishDev = true
 
     dependencies {
         //def groovyVer = "2.5.14"
@@ -114,19 +120,18 @@ subprojects {
         def spock = "2.0-groovy-3.0"
         def junit = "4.13.2"
 
-        def deps = ["org.codehaus.groovy:groovy-all:${groovyVer}"]
-        if(isDev) {
-            deps.each { api it }
-        } else {
-            deps.each { compileOnly it } //Link it so we can choose version
-        }
+        //Link it so we can choose version
+        compileOnly "org.codehaus.groovy:groovy-all:${groovyVer}"
+
         // Always include groovy-extend and expose it to consumers:
         api "com.intellisrc:groovy-extend:${groovyExt}"
+
+        testImplementation "org.codehaus.groovy:groovy-all:${groovyVer}"
         testImplementation "org.spockframework:spock-core:${spock}"
         testImplementation "junit:junit:${junit}"
     }
     java {
-        if(!isDev) {
+        if(!isDev || publishDev) {
             withSourcesJar()
             withJavadocJar()
         }
@@ -177,7 +182,7 @@ subprojects {
        }
     }
     signing {
-        if(! isDev) {
+        if(! isDev || publishDev) {
             sign publishing.publications.mavenJava
         }
     }

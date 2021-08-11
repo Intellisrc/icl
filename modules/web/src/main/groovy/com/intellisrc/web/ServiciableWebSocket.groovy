@@ -6,7 +6,7 @@ import groovy.transform.CompileStatic
  * @since 17/04/19.
  */
 @CompileStatic
-interface ServiciableWebSocket extends Serviciable {
+trait ServiciableWebSocket extends Serviciable {
     /**
      * Class used to specify WHOM and WHAT to send
      * Set to null if no recipient is desired
@@ -40,12 +40,30 @@ interface ServiciableWebSocket extends Serviciable {
             this.jsonObj = jsonObj
         }
     }
-    abstract boolean getReplaceOnDuplicate()
-    abstract void setBroadCaster(WebSocketService.MsgBroadCaster msgBroadCaster)
+    WebSocketService.MsgBroadCaster broadCaster
+    boolean replaceOnDuplicate = false
+
     abstract String getUserID(Map<String, List<String>> params, InetAddress remoteIP)
     abstract WSMessage onConnect(Session session)
     abstract WSMessage onDisconnect(Session session, int statusCode, String reason)
     abstract WSMessage onMessage(Session session, String message)
     abstract void onClientsChange(List<String> list)
     abstract void onError(Session session, String message)
+    /**
+     * Sends a Message to specific client (using broadcaster)
+     * @param session
+     * @param response
+     * @param data
+     */
+    boolean sendMessageTo(String userID, final Map data) {
+        boolean sent = false
+        broadCaster.call(new WSMessage(userID, data), {
+            // On success
+            sent = true
+        }, {
+            // On failure
+            sent = false
+        })
+        return sent
+    }
 }
