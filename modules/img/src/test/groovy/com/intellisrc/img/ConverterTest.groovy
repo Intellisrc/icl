@@ -2,7 +2,6 @@ package com.intellisrc.img
 
 import spock.lang.Specification
 
-import javax.imageio.ImageIO
 import java.awt.image.BufferedImage
 import java.nio.file.Files
 

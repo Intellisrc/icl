@@ -1,7 +1,6 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Log
-import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 
 /**

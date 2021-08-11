@@ -1,8 +1,8 @@
 package com.intellisrc.log
 
 import groovy.transform.CompileStatic
-import org.slf4j.Logger
 import org.slf4j.ILoggerFactory
+import org.slf4j.Logger
 
 /**
  * @since 2021/08/02.

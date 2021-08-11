@@ -10,7 +10,6 @@ import org.slf4j.event.Level
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.regex.Matcher
 
 import static com.intellisrc.core.AnsiColor.*
 

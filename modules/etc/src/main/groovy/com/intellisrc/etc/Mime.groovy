@@ -4,7 +4,6 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
-import java.awt.image.BufferedImage
 import java.nio.file.Files
 
 /**

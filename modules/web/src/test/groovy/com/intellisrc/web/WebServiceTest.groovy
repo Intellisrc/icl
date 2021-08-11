@@ -3,13 +3,7 @@ package com.intellisrc.web
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
-import com.intellisrc.web.samples.ChatClient
-import com.intellisrc.web.samples.ChatService
-import com.intellisrc.web.samples.EmailService
-import com.intellisrc.web.samples.IDService
-import com.intellisrc.web.samples.SSLService
-import com.intellisrc.web.samples.StackOverflowChatClient
-import com.intellisrc.web.samples.UploadService
+import com.intellisrc.web.samples.*
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions

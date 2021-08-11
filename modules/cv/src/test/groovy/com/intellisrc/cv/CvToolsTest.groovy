@@ -3,9 +3,6 @@ package com.intellisrc.cv
 import org.bytedeco.opencv.opencv_core.IplImage
 import spock.lang.Specification
 
-import java.awt.geom.Point2D
-import java.awt.geom.Rectangle2D
-
 /**
  * @since 18/07/31.
  */

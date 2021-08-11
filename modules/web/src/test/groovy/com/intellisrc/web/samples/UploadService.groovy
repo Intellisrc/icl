@@ -7,7 +7,7 @@ import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableMultiple
 import com.intellisrc.web.UploadFile
 
-import static com.intellisrc.web.Service.Method.*
+import static com.intellisrc.web.Service.Method.POST
 
 /**
  * @since 11/30/17.

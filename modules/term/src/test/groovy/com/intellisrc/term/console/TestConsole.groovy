@@ -1,7 +1,7 @@
 package com.intellisrc.term.console
 
-import com.intellisrc.term.Console
 import com.intellisrc.term.Consolable
+import com.intellisrc.term.Console
 import groovy.transform.CompileStatic
 
 /**

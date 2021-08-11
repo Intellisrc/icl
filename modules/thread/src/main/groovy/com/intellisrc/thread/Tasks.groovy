@@ -1,6 +1,5 @@
 package com.intellisrc.thread
 
-import static com.intellisrc.core.AnsiColor.*
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
@@ -11,6 +10,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
+
+import static com.intellisrc.core.AnsiColor.*
 
 /**
  * This class is used to simplify access to TaskManager

@@ -3,16 +3,7 @@ package com.intellisrc.cv
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import org.bytedeco.javacpp.BytePointer
-
-import org.bytedeco.opencv.opencv_core.CvMat
-import org.bytedeco.opencv.opencv_core.CvPoint
-import org.bytedeco.opencv.opencv_core.CvPoint2D32f
-import org.bytedeco.opencv.opencv_core.CvPoint3D32f
-import org.bytedeco.opencv.opencv_core.CvRect
-import org.bytedeco.opencv.opencv_core.CvSeq
-import org.bytedeco.opencv.opencv_core.CvSize
-import org.bytedeco.opencv.opencv_core.IplImage
-import org.bytedeco.opencv.opencv_core.Mat
+import org.bytedeco.opencv.opencv_core.*
 
 import java.awt.geom.Ellipse2D
 import java.awt.geom.Point2D
@@ -20,8 +11,9 @@ import java.awt.geom.Rectangle2D
 import java.awt.geom.RectangularShape
 
 import static org.bytedeco.opencv.global.opencv_core.*
+import static org.bytedeco.opencv.global.opencv_imgcodecs.imwrite
 import static org.bytedeco.opencv.global.opencv_imgproc.*
-import static org.bytedeco.opencv.global.opencv_imgcodecs.*
+import static org.bytedeco.opencv.helper.opencv_imgcodecs.cvLoadImage
 
 /**
  * Methods to work with IplImage objects (OpenCV, JavaCV)

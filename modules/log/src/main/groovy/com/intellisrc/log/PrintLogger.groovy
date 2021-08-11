@@ -4,7 +4,8 @@ import com.intellisrc.core.Config
 import groovy.transform.CompileStatic
 import org.slf4j.event.Level
 
-import static com.intellisrc.log.Output.OutputType.*
+import static com.intellisrc.log.Output.OutputType.CACHED_SYS_OUT
+import static com.intellisrc.log.Output.OutputType.SYS_OUT
 
 /**
  * This logger will output in standard out

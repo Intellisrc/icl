@@ -1,10 +1,9 @@
 package com.intellisrc.web.services
 
 import com.intellisrc.core.Config
-import groovy.transform.CompileStatic
-import com.intellisrc.core.Log
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableSingle
+import groovy.transform.CompileStatic
 import spark.Request
 import spark.Response
 

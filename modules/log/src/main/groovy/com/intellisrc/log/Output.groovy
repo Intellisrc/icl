@@ -1,9 +1,8 @@
 package com.intellisrc.log
 
 import groovy.transform.CompileStatic
-import org.slf4j.event.Level
 
-import static com.intellisrc.log.Output.OutputType.*
+import static com.intellisrc.log.Output.OutputType.FILE
 
 /**
  * Based on: org.slf4j.simple.OutputChoice

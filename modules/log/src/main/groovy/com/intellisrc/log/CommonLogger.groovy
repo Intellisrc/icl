@@ -1,15 +1,9 @@
 package com.intellisrc.log
 
-import com.intellisrc.core.Config
-import com.intellisrc.core.Log
-import com.intellisrc.core.SysClock
-import com.intellisrc.core.SysInfo
-import com.intellisrc.core.Version
+import com.intellisrc.core.*
 import groovy.transform.CompileStatic
 import org.slf4j.event.Level
-import org.slf4j.helpers.FormattingTuple
 import org.slf4j.helpers.MarkerIgnoringBase
-import org.slf4j.helpers.MessageFormatter
 
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit

@@ -5,7 +5,7 @@ import groovy.transform.CompileStatic
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 
-import static org.yaml.snakeyaml.DumperOptions.FlowStyle.*
+import static org.yaml.snakeyaml.DumperOptions.FlowStyle.FLOW
 
 @CompileStatic
 abstract class StringPropertiesYaml extends StringProperties {

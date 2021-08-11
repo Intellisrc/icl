@@ -4,18 +4,11 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider
+import groovy.transform.CompileStatic
 import org.bouncycastle.bcpg.ArmoredOutputStream
 import org.bouncycastle.bcpg.CompressionAlgorithmTags
-import org.bouncycastle.openpgp.PGPCompressedData
-import org.bouncycastle.openpgp.PGPCompressedDataGenerator
-import org.bouncycastle.openpgp.PGPEncryptedDataGenerator
-import org.bouncycastle.openpgp.PGPEncryptedDataList
-import org.bouncycastle.openpgp.PGPLiteralData
-import org.bouncycastle.openpgp.PGPLiteralDataGenerator
-import org.bouncycastle.openpgp.PGPPBEEncryptedData
-import org.bouncycastle.openpgp.PGPUtil
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.openpgp.*
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPDigestCalculatorProviderBuilder
 import org.bouncycastle.openpgp.operator.jcajce.JcePBEDataDecryptorFactoryBuilder
@@ -24,8 +17,6 @@ import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder
 import org.bouncycastle.util.io.Streams
 
 import java.security.Security
-
-import groovy.transform.CompileStatic
 
 /**
  * OpenPGP wrapper

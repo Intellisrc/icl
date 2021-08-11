@@ -7,25 +7,23 @@ import com.intellisrc.etc.Mime
 import groovy.transform.CompileStatic
 import org.apache.tools.ant.types.resources.StringResource
 import org.yaml.snakeyaml.Yaml
-
-import javax.imageio.ImageIO
-import javax.imageio.ImageWriter
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.Part
-import java.awt.image.BufferedImage
-import java.awt.image.DataBufferByte
-
-import static com.intellisrc.web.Service.Method.*
-
 import spark.Request
 import spark.Response
 import spark.Route
 import spark.Service as Srv
 
+import javax.imageio.ImageIO
+import javax.imageio.ImageWriter
 import javax.servlet.MultipartConfigElement
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.Part
+import java.awt.image.BufferedImage
+import java.awt.image.DataBufferByte
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+
+import static com.intellisrc.web.Service.Method.*
 
 @CompileStatic
 /**

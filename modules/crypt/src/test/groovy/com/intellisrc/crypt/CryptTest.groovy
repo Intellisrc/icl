@@ -1,7 +1,8 @@
 package com.intellisrc.crypt
 
 import spock.lang.Specification
-import static com.intellisrc.etc.Bytes.*
+
+import static com.intellisrc.etc.Bytes.toString
 
 /**
  * @since 17/04/11.

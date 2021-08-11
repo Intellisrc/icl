@@ -3,15 +3,11 @@ package com.intellisrc.web
 import com.intellisrc.core.Log
 import com.intellisrc.web.ServiciableWebSocket.WSMessage
 import groovy.transform.CompileStatic
+import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.WriteCallback
+import org.eclipse.jetty.websocket.api.annotations.*
 
 import java.util.concurrent.ConcurrentLinkedQueue
-import org.eclipse.jetty.websocket.api.Session as JettySession
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
-import org.eclipse.jetty.websocket.api.annotations.WebSocket
 
 /**
  * This class is a wrapper for @WebSocket

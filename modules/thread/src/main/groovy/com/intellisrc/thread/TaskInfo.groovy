@@ -1,9 +1,10 @@
 package com.intellisrc.thread
 
+import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime
-import com.intellisrc.core.SysClock
+
 import static com.intellisrc.core.AnsiColor.*
 
 /**

@@ -1,6 +1,6 @@
 package com.intellisrc.thread.tasks
 
-import com.intellisrc.core.Config
+
 import com.intellisrc.etc.config.ConfigAuto
 import com.intellisrc.thread.IntervalTask
 import groovy.transform.CompileStatic

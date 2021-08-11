@@ -3,7 +3,6 @@ package com.intellisrc.crypt.hash
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
-
 import org.bouncycastle.crypto.generators.OpenBSDBCrypt
 import org.bouncycastle.crypto.generators.SCrypt
 

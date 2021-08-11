@@ -2,11 +2,7 @@ package com.intellisrc.etc
 
 import groovy.transform.CompileStatic
 
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
+import java.util.zip.*
 
 /**
  * @since 18/03/09.

@@ -10,7 +10,6 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
 /**

@@ -3,14 +3,14 @@ package com.intellisrc.cv
 import com.intellisrc.core.Log
 import com.intellisrc.img.Converter as ImgConverter
 import groovy.transform.CompileStatic
-
-import java.awt.image.BufferedImage
 import org.bytedeco.javacv.Frame
 import org.bytedeco.javacv.Java2DFrameConverter
 import org.bytedeco.javacv.Java2DFrameUtils
 import org.bytedeco.javacv.OpenCVFrameConverter
 import org.bytedeco.opencv.opencv_core.IplImage
 import org.bytedeco.opencv.opencv_core.Mat
+
+import java.awt.image.BufferedImage
 
 /**
  * Convert from and to different image formats, for example:

@@ -2,10 +2,10 @@ package com.intellisrc.etc.config
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import com.intellisrc.core.props.PrefixedPropertiesRW
 import com.intellisrc.core.props.PropertiesGet
 import com.intellisrc.core.props.StringPropertiesYaml
-import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.BerkeleyDB
 import groovy.transform.CompileStatic
 import javassist.Modifier

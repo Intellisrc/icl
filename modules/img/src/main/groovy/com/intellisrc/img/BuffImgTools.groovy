@@ -5,12 +5,7 @@ import groovy.transform.CompileStatic
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.geometry.Positions
 
-import java.awt.Component
-import java.awt.Dimension
-import java.awt.Frame
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.Toolkit
+import java.awt.*
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.awt.image.BufferedImage

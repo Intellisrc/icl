@@ -2,7 +2,8 @@ package com.intellisrc.etc
 
 import spock.lang.Specification
 
-import static Bytes.*
+import static com.intellisrc.etc.Bytes.*
+
 /**
  * @since 17/04/11.
  */

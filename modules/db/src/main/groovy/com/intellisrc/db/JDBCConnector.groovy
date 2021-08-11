@@ -2,24 +2,17 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB.Connector
 import com.intellisrc.db.DB.ColumnType
+import com.intellisrc.db.DB.Connector
 import com.intellisrc.db.DB.DBType
 import groovy.transform.CompileStatic
 
-import java.sql.Timestamp
+import java.sql.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 import static com.intellisrc.db.DB.DBType.*
 import static com.intellisrc.db.Query.Action.*
-
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.ResultSet
-import java.sql.ResultSetMetaData
-import java.sql.SQLException
-import java.sql.PreparedStatement
 import static java.sql.Types.*
 
 @CompileStatic

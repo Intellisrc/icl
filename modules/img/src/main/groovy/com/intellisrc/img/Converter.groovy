@@ -4,11 +4,7 @@ import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 import javax.imageio.ImageIO
-import java.awt.image.BufferedImage
-import java.awt.image.DataBuffer
-import java.awt.image.DataBufferByte
-import java.awt.image.Raster
-import java.awt.image.WritableRaster
+import java.awt.image.*
 
 /**
  * Convert from and to different image formats, for example:

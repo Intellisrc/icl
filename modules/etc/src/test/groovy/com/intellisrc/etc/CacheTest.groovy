@@ -1,11 +1,10 @@
 package com.intellisrc.etc
 
-import com.intellisrc.core.Log
+
 import com.intellisrc.core.SysClock
 import spock.lang.Specification
 
 import java.time.LocalDate
-
 
 /**
  * @since 17/10/30.

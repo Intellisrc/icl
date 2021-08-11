@@ -1,16 +1,11 @@
 package com.intellisrc.crypt.hash
 
+import com.intellisrc.core.Log
 import com.intellisrc.crypt.Crypt
 import com.intellisrc.etc.Bytes
-import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import org.bouncycastle.crypto.Digest
-import org.bouncycastle.crypto.digests.MD5Digest
-import org.bouncycastle.crypto.digests.SHA1Digest
-import org.bouncycastle.crypto.digests.SHA224Digest
-import org.bouncycastle.crypto.digests.SHA256Digest
-import org.bouncycastle.crypto.digests.SHA384Digest
-import org.bouncycastle.crypto.digests.SHA512Digest
+import org.bouncycastle.crypto.digests.*
 import org.bouncycastle.crypto.macs.HMac
 import org.bouncycastle.crypto.params.KeyParameter
 
