@@ -1,6 +1,5 @@
 package com.intellisrc.etc
 
-
 import com.intellisrc.core.SysClock
 import spock.lang.Specification
 

@@ -1,11 +1,8 @@
 package com.intellisrc.web.samples
-
-import com.intellisrc.web.Service
-
 /**
  * @since 17/04/19.
  */
-
+import com.intellisrc.web.Service
 import com.intellisrc.web.Service.Action
 import com.intellisrc.web.ServiciableMultiple
 import groovy.transform.CompileStatic
