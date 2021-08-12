@@ -1,8 +1,6 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
-
 /**
  * Database initialization class
  * If one database is used, you can use static "default".
@@ -20,7 +18,6 @@ class Database {
     Database(DB.Starter type = null, int timeout = 0) {
 		if(type == null) {
 			type = new JDBC()
-            Log.w("Database connection had no settings.")
 		}
         if(!pool) {
             pool = new DBPool()

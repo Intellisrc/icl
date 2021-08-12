@@ -3,7 +3,6 @@ package com.intellisrc.log
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import org.slf4j.event.Level
-
 import java.time.LocalDateTime
 
 import static com.intellisrc.log.Output.OutputType.FILE
