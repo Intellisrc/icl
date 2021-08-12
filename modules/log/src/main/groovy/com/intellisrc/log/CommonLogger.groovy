@@ -298,9 +298,10 @@ class CommonLogger extends MarkerIgnoringBase {
      *            a list of 3 ore more arguments
      */
     protected void formatAndLog(Level level, String format, Object... arguments) {
-        LinkedList args = List.of(arguments) as LinkedList
+        String formatted = format
         Throwable t = null
-        if(!args.empty) {
+        LinkedList args = arguments.toList() as LinkedList
+        if (!args.empty) {
             if (args.first instanceof Object[]) {
                 args = args.first as LinkedList
             }
@@ -308,7 +309,9 @@ class CommonLogger extends MarkerIgnoringBase {
                 t = args.pollLast() as Throwable
             }
         }
-        String formatted = Log.formatString(format, args)
+        if(format) {
+            formatted = Log.formatString(format, args)
+        }
         log(level, formatted, t)
     }
 
