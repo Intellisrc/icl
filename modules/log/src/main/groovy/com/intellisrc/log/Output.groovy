@@ -1,6 +1,10 @@
 package com.intellisrc.log
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
+import org.slf4j.event.Level
+
+import java.time.LocalDateTime
 
 import static com.intellisrc.log.Output.OutputType.FILE
 
@@ -10,8 +14,16 @@ import static com.intellisrc.log.Output.OutputType.FILE
  */
 @CompileStatic
 class Output {
+    static class LogDetail {
+        LocalDateTime time
+        Level level
+        String message
+        Log.Info location
+        Throwable exception
+        String formatted
+    }
     interface OnPrint {
-        void call(String msg)
+        void call(LogDetail info)
     }
     enum OutputType {
         SYS_OUT, CACHED_SYS_OUT, SYS_ERR, CACHED_SYS_ERR, FILE

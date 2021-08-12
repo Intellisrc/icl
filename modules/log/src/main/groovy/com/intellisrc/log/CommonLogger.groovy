@@ -452,7 +452,14 @@ class CommonLogger extends MarkerIgnoringBase {
                         String output = buf.toString()
                         targetStream.println(output)
                         if(printer.output.onPrint) {
-                            printer.output.onPrint.call(output)
+                            printer.output.onPrint.call(new Output.LogDetail(
+                                time        : SysClock.now,
+                                level       : level,
+                                message     : message,
+                                location    : info,
+                                formatted   : output,
+                                exception   : t
+                            ))
                         }
                         if(printer.showStackTrace) {
                             writeThrowable(printer, t, targetStream)
