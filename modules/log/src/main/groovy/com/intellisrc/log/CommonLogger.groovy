@@ -2,6 +2,7 @@ package com.intellisrc.log
 
 import com.intellisrc.core.*
 import groovy.transform.CompileStatic
+import org.slf4j.Logger
 import org.slf4j.event.Level
 import org.slf4j.helpers.MarkerIgnoringBase
 
@@ -491,5 +492,35 @@ class CommonLogger extends MarkerIgnoringBase {
             case Level.ERROR: color = RED; break
         }
         return color
+    }
+    /**
+     * Get file logger
+     * @return
+     */
+    FileLogger getFileLogger() {
+        return printers.find { it instanceof FileLogger } as FileLogger
+    }
+    /**
+     * Get print logger
+     * @return
+     */
+    PrintLogger getPrintLogger() {
+        return printers.find { it instanceof PrintLogger } as PrintLogger
+    }
+    /**
+     * Return LoggableOutputLevels based on type
+     * @param type
+     * @return
+     */
+    LoggableOutputLevels getLoggable(Class type) {
+        return printers.find { type.isInstance(it) } as LoggableOutputLevels
+    }
+    /**
+     * Return Logger based on type
+     * @param type
+     * @return
+     */
+    BaseLogger getLogger(Class type) {
+        return printers.find { type.isInstance(it) } as BaseLogger
     }
 }
