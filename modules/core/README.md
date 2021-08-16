@@ -340,7 +340,29 @@ as a service.
 
 ## Version
 
-This class is mainly used to try to find the package version in different sources:
+This class is used in two ways:
+
+1. As instance, it can help you to manage versions in an easy way:
+
+**NOTE**: It follows the format: `mayor`.`minor`.`build`.`revision`-`suffix` (besides `mayor` the rest are optional and
+suffix can be any alphanumeric including `-`)
+```groovy
+Version version = new Version("1.0.3-beta4")
+if(version.minor == 0) {
+  version.build++
+}
+println version.toString() // 1.0.4-beta4
+```
+Other examples of versions that can be handled are:
+ * 1b3
+ * 1.0b3
+ * 2.0-beta1
+ * 3.11.293
+ * 4.1.1.14
+ * 5.0.1.2-SNAPSHOT
+ * 20100430
+
+2. The static implementation is mainly used to try to find the system or application version in different sources:
 * JAR : Add `Implementation-Version` property into `META-INF/MANIFEST.MF`. You can add in `build.gradle`:
 ```groovy
 jar {

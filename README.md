@@ -68,7 +68,7 @@ For more detailed explanation, click on the module title.<br>
  * `SysInfo`    : Get information about the system (usually paths)
  * `SysMain`    : Convert class into runnable class
  * `SysService` : Convert class into service (only one by project)
- * `Version`    : Return system version
+ * `Version`    : Return system/application version and makes it easy to handle versions
  
 ## [log](modules/log/README.md)
 Includes : core
