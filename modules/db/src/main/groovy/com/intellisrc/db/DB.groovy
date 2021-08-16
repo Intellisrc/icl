@@ -34,10 +34,11 @@ class DB {
 	}
 
 	static enum DBType {
-		DUMMY, SQLITE, MYSQL, POSTGRESQL, JAVADB, ORACLE, DB2, SQLSERVER
+		DUMMY, SQLITE, MYSQL, MARIADB, POSTGRESQL, JAVADB, ORACLE, DB2, SQLSERVER
         int getPort() {
             int port = 0
             switch (this) {
+                case MARIADB:
                 case MYSQL:         port = 3306; break
                 case POSTGRESQL:    port = 5432; break
                 case ORACLE:        port = 1521; break

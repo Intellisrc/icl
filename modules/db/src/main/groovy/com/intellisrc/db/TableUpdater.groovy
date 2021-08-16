@@ -3,6 +3,8 @@ package com.intellisrc.db
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
+import static com.intellisrc.db.DB.DBType.*
+
 /**
  * Updates database tables
  * In summary, it will create a backup of a table,
@@ -46,7 +48,7 @@ class TableUpdater {
      */
     static void update(List<Table> tableList, RecordUpdater recordUpdater = null) {
         DB db = Database.default.connect()
-        if(db.type != DB.DBType.MYSQL) {
+        if(db.type != MYSQL && db.type != MARIADB) {
             Log.w("Only MySQL/MariaDB is supported for now.")
             return
         }

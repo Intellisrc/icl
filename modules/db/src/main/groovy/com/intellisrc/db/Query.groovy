@@ -321,6 +321,7 @@ class Query {
 				switch(dbType) {
 					case SQLITE:
 						squery = "PRAGMA table_info("+getTable()+")";  break
+                    case MARIADB:
 					case MYSQL:
 						squery = "SELECT COLUMN_NAME as 'name', DATA_TYPE as 'type', IF(COLUMN_KEY = 'PRI',1,0) as 'pk' FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+cleanSQL(tableStr)+"'"; break
 					default:
@@ -331,6 +332,7 @@ class Query {
 				switch(dbType) {
 					case SQLITE:				
 						squery = "SELECT last_insert_rowid() as lastid"; break
+                    case MARIADB:
 					case MYSQL:
 						squery = "SELECT LAST_INSERT_ID() as lastid"; break
 					default:
@@ -341,6 +343,7 @@ class Query {
 				switch(dbType) {
 					case SQLITE:				
 						squery = "PRAGMA table_info("+getTable()+")"; break
+                    case MARIADB:
 					case MYSQL:
 						squery = "SHOW TABLES LIKE \""+cleanSQL(tableStr)+"\""; break
 					default:
@@ -363,6 +366,7 @@ class Query {
         String result = str
         switch(dbType) {
             case SQLITE:
+            case MARIADB:
             case MYSQL:
                 result = "`" + result.toLowerCase().replaceAll("/[^a-z0-9._]/","") + "`"
                 break

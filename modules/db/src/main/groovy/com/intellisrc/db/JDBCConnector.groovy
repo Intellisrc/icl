@@ -145,8 +145,9 @@ class JDBCConnector implements Connector {
                 url += "${stype}:${dbname}"
                 break
             //case POSTGRESQL:
-            //case MYSQL:
-            default:
+            //case MARIADB:
+			//case MYSQL:
+			default:
                 url += "${stype}://${host}:${port}/${dbname}"
                 break
         }
@@ -166,18 +167,19 @@ class JDBCConnector implements Connector {
 					Log.e("PostgreSQL Driver not found", e)
 				}
 				break
-            case MYSQL:
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver")
-                    url += "?useSSL=false" //Disable SSL warning
-                    url += "&autoReconnect=true" //Reconnect
+			case MARIADB:
+			case MYSQL:
+				try {
+					Class.forName(type == MYSQL ? "com.mysql.cj.jdbc.Driver" : "org.mariadb.jdbc.Driver")
+					url += "?useSSL=false" //Disable SSL warning
+					url += "&autoReconnect=true" //Reconnect
                     //UTF-8 enable:
                     url += "&useUnicode=true"
                     url += "&characterEncoding=UTF-8"
                     url += "&characterSetResults=utf8"
                     url += "&connectionCollation=utf8_general_ci"
                 } catch(Exception e) {
-                    Log.e( "MySQL Driver not found: ",e)
+                    Log.e( "%s Driver not found: ", type.toString(), e)
                     url = ""
                 }
                 break

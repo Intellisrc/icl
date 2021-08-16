@@ -4,19 +4,94 @@ import groovy.transform.CompileStatic
 
 import java.util.jar.Attributes
 import java.util.jar.Manifest
+import java.util.regex.Matcher
 
 /**
- * Automatic search for version
+ * Version object which can be used to easily update parts of it.
+ * It can import versions from String and export them to String
+ *
+ * For example:
+ *  2.0-beta1
+ *  3.11.293
+ *  4.1.1.14
+ *  5.0.1-SNAPSHOT
+ *
+ * [Static] Automatic search for version
  * @since 17/11/17.
  */
 @CompileStatic
 class Version {
+    ////////////////////// INSTANCE ///////////////////////////
+    int mayor = 0
+    int minor = 0
+    int build = 0
+    int revision = 0
+    String suffix = ""
+
+    boolean minorEnabled = false
+    boolean buildEnabled = false
+    boolean revisionEnabled = false
+    /**
+     * Constructor
+     * @param version
+     */
+    Version(String version = "") {
+        parseString(version ?: get())
+    }
+    /**
+     * Parse string
+     * @param version
+     */
+    protected void parseString(String version) {
+        Matcher m = (version =~/^(\d+)(\.(\d+))?(\.(\d+))?(\.(\d+))?([a-zA-Z0-9-]+)?$/)
+        if(m.matches()) {
+            mayor = m.group(1) as int
+            if(m.group(3)) {
+                minor = m.group(3) as int
+                minorEnabled = true
+            }
+            if(m.group(5)) {
+                build = m.group(5) as int
+                buildEnabled = true
+            }
+            if(m.group(7)) {
+                revision = m.group(7) as int
+                revisionEnabled = true
+            }
+            suffix = m.group(8) ?: ""
+        }
+    }
+    /**
+     * Return version to string
+     * @return
+     */
+    String toString() {
+        String min = minorEnabled ? "." + minor : ""
+        String bld = buildEnabled ? "." + build : ""
+        String rev = revisionEnabled ? "." + revision : ""
+        return mayor + min + bld + rev + suffix
+    }
+    ////////////////////// STATIC ///////////////////////////
     //This class will be changed by SysMain or SysService
     static public Class mainClass = Version.class
     private static enum Source {
         JAR, CONFIG, GRADLE, NONE
     }
     private static Source source = Source.NONE
+    /**
+     * Parse a string and return Version object
+     * @return
+     */
+    static Version parse(String version) {
+        return new Version(version)
+    }
+    /**
+     * Return current version as Version
+     * @return
+     */
+    static Version getCurrent() {
+        return new Version(get())
+    }
     /**
      * Return system version from JAR or Gradle file
      * @return

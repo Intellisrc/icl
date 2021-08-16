@@ -16,9 +16,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.regex.Matcher
 
+import static com.intellisrc.db.DB.DBType.*
+
 @CompileStatic
 class Table<T extends Model> implements Instanciable<T> {
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
+    protected boolean versionChecked = false // it will be set to true after the version has been checked
     protected Database database
     protected final String name
     protected Set<DB> activeConnections = []
@@ -39,107 +42,110 @@ class Table<T extends Model> implements Instanciable<T> {
      * Create the database based on @Column and @TableMeta
      */
     void createTable() {
-        boolean exists = tableConnect.exists()
-        if(tableConnect.type != DB.DBType.MYSQL) {
-            Log.w("Only MySQL/MariaDB is supported for now.")
-            return
-        }
-        if(exists && autoUpdate) {
-            if(definedVersion > tableVersion) {
-                Log.i("Table [%s] is going to be updated from version: %d to %d",
-                        tableName, tableVersion, definedVersion)
-                TableUpdater.update([this])
-            } else {
-                Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
-                        tableName, tableVersion, definedVersion)
+        if(!versionChecked) {
+            versionChecked = true
+            boolean exists = tableConnect.exists()
+            if (tableConnect.type != MYSQL && tableConnect.type != MARIADB) {
+                Log.w("Only MySQL/MariaDB is supported for now.")
+                return
             }
-        }
-        if(!exists) {
-            String charset = "utf8"
-            String engine = ""
-            if(this.class.isAnnotationPresent(TableMeta)) {
-                TableMeta meta = this.class.getAnnotation(TableMeta)
-                if(meta.engine() != "auto") {
-                    engine = meta.engine()
+            if (exists && autoUpdate) {
+                if (definedVersion > tableVersion) {
+                    Log.i("Table [%s] is going to be updated from version: %d to %d",
+                            tableName, tableVersion, definedVersion)
+                    TableUpdater.update([this])
+                } else {
+                    Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                            tableName, tableVersion, definedVersion)
                 }
-                charset = meta.charset()
             }
-            String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
-            List<String> columns = []
-            List<String> keys = []
-            Map<String, List<String>> uniqueGroups = [:]
-            getFields().each {
-                Field field ->
-                    field.setAccessible(true)
-                    if (Modifier.isPrivate(field.modifiers)) {
-                        Modifier.setPublic(field.modifiers)
+            if (!exists) {
+                String charset = "utf8"
+                String engine = ""
+                if (this.class.isAnnotationPresent(TableMeta)) {
+                    TableMeta meta = this.class.getAnnotation(TableMeta)
+                    if (meta.engine() != "auto") {
+                        engine = meta.engine()
                     }
-                    String fname = getColumnName(field)
-                    Column column = field.getAnnotation(Column)
-                    List<String> parts = ["`${fname}`".toString()]
-                    if (! column) {
-                        String type = getColumnDefinition(field)
-                        assert type: "Unknown type: ${field.type.simpleName} in ${field.name}"
-                        parts << type
-                        String defaultVal = getDefaultValue(field)
-                        if(defaultVal) {
-                            parts << defaultVal
+                    charset = meta.charset()
+                }
+                String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
+                List<String> columns = []
+                List<String> keys = []
+                Map<String, List<String>> uniqueGroups = [:]
+                getFields().each {
+                    Field field ->
+                        field.setAccessible(true)
+                        if (Modifier.isPrivate(field.modifiers)) {
+                            Modifier.setPublic(field.modifiers)
                         }
-                    } else {
-                        if (column.columnDefinition()) {
-                            parts << column.columnDefinition()
-                        } else {
-                            String type = column.type() ?: getColumnDefinition(field, column)
+                        String fname = getColumnName(field)
+                        Column column = field.getAnnotation(Column)
+                        List<String> parts = ["`${fname}`".toString()]
+                        if (!column) {
+                            String type = getColumnDefinition(field)
+                            assert type: "Unknown type: ${field.type.simpleName} in ${field.name}"
                             parts << type
-
-                            String defaultVal = getDefaultValue(field, column.nullable())
-                            if(defaultVal) {
+                            String defaultVal = getDefaultValue(field)
+                            if (defaultVal) {
                                 parts << defaultVal
                             }
+                        } else {
+                            if (column.columnDefinition()) {
+                                parts << column.columnDefinition()
+                            } else {
+                                String type = column.type() ?: getColumnDefinition(field, column)
+                                parts << type
 
-                            List<String> extra = []
-                            if (column.unique() || column.uniqueGroup()) {
-                                if(column.uniqueGroup()) {
-                                    if(! uniqueGroups.containsKey(column.uniqueGroup())) {
-                                        uniqueGroups[column.uniqueGroup()] = []
+                                String defaultVal = getDefaultValue(field, column.nullable())
+                                if (defaultVal) {
+                                    parts << defaultVal
+                                }
+
+                                List<String> extra = []
+                                if (column.unique() || column.uniqueGroup()) {
+                                    if (column.uniqueGroup()) {
+                                        if (!uniqueGroups.containsKey(column.uniqueGroup())) {
+                                            uniqueGroups[column.uniqueGroup()] = []
+                                        }
+                                        uniqueGroups[column.uniqueGroup()] << fname
+                                    } else {
+                                        extra << "UNIQUE"
                                     }
-                                    uniqueGroups[column.uniqueGroup()] << fname
-                                } else {
-                                    extra << "UNIQUE"
+                                }
+                                if (!extra.empty) {
+                                    parts.addAll(extra)
                                 }
                             }
-                            if(!extra.empty) {
-                                parts.addAll(extra)
+                            if (column.key()) {
+                                keys << "KEY `${tableName}_${fname}_key_index` (`${fname}`)".toString()
                             }
                         }
-                        if(column.key()) {
-                            keys << "KEY `${tableName}_${fname}_key_index` (`${fname}`)".toString()
-                        }
+                        columns << parts.join(' ')
+                }
+                if (!keys.empty) {
+                    columns.addAll(keys)
+                }
+                if (!uniqueGroups.keySet().empty) {
+                    uniqueGroups.each {
+                        columns << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
                     }
-                    columns << parts.join(' ')
-            }
-            if(!keys.empty) {
-                columns.addAll(keys)
-            }
-            if(! uniqueGroups.keySet().empty) {
-                uniqueGroups.each {
-                    columns << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
+                }
+                String fks = getFields().collect { getForeignKey(it) }.findAll { it }.join(",\n")
+                if (fks) {
+                    columns << fks
+                }
+                if (engine) {
+                    engine = "ENGINE=${engine}"
+                }
+                createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
+                if (!tableConnect.exec(new Query(createSQL))) {
+                    Log.v(createSQL)
+                    Log.e("Unable to create table.")
                 }
             }
-            String fks = getFields().collect { getForeignKey(it) }.findAll { it }.join(",\n")
-            if(fks) {
-                columns << fks
-            }
-            if(engine) {
-                engine = "ENGINE=${engine}"
-            }
-            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
-            if (!tableConnect.exec(new Query(createSQL))) {
-                Log.v(createSQL)
-                Log.e("Unable to create table.")
-            }
+            closeConnections()
         }
-        closeConnections()
     }
 
     /**
