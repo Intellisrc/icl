@@ -20,11 +20,14 @@ import static com.intellisrc.db.DB.DBType.*
 
 @CompileStatic
 class Table<T extends Model> implements Instanciable<T> {
+    static boolean alwaysCheck = false  //Used by updater
+    static protected Map<String, Boolean> versionChecked = [:] // it will be set to true after the version has been checked
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
-    protected boolean versionChecked = false // it will be set to true after the version has been checked
     protected Database database
     protected final String name
     protected Set<DB> activeConnections = []
+    protected int cache = 0
+    protected boolean clearCache = false
     /**
      * Constructor. A Database object can be passed
      * when using multiple databases.
@@ -34,118 +37,133 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     Table(String name = "", Database database = null) {
         this.database = database ?: Database.getDefault()
-        this.name = name ?: this.class.getAnnotation(TableMeta)?.name() ?: this.class.simpleName.toSnakeCase()
+        TableMeta meta = this.class.getAnnotation(TableMeta)
+        this.name = name ?: meta?.name() ?: this.class.simpleName.toSnakeCase()
+        if(meta) {
+            this.cache = meta.cache()
+            this.clearCache = meta.clearCache()
+            this.autoUpdate = meta.autoUpdate()
+        }
         assert this.name : "Table name not set"
-        createTable()
+        updateOrCreate()
+    }
+    /**
+     * Decide if table needs to be updated or created
+     */
+    void updateOrCreate() {
+        if(alwaysCheck || !versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
+            versionChecked[tableName.toString()] = true
+            boolean exists = tableConnector.exists()
+            if (tableConnector.type != MYSQL && tableConnector.type != MARIADB) {
+                Log.w("Create or Update : MySQL/MariaDB is only supported for now.")
+                return
+            }
+            if (exists) {
+                if(autoUpdate) {
+                    if (definedVersion > tableVersion) {
+                        Log.i("Table [%s] is going to be updated from version: %d to %d",
+                                tableName, tableVersion, definedVersion)
+                        TableUpdater.update([this])
+                    } else {
+                        Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                                tableName, tableVersion, definedVersion)
+                    }
+                }
+            } else {
+                createTable()
+            }
+        }
     }
     /**
      * Create the database based on @Column and @TableMeta
      */
     void createTable() {
-        if(!versionChecked) {
-            versionChecked = true
-            boolean exists = tableConnect.exists()
-            if (tableConnect.type != MYSQL && tableConnect.type != MARIADB) {
-                Log.w("Only MySQL/MariaDB is supported for now.")
-                return
-            }
-            if (exists && autoUpdate) {
-                if (definedVersion > tableVersion) {
-                    Log.i("Table [%s] is going to be updated from version: %d to %d",
-                            tableName, tableVersion, definedVersion)
-                    TableUpdater.update([this])
-                } else {
-                    Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
-                            tableName, tableVersion, definedVersion)
+        if (!tableConnector.exists()) {
+            String charset = "utf8"
+            String engine = ""
+            if (this.class.isAnnotationPresent(TableMeta)) {
+                TableMeta meta = this.class.getAnnotation(TableMeta)
+                if (meta.engine() != "auto") {
+                    engine = meta.engine()
                 }
+                charset = meta.charset()
             }
-            if (!exists) {
-                String charset = "utf8"
-                String engine = ""
-                if (this.class.isAnnotationPresent(TableMeta)) {
-                    TableMeta meta = this.class.getAnnotation(TableMeta)
-                    if (meta.engine() != "auto") {
-                        engine = meta.engine()
+            String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
+            List<String> columns = []
+            List<String> keys = []
+            Map<String, List<String>> uniqueGroups = [:]
+            getFields().each {
+                Field field ->
+                    field.setAccessible(true)
+                    if (Modifier.isPrivate(field.modifiers)) {
+                        Modifier.setPublic(field.modifiers)
                     }
-                    charset = meta.charset()
-                }
-                String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
-                List<String> columns = []
-                List<String> keys = []
-                Map<String, List<String>> uniqueGroups = [:]
-                getFields().each {
-                    Field field ->
-                        field.setAccessible(true)
-                        if (Modifier.isPrivate(field.modifiers)) {
-                            Modifier.setPublic(field.modifiers)
+                    String fieldName = getColumnName(field)
+                    Column column = field.getAnnotation(Column)
+                    List<String> parts = ["`${fieldName}`".toString()]
+                    if (!column) {
+                        String type = getColumnDefinition(field)
+                        assert type: "Unknown type: ${field.type.simpleName} in ${field.name}"
+                        parts << type
+                        String defaultVal = getDefaultValue(field)
+                        if (defaultVal) {
+                            parts << defaultVal
                         }
-                        String fname = getColumnName(field)
-                        Column column = field.getAnnotation(Column)
-                        List<String> parts = ["`${fname}`".toString()]
-                        if (!column) {
-                            String type = getColumnDefinition(field)
-                            assert type: "Unknown type: ${field.type.simpleName} in ${field.name}"
+                    } else {
+                        if (column.columnDefinition()) {
+                            parts << column.columnDefinition()
+                        } else {
+                            String type = column.type() ?: getColumnDefinition(field, column)
                             parts << type
-                            String defaultVal = getDefaultValue(field)
+
+                            String defaultVal = getDefaultValue(field, column.nullable())
                             if (defaultVal) {
                                 parts << defaultVal
                             }
-                        } else {
-                            if (column.columnDefinition()) {
-                                parts << column.columnDefinition()
-                            } else {
-                                String type = column.type() ?: getColumnDefinition(field, column)
-                                parts << type
 
-                                String defaultVal = getDefaultValue(field, column.nullable())
-                                if (defaultVal) {
-                                    parts << defaultVal
-                                }
-
-                                List<String> extra = []
-                                if (column.unique() || column.uniqueGroup()) {
-                                    if (column.uniqueGroup()) {
-                                        if (!uniqueGroups.containsKey(column.uniqueGroup())) {
-                                            uniqueGroups[column.uniqueGroup()] = []
-                                        }
-                                        uniqueGroups[column.uniqueGroup()] << fname
-                                    } else {
-                                        extra << "UNIQUE"
+                            List<String> extra = []
+                            if (column.unique() || column.uniqueGroup()) {
+                                if (column.uniqueGroup()) {
+                                    if (!uniqueGroups.containsKey(column.uniqueGroup())) {
+                                        uniqueGroups[column.uniqueGroup()] = []
                                     }
-                                }
-                                if (!extra.empty) {
-                                    parts.addAll(extra)
+                                    uniqueGroups[column.uniqueGroup()] << fieldName
+                                } else {
+                                    extra << "UNIQUE"
                                 }
                             }
-                            if (column.key()) {
-                                keys << "KEY `${tableName}_${fname}_key_index` (`${fname}`)".toString()
+                            if (!extra.empty) {
+                                parts.addAll(extra)
                             }
                         }
-                        columns << parts.join(' ')
-                }
-                if (!keys.empty) {
-                    columns.addAll(keys)
-                }
-                if (!uniqueGroups.keySet().empty) {
-                    uniqueGroups.each {
-                        columns << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
+                        if (column.key()) {
+                            keys << "KEY `${tableName}_${fieldName}_key_index` (`${fieldName}`)".toString()
+                        }
                     }
-                }
-                String fks = getFields().collect { getForeignKey(it) }.findAll { it }.join(",\n")
-                if (fks) {
-                    columns << fks
-                }
-                if (engine) {
-                    engine = "ENGINE=${engine}"
-                }
-                createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
-                if (!tableConnect.exec(new Query(createSQL))) {
-                    Log.v(createSQL)
-                    Log.e("Unable to create table.")
+                    columns << parts.join(' ')
+            }
+            if (!keys.empty) {
+                columns.addAll(keys)
+            }
+            if (!uniqueGroups.keySet().empty) {
+                uniqueGroups.each {
+                    columns << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
                 }
             }
-            closeConnections()
+            String fks = getFields().collect { getForeignKey(it) }.findAll { it }.join(",\n")
+            if (fks) {
+                columns << fks
+            }
+            if (engine) {
+                engine = "ENGINE=${engine}"
+            }
+            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
+            if (!tableConnector.exec(new Query(createSQL))) {
+                Log.v(createSQL)
+                Log.e("Unable to create table.")
+            }
         }
+        closeConnections()
     }
 
     /**
@@ -155,7 +173,7 @@ class Table<T extends Model> implements Instanciable<T> {
     String getComment() {
         DB connection = database.connect()
         Query query = new Query("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=? AND table_name=?",
-                [connection.db.name, tableName])
+                [connection.dbConnector.name, tableName])
         String comment = connection.exec(query).toString()
         connection.close()
         return comment
@@ -318,8 +336,18 @@ class Table<T extends Model> implements Instanciable<T> {
                     case URL:
                         model[origName] = new URL(it.value.toString())
                         break
+                    case Inet4Address:
+                        model[origName] = it.value.toString().toInet4Address()
+                        break
+                    case Inet6Address:
+                        model[origName] = it.value.toString().toInet6Address()
+                        break
                     case Enum:
-                        model[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString())
+                        if(it.value.toString().isNumber()) {
+                            model[origName] = (field.type as Class<Enum>).enumConstants[it.value as int]
+                        } else {
+                            model[origName] = valueOf((Class<Enum>) field.type, it.value.toString())
+                        }
                         break
                     case Model:
                         Constructor<?> c = field.type.getConstructor()
@@ -525,7 +553,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     T get(int id) {
-        Map map = tableConnect.key(pk).get(id)?.toMap() ?: [:]
+        Map map = tableConnector.key(pk).get(id)?.toMap() ?: [:]
         T model = setMap(map)
         closeConnections()
         return model
@@ -536,7 +564,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     List<T> get(List<Integer> ids) {
-        List<Map> list = tableConnect.key(pk).get(ids).toListMap()
+        List<Map> list = tableConnector.key(pk).get(ids).toListMap()
         List<T> all = list.collect {
             Map map ->
                 return setMap(map)
@@ -555,7 +583,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     List<T> getAll(Map options = [:]) {
-        DB con = tableConnect
+        DB con = tableConnector
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
         }
@@ -584,7 +612,7 @@ class Table<T extends Model> implements Instanciable<T> {
         List<T> list = []
         if(f) {
             String id = getColumnName(f)
-            list = tableConnect.get([(id): model.id]).toListMap().collect { setMap(it) }
+            list = tableConnector.get([(id): model.id]).toListMap().collect { setMap(it) }
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
@@ -607,7 +635,7 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     T find(Map criteria) {
         criteria = convertToDB(criteria)
-        Map map = tableConnect.get(criteria)?.toMap() ?: [:]
+        Map map = tableConnector.get(criteria)?.toMap() ?: [:]
         T model = setMap(map)
         closeConnections()
         return model
@@ -628,7 +656,7 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     List<T> findAll(Map criteria) {
         criteria = convertToDB(criteria)
-        List<Map> list = tableConnect.get(criteria).toListMap()
+        List<Map> list = tableConnector.get(criteria).toListMap()
         List<T> all = list.collect {
             Map map ->
                 return setMap(map)
@@ -648,7 +676,7 @@ class Table<T extends Model> implements Instanciable<T> {
         exclude.each {
             map.remove(it)
         }
-        boolean ok = tableConnect.key(pk).update(map, id)
+        boolean ok = tableConnector.key(pk).update(map, id)
         closeConnections()
         return ok
     }
@@ -666,7 +694,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     boolean delete(int id) {
-        boolean ok = tableConnect.key(pk).delete(id)
+        boolean ok = tableConnector.key(pk).delete(id)
         closeConnections()
         return ok
     }
@@ -677,7 +705,7 @@ class Table<T extends Model> implements Instanciable<T> {
      */
     boolean delete(Map map) {
         map = convertToDB(map)
-        boolean ok = tableConnect.key(pk).delete(map)
+        boolean ok = tableConnector.key(pk).delete(map)
         closeConnections()
         return ok
     }
@@ -687,7 +715,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     boolean delete(List<Integer> ids) {
-        boolean ok = tableConnect.key(pk).delete(ids)
+        boolean ok = tableConnector.key(pk).delete(ids)
         closeConnections()
         return ok
     }
@@ -702,7 +730,7 @@ class Table<T extends Model> implements Instanciable<T> {
         DB db
         try {
             Map<String, Object> map = getMap(model)
-            db = tableConnect
+            db = tableConnector
             boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
@@ -727,7 +755,7 @@ class Table<T extends Model> implements Instanciable<T> {
         boolean ok = false
         try {
             Map<String, Object> map = getMap(model)
-            ok = tableConnect.replace(map)
+            ok = tableConnector.replace(map)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
@@ -753,8 +781,10 @@ class Table<T extends Model> implements Instanciable<T> {
      * Get a connection. If its already opened, reuse
      * @return
      */
-    synchronized DB getTableConnect() {
+    synchronized DB getTableConnector() {
         DB db = database.connect().table(tableName)
+        db.cache = cache
+        db.clearCache = clearCache
         activeConnections.add(db)
         return db
     }
@@ -777,6 +807,6 @@ class Table<T extends Model> implements Instanciable<T> {
      * Drops the table
      */
     void drop() {
-        tableConnect.exec(new Query("DROP TABLE IF EXISTS ${tableName}"))
+        tableConnector.exec(new Query("DROP TABLE IF EXISTS ${tableName}"))
     }
 }

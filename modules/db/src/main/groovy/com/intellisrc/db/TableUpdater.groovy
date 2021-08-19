@@ -48,6 +48,9 @@ class TableUpdater {
      */
     static void update(List<Table> tableList, RecordUpdater recordUpdater = null) {
         DB db = Database.default.connect()
+        Table.alwaysCheck = true
+        DB.disableCache = true
+
         if(db.type != MYSQL && db.type != MARIADB) {
             Log.w("Only MySQL/MariaDB is supported for now.")
             return
@@ -73,17 +76,20 @@ class TableUpdater {
                     db.table(it.name).drop()
                 }
             }
-            tables.each {
+            ok = ! tables.any {
                 it.table.createTable()
+                return ! db.table(it.name).exists()
             }
-            tables.each {
-                TableInfo info ->
-                    if(recordUpdater) {
-                        List<Map> newData = recordUpdater.fix(db.table(info.backName), info.table)
-                        ok = db.table(info.name).insert(newData)
-                    } else {
-                        db.exec(new Query("INSERT IGNORE INTO `${info.name}` SELECT * FROM `${info.backName}`"))
-                    }
+            if(ok) {
+                tables.each {
+                    TableInfo info ->
+                        if (recordUpdater) {
+                            List<Map> newData = recordUpdater.fix(db.table(info.backName), info.table)
+                            ok = db.table(info.name).insert(newData)
+                        } else {
+                            db.exec(new Query("INSERT IGNORE INTO `${info.name}` SELECT * FROM `${info.backName}`"))
+                        }
+                }
             }
             if(ok) {
                 tables.each {
@@ -112,6 +118,9 @@ class TableUpdater {
         }
         db.exec(new Query("SET FOREIGN_KEY_CHECKS=1"))
         db.close()
+
+        Table.alwaysCheck = false
+        DB.disableCache = false
     }
     /**
      * Close all connections to the default database

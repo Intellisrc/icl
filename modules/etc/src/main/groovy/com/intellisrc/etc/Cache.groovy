@@ -1,5 +1,6 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
@@ -19,12 +20,13 @@ import java.util.concurrent.ConcurrentMap
  */
 class Cache<V> {
     static public final int FOREVER = -1
-    static public final int DEFAULT = 600
+    static protected int defaultGCInterval = Config.get("cache.gc", 120) //seconds
+    static protected int defaultTimeout = Config.get("cache.timeout", FOREVER) //seconds
     interface onNotFound {
         V call()
     }
-	public int gcInterval = 120 //seconds
-    public int timeout = DEFAULT //seconds
+	public int gcInterval = defaultGCInterval
+    public int timeout = defaultTimeout
     public boolean extend  = false
 
     /**
@@ -39,7 +41,7 @@ class Cache<V> {
         protected int     length = 0
         protected boolean forever = false
 
-        CacheItem(V obj, int timeToStoreSec = DEFAULT) {
+        CacheItem(V obj, int timeToStoreSec = defaultTimeout) {
             if(timeToStoreSec != 0) { //Do not store if its disabled
                 value = obj
                 if (timeToStoreSec > 0) {
@@ -111,17 +113,21 @@ class Cache<V> {
 	 */
     V get(final String key, onNotFound notFound = null, int time = timeout) {
         V ret = null
-        if(contains(key)) {
-            ret = cache.get(key).value
-			Log.d( "[$key] read from cache")
-        } else {
-            if(notFound) {
-                ret = notFound.call()
-				if(ret) {
-					Log.v( "[$key] added to cache")
-				}
+        if(key && time) {
+            if (contains(key)) {
+                ret = cache.get(key).value
+                Log.v("[$key] read from cache")
+            } else {
+                if (notFound) {
+                    ret = notFound.call()
+                    if (ret != null) {
+                        Log.v("[$key] added to cache")
+                        set(key, ret, time)
+                    }
+                }
             }
-            set(key, ret, time)
+        } else {
+            ret = notFound.call()
         }
         return ret
     }

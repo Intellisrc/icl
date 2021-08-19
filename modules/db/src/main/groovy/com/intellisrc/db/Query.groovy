@@ -325,7 +325,7 @@ class Query {
 					case MYSQL:
 						squery = "SELECT COLUMN_NAME as 'name', DATA_TYPE as 'type', IF(COLUMN_KEY = 'PRI',1,0) as 'pk' FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+cleanSQL(tableStr)+"'"; break
 					default:
-						Log.e("Type not defined on INFO")
+						Log.e("Type [%s] not defined on INFO", dbType)
 				}
 				break
             case LASTID:
@@ -336,7 +336,7 @@ class Query {
 					case MYSQL:
 						squery = "SELECT LAST_INSERT_ID() as lastid"; break
 					default:
-						Log.e("Type not defined on LASTID")
+						Log.e("Type [%s] not defined on LASTID", dbType)
 				}
 				break
             case EXISTS: 
@@ -347,7 +347,7 @@ class Query {
 					case MYSQL:
 						squery = "SHOW TABLES LIKE \""+cleanSQL(tableStr)+"\""; break
 					default:
-						Log.e("Type not defined on EXISTS")
+						Log.e("Type [%s] not defined on EXISTS", dbType)
 				}	
 				break
             default :

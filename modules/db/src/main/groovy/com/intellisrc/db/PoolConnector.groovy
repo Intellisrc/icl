@@ -12,7 +12,7 @@ import groovy.transform.CompileStatic
  * @author Alberto Lepe <lepe@intellisrc.com>
  */
 class PoolConnector implements Connector {
-	Connector connector
+	protected Connector currentConnector
 	private final DBPool pool
 	long lastUsed = 0
 
@@ -31,22 +31,27 @@ class PoolConnector implements Connector {
 
 	@Override
 	boolean isOpen() {
-		return connector?.isOpen()
+		return currentConnector?.isOpen()
 	}
 
 	@Override
 	String getName() {
-		return connector?.name
+		return pool.starter.name ?: currentConnector.name
+	}
+
+	@Override
+	DBType getType() {
+		return pool?.starter?.type ?: currentConnector?.type
 	}
 
 	@Override
 	void open() {
         if(!isOpen()) {
-            connector = pool?.getConnectionFromPool()
+            currentConnector = pool?.getConnectionFromPool()
 			Log.v( "DB got from Pool")
             try {
 				if(!isOpen()) {
-					connector.open()
+					currentConnector.open()
 					Log.v( "DB was opened")
 				}
             } catch (e) {
@@ -57,23 +62,18 @@ class PoolConnector implements Connector {
 
 	@Override
 	boolean close() {
-		pool?.returnConnectionToPool(connector)
+		pool?.returnConnectionToPool(currentConnector)
 		Log.v( "DB returned.")
 		return true
 	}
 
 	@Override
 	Statement prepare(Query query) {
-		return connector?.prepare(query)
+		return currentConnector?.prepare(query)
 	}
 
 	@Override
 	void onError(Exception ex) {
-		connector?.onError(ex)
-	}
-
-	@Override
-	DBType getType() {
-		return connector?.getType()
+		currentConnector?.onError(ex)
 	}
 }

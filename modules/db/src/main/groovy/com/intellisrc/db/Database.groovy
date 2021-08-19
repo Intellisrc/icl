@@ -17,7 +17,7 @@ class Database {
 	}
     Database(DB.Starter type = null, int timeout = 0) {
 		if(type == null) {
-			type = new JDBC()
+            type = new JDBC()
 		}
         if(!pool) {
             pool = new DBPool()

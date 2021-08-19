@@ -10,7 +10,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class JDBC implements DB.Starter {
-    protected String connStr
+    protected final String connStr
     JDBC(String connectionString = "") {
         connStr = connectionString
     }
@@ -24,10 +24,16 @@ class JDBC implements DB.Starter {
     }
     @Override
     String getName() {
-        return new JDBCConnector(connectionString).name
+        return connector.name
     }
+
     @Override
-    DB.Connector getNewConnection() {
+    DB.DBType getType() {
+        return connector.type
+    }
+
+    @Override
+    DB.Connector getConnector() {
         return new JDBCConnector(connectionString)
     }
 }

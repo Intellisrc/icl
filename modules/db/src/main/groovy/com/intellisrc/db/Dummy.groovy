@@ -13,12 +13,17 @@ class Dummy implements DB.Starter {
     }
 
     @Override
+    DB.DBType getType() {
+        return DB.DBType.DUMMY
+    }
+
+    @Override
     String getConnectionString() {
         return "dummy://dummy"
     }
 
     @Override
-    DB.Connector getNewConnection() {
+    DB.Connector getConnector() {
         return new DummyConnector()
     }
 }

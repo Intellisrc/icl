@@ -641,6 +641,7 @@ class WebService {
                             }
                         } else {
                             response.status(404)
+                            output = new Output(contentType: Mime.TXT, type : OutputType.TEXT)
                             output.content = "Not Found"
                         }
                     } else { // Unauthorized

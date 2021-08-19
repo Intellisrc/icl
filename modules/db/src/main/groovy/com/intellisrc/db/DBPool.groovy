@@ -42,6 +42,7 @@ class DBPool {
 				Log.w("Connection expiration time should be usually greater than timeout: Expire: %d < Timeout: %d",
 						expireSeconds, timeoutSeconds)
 			}
+			// Start with one connector:
 			Thread.startDaemon {
 				int minTime = [expireSeconds, timeoutSeconds].min()
 				long waitTime = (minTime < 60 ? minTime : 60) * 1000
@@ -111,7 +112,7 @@ class DBPool {
 	 * @param DatabaseName
 	 * @param ConnectionStr
      */
-    synchronized void increasePool() {
+    synchronized void increasePoolIfEmpty() {
         if (availableConnections.isEmpty()) {
             availableConnections.add(createNewConnectionForPool())
             Log.v( "DB added to pool")
@@ -152,7 +153,7 @@ class DBPool {
 	private synchronized DB.Connector createNewConnectionForPool() {
 		DB.Connector conn = null
 		try {
-			conn = starter.getNewConnection()
+			conn = starter.getConnector()
 		} catch (Exception e) {
 			Log.e( "Unable to load the connection class", e)
 		}
@@ -162,7 +163,7 @@ class DBPool {
 	synchronized DB.Connector getConnectionFromPool() {
 		DB.Connector connection = null
 		if(initialized) {
-            increasePool()
+            increasePoolIfEmpty()
             connection = availableConnections.poll()
 			connection.lastUsed = System.currentTimeSeconds()
 			currentConnections.add(connection)
@@ -177,8 +178,10 @@ class DBPool {
 	}
 
 	synchronized void returnConnectionToPool(DB.Connector connection) {
-		currentConnections.remove(connection)
-		availableConnections.add(connection)
-		Log.v( "Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
+		if(connection) {
+			currentConnections.remove(connection)
+			availableConnections.add(connection)
+			Log.v("Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
+		}
 	}
 }

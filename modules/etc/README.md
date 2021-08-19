@@ -359,6 +359,7 @@ This class is to provide or guess the mime type of files,
 file extensions or streams:
 
 ```groovy
+Mime.JPG             // Most common types are provided directly
 Mime.getType(file)   // based on content or filename
 Mime.getType("jpg")  // based on extension
 Mime.getType(stream) // based on byte headers
@@ -368,6 +369,20 @@ is not found or mistaken:
 
 ```properties
 mime.cust=unknown/custom
+```
+
+If you use the `web` module, you can set the "content-type" header like this:
+
+```groovy
+new Service(
+    path : "/pdf/:id",
+    contentType : Mime.PDF,
+    action : {
+        Request request -> 
+            int id = request.params("id") as int
+            return SysInfo.getFile("private", "documents", id)
+    }
+)
 ```
 
 ## Bytes

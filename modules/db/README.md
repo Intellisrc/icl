@@ -112,6 +112,12 @@ Each field that we want to create in the table, we need to annotate with
 `@Column` (see `Column` annotation for more details on how to use it).
 
 ```groovy
+import javax.swing.table.TableColumn
+
+enum MyColor {
+    WHITE, RED, GREEN, BLUE, YELLOW, BLACK
+}
+
 class User extends Model<Users> {
     @Column(primary = true, autoincrement = true)
     int id
@@ -123,8 +129,13 @@ class User extends Model<Users> {
     int age
     @Column
     boolean active = true
+    @Column // For 'enum', nothing special is needed (* see note below)
+    MyColor color = MyColor.BLACK
 }
 ```
+`Enum` columns are automatically converted into `ENUM` in the database for convenience. This make your data easy to
+read without using more storage than needed. Everytime you update the values of an `Enum` used as column, you
+will need to update the Model version or recreate it again. 
 
 If you are planning to update the model, we recommend to use `@ModelMeta`, for
 example:

@@ -40,7 +40,7 @@ import static java.sql.Types.*
  */
 class JDBCConnector implements Connector {
 	protected static int TIMEOUT = 1000
-	protected String dbname = ""
+	protected String name = ""
 	protected String user = ""
 	protected String pass = ""
 	protected String host = ""
@@ -56,28 +56,24 @@ class JDBCConnector implements Connector {
 	 */
 	JDBCConnector(String conn_url = "") {
         if(conn_url.isEmpty()) {
-            if(Config.exists("db.name")) {
-                this.dbname = Config.get("db.name")  //    database name
-            }
+            this.name = Config.get("db.name")  //    database name
             if(!Config.exists("db.jdbc.url")) {
-                if(Config.exists("db.type")) {
-					try {
-						type = Config.get("db.type", "mysql").toUpperCase() as DBType
-					} catch(Exception ignore) {
-						Log.w("Specified database type is not supported: %s", Config.get("db.type"))
-					}
-                    host = Config.get("db.host", "localhost")
-                    user = Config.get("db.user", "root")
-                    pass = Config.get("db.pass")
-                    port = Config.get("db.port", type.port)
-                }
+				try {
+					type = Config.get("db.type", "mysql").toUpperCase() as DBType
+				} catch(Exception ignore) {
+					Log.w("Specified database type is not supported: %s", Config.get("db.type"))
+				}
+				host = Config.get("db.host", "localhost")
+				user = Config.get("db.user", "root")
+				pass = Config.get("db.pass")
+				port = Config.get("db.port", type.port)
             } else {
                 parseJDBC(Config.get("db.jdbc.url"))
             }
         } else if(!conn_url.isEmpty()) {
             parseJDBC(conn_url)
         }
-		assert dbname
+		assert name
 	}
 	/**
 	 * Returns database name
@@ -85,9 +81,16 @@ class JDBCConnector implements Connector {
 	 */
 	@Override
 	String getName() {
-		return dbname
+		return name
 	}
-
+	/**
+	 * Returns database type
+	 * @return
+	 */
+	@Override
+	DBType getType() {
+		return type
+	}
     /**
      * Import connection settings from URL
        proto://user:pass@host:port/db?"
@@ -110,7 +113,7 @@ class JDBCConnector implements Connector {
                 }
                 def path = url.path.replaceAll('/','')
                 if(path) {
-                    dbname = path
+                    name = path
                 }
             } catch (Exception e) {
                 Log.e( "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : ", e)
@@ -139,16 +142,16 @@ class JDBCConnector implements Connector {
         def stype = type.toString().toLowerCase()
         switch (type) {
             case SQLITE:
-				if(!dbname.endsWith(".db")) {
-					dbname += ".db"
+				if(!name.endsWith(".db")) {
+					name += ".db"
 				}
-                url += "${stype}:${dbname}"
+                url += "${stype}:${this.name}"
                 break
             //case POSTGRESQL:
             //case MARIADB:
 			//case MYSQL:
 			default:
-                url += "${stype}://${host}:${port}/${dbname}"
+                url += "${stype}://${host}:${port}/${this.name}"
                 break
         }
         //Additional params
@@ -202,7 +205,7 @@ class JDBCConnector implements Connector {
             if(db != null) {
                 open = !db.isClosed()
             }
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			Log.w( "DB was closed ",e)
 		}
 		return open
@@ -210,13 +213,14 @@ class JDBCConnector implements Connector {
 
 	@Override
 	boolean close() {
-		boolean closed = false
+		boolean closed = true
 		try {
-			db.close()
-			//Log.v( "Disconnecting from DB")
-			closed = true
-		} catch (SQLException e) {
-			Log.e( "Unable to close ",e)
+			if (!db.isClosed()) {
+				db.close()
+			}
+		} catch (Exception e) {
+			Log.w("Unable to close ", e)
+			closed = false
 		}
 		return closed
 	}
@@ -463,10 +467,5 @@ class JDBCConnector implements Connector {
 	@Override
 	void onError(Exception ex) {
 		Log.e( "General error: ",ex)
-	}
-
-	@Override
-	DBType getType() {
-		return type
 	}
 }

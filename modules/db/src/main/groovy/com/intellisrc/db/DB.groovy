@@ -1,6 +1,7 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
+import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
 import java.time.LocalDate
@@ -16,21 +17,25 @@ import static com.intellisrc.db.DB.ColumnType.*
  * @since 2016-10
  */
 class DB {
-    protected Connector db
+    static protected Cache<Data> dataCache = new Cache<>(extend: false)
+    static boolean disableCache = false // Disable all cache
+    int cache = 0 // time in seconds to keep cache (for GET)
+    boolean clearCache = false // if true, will clear cache on table update
+
+    protected Connector dbConnector
     protected String table = ""
     protected int last_id = 0
-    protected Query query = null
+    protected Query queryBuilder = null
 	//Setter / Getters
 	Map<String, List<String>> priKeys = [:]
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
-		this.db = connector
-		init()
+		dbConnector = connector
     }
 
 	DBType getType() {
-		return db?.getType() ?: DBType.DUMMY
+		return dbConnector?.getType() ?: DBType.DUMMY
 	}
 
 	static enum DBType {
@@ -56,8 +61,9 @@ class DB {
     ////////////////////////// Interfaces ////////////////////////////////
     static interface Starter {
         String getName()
+        DBType getType()
         String getConnectionString()
-        Connector getNewConnection()
+        Connector getConnector()
     }
 
 	static interface Connector {
@@ -91,19 +97,12 @@ class DB {
     ////////////////////////// Public ////////////////////////////////
 
 	/**
-	 * Check if its not connectedb.
-	 */
-	private void init() {
-		openIfClosed()
-	}
-
-	/**
 	 * Reconnect in case it is not connected
 	 */
 	void openIfClosed() {
-		if(!db.isOpen()) {
+		if(!opened) {
 			Log.v( "Connecting...")
-			db.open()
+			dbConnector.open()
 		}
 	}
 
@@ -112,7 +111,7 @@ class DB {
 	 * @return 
      **/
     Data get() {
-        getQuery().setAction(Query.Action.SELECT)
+        query.setAction(Query.Action.SELECT)
         return exec_get()
     }
     /**
@@ -121,7 +120,8 @@ class DB {
 	 * @return 
      **/
     Data get(int id) {
-        getQuery().setAction(Query.Action.SELECT).setWhere(id)
+        autoSetKeys()
+        query.setAction(Query.Action.SELECT).setWhere(id)
         return exec_get()
     }
     /**
@@ -130,7 +130,8 @@ class DB {
 	 * @return 
      **/
     Data get(String id) {
-        getQuery().setAction(Query.Action.SELECT).setWhere(id)
+        autoSetKeys()
+        query.setAction(Query.Action.SELECT).setWhere(id)
         return exec_get()
     }
     /**
@@ -139,7 +140,8 @@ class DB {
 	 * @return 
      **/
     Data get(List ids) {
-        getQuery().setAction(Query.Action.SELECT).setWhere(ids)
+        autoSetKeys()
+        query.setAction(Query.Action.SELECT).setWhere(ids)
         return exec_get()
     }
     /**
@@ -148,7 +150,8 @@ class DB {
 	 * @return
      **/
     Data get(LocalDateTime date) {
-        getQuery().setAction(Query.Action.SELECT).setWhere(date)
+        autoSetKeys()
+        query.setAction(Query.Action.SELECT).setWhere(date)
         return exec_get()
     }
     /**
@@ -157,7 +160,8 @@ class DB {
      * @return
      **/
     Data get(LocalDate date) {
-        getQuery().setAction(Query.Action.SELECT).setWhere(date)
+        autoSetKeys()
+        query.setAction(Query.Action.SELECT).setWhere(date)
         return exec_get()
     }
     /**
@@ -166,7 +170,7 @@ class DB {
 	 * @return 
      **/
     Data get(Map keyvals) {
-        getQuery().setAction(Query.Action.SELECT).setWhere(keyvals)
+        query.setAction(Query.Action.SELECT).setWhere(keyvals)
         return exec_get()
     }
     /**
@@ -176,7 +180,8 @@ class DB {
 	 * @return 
      **/
     boolean update(Map updvals, Integer id) {
-        getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(id)
+        autoSetKeys()
+        query.setAction(Query.Action.UPDATE).setValues(updvals).setWhere(id)
         return exec_set()
     }
     /**
@@ -186,7 +191,8 @@ class DB {
 	 * @return 
      **/
     boolean update(Map updvals, String id) {
-        getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(id)
+        autoSetKeys()
+        query.setAction(Query.Action.UPDATE).setValues(updvals).setWhere(id)
         return exec_set()
     }
 
@@ -197,7 +203,8 @@ class DB {
      * @return true on success
      */
     boolean update(Map updvals, List ids) {
-        getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(ids)
+        autoSetKeys()
+        query.setAction(Query.Action.UPDATE).setValues(updvals).setWhere(ids)
         return exec_set()
     }
 
@@ -208,7 +215,7 @@ class DB {
      * @return true on success
      */
     boolean update(Map updvals, Map keyvals) {
-        getQuery().setAction(Query.Action.UPDATE).setValues(updvals).setWhere(keyvals)
+        query.setAction(Query.Action.UPDATE).setValues(updvals).setWhere(keyvals)
         return exec_set()
     }
     /**
@@ -217,7 +224,7 @@ class DB {
 	 * @return 
      **/
     boolean insert(Map insvals) {
-        getQuery().setAction(Query.Action.INSERT).setValues(insvals)
+        query.setAction(Query.Action.INSERT).setValues(insvals)
         return exec_set()
     }
     /**
@@ -241,7 +248,7 @@ class DB {
      * @return
      **/
     boolean replace(Map insvals) {
-        getQuery().setAction(Query.Action.REPLACE).setValues(insvals)
+        query.setAction(Query.Action.REPLACE).setValues(insvals)
         return exec_set()
     }
     /**
@@ -265,7 +272,8 @@ class DB {
 	 * @return 
      */
     boolean delete(Integer id) {
-        getQuery().setAction(Query.Action.DELETE).setWhere(id)
+        autoSetKeys()
+        query.setAction(Query.Action.DELETE).setWhere(id)
         return exec_set()
     }
 
@@ -275,6 +283,7 @@ class DB {
      * @return true on success
      */
     boolean delete(String[] ids) {
+        autoSetKeys()
         return delete(Arrays.asList(ids))
     }
 
@@ -284,7 +293,8 @@ class DB {
      * @return true on success
      */
     boolean delete(List ids) {
-        getQuery().setAction(Query.Action.DELETE).setWhere(ids)
+        autoSetKeys()
+        query.setAction(Query.Action.DELETE).setWhere(ids)
         return exec_set()
     }
 
@@ -303,14 +313,14 @@ class DB {
      * @return true on success
      */
     boolean delete(Map keyvals) {
-        getQuery().setAction(Query.Action.DELETE).setWhere(keyvals)
+        query.setAction(Query.Action.DELETE).setWhere(keyvals)
         return exec_set()
     }
     /** Drops the current table
 	 * @return true on success **/
     boolean drop() {
         Log.w( "Dropping table: "+this.table)
-        getQuery().setAction(Query.Action.DROP)
+        query.setAction(Query.Action.DROP)
         return exec_set()
     }
     //------------------------------ RAW set -------------------------------
@@ -318,7 +328,7 @@ class DB {
 	 * @param query
 	 * @return true on success **/
     boolean set(String query) {
-        this.query = new Query(query)
+        queryBuilder = new Query(query)
         return exec_set()
     }
     /** Executes a query with arguments directly
@@ -326,7 +336,7 @@ class DB {
 	 * @param args
 	 * @return true on success **/
     boolean set(String query, List args) {
-        this.query = new Query(query, args)
+        queryBuilder = new Query(query, args)
         return exec_set()
     }
     // -------------------------------- Tools -------------------------------
@@ -341,43 +351,52 @@ class DB {
 	 * @return boolean **/
     boolean exists() {
 		Log.v( "Checking if table exists...")
-		getQuery().setType(getType()).setAction(Query.Action.EXISTS)
+		query.setType(getType()).setAction(Query.Action.EXISTS)
         return ! exec_get().isEmpty()
     }
     /** Get Table information
 	 * @return  **/
     Data info() {
 		Log.v( "Getting table information...")
-        getQuery().setType(getType()).setAction(Query.Action.INFO)
+        query.setType(getType()).setAction(Query.Action.INFO)
         return exec_get()
     }
 
     /** Quit **/
     boolean close() {
 		Log.v( "Closing connection...")
-    	return db.close()
+    	return dbConnector.close()
     }
     /**
      * Return true if connection is closed
      * @return
      */
     boolean isClosed() {
-        return ! db.isOpen()
+        return ! dbConnector.isOpen()
     }
     /**
      * Return true if connection is opened
      * @return
      */
     boolean isOpened() {
-        return db.isOpen()
+        return dbConnector.isOpen()
     }
 
     /** Execute a Query **/
     Data exec(Query q = null) {
         if(q) {
-            query = q
+            queryBuilder = q
         }
         return exec_get()
+    }
+
+    /**
+     * Clear all keys in cache associated with current table
+     */
+    void clearCache() {
+        dataCache.keys().findAll { it.startsWith(query.tableStr + ".") }.each {
+            dataCache.del(it)
+        }
     }
 
     //------------------- Fluent interfaces ----------------
@@ -420,30 +439,30 @@ class DB {
 	 * @return 
      */
     DB fields(List<String> fields_arr) {
-        getQuery().setFields(fields_arr)
+        query.setFields(fields_arr)
         return this
     }
 
 	/**
 	 * Sets a custom where with params, form example:
-	 * @param query
+	 * @param queryPart
 	 * @param params
 	 * @return 
 	 * @example : .where("mydate" > ?, somedate.toString())
 	 */
-	DB where(String query, Object...params) {
-		getQuery().setWhere(query, params)
+	DB where(String queryPart, Object...params) {
+		query.setWhere(queryPart, params)
 		return this
 	}
 	/**
 	 * Sets a custom where with params, form example:
-	 * @param query
+	 * @param queryPart
 	 * @param list
 	 * @return 
 	 * @example : .where("mydate" > ?, somedate.toString())
 	 */
-	DB where(String query, List<Object> list) {
-		getQuery().setWhere(query, list.toArray())
+	DB where(String queryPart, List<Object> list) {
+		query.setWhere(queryPart, list.toArray())
 		return this
 	}
 
@@ -454,7 +473,7 @@ class DB {
      */
     DB table(String tbl) {
         this.table = tbl
-        getQuery().setTable(tbl)
+        query.setTable(tbl)
         return this
     }
 
@@ -478,7 +497,7 @@ class DB {
      */
     DB keys(List<String> keys) {
         if(!keys.empty) {
-            getQuery().setKeys(keys)
+            query.setKeys(keys)
         }
         if(keys.size() > 1) {
             Log.w("Multiple keys is not yet supported, use a single key.")
@@ -491,7 +510,7 @@ class DB {
 	 * @return 
      */
     DB count() {
-        getQuery().setFieldsType(Query.FieldType.COUNT)
+        query.setFieldsType(Query.FieldType.COUNT)
         return this
     }
 
@@ -501,7 +520,7 @@ class DB {
 	 * @return 
      */
     DB count(String column) {
-        getQuery().setFieldsType(Query.FieldType.COUNT)
+        query.setFieldsType(Query.FieldType.COUNT)
         return fields(column)
     }
     /**
@@ -510,7 +529,7 @@ class DB {
 	 * @return 
      **/
     DB max(String column) {
-        getQuery().setFieldsType(Query.FieldType.MAX)
+        query.setFieldsType(Query.FieldType.MAX)
         return fields(column)
     }
     /**
@@ -519,7 +538,7 @@ class DB {
 	 * @return 
      **/
     DB min(String column) {
-        getQuery().setFieldsType(Query.FieldType.MIN)
+        query.setFieldsType(Query.FieldType.MIN)
         return fields(column)
     }
     /**
@@ -528,7 +547,7 @@ class DB {
 	 * @return 
      **/
     DB avg(String column) {
-        getQuery().setFieldsType(Query.FieldType.AVG)
+        query.setFieldsType(Query.FieldType.AVG)
         return fields(column)
     }
     /**
@@ -539,7 +558,7 @@ class DB {
 	 * @return 
      **/
     DB order(String column, Query.SortOrder order) {
-        getQuery().setOrder(column, order)
+        query.setOrder(column, order)
         return this
     }
     /**
@@ -549,7 +568,7 @@ class DB {
 	 * @return 
      **/
     DB limit(int limit) {
-        getQuery().setLimit(limit)
+        query.setLimit(limit)
         return this
     }
     /**
@@ -560,7 +579,7 @@ class DB {
 	 * @return 
      **/
     DB limit(int limit, int offset) {
-        getQuery().setLimit(limit).setOffset(offset)
+        query.setLimit(limit).setOffset(offset)
         return this
     }
     /**
@@ -570,7 +589,7 @@ class DB {
 	 * @return 
      **/
     DB group(String column) {
-        getQuery().setGroupBy(column)
+        query.setGroupBy(column)
         return this
     }
     ////////////////////////// Private ////////////////////////////////
@@ -580,15 +599,15 @@ class DB {
      * @return Query
      */
     private Query getQuery() {
-        if(query == null) {
-            query = new Query()
-            query.setType(getType())
+        if(queryBuilder == null) {
+            queryBuilder = new Query()
+            queryBuilder.setType(getType())
             Log.v("Initializing Query")
             if(!this.table.isEmpty()) {
-                query.setTable(this.table)
+                queryBuilder.setTable(this.table)
             }
         }
-        return query
+        return queryBuilder
     }
 
     /**
@@ -597,57 +616,63 @@ class DB {
      * @return Data (List<Map>)
      */
     private Data exec_get() {
-        Data data = null
-        openIfClosed()
-        if(db.isOpen()) {
-            query.setType(getType())
-            Log.v( "GET ::: " + query.toString())
-            query.argsList?.each {
-                Log.v( " --> " + it)
-            }
-            List<Map> rows = []
-            try {
-                Statement st = db.prepare(query)
-                query = null
-                while (st.next()) {
-                    Map row = [:]
-                    for (int i = st.firstColumn(); i < st.columnCount() + st.firstColumn(); i++) {
-                        if (!st.isColumnNull(i)) {
-                            String column = st?.columnName(i)
-                            ColumnType type = st?.columnType(i)
-                            switch (type) {
-                                case TEXT:
-                                    row.put(column, st.columnStr(i))
-                                    break
-                                case INTEGER:
-                                    row.put(column, st.columnInt(i))
-                                    break
-                                case FLOAT:
-                                    row.put(column, st.columnFloat(i))
-                                    break
-                                case DOUBLE:
-                                    row.put(column, st.columnDbl(i))
-                                    break
-                                case BLOB:
-                                    row.put(column, st.columnBlob(i))
-                                    break
-                                case DATE:
-                                    row.put(column, st.columnDate(i))
-                                    break
-                                default:
-                                    Log.e( "Type was NULL")
-                                    break
+        query.setType(getType())
+        Log.v( "GET ::: " + query.toString())
+        query.argsList?.each {
+            Log.v( " --> " + it)
+        }
+        String cacheKey = cache && query.tableStr ? query.tableStr + "." + (query.toString() + query.argList?.join(",")).md5() : ""
+        Data data = dataCache.get(cacheKey, {
+            openIfClosed() // Connect if its not connected
+            if(opened) {
+                List<Map> rows = []
+                try {
+                    Statement st = dbConnector.prepare(query)
+                    queryBuilder = null
+                    while (st.next()) {
+                        Map row = [:]
+                        for (int i = st.firstColumn(); i < st.columnCount() + st.firstColumn(); i++) {
+                            if (!st.isColumnNull(i)) {
+                                String column = st?.columnName(i)
+                                ColumnType type = st?.columnType(i)
+                                switch (type) {
+                                    case TEXT:
+                                        row.put(column, st.columnStr(i))
+                                        break
+                                    case INTEGER:
+                                        row.put(column, st.columnInt(i))
+                                        break
+                                    case FLOAT:
+                                        row.put(column, st.columnFloat(i))
+                                        break
+                                    case DOUBLE:
+                                        row.put(column, st.columnDbl(i))
+                                        break
+                                    case BLOB:
+                                        row.put(column, st.columnBlob(i))
+                                        break
+                                    case DATE:
+                                        row.put(column, st.columnDate(i))
+                                        break
+                                    default:
+                                        Log.e("Type was NULL")
+                                        break
+                                }
                             }
                         }
+                        rows.add(row)
                     }
-                    rows.add(row)
+                    st?.close()
+                } catch (Exception e) {
+                    dbConnector.onError(e)
                 }
-                st?.close()
-            } catch (Exception e) {
-                db.onError(e)
+                return new Data(rows)
+            } else {
+                Log.e("Unable to read from server")
+                dbConnector.onError(new ConnectException())
+                return null
             }
-            data = new Data(rows)
-        }
+        }, disableCache ? 0 : cache)
         return data
     }
 
@@ -658,14 +683,17 @@ class DB {
     private boolean exec_set() {
 		boolean ok = false
         openIfClosed()
-        if(db.isOpen()) {
+        if(opened) {
 			Log.v( "SET ::: " + query.toString())
 			query.argsList?.each {
 				Log.v( " --> " + it)
 			}
+            if(cache && clearCache && query.tableStr) {
+                clearCache()
+            }
             Statement st
             try {
-                st = db.prepare(query)
+                st = dbConnector.prepare(query)
             } catch (Exception e) {
                 Log.e( "Query Syntax error: ",e)
             }
@@ -673,7 +701,7 @@ class DB {
                 try {
                     st.next()
                     if (query.getAction() == Query.Action.INSERT) {
-                        query = new Query(Query.Action.LASTID)
+                        queryBuilder = new Query(Query.Action.LASTID)
                         query.setType(getType())
                         this.last_id = exec_get().toInt()
                     }
@@ -683,42 +711,57 @@ class DB {
                 }
                 st.close()
             }
-			query = null
+            queryBuilder = null
         } else {
             Log.e( "No changes done: database is not open")
+            dbConnector.onError(new ConnectException())
         }
         return ok
     }
 
+    /**
+     * Set Primary Keys automatically if they are not set
+     */
+    void autoSetKeys() {
+        if(query.keyList.empty) {
+            searchPriKeys()
+            if(priKeys.containsKey(table)) {
+                keys(priKeys[table])
+            }
+        }
+    }
     /**
      * Search and set PKs for tables in the database
      */
     void searchPriKeys() {
         boolean ok = false
         openIfClosed()
-        if(!this.priKeys.containsKey(table)) {
-            Data info = info()
-            List<String> foundPks = []
-			info.toListMap().find {
-				Map row ->
-                    if(row.containsKey("pk") && Double.parseDouble(row.get("pk").toString()) == 1) { //we use double as it may be: "1.0"
-                        if(row.containsKey("name")) {
-                            ok = true
-                            String name = row.get("name").toString()
-                            foundPks.add(name)
-                            Log.v( "PK Found: "+name)
-							return true
+        if(opened) {
+            if (!priKeys.containsKey(table)) {
+                Data info = info()
+                List<String> foundPks = []
+                info.toListMap().find {
+                    Map row ->
+                        if (row.containsKey("pk") && Double.parseDouble(row.get("pk").toString()) == 1) {
+                            //we use double as it may be: "1.0"
+                            if (row.containsKey("name")) {
+                                ok = true
+                                String name = row.get("name").toString()
+                                foundPks.add(name)
+                                Log.v("PK Found: " + name)
+                                return true
+                            }
                         }
-                    }
-			}
-            if(ok) {
-                this.priKeys.put(table, foundPks)
+                }
+                if (ok) {
+                    this.priKeys.put(table, foundPks)
+                }
+            } else {
+                ok = true
             }
-        } else {
-            ok = true
-        }
-        if(ok) {
-            getQuery().setKeys(priKeys.get(table))
+            if (ok) {
+                query.setKeys(priKeys.get(table))
+            }
         }
     }
 

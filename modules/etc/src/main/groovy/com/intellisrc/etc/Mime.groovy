@@ -7,84 +7,186 @@ import org.apache.tika.Tika
 
 /**
  * @since 2021/07/14.
+ *
+ * This class will try to provide the most common mime types or guess it from:
+ *  - file extensions
+ *  - file content
+ *  - streams
+ *
  * https://www.baeldung.com/java-file-mime-type
  *
  * > By default, the class uses content-types.properties file in JRE_HOME/lib. We can, however, extend it, by
  * > specifying a user-specific table using the content.types.user.table property:
  * > System.setProperty("content.types.user.table","<path-to-file>");
  *
+ * Extended from:
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+ *
  * If these methods don't return what expected, look for alternatives in the above link.
  *
  */
 @CompileStatic
 class Mime {
-    //
+    /**
+     * General types:
+     */
     static protected Map<String,String> types = [
-        au 	    : "audio/basic",
-        avi 	: "video/msvideo,video/avi,video/x-msvideo",
-        bmp 	: "image/bmp",
-        bz2 	: "application/x-bzip2",
-        css 	: "text/css",
-        dtd 	: "application/xml-dtd",
-        doc 	: "application/msword",
-        docx 	: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        dotx 	: "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
-        eot 	: "application/vnd.ms-fontobject",
-        es 	    : "application/ecmascript",
-        exe 	: "application/octet-stream",
-        gif 	: "image/gif",
-        gz 	    : "application/x-gzip",
-        ico 	: "image/x-icon",
-        hqx 	: "application/mac-binhex40",
-        htm 	: "text/html",
-        html 	: "text/html",
-        jar 	: "application/java-archive",
-        jpg 	: "image/jpeg",
-        js 	    : "application/javascript",
-        mjs 	: "application/javascript",
-        json 	: "application/json",
-        midi 	: "audio/x-midi",
-        mp3 	: "audio/mpeg",
-        mp4 	: "video/mp4",
-        mpeg 	: "video/mpeg",
-        ogg     : "audio/vorbis,application/ogg",
-        otf     : "application/font-otf",
-        pdf     : "application/pdf",
-        pl      : "application/x-perl",
-        png     : "image/png",
-        potx    : "application/vnd.openxmlformats-officedocument.presentationml.template",
-        ppsx    : "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
-        ppt     : "application/vnd.ms-powerpointtd",
-        pptx    : "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        ps      : "application/postscript",
-        qt      : "video/quicktime",
-        ra      : "audio/x-pn-realaudio,audio/vnd.rn-realaudio",
-        rar     : "application/x-rar-compressed",
-        ram     : "audio/x-pn-realaudio,audio/vnd.rn-realaudio",
-        rdf     : "application/rdf,application/rdf+xml",
-        rtf     : "application/rtf",
-        sgml    : "text/sgml",
-        sit     : "application/x-stuffit",
-        sldx    : "application/vnd.openxmlformats-officedocument.presentationml.slide",
-        svg     : "image/svg+xml",
-        swf     : "application/x-shockwave-flash",
-        tgz     : "application/x-tar",
-        tiff    : "image/tiff",
-        tsv     : "text/tab-separated-values",
-        ttf     : "application/font-ttf",
-        txt     : "text/plain",
-        wav     : "audio/wav,audio/x-wav",
-        woff    : "application/font-woff",
-        woff2   : "application/font-woff2",
-        xlam    : "application/vnd.ms-excel.addin.macroEnabled.12",
-        xls     : "application/vnd.ms-excel",
-        xlsb    : "application/vnd.ms-excel.sheet.binary.macroEnabled.12",
-        xlsx    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        xltx    : "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
-        xml     : "text/xml",
-        yaml    : "text/yaml",
-        zip     : "application/zip,application/x-compressed-zip"
+            '7z'	: "application/x-7z-compressed",
+            aac		: "audio/aac",
+            abw		: "application/x-abiword",
+            arc		: "application/x-freearc",
+            au 	    : "audio/basic",
+            avi		: "video/x-msvideo",
+            azw		: "application/vnd.amazon.ebook",
+            bin		: "application/octet-stream",
+            bmp		: "image/bmp",
+            bz		: "application/x-bzip",
+            bz2		: "application/x-bzip2",
+            cda		: "application/x-cdf",
+            csh		: "application/x-csh",
+            css		: "text/css",
+            csv		: "text/csv",
+            doc		: "application/msword",
+            docx	: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            dotx 	: "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+            dtd 	: "application/xml-dtd",
+            eot		: "application/vnd.ms-fontobject",
+            epub	: "application/epub+zip",
+            gif		: "image/gif",
+            gz		: "application/gzip",
+            htm 	: "text/html",
+            html	: "text/html",
+            ico		: "image/vnd.microsoft.icon",
+            ics		: "text/calendar",
+            jar		: "application/java-archive",
+            jpeg    : "image/jpeg",
+            jpg		: "image/jpeg",
+            js		: "text/javascript",
+            json	: "application/json",
+            jsonld	: "application/ld+json",
+            mid	    : "audio/midi",
+            midi	: "audio/midi",
+            mjpeg   : "video/x-motion-jpeg",
+            mjs		: "text/javascript",
+            mp3		: "audio/mpeg",
+            mp4		: "video/mp4",
+            mpeg	: "video/mpeg",
+            mpkg	: "application/vnd.apple.installer+xml",
+            odp		: "application/vnd.oasis.opendocument.presentation",
+            ods		: "application/vnd.oasis.opendocument.spreadsheet",
+            odt		: "application/vnd.oasis.opendocument.text",
+            oga		: "audio/ogg",
+            ogg     : "audio/ogg",
+            ogv		: "video/ogg",
+            ogx		: "application/ogg",
+            opus	: "audio/opus",
+            otf		: "font/otf",
+            pdf		: "application/pdf",
+            php		: "application/x-httpd-php",
+            pl      : "application/x-perl",
+            png		: "image/png",
+            potx    : "application/vnd.openxmlformats-officedocument.presentationml.template",
+            ppsx    : "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+            ppt		: "application/vnd.ms-powerpoint",
+            pptx	: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            ps      : "application/postscript",
+            qt      : "video/quicktime",
+            ra      : "audio/x-pn-realaudio",
+            ram     : "audio/x-pn-realaudio",
+            rar		: "application/vnd.rar",
+            rdf     : "application/rdf+xml",
+            rtf		: "application/rtf",
+            sgml    : "text/sgml",
+            sh		: "application/x-sh",
+            sit     : "application/x-stuffit",
+            sldx    : "application/vnd.openxmlformats-officedocument.presentationml.slide",
+            svg		: "image/svg+xml",
+            swf		: "application/x-shockwave-flash",
+            tar		: "application/x-tar",
+            tgz     : "application/x-tar",
+            tif     : "image/tiff",
+            tiff	: "image/tiff",
+            ts		: "video/mp2t",
+            tsv     : "text/tab-separated-values",
+            ttf		: "font/ttf",
+            txt		: "text/plain",
+            vsd		: "application/vnd.visio",
+            wav		: "audio/wav",
+            weba	: "audio/webm",
+            webm	: "video/webm",
+            webp	: "image/webp",
+            woff	: "font/woff",
+            woff2	: "font/woff2",
+            xhtml	: "application/xhtml+xml",
+            xlam    : "application/vnd.ms-excel.addin.macroEnabled.12",
+            xls		: "application/vnd.ms-excel",
+            xlsb    : "application/vnd.ms-excel.sheet.binary.macroEnabled.12",
+            xlsx	: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            xltx    : "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
+            xml		: "text/xml",
+            xul		: "application/vnd.mozilla.xul+xml",
+            yaml    : "text/yaml",
+            zip		: "application/zip",
     ]
+    /**
+     * Common Mime Types
+     */
+    // Images
+    static final String GIF     = types["gif"]
+    static final String JPG     = types["jpg"]
+    static final String PNG     = types["png"]
+    static final String SVG     = types["svg"]
+    static final String WEBP    = types["webp"]
+    // Video
+    static final String AVI     = types["avi"]
+    static final String MJPEG   = types["mjpeg"]
+    static final String MP4     = types["mp4"]
+    static final String MPG     = types["mpg"]
+    static final String OGG     = types["ogg"]
+    static final String WEBM    = types["webm"]
+    // Audio
+    static final String AAC     = types["aac"]
+    static final String MP3     = types["mp3"]
+    static final String WAV     = types["wav"]
+    static final String WEBA    = types["weba"]
+    // Data
+    static final String JSON    = types["json"]
+    static final String JSONLD  = types["jsonld"]
+    static final String XML     = types["xml"]
+    static final String YAML    = types["yaml"]
+    // Documents
+    static final String CSV     = types["csv"]
+    static final String DOC     = types["doc"]
+    static final String DOCX    = types["docx"]
+    static final String HTML    = types["html"]
+    static final String ODP     = types["odp"]
+    static final String ODS     = types["ods"]
+    static final String ODT     = types["odt"]
+    static final String PDF     = types["pdf"]
+    static final String PPT     = types["ppt"]
+    static final String PPTX    = types["pptx"]
+    static final String RTF     = types["rtf"]
+    static final String TXT     = types["txt"]
+    static final String XLS     = types["xls"]
+    static final String XLSX    = types["xlsx"]
+    // Web
+    static final String CSS     = types["css"]
+    static final String JS      = types["js"]
+    // Fonts
+    static final String OTF     = types["otf"]
+    static final String TTF     = types["ttf"]
+    static final String WOFF    = types["woff"]
+    static final String WOFF2   = types["woff2"]
+    // File Compression
+    static final String BZ      = types["bz"]
+    static final String BZ2     = types["bz2"]
+    static final String GZ      = types["gz"]
+    static final String JAR     = types["jar"]
+    static final String RAR     = types["rar"]
+    static final String TAR     = types["tar"]
+    static final String ZIP     = types["zip"]
+    static final String ZIP7    = types["7z"]
+
     /**
      * Return the mime type of a file
      * @param file
