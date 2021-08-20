@@ -112,7 +112,7 @@ Includes : core
 ## [db](modules/db/README.md) 
 Includes : core, etc
  
-> Manage SQL databases, such as MySQL, SQLite, Berkeley, Postgresql. 
+> Manage SQL databases, such as MySQL, SQLite, Postgresql. 
 > (for no-sql databases, see `etc` module)
 > Create, store and perform CRUD operations to data without
 > having to use SQL (a light-weight implementation as alternative to Hibernate).

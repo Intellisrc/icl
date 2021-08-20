@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.0.4-SNAPSHOT"
+    version = "2.8.0.5-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -44,7 +44,7 @@ static String getProjectDescription(String name) {
             break
         case "db":
             desc = "Manage databases, such as MySQL, SQLite, " +
-                    "BerkeleyDB, Postgresql. Create, store and " +
+                    "Postgresql. Create, store and " +
                     "perform CRUD operations to data without having " +
                     "to use SQL (a light-weight implementation as " +
                     "alternative to Hibernate)."

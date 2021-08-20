@@ -1,6 +1,6 @@
 # DB Module
 
-Manage databases, such as MySQL, SQLite, BerkeleyDB, Postgresql. 
+Manage databases, such as MySQL, SQLite, Postgresql. 
 Create, store and perform CRUD operations to data without having 
 to use SQL (a light-weight implementation as alternative to Hibernate).
 
