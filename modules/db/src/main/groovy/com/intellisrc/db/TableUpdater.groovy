@@ -29,24 +29,35 @@ class TableUpdater {
             return name + "__back"
         }
     }
+    static interface BaseUpdater {}
     /**
-     * Interface used to update values before inserting them. Useful specially when
-     * columns were removed or require data conversion.
+     * Interface used to update values before inserting them.
+     * Useful specially when columns were removed or require data conversion.
+     * If a row fails, all fails
      */
-    static interface RecordUpdater {
-        List<Map> fix(DB backUpTableConnection, Table table)
+    static interface RecordsUpdater extends BaseUpdater {
+        List<Map> fix(List<Map> records)
+    }
+    /**
+     * Interface used to update each row that is going to be inserted
+     * Useful specially when columns were removed or require data conversion.
+     * If a row fails, it will ignore and continue (just warn)
+     */
+    static interface RecordUpdater extends BaseUpdater {
+        Map fix(Map record)
     }
     /**
      * Update a list of Table (instances)
-     * optionally you can use recordUpdater to modify insert values (slower)
-     * NOTE: Adding columns or performing minor column changes (like lenght,
+     * If a table has `onUpdate` interface set,
+     *
+     * NOTE: Adding columns or performing minor column changes (like length,
      *      onDelete conditions, unique constrains, indices, auto-increment,
-     *      etc) may not need to use a RecordUpdater.
+     *      etc) may not need to use a onUpdate.
      *
      * @param tables
      * @param recordUpdater
      */
-    static void update(List<Table> tableList, RecordUpdater recordUpdater = null) {
+    static void update(List<Table> tableList) {
         DB db = Database.default.connect()
         Table.alwaysCheck = true
         DB.disableCache = true
@@ -83,9 +94,24 @@ class TableUpdater {
             if(ok) {
                 tables.each {
                     TableInfo info ->
-                        if (recordUpdater) {
-                            List<Map> newData = recordUpdater.fix(db.table(info.backName), info.table)
-                            ok = db.table(info.name).insert(newData)
+                        if (info.table.manualUpdate(db.table(info.backName))) {
+                            switch (info.table.onUpdate) {
+                                case RecordsUpdater:
+                                    List<Map> newData = (info.table.onUpdate as RecordsUpdater).fix(db.table(info.backName).get().toListMap())
+                                    ok = db.table(info.name).insert(newData)
+                                    break
+                                case RecordUpdater:
+                                    db.table(info.backName).get().toListMap().each {
+                                        Map newRow = (info.table.onUpdate as RecordUpdater).fix(it)
+                                        if(! db.table(info.name).insert(newRow)) {
+                                            Log.w("Inserting row failed: %s", newRow)
+                                        }
+                                    }
+                                    ok = true
+                                    break
+                                default:
+                                    Log.w("You must choose between `RecordsUpdater` or `RecordUpdater` interfaces (see documentation)")
+                            }
                         } else {
                             db.exec(new Query("INSERT IGNORE INTO `${info.name}` SELECT * FROM `${info.backName}`"))
                         }

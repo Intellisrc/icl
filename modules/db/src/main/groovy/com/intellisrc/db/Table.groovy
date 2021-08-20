@@ -28,6 +28,8 @@ class Table<T extends Model> implements Instanciable<T> {
     protected Set<DB> activeConnections = []
     protected int cache = 0
     protected boolean clearCache = false
+
+    TableUpdater.BaseUpdater onUpdate = null
     /**
      * Constructor. A Database object can be passed
      * when using multiple databases.
@@ -751,7 +753,6 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     boolean replace(T model) {
-        int id = model.id
         boolean ok = false
         try {
             Map<String, Object> map = getMap(model)
@@ -762,6 +763,13 @@ class Table<T extends Model> implements Instanciable<T> {
             closeConnections()
         }
         return ok
+    }
+    /**
+     * Override to check if the table needs a manual update
+     * @return
+     */
+    boolean manualUpdate(DB table) {
+       return onUpdate != null
     }
     /**
      * Returns a new instance of this class's generic type

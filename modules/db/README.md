@@ -145,6 +145,11 @@ example:
 class User extends Model<Users> { /* ... */ }
 ```
 
+When declared version is higher than the one stored in the database, 
+the table will be updated automatically (by default). You can turn off
+that behaviour and execute the update on your terms.
+You can read more about it next, as the update process is taken care by the `Table` class.
+
 #### Table class
 
 A `Table` class is what we are going to use to interact with the data (CRUD
@@ -187,6 +192,75 @@ assert users.delete(active : false)
 assert users.insert(user)
 assert users.replace(user)
 assert users.update(user)
+```
+
+When the table does not exist, it will be created automatically. If your `Model` version
+changes, it will update the table automatically, but if you want to decide when to do it,
+you can turn it off by setting its `autoUpdate` property to `false` (also available through
+the `@TableMeta` annotation).
+
+To update it on command, you can execute:
+
+```groovy
+// update now in specific order:
+TableUpdater.update([
+        new Table1(), 
+        new Table2()
+]) 
+```
+If you perform small changes in your `Model`, for example changing
+a `smallint` column into `int`, adding indices, adding elements into an ENUM
+or adding/dropping a column, most likely can be automatically updated.
+
+However, if your data changed considerably, for example changing a column name,
+changing a `TEXT` column for a `DECIMAL` (in which data conversion is required), etc,
+you will need to check and fix the data by code.
+
+In such cases, you can set the `onUpdate` interface with either a `RecordUpdater` or 
+a `RecordsUpdater` (the latter is plural):
+
+##### RecordsUpdater : all at once
+```groovy
+class MyTable extends Table<MyModel> {
+    MyTable() {
+        onUpdate = {
+            List<Map> records ->
+                // Fix the old data...
+                return records // new data to be inserted
+        }
+    }
+}
+```
+This option will try to insert all records at once. If it fails, it will
+roll back the update process. 
+
+##### RecordUpdater : one by one (the slowest method)
+```groovy
+class MyTable extends Table<MyModel> {
+    MyTable() {
+        onUpdate = {
+            Map record ->
+                // Fix the old row...
+                return record // new row to be inserted
+        }
+    }
+}
+```
+This option will try to insert all records one by one, but it won't
+stop if one fails (it will only log a warning). 
+
+As fixing the data this way will result in a lower performance, you can
+decide when an update is needed by overriding the method `forceUpdate`:
+
+```groovy
+class MyTable extends Table<MyModel> {
+    @Override
+    boolean manualUpdate(DB oldTable) {
+        // check the current data and decide if it requires to be updated, for example:
+        Map firstRow = oldTable.limit(1).get()
+        return firstRow.containsKey("old_column") // if true, `onUpdate` will be executed if exists (default : true)
+    }
+}
 ```
 
 ### Joining Tables
