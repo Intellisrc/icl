@@ -175,6 +175,8 @@ class WebService {
                                                 }
                                             }
                                             res.id = request.session().id()
+                                        } else {
+                                            response.status(401)
                                         }
                                         response.type("application/json")
                                         res.ok = ok

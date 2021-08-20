@@ -319,6 +319,7 @@ If you want to return additional information upon login, add a `response : [:]` 
         return level > Level.GUEST ? session : [:]
     }
 ```
+When you return an empty `Map` as session, it will return status `401 (Unauthorized)`.
 
 And don't forget to add it to your `WebService`:
 ```groovy
