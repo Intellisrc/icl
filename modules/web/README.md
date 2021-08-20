@@ -288,7 +288,39 @@ class AuthService implements ServiciableAuth {
     }
 }
 ```
-Don't forget to add it to your `WebService`:
+If the login is successful, by default, the server will respond with something like:
+
+```json
+{
+  "id": "node0auU7v3dL4ysA9Vhzf7bsjsTC",
+  "ok": true
+}
+```
+in which `id` is the session ID which should match the value under the cookie `JSESSIONID`.
+
+If you want to return additional information upon login, add a `response : [:]` into your session `Map`:
+```groovy
+    // See example above...
+    Map<String,Object> onLogin(final Request request, final Response response) {
+        /* ... */
+        // Information to store in a session:
+        Map session = [
+                user    : user,
+                level   : level,
+                ip      : request.ip(),
+                since   : SysClock.now,
+                // Additionally information to return on login success: (must be a Map)
+                response : [
+                    level       : level.toString(),
+                    redirectTo  : level == Level.ADMIN ? "/admin" : "/user"
+                ]
+        ]
+        // Whatever we return here, it will stored as session:
+        return level > Level.GUEST ? session : [:]
+    }
+```
+
+And don't forget to add it to your `WebService`:
 ```groovy
 new WebService(port: 8080, resources: "res")
         .add(new VersionService())
