@@ -11,6 +11,7 @@ import java.nio.file.Files
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.regex.Matcher
 
 /**
  * @since 2021/08/02.
@@ -154,7 +155,6 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
         boolean done = false
         if(compress && logToCompress?.exists()) {
             try {
-                long modified = logToCompress.lastModified()
                 Class[] parameters = [File.class]
                 String thisPkg = this.class.package.name.tokenize(".").last()
                 Class zip = Class.forName(this.class.package.name.replace(thisPkg, 'etc') + ".Zip")
@@ -162,7 +162,7 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
                 Object[] callParams = [logToCompress]
                 method.invoke(null, callParams)
                 File gziped = new File(logToCompress.parentFile, logToCompress.name + ".gz")
-                gziped.setLastModified(modified) //Set the date and time in which was last modified
+                gziped.setLastModified(getLogDateTime(logFile).toMillis()) //Set the date and time in which was last modified
                 done = gziped.exists()
             } catch (Exception ignored) {
                 //Ignore... Zip class doesn't exists, so we don't compress them
@@ -170,6 +170,27 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
             }
         }
         return done
+    }
+
+    /**
+     * Return log date
+     * @param file
+     * @return
+     */
+    static LocalDateTime getLogDateTime(final File file) {
+        long modified = file.lastModified()
+        LocalDateTime date
+        if(modified > 0) {
+            date = LocalDateTime.fromMillis(modified)
+        } else {
+            Matcher m = (file.name =~ /(\d{2,4}-?\d{2}-?\d{2,4})/)
+            if(m.find()) {
+                date = m.group(1).toDate().atStartOfDay()
+            } else {
+                date = SysClock.now
+            }
+        }
+        return date
     }
 
     /**
@@ -186,7 +207,7 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
                 logDir.eachFileMatchAsync(pattern) {
                     File log ->
                         if (!Files.isSymbolicLink(log.toPath())) { //Skip links
-                            LocalDateTime lastMod = LocalDateTime.fromMillis(log.lastModified())
+                            LocalDateTime lastMod = getLogDateTime(log).toLocalDate().atStartOfDay()
                             if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) >= logDays) {
                                 log.delete() // This removes old logs when ZIP is not available
                             } else if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) > 0) {
@@ -199,7 +220,7 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
                 logDir.eachFileMatchAsync(patternZip) {
                     File log ->
                         if (!Files.isSymbolicLink(log.toPath())) { //Skip links
-                            LocalDateTime lastMod = LocalDateTime.fromMillis(log.lastModified())
+                            LocalDateTime lastMod = getLogDateTime(log).toLocalDate().atStartOfDay()
                             if (ChronoUnit.DAYS.between(lastMod, SysClock.dateTime) >= logDays) {
                                 log.delete() // This removes old logs when they are compressed
                             }

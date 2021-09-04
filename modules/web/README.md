@@ -441,7 +441,7 @@ class MyWebSocketService implements ServiciableWebSocket {
     WSMessage onMessage(Session session, String message) {
         String response = ""
         // If message is JSON, decode it: 
-        // Map map = JSON.decode(message).toMap()
+        // Map map = JSON.decode(message) as Map
         switch (message) {
             case "ping" : response = "pong"
                 /* .. */
@@ -505,13 +505,4 @@ wssc.sendMessage("ping")
 wssc.sendMessage([ ping : true ])
 // Exit:
 wssc.disconnect()
-```
-
-## JSON 
-
-This is a wrapper around GSON (Google JSON library):
-
-```groovy
-String encoded = JSON.encode([a:1, b:2, c:3])
-Map decoded = JSON.decode(encoded).toMap()
 ```

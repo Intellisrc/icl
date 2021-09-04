@@ -2,7 +2,7 @@ package com.intellisrc.web.services
 
 import com.intellisrc.core.Log
 import com.intellisrc.etc.config.ConfigAuto
-import com.intellisrc.web.JSON
+import com.intellisrc.etc.JSON
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableMultiple
 import groovy.transform.CompileStatic
@@ -16,7 +16,7 @@ class AutoConfigService implements ServiciableMultiple {
     final ConfigAuto configAuto
     final String srvPath
 
-    AutoConfigService(ConfigAuto configAuto, path) {
+    AutoConfigService(ConfigAuto configAuto, String path = "cfg") {
         this.configAuto = configAuto
         this.srvPath = path
     }
@@ -43,7 +43,7 @@ class AutoConfigService implements ServiciableMultiple {
                     method: Service.Method.PUT,
                     action: {
                         Request request ->
-                            Map val = JSON.decode(request.body()).toMap()
+                            Map val = JSON.decode(request.body()) as Map
                             boolean ok = true
                             val.any {
                                 ok = configAuto.update(it.key.toString(), it.value)
@@ -82,11 +82,11 @@ class AutoConfigService implements ServiciableMultiple {
                             boolean ok = false
                             switch (type) {
                                 case "map" :
-                                    Map val = JSON.decode ( request.body()).toMap()
+                                    Map val = JSON.decode (request.body()) as Map
                                     ok = configAuto.update(key, val)
                                     break
                                 case "list" :
-                                    List val = JSON.decode ( request.body()).toList()
+                                    List val = JSON.decode (request.body()) as List
                                     ok = configAuto.update(key, val)
                                     break
                                 default:

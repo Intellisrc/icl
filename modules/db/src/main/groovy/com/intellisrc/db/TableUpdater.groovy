@@ -29,23 +29,6 @@ class TableUpdater {
             return name + "__back"
         }
     }
-    static interface BaseUpdater {}
-    /**
-     * Interface used to update values before inserting them.
-     * Useful specially when columns were removed or require data conversion.
-     * If a row fails, all fails
-     */
-    static interface RecordsUpdater extends BaseUpdater {
-        List<Map> fix(List<Map> records)
-    }
-    /**
-     * Interface used to update each row that is going to be inserted
-     * Useful specially when columns were removed or require data conversion.
-     * If a row fails, it will ignore and continue (just warn)
-     */
-    static interface RecordUpdater extends BaseUpdater {
-        Map fix(Map record)
-    }
     /**
      * Update a list of Table (instances)
      * If a table has `onUpdate` interface set,
@@ -94,24 +77,9 @@ class TableUpdater {
             if(ok) {
                 tables.each {
                     TableInfo info ->
-                        if (info.table.manualUpdate(db.table(info.backName))) {
-                            switch (info.table.onUpdate) {
-                                case RecordsUpdater:
-                                    List<Map> newData = (info.table.onUpdate as RecordsUpdater).fix(db.table(info.backName).get().toListMap())
-                                    ok = db.table(info.name).insert(newData)
-                                    break
-                                case RecordUpdater:
-                                    db.table(info.backName).get().toListMap().each {
-                                        Map newRow = (info.table.onUpdate as RecordUpdater).fix(it)
-                                        if(! db.table(info.name).insert(newRow)) {
-                                            Log.w("Inserting row failed: %s", newRow)
-                                        }
-                                    }
-                                    ok = true
-                                    break
-                                default:
-                                    Log.w("You must choose between `RecordsUpdater` or `RecordUpdater` interfaces (see documentation)")
-                            }
+                        if (info.table.manualUpdate(db.table(info.backName), info.table.tableVersion, info.table.definedVersion)) {
+                            List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
+                            ok = db.table(info.name).insert(newData)
                         } else {
                             db.exec(new Query("INSERT IGNORE INTO `${info.name}` SELECT * FROM `${info.backName}`"))
                         }

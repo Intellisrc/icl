@@ -176,7 +176,7 @@ class ConfigAuto {
      * @param configFile : where to store the configuration
      * @param storage : Storage used to save properties (Berkeley by default)
      */
-    ConfigAuto(String basePackage, File configFile = defaultCfgFile, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
+    ConfigAuto(String basePackage, File configFile, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
         props = storage
         cfgFile = configFile
         try {
@@ -197,6 +197,9 @@ class ConfigAuto {
         } catch (Exception e) {
             Log.e("Unable to start AutoConfig", e)
         }
+    }
+    ConfigAuto(String basePackage, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
+        this(basePackage, defaultCfgFile, storage)
     }
 
     /**

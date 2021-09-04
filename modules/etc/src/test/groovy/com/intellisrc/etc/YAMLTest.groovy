@@ -1,21 +1,19 @@
-package com.intellisrc.core
+package com.intellisrc.etc
 
 import groovy.transform.CompileStatic
-import org.yaml.snakeyaml.Yaml
 import spock.lang.Specification
 
 /**
  * @since 2021/06/30.
  */
 @CompileStatic
-class YamlTest extends Specification {
+class YAMLTest extends Specification {
     def "List to yaml"() {
         setup :
-            Yaml yaml = new Yaml()
             List<String> list = ["a","b","c"]
-            String res = yaml.dump(list)
+            String res = YAML.encode(list)
         when :
-            List<String> list1 = yaml.load(res) as List
+            List<String> list1 = YAML.decode(res) as List
             list1.each {
                 println "> $it"
             }
@@ -24,11 +22,10 @@ class YamlTest extends Specification {
     }
     def "List to yaml 2"() {
         setup :
-            Yaml yaml = new Yaml()
             List<Integer> list = [1,2,3,4,5]
-            String res = yaml.dump(list)
+            String res = YAML.encode(list)
         when :
-            List<Integer> list1 = yaml.load(res) as List
+            List<Integer> list1 = YAML.decode(res) as List
             list1.each {
                 println "> $it"
             }
@@ -37,11 +34,10 @@ class YamlTest extends Specification {
     }
     def "Map to yaml"() {
         setup :
-            Yaml yaml = new Yaml()
             Map<String, Integer> list = [a : 1, b : 2, c : 3, d : 4, e : 5]
-            String res = yaml.dump(list)
+            String res = YAML.encode(list)
         when :
-            Map<String, Integer> list1 = yaml.load(res) as Map
+            Map<String, Integer> list1 = YAML.decode(res) as Map
             list1.each {
                 println "> ${it.key} -> ${it.value}"
             }

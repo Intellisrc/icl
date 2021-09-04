@@ -108,10 +108,10 @@ In order to use `@AutoConfig`, you need to initialize it,
 for example:
 
 ```groovy
-# Example using Redis as database:
+// Example using Redis as database:
 ConfigAuto configAuto = new ConfigAuto(packageName, new Redis("config"))
 
-# Example using BerkeleyDB as database: ("db" = database name)
+// Example using BerkeleyDB as database: ("db" = database name)
 ConfigAuto configAuto = new ConfigAuto(packageName, new BerkeleyDB("db","config")) 
 ```
 
@@ -383,6 +383,22 @@ new Service(
             return SysInfo.getFile("private", "documents", id)
     }
 )
+```
+
+## YAML / JSON
+
+YAML wraps `snakeyaml` and JSON wraps `Groovy Json`.
+Both classes are meant to be used almost in the same way:
+
+```groovy
+// YAML Example:
+String yamlStr = YAML.encode(["a","b","c"])
+List yamlList  = YAML.decode(yamlStr) as List
+
+// JSON Example:
+boolean pretty = true // Return a pretty formatted JSON string (otherwise, will be compacted)
+String jsonStr = JSON.encode([a:1, b:2, c:3], pretty)
+Map jsonMap    = JSON.decode(encoded) as Map
 ```
 
 ## Bytes

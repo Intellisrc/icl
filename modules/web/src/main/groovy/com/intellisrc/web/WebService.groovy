@@ -3,10 +3,11 @@ package com.intellisrc.web
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.Cache
+import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
+import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import org.apache.tools.ant.types.resources.StringResource
-import org.yaml.snakeyaml.Yaml
 import spark.Request
 import spark.Response
 import spark.Route
@@ -416,7 +417,7 @@ class WebService {
                 switch (output.content) {
                     case Collection:
                     case Map:
-                        output.content = new Yaml().dump(output.content)
+                        output.content = YAML.encode(output.content)
                         output.size = (output.content as String).size()
                         break
                 }
@@ -656,7 +657,7 @@ class WebService {
                                 output.content = JSON.encode(ok : false, error : 403)
                                 break
                             case OutputType.YAML:
-                                output.content = new Yaml().dump(ok : false, error : 403)
+                                output.content = YAML.encode(ok : false, error : 403)
                                 break
                             default:
                                 response.type(Mime.getType("txt"))

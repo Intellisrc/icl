@@ -11,6 +11,11 @@
 * Added support to upload multiples files in `web` and simplified its usage
 * All Properties set/get got standardized and moved into `core`
 
+### 2.8.1
+* JSON moved to `etc` package (and removed GSON dependency).
+* Added YAML into `etc`.
+* Simplified the use of JSON and YAML
+
 ## 2.7 (Groovy 2.5.6)
 
 * Added modules `thread`, `serial`, `img`

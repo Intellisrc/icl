@@ -1,8 +1,8 @@
 dependencies {
     api project(':core')
-    implementation "org.reflections:reflections:0.9.12" //Same as in DB
-    implementation 'org.apache.tika:tika-core:2.0.0'
+    api "org.reflections:reflections:0.9.12" //Same as in DB
+    api 'org.apache.tika:tika-core:2.0.0'
     // We set Jedis to be optional so it is not always required, only when AutoConfig is being used.
-    implementation "com.sleepycat:je:18.3.12"
-    implementation 'redis.clients:jedis:3.6.3'
+    api "com.sleepycat:je:18.3.12"
+    api 'redis.clients:jedis:3.6.3'
 }

@@ -1,6 +1,7 @@
 package com.intellisrc.web
 
 import com.intellisrc.core.Log
+import com.intellisrc.etc.JSON
 import com.intellisrc.web.ServiciableWebSocket.WSMessage
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.Session as JettySession

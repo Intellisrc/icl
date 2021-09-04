@@ -5,9 +5,9 @@ import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
 import com.intellisrc.etc.Instanciable
+import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import javassist.Modifier
-import org.yaml.snakeyaml.Yaml
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
@@ -29,7 +29,14 @@ class Table<T extends Model> implements Instanciable<T> {
     protected int cache = 0
     protected boolean clearCache = false
 
-    TableUpdater.BaseUpdater onUpdate = null
+    /**
+     * Interface used to update values before inserting them.
+     * Useful specially when columns were removed or require data conversion.
+     * If a row fails, all fails
+     */
+    static interface RecordsUpdater {
+        List<Map> fix(List<Map> records)
+    }
     /**
      * Constructor. A Database object can be passed
      * when using multiple databases.
@@ -254,11 +261,11 @@ class Table<T extends Model> implements Instanciable<T> {
                 return (val as LocalDateTime).YMDHms
             case Collection:
                 List list = (val as List)
-                return new Yaml().dump(list.empty ? [] : list.collect {
+                return YAML.encode(list.empty ? [] : list.collect {
                    toDBValue(it)
                 })
             case Map:
-                return new Yaml().dump(val)
+                return YAML.encode(val)
             case URL:
             case URI:
             case Enum:
@@ -312,7 +319,7 @@ class Table<T extends Model> implements Instanciable<T> {
                         break
                     case Collection:
                         try {
-                            model[origName] = new Yaml().load((it.value ?: "").toString()) as List
+                            model[origName] = YAML.decode((it.value ?: "").toString()) as List
                         } catch (Exception e) {
                             Log.w("Unable to parse list value in field %s: %s", origName, e.message)
                             model[origName] = []
@@ -320,7 +327,7 @@ class Table<T extends Model> implements Instanciable<T> {
                         break
                     case Map:
                         try {
-                            model[origName] = new Yaml().load((it.value ?: "").toString()) as Map
+                            model[origName] = YAML.decode((it.value ?: "").toString()) as Map
                         } catch (Exception e) {
                             Log.w("Unable to parse map value in field %s: %s", origName, e.message)
                             model[origName] = [:]
@@ -765,11 +772,24 @@ class Table<T extends Model> implements Instanciable<T> {
         return ok
     }
     /**
-     * Override to check if the table needs a manual update
+     * Return table updater
+     * Override when needed
      * @return
      */
-    boolean manualUpdate(DB table) {
-       return onUpdate != null
+    @SuppressWarnings('GrMethodMayBeStatic')
+    List<Map> onUpdate(List<Map> data) {
+        return data
+    }
+    /**
+     * Decide if manual update is required when version changes
+     * @param table
+     * @param prevVersion
+     * @param currVersion
+     * @return
+     */
+    @SuppressWarnings('GrMethodMayBeStatic')
+    boolean manualUpdate(DB table, int prevVersion, int currVersion) {
+       return false
     }
     /**
      * Returns a new instance of this class's generic type

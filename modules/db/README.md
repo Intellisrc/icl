@@ -216,47 +216,20 @@ However, if your data changed considerably, for example changing a column name,
 changing a `TEXT` column for a `DECIMAL` (in which data conversion is required), etc,
 you will need to check and fix the data by code.
 
-In such cases, you can set the `onUpdate` interface with either a `RecordUpdater` or 
-a `RecordsUpdater` (the latter is plural):
-
-##### RecordsUpdater : all at once
-```groovy
-class MyTable extends Table<MyModel> {
-    MyTable() {
-        onUpdate = {
-            List<Map> records ->
-                // Fix the old data...
-                return records // new data to be inserted
-        }
-    }
-}
-```
-This option will try to insert all records at once. If it fails, it will
-roll back the update process. 
-
-##### RecordUpdater : one by one (the slowest method)
-```groovy
-class MyTable extends Table<MyModel> {
-    MyTable() {
-        onUpdate = {
-            Map record ->
-                // Fix the old row...
-                return record // new row to be inserted
-        }
-    }
-}
-```
-This option will try to insert all records one by one, but it won't
-stop if one fails (it will only log a warning). 
-
-As fixing the data this way will result in a lower performance, you can
-decide when an update is needed by overriding the method `forceUpdate`:
+In such cases, need to override the method `onUpdate`, and because this process
+is usually expensive, you need to enable it using the method `manualUpdate` to return `true`:
 
 ```groovy
 class MyTable extends Table<MyModel> {
     @Override
-    boolean manualUpdate(DB oldTable) {
-        // check the current data and decide if it requires to be updated, for example:
+    List<Map> onUpdate(List<Map> records) {
+            // Fix the old data...
+            return records // new data to be inserted
+    }
+    
+    @Override
+    boolean manualUpdate(DB oldTable, int dbVersion, int codeVersion) {
+        // check the current data and decide if table requires to be manually updated, for example:
         Map firstRow = oldTable.limit(1).get()
         return firstRow.containsKey("old_column") // if true, `onUpdate` will be executed if exists (default : true)
     }

@@ -1,6 +1,6 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.web.JSON
+import com.intellisrc.etc.JSON
 import com.intellisrc.web.WebSocketServiceClient
 
 /**
@@ -48,19 +48,19 @@ class ChatClient
                         }
                     }
                     if(botsay.isEmpty() || last_responses.contains(botsay)) {
-                        String toSend = URLEncoder.encode(msg.message, "UTF-8")
-                        def response = JSON.decode("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text).toMap()
+                        String toSend = URLEncoder.encode(msg.message.toString(), "UTF-8")
+                        def response = JSON.decode("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text) as Map
                         botsay = response.botsay
                     }
                     if (botsay.isEmpty() || last_responses.contains(botsay)) {
-                        if(msg.message.contains("?")) {
+                        if(msg.message.toString().contains("?")) {
                             botsay = getAnswer()
                         } else {
                             botsay = getStatement()
                         }
                         //Last resource to prevent repetition:
                         if(last_responses.contains(botsay)) {
-                            def response = JSON.decode("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text).toList()
+                            def response = JSON.decode("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text) as List
                             Map res = (Map) response.first()
                             botsay = res.content
                             if(botsay.isEmpty()) {

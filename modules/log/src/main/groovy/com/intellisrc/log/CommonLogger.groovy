@@ -2,6 +2,7 @@ package com.intellisrc.log
 
 import com.intellisrc.core.*
 import groovy.transform.CompileStatic
+import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import org.slf4j.helpers.MarkerIgnoringBase
 
@@ -20,7 +21,13 @@ class CommonLogger extends MarkerIgnoringBase {
 
     protected LocalDateTime startTime = SysClock.now
     protected synchronized ConcurrentLinkedQueue<LoggableOutputLevels> printers = new ConcurrentLinkedQueue<>()
-
+    /**
+     * Shortcut to get this logger
+     * @return
+     */
+    static CommonLogger getDefault() {
+        return LoggerFactory.getLogger("default") as CommonLogger
+    }
     //-------------- to be assigned later ---------
     protected boolean initialized = false
     protected List<String> domains = []

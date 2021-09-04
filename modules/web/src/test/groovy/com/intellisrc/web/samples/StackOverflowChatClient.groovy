@@ -1,6 +1,6 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.web.JSON
+import com.intellisrc.etc.JSON
 import com.intellisrc.web.WebSocketServiceClient
 
 import java.util.zip.GZIPInputStream

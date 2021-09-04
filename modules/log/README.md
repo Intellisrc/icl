@@ -40,7 +40,7 @@ log.color=true
 # Switch WHITE/BLACK colors
 log.color.invert=false
 # Ignore packages or classes
-log.ignore=[org.eclipse.jetty, LoudyClass]
+log.ignore=[org.eclipse.jetty, spark, LoudyClass]
 # Lower or equal to this level will be ignored
 log.ignore.level=debug
 # What to show on logs:
@@ -120,6 +120,13 @@ for example:
 log.file.color=false
 log.file.show.package=true
 log.file.ignore=[com.example.com]
+```
+
+If you need to access the loggers directly:
+
+```groovy
+FileLogger fileLogger = CommonLogger.default.fileLogger
+PrintLogger printLogger = CommonLogger.default.printLogger
 ```
 
 You can add your own printer, for example:

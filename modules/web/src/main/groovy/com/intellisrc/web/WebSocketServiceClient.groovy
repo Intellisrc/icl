@@ -1,5 +1,6 @@
 package com.intellisrc.web
 
+import com.intellisrc.etc.JSON
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
@@ -40,7 +41,7 @@ class WebSocketServiceClient {
         @OnWebSocketMessage
         void onMessage(JettySession sockSession, String message) {
             if(onMessageReceived != null) {
-                onMessageReceived.call(JSON.decode(message).toMap())
+                onMessageReceived.call(JSON.decode(message) as Map)
             }
         }
 

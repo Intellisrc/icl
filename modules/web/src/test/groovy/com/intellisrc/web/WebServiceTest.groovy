@@ -3,6 +3,7 @@ package com.intellisrc.web
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
+import com.intellisrc.etc.JSON
 import com.intellisrc.web.samples.*
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -37,7 +38,7 @@ class WebServiceTest extends Specification {
             assert json
             assert !json.contains("<html>")
         when:
-            def res = JSON.decode(json).toMap()
+            def res = JSON.decode(json) as Map
         then:
             assert res instanceof Map
             assert (res.i as int) == number

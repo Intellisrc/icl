@@ -26,7 +26,7 @@ class LogTest extends Specification {
     PrintLogger printLogger
 
     def setup() {
-        logger = LoggerFactory.getLogger("default") as CommonLogger
+        logger = CommonLogger.default
         // Do not initialize default
         logger.initialized = true
 
@@ -37,6 +37,7 @@ class LogTest extends Specification {
             logDir: SysInfo.getFile(SysInfo.tempDir, "test-log")
         )
         fileLogger.initialize(basePrinter)
+        fileLogger.onCleanList.clear()
 
         printLogger = new PrintLogger()
         printLogger.initialize(basePrinter)
