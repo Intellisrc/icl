@@ -28,7 +28,7 @@ import java.lang.annotation.Target
 @interface AutoConfig {
     // 'Prefix' serves as a filter so only those marked with the same prefix will processed together.
     // It should match the prefix used in ConfigAuto
-    String prefix() default "config"
+    String prefix() default ""
     String key() default ""
     String description() default ""
     boolean export() default true // If a key should be exported into the configuration file or not (false = internal use only)

@@ -277,10 +277,12 @@ class ConfigAuto {
     boolean prepare(Field field) {
         boolean ok = true
         // Filter by root (class and field roots must match to be included)
-        String classRoot = field.declaringClass.getAnnotation(AutoConfig)?.prefix() ?: props.prefix
-        String fieldRoot = field.getAnnotation(AutoConfig)?.prefix() ?: props.prefix
-        if(props.prefix != classRoot || props.prefix != fieldRoot) {
-            Log.v("Field [%s] was skipped as roots: [%s,%s] don't match current: %s", classRoot, fieldRoot, props.prefix)
+        String fieldRoot = field.getAnnotation(AutoConfig)?.prefix()
+        if(!fieldRoot) {
+            fieldRoot = field.declaringClass.getAnnotation(AutoConfig)?.prefix() ?: props.prefix
+        }
+        if(props.prefix != fieldRoot) {
+            Log.v("Field [%s] was skipped as roots: [%s] don't match current: %s", fieldRoot, props.prefix)
             ok = false
         }
         if(ok) {
