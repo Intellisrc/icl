@@ -35,6 +35,8 @@ can be reused in other console applications (those classes should extend
 ### Example
 
 ```groovy
+import com.intellisrc.term.Console 
+
 class CustomConsole implements Consolable {
 
     // Code to execute on initialization
@@ -49,20 +51,32 @@ class CustomConsole implements Consolable {
 
     // Do something on command
     boolean onCommand(LinkedList<String> commandList) {
+        // 'quit' and 'exit' are implemented by default, so we skip them here:
         if (!commandList.empty && !["quit", "exit"].contains(commandList.first())) {
             if(!commandList.first().empty) {
-                Console.resetPreviousPrompt("ok!")
-                Console.read("Reading...", {
-                    (1..30).each {
-                        sleep(100)
-                        print "."
-                    }
-                    Console.cancel()
-                    Console.out("")
-                    Console.resetRead()
-                } as Console.BackgroundTask)
+                String cmd = commandList.poll()
+                switch(cmd) {
+                    case "test":
+                        String what = commandList.empty ? "ok" : commandList.poll()
+                        Console.resetPreviousPrompt(what + "! ")
+                        break
+                    case "testing":
+                        Console.read("Testing...", {
+                            (1..30).each {
+                                sleep(100)
+                                print "."
+                            }
+                            Console.cancel()
+                            Console.out("")
+                            Console.resetRead()
+                        } as Console.BackgroundTask)                    
+                        break
+                }
             }
         }
+        // In this example, only 'test' and 'testing' are implemented
+        // In order to allow multiple 'Consolable' implementations
+        // we return 'true', otherwise it will not continue.
         return true
     }
 
