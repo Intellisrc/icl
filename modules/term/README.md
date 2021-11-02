@@ -35,7 +35,7 @@ can be reused in other console applications (those classes should extend
 ### Example
 
 ```groovy
-class CustomConsole extends Consolable {
+class CustomConsole implements Consolable {
 
     // Code to execute on initialization
     void onInit(LinkedList<String> arguments) {
