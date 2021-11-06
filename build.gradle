@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.1.1-SNAPSHOT"
+    version = "2.8.1.3-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -114,7 +114,6 @@ subprojects {
     boolean publishDev = true
 
     dependencies {
-        //def groovyVer = "2.5.14"
         def groovyVer = "3.0.7"   //3.0.8 is failing to compile
         def groovyExt = "3.0.8.7"
         def spock = "2.0-groovy-3.0"

@@ -211,10 +211,11 @@ class Log {
      */
     protected static void log(Level lvl, String msg, Object... args) {
         Info stack = stack()
-        LinkedList listArgs = List.of(args) as LinkedList
         Throwable throwable = null
-        if(!listArgs.isEmpty() && listArgs.last() instanceof Throwable) {
-            throwable = (Throwable) listArgs.pollLast()
+        List<Object> listArgs = args.toList()
+        if(! listArgs.empty && listArgs[args.length - 1] instanceof Throwable) {
+            throwable = (Throwable) listArgs[args.length - 1]
+            listArgs = listArgs.subList(0, listArgs.size() - 2)
         } else if(lvl == Level.ERROR) {
             throwable = new Exception("Generic Exception generated in Log")
         }
