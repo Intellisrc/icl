@@ -17,7 +17,7 @@ import static com.intellisrc.db.DB.ColumnType.*
  * @since 2016-10
  */
 class DB {
-    static protected Cache<Data> dataCache = new Cache<>(extend: false)
+    static protected Cache<Data> dataCache = new Cache<Data>(extend: false)
     static boolean disableCache = false // Disable all cache
     int cache = 0 // time in seconds to keep cache (for GET)
     boolean clearCache = false // if true, will clear cache on table update

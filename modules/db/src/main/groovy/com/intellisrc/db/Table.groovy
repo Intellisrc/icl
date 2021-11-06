@@ -19,7 +19,7 @@ import java.util.regex.Matcher
 import static com.intellisrc.db.DB.DBType.*
 
 @CompileStatic
-class Table<T extends Model> implements Instanciable<T> {
+class Table<M extends Model> implements Instanciable<M> {
     static boolean alwaysCheck = false  //Used by updater
     static protected Map<String, Boolean> versionChecked = [:] // it will be set to true after the version has been checked
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
@@ -223,7 +223,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param model
      * @return
      */
-    Map<String, Object> getMap(T model) {
+    Map<String, Object> getMap(M model) {
         Map<String, Object> map = fields.collectEntries {
             [(getColumnName(it)) : model[it.name]]
         }
@@ -301,8 +301,8 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param map
      * @return
      */
-    T setMap(Map<String, Object> map) {
-        T model = parametrizedInstance
+    M setMap(Map<String, Object> map) {
+        M model = parametrizedInstance
         map.each {
             String origName = it.key.toCamelCase()
             Field field = getFields().find { it.name == origName }
@@ -380,7 +380,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @return
      */
     String getDefaultValue(Field field, boolean nullable = false) {
-        T model = parametrizedInstance
+        M model = parametrizedInstance
         Object val = field.get(model)
         String defaultVal = ""
         Column column = field.getAnnotation(Column)
@@ -561,9 +561,9 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param id
      * @return
      */
-    T get(int id) {
+    M get(int id) {
         Map map = tableConnector.key(pk).get(id)?.toMap() ?: [:]
-        T model = setMap(map)
+        M model = setMap(map)
         closeConnections()
         return model
     }
@@ -572,9 +572,9 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param ids
      * @return
      */
-    List<T> get(List<Integer> ids) {
+    List<M> get(List<Integer> ids) {
         List<Map> list = tableConnector.key(pk).get(ids).toListMap()
-        List<T> all = list.collect {
+        List<M> all = list.collect {
             Map map ->
                 return setMap(map)
         }
@@ -591,7 +591,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param options
      * @return
      */
-    List<T> getAll(Map options = [:]) {
+    List<M> getAll(Map options = [:]) {
         DB con = tableConnector
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
@@ -600,7 +600,7 @@ class Table<T extends Model> implements Instanciable<T> {
             con = con.order(options.sort.toString(), (options.order ?: "ASC") as Query.SortOrder)
         }
         List<Map> list = con.get().toListMap()
-        List<T> all = list.collect {
+        List<M> all = list.collect {
             Map map ->
                 return setMap(map)
         }
@@ -614,11 +614,11 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param type
      * @return
      */
-    List<T> findAll(String fieldName, Model model) {
+    List<M> findAll(String fieldName, Model model) {
         Field f = getFields().find {
             it.name == fieldName
         }
-        List<T> list = []
+        List<M> list = []
         if(f) {
             String id = getColumnName(f)
             list = tableConnector.get([(id): model.id]).toListMap().collect { setMap(it) }
@@ -634,7 +634,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param value
      * @return
      */
-    T find(String column, Object value) {
+    M find(String column, Object value) {
         return find([(column): value])
     }
     /**
@@ -642,10 +642,10 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param criteria
      * @return
      */
-    T find(Map criteria) {
+    M find(Map criteria) {
         criteria = convertToDB(criteria)
         Map map = tableConnector.get(criteria)?.toMap() ?: [:]
-        T model = setMap(map)
+        M model = setMap(map)
         closeConnections()
         return model
     }
@@ -655,7 +655,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param value
      * @return
      */
-    List<T> findAll(String column, Object value) {
+    List<M> findAll(String column, Object value) {
         return findAll([(column): value])
     }
     /**
@@ -663,10 +663,10 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param criteria
      * @return
      */
-    List<T> findAll(Map criteria) {
+    List<M> findAll(Map criteria) {
         criteria = convertToDB(criteria)
         List<Map> list = tableConnector.get(criteria).toListMap()
-        List<T> all = list.collect {
+        List<M> all = list.collect {
             Map map ->
                 return setMap(map)
         }
@@ -679,7 +679,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param exclude : columns to exclude during update
      * @return
      */
-    boolean update(T model, List<String> exclude = []) {
+    boolean update(M model, List<String> exclude = []) {
         int id = model.id
         Map map = getMap(model)
         exclude.each {
@@ -694,7 +694,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param model
      * @return
      */
-    boolean delete(T model) {
+    boolean delete(M model) {
         return model.id ? delete(model.id) : delete(getMap(model))
     }
     /**
@@ -733,7 +733,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param model
      * @return
      */
-    int insert(T model) {
+    int insert(M model) {
         int id = model.id
         int lastId = 0
         DB db
@@ -759,7 +759,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * @param model
      * @return
      */
-    boolean replace(T model) {
+    boolean replace(M model) {
         boolean ok = false
         try {
             Map<String, Object> map = getMap(model)
@@ -795,7 +795,7 @@ class Table<T extends Model> implements Instanciable<T> {
      * Returns a new instance of this class's generic type
      * @return
      */
-    T getNew() {
+    M getNew() {
         return getParametrizedInstance()
     }
     /**
