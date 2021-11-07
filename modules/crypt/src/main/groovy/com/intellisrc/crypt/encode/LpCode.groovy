@@ -19,7 +19,7 @@ import static com.intellisrc.crypt.encode.LpCode.Charset.*
  * - All the range of UTF-8 can be used (65k+ chars).
  * - Depending on the settings, the encoded string may
  *   result smaller than the length of the original string.
- * - More than millions of possible combinations (input, output).
+ * - Many possible combinations (input, output).
  *
  * In order to decode/decode a string 2 settings are required:
  *
@@ -31,7 +31,7 @@ import static com.intellisrc.crypt.encode.LpCode.Charset.*
  *      in the selected charset, the result will be garbage.
  * If the input string is a hash (MD5, SHA*, etc), use "HASH".
  * If a string is the result of an encoding method such as base64, unpack('H*',...) ]
- *      it is recommended to use "CYPHER".
+ *      it is recommended to use "BASE64".
  * Crypt hashes (created by an standard Unix DES-based algorithm) may contain any ascii
  *      character when using salt strings, as those are stored within the hash itself.
  *      For that reason, use ASCII as input.
@@ -43,7 +43,7 @@ import static com.intellisrc.crypt.encode.LpCode.Charset.*
  * Wider the charset used, the smaller is the resulted encoded string.
  * Using the full UTF8 range (65k+) results in the highest entropy, but
  *      it may present some problems handling the resulted string.
- * Some visually interesting outputs are DOTS(Braille) and LINES.
+ * Some visually interesting outputs are BRAILLE and LINES.
  * After UTF8, KANJI or KOR provides the wider ranges, giving a higher entropy.
  * HIDE may provide an extra difficulty to read as are not visual characters.
  * ALPHA,ANUM,HASH,LCASE,UCASE,NUM are safe to store (as in a DB) without worrying about
@@ -54,28 +54,96 @@ import static com.intellisrc.crypt.encode.LpCode.Charset.*
 @CompileStatic
 class LpCode {
     static enum Charset {
-        ASCII,  //Any ascii char (95 chars)
+        BIT,    //Binary-like (2 chars: 0,1)
         NUM,    //0-9 (10 digits)
+        // English:
         LCASE,  //a-z (26 chars)
         UCASE,  //A-Z (26 chars)
         ALPHA,  //a-zA-Z (52 chars)
         ANUM,   //0-9a-zA-Z (62 chars)
+        ASCII,  //Any English ascii char (95 chars)
+        LATIN,  //Ascii Extended (support for accents and other common symbols) (928 chars)
+        UTF8,   //Any UTF8 char (65,535 chars)
+        // Encoding
         HASH,   //0-9a-f //similar to md5, sha, etc (but with variable length) (16 chars)
-        CYPHER, //0-9a-zA-Z=+/ (as result of Base64,MCrypt,etc) (65 chars)
-        INAME,  //0-9a-z._:-| Special Chars to form input names (41 chars)
+        HASHUC, //0-9A-F //same as 'HASH' but uppercase (16 chars)
+        BASE64, //0-9a-zA-Z=+/ (as result of Base64,etc) (65 chars)
+        // Non-latin Languages
+        GREEK,
+        CYRILLIC,
+        ARMENIAN,
+        HEBREW,
+        ARABIC,
+        SYRIAC,
+        THAANA,
+        NKO,
+        SAMARITAN,
+        MANDAIC,
+        DEVANAGARI,
+        BENGALI,
+        GURMUKHI,
+        GUJARATI,
+        ORIYA,
+        TAMIL,
+        TELEGU,
+        KANNADA,
+        MALAYAM,
+        SINHALA,
+        THAI,
+        LAO,
+        TIBETAN,
+        MYANMAR,
+        GEORGIAN,
+        HANGUL,
+        ETHIOPIC,
+        CHEROKEE,
+        UCAS,
+        OGHAM,
+        RUNIC,
+        TAGALOG,
+        HANUNOO,
+        BUHID,
+        TAGBANWA,
+        KHMER,
+        MONGOLIAN,
+        LIMBU,
+        TAILE,
+        BUGINESE,
+        TAITHAM,
+        BALINESE,
+        SUNDANESE,
+        BATAK,
+        LEPCHA,
+        OICHIKI,
+        COPTIC,
+        GLAGOLITIC,
+        TIFINAGH,
         HANZU,  //Chinese (inc. Japanese Kanji, 20,911 symbols)
         KOR,    //Korean (11,171 symbols)
         HIRA,   //Hiragana (83 chars)
         KANA,   //Katakana (86 chars)
         KANJI,  //Japanese Kanji (2131 symbols)
-        DOTS,   //Only Braille (255 chars)
+        VAI,
+        BAMUM,
+        JAVA,
+        CHAM,
+        TAIVIET,
+        // Symbols and Other languages
+        ENCLOSED,
+        SUBSUP,
+        CURRENCY,
+        NUMFORM,
+        ARROWS,
+        DINGBATS,
+        BRAILLE,   //Only Braille (255 chars)
         SYMBL,  //Symbols (2,031 symbols)
+        TECH,
         LINES,  //Lines (64 symbols)
+        BOX,
+        BLOCK,
+        SHAPES,
         HIDE,   //Non-displayable (use with caution) (2,047 symbols)
-        BINARY, //Binary-like (2 chars: 0,1)
-        UTF8,   //Any UTF8 char (65,535 chars)
-        CUNEIF, //Cuneiform (1,234 chars)
-        EGYPT,  //Egyptian (1,071 chars)
+        PRIVATE,
     }
 
     static class Limits {
@@ -146,9 +214,8 @@ class LpCode {
         Charset cs = i ? input : output
         switch(cs) {
             case ALPHA:   f = "`_^[\\]";          t = "CFBADE";         break
-            case INAME:   f = "`^[\\]{~}XYZVW";   t = ".-:8402196537";  break
             case ANUM:    f = "`_^[\\]@?>=";      t = "5409216378";     break
-            case CYPHER:  f = "`_^[\\]@?><:;";    t = "47+820/61935";   break
+            case BASE64:  f = "`_^[\\]@?><:;";    t = "47+820/61935";   break
             case HASH:    f = "homniljpkg";       t = "3810974256";     break
         }
         if(f) {
@@ -161,25 +228,24 @@ class LpCode {
     static Limits getLM(Charset charset) {
         Limits limits = new Limits()
         switch(charset) {
-            case ASCII:   limits.low = 0x20;   limits.max = 0x5F;     break
-            case NUM:     limits.low = 0x30;   limits.max = 0xA;      break
-            case LCASE:   limits.low = 0x61;   limits.max = 0x1A;     break
-            case UCASE:   limits.low = 0x41;   limits.max = 0x1A;     break
             case ALPHA:   limits.low = 0x47;   limits.max = 0x34;     break
             case ANUM:    limits.low = 0x3D;   limits.max = 0x3E;     break
-            case HASH:    limits.low = 0x61;   limits.max = 0x10;     break
-            case INAME:   limits.low = 0x56;   limits.max = 0x29;     break
-            case CYPHER:  limits.low = 0x3A;   limits.max = 0x41;     break
+            case ASCII:   limits.low = 0x20;   limits.max = 0x5F;     break
+            case BASE64:  limits.low = 0x3A;   limits.max = 0x41;     break
+            case BIT:     limits.low = 0x30;   limits.max = 0x2;      break
+            case BRAILLE: limits.low = 0x2800; limits.max = 0xFF;     break
             case HANZU:   limits.low = 0x4E00; limits.max = 0x51AF;   break
+            case HASH:    limits.low = 0x61;   limits.max = 0x10;     break
+            case HIDE:    limits.low = 0xD800; limits.max = 0x7FF;    break
             case HIRA:    limits.low = 0x3041; limits.max = 0x53;     break
             case KANA:    limits.low = 0x30A1; limits.max = 0x54;     break
             case KOR:     limits.low = 0xAC00; limits.max = 0x2BA3;   break
-            case UTF8:    limits.low = 0x0;    limits.max = 0xFFFF;   break
-            case DOTS:    limits.low = 0x2800; limits.max = 0xFF;     break
-            case SYMBL:   limits.low = 0x2010; limits.max = 0x7EF;    break
-            case HIDE:    limits.low = 0xD800; limits.max = 0x7FF;    break
+            case LCASE:   limits.low = 0x61;   limits.max = 0x1A;     break
             case LINES:   limits.low = 0x4DC0; limits.max = 0x3F;     break
-            case BINARY:  limits.low = 0x30;   limits.max = 0x2;      break
+            case NUM:     limits.low = 0x30;   limits.max = 0xA;      break
+            case SYMBL:   limits.low = 0x2010; limits.max = 0x7EF;    break
+            case UCASE:   limits.low = 0x41;   limits.max = 0x1A;     break
+            case UTF8:    limits.low = 0x0;    limits.max = 0xFFFF;   break
         }
         return limits
     }
