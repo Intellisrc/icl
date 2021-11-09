@@ -1,7 +1,6 @@
 package com.intellisrc.etc
 
 import groovy.transform.CompileStatic
-
 import java.util.zip.*
 
 /**
@@ -81,18 +80,22 @@ class Zip {
      * @return
      */
     static File compressDir(final File srcDir, final File zipFile) {
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))
-        srcDir.eachFileRecurse({
-            zos.putNextEntry(new ZipEntry(it.path - srcDir.path + (it.directory ? "/" : "")))
-            if (it.file) {
-                zos << it.bytes
-            }
-            zos.closeEntry()
-        })
-        zos.close()
+        Map<String, byte[]> namesData = [:]
+        srcDir.eachFileRecurse {
+            namesData[it.path - srcDir.path + (it.directory ? File.separatorChar : "")] = it.bytes
+        }
+        zipFile.withOutputStream {
+            zip(namesData).writeTo(it)
+        }
         return zipFile
     }
-
+    /**
+     * Creates a file when decompressing a zip file
+     * @param destinationDir
+     * @param zipEntry
+     * @return
+     * @throws IOException
+     */
     private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
         File destFile = new File(destinationDir, zipEntry.name)
         String destDirPath = destinationDir.canonicalPath
@@ -138,5 +141,49 @@ class Zip {
         zis.closeEntry()
         zis.close()
         return destDir
+    }
+    /**
+     * Compress byte arrays without using files
+     *
+     * @param namesData : Map with <Logical Path, data> values
+     * @return
+     */
+    static ByteArrayOutputStream zip(final Map<String, byte[]> namesData) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream()
+        ZipOutputStream zos = new ZipOutputStream(os)
+        namesData.each ({
+            zos.putNextEntry(new ZipEntry(it.key))
+            zos << it.value
+            zos.closeEntry()
+        })
+        zos.close()
+        return os
+    }
+    /**
+     * Decompress a zip file into a Map <Logical Path, data>
+     * @param is
+     * @return
+     */
+    static Map<String, byte[]> unzip(InputStream is) {
+        Map<String, byte[]> namesData = [:]
+        byte[] buffer = new byte[1024]
+        ZipInputStream zis = new ZipInputStream(is)
+        ZipEntry zipEntry = zis.nextEntry
+        while (zipEntry != null) {
+            if(! zipEntry.directory) {
+                // write file content
+                ByteArrayOutputStream os = new ByteArrayOutputStream()
+                int len
+                while ((len = zis.read(buffer)) > 0) {
+                    os.write(buffer, 0, len)
+                }
+                namesData[zipEntry.name] = os.toByteArray()
+                os.close()
+            }
+            zipEntry = zis.nextEntry
+        }
+        zis.closeEntry()
+        zis.close()
+        return namesData
     }
 }

@@ -9,7 +9,6 @@ import groovy.transform.CompileStatic
 import javax.activation.DataHandler
 import javax.activation.DataSource
 import javax.activation.FileDataSource
-import javax.activation.MimetypesFileTypeMap
 import javax.mail.*
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeBodyPart
@@ -54,7 +53,7 @@ class Smtp {
      * Class to be used when attachments are not File objects
      */
     static class InputStreamDataSource implements DataSource {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream()
+        private ByteArrayOutputStream buffer = new ByteArrayOutputStream()
         private final String name
         private final mimeType
 
@@ -92,6 +91,10 @@ class Smtp {
         @Override
         OutputStream getOutputStream() throws IOException {
             throw new IOException("Read-only data")
+        }
+
+        byte[] getBytes() {
+            return buffer.toByteArray()
         }
     }
 
@@ -375,9 +378,10 @@ class Smtp {
                         InputStreamDataSource source ->
                             try {
                                 def messageBodyPart = new MimeBodyPart(
-                                    dataHandler: new DataHandler(source, source.contentType),
-                                    fileName: source.name
+                                    fileName: source.name,
+                                    disposition: MimeBodyPart.ATTACHMENT,
                                 )
+                                messageBodyPart.setContent(source.bytes, source.contentType)
                                 relatedPart.addBodyPart(messageBodyPart)
                                 Log.v("Attached: " + source.name)
                             } catch (MessagingException e) {
