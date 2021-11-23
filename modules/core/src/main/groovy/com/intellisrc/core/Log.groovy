@@ -215,7 +215,7 @@ class Log {
         List<Object> listArgs = args.toList()
         if(! listArgs.empty && listArgs[args.length - 1] instanceof Throwable) {
             throwable = (Throwable) listArgs[args.length - 1]
-            listArgs = listArgs.subList(0, listArgs.size() - 2)
+            listArgs = listArgs.subList(0, args.length - 1)
         } else if(lvl == Level.ERROR) {
             throwable = new Exception("Generic Exception generated in Log")
         }

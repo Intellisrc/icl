@@ -1,5 +1,6 @@
 package com.intellisrc.web
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import com.intellisrc.web.ServiciableWebSocket.WSMessage
@@ -9,6 +10,7 @@ import org.eclipse.jetty.websocket.api.WriteCallback
 import org.eclipse.jetty.websocket.api.annotations.*
 
 import java.util.concurrent.ConcurrentLinkedQueue
+import static com.intellisrc.web.WebSocketService.*
 
 /**
  * This class is a wrapper for @WebSocket
@@ -22,6 +24,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @CompileStatic
 @WebSocket
 class WebSocketService {
+    static int maxSize = Config.get("websocket.max.size", 64)
+    static long timeout = Config.get("websocket.timeout", 300)
     private ServiciableWebSocket listener
     /**
      * Interface used to send a message directly from client to server
@@ -61,6 +65,14 @@ class WebSocketService {
 
     @OnWebSocketConnect
     void onConnect(JettySession sockSession) {
+        // Set limits
+        sockSession.idleTimeout = timeout * 1000
+        sockSession.policy.maxBinaryMessageSize =
+            sockSession.policy.maxBinaryMessageBufferSize =
+                sockSession.policy.maxTextMessageSize =
+                    sockSession.policy.maxTextMessageBufferSize =
+                        sockSession.policy.inputBufferSize = maxSize * 1024
+
         String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, sockSession.remoteAddress.address)
         Session session = sessionQueue.find {
             Session sess ->
