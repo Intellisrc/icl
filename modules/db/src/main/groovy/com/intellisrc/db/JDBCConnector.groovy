@@ -73,7 +73,6 @@ class JDBCConnector implements Connector {
         } else if(!conn_url.isEmpty()) {
             parseJDBC(conn_url)
         }
-		assert name
 	}
 	/**
 	 * Returns database name

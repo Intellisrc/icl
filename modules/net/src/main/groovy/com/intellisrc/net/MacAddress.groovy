@@ -4,6 +4,13 @@ import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 
 /**
+ * Handle Mac Address - like values, for example:
+ *
+ *  3A:BB:0F:12:99
+ *
+ *  It store the value as byte[] and can be converted back using `toString()`
+ *  It can handle as many bytes as needed
+ *
  * @since 17/03/10.
  */
 @Immutable
@@ -17,6 +24,7 @@ class MacAddress {
 
     @Override
     String toString() {
-        String.format("%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5])
+        String fmt = Collections.nCopies(mac.length, "%02X").join(":")
+        return String.format(fmt, mac)
     }
 }

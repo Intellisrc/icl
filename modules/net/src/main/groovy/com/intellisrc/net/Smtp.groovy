@@ -3,6 +3,7 @@ package com.intellisrc.net
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
+import com.intellisrc.etc.Mime
 import groovy.transform.CompileStatic
 
 import javax.activation.DataHandler
@@ -48,7 +49,57 @@ class Smtp {
         }
     }
 
+    /**
+     * Class to be used when attachments are not File objects
+     */
+    static class InputStreamDataSource implements DataSource {
+        private ByteArrayOutputStream buffer = new ByteArrayOutputStream()
+        private final String name
+        private final mimeType
+
+        InputStreamDataSource(InputStream inputStream, String name, String mimeType = "") {
+            this.name = name
+            this.mimeType = mimeType
+            try {
+                int nRead
+                byte[] data = new byte[32 * 1024]
+                while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead)
+                }
+                inputStream.close()
+                buffer.flush()
+            } catch (IOException e) {
+                e.printStackTrace()
+            }
+        }
+
+        @Override
+        String getContentType() {
+            return mimeType ?: Mime.getType(name)
+        }
+
+        @Override
+        InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(buffer.toByteArray())
+        }
+
+        @Override
+        String getName() {
+            return name
+        }
+
+        @Override
+        OutputStream getOutputStream() throws IOException {
+            throw new IOException("Read-only data")
+        }
+
+        byte[] getBytes() {
+            return buffer.toByteArray()
+        }
+    }
+
     private List<File> attachments = []
+    private List<InputStreamDataSource> attachmentsDS = []
     private static enum TransportType {
         SMTP, SMTPS
     }
@@ -121,12 +172,22 @@ class Smtp {
         }
         return exists
     }
+    /**
+     * Adds an attachment using an InputStream
+     * @param source
+     * @return
+     */
+    boolean addAttachment(InputStreamDataSource source) {
+        attachmentsDS << source
+        return true
+    }
 
     /**
      * Clear all attachments
      */
     void clearAttachments() {
         attachments.clear()
+        attachmentsDS.clear()
     }
 
     /**
@@ -267,7 +328,7 @@ class Smtp {
         }
         //If we have attachments or we defined bodyText (which means there body is HTML)
         //Alternative + Attachments : code using as reference: https://mlyly.wordpress.com/2011/05/13/hello-world/
-        if(attachments || bodyText) {
+        if(!attachments.empty || !attachmentsDS.empty || bodyText) {
                 def wrapBodyPart = new MimeBodyPart()
                 if(bodyText) {
                     def altPart = new MimeMultipart("alternative")
@@ -295,23 +356,39 @@ class Smtp {
                 message.setContent(relatedPart)
                 relatedPart.addBodyPart(wrapBodyPart)
 
-                if(attachments) {
+                if(! attachments.empty) {
                     attachments.each {
                         File file ->
                             try {
                                 DataSource source = new FileDataSource(file)
                                 def messageBodyPart = new MimeBodyPart(
-                                        dataHandler: new DataHandler(source, "text/plain; charset=UTF-8"),
+                                        dataHandler: new DataHandler(source, Mime.getType(file)),
                                         fileName: file.name
                                 )
                                 relatedPart.addBodyPart(messageBodyPart)
                                 Log.v("Attached: " + file.name)
                             } catch (MessagingException e) {
-                                Log.e("Attachment was not added: $file, error was: ", e)
+                                Log.e("Attachment was not added: %s, error was: ", file.name, e)
                                 return false
                             }
                     }
-
+                }
+                if(! attachmentsDS.empty) {
+                    attachmentsDS.each {
+                        InputStreamDataSource source ->
+                            try {
+                                def messageBodyPart = new MimeBodyPart(
+                                    fileName: source.name,
+                                    disposition: MimeBodyPart.ATTACHMENT,
+                                )
+                                messageBodyPart.setContent(source.bytes, source.contentType)
+                                relatedPart.addBodyPart(messageBodyPart)
+                                Log.v("Attached: " + source.name)
+                            } catch (MessagingException e) {
+                                Log.e("Attachment was not added: %s, error was: ", source.name, e)
+                                return false
+                            }
+                    }
                 }
         } else {
             try {
