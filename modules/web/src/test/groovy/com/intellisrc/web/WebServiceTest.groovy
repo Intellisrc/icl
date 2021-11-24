@@ -185,7 +185,7 @@ class WebServiceTest extends Specification {
                 resources : System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
         )
-        web.addService(new ChatService())
+        web.addService(new ChatService(timeout: 60))
         web.start(!keepalive)
         expect:
         assert web.isRunning()

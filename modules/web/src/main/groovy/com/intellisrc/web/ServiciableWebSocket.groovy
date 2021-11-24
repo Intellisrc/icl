@@ -40,6 +40,10 @@ trait ServiciableWebSocket extends Serviciable {
             this.jsonObj = jsonObj
         }
     }
+
+    // To be assigned by WebService
+    WebSocketService service
+    // To be assigned by WebSocketService
     WebSocketService.MsgBroadCaster broadCaster
     boolean replaceOnDuplicate = false
 
@@ -65,5 +69,19 @@ trait ServiciableWebSocket extends Serviciable {
             sent = false
         })
         return sent
+    }
+    /**
+     * Set Max Size for messages (binary or text) in KB
+     * @param maxSizeKB
+     */
+    void setMaxSize(int maxSizeKB) {
+        service?.maxSize = maxSizeKB
+    }
+    /**
+     * Set Timeout in seconds
+     * @param timeoutSec
+     */
+    void setTimeout(long timeoutSec) {
+        service?.timeout = timeoutSec
     }
 }

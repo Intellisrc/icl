@@ -10,7 +10,7 @@ import static com.intellisrc.crypt.encode.LpCode.Charset.*
  * @since: Sep 10,2010 (Originally created in PHP for Yayahuic Framework)
  *
  * This class provides 2-way string encoding as a way of obfuscation.
- * While it doesn't really provides security, it could be used to
+ * While it doesn't really provide security, it could be used to
  * create confusion or to reduce the storage size of a string.
  *
  * Features:

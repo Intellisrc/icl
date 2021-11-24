@@ -24,8 +24,8 @@ import static com.intellisrc.web.WebSocketService.*
 @CompileStatic
 @WebSocket
 class WebSocketService {
-    static int maxSize = Config.get("websocket.max.size", 64)
-    static long timeout = Config.get("websocket.timeout", 300)
+    int maxSize = Config.get("websocket.max.size", 64)
+    long timeout = Config.get("websocket.timeout", 300)
     private ServiciableWebSocket listener
     /**
      * Interface used to send a message directly from client to server

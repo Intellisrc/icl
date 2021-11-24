@@ -69,6 +69,7 @@ class Service {
     int cacheTime               = 0                     // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
     int maxAge                  = 0                     // Seconds to suggest to keep in browser
     String contentType          = ""                    // Content Type, for example: Mime.getType("png") or "image/png". (default : auto)
+    String charSet              = "UTF-8"               // Output charset (default: UTF-8)
     String path                 = ""                    // URL path relative to parent
     boolean download            = false                 // Specify if instead of display, show download dialog
     String downloadFileName     = ""                    // Use this name if download is requested

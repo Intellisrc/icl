@@ -7,8 +7,8 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class Email {
-    private final String user
-    private final String domain
+    final String user
+    final String domain
 
     Email(String email) throws EmailMalformedException {
         if(email.matches(/(?!.*\.\.)(^[^\.@][\w_\.+-]+@[\w_\.+-]+\.[^@\s\.]+$)/)) {

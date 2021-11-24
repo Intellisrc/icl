@@ -71,6 +71,7 @@ class WebService {
         OutputType type     = OutputType.BINARY
         Object content      = null
         String contentType  = ""
+        String charSet      = "UTF-8"
 
         // Used by URL
         int responseCode    = 0
@@ -225,7 +226,8 @@ class WebService {
      */
     protected void addWebSocketService(Serviciable serviciable, String path) {
         ServiciableWebSocket webSocket = serviciable as ServiciableWebSocket
-        srv.webSocket(path, new WebSocketService(webSocket))
+        webSocket.service = new WebSocketService(webSocket)
+        srv.webSocket(path, webSocket.service)
     }
 
     /**
@@ -309,8 +311,8 @@ class WebService {
      * @param res (response from Service.Action)
      * @param contentType
      */
-    protected static Output handleContentType(Object res, String contentType, boolean forceBinary = false) {
-        Output output = new Output(contentType: contentType.toLowerCase(), content: res)
+    protected static Output handleContentType(Object res, String contentType, String charSet = "UTF-8", boolean forceBinary = false) {
+        Output output = new Output(contentType: contentType.toLowerCase(), charSet : charSet, content: res)
         // All Collection objects convert them to List so they are cleanly converted
         if(res instanceof Collection) {
             output.content = res.toList()
@@ -395,9 +397,12 @@ class WebService {
                 switch (output.content) {
                     case File :
                         File file = output.content as File
-                        output.content = file.text
+                        output.content = file.bytes
                         output.size = file.size()
                         output.etag = file.lastModified().toString()
+                        break
+                    case byte[]:
+                        output.size = (output.content as byte[]).length
                         break
                     default:
                         output.content = output.content.toString()
@@ -423,6 +428,7 @@ class WebService {
                 }
                 break
             case OutputType.IMAGE:
+                output.charSet = ""
                 switch (output.content) {
                     case File:
                         output.content = (output.content as File).bytes
@@ -444,6 +450,7 @@ class WebService {
                 output.size = (output.content as byte[]).length
                 break
             case OutputType.BINARY:
+                output.charSet = ""
                 switch (output.content) {
                     case String:
                         output.content = output.content.toString().bytes
@@ -541,7 +548,7 @@ class WebService {
                                     }
                                     try {
                                         Object res = callAction(sp.action, request, response, uploadFiles)
-                                        output = handleContentType(res, response.type() ?: sp.contentType,
+                                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
                                                 response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                     } catch (Exception e) {
                                         response.status(500)
@@ -565,7 +572,7 @@ class WebService {
                                 Output toSave = null
                                 try {
                                     Object res = callAction(sp.action, request, response)
-                                    toSave = handleContentType(res,  response.type() ?: sp.contentType,
+                                    toSave = handleContentType(res,  response.type() ?: sp.contentType, sp.charSet,
                                             response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } catch (Exception e) {
                                     response.status(500)
@@ -576,7 +583,7 @@ class WebService {
                         } else { // Normal requests: (no cache, no file upload)
                             try {
                                 Object res = callAction(sp.action, request, response)
-                                output = handleContentType(res,  response.type() ?: sp.contentType,
+                                output = handleContentType(res,  response.type() ?: sp.contentType, sp.charSet,
                                         response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                             } catch (Exception e) {
                                 response.status(500)
@@ -588,7 +595,7 @@ class WebService {
                         if(output) {
                             // Apply content-type:
                             if(output.contentType) {
-                                response.type(output.contentType)
+                                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                             }
                             // Pass response code from output:
                             if(output.responseCode) {
@@ -645,12 +652,14 @@ class WebService {
                         } else {
                             response.status(404)
                             output = new Output(contentType: Mime.TXT, type : OutputType.TEXT)
+                            response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                             output.content = "Not Found"
                         }
                     } else { // Unauthorized
                         response.status(403)
                         if(output == null) {
-                            output = new Output(contentType: sp.contentType, type: getTypeFromContentTypeString(sp.contentType))
+                            output = new Output(contentType: sp.contentType, charSet: sp.charSet, type: getTypeFromContentTypeString(sp.contentType))
+                            response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                         }
                         switch (output.type) {
                             case OutputType.JSON:
@@ -660,7 +669,7 @@ class WebService {
                                 output.content = YAML.encode(ok : false, error : 403)
                                 break
                             default:
-                                response.type(Mime.getType("txt"))
+                                response.type(Mime.getType("txt") + (output.charSet ? "; charset=" + output.charSet : ""))
                                 output.content = "Unauthorized"
                         }
                     }

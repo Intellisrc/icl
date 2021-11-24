@@ -473,14 +473,24 @@ class MyWebSocketService implements ServiciableWebSocket {
 Finally, add it to your `WebService` :
 
 ```groovy
+// You can specify connection timeout in seconds and messages maximum size in KB)
 new WebService(port: 9999)
-        .add(new MyWebSocketService())
+        .add(new MyWebSocketService(timeout: 600, maxSize: 1024))
         .start()
 ```
 
 **NOTE** : Due to technical limitations at the moment, it is not possible to 
 mix WebSocket services with HTTP services. You may need to create two instances
 of `WebService` in different ports.
+
+You can also set `timeout` and `maxSize` in your `config.properties` file:
+
+```properties
+# Set timeout to 10 minutes: (default 5 minutes)
+websocket.timeout=600
+# Set maximum message size to 1MB: (default 64Kb)
+websocket.max.size=1024
+```
 
 ## WebSocket Client
 
