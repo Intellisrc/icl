@@ -1,8 +1,6 @@
 package com.intellisrc.crypt.encode
 
-import com.intellisrc.crypt.hash.Hash
 import groovy.transform.CompileStatic
-
 import static com.intellisrc.crypt.encode.LpCode.Charset.*
 
 /*
@@ -69,6 +67,7 @@ class LpCode {
         HASHUC, //0-9A-F //same as 'HASH' but uppercase (16 chars)
         BASE64, //0-9a-zA-Z=+/ (as result of Base64,etc) (65 chars)
         // Non-latin Languages
+        /* TODO:
         GREEK,
         CYRILLIC,
         ARMENIAN,
@@ -117,33 +116,36 @@ class LpCode {
         OICHIKI,
         COPTIC,
         GLAGOLITIC,
-        TIFINAGH,
+        TIFINAGH,*/
         HANZU,  //Chinese (inc. Japanese Kanji, 20,911 symbols)
         KOR,    //Korean (11,171 symbols)
         HIRA,   //Hiragana (83 chars)
         KANA,   //Katakana (86 chars)
         KANJI,  //Japanese Kanji (2131 symbols)
+        /* TODO:
         VAI,
         BAMUM,
         JAVA,
         CHAM,
-        TAIVIET,
+        TAIVIET,*/
         // Symbols and Other languages
+        /* TODO:
         ENCLOSED,
         SUBSUP,
         CURRENCY,
         NUMFORM,
         ARROWS,
-        DINGBATS,
+        DINGBATS,*/
         BRAILLE,   //Only Braille (255 chars)
         SYMBL,  //Symbols (2,031 symbols)
-        TECH,
         LINES,  //Lines (64 symbols)
+        /* TODO:
         BOX,
         BLOCK,
         SHAPES,
+        TECH,*/
         HIDE,   //Non-displayable (use with caution) (2,047 symbols)
-        PRIVATE,
+        //PRIVATE,
     }
 
     static class Limits {
@@ -153,22 +155,20 @@ class LpCode {
 
     private Charset input
     private Charset output
-    private String seed //seed //TODO: convert to char[]
+    private long seed
 
-    LpCode(Charset input = ASCII, Charset output = ANUM, char[] seed) {
+    LpCode(Charset input = ASCII, Charset output = ANUM, long seed = 0) {
         this.input = input
         this.output = output
-        this.seed = seed.length > 0 ? Hash.MD5(seed) : ""
+        this.seed = seed
     }
     char[] encode(char[] str) {
         Limits limits = getLM(input)
         limits.max++
-        BigInteger num = toNum(fixStr(str,true,false), limits)
         if(seed) {
-            /*srand(hexdec(substr(s,5,10))+strlen($num))
-            $num = implode("",arr_shuffle(str_split($num)))
-            srand() //restore randomness*/
+            str = randomize(str)
         }
+        BigInteger num = toNum(fixStr(str,true,false), limits)
         limits.max--
         limits = getLM(output)
         return fixStr(toStr(num, limits),false,true)
@@ -176,14 +176,12 @@ class LpCode {
     char[] decode(char[] str) {
         Limits limits = getLM(output)
         BigInteger num = toNum(fixStr(str,false,false), limits)
-        if(seed) {
-            /*srand(hexdec(substr(s,5,10))+strlen($num))
-            $num = implode("",arr_unshuffle(str_split($num)))
-            srand() //restore randomness*/
-        }
         limits = getLM(input)
         limits.max++
         str = fixStr(toStr(num, limits),true,true)
+        if(seed) {
+            str = randomize(str, true)
+        }
         return str
     }
 
@@ -192,7 +190,7 @@ class LpCode {
          BigInteger n = 0
          str.eachWithIndex {
              char c, int s ->
-                 BigInteger r = (c as int) - limits.low
+                 int r = (c as int) - limits.low
                  n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * limits.max
          }
          return n
@@ -266,5 +264,25 @@ class LpCode {
                 }
         }
         return out
+    }
+    /**
+     * Randomize char array
+     * @param str
+     * @return
+     */
+    char[] randomize(char[] str, boolean reverse = false) {
+        Random random = new Random(seed)
+        List<Integer> pos = (0..(str.length - 1)).toList()
+        pos.shuffle(random)
+        char[] shuffled = new char[str.length]
+        pos.eachWithIndex {
+            int p, int i ->
+                if(reverse) {
+                    shuffled[p] = str[i]
+                } else {
+                    shuffled[i] = str[p]
+                }
+        }
+        return shuffled
     }
 }

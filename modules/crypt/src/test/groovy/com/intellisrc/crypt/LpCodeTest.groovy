@@ -20,6 +20,33 @@ class LpCodeTest extends Specification {
             assert toEncode == decoded
     }
 
+    def "Test encoding/decoding with seed"() {
+        setup:
+            char[] toEncode = "HelloWorldThisMustWork".toCharArray()
+            long seed = new Random().nextLong()
+            println "Using seed: " + seed
+        expect:
+            LpCode lpCode = new LpCode(ALPHA, ASCII, seed)
+            char[] encoded = lpCode.encode(toEncode)
+            println encoded
+            char[] decoded = lpCode.decode(encoded)
+            assert encoded != toEncode
+            assert toEncode == decoded
+    }
+
+    def "Encoding with the same seed should return same value"() {
+        setup:
+            char[] toEncode = "HelloWorldThisMustWork".toCharArray()
+            long seed = new Random().nextLong()
+            println "Using seed: " + seed
+            LpCode lpCode1 = new LpCode(ALPHA, ASCII, seed)
+            LpCode lpCode2 = new LpCode(ALPHA, ASCII, seed)
+            char[] encoded1 = lpCode1.encode(toEncode)
+            char[] encoded2 = lpCode2.encode(toEncode)
+        expect:
+            assert encoded1 == encoded2
+    }
+
     def "Test ord"() {
         setup:
             char a = "a"
