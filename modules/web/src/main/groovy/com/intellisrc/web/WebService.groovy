@@ -583,8 +583,18 @@ class WebService {
                         } else { // Normal requests: (no cache, no file upload)
                             try {
                                 Object res = callAction(sp.action, request, response)
-                                output = handleContentType(res,  response.type() ?: sp.contentType, sp.charSet,
+                                if(res != null) {
+                                    output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
                                         response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                                } else {
+                                    response.status(404)
+                                    output = new Output(contentType: Mime.TXT, type : OutputType.TEXT)
+                                    response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+                                    output.content = "Not Found"
+                                    if(sp.download) {
+                                        sp.download = false
+                                    }
+                                }
                             } catch (Exception e) {
                                 response.status(500)
                                 Log.e("Service.action closure failed", e)

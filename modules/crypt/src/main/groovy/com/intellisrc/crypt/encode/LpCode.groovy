@@ -1,5 +1,6 @@
 package com.intellisrc.crypt.encode
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import static com.intellisrc.crypt.encode.LpCode.Charset.*
 
@@ -60,11 +61,11 @@ class LpCode {
         ALPHA,  //a-zA-Z (52 chars)
         ANUM,   //0-9a-zA-Z (62 chars)
         ASCII,  //Any English ascii char (95 chars)
-        LATIN,  //Ascii Extended (support for accents and other common symbols) (928 chars)
+        //LATIN,  //Ascii Extended (support for accents and other common symbols) (928 chars)
         UTF8,   //Any UTF8 char (65,535 chars)
         // Encoding
         HASH,   //0-9a-f //similar to md5, sha, etc (but with variable length) (16 chars)
-        HASHUC, //0-9A-F //same as 'HASH' but uppercase (16 chars)
+        //HASHUC, //0-9A-F //same as 'HASH' but uppercase (16 chars)
         BASE64, //0-9a-zA-Z=+/ (as result of Base64,etc) (65 chars)
         // Non-latin Languages
         /* TODO:
@@ -121,7 +122,7 @@ class LpCode {
         KOR,    //Korean (11,171 symbols)
         HIRA,   //Hiragana (83 chars)
         KANA,   //Katakana (86 chars)
-        KANJI,  //Japanese Kanji (2131 symbols)
+        //KANJI,  //Japanese Kanji (2131 symbols)
         /* TODO:
         VAI,
         BAMUM,
@@ -244,6 +245,8 @@ class LpCode {
             case SYMBL:   limits.low = 0x2010; limits.max = 0x7EF;    break
             case UCASE:   limits.low = 0x41;   limits.max = 0x1A;     break
             case UTF8:    limits.low = 0x0;    limits.max = 0xFFFF;   break
+            default:
+                Log.w("Not implemented yet: %s", charset.toString())
         }
         return limits
     }

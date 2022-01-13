@@ -416,13 +416,15 @@ class Smtp {
                 Log.w("SMTP Simulation mode is ON. No messages are sent.")
                 message.getAllRecipients().each {
                     Address address ->
-                    Log.v("    Recipient -> "+address.toString())
+                    Log.v("Recipient -> "+address.toString())
                 }
                 Log.v("##### HEADERS #####")
                 message.getAllHeaders().each {
                     Header h ->
-                        Log.v(h.name+" : "+h.value)
+                        Log.d(h.name+" : "+h.value)
                 }
+                Log.v("###################")
+                Log.v(bodyText)
                 Log.v("###################")
             } else {
                 Transport transport = session.getTransport(transportType.toString().toLowerCase())

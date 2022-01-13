@@ -22,11 +22,11 @@ class LpCodeTest extends Specification {
 
     def "Test encoding/decoding with seed"() {
         setup:
-            char[] toEncode = "HelloWorldThisMustWork".toCharArray()
+            char[] toEncode = "HelloWorld".toCharArray()
             long seed = new Random().nextLong()
             println "Using seed: " + seed
         expect:
-            LpCode lpCode = new LpCode(ALPHA, ASCII, seed)
+            LpCode lpCode = new LpCode(ALPHA, HANZU, seed)
             char[] encoded = lpCode.encode(toEncode)
             println encoded
             char[] decoded = lpCode.decode(encoded)

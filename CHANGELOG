@@ -16,6 +16,14 @@
 * Added YAML into `etc`.
 * Simplified the use of JSON and YAML
 
+### 2.8.2
+* AutoConfig prefix is no longer "config" by default
+* Fixed NULL issue in logs
+* LpCode added to crypt module
+* JDBC allows empty database name
+* Add support for streams in Zip and SMTP
+* Added limits to WebSocket
+
 ## 2.7 (Groovy 2.5.6)
 
 * Added modules `thread`, `serial`, `img`

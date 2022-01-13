@@ -2,10 +2,10 @@ package com.intellisrc.etc.config
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import com.intellisrc.core.props.PrefixedPropertiesRW
 import com.intellisrc.core.props.PropertiesGet
 import com.intellisrc.core.props.StringPropertiesYaml
+import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.BerkeleyDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
@@ -59,7 +59,7 @@ class ConfigAuto {
      * Dummy implementation of StringPropertiesYaml
      * used to convert objects into string
      */
-    class ConfigProps extends StringPropertiesYaml {
+    static class ConfigProps extends StringPropertiesYaml {
         Map<String, String> cache = [:]
         @Override
         Set<String> getKeys() {
@@ -90,9 +90,10 @@ class ConfigAuto {
     }
 
     /**
-     * Main class used to store and manage field values
+     * Basic Storage object with no instance reference
+     * which can be easily tested
      */
-    class Storage {
+    static class BasicStorage {
         final Class parent
         final Field field
         final Object initial
@@ -101,55 +102,52 @@ class ConfigAuto {
         boolean export
         boolean userFriendly
 
-        Storage(Field field) {
+        BasicStorage(Field field) {
             this.field = field
-            this.initial = this.previous = field.get(null)
+            this.initial = this.previous = getEncoded(field.get(null))
             parent = field.declaringClass
             // Check for class annotation
             Annotation classAnnotation = field.declaringClass.getAnnotation(AutoConfig)
             boolean classExport = classAnnotation ? classAnnotation.export() : true
             boolean classUserFriendly = classAnnotation ? classAnnotation.userFriendly() : false
             Annotation fieldAnnotation = field.getAnnotation(AutoConfig)
-            this.export = fieldAnnotation.export() && classExport
-            this.userFriendly = fieldAnnotation.userFriendly() || classUserFriendly
-            this.description = fieldAnnotation.description()
+            this.export = fieldAnnotation?.export() && classExport
+            this.userFriendly = fieldAnnotation?.userFriendly() || classUserFriendly
+            this.description = fieldAnnotation?.description()
+        }
+
+        static String getEncoded(Object obj) {
+            ConfigProps yamlProps = new ConfigProps()
+            yamlProps.setObj("tmp", obj)
+            return yamlProps.get("tmp")
         }
 
         void resetChange() {
-            previous = current
+            previous = getEncoded(current)
         }
 
         Object getCurrent() {
             return field.get(null)
         }
 
-        String getKey() {
-            return getKey(field)
-        }
-
         boolean isChanged() {
-            return previous != current
+            return previous != getEncoded(current)
         }
 
         boolean isSameAsDefault() {
-            return initial == current
+            return initial == getEncoded(current)
+        }
+    }
+    /**
+     * Main class used to store and manage field values
+     */
+    class Storage extends BasicStorage {
+        Storage(Field field) {
+            super(field)
         }
 
-        boolean isStored() {
-            return props.exists(key)
-        }
-
-        void updateFieldValueAndSave(Object object) {
-            updateFieldValue(object)
-            if(stored && sameAsDefault) {
-                removeFromStorage()
-            } else {
-                save() // Save as well in database
-            }
-        }
-
-        void updateFieldValue(Object object) {
-            setFieldValue(field, object, key)
+        String getKey() {
+            return getKey(field)
         }
 
         boolean save() {
@@ -167,6 +165,23 @@ class ConfigAuto {
 
         boolean removeFromStorage() {
             return props.delete(key)
+        }
+
+        boolean isStored() {
+            return props.exists(key)
+        }
+
+        void updateFieldValueAndSave(Object object) {
+            updateFieldValue(object)
+            if(stored && sameAsDefault) {
+                removeFromStorage()
+            } else {
+                save() // Save as well in database
+            }
+        }
+
+        void updateFieldValue(Object object) {
+            setFieldValue(field, object, key)
         }
     }
     /**
@@ -339,6 +354,7 @@ class ConfigAuto {
         }
         // Only set field values when we have such key in getter or we are passing the value
         if (getter ? getter.exists(key) : obj != null) {
+            //noinspection GroovyFallthrough
             switch (field.type) {
                 case boolean: case Boolean:
                     field.setBoolean(null, getter ? getter.getBool(key) : obj as boolean)

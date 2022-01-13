@@ -78,6 +78,27 @@ assert decrypted == original
 println "Used Key: " + Bytes.toString(pgp.key)
 ```
 
+## LpCode
+
+With this class you can obfuscate strings in a different way. It uses blocks
+in the UTF-8 range to convert and randomize (when using seed) the output.
+It can also be used to reduce the amount of data to store (see details in class).
+
+### Example
+
+```groovy
+char[] toEncode = "HelloWorld".toCharArray()
+long seed = new Random().nextLong()
+LpCode lpCode = new LpCode(ALPHA, HANZU, seed)
+println lpCode.encode(toEncode)
+// Will return something like: 
+// 竢茫哊鰱
+```
+
+**NOTE** : Please check the comments inside the class. There are many 
+possible conversions like: NUM, HASH, BASE64, KOR, HIRA, KANA, etc.
+
+
 ## How to install BouncyCastle Security provider
 
 To use BouncyCastle library, you don't need to do anything, 
