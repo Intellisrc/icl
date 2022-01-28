@@ -357,7 +357,7 @@ Below each module, I'm including the recommended version (the one used during co
     * `org.codehaus.groovy:groovy-all:3.0.7`
 * `db`   : Database drivers need to be included (Choose the one(s) which match(es) your database(s)):
     * `com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre11`
-    * `com.oracle.database.jdbc:ojdbc10:19.13.0.0.1`
+    * `com.oracle.database.jdbc:ojdbc11:21.4.0.0`
     * `mysql:mysql-connector-java:8.0.25`
     * `org.apache.derby:derby:10.15.2.0`
     * `org.firebirdsql.jdbc:jaybird:4.0.5.java11`
