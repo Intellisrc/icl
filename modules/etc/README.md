@@ -1,10 +1,14 @@
-# ETC Module
+# ETC Module (ICL.etc)
 
 Extra functionality which is usually very useful in any project. 
 For example, monitoring Hardware, compressing or decompressing data, 
 store data in memory cache, manage system configuration in a 
 multithreading safe environment (BerkeleyDB or Redis), simple 
 operations with bytes, etc.
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/etc)
 
 ## Cache
 

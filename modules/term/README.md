@@ -1,8 +1,14 @@
-# TERM Module
+# TERM Module (ICL.term)
 
 Anything related to terminal is in this module (except AnsiColor, which is in `core`). 
 It uses JLine to help you create interactive terminal (console) applications easily. 
 It also contains some tools to display progress with colors.
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/term)
+
+## Classes and Interfaces
 
 * `Consolable` : Interface to implement for any console application
 * `Console` : Main console class which uses `Consolable` applications. It wraps jLine

@@ -1,9 +1,13 @@
-# CORE Module
+# CORE Module (ICL.core)
 
 Basic functionality that is usually needed in any project. For example, configuration, 
 logging, executing commands, controlling services and displaying colors in console.
 
 The following is an overview of this module:
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/core)
 
 ## SysMain and SysService
 

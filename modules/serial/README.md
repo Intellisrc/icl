@@ -1,7 +1,13 @@
-# SERIAL Module
+# SERIAL Module (ICL.serial)
 
 Manage serial communication easily. It uses  
 JSSC library on the background.
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/serial)
+
+## Classes
 
 * `Serial`         : Use a serial port (connect, read, write, disconnect)
 * `SerialDummy`    : Dummy implementation of `Seriable` for Unit Testing

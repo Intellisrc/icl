@@ -1,12 +1,16 @@
-# DB Module
+# DB Module (ICL.db)
 
 Manage databases, such as MySQL, SQLite, Postgresql. 
 Create, store and perform CRUD operations to data without having 
 to use SQL (a light-weight implementation as alternative to Hibernate).
 
 There are mainly two ways to use this module:
-1. Fluid query instructions
-2. Model based operations
+1. Fluid query instructions (SQL generator)
+2. Model based operations (Automatic CRUD operations)
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/crypt)
 
 ## Configuration
 
@@ -16,39 +20,114 @@ the corresponding settings:
 ```properties
 # file: config.properties
 
-# Available types: mysql, sqlite, postgresql
+# Available types: mysql, mariadb, sqlite, postgresql, sqlserver, oracle, firebird, derby
 db.type=mysql
-db.name=users_db
-db.user=myuser
-db.pass=mypass
-
-# Optional:
+# Optional: (if not set, default will be used)
+#db.name=users_db
+#db.user=myuser
+#db.pass=mypass
 #db.host=10.0.0.20
 #db.port=3306
+
+# Other options (with default values):
+
+# The time (in sec) before a connection is discarded if it is not returned to the pool (usually it means close() is missing).
+#db.timeout=60
+# Max life of a connection (in sec). Once it expires, a new connection should be created.
+#db.expire=600
 ```
 
 Other than the supported types, you can connect to any JDBC database
-by providing a connection string:
+by providing a connection string (however Fluid SQL may not work as expected):
 
 ```groovy
-class SQLServer extends JDBC {
-    SQLServer() {
-        super("jdbc:sqlserver://localhost;integratedSecurity=true")
+class SuperSQLServer extends JDBCServer {
+    // The following fields are only default values
+    // Use configuration file to set specific usage
+    String dbname = ""
+    String user = "root"
+    String password = ""
+    String hostname = "localhost"
+    int port = 1111
+    String driver = "com.supersql.server.jdb.connector"
+
+    /**
+     * Get connection string to your database
+     * NOTE: user/password are handled separately on connection
+     *       no need to include them in the Connection String
+     * @return
+     */
+    @Override
+    String getConnectionString() {
+        // return your connection string here
+        return "super://$hostname:$port/$dbname"
     }
 }
 ```
 
 ## Fluid Query Instructions
 
+Features
+* Auto Primary Key detection
+* SELECT
+  * Limit, Offset
+  * GroupBy
+* INSERT/REPLACE (UPSERT) 
+  * Last ID request
+* UPDATE
+* DELETE
+  * TRUNCATE
+* Raw SQL execution
+
+NOTE: This method (Fluid Query) won't create the table for you.
+If you want this library to create and update your tables for you, use the `Model` approach.
+
 To connect and query a database is easy:
 
 ```groovy
-DB db = Database.default.connect() // Get connection from pool
+DB db = Database.default.connect() // Get connection from "default" pool
 String passwordHash = db.table("users").field("password").get(userId).toString()
 db.close() // Return connection to the pool
 ```
 
-More examples are:
+### Connecting to a secondary database / Alternative method
+
+You can connect to any supported database using their classes (look inside db/jdbc/) in this way
+(single connection):
+
+```groovy
+DB db = new Oracle(
+            dbname   : "users",
+            user     : "admin", 
+            password : "secret",
+            hostname : "server.remote",
+            //... check the class source code for more parameters ...
+        ).connect()
+//... do something ...
+db.close()
+```
+
+The previous example is useful if you have few connections to a database.
+To improve the connection performance (when expecting a high number of connections),
+you can create a pool for that connection in this way:
+
+```groovy
+Database oracle = new Database(new Oracle(/* ... */))
+
+void thisMethodWillBeCalledManyTimes() {
+    DB db = oracle.connect()
+    //... do something ...
+    db.close() // This will return the connection to the pool to be reused
+}
+
+oracle.quit() // Close all connections
+```
+
+#### Notes
+ * The pool has no limit number of connections (those are controlled usually by
+the database server). The connections will be released automatically.
+
+### Common Examples
 
 ```groovy
 // Get all Users:
@@ -89,6 +168,8 @@ db.exec(new Query("SHOW TABLES")).toList().each {
 }
 ```
 
+NOTE: For complex queries, we recommend you to create views or stored procedures (to keep your code simple).
+
 ## Model Based Operations
 
 Instead of (or additionally to) the Fluid Query Instructions, you can
@@ -98,6 +179,13 @@ on it, similar to Hibernate and JPA (but much more simple).
 The goal is to accomplish most of the common operations with a database
 while keeping it as simple as possible without over-complicated 
 instructions or implementation designs.
+
+Features
+* Table creation (fields with types)
+* Foreign keys creation
+* CRUD operations using Java objects
+
+NOTE: Databases and permissions are not created automatically.
 
 ### Example:
 
@@ -112,8 +200,6 @@ Each field that we want to create in the table, we need to annotate with
 `@Column` (see `Column` annotation for more details on how to use it).
 
 ```groovy
-import javax.swing.table.TableColumn
-
 enum MyColor {
     WHITE, RED, GREEN, BLUE, YELLOW, BLACK
 }
@@ -292,3 +378,31 @@ class UserGroup extends Model<UserGroupRel> {
 * `InetAddress`, `Inet4Address`, `Inet6Address`
 
 Any other class, will be converted using `toString()`.
+
+### Comparison with libraries with similar functionality:
+
+| Feature                   | ICL (this library)                                                                                                                    | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                                         | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
+| Supported Databases       | MySQL / MariaDB *<br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL<br><br>\* Automatic Update | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
+| Dependencies              | None (simple JDBC)                                                                                                                    | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
+| Clean Database identities | Yes                                                                                                                                   | No                                                                                                                 | Yes                                                                                                                 |
+| SQL Injection protection  | Yes                                                                                                                                   | Yes                                                                                                                | Yes                                                                                                                 |
+| Complexity                | Low                                                                                                                                   | High                                                                                                            | Medium                                                                                                              |
+
+<!-- TODO: add more explanation -->
+
+## Looking for something else ?
+
+These libraries provide only query execution to databases:
+
+* Apache DbUtils
+* Apache Spark SQL
+* Fluent JDBC
+* jasync-sql
+* JDBI
+* Jodd DbQuery
+* rxjava2-jdbc
+* R2DBC
+* Sql2o
+* Vert.x SQL clients

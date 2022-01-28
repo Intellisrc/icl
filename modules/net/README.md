@@ -1,9 +1,13 @@
-# NET Module
+# NET Module (ICL.net)
 
 Classes related to networking. For example,  
 sending emails through SMTP, connecting or  
 creating TCP/UDP servers, getting network  
 interfaces and perform netmask calculations, etc.
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/net)
 
 ## Email
 By using this class, you can be sure the emails

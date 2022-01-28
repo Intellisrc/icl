@@ -1,9 +1,13 @@
-# CV Module
+# CV Module (ICL.cv)
 
 Classes for Computer Vision (extension to OpenCV). 
 Convert image formats, crop, rotate images or draw 
 objects on top of them. It simplifies grabbing images 
 from any video source.
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/cv)
 
 * `Converter` : Convert from and to CV image formats (extends img.Converter)
 * `CvTools` : Perform common operations in images : rotate, resize, etc

@@ -1,14 +1,17 @@
-# CRYPT Module
+# CRYPT Module (ICL.crypt)
 
 Offers methods to encode, decode, hash and encrypt
 information. It is built using the BouncyCastle
 library and simplifying its usage without reducing
 its safety.
 
-This module was built using `byte` and `char` arrays
+`Crypt` based classes were built using `byte` and `char` arrays
 instead of `String` to prevent those values to reside
 in memory.
 
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/crypt)
 
 ### Examples
 
@@ -18,6 +21,13 @@ algorithms supported by BouncyCastle.
 ```groovy
 // List of supported algorithms:
 List<String> listAlgo = Hash.getAlgorithms()
+listAlgo.each {
+    println
+}
+```
+
+```groovy
+// Hash bytes:
 Hash hash = new Hash(key: "SomeKey".bytes)
 byte[] bytes = hash.asBytes("TIGER") //Using TIGER algorithm
 Log.i("TIGER HASH: %s", Bytes.toHex(bytes))
@@ -90,9 +100,14 @@ It can also be used to reduce the amount of data to store (see details in class)
 char[] toEncode = "HelloWorld".toCharArray()
 long seed = new Random().nextLong()
 LpCode lpCode = new LpCode(ALPHA, HANZU, seed)
-println lpCode.encode(toEncode)
-// Will return something like: 
+
+String encoded = lpCode.encode(toEncode)
+println encoded // Will return something like: 
 // 竢茫哊鰱
+
+String original = lpCode.decode(encoded)
+println original
+// HelloWorld
 ```
 
 **NOTE** : Please check the comments inside the class. There are many 

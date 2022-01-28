@@ -1,9 +1,15 @@
-# THREAD Module
+# THREAD Module (ICL.thread)
 
 Manage Tasks (Threads) with priority and watches its performance. You can create parallel 
 processes easily, processes which are executed in an interval, as a service or after a specified 
 amount of time. This module is very useful to help you to identify bottlenecks and to manage your
 main threads in a single place.
+
+## Usage
+
+Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/thread)
+
+## Classes
 
 * `Task` : Base class for all Tasks. This is the simplest of all
 * `BlockingTask` : Executes a Task in blocking state (not background)
