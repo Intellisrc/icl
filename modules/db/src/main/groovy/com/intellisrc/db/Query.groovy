@@ -1,13 +1,14 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB.DBType
+import com.intellisrc.db.jdbc.Dummy
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
-import static com.intellisrc.db.DB.DBType.*
 import static com.intellisrc.db.Query.Action.*
 
 @CompileStatic
@@ -18,12 +19,13 @@ import static com.intellisrc.db.Query.Action.*
 class Query {
     // Action type (RAW is default)
     static enum Action {
-        RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, DROP, INFO, LASTID, EXISTS
+        RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, TRUNCATE, DROP, LASTID
     }
     // Field type (NOSET is default)
     static enum FieldType {
         NOSET, COLUMN, MAX, MIN, AVG, COUNT
         def getSQL(String fieldstr) {
+            //noinspection GroovyFallthrough
             switch (this) {
                 case MAX: fieldstr = "MAX(" + fieldstr + ")"; break
                 case MIN: fieldstr = "MIN(" + fieldstr + ")"; break
@@ -40,45 +42,70 @@ class Query {
     static enum SortOrder {
         ASC, DESC
     }
-    protected DBType dbType = DUMMY
+    static class Part {
+        List queries = []
+        List data = []
+        Part append(String append, List row = []) {
+            queries << cleanSQL(append)
+            data += row
+            return this
+        }
+        String toString() {
+            return queries.join(" AND ")
+        }
+        boolean isEmpty() {
+            return queries.empty
+        }
+    }
+
+    protected JDBC dbType         = new Dummy()
     protected String queryStr     = ""
     protected String tableStr     = ""
-    protected String groupbyStr   = ""
-    protected String whereStr     = ""
-    protected String insvalsStr   = ""
-    protected String updvalsStr   = ""
+    protected String groupByStr   = ""
+    protected Part wherePart      = new Part()
     protected int limitInt        = 0
     protected int offsetInt       = 0
     protected Action actionType   = RAW //Database action for query, like: SELECT, INSERT...
-    protected Map<String, SortOrder> sort = [:]
+    protected Map<String, SortOrder> sort       = [:]
+    protected Map<String, Object> whereValues   = [:]
     protected List<String> fieldList = []
-    protected List<String> keyList = []
-    protected List<Object> argList = []
-    protected FieldType fieldtype = FieldType.NOSET
+    protected List<String> keyList   = []
+    protected List<Object> argList   = []
+    protected FieldType fieldType = FieldType.NOSET
+    protected boolean isSetQuery        = false // True when we issue a set command in exec_set
+    protected boolean isIdentityUpdate  = false
 
-    Query() {
-        actionType = RAW
-    }
-    Query(final Action action) {
+    Query(final JDBC dbtype, final Action action = RAW) {
+        dbType = dbtype
         actionType = action
+        setIdentityFlag()
     }
     Query(final String query) {
         queryStr = query
         actionType = RAW
+        setIdentityFlag()
     }
     Query(final String query, final List args) {
         queryStr = query
         actionType = RAW
         argList = args
+        setIdentityFlag()
     }
 
+    /**
+     * Update identity flag
+     */
+    private void setIdentityFlag() {
+        boolean isAction = [INSERT, REPLACE].contains(actionType)
+        boolean startsWith = queryStr ? ["INSERT", "REPLACE"].any { queryStr.toUpperCase().tokenize(" ").first() == it } : false
+        if(isAction || startsWith) {
+            isIdentityUpdate = true
+        }
+    }
     /////////////////////////////////////// SET //////////////////////////////////
-	Query setType(final DBType dbtype) {
-		dbType = dbtype
-		return this
-	}
     Query setAction(final Action action) {
         actionType = action
+        setIdentityFlag()
         return this
     }
     Query setTable(final String table) {
@@ -88,20 +115,20 @@ class Query {
 
     Query setFields(final List<String> fields) {
         fieldList = fields
-        if(fieldtype == FieldType.NOSET) {
-            fieldtype = FieldType.COLUMN
+        if(fieldType == FieldType.NOSET) {
+            fieldType = FieldType.COLUMN
         }
         return this
     }
 
-    Query setFields(final List<String> fields,final  FieldType type) {
+    Query setFields(final List<String> fields, final FieldType type) {
         fieldList = fields
-        fieldtype = type
+        fieldType = type
         return this
     }
 
-    Query setFieldsType(final FieldType type ) {
-        fieldtype = type
+    Query setFieldsType(final FieldType type) {
+        fieldType = type
         return this
     }
 
@@ -110,97 +137,101 @@ class Query {
         return this
     }
 
-    Query setWhere(final Integer where) {
+    Query setWhere(Object where) {
         String key = getKey() //For the moment no multiple keys allowed
-        if(key &&! whereStr.contains(sqlName(key))) {
-            whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-            argList << where
+        //noinspection GroovyFallthrough
+        switch (where) {
+            case String:
+                if(where.toString().contains("?")) {
+                    def params = []
+                    return setWhere(where.toString(), params)
+                }
+                if(key) {
+                    wherePart.append(sqlName(key) + " = ? ", [where])
+                }
+                break
+            case Collection:
+                if(key) {
+                    String marks = where.collect {'?'}.join(",")
+                    wherePart.append(sqlName(key) + " IN (" + marks + ")", (where as List))
+                } else {
+                    Log.w("Where for key: %s already existed.", key)
+                }
+                break
+            case Map:
+                (where as Map<String, Object>).each {
+                    String k, Object v ->
+                        wherePart.append(sqlName(k) + " = ? ", [v])
+                }
+                break
+            case LocalDateTime:
+            case LocalDate:
+            case LocalTime:
+                if(! dbType.supportsDate) {
+                    Log.w("Database doesn't supports dates. Converting it to string using default format (results may not be what expected).")
+                    switch (where) {
+                        case LocalDateTime  : where = (where as LocalDateTime).YMDHms; break
+                        case LocalDate      : where = (where as LocalDate).YMD; break
+                        case LocalTime      : where = (where as LocalTime).HHmmss; break
+                    }
+                }
+            default:
+                if(key) {
+                    wherePart.append(sqlName(key) + " = ? ", [where])
+                }
+                break
         }
-        return this
-    }
-
-    Query setWhere(final String where) {
-		if(where.contains("?")) {
-			def params = []
-			setWhere(where, params)
-		} else {
-			String key = getKey() //For the moment no multiple keys allowed
-            if(key &&! whereStr.contains(sqlName(key))) {
-                whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-                argList << where
-            }
-		}
         return this
     }
 
 	Query setWhere(final String where, final ... params) {
 		int param_count = where.length() - where.replace("?", "").length()
 		if(param_count == params.length) {
-			whereStr += (whereStr.isEmpty() ? "" : " AND ") + cleanSQL(where)
-			argList.addAll(Arrays.asList(params))
+            wherePart.append(where, Arrays.asList(params))
 		} else {
 			Log.e( "Parameters specified doesn't match arguments count")
 		}
 		return this
 	}
 
-    Query setWhere(final List where) {
-        String key = getKey() //For the moment no multiple keys allowed
-        String marks = ""
-        if(key &&! whereStr.contains(sqlName(key))) {
-            where.each {
-                marks += (marks.isEmpty() ? "" : ",") + '?'
-                argList << it
-            }
-            whereStr += sqlName(key) + " IN (" + marks + ")"
-        } else {
-            Log.w("Where for key: %s already existed.", key)
-        }
+    /* TODO:
+    Query setJoin(String table, String... columns) {
         return this
     }
-
-    Query setWhere(final LocalDate where) {
-        String key = getKey() //For the moment no multiple keys allowed
-        if(key &&! whereStr.contains(sqlName(key))) {
-            whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-            argList << where
-        }
+    Query setLeft(String table, String... columns) {
         return this
     }
-
-    Query setWhere(final LocalDateTime where) {
-        String key = getKey() //For the moment no multiple keys allowed
-        if(key &&! whereStr.contains(sqlName(key))) {
-            whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-            argList << where
-        }
+    Query setRight(String table, String... columns) {
         return this
     }
-
-    Query setWhere(final Map<String,Object> where) {
-        where.each {
-            String key, Object val ->
-                if(! whereStr.contains(sqlName(key))) {
-                    whereStr += (whereStr.isEmpty() ? "" : " AND ") + sqlName(key) + " = ? "
-                    argList << val
-                }
-        }
+    Query setJoin(String table, Map relation) {
         return this
+    }
+    Query setLeft(String table, Map relation) {
+        return this
+    }
+    Query setRight(String table, Map relation) {
+        return this
+    }
+    */
+
+    protected Part getInsertFieldsPart() {
+        String inspre = whereValues.collect { sqlName(it.key) }.join(",")
+        return new Part().append("(" + inspre + ")")
+    }
+    protected Part getInsertPart() {
+        String inspst = whereValues.collect {"?" }.join(",")
+        return new Part().append("VALUES (" + inspst + ")", whereValues.values().toList())
+    }
+    protected Part getUpdatePart() {
+        String updstr = whereValues.collect {
+            sqlName(it.key) + " = ?"
+        }.join(",")
+        return new Part().append(updstr, whereValues.values().toList())
     }
 
     Query setValues(final Map<String,Object> values) {
-        String inspre = ""
-        String inspst = ""
-        String updstr = ""
-        values.each {
-            String key, Object val ->
-                inspre += (inspre.isEmpty() ? "" : ',') + sqlName(key)
-                inspst += (inspst.isEmpty() ? "" : ',') + "?"
-                updstr += (updstr.isEmpty() ? "" : ',') + sqlName(key) + " = ?"
-                argList << val
-        }
-        insvalsStr = "("+inspre+") VALUES ("+inspst+")"
-        updvalsStr = updstr
+        whereValues = values
         return this
     }
 
@@ -215,17 +246,19 @@ class Query {
     }
 
     Query setOrder(final Map<String,SortOrder> orderPair) {
-        sort = orderPair
+        sort = orderPair.collectEntries {
+            [(sqlName(it.key)) : it.value]
+        } as Map<String, SortOrder>
         return this
     }
 
     Query setOrder(final String column,final  SortOrder order) {
-        sort[column] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
+        sort[sqlName(column)] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
         return this
     }
 
     Query setGroupBy(final String column) {
-        groupbyStr = column
+        groupByStr = column
         return this
     }
 
@@ -246,134 +279,87 @@ class Query {
     String getFields() {
         String fieldstr = ""
         if(fieldList.isEmpty()) {
-            return "*"
+            fieldstr = "*"
+        } else {
+            fieldList.each {
+                fieldstr += (fieldstr.isEmpty() ? "" : ',') + sqlName(it)
+            }
         }
-        fieldList.each {
-            fieldstr += (fieldstr.isEmpty() ? "" : ',') + sqlName(it)
-        }
-        return fieldtype.getSQL(fieldstr)
+        return fieldType.getSQL(fieldstr)
     }
     String getTable() {
-        return sqlName(tableStr)
+        return tableName(tableStr)
     }
     String getWhere() {
-        return whereStr.isEmpty() ? "" : " WHERE "+whereStr
-    }
-    Object[] getArgs() {
-        return argList.toArray()
-    }
-    List<Object> getArgsList() {
-        return argList.collect()
-    }
-	/**
-	 * Return args as String array
-	 * as Android connector uses only Strings
-	 * @return 
-	 */
-    String[] getArgsStr() {
-        String[] array = new String[argList.size()]
-		return argList.toArray(array)
-	}
-    private String getInsertValues() {
-        return insvalsStr
-    }
-    private String getUpdateValues() {
-        return updvalsStr
+        return wherePart.empty ? "" : "WHERE " + wherePart.toString()
     }
     String getGroupBy() {
-        return groupbyStr.isEmpty() ? "" : " GROUP BY "+sqlName(groupbyStr)
-    }
-    String getSort() {
-        def query = ""
-        if(sort) {
-            sort.each {
-                String column, SortOrder order ->
-                    query += (query ? "," : "") + sqlName(column) + " " + order.toString()
-            }
-            query = " ORDER BY $query"
-        }
-        return query
-    }
-    String getLimit() {
-        String off = offsetInt > 0 ? " OFFSET "+offsetInt : ""
-        return limitInt > 0 ? " LIMIT "+limitInt+off : ""
+        return groupByStr.empty ? "" : "GROUP BY "+sqlName(groupByStr)
     }
 
+    List<Object> getArgs() {
+        List args = []
+        //noinspection GroovyFallthrough
+        switch (actionType) {
+            case RAW:       args = argList; break
+
+            case SELECT:
+            case DELETE:    args = wherePart.data; break
+
+            case INSERT:
+            case REPLACE:   args = insertPart.data; break
+
+            case UPDATE:    args = updatePart.data + wherePart.data; break
+        }
+        return args
+    }
+
+    /**
+     * Build SQL Query. Here, we get the specific SQL for different databases
+     * @return
+     */
 	@Override
     String toString() {
         String squery = ""
+        boolean unknown = false
         switch(actionType) {
-            case RAW:    squery = queryStr
-				break
-            case SELECT: squery = "SELECT "+getFields()+" FROM "+getTable()+getWhere()+getGroupBy()+getSort()+getLimit()
-				break
-            case INSERT: squery = "INSERT INTO "+getTable()+getInsertValues()
-				break
-            case REPLACE: squery = "REPLACE INTO "+getTable()+getInsertValues()
-                break
-            case UPDATE: squery = "UPDATE "+getTable()+" SET "+getUpdateValues()+getWhere()
-				break
-            case DELETE: squery = "DELETE FROM "+getTable()+getWhere()
-				break
-            case DROP:   squery = "DROP TABLE "+getTable()
-				break
-            case INFO:   
-				switch(dbType) {
-					case SQLITE:
-						squery = "PRAGMA table_info("+getTable()+")";  break
-                    case MARIADB:
-					case MYSQL:
-						squery = "SELECT COLUMN_NAME as 'name', DATA_TYPE as 'type', IF(COLUMN_KEY = 'PRI',1,0) as 'pk' FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '"+cleanSQL(tableStr)+"'"; break
-					default:
-						Log.e("Type [%s] not defined on INFO", dbType)
-				}
-				break
-            case LASTID:
-				switch(dbType) {
-					case SQLITE:				
-						squery = "SELECT last_insert_rowid() as lastid"; break
-                    case MARIADB:
-					case MYSQL:
-						squery = "SELECT LAST_INSERT_ID() as lastid"; break
-					default:
-						Log.e("Type [%s] not defined on LASTID", dbType)
-				}
-				break
-            case EXISTS: 
-				switch(dbType) {
-					case SQLITE:				
-						squery = "PRAGMA table_info("+getTable()+")"; break
-                    case MARIADB:
-					case MYSQL:
-						squery = "SHOW TABLES LIKE \""+cleanSQL(tableStr)+"\""; break
-					default:
-						Log.e("Type [%s] not defined on EXISTS", dbType)
-				}	
-				break
+            case RAW:       squery = queryStr; break
+            case SELECT:    squery = dbType.getSelectQuery(fields, table, where, groupBy, sort, offsetInt, limitInt); break
+            case INSERT:    squery = dbType.getInsertQuery(table, insertFieldsPart.toString() + " " + insertPart.toString()); break
+            case REPLACE:   squery = dbType.getReplaceQuery(table, insertFieldsPart.toString() + " " + insertPart.toString()); break
+            case UPDATE:    squery = dbType.getUpdateQuery(table, updatePart.toString(), where); break
+            case DELETE:    squery = dbType.getDeleteQuery(table, where); break
+            case TRUNCATE:  squery = dbType.getTruncateQuery(table); break
+            case DROP:      squery = dbType.getDropTableQuery(table); break
+            case LASTID:    squery = dbType.getLastIdQuery(table); break
             default :
                 //WARN: unknown action
+                Log.w("Unknown action: %s", actionType)
+                unknown = true
                 break
         }
-        //clear(); //Prevent garbage values
+        if(!unknown && squery.empty) {
+            Log.w("Query was empty for action: %s. Perhaps the implementation doesn't support that action yet?", actionType)
+        }
         return squery
     }
 
-    private String sqlName(final Object obj) {
-        return sqlName(obj.toString())
+    /**
+     * Returns the table name with special quotes if needed
+     * @param str
+     * @return
+     */
+    private String tableName(final String str) {
+        return sqlName(str)
     }
-    // Return column or table name clean and with ``
+
+    /**
+     * Returns column or table name clean and with ``
+     */
     private String sqlName(final String str) {
-        String result = str
-        switch(dbType) {
-            case SQLITE:
-            case MARIADB:
-            case MYSQL:
-                result = "`" + result.toLowerCase().replaceAll("/[^a-z0-9._]/","") + "`"
-                break
-            case POSTGRESQL: //No special quotation is required in PostgreSQL
-                break
-        }
-        return result
+        String result = str.toLowerCase().replaceAll("/[^a-z0-9._]/", "")
+        String ch = dbType.fieldsQuotation
+        return ch + result + ch
     }
 	/**
 	 * Clean a SQL query removing invalid characters like unicode, comments, semicolon, etc

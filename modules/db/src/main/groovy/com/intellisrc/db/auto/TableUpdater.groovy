@@ -1,9 +1,12 @@
-package com.intellisrc.db
+package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
+import com.intellisrc.db.DB
+import com.intellisrc.db.Database
+import com.intellisrc.db.Query
+import com.intellisrc.db.jdbc.MariaDB
+import com.intellisrc.db.jdbc.MySQL
 import groovy.transform.CompileStatic
-
-import static com.intellisrc.db.DB.DBType.*
 
 /**
  * Updates database tables
@@ -45,9 +48,15 @@ class TableUpdater {
         Table.alwaysCheck = true
         DB.disableCache = true
 
-        if(db.type != MYSQL && db.type != MARIADB) {
-            Log.w("Only MySQL/MariaDB is supported for now.")
-            return
+        //noinspection GroovyFallthrough
+        switch (db.jdbc) {
+            case MySQL:
+            case MariaDB:
+                //TODO: For the moment these are the ones supported
+                break
+            default:
+                Log.w("Only MySQL/MariaDB is supported for now.")
+                return
         }
         db.exec(new Query("SET FOREIGN_KEY_CHECKS=0"))
         List<TableInfo> tables = []

@@ -1,52 +1,30 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB.ColumnType
 import com.intellisrc.db.DB.Connector
-import com.intellisrc.db.DB.DBType
+import com.intellisrc.db.jdbc.Dummy
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.sql.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-import static com.intellisrc.db.DB.DBType.*
 import static com.intellisrc.db.Query.Action.*
 import static java.sql.Types.*
 
 @CompileStatic
 /**
  * SQL connector for Java using JDBC
- * It supports mysql, postgres, sqlite and a dummy connection
+ * It supports multiple implementations and a dummy connection
  * Each type requires an additional library to work (except dummy)
  *
- * In configuration file, you can set:
- * db.type = [mysql,postgresql,sqlite]
- * db.name = mydb
- * db.host = localhost
- * db.user = myuser
- * db.pass = secret
- * db.port = 1234
- *
- * Or set it as URL:
- * db.jdbc.url = mysql://user:pass@host:port/dbname
- *
- * Or set database name and URL separately:
- * db.name = mydb
- * db.jdbc.url = mysql://user:pass@host:port
- *
- * @author Alberto Lepe <lepe@intellisrc.com>
+ * @author Alberto Lepe
  */
 class JDBCConnector implements Connector {
 	protected static int TIMEOUT = 1000
-	protected String name = ""
-	protected String user = ""
-	protected String pass = ""
-	protected String host = ""
-	protected int port
 	protected Connection db
-	protected DBType type = DUMMY
+	protected JDBC type = new Dummy()
 	long lastUsed = 0
 
 	/**
@@ -54,24 +32,11 @@ class JDBCConnector implements Connector {
 	 * @param conn_url
 	 * @param dbname
 	 */
-	JDBCConnector(String conn_url = "") {
-        if(conn_url.isEmpty()) {
-            this.name = Config.get("db.name")  //    database name
-            if(!Config.exists("db.jdbc.url")) {
-				try {
-					type = Config.get("db.type", "mysql").toUpperCase() as DBType
-				} catch(Exception ignore) {
-					Log.w("Specified database type is not supported: %s", Config.get("db.type"))
-				}
-				host = Config.get("db.host", "localhost")
-				user = Config.get("db.user", "root")
-				pass = Config.get("db.pass")
-				port = Config.get("db.port", type.port)
-            } else {
-                parseJDBC(Config.get("db.jdbc.url"))
-            }
-        } else if(!conn_url.isEmpty()) {
-            parseJDBC(conn_url)
+	JDBCConnector(final JDBC jdbc = null) {
+        if(!jdbc) {
+			type = JDBC.fromSettings()
+        } else {
+            type = jdbc
         }
 	}
 	/**
@@ -82,115 +47,102 @@ class JDBCConnector implements Connector {
 	String getName() {
 		return name
 	}
+
+	/**
+	 * Get tables via JDBC
+	 * @return
+	 */
+	List<String> getTables() {
+		List<String> list = []
+		try {
+
+			ResultSet rs = db.getMetaData().getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", "TABLE", "VIEW")
+			while (rs.next()) {
+				list << (jdbc.convertToLowerCase ? rs.getString("TABLE_NAME")?.toLowerCase() : rs.getString("TABLE_NAME"))
+				/*Log.v("Cat: %s, Sch: %s, Name: %s, Type: %s",
+					rs.getString("TABLE_CAT"),
+					rs.getString("TABLE_SCHEM"),
+					rs.getString("TABLE_NAME"),
+					rs.getString("TABLE_TYPE")
+				)*/
+			}
+			rs.close()
+		} catch (Exception e) {
+			Log.w("Unable to get tables via JDBC: %s", e.message)
+		}
+		return jdbc.filterTables(list)
+	}
+	/**
+	 * Get columns via JDBC
+	 * @return Map [ column_name : is_primary ]
+	 */
+	List<ColumnInfo> getColumns(String table) {
+		List<ColumnInfo> columns = []
+		try {
+			DatabaseMetaData meta = db.getMetaData()
+			List<String> pks = []
+			ResultSet rsPk = meta.getPrimaryKeys(jdbc.catalogSearchName,jdbc.schemaSearchName, jdbc.getTableSearchName(table))
+			while (rsPk.next()) {
+				pks << (jdbc.convertToLowerCase ? rsPk.getString("COLUMN_NAME").toLowerCase() : rsPk.getString("COLUMN_NAME"))
+			}
+			rsPk.close()
+			ResultSet rsCols = meta.getColumns(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table), "%")
+			while(rsCols.next()) {
+				String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
+				ColumnInfo col = new ColumnInfo(
+					name 			: colName,
+					type 			: ColumnType.fromJavaSQL(rsCols.getInt("DATA_TYPE")),
+					position		: rsCols.getInt("ORDINAL_POSITION"),
+					length			: rsCols.getInt("COLUMN_SIZE"),
+					charLength		: rsCols.getInt("CHAR_OCTET_LENGTH"),
+					bufferLength	: rsCols.getInt("BUFFER_LENGTH"),
+					decimalDigits	: rsCols.getInt("DECIMAL_DIGITS"),
+					nullable		: rsCols.getString("IS_NULLABLE") == "YES",
+					defaultValue	: rsCols.getString("COLUMN_DEF"),
+					autoIncrement	: rsCols.getString("IS_AUTOINCREMENT") == "YES",
+					generated		: rsCols.getString("IS_GENERATEDCOLUMN") == "YES",
+					primaryKey		: pks.contains(colName)
+				)
+				columns << col
+			}
+			rsCols.close()
+		} catch(Exception e) {
+			Log.w("Unable to get tables via JDBC: %s", e.message)
+		}
+		return columns
+	}
+
 	/**
 	 * Returns database type
 	 * @return
 	 */
 	@Override
-	DBType getType() {
+	JDBC getJdbc() {
 		return type
 	}
-    /**
-     * Import connection settings from URL
-       proto://user:pass@host:port/db?"
-     * @param url
-     */
-    private void parseJDBC(String sUrl) {
-        if(sUrl.isEmpty()) {
-            Log.e("JDBC URL is not defined. Either specify it in the constructor or use a configuration file. Alternatively, set all connections settings individually.")
-        }
-        if(sUrl.contains("://")) {
-            try {
-                URI url = new URI(sUrl)
-                type = url.scheme.toUpperCase() as DBType
-                host = url.host
-                port = url.port ?: type.port
-                def userpass = url.userInfo?.split(":")
-                if(userpass) {
-                    user = userpass[0]
-                    pass = userpass[1]
-                }
-                def path = url.path.replaceAll('/','')
-                if(path) {
-                    name = path
-                }
-            } catch (Exception e) {
-                Log.e( "Malformed URL, please specify it as: proto://user:pass@host:port/. Specified: ($sUrl). Error was : ", e)
-            }
-        } else {
-            Log.e( "Specified URL has no protocol: [$sUrl]")
-        }
-    }
 
+	/**
+	 * Open connection
+	 * @return
+	 */
 	@Override
-	void open() {
+	boolean open() {
+		boolean connected = false
 		try {
-			db = DriverManager.getConnection(getJDBCStr(), user, pass)
-			Log.v( "Connecting to DB")
+			String conn = type.connectionString
+			if(!conn.toLowerCase().startsWith("jdbc")) {
+				conn = "jdbc:$conn"
+			}
+			Log.v( "Connecting to DB: %s", conn)
+			db = DriverManager.getConnection(conn, type.user, type.password)
+			Log.d( "Connected to DB: %s", type.dbname ?: type.toString())
+			connected = true
 		} catch (SQLException e) {
-			Log.w( "Connection failed: ", e)
+			Log.e( "Connection failed: ", e)
 		}
+		return connected
 	}
 
-    /**
-     * Return JDBC URL in standard way
-     * @return
-     */
-	String getJDBCStr() {
-        def url = "jdbc:"
-        def stype = type.toString().toLowerCase()
-        switch (type) {
-            case SQLITE:
-				if(!name.endsWith(".db")) {
-					name += ".db"
-				}
-                url += "${stype}:${this.name}"
-                break
-            //case POSTGRESQL:
-            //case MARIADB:
-			//case MYSQL:
-			default:
-                url += "${stype}://${host}:${port}/${this.name}"
-                break
-        }
-        //Additional params
-        switch(type) {
-			case SQLITE:
-                    try {
-						Class.forName("org.sqlite.JDBC")
-					} catch (ClassNotFoundException e) {
-						Log.e("SQLite Driver not found", e)
-					}
-				break
-			case POSTGRESQL:
-				try {
-					Class.forName("org.postgresql.Driver")
-				} catch (ClassNotFoundException e) {
-					Log.e("PostgreSQL Driver not found", e)
-				}
-				break
-			case MARIADB:
-			case MYSQL:
-				try {
-					Class.forName(type == MYSQL ? "com.mysql.cj.jdbc.Driver" : "org.mariadb.jdbc.Driver")
-					url += "?useSSL=false" //Disable SSL warning
-					url += "&autoReconnect=true" //Reconnect
-                    //UTF-8 enable:
-                    url += "&useUnicode=true"
-                    url += "&characterEncoding=UTF-8"
-                    url += "&characterSetResults=utf8"
-                    url += "&connectionCollation=utf8_general_ci"
-                } catch(Exception e) {
-                    Log.e( "%s Driver not found: ", type.toString(), e)
-                    url = ""
-                }
-                break
-			default:
-				Log.w("Database type: [%s] doesn't include the driver. You will need to add it separately.", type)
-        }
-        return url
-	}
-			
 	/**
 	 * NOTE:
 	 * isClosed is not reporting correctly (JDBC bug)
@@ -210,11 +162,15 @@ class JDBCConnector implements Connector {
 		return open
 	}
 
+	/**
+	 * Close connection
+	 * @return
+	 */
 	@Override
 	boolean close() {
 		boolean closed = true
 		try {
-			if (!db.isClosed()) {
+			if (db !== null &&! db.isClosed()) {
 				db.close()
 			}
 		} catch (Exception e) {
@@ -224,10 +180,18 @@ class JDBCConnector implements Connector {
 		return closed
 	}
 
+	/**
+	 * Prepare statement using Query
+	 * @param query
+	 * @return
+	 */
 	@Override
-	DB.Statement prepare(Query query) {
+	DB.Statement prepare(Query query, boolean silent) {
 		try {
-			final PreparedStatement st = db.prepareStatement(query.toString())
+			assert query.toString() : "Query can not be empty"
+			final PreparedStatement st = [INSERT, REPLACE].contains(query.actionType) ?
+				 db.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS) :
+				 db.prepareStatement(query.toString())
 			st.setQueryTimeout(TIMEOUT)
 			Object[] values = query.getArgs()
 			for (int index = 1; index <= values.length; index++) {
@@ -236,18 +200,18 @@ class JDBCConnector implements Connector {
 					st.setNull(index, NULL)
 				} else if (o instanceof Float) {
 					st.setFloat(index, (Float) o)
-				} else if (o instanceof Double) {
+				} else if (o instanceof Double || o instanceof BigDecimal) {
 					st.setDouble(index, (Double) o)
 				} else if (o instanceof Integer) {
 					st.setInt(index, (Integer) o)
-				} else if (o instanceof Long) {
+				} else if (o instanceof Long || o instanceof BigInteger) {
 					st.setLong(index, (Long) o)
 				} else if (o instanceof byte[]) {
 					st.setBytes(index, (byte[]) o)
 				} else if (o instanceof String) {
 					st.setString(index, (String) o)
 				} else if (o instanceof LocalDate) {
-					st.setDate(index, java.sql.Date.valueOf(o.toString()))
+					st.setDate(index, Date.valueOf(o.toString()))
 				} else if (o instanceof LocalDateTime) {
 					long millis = o.toMillis()
 					st.setTimestamp(index, new Timestamp(millis))
@@ -256,34 +220,29 @@ class JDBCConnector implements Connector {
 					Log.e( "Wrong data type: " + o)
 				}
 			}
-			boolean updaction = false
+			boolean updaction = query.isSetQuery
+			int countUpdated = 0
 			//noinspection GroovyFallthrough
-			switch(query.action) {
-				case RAW:
-					if(["SELECT", "SHOW", "GET"].any {
-						query.toString().toUpperCase().startsWith(it + " ")
-					}) {
-						break
+			if(updaction) {
+				try {
+					countUpdated = st.executeUpdate()
+					if(updaction) {
+						Log.v("Rows affected: %d", countUpdated)
 					}
-				case INSERT:
-				case REPLACE:
-				case DELETE:
-				case DROP:
-				case UPDATE:
-					try {
-						st.executeUpdate()
-						updaction = true
-					} catch(Exception e) {
-						if(query.action == RAW) {
-							Log.w("An update action was inferred but it seems it is not correct." +
-								  " To remove this error, set action to 'SELECT'")
-							Log.w("Query is: %s", query.toString())
-						}
-						Log.e("Unable to set update statement. ", e)
+				} catch(SQLSyntaxErrorException syntaxError) {
+					if(!silent) {
+						Log.w("Query was mistaken: %s", syntaxError.message)
 					}
-				break
+					return null
+				} catch(Exception e) {
+					if(!silent) {
+						Log.w("Query: %s", query.toString())
+						Log.e("Unable to set statement. ", e)
+					}
+					return null
+				}
 			}
-			final ResultSet rs = updaction ? null : st.executeQuery()
+			final ResultSet rs = updaction ? (query.isIdentityUpdate ? st.getGeneratedKeys() : null) : st.executeQuery()
 			final ResultSetMetaData rm = updaction ? null : rs.getMetaData()
 			return new DB.Statement() {
 				@Override
@@ -325,46 +284,7 @@ class JDBCConnector implements Connector {
 				@Override
 				ColumnType columnType(int index) {
 					try {
-						ColumnType ct = ColumnType.NULL
-						switch(rm.getColumnType(index)) {
-                            case NCLOB: //N means: Unicode
-                            case CLOB: //stores variable-length character data more than 4GB
-                            case LONGNVARCHAR:
-                            case LONGVARCHAR:
-                            case NVARCHAR:
-							case VARCHAR:
-                            case NCHAR:
-							case CHAR:
-								ct = ColumnType.TEXT; break
-							case INTEGER:
-							case SMALLINT:
-							case TINYINT:
-                            case BOOLEAN:
-                            case BIT:
-								ct = ColumnType.INTEGER; break
-							case FLOAT:
-								ct = ColumnType.FLOAT; break
-							case BIGINT:
-							case DOUBLE:
-							case DECIMAL:
-							case NUMERIC:
-                            case REAL:
-								ct = ColumnType.DOUBLE; break
-                            case LONGVARBINARY:
-                            case VARBINARY:
-                            case BINARY:
-                            case BLOB:
-								ct = ColumnType.BLOB; break
-                            case TIME_WITH_TIMEZONE:
-                            case TIMESTAMP_WITH_TIMEZONE:
-							case TIMESTAMP:
-                            case TIME:
-							case DATE:
-								ct = ColumnType.DATE; break
-							default:
-								Log.e( "Unknown column type: "+rm.getColumnType(index))
-						}
-						return ct
+						return ColumnType.fromJavaSQL(rm.getColumnType(index))
 					} catch (SQLException ex) {
 						Log.e( "column type failed: ",ex)
 						return null
@@ -374,7 +294,7 @@ class JDBCConnector implements Connector {
 				@Override
 				String columnName(int index) {
 					try {
-						return rm.getColumnName(index)
+						return rm.getColumnLabel(index)
 					} catch (SQLException ex) {
 						Log.e( "column name failed: ",ex)
 						return ""
@@ -456,13 +376,26 @@ class JDBCConnector implements Connector {
 				int firstColumn() {
 					return 1
 				}
+
+				@Override
+				int updatedCount() {
+					return countUpdated
+				}
 			}
 		} catch (SQLException ex) {
-			Log.e( "Statement failed: ",ex)
+			Log.e("Statement failed: ", ex)
+		} catch (AssertionError ae) {
+			Log.w("Invalid query: %s", ae.message)
+		} catch (Exception e) {
+			Log.e("Unexpected error while processing request: %s", e.message)
 		}
 		return null
 	}
 
+	/**
+	 * General error handling
+	 * @param ex
+	 */
 	@Override
 	void onError(Exception ex) {
 		Log.e( "General error: ",ex)

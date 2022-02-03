@@ -1,6 +1,8 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
+import com.intellisrc.db.jdbc.Dummy
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime
@@ -29,9 +31,10 @@ class DummyConnector implements DB.Connector {
         return "dummy"
     }
 
-    void open() {
+    boolean open() {
         opened = true
         Log.v( "Database opened")
+        return opened
     }
 
     boolean close() {
@@ -41,7 +44,7 @@ class DummyConnector implements DB.Connector {
         return true
     }
 
-    DB.Statement prepare(Query query) {
+    DB.Statement prepare(Query query, boolean silent) {
         Log.v( "Query prepared: "+query.toString())
         return new DummyStatement()
     }
@@ -50,8 +53,21 @@ class DummyConnector implements DB.Connector {
         Log.e( "Error reported: ", ex)
     }
 
-    DB.DBType getType() {
-        return DB.DBType.DUMMY
+    JDBC getJdbc() {
+        return new Dummy()
+    }
+
+    @Override
+    List<String> getTables() {
+        return ["dummy"]
+    }
+
+    @Override
+    List<ColumnInfo> getColumns(String table) {
+        return [
+            new ColumnInfo(name : "id", type : ColumnType.INTEGER, autoIncrement: true, primaryKey: true),
+            new ColumnInfo(name : "name", type : ColumnType.TEXT, charLength: 20)
+        ]
     }
 
     static class DummyStatement implements DB.Statement {
@@ -74,15 +90,15 @@ class DummyConnector implements DB.Connector {
             return 0
         }
 
-        DB.ColumnType columnType(int index) {
-            DB.ColumnType type = DB.ColumnType.NULL
+        ColumnType columnType(int index) {
+            ColumnType type = ColumnType.NULL
             if(index < columnCount() &! data.isEmpty()) {
                 Object value = data.first().get(columnName(index))
                 switch(value) {
-                    case String : type = DB.ColumnType.TEXT; break
-                    case Integer: type = DB.ColumnType.INTEGER; break
-                    case Double : type = DB.ColumnType.DOUBLE; break
-                    case LocalDateTime : type = DB.ColumnType.DATE; break
+                    case String : type = ColumnType.TEXT; break
+                    case Integer: type = ColumnType.INTEGER; break
+                    case Double : type = ColumnType.DOUBLE; break
+                    case LocalDateTime : type = ColumnType.DATE; break
                 }
             }
             return type
@@ -119,6 +135,11 @@ class DummyConnector implements DB.Connector {
 
         boolean isColumnNull(int index) {
             return data[dataIndex].get(columnName(index)) == null
+        }
+
+        @Override
+        int updatedCount() {
+            return 0
         }
     }
 }

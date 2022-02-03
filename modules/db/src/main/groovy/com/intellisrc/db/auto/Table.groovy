@@ -1,9 +1,14 @@
-package com.intellisrc.db
+package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
+import com.intellisrc.db.DB
+import com.intellisrc.db.Database
+import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
+import com.intellisrc.db.jdbc.MariaDB
+import com.intellisrc.db.jdbc.MySQL
 import com.intellisrc.etc.Instanciable
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
@@ -15,8 +20,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.regex.Matcher
-
-import static com.intellisrc.db.DB.DBType.*
 
 @CompileStatic
 class Table<M extends Model> implements Instanciable<M> {
@@ -63,9 +66,16 @@ class Table<M extends Model> implements Instanciable<M> {
         if(alwaysCheck || !versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
             versionChecked[tableName.toString()] = true
             boolean exists = tableConnector.exists()
-            if (tableConnector.type != MYSQL && tableConnector.type != MARIADB) {
-                Log.w("Create or Update : MySQL/MariaDB is only supported for now.")
-                return
+            //noinspection GroovyFallthrough
+            switch (tableConnector.jdbc) {
+                case MySQL:
+                case MariaDB:
+                    // TODO: support others
+                    break
+                default:
+                    Log.w("Create or Update : MySQL/MariaDB is only supported for now.")
+                    return
+                    break
             }
             if (exists) {
                 if(autoUpdate) {
@@ -182,7 +192,7 @@ class Table<M extends Model> implements Instanciable<M> {
     String getComment() {
         DB connection = database.connect()
         Query query = new Query("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=? AND table_name=?",
-                [connection.dbConnector.name, tableName])
+                [tableConnector.jdbc.dbname, tableName])
         String comment = connection.exec(query).toString()
         connection.close()
         return comment
@@ -252,6 +262,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     static Object toDBValue(Object val) {
+        //noinspection GroovyFallthrough
         switch (val) {
             case LocalTime:
                 return  (val as LocalTime).HHmmss
@@ -312,6 +323,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 field = getFields().find { it.name == origName }
             }
             if(field) {
+                //noinspection GroovyFallthrough
                 switch (field.type) {
                     case boolean:
                     case Boolean:
@@ -355,7 +367,7 @@ class Table<M extends Model> implements Instanciable<M> {
                         if(it.value.toString().isNumber()) {
                             model[origName] = (field.type as Class<Enum>).enumConstants[it.value as int]
                         } else {
-                            model[origName] = valueOf((Class<Enum>) field.type, it.value.toString())
+                            model[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString())
                         }
                         break
                     case Model:
@@ -680,13 +692,39 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean update(M model, List<String> exclude = []) {
+        boolean ok = false
         int id = model.id
-        Map map = getMap(model)
-        exclude.each {
-            map.remove(it)
+        try {
+            Map map = getMap(model)
+            exclude.each {
+                map.remove(it)
+            }
+            ok = tableConnector.key(pk).update(map, id)
+        } catch(Exception e) {
+            Log.e("Unable to insert record", e)
+        } finally {
+            closeConnections()
         }
-        boolean ok = tableConnector.key(pk).update(map, id)
-        closeConnections()
+        return ok
+    }
+    /**
+     * Replace a model
+     * @param model
+     * @return
+     */
+    boolean replace(M model, List<String> exclude = []) {
+        boolean ok = false
+        try {
+            Map<String, Object> map = getMap(model)
+            exclude.each {
+                map.remove(it)
+            }
+            ok = tableConnector.replace(map)
+        } catch(Exception e) {
+            Log.e("Unable to insert record", e)
+        } finally {
+            closeConnections()
+        }
         return ok
     }
     /**
@@ -755,23 +793,6 @@ class Table<M extends Model> implements Instanciable<M> {
         return lastId ?: id
     }
     /**
-     * Replace a model
-     * @param model
-     * @return
-     */
-    boolean replace(M model) {
-        boolean ok = false
-        try {
-            Map<String, Object> map = getMap(model)
-            ok = tableConnector.replace(map)
-        } catch(Exception e) {
-            Log.e("Unable to insert record", e)
-        } finally {
-            closeConnections()
-        }
-        return ok
-    }
-    /**
      * Return table updater
      * Override when needed
      * @return
@@ -803,7 +824,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     Query getQuery() {
-        return new Query().setTable(tableName)
+        return new Query(tableConnector.jdbc).setTable(tableName)
     }
     /**
      * Get a connection. If its already opened, reuse

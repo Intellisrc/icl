@@ -1,14 +1,25 @@
 dependencies {
     api project(':etc')
-    api "org.reflections:reflections:0.9.12" //Same as in core
+    api "org.reflections:reflections:0.10.2"
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
+    compileOnly 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre11'
+    compileOnly 'com.oracle.database.jdbc:ojdbc11:21.4.0.0'
     compileOnly 'mysql:mysql-connector-java:8.0.25'
-    compileOnly 'org.postgresql:postgresql:42.2.23.jre7'
+    compileOnly 'org.apache.derby:derby:10.15.2.0' // This one includes also the database engine
+  //compileOnly 'org.apache.derby:derbyclient:10.15.2.0' // This one includes only the JDBC driver
+    compileOnly 'org.firebirdsql.jdbc:jaybird:4.0.5.java11'
+    compileOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+    compileOnly 'org.postgresql:postgresql:42.3.1'
     compileOnly 'org.xerial:sqlite-jdbc:3.36.0.2'
 
+    testImplementation 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre11'
+    testImplementation 'com.oracle.database.jdbc:ojdbc11:21.4.0.0'
     testImplementation 'mysql:mysql-connector-java:8.0.25'
-    testImplementation 'org.postgresql:postgresql:42.2.23.jre7'
-    testImplementation 'org.xerial:sqlite-jdbc:3.36.0.1'
+    testImplementation 'org.apache.derby:derby:10.15.2.0'
+    testImplementation 'org.firebirdsql.jdbc:jaybird:4.0.5.java11'
+    testImplementation 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+    testImplementation 'org.postgresql:postgresql:42.3.1'
+    testImplementation 'org.xerial:sqlite-jdbc:3.36.0.2'
 }

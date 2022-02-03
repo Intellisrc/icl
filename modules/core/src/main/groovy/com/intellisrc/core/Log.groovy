@@ -315,6 +315,7 @@ class Log {
                         newMsg = newMsg.replaceFirst(/\{}/, "%s")
                         Object val = params.empty ? "" : params.pollFirst()
                         String converted
+                        //noinspection GroovyFallthrough
                         switch (val) {
                             case float: case Float: case double: case Double: case BigDecimal:
                                 converted = String.format("%.4f", val)

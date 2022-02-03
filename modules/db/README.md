@@ -97,12 +97,27 @@ You can connect to any supported database using their classes (look inside db/jd
 
 ```groovy
 DB db = new Oracle(
-            dbname   : "users",
-            user     : "admin", 
-            password : "secret",
-            hostname : "server.remote",
+            name : "users",         // 'dbname' and 'database' are aliases
+            user : "admin",         // 'username' is an alias
+            pass : "secret",        // 'password' is an alias
+            host : "server.remote", // 'hostname' is an alias
             //... check the class source code for more parameters ...
         ).connect()
+//... do something ...
+db.close()
+```
+
+other way to connect (if the database type is set in runtime) is:
+
+```groovy
+DB db = JDBC.fromSettings(
+        type : "oracle",
+        name : "users",         // 'dbname' and 'database' are aliases
+        user : "admin",         // 'username' is an alias
+        pass : "secret",        // 'password' is an alias
+        host : "server.remote", // 'hostname' is an alias
+        //... check the class source code for more parameters ...
+).connect()
 //... do something ...
 db.close()
 ```

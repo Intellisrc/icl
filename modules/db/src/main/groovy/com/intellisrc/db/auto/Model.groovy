@@ -1,4 +1,4 @@
-package com.intellisrc.db
+package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
 import com.intellisrc.db.annot.Column
@@ -16,6 +16,7 @@ abstract class Model<T extends Table> implements Instanciable<T> {
      */
     int getId() {
         int i = 0
+        //noinspection GroovyFallthrough
         switch (pk?.type) {
             case short:
             case int:

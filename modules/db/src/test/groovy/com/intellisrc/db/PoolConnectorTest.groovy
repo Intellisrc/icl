@@ -1,5 +1,6 @@
 package com.intellisrc.db
 
+import com.intellisrc.db.jdbc.Dummy
 import spock.lang.Specification
 
 /**

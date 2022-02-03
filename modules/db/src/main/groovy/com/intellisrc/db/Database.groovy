@@ -1,5 +1,7 @@
 package com.intellisrc.db
 
+import com.intellisrc.db.jdbc.Dummy
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 /**
  * Database initialization class
@@ -12,16 +14,13 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Database {
     protected DBPool pool
-    Database(String connectionString, int timeout = 0) {
-		this(new JDBC(connectionString), timeout)
-	}
-    Database(DB.Starter type = null, int timeout = 0) {
+    Database(JDBC type = null, int timeout = 0, int expire = 0) {
 		if(type == null) {
-            type = new JDBC()
+            type = new Dummy()
 		}
         if(!pool) {
             pool = new DBPool()
-            pool.init(type, timeout)
+            pool.init(type, timeout, expire)
         }
     }
     DB connect() {
@@ -45,10 +44,7 @@ class Database {
         }
         return defaultDB
     }
-    static void defaultInit(String urlstr, int timeout = 0) {
-        defaultDB = new Database(urlstr, timeout)
-    }
-    static void defaultInit(DB.Starter type = null, int timeout = 0) {
+    static void defaultInit(JDBC type = null, int timeout = 0) {
         defaultDB = new Database(type, timeout)
     }
 }

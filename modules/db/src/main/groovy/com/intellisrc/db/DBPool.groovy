@@ -3,6 +3,7 @@ package com.intellisrc.db
 import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -12,7 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Manage the DB connection pool
  * It handles automatically the number of connections as it
  * increases or decrease the pool according to demand.
- * @author Alberto Lepe <lepe@intellisrc.com>
+ * @author Alberto Lepe
  */
 class DBPool {
 	// Time before a connection is discarded if it is not returned to the pool (usually it means close() is missing)
@@ -25,7 +26,7 @@ class DBPool {
 	Map<DB.Connector, List<StackTraceElement>> connTrace = [:]
 	ConcurrentLinkedQueue<DB.Connector> availableConnections = new ConcurrentLinkedQueue<>()
 	ConcurrentLinkedQueue<DB.Connector> currentConnections = new ConcurrentLinkedQueue<>()
-	DB.Starter starter
+	JDBC jdbc = null
 
 	/**
 	 * Initialize with JDBC connection
@@ -33,9 +34,9 @@ class DBPool {
 	 * @param ConnectionStr
      * @param timeout
 	 */
-	synchronized void init(DB.Starter dbStarter, int timeout = 0, int expiration = 0) {
+	synchronized void init(JDBC jdbcObj, int timeout = 0, int expiration = 0) {
 		if(!initialized) {
-			starter = dbStarter
+			jdbc = jdbcObj
 			timeoutSeconds = timeout ?: timeoutSeconds
 			expireSeconds = expiration ?: expireSeconds
 			if(expireSeconds < timeoutSeconds) {
@@ -60,13 +61,9 @@ class DBPool {
 	 */
 	synchronized void timeoutPool() {
 		if(!availableConnections.isEmpty()) {
-			Set<DB.Connector> connectors = availableConnections.each {
+			Set<DB.Connector> connectors = availableConnections.findAll {
                 DB.Connector conn ->
-					if (conn.lastUsed > 0) {
-						if (System.currentTimeSeconds() - conn.lastUsed > expireSeconds) {
-                            return conn
-						}
-					}
+					return conn.lastUsed > 0 && (System.currentTimeSeconds() - conn.lastUsed > expireSeconds)
 			}.toSet()
             if(!connectors.empty) {
 				int closed = connectors.size()
@@ -81,11 +78,7 @@ class DBPool {
 		if(!currentConnections.empty) {
 			Set<DB.Connector> connectors = currentConnections.findAll {
 				DB.Connector conn ->
-					if (conn.lastUsed > 0) {
-						if (System.currentTimeSeconds() - conn.lastUsed > timeoutSeconds) {
-							return conn
-						}
-					}
+					return conn.lastUsed > 0 && (System.currentTimeSeconds() - conn.lastUsed > timeoutSeconds)
 			}.toSet()
 			if(!connectors.empty) {
 				int closed = connectors.size()
@@ -153,7 +146,7 @@ class DBPool {
 	private synchronized DB.Connector createNewConnectionForPool() {
 		DB.Connector conn = null
 		try {
-			conn = starter.getConnector()
+			conn = new JDBCConnector(jdbc)
 		} catch (Exception e) {
 			Log.e( "Unable to load the connection class", e)
 		}

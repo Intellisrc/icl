@@ -2,8 +2,8 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB.Connector
-import com.intellisrc.db.DB.DBType
 import com.intellisrc.db.DB.Statement
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -36,28 +36,42 @@ class PoolConnector implements Connector {
 
 	@Override
 	String getName() {
-		return pool.starter.name ?: currentConnector.name
+		return pool.jdbc.dbname ?: currentConnector.name
 	}
 
 	@Override
-	DBType getType() {
-		return pool?.starter?.type ?: currentConnector?.type
+	JDBC getJdbc() {
+		return pool?.jdbc ?: currentConnector?.jdbc
 	}
 
 	@Override
-	void open() {
-        if(!isOpen()) {
+	List<String> getTables() {
+		return currentConnector.tables
+	}
+
+	@Override
+	List<ColumnInfo> getColumns(String table) {
+		return currentConnector.getColumns(table)
+	}
+
+	@Override
+	boolean open() {
+		boolean isopen = isOpen()
+        if(!isopen) {
             currentConnector = pool?.getConnectionFromPool()
 			Log.v( "DB got from Pool")
             try {
-				if(!isOpen()) {
-					currentConnector.open()
-					Log.v( "DB was opened")
+				if(currentConnector.open()) {
+					Log.v("DB was opened")
+					isopen = true
+				} else {
+					Log.w("Unable to connect")
 				}
             } catch (e) {
                 Log.e( "Unable to get connection :", e)
             }
         }
+		return isopen
 	}
 
 	@Override
@@ -68,8 +82,8 @@ class PoolConnector implements Connector {
 	}
 
 	@Override
-	Statement prepare(Query query) {
-		return currentConnector?.prepare(query)
+	Statement prepare(Query query, boolean silent) {
+		return currentConnector?.prepare(query, silent)
 	}
 
 	@Override
