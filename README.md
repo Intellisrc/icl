@@ -88,7 +88,7 @@ For more detailed explanation, click on the module title.<br>
 | ★   |`SysService`         | Convert class into service (only one by project)                               |
 |     |`Version`            | Return system/application version and makes it easy to handle versions         |
 
-[Documentation](modules/core/README.md)
+[Documentation](modules/core/README.md) / [JavaDoc](modules/core/docs/index.html) 
 
 ### [log](modules/log/README.md)
 Includes : core
@@ -109,7 +109,7 @@ Includes : core
 | @   | `CommonLoggerFactory` | Used by SLF4J to get `CommonLogger` instance    |
 | @   | `CommonLoggerService` | Service provider for SLF4J                      |
 
-[Documentation](modules/log/README.md)
+[Documentation](modules/log/README.md) / [JavaDoc](modules/log/docs/index.html)
 
 ### [etc](modules/etc/README.md)
 Includes : core
@@ -137,7 +137,7 @@ Includes : core
  | ★   | `YAML`        | Convert from and to YAML format                                                                                   |
  | ★   | `Zip`         | Compress files                                                                                                    |
 
-[Documentation](modules/etc/README.md)
+[Documentation](modules/etc/README.md) / [JavaDoc](modules/etc/docs/index.html)
 
 ### [db](modules/db/README.md) 
 Includes : core, etc
@@ -173,7 +173,7 @@ Includes : core, etc
  |     | `SQLite`                   | JDBC implementation for SQLite databases                                           |
 |     | `SQLServer`                | JDBC implementation for SQL Server databases                                       |
 
-[Documentation](modules/db/README.md)
+[Documentation](modules/db/README.md) / [JavaDoc](modules/db/docs/index.html)
 
 ### [net](modules/net/README.md)         
 Includes : core, etc, crypt
@@ -196,7 +196,7 @@ Includes : core, etc, crypt
  |     | `UDPClient`   | UDP client                                                |
  |     | `UDPServer`   | UDP server                                                |
 
-[Documentation](modules/net/README.md)
+[Documentation](modules/net/README.md) / [JavaDoc](modules/net/docs/index.html)
 
 ### [serial](modules/serial/README.md)
 Includes : core, etc
@@ -211,7 +211,7 @@ Includes : core, etc
  |     | `SerialDummy`  | Dummy implementation of `Seriable` for Unit Testing  |
  | @   | `SerialReader` | Class to only read data from a `Serial` port         |
 
-[Documentation](modules/serial/README.md)
+[Documentation](modules/serial/README.md) / [JavaDoc](modules/serial/docs/index.html)
 
 ### [web](modules/web/README.md)
 Includes : core, etc
@@ -238,7 +238,7 @@ Includes : core, etc
  |     | services/`LoginService`  | Implementation for login services                                                               |
  |     | services/`LogService`    | Implementation to browse logs in a browser                                                      |
 
-[Documentation](modules/web/README.md)
+[Documentation](modules/web/README.md) / [JavaDoc](modules/web/docs/index.html)
 
 ### [crypt](modules/crypt/README.md)
 Includes : core, etc    
@@ -257,7 +257,7 @@ Includes : core, etc
  | ★   | `PasswordHash` | Provides strong hashing algorithms for passwords, like: BCRYPT, SCRYPT and PBKDF2                                                     |
 |     | `LpCode`       | Provides String obfuscation                                                                                                           |
 
-[Documentation](modules/crypt/README.md)
+[Documentation](modules/crypt/README.md) / [JavaDoc](modules/crypt/docs/index.html)
 
 ### [thread](modules/thread/README.md)
 Includes : core
@@ -284,7 +284,7 @@ Includes : core
  | ★   | `Tasks`        | Generates report of all tasks and serves as entry point to add tasks to be monitored |
  | @   | `ThreadPool`   | Custom ThreadPoolExecutor object (Java management for threads)                       |
 
-[Documentation](modules/thread/README.md)
+[Documentation](modules/thread/README.md) / [JavaDoc](modules/thread/docs/index.html)
 
 ### [term](modules/term/README.md)         
 Includes : core
@@ -302,7 +302,7 @@ Includes : core
  | @   | `MatchAnyCompleter` | Utility to find partial matches to commands                                     |
  | ★   | `Progress`          | Show a progress bar in a terminal (it has multiple implementations and options) |
 
-[Documentation](modules/term/README.md)
+[Documentation](modules/term/README.md) / [JavaDoc](modules/term/docs/index.html)
 
 ### [img](modules/img/README.md)
 Includes : core
@@ -319,7 +319,7 @@ Includes : core
  | ★   | `FrameShot`    | Represents a single frame (BufferedImage with name)                   |
  |     | `Metry`        | Performs geometric operations (e.g, Trigonometry)                     |
 
-[Documentation](modules/img/README.md)
+[Documentation](modules/img/README.md) / [JavaDoc](modules/img/docs/index.html)
 
 ### [cv](modules/cv/README.md)
 Includes : core, img
@@ -342,7 +342,7 @@ Includes : core, img
  |     | `FileVideoGrab`     | Get File or FrameShot/CvFrameShot images from a directory (as frames) |
  | ★   | `FrameVideoGrab`    | Get Frame or FrameShot/CvFrameShot objects from video files           |
 
-[Documentation](modules/cv/README.md)
+[Documentation](modules/cv/README.md) / [JavaDoc](modules/cv/docs/index.html)
 
 ## Notes about upgrading to 2.8.x from 2.7.x
 
