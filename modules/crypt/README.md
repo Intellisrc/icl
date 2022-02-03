@@ -9,7 +9,7 @@ its safety.
 instead of `String` to prevent those values to reside
 in memory.
 
-[JavaDoc](docs/index.html)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/crypt/docs/)
 
 ## Usage
 

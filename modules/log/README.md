@@ -4,7 +4,7 @@ SLF4J colorful logger with many options and easy to use.
 You can add customized loggers and personalize  
 the way your logs look.
 
-[JavaDoc](docs/index.html)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/log/docs/)
 
 ## Usage
 

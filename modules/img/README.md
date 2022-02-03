@@ -4,7 +4,7 @@ Classes for using Images (BufferedImage, File, FrameShot)
 and non-opencv related code, trying to keep dependencies  
 to a minimum. It also includes common geometric operations.
 
-[JavaDoc](docs/index.html)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/img/docs/)
 
 ## Usage
 

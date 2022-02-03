@@ -3,7 +3,7 @@
 Basic functionality that is usually needed in any project. For example, configuration, 
 logging, executing commands, controlling services and displaying colors in console.
 
-[JavaDoc](docs/index.html)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/core/docs/)
 
 The following is an overview of this module:
 

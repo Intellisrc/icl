@@ -5,7 +5,7 @@ Convert image formats, crop, rotate images or draw
 objects on top of them. It simplifies grabbing images 
 from any video source.
 
-[JavaDoc](docs/index.html)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/cv/docs/)
 
 ## Usage
 

@@ -8,7 +8,7 @@ There are mainly two ways to use this module:
 1. Fluid query instructions (SQL generator)
 2. Model based operations (Automatic CRUD operations)
 
-[JavaDoc](docs/index.html)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/db/docs/)
 
 ## Usage
 
