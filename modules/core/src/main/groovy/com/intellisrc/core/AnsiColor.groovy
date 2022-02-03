@@ -5,8 +5,8 @@ import groovy.transform.CompileStatic
 /**
  * Simple class to add colors to terminal
  * its in this package as Log requires it.
- * @since 19/04/15.
  *
+ * <pre>
  * ╔══════════╦════════════════════════════════╦═════════════════════════════════════════════════════════════════════════╗
  * ║  Code    ║             Effect             ║                                   Note                                  ║
  * ╠══════════╬════════════════════════════════╬═════════════════════════════════════════════════════════════════════════╣
@@ -51,6 +51,9 @@ import groovy.transform.CompileStatic
  * ║ 90–97    ║  Set bright foreground color   ║  aixterm (not in standard)                                              ║
  * ║ 100–107  ║  Set bright background color   ║  aixterm (not in standard)                                              ║
  * ╚══════════╩════════════════════════════════╩═════════════════════════════════════════════════════════════════════════╝
+ * </pre>
+ *
+ * @since 19/04/15.
  */
 @CompileStatic
 enum AnsiColor {

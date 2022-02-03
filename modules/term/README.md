@@ -4,6 +4,8 @@ Anything related to terminal is in this module (except AnsiColor, which is in `c
 It uses JLine to help you create interactive terminal (console) applications easily. 
 It also contains some tools to display progress with colors.
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/term)

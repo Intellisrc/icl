@@ -3,23 +3,22 @@ package com.intellisrc.core
 import groovy.transform.CompileStatic
 
 /**
- * @since 1/9/17.
- *
  * Options:
  *  exit     : Change this value if the normal exit code is different than 0
  *  secret   : Does the command includes sensitive information that it should not be logged?
  *  timeout  : After how many milliseconds does the command should assume it failed?
- *
+ *  <p>
  *  Note: This Class does not accept pipes. To use pipes, do:
- *
+ *  <p>
  *  def proc = "grep 'something'".execute() | "sed 's/hello/bye/'".execute() | 'awk "{ print $1 }"'.execute()
  *  println proc.text
- *
+ *  <p>
  *  It could be implemented passing the result of each command to the next one, however I'm not sure if
  *  would be exactly as expected (... how does arguments should be handled?)
  *  The recommended way is to process each command in nested configuration (more elegant and no dependencies) or
  *  to create an script and execute it only once (more performance efficient).
  *
+ * @since 1/9/17
  */
 @CompileStatic
 class Cmd {

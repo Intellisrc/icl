@@ -8,6 +8,8 @@ There are mainly two ways to use this module:
 1. Fluid query instructions (SQL generator)
 2. Model based operations (Automatic CRUD operations)
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/crypt)

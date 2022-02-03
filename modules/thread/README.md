@@ -5,6 +5,8 @@ processes easily, processes which are executed in an interval, as a service or a
 amount of time. This module is very useful to help you to identify bottlenecks and to manage your
 main threads in a single place.
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/thread)

@@ -5,6 +5,8 @@ Convert image formats, crop, rotate images or draw
 objects on top of them. It simplifies grabbing images 
 from any video source.
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/cv)

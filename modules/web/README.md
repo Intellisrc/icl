@@ -4,6 +4,8 @@ Create restful HTTP (GET, POST, PUT, DELETE, etc) or WebSocket application servi
 Manage JSON data from and to the server easily. It is build on top of Spark-Java Web Framework, 
 so it is very flexible and powerful, but designed to be elegant and easier to use.
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/web)

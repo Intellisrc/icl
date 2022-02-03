@@ -4,6 +4,8 @@ Classes for using Images (BufferedImage, File, FrameShot)
 and non-opencv related code, trying to keep dependencies  
 to a minimum. It also includes common geometric operations.
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/img)

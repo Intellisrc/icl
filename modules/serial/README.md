@@ -3,6 +3,8 @@
 Manage serial communication easily. It uses  
 JSSC library on the background.
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/serial)

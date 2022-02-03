@@ -9,6 +9,8 @@ its safety.
 instead of `String` to prevent those values to reside
 in memory.
 
+[JavaDoc](docs/index.html)
+
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/crypt)
