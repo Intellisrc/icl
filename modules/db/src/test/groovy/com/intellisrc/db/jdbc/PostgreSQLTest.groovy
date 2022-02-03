@@ -1,10 +1,12 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.db.DB
+import spock.lang.Ignore
 
 /**
  * @since 18/06/15.
  */
+@Ignore //Ran manually
 class PostgreSQLTest extends JDBCTest {
     List<String> getTableCreateMulti(String name) {
         return [

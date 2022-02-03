@@ -1,6 +1,7 @@
 package com.intellisrc.serial
 
 import jssc.SerialPort
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class SerialTest extends Specification {
@@ -69,6 +70,7 @@ class SerialTest extends Specification {
      1. check if port list is empty or not
      2. size of the list
      */
+    @Ignore // Requires serial ports (run manually) TODO: create Mock
     def "getting serial ports list into the array"() {
         setup:
             serialObj.listPorts()

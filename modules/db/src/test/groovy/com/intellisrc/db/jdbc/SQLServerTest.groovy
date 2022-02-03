@@ -1,8 +1,11 @@
 package com.intellisrc.db.jdbc
 
+import spock.lang.Ignore
+
 /**
  * @since 18/06/15.
  */
+@Ignore //Ran manually
 class SQLServerTest extends JDBCTest {
     String getTableCreate(String name) {
         return """CREATE TABLE $name (

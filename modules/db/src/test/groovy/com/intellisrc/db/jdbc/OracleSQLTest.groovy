@@ -1,11 +1,13 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.db.DB
+import spock.lang.Ignore
 
 /**
  * @since 18/06/15.
  * Useful reference : https://blogs.oracle.com/sql/post/how-to-create-users-grant-them-privileges-and-remove-them-in-oracle-database
  */
+@Ignore //Ran manually
 class OracleSQLTest extends JDBCTest {
     // Requires Oracle 12c+
     List<String> getTableCreateMulti(String name) {

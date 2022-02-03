@@ -83,14 +83,15 @@ class HashTest extends Specification {
     def "Hash as bytes and extended algorithm"() {
         given:
             String str = "admin"
+            String algo = "SHA-256"
             Hash hash = new Hash(key: Bytes.fromString(str))
-            byte[] bytes = hash.asBytes("TIGER")
+            byte[] bytes = hash.asBytes(algo)
             Log.i("TIGER HASH: "+Bytes.toHex(bytes))
         expect:
-            if(!Hash.getAlgorithms().contains("TIGER")) {
+            if(!Hash.getAlgorithms().contains(algo)) {
                 Log.e("TIGER requires BountyCastle to be installed, Refer to the README.md file")
             }
-            assert hash.verify(bytes, "TIGER")
+            assert hash.verify(bytes, algo)
     }
     def "Static SHA"() {
         given:
