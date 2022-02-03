@@ -25,4 +25,4 @@ modules/thread/out/
 modules/web/build/
 modules/web/out/
 out/
-gradle.properties
+gradle-local.properties

@@ -1,13 +1,14 @@
 package com.intellisrc.etc
 
 import com.intellisrc.core.Log
+import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
  * @since 2019/10/08.
  */
+@Ignore //Some features may not be available in all testing environments
 class HardwareTest extends Specification {
-    //@Ignore //As automatically we don't know the state of screen
     def "Checking monitor"() {
         setup:
             boolean isOn = Hardware.screenOn

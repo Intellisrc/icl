@@ -4,6 +4,7 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static com.intellisrc.db.Query.SortOrder.*

@@ -41,7 +41,7 @@ class JSONTest extends Specification {
 
             def bool = true
             assert JSON.encode(bool) == JsonOutput.toJson(bool)
-            assert JSON.decode(JSON.encode(bool)) == bool
+            assert JSON.decode(JSON.encode(bool)) as boolean == bool
 
             def arr = [1, 2, 3, 4, 5, 6]
             assert JSON.encode(arr) == JsonOutput.toJson(arr)

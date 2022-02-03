@@ -96,9 +96,9 @@ class LpCodeTest extends Specification {
 
     def "Test toStr"() {
         setup:
-            String s = toStr(12345, getLM(HIRA))
+            String s = toStr(12345 as BigInteger, getLM(HIRA))
         expect:
             println s
-            assert s == "あ"
+            assert s == "ぁめぽ"
     }
 }

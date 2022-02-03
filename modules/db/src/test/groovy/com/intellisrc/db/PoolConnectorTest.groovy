@@ -1,6 +1,7 @@
 package com.intellisrc.db
 
 import com.intellisrc.db.jdbc.Dummy
+import com.intellisrc.db.jdbc.SQLite
 import spock.lang.Specification
 
 /**
@@ -14,24 +15,43 @@ class PoolConnectorTest extends Specification {
             List<DB> dbArr = []
             (1..10).each {
                 DB db = database.connect()
+                db.openIfClosed()
                 assert db: "Failed to connect to Database"
                 dbArr << db
             }
+        then:
+            assert database.connections == 10
+            assert database.pool.availableConnections.size() == 0
+            assert database.pool.currentConnections.size() == 10
+        when:
             (1..8).each {
                 dbArr.first().close()
                 dbArr.remove(0)
             }
+        then:
+            assert database.connections == 2
+            assert database.pool.availableConnections.size() == 8
+            assert database.pool.currentConnections.size() == 2
+        when:
             (1..8).each {
                 DB db = database.connect()
+                db.openIfClosed()
                 assert db: "Failed to initialize DB"
                 dbArr << db
             }
+        then:
+            assert database.connections == 10
+            assert database.pool.availableConnections.size() == 0
+            assert database.pool.currentConnections.size() == 10
+        when:
             (1..10).each {
                 dbArr.first().close()
                 dbArr.remove(0)
             }
         then:
-            database.connections == 0
+            assert database.connections == 0
+            assert database.pool.availableConnections.size() == 10
+            assert database.pool.currentConnections.size() == 0
         cleanup:
             database.quit()
     }
@@ -40,15 +60,17 @@ class PoolConnectorTest extends Specification {
             Database database = new Database(new Dummy())
         when:
             DB db = database.connect()
+            db.openIfClosed()
         then:
             assert db : "Failed to initialize DB"
             assert database.connections == 1
-        and:
+        when:
             DB db2 = database.connect()
+            db2.openIfClosed()
         then:
             assert db2 : "Failed to initialize DB"
             assert database.connections == 2
-        and:
+        when:
             db.close()
             db2.close()
         then:
