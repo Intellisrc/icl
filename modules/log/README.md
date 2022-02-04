@@ -10,6 +10,14 @@ the way your logs look.
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/log)
 
+## Features
+* Customized log output through more specific settings, like: `log.print.show.level.short=true`
+* Customized date/time format: `log.show.time.format=yyyy-MM-dd HH:mm:ss.SSS`
+* Show millis instead of time: `log.show.time=false`
+* Showing thread in logs: `log.show.thread` and enable short format: `log.show.thread.short`
+* Highlighting domains without color (marked with '-->')
+* Add custom printers
+
 ### Example
 
 ```groovy
