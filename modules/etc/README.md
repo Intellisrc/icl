@@ -6,7 +6,7 @@ store data in memory cache, manage system configuration in a
 multithreading safe environment (BerkeleyDB or Redis), simple 
 operations with bytes, etc.
 
-[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/etc/docs/)
+[JavaDoc](https://intellisrc.gitlab.io/common/#etc)
 
 ## Usage
 
