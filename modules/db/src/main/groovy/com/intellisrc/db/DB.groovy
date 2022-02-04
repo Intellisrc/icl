@@ -806,26 +806,24 @@ class DB {
                     st.next()
                     if (query.isIdentityUpdate) {
                         String id = st.columnStr(1)
-                        if(id.isNumber()) {
+                        if(id && id.isNumber()) {
                             last_id = st.columnInt(1)
                         } else {
                             Log.d("Received last id: %s", id)
                             last_id = 0
                         }
+                        if (!last_id && jdbc.getLastIdQuery(query.table)) {
+                            Log.d("Last ID not found. Using fallback method...")
+                            String table = query.table
+                            queryBuilder = new Query(jdbc, LASTID)
+                            queryBuilder.table = table
+                            if(queryBuilder) {
+                                last_id = execGet().toInt()
+                                Log.d("Fallback method returned [%d] as last id", last_id)
+                            }
+                        }
                         if(!last_id) {
-                            if (!last_id) {
-                                Log.d("Last ID not found. Using fallback method...")
-                                String table = query.table
-                                queryBuilder = new Query(jdbc, LASTID)
-                                queryBuilder.table = table
-                                if(queryBuilder) {
-                                  last_id = execGet().toInt()
-                                  Log.d("Fallback method returned [%d] as last id", last_id)
-                                }
-                            }
-                            if(!last_id) {
-                                Log.w("Last ID was not found")
-                            }
+                            Log.w("Last ID was not found")
                         }
                     }
                     ok = true
