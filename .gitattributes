@@ -1,0 +1,2 @@
+modules/*/src/ linguist-vendored
+modules/*/docs/ linguist-documentation
