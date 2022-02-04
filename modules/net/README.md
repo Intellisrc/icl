@@ -5,7 +5,7 @@ sending emails through SMTP, connecting or
 creating TCP/UDP servers, getting network  
 interfaces and perform netmask calculations, etc.
 
-[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/net/docs/)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/public/#net)
 
 ## Usage
 

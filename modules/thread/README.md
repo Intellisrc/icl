@@ -5,7 +5,7 @@ processes easily, processes which are executed in an interval, as a service or a
 amount of time. This module is very useful to help you to identify bottlenecks and to manage your
 main threads in a single place.
 
-[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/thread/docs/)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/public/#thread)
 
 ## Usage
 

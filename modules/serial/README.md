@@ -3,7 +3,7 @@
 Manage serial communication easily. It uses  
 JSSC library on the background.
 
-[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/serial/docs/)
+[JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/public/#serial)
 
 ## Usage
 
