@@ -18,7 +18,9 @@ text in then documentation.
 * Suggest new features that you would like to see implemented.
 * If you spot some code that could be improved, let us know.
 * Write a blog about this library and how it helped you.
-* Help us by increasing and improving the documentation (format, text, tables, etc).
+* Help us by increasing and improving the documentation (README.md inside each module)
+* Help us by fixing groovyDoc comments to improve readability
+* Create Unit Tests
 
 ## Gold
 

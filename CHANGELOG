@@ -24,6 +24,10 @@
 * Add support for streams in Zip and SMTP
 * Added limits to WebSocket
 
+### 2.8.3
+* Database module was improved
+* Added support for Oracle, SQLServer, Derby and Firebird (Fluid SQL Builder)
+
 ## 2.7 (Groovy 2.5.6)
 
 * Added modules `thread`, `serial`, `img`
