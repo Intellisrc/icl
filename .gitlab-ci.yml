@@ -27,7 +27,7 @@ test:
       - .gradle
 
 pages:
-  stage: deploy
+  stage: build
   image: alpine:latest
   script:
   - echo 'Documentation'
@@ -35,4 +35,4 @@ pages:
     paths:
     - public
   only:
-  - master
+  - docs

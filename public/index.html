@@ -51,7 +51,7 @@
                     }
                 }
             });
-            let page = window.location.hash || "core";
+            let page = window.location.hash.replace("#","") || "core";
             $("#doc", { src : page + "/" });
         });
     </script>
