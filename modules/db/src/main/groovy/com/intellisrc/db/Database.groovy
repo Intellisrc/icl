@@ -16,7 +16,7 @@ class Database {
     protected DBPool pool
     Database(JDBC type = null, int timeout = 0, int expire = 0) {
 		if(type == null) {
-            type = new Dummy()
+            type = JDBC.fromSettings()
 		}
         if(!pool) {
             pool = new DBPool()
