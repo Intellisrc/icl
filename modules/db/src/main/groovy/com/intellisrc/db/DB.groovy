@@ -696,7 +696,7 @@ class DB {
         query.args.each {
             Log.v( " --> " + it)
         }
-        String cacheKey = cache && query.tableStr ? query.tableStr + "." + (query.toString() + query.argList?.join(",")).md5() : ""
+        String cacheKey = cache && query.tableStr ? query.tableStr + "." + (query.toString() + query.args ?.join(",")).md5() : ""
         Data data = dataCache.get(cacheKey, {
             // Connect if its not connected
             if(openIfClosed()) {
