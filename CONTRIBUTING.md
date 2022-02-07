@@ -30,7 +30,13 @@ text in then documentation.
 * Send us your merge requests!
 * Collaborate by helping others
 
+# How to create issues
+
+Public issues and merge requests are received in the [github repository](https://github.com/intellisrc/icl/). 
+Once they are accepted they will be added in the [gitlab repository](https://gitlab.com/intellisrc/common/).
+
 # Contact me
 
-Contact me at: lepe< at >intellisrc.com
+If you have any question on how to use this library, please post them in github as an issue. 
+You can always contact me at: lepe< at >intellisrc.com
 
