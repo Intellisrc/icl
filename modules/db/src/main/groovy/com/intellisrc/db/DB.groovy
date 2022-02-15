@@ -49,7 +49,7 @@ class DB {
 		boolean close()
         boolean isOpen()
 		Statement prepare(Query query, boolean silent)
-		void onError(Exception ex)
+		void onError(Throwable ex)
 		JDBC getJdbc()
         long getLastUsed()
         void setLastUsed(long milliseconds)

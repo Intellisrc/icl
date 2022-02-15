@@ -1,4 +1,6 @@
 # ICL Library
+[![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/)
+[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 
 This library can help you to write less code and speedup the development of your next great application. It is particularly 
 designed to accomplish most of the common tasks required by backend services.

@@ -27,6 +27,9 @@ import java.lang.reflect.Field
  */
 @CompileStatic
 abstract class JDBC {
+    interface OnError {
+        void call(Throwable e)
+    }
     /**
      * Override this method for custom classes
      * No need to include user/password in URL
@@ -58,6 +61,7 @@ abstract class JDBC {
     abstract String getDriver()
     abstract void setDriver(String driver)
 
+    OnError onError = { Exception e -> Log.w("Database exception", e.message) } as OnError
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):

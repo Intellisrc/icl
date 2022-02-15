@@ -68,7 +68,8 @@ class JDBCConnector implements Connector {
 			}
 			rs.close()
 		} catch (Exception e) {
-			Log.w("Unable to get tables via JDBC: %s", e.message)
+			Log.w("Unable to get tables via JDBC")
+			onError(e)
 		}
 		return jdbc.filterTables(list)
 	}
@@ -107,7 +108,8 @@ class JDBCConnector implements Connector {
 			}
 			rsCols.close()
 		} catch(Exception e) {
-			Log.w("Unable to get tables via JDBC: %s", e.message)
+			Log.w("Unable to get tables via JDBC")
+			onError(e)
 		}
 		return columns
 	}
@@ -138,7 +140,8 @@ class JDBCConnector implements Connector {
 			Log.d( "Connected to DB: %s", type.dbname ?: type.toString())
 			connected = true
 		} catch (SQLException e) {
-			Log.e( "Connection failed: ", e)
+			Log.w( "Connection failed")
+			onError(e)
 		}
 		return connected
 	}
@@ -157,7 +160,8 @@ class JDBCConnector implements Connector {
                 open = !db.isClosed()
             }
 		} catch (Exception e) {
-			Log.w( "DB was closed ",e)
+			Log.w( "DB was closed")
+			onError(e)
 		}
 		return open
 	}
@@ -174,8 +178,9 @@ class JDBCConnector implements Connector {
 				db.close()
 			}
 		} catch (Exception e) {
-			Log.w("Unable to close ", e)
+			Log.w("Unable to close")
 			closed = false
+			onError(e)
 		}
 		return closed
 	}
@@ -233,12 +238,14 @@ class JDBCConnector implements Connector {
 					if(!silent) {
 						Log.w("Query was mistaken: %s", syntaxError.message)
 					}
+					onError(syntaxError)
 					return null
 				} catch(Exception e) {
 					if(!silent) {
 						Log.w("Query: %s", query.toString())
 						Log.e("Unable to set statement. ", e)
 					}
+					onError(e)
 					return null
 				}
 			}
@@ -253,7 +260,8 @@ class JDBCConnector implements Connector {
 							ok = rs.next()
 						}
 					} catch (SQLException ex) {
-						Log.e( "Step failed: ",ex)
+						Log.w( "Step failed")
+						onError(ex)
 					}
 					return ok
 				}
@@ -266,7 +274,8 @@ class JDBCConnector implements Connector {
 						}
 						st.close()
 					} catch (SQLException ex) {
-						Log.e( "Unable to close Statement: ",ex)
+						Log.w( "Unable to close Statement")
+						onError(ex)
 					}
 				}
 
@@ -276,7 +285,8 @@ class JDBCConnector implements Connector {
 					try {
 						count = rm.getColumnCount()
 					} catch (SQLException ex) {
-						Log.e( "column count failed: ",ex)
+						Log.w( "column count failed")
+						onError(ex)
 					}
 					return count
 				}
@@ -286,7 +296,8 @@ class JDBCConnector implements Connector {
 					try {
 						return ColumnType.fromJavaSQL(rm.getColumnType(index))
 					} catch (SQLException ex) {
-						Log.e( "column type failed: ",ex)
+						Log.w( "column type failed for index: %d", index)
+						onError(ex)
 						return null
 					}
 				}
@@ -296,7 +307,8 @@ class JDBCConnector implements Connector {
 					try {
 						return rm.getColumnLabel(index)
 					} catch (SQLException ex) {
-						Log.e( "column name failed: ",ex)
+						Log.w( "column name failed for index: %d", index)
+						onError(ex)
 						return ""
 					}
 				}
@@ -306,7 +318,8 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getString(index)
 					} catch (SQLException ex) {
-						Log.e( "column Str failed: ",ex)
+						Log.w( "column Str failed for index: %d", index)
+						onError(ex)
 						return ""
 					}
 				}
@@ -316,7 +329,8 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getInt(index)
 					} catch (SQLException ex) {
-						Log.e( "column Int failed: ",ex)
+						Log.w( "column Int failed for index: %d", index)
+						onError(ex)
 						return 0
 					}
 				}
@@ -326,7 +340,8 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getFloat(index)
 					} catch (SQLException ex) {
-						Log.e( "column Float failed: ",ex)
+						Log.w( "column Float failed for index: %d", index)
+						onError(ex)
 						return 0f
 					}
 				}
@@ -336,7 +351,8 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getDouble(index)
 					} catch (SQLException ex) {
-						Log.e( "column Dbl failed: ",ex)
+						Log.w( "column Dbl failed for index: %d", index)
+						onError(ex)
 						return 0d
 					}
 				}
@@ -346,7 +362,8 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getBytes(index)
 					} catch (SQLException ex) {
-						Log.e( "column Blob failed: ",ex)
+						Log.w( "column Blob failed for index: %d", index)
+						onError(ex)
 						return null
 					}
 				}
@@ -356,7 +373,8 @@ class JDBCConnector implements Connector {
 					try {
 						return rs.getTimestamp(index).toLocalDateTime()
 					} catch (SQLException ex) {
-						Log.e( "column Date failed: ",ex)
+						Log.w( "column Date failed for index: %d", index)
+						onError(ex)
 						return null
 					}
 				}
@@ -367,7 +385,8 @@ class JDBCConnector implements Connector {
 						rs.getString(index)
 						return rs.wasNull()
 					} catch (SQLException ex) {
-						Log.e( "column isColumnNull failed: ",ex)
+						Log.w( "column isColumnNull failed for index: %d", index)
+						onError(ex)
 						return true
 					}
 				}
@@ -383,11 +402,14 @@ class JDBCConnector implements Connector {
 				}
 			}
 		} catch (SQLException ex) {
-			Log.e("Statement failed: ", ex)
+			Log.w("Statement failed")
+			onError(ex)
 		} catch (AssertionError ae) {
-			Log.w("Invalid query: %s", ae.message)
+			Log.w("Invalid query")
+			onError(ae)
 		} catch (Exception e) {
-			Log.e("Unexpected error while processing request: %s", e.message)
+			Log.w("Unexpected error while processing request")
+			onError(e)
 		}
 		return null
 	}
@@ -397,7 +419,7 @@ class JDBCConnector implements Connector {
 	 * @param ex
 	 */
 	@Override
-	void onError(Exception ex) {
-		Log.e( "General error: ",ex)
+	void onError(Throwable ex) {
+		type.onError.call(ex)
 	}
 }

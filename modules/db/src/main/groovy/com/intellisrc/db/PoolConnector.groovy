@@ -87,7 +87,7 @@ class PoolConnector implements Connector {
 	}
 
 	@Override
-	void onError(Exception ex) {
+	void onError(Throwable ex) {
 		currentConnector?.onError(ex)
 	}
 }
