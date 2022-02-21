@@ -144,6 +144,43 @@ oracle.quit() // Close all connections
  * The pool has no limit number of connections (those are controlled usually by
 the database server). The connections will be released automatically.
 
+### Handling Exceptions
+
+Either you are using a single connection or a pool of connections, by default,
+all database related exceptions are caught and logged. For example, if you
+want to retrieve many rows from the database (as a `List` object), but your
+have a mistake in your parameters or there is an exception thrown, it will 
+be reported into your logs, but it will return an empty list. In that way, you 
+don't need to catch those exceptions in your code. Still, there may be cases
+in which you want to handle such exceptions in your code, you can do it like this:
+
+```groovy
+ErrorHandler handler = {
+  Throwable th ->
+    // Handle the exception or error:
+    switch (th) {
+      case SQLException: break // errors during connection, prepare, etc.
+      case SQLSyntaxErrorException: break // syntax errors
+      case Exception: break // other exceptions
+      case AssertionError: break // validations from this library
+    }
+} as ErrorHandler
+
+// Using default:
+Database.default.onError = handler
+
+// Using single connection:
+MySQL mysql = new MySQL(
+        onError = handler
+)
+// or:
+mysql.onError = handler
+
+// Using pool:
+Database oracle = new Database(new Oracle(/* ... */))
+oracle.onError = handler
+```
+
 ### Common Examples
 
 ```groovy

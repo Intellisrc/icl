@@ -1,8 +1,10 @@
 package com.intellisrc.db
 
-import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
+import com.intellisrc.db.jdbc.JDBC.ErrorHandler
 import groovy.transform.CompileStatic
+import oracle.jdbc.proxy.annotation.OnError
+
 /**
  * Database initialization class
  * If one database is used, you can use static "default".
@@ -31,6 +33,9 @@ class Database {
     }
     boolean isInitialized() {
         return pool?.initialized ?: false
+    }
+    void onError(ErrorHandler handler) {
+        pool?.jdbc?.onError = handler
     }
     void quit() {
         pool?.quit()
