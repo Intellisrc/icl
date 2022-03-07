@@ -412,6 +412,11 @@ WebSocket library.
 class MyWebSocketService implements ServiciableWebSocket {
     // Replace clients when same ID is received
     boolean replaceOnDuplicate = true
+    // If you want, you can keep the list of connected clients:
+    synchronized Set<String> clients = []
+    // If you want messages to be originated from the server:
+    WebSocketService.MsgBroadCaster broadCaster
+
     /**
      * This method is to create a unique User ID. 
      */
@@ -419,7 +424,9 @@ class MyWebSocketService implements ServiciableWebSocket {
     String getUserID(Map<String, List<String>> queryParams, InetAddress inetAddress) {
         /*
             You can set the IP address as ID, but that limits a single user
-            in a remote network (if they share the same public IP). 
+            in a remote network (if they share the same public IP).
+            To allow multiple IP addresses for a single user return for example:
+               queryParams.user + "-" + inetAddress.hostname 
          */
         return queryParams.user
     }
@@ -427,6 +434,7 @@ class MyWebSocketService implements ServiciableWebSocket {
     @Override
     WSMessage onConnect(Session session) {
         Log.i("Client connected: %s", session.userID)
+        clients << session.userID
         // It is not required, but if you want to send a message to the user
         // you can send it here, otherwise, return null
         return new WSMessage(session.userID, [online: true])
@@ -435,6 +443,7 @@ class MyWebSocketService implements ServiciableWebSocket {
     @Override
     WSMessage onDisconnect(Session session, int statusCode, String reason) {
         Log.i("Client disconnected: %s (reason: %s)", session.userID, reason)
+        clients.remove(session.userID)
         // It is not required, but if you want to send a message to the user
         // you can send it here, otherwise, return null
         return null
@@ -472,6 +481,37 @@ class MyWebSocketService implements ServiciableWebSocket {
     @Override
     void onError(Session session, String errorMessage) {
         Log.w("There was an error: %s (user: %s)", errorMessage, session.userID)
+    }
+
+    /**
+     * Sends a Message to a client
+     * @param sessionId
+     * @param data
+     */
+    boolean sendMessageTo(String id, final Map data) {
+        boolean sent = false
+        broadCaster.call(new WSMessage(id, data), {
+            // On success
+            sent = true
+        }, {
+            // On failure
+            sent = false
+        })
+        return sent
+    }
+
+    /**
+     * Sends a Message to all clients
+     * @param data : Map
+     */
+    boolean sendMessage(final Map data) {
+        boolean sent = false
+        clients.each {
+            String id ->
+                Log.v("Sent to: %s , message: %s", id, data.toString() ?: "")
+                sent = sendMessageTo(id, data)
+        }
+        return sent
     }
 }
 ```
