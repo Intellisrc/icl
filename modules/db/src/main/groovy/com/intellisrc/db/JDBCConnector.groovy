@@ -194,7 +194,7 @@ class JDBCConnector implements Connector {
 	DB.Statement prepare(Query query, boolean silent) {
 		try {
 			assert query.toString() : "Query can not be empty"
-			final PreparedStatement st = [INSERT, REPLACE].contains(query.actionType) ?
+			final PreparedStatement st = query.isIdentityUpdate ?
 				 db.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS) :
 				 db.prepareStatement(query.toString())
 			st.setQueryTimeout(TIMEOUT)
@@ -234,7 +234,7 @@ class JDBCConnector implements Connector {
 					if(updaction) {
 						Log.v("Rows affected: %d", countUpdated)
 					}
-				} catch(SQLSyntaxErrorException syntaxError) {
+				} catch(SQLException syntaxError) {
 					if(!silent) {
 						Log.w("Query was mistaken: %s", syntaxError.message)
 					}
@@ -242,8 +242,7 @@ class JDBCConnector implements Connector {
 					return null
 				} catch(Exception e) {
 					if(!silent) {
-						Log.w("Query: %s", query.toString())
-						Log.e("Unable to set statement. ", e)
+						Log.w("Unable to set statement for query [%s]: %s", query.toString(), e.message)
 					}
 					onError(e)
 					return null

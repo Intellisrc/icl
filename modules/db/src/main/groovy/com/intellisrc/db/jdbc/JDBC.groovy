@@ -61,7 +61,7 @@ abstract class JDBC {
     abstract String getDriver()
     abstract void setDriver(String driver)
 
-    ErrorHandler onError = { Exception e -> Log.w("Database exception", e.message) } as ErrorHandler
+    ErrorHandler onError = { Exception e -> Log.w("Database exception: %s", e.message) } as ErrorHandler
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):

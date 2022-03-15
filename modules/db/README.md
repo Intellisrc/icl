@@ -350,6 +350,9 @@ TableUpdater.update([
         new Table2()
 ]) 
 ```
+
+**IMPORTANT**
+
 If you perform small changes in your `Model`, for example changing
 a `smallint` column into `int`, adding indices, adding elements into an ENUM
 or adding/dropping a column, most likely can be automatically updated.
@@ -358,8 +361,10 @@ However, if your data changed considerably, for example changing a column name,
 changing a `TEXT` column for a `DECIMAL` (in which data conversion is required), etc,
 you will need to check and fix the data by code.
 
-In such cases, need to override the method `onUpdate`, and because this process
-is usually expensive, you need to enable it using the method `manualUpdate` to return `true`:
+If the `Table` auto-update feature fails, override the method `execOnUpdate` and
+return `true` (see example below). Then, override the method `onUpdate`, and process
+all the data returning it modified (this process is expensive and may take a long
+time depending on your data).
 
 ```groovy
 class MyTable extends Table<MyModel> {
@@ -370,7 +375,7 @@ class MyTable extends Table<MyModel> {
     }
     
     @Override
-    boolean manualUpdate(DB oldTable, int dbVersion, int codeVersion) {
+    boolean execOnUpdate(DB oldTable, int dbVersion, int codeVersion) {
         // check the current data and decide if table requires to be manually updated, for example:
         Map firstRow = oldTable.limit(1).get()
         return firstRow.containsKey("old_column") // if true, `onUpdate` will be executed if exists (default : true)

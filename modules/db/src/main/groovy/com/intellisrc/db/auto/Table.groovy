@@ -82,7 +82,9 @@ class Table<M extends Model> implements Instanciable<M> {
                     if (definedVersion > tableVersion) {
                         Log.i("Table [%s] is going to be updated from version: %d to %d",
                                 tableName, tableVersion, definedVersion)
-                        TableUpdater.update([this])
+                        if(!TableUpdater.update([this])) {
+                            Log.w("Table [%s] was not updated.", tableName)
+                        }
                     } else {
                         Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
                                 tableName, tableVersion, definedVersion)
@@ -177,7 +179,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 engine = "ENGINE=${engine}"
             }
             createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
-            if (!tableConnector.exec(new Query(createSQL))) {
+            if (!tableConnector.set(new Query(createSQL))) {
                 Log.v(createSQL)
                 Log.e("Unable to create table.")
             }
@@ -193,7 +195,7 @@ class Table<M extends Model> implements Instanciable<M> {
         DB connection = database.connect()
         Query query = new Query("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=? AND table_name=?",
                 [tableConnector.jdbc.dbname, tableName])
-        String comment = connection.exec(query).toString()
+        String comment = connection.get(query).toString()
         connection.close()
         return comment
     }
@@ -809,7 +811,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     @SuppressWarnings('GrMethodMayBeStatic')
-    boolean manualUpdate(DB table, int prevVersion, int currVersion) {
+    boolean execOnUpdate(DB table, int prevVersion, int currVersion) {
        return false
     }
     /**
@@ -856,6 +858,6 @@ class Table<M extends Model> implements Instanciable<M> {
      * Drops the table
      */
     void drop() {
-        tableConnector.exec(new Query("DROP TABLE IF EXISTS ${tableName}"))
+        tableConnector.set(new Query("DROP TABLE IF EXISTS ${tableName}"))
     }
 }

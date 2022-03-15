@@ -302,7 +302,7 @@ class DB {
     boolean truncate() {
         boolean ok = false
         if(table) {
-            Log.w("Truncating table: " + table)
+            Log.i("Truncating table: " + table)
             query.setAction(TRUNCATE)
             ok = execSet()
         } else {
@@ -315,7 +315,7 @@ class DB {
     boolean drop() {
         boolean ok = false
         if(table) {
-            Log.w("Dropping table: " + table)
+            Log.i("Dropping table: " + table)
             query.setAction(DROP)
             ok = execSet()
         } else {
@@ -346,7 +346,7 @@ class DB {
      * @return
      */
     boolean dropDatabase() {
-        Log.w("Dropping database")
+        Log.i("Dropping database")
         return setSQL(jdbc.dropDatabaseQuery)
     }
     //------------------------------ RAW set -------------------------------

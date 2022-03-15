@@ -95,7 +95,7 @@ class Query {
     /**
      * Update identity flag
      */
-    private void setIdentityFlag() {
+    protected void setIdentityFlag() {
         boolean isAction = [INSERT, REPLACE].contains(actionType)
         boolean startsWith = queryStr ? ["INSERT", "REPLACE"].any { queryStr.toUpperCase().tokenize(" ").first() == it } : false
         if(isAction || startsWith) {
