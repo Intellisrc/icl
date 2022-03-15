@@ -217,8 +217,10 @@ db.table("users").fields("name", "email")
         .toListMap()
 
 // Executing query (e.g. drop all tables in MySQL)
-db.exec(new Query("SHOW TABLES")).toList().each {
-    db.exec(new Query("DROP TABLE ?", it))
+db.getSQL("SHOW TABLES").toList().each { // You can also use: db.get(new Query(...))
+    if(db.setSQL("DROP TABLE ?", it)) {  // You can also use: db.set(new Query(...))
+      println "Table was dropped"
+    }
 }
 ```
 

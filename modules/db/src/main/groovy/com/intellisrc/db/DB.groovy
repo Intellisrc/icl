@@ -339,8 +339,7 @@ class DB {
      */
     boolean createDatabase() {
         Log.i("Creating database")
-        setSQL(jdbc.createDatabaseQuery)
-        return execSet()
+        return setSQL(jdbc.createDatabaseQuery)
     }
     /**
      * Drop database
@@ -348,18 +347,9 @@ class DB {
      */
     boolean dropDatabase() {
         Log.w("Dropping database")
-        setSQL(jdbc.dropDatabaseQuery)
-        return execSet()
+        return setSQL(jdbc.dropDatabaseQuery)
     }
     //------------------------------ RAW set -------------------------------
-    /**
-     * Alias for setSQL()
-     * @return true on success
-     */
-    @Deprecated // Use setSQL instead (improved meaning)
-    boolean set(String query, List args = []) {
-        return setSQL(query, args)
-    }
     /** Executes a query with arguments directly
      * @param query
      * @param args
@@ -446,11 +436,27 @@ class DB {
     }
 
     /** Execute a Query **/
+    @Deprecated // Use get(Query) or set(Query)
     Data exec(Query q = null) {
         if(q) {
             queryBuilder = q
         }
         return execGet()
+    }
+
+    Data get(Query q) {
+        if(q) {
+            queryBuilder = q
+        }
+        return execGet()
+    }
+
+    /** Execute a Query **/
+    boolean set(Query q) {
+        if(q) {
+            queryBuilder = q
+        }
+        return execSet()
     }
 
     /**
@@ -691,7 +697,7 @@ class DB {
      * Last stop for read queries
      * @return Data (List<Map>)
      */
-    private Data execGet() {
+    protected Data execGet() {
         Log.v( "GET ::: " + query.toString())
         query.args.each {
             Log.v( " --> " + it)
@@ -757,7 +763,7 @@ class DB {
      * Executes Query (Final stop for write queries)
      * @return true on success
      */
-    private boolean execSet() {
+    protected boolean execSet() {
 		boolean ok = false
         boolean upsert = false
         query.isSetQuery = true
