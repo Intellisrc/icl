@@ -276,9 +276,9 @@ class Table<M extends Model> implements Instanciable<M> {
                 List list = (val as List)
                 return YAML.encode(list.empty ? [] : list.collect {
                    toDBValue(it)
-                })
+                }).trim()
             case Map:
-                return YAML.encode(val)
+                return YAML.encode(val).trim()
             case URL:
             case URI:
             case Enum:
