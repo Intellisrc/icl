@@ -24,7 +24,7 @@ class ChatClient
         int timeout = QUIT_TIMEOUT
         WebSocketServiceClient wssc = new WebSocketServiceClient(
                 //hostname: "localhost",
-                //port : 8888,
+                //port : 8000,
                 path : "chat?user=$uname"
         )
         def last_responses = []
