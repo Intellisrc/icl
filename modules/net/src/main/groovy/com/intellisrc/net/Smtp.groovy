@@ -289,7 +289,7 @@ class Smtp {
             Log.e("Sender email is not correct: $from", e)
             return false
         }
-        Session session = Session.getDefaultInstance(Config.system.properties as Properties)
+        Session session = Session.getDefaultInstance(System.properties)
         MimeMessage message = new MimeMessage(session)
         try {
             if(fromName) {
@@ -360,12 +360,11 @@ class Smtp {
                     attachments.each {
                         File file ->
                             try {
-                                DataSource source = new FileDataSource(file)
-                                def messageBodyPart = new MimeBodyPart(
-                                        dataHandler: new DataHandler(source, Mime.getType(file)),
-                                        fileName: file.name
-                                )
-                                relatedPart.addBodyPart(messageBodyPart)
+                                MimeBodyPart attachBodyPart = new MimeBodyPart()
+                                attachBodyPart.setFileName(file.name)
+                                attachBodyPart.setDisposition(MimeBodyPart.ATTACHMENT)
+                                attachBodyPart.setContent(file.bytes, Mime.getType(file))
+                                relatedPart.addBodyPart(attachBodyPart)
                                 Log.v("Attached: " + file.name)
                             } catch (MessagingException e) {
                                 Log.e("Attachment was not added: %s, error was: ", file.name, e)
