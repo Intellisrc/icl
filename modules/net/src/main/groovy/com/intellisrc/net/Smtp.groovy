@@ -6,14 +6,14 @@ import com.intellisrc.core.SysClock
 import com.intellisrc.etc.Mime
 import groovy.transform.CompileStatic
 
-import javax.activation.DataHandler
 import javax.activation.DataSource
-import javax.activation.FileDataSource
 import javax.mail.*
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeBodyPart
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
+import javax.mail.internet.MimeUtility
+import java.nio.charset.Charset
 
 /**
  * References:
@@ -32,6 +32,7 @@ class Smtp {
     public String fromName     = ""
     public String defaultTo    = ""
     public String replyTo      = ""
+    public String mailer       = Config.get("mail.smtp.mailer","Groovy-ICL-Library")
     public boolean startTLS    = false
     public boolean simulate    = false //If true, it won't send any email
     public int port            = 25
@@ -291,6 +292,7 @@ class Smtp {
         }
         Session session = Session.getDefaultInstance(System.properties)
         MimeMessage message = new MimeMessage(session)
+        message.setHeader("X-Mailer", encode(mailer))
         try {
             if(fromName) {
                 message.setFrom(new InternetAddress(emailFrom.toString(), fromName))
@@ -352,7 +354,7 @@ class Smtp {
                     }
                 }
 
-                def relatedPart = new MimeMultipart("related")
+                def relatedPart = new MimeMultipart("mixed")
                 message.setContent(relatedPart)
                 relatedPart.addBodyPart(wrapBodyPart)
 
@@ -361,9 +363,9 @@ class Smtp {
                         File file ->
                             try {
                                 MimeBodyPart attachBodyPart = new MimeBodyPart()
-                                attachBodyPart.setFileName(file.name)
-                                attachBodyPart.setDisposition(MimeBodyPart.ATTACHMENT)
-                                attachBodyPart.setContent(file.bytes, Mime.getType(file))
+                                attachBodyPart.attachFile(file)
+                                attachBodyPart.setHeader("Content-Type", Mime.getType(file) + '; name="' + encode(file.name) + '"')
+                                attachBodyPart.setHeader("Content-Disposition", 'attachment; filename="' + encode(file.name) + '"')
                                 relatedPart.addBodyPart(attachBodyPart)
                                 Log.v("Attached: " + file.name)
                             } catch (MessagingException e) {
@@ -442,5 +444,13 @@ class Smtp {
             return false
         }
         return true
+    }
+    /**
+     * Encode string if needed
+     * @param str
+     * @return
+     */
+    static String encode(String str) {
+        return Charset.forName("US-ASCII").newEncoder().canEncode(str) ? str : MimeUtility.encodeText(str)
     }
 }
