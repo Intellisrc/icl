@@ -56,7 +56,7 @@ import groovy.transform.CompileStatic
  * @since 19/04/15.
  */
 @CompileStatic
-enum AnsiColor {
+class AnsiColor {
     static public final String RESET       = "\u001B[0m"
     static public final String BOLD        = "\u001B[1m"
     static public final String UNDERLINE   = "\u001B[4m"
@@ -100,4 +100,12 @@ enum AnsiColor {
     static public final String L_BACK_PURPLE = "\u001B[105m"
     static public final String L_BACK_CYAN   = "\u001B[106m"
     static public final String L_BACK_WHITE  = "\u001B[107m"
+    /**
+     * Remove all colors from string
+     * @param String
+     * @return
+     */
+    static String removeColor(String str) {
+        return str.replaceAll("\u001B\\[[;\\d]*m", "")
+    }
 }

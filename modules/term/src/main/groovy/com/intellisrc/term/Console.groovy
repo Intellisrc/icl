@@ -118,10 +118,11 @@ class Console {
      * console remotely in the future (like web service, etc)
      * @param output
      */
-    static void out(String output) {
+    static void out(String output, Object... params) {
         //For now, just print on screen
         //We are not using reader.terminal.writer().println as is not always displayed
-        println output
+        //We are using Log.formatString to support all what Log supports
+        println Log.formatString(output, params.toList())
     }
 
     /**

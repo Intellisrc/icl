@@ -16,6 +16,7 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -310,7 +311,7 @@ class Table<M extends Model> implements Instanciable<M> {
         }
     }
     /**
-     * Convert Map to Object
+     * Convert Map (from database) to Model Object
      * @param map
      * @return
      */
@@ -365,6 +366,9 @@ class Table<M extends Model> implements Instanciable<M> {
                     case Inet6Address:
                         model[origName] = it.value.toString().toInet6Address()
                         break
+                    case InetAddress:
+                        model[origName] = it.value.toString().toInetAddress()
+                        break
                     case Enum:
                         if(it.value.toString().isNumber()) {
                             model[origName] = (field.type as Class<Enum>).enumConstants[it.value as int]
@@ -378,7 +382,21 @@ class Table<M extends Model> implements Instanciable<M> {
                         model[origName] = refType.table.get(it.value as int)
                         break
                     default:
-                        model[origName] = it.value
+                        try {
+                            // Having a constructor with String
+                            model[origName] = field.type.getConstructor(String.class).newInstance(it.value.toString())
+                        } catch(Exception ignore) {
+                            try {
+                                // Having a static method 'fromString'
+                                model[origName] = field.type.getDeclaredMethod("fromString", String.class).invoke(it.value.toString())
+                            } catch (Exception ignored) {
+                                try {
+                                    model[origName] = it.value
+                                } catch(Exception e) {
+                                    Log.w("Unable to set Model[%s] field: %s with value: %s (%s)", model.class.simpleName, origName, it.value, e.message)
+                                }
+                            }
+                        }
                 }
             } else {
                 Log.w("Field not found: %s", origName)
@@ -429,6 +447,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 type = "VARCHAR(${column?.length() ?: 15})"
                 break
             case Inet6Address:
+            case InetAddress:
                 type = "VARCHAR(${column?.length() ?: 45})"
                 break
             case String:
@@ -494,9 +513,26 @@ class Table<M extends Model> implements Instanciable<M> {
                     default             : type = "LONGBLOB"; break
                 }
             default:
-                Log.w("Unknown field type: %s", field.type.class.simpleName)
-        }
-        return type
+                // Having a constructor with String or Having a static method 'fromString'
+                boolean canImport = false
+                try {
+                    field.type.getConstructor(String.class)
+                    canImport = true
+                } catch(Exception ignore) {
+                    try {
+                        Method method = field.type.getDeclaredMethod("fromString", String.class)
+                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == field.type
+                    } catch(Exception ignored) {}
+                }
+                if(canImport) {
+                    int len = column?.length() ?: 256
+                    type = len < 256 ? "VARCHAR($len)" : "TEXT"
+                } else {
+                    Log.w("Unknown field type: %s", field.type.simpleName)
+                    Log.d("If you want to able to use '%s' type in the database, either set `fromString` as static method or set a constructor which accepts `String`", field.type.simpleName)
+                }
+            }
+            return type
     }
 
     /**
