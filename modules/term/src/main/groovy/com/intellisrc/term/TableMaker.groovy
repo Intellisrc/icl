@@ -1,5 +1,7 @@
 package com.intellisrc.term
 
+import com.intellisrc.term.styles.SafeStyle
+import com.intellisrc.term.styles.Stylable
 import groovy.transform.CompileStatic
 import static com.intellisrc.core.AnsiColor.removeColor
 import static com.intellisrc.term.TableMaker.Align.*
@@ -80,33 +82,11 @@ class TableMaker {
         }
     }
 
-    /**
-     * Table style
-     */
-    static class Style {
-        String topLeft   = '┌'
-        String botLeft   = '└'
-        String topRight  = '┐'
-        String botRight  = '┘'
-        String intercept = '┼'
-        String vertRight = '├'
-        String vertLeft  = '┤'
-        String horzDown  = '┬'
-        String horzUp    = '┴'
-        String rowSeparator = '─'
-        String colSeparator = '│'
-        // Draw box around table
-        boolean window = true
-        // Draw borders
-        boolean borders = true
-        // If false, its simple characters
-        boolean boxStyle = true
-    }
-
     // Style used to generate table
-    Style style = new Style()
+    Stylable style = new SafeStyle()
     final List<Column> columns = []
     final List<Row> rows = []
+    boolean compact = false
     /**
      * Default constructor. Data will be passed through methods
      */
@@ -203,8 +183,10 @@ class TableMaker {
     @Override
     String toString() {
         List<String> lines = []
-        String rs = style.rowSeparator.toString()
-        String cs = style.colSeparator.toString()
+        String rs = style.rowSeparator
+        String cs = style.colSeparator
+        String hb = style.horizontalBorder
+        String vb = style.verticalBorder
 
         columns.collect { it.header }.eachWithIndex {
             String entry, int i ->
@@ -225,46 +207,47 @@ class TableMaker {
         }
 
         Closure getHR = {
-            String sep ->
-                return rs + columns.collect {
-                    rs * it.maxLen
-                }.join(rs + sep + rs) + rs
+            String sep, boolean border ->
+                String ch = border ? hb : rs
+                return ch + columns.collect {
+                    ch * it.maxLen
+                }.join(ch + sep + ch) + ch
         }
 
         // Top border
         if (style.window) {
-            lines << (style.topLeft + getHR(style.horzDown) + style.topRight)
+            lines << (style.topLeft + getHR(style.horizontalDown, true) + style.topRight)
         }
         if (hasHeaders()) {
-            lines << ((style.window ? cs + " " : '') + columns.collect { it.paddedHeader }.join(" " + cs + " ") + (style.window ? " " + cs : ''))
-            lines << (style.vertRight + getHR(style.intercept) + style.vertLeft)
+            lines << ((style.window ? vb + " " : '') + columns.collect { it.paddedHeader }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
+            lines << (style.verticalRight + getHR(style.intercept, false) + style.verticalLeft)
         }
         rows.each {
             Row row ->
-                lines << ((style.window ? cs + " " : '') + row.cells.withIndex().collect {
+                lines << ((style.window ? vb + " " : '') + row.cells.withIndex().collect {
                     Cell cell, int col ->
                         columns.get(col).pad(cell.text)
-                }.join(" " + cs + " ") + (style.window ? " " + cs : ''))
+                }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
                 boolean lastRow = row == rows.last() &&! hasFooter()
                 if(lastRow) {
-                    lines << (style.botLeft + getHR(style.horzUp) + style.botRight)
+                    lines << (style.bottomLeft + getHR(style.horizontalUp, true) + style.bottomRight)
                 } else {
                     if(columns.first().expandFooter) {
-                        lines << (style.vertRight + getHR(style.horzUp) + style.vertLeft)
-                    } else {
-                        lines << (style.vertRight + getHR(style.intercept) + style.vertLeft)
+                        lines << (style.verticalRight + getHR(style.horizontalUp, false) + style.verticalLeft)
+                    } else if(! compact || row == rows.last()) {
+                        lines << (style.verticalRight + getHR(style.intercept, false) + style.verticalLeft)
                     }
                 }
         }
         if (hasFooter()) {
             if(columns.first().expandFooter) {
-                lines << ((style.window ? cs + " " : '') + columns.first().pad(columns.first().footer, (columns.sum { it.maxLen } as int) + (columns.size() - 1) * 3) + (style.window ? " " + cs : ''))
+                lines << ((style.window ? vb + " " : '') + columns.first().pad(columns.first().footer, (columns.sum { it.maxLen } as int) + (columns.size() - 1) * 3) + (style.window ? " " + vb : ''))
             } else {
-                lines << ((style.window ? cs + " " : '') + columns.collect { it.paddedFooter }.join(" " + cs + " ") + (style.window ? " " + cs : ''))
+                lines << ((style.window ? vb + " " : '') + columns.collect { it.paddedFooter }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
             }
             // Bottom border
             if (style.window) {
-                lines << (style.botLeft + getHR(columns.first().expandFooter ? rs : style.horzUp) + style.botRight)
+                lines << (style.bottomLeft + getHR(columns.first().expandFooter ? rs : style.horizontalUp, true) + style.bottomRight)
             }
         }
         return lines.join("\n")
@@ -287,10 +270,17 @@ class TableMaker {
      * Prints table. Alternative you can pass a custom style to it
      * @param style
      */
-    void print(Style style = null) {
+    void print() {
+        print(null, false)
+    }
+    void print(boolean compact, Stylable style = null) {
+        print(style, compact)
+    }
+    void print(Stylable style, boolean compact = false) {
         if(style) {
             this.style = style
         }
+        this.compact = compact
         println this.toString()
     }
 }

@@ -1,5 +1,11 @@
 package com.intellisrc.term
 
+import com.intellisrc.term.styles.BoldStyle
+import com.intellisrc.term.styles.ClassicStyle
+import com.intellisrc.term.styles.SafeStyle
+import com.intellisrc.term.styles.DoubleLineStyle
+import com.intellisrc.term.styles.SemiDoubleStyle
+import com.intellisrc.term.styles.ThinStyle
 import spock.lang.Specification
 
 /**
@@ -24,18 +30,18 @@ class TableMakerTest extends Specification {
             TableMaker tp = new TableMaker(data, header, footer)
         when:
             println "[ Header : " + header + " / Footer : " + footer + " ]"
-            tp.print()
+            tp.print(style, compact)
         then:
             assert tp.toString().contains("Apple")
             assert tp.toString().contains("Banana")
             assert tp.toString().contains("Mango")
             assert tp.toString().contains("Kiwi")
         where:
-            header  | footer
-            true    | true
-            true    | false
-            false   | true
-            false   | false
+            header  | footer | style                    | compact
+            true    | true   | new ClassicStyle()       | true
+            true    | false  | new BoldStyle()          | false
+            false   | true   | new DoubleLineStyle()    | true
+            false   | false  | new ThinStyle()          | false
     }
     def "List of Map to Print"() {
         setup:
@@ -75,7 +81,7 @@ class TableMakerTest extends Specification {
             TableMaker tp = new TableMaker(data, footer)
         when:
             println "[ " +  "Footer : " + footer + " ]"
-            tp.print()
+            tp.print(new SemiDoubleStyle())
         then:
             assert tp.toString().contains("Apple")
             assert tp.toString().contains("Banana")
@@ -86,7 +92,7 @@ class TableMakerTest extends Specification {
             true    | 0
             false   | 0
     }
-    def "Using main constructor an expandible footer"() {
+    def "Using main constructor an expandable footer"() {
         setup:
             TableMaker tp = new TableMaker(
                 headers: ["Name","Email","Age"],
@@ -98,7 +104,7 @@ class TableMakerTest extends Specification {
             tp << ["Raphael Kawami", "kawami-rapha@example.com", "33"]
             tp.addRow(["Zoe Mendoza", "you-know-who@example.com", "54"])
         then:
-            tp.print()
+            tp.print(new SafeStyle())
             assert !tp.rows.empty
     }
 }
