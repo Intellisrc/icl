@@ -1,5 +1,6 @@
 package com.intellisrc.term
 
+
 import com.intellisrc.term.styles.BoldStyle
 import com.intellisrc.term.styles.ClassicStyle
 import com.intellisrc.term.styles.SafeStyle
@@ -7,6 +8,9 @@ import com.intellisrc.term.styles.DoubleLineStyle
 import com.intellisrc.term.styles.SemiDoubleStyle
 import com.intellisrc.term.styles.ThinStyle
 import spock.lang.Specification
+
+import static com.intellisrc.core.AnsiColor.*
+import static com.intellisrc.term.TableMaker.Align.*
 
 /**
  * @since 2022/04/08.
@@ -104,6 +108,30 @@ class TableMakerTest extends Specification {
             tp.addRow(["Marilin Watson", "marilin-watson1023@example.com", "19"])
             tp << ["Raphael Kawami", "kawami-rapha@example.com", "33"]
             tp.addRow(["Zoe Mendoza", "you-know-who@example.com", "54"])
+        then:
+            tp.print(new ClassicStyle())
+            assert !tp.rows.empty
+    }
+    def "Changing column properties"() {
+        setup:
+            TableMaker tp = new TableMaker(
+                headers: ["Name","User Email Address", "Cost"],
+                footer: ["All names here are fictitious"],
+                compact: true
+            )
+        when:
+            tp << ["Joshep Patrishius", "jp@example.com", 41]
+            tp.addRow(["Marilin Watson", "marilin-watson1023@example.com", 1339])
+            tp << ["Raphael Kawami", "kawami-rapha@example.com", 3893]
+            tp.addRow(["Zoe Mendoza", "you-know-who@example.com", 1999254])
+            tp.columns[1].maxLen = 10
+            tp.columns[1].ellipsis = true
+            tp.columns[2].align = RIGHT
+            tp.columns[2].headerColor = YELLOW
+            tp.columns[2].formatter = {
+                    String.format("\$ %.2f", it as double)
+            }
+            tp.columns[2].color = { it > 2000 ? RED : GREEN }
         then:
             tp.print(new ClassicStyle())
             assert !tp.rows.empty

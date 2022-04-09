@@ -3,7 +3,6 @@ package com.intellisrc.db
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.db.jdbc.JDBC.ErrorHandler
 import groovy.transform.CompileStatic
-import oracle.jdbc.proxy.annotation.OnError
 
 /**
  * Database initialization class

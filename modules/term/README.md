@@ -41,10 +41,10 @@ boolean header = true
 boolean footer = false
 new TableMaker([
     ["Fruit", "QTY", "Price", "Seller"],
-    ["Apple","1000","10.00","some@example.com"],
-    ["Banana","2002","15.00","anyone@example.com"],
-    ["Mango","400","134.10","dummy200@example.com"],
-    ["Kiwi","900","2350.40","example@example.com"]
+    ["Apple",1000,10,"some@example.com"],
+    ["Banana",2002,15,"anyone@example.com"],
+    ["Mango",400,134.1,"dummy200@example.com"],
+    ["Kiwi",900,2350.4,"example@example.com"]
 ], header, footer).print()
 ```
 
@@ -54,14 +54,14 @@ boolean footer = false
 new TableMaker([
     [
         Fruit   : "Apple",
-        QTY     : "1000",
-        Price   : "10.00",
+        QTY     : 1000,
+        Price   : 10,
         Seller  : "some@example.com"
     ],
     [
         Fruit   : "Banana",
-        QTY     : "2002",
-        Price   : "15.00",
+        QTY     : 2002,
+        Price   : 15.3,
         Seller  : "anyone@example.com"
     ]
 ], footer).print()
@@ -71,11 +71,11 @@ new TableMaker([
 ```groovy
 TableMaker table = new TableMaker(
     headers : ["Fruit", "QTY", "Price", "Seller"],
-    footer  : ["Fruits: 4", "Sum: 4302", "Total: 2509.5", ""],
+    footer  : ["Fruits: 4", 4302, 2509.5, ""],
     compact : true
 )
 data.each {
-    table << [data.fruit, data.qty.toString(), String.format("%.2f", data.price), data.email]
+    table << [data.fruit, data.qty.toString(), data.price * 1.05d, data.email]
 }
 table.print()
 ```
@@ -86,8 +86,8 @@ table.print()
 TableMaker table = new TableMaker()
 table.compact = true
 table.setHeaders(["Fruit", "QTY", "Price", "Seller"])
-table.addRow(["Apple","1000","10.00","some@example.com"])
-table.addRow(["Mango","400","134.10","dummy200@example.com"])
+table.addRow(["Apple",1000,10,"some@example.com"])
+table.addRow(["Mango",400,134.1,"dummy200@example.com"])
 table.addFooter("Have a healthy salad today!")
 table.print()
 ```
@@ -210,28 +210,36 @@ The available styles are (additionally to the `SafeStyle` shown before:
 To create your own style, you can either extend any of the previous styles, 
 extend the abstract class `BasicStyle` or implement `Stylable` interface.
 
-#### Customizing columns
+#### Customizing columns or cells
 
 You can further customize columns or how data is displayed by accessing
 the `table.columns` before printing:
 
 ```groovy
-table.colums[2].align = RIGHT
-// More properties will be added in later versions
+table.columns[1].maxLen = 10        // Force to specific with
+table.columns[1].ellipsis = true    // Use ellipsis to indicate when a string has been trimmed
+table.columns[2].align = RIGHT      // Align LEFT, RIGHT or CENTER
+table.columns[2].headerColor = YELLOW  // Add color to header (see: AnsiColor in core module)
+table.columns[2].formatter = {         // Use formatter to change the resulting String 
+    String.format("\$ %.2f", it as double)
+}
+table.columns[2].color = { it > 2000 ? RED : GREEN } // Use 'color' to set the cell color based on its contents (previous to formatter)
 ```
 
-Instead of adding a row with `addRows` you can add them with `addCells` with 
-a custom formatter:
+Example: (colors are not displayed, but are indicated)
 
-```groovy
-table.addCells([
-    // Using AnsiColor from `core` module:
-    new Cell(status, { (it == "OK" ? GREEN : RED) + status + RESET }),
-    new Cell(host, { BLUE + it + RESET }),
-    /* ... */
-])
 ```
-
+┌───────────────────┬────────────┬──────────────┐
+│ Name              │ User Emai… │         Cost │ <-- yellow
+├───────────────────┼────────────┼──────────────┤
+│ Joshep Patrishius │ jp@exampl… │      $ 41.00 │ <-- green
+│ Marilin Watson    │ marilin-w… │    $ 1339.00 │ <-- green
+│ Raphael Kawami    │ kawami-ra… │    $ 3893.00 │ <-- red
+│ Zoe Mendoza       │ you-know-… │ $ 1999254.00 │ <-- red
+├───────────────────┴────────────┴──────────────┤
+│ All names here are fictitious                 │
+└───────────────────────────────────────────────┘
+```
 ## Console
 
 This class is a wrapper around `jLine` with the idea of making it easier

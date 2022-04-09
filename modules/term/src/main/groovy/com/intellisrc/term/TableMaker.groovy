@@ -1,9 +1,12 @@
 package com.intellisrc.term
 
+import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Log
 import com.intellisrc.term.styles.SafeStyle
 import com.intellisrc.term.styles.Stylable
 import groovy.transform.CompileStatic
+
+import static com.intellisrc.core.AnsiColor.*
 import static com.intellisrc.core.AnsiColor.removeColor
 import static com.intellisrc.term.TableMaker.Align.*
 
@@ -17,7 +20,7 @@ class TableMaker {
      * It is used to give format to each cell
      */
     static interface Formatter {
-        String call(String cell)
+        String call(Object cell)
     }
     /**
      * Column alignment
@@ -29,29 +32,33 @@ class TableMaker {
      * A row is a list of cells
      */
     static class Row {
-        List<Cell> cells = []
+        List cells = []
     }
     /**
      * Information and format of a column
      */
     static class Column {
-        int maxLen = 0
-        /*boolean cut = false
+        int length = 0 // The calculated length of the column
+        int maxLen = 0 // The maximum length allowed (user input)
         boolean ellipsis = false
-        boolean wrap = false
-        boolean show = true*/ //TODO
         boolean expandFooter = false // Single cell row
         Align align = LEFT
-
-        String header = ""
-        String footer = ""
-        String getPaddedHeader() {
-            return maxLen ? pad(header) : header
+        Formatter formatter = { Object it -> return removeColor(it.toString()) } as Formatter
+        Formatter color = { Object it -> return "" } as Formatter // Return AnsiColor.* to color cell
+        Object header = ""
+        Object footer = ""
+        String headerColor = ""
+        String footerColor = ""
+        int getMaxLen() {
+            return this.maxLen ?: this.length
         }
-        String getPaddedFooter() {
-            return maxLen ? pad(footer) : footer
+        String getFmtHeader() {
+            return headerColor + trimPad(header.toString()) + (headerColor ? RESET : "")
         }
-        String pad(String text, int len = maxLen) {
+        String getFmtFooter() {
+            return footerColor + trimPad(footer.toString()) + (footerColor ? RESET : "")
+        }
+        String pad(String text, int len = getMaxLen()) {
             String padded = text
             if(len) {
                 switch (align) {
@@ -65,24 +72,19 @@ class TableMaker {
             }
             return padded
         }
-    }
-    /**
-     * Cell text
-     */
-    static class Cell {
-        Cell(String string, Formatter format = null) {
-            text = string
-            if(format) {
-                formatter = format
+        String trim(String text, boolean useEllipsis = ellipsis, int len = getMaxLen()) {
+            String trimmed = text
+            if(len && text.length() > len) {
+                trimmed = text.substring(0, len - (useEllipsis ? 1 : 0)) + (useEllipsis ? "…" : "")
             }
+            return trimmed
         }
-        protected String text = ""
-        Formatter formatter = { String it -> return it } as Formatter
-        String getText() {
-            return formatter.call(this.text)
+        String trimPad(String text, int len = getMaxLen()) {
+            return trim(pad(text, len), ellipsis, len)
         }
-        String getTextNoColor() {
-            return removeColor(getText())
+        String format(Object cell, boolean trim = true) {
+            String color = color.call(cell)
+            return color + (trim ? trimPad(formatter.call(cell)) : formatter.call(cell)) + (color ? RESET : "")
         }
     }
 
@@ -100,10 +102,10 @@ class TableMaker {
      * @param data
      * @param footer
      */
-    TableMaker(List<Map<String,String>> data, boolean footer) {
+    TableMaker(List<Map> data, boolean footer) {
         setHeaders(data.first().keySet().toList())
         data.each {
-            Map<String,String> entry ->
+            Map entry ->
                 if(footer && entry == data.last()) {
                     setFooter(entry.values().toList())
                 } else {
@@ -117,12 +119,12 @@ class TableMaker {
      * @param headers
      * @param footer
      */
-    TableMaker(List<List<String>> data, boolean headers, boolean footer) {
+    TableMaker(List<List> data, boolean headers, boolean footer) {
         if(headers) {
             setHeaders(data.pop())
         }
         data.each {
-            List<String> entry ->
+            List entry ->
                 if(footer && entry == data.last()) {
                     setFooter(entry)
                 } else {
@@ -134,12 +136,12 @@ class TableMaker {
      * Set headers of table
      * @param heads
      */
-    void setHeaders(List<String> heads) {
+    void setHeaders(List heads) {
         if(columns.empty) {
             columns.addAll(heads.collect { new Column(header: it) })
         } else {
             heads.eachWithIndex {
-                String text, int index ->
+                Object text, int index ->
                     if(columns.size() > index) {
                         columns[index].footer = text
                     }
@@ -150,17 +152,7 @@ class TableMaker {
      * Add a single row
      * @param cells
      */
-    void addRow(List<String> cells) {
-        if(columns.empty) {
-            columns.addAll(cells.collect { new Column() })
-        }
-        rows << new Row(cells : cells.collect { new Cell(it) })
-    }
-    /**
-     * Add row using cells
-     * @param cells
-     */
-    void addCells(List<Cell> cells) {
+    void addRow(List cells) {
         if(columns.empty) {
             columns.addAll(cells.collect { new Column() })
         }
@@ -170,7 +162,7 @@ class TableMaker {
      * Alias of addRow
      * @param cells
      */
-    void leftShift(List<String> cells) {
+    void leftShift(List cells) {
         addRow(cells)
     }
     /**
@@ -188,14 +180,14 @@ class TableMaker {
      * Add table footer
      * @param feet
      */
-    void setFooter(List<String> feet) {
+    void setFooter(List feet) {
         if(columns.empty) {
             columns.addAll(feet.collect { new Column(header: it, expandFooter: feet.size() == 1) })
         } else {
             feet.eachWithIndex {
-                String text, int index ->
+                Object text, int index ->
                     if(columns.size() > index) {
-                        columns[index].footer = text
+                        columns[index].footer = text.toString()
                         columns[index].expandFooter = feet.size() == 1
                     }
             }
@@ -214,20 +206,20 @@ class TableMaker {
         String vb = style.verticalBorder
 
         columns.collect { it.header }.eachWithIndex {
-            String entry, int i ->
-                columns.get(i).maxLen = [columns.get(i).maxLen, removeColor(entry).length()].max()
+            Object entry, int i ->
+                columns.get(i).length = [columns.get(i).length, removeColor(entry.toString()).length()].max()
         }
         rows.each {
             it.cells.eachWithIndex {
-                Cell entry, int i ->
-                    columns.get(i).maxLen = [columns.get(i).maxLen, entry.textNoColor.length()].max()
+                Object entry, int i ->
+                    columns.get(i).length = [columns.get(i).length, removeColor(columns.get(i).format(entry, false)).length()].max()
             }
         }
         // Merge footer in several columns if its of length 1
         if (!columns.first().expandFooter) {
             columns.collect { it.footer }.eachWithIndex {
-                String entry, int i ->
-                    columns.get(i).maxLen = [columns.get(i).maxLen, removeColor(entry).length()].max()
+                Object entry, int i ->
+                    columns.get(i).length = [columns.get(i).length, removeColor(entry.toString()).length()].max()
             }
         }
 
@@ -244,14 +236,14 @@ class TableMaker {
             lines << (style.topLeft + getHR(style.horizontalDown, true) + style.topRight)
         }
         if (hasHeaders()) {
-            lines << ((style.window ? vb + " " : '') + columns.collect { it.paddedHeader }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
+            lines << ((style.window ? vb + " " : '') + columns.collect { it.fmtHeader }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
             lines << (style.verticalRight + getHR(style.intercept, false) + style.verticalLeft)
         }
         rows.each {
             Row row ->
                 lines << ((style.window ? vb + " " : '') + row.cells.withIndex().collect {
-                    Cell cell, int col ->
-                        columns.get(col).pad(cell.text)
+                    Object cell, int col ->
+                        columns.get(col).format(cell)
                 }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
                 boolean lastRow = row == rows.last()
                 if(lastRow &&! hasFooter()) {
@@ -266,9 +258,18 @@ class TableMaker {
         }
         if (hasFooter()) {
             if(columns.first().expandFooter) {
-                lines << ((style.window ? vb + " " : '') + columns.first().pad(columns.first().footer, (columns.sum { it.maxLen } as int) + (columns.size() - 1) * 3) + (style.window ? " " + vb : ''))
+                Column first = columns.first()
+                lines << (
+                    (style.window ? vb + " " : '') +
+                    first.trimPad(first.footer.toString(), (columns.sum { it.maxLen } as int) + // We don't use fmtFooter as that one is trimmed
+                    (columns.size() - 1) * 3) + (style.window ? " " + vb : '')
+                )
             } else {
-                lines << ((style.window ? vb + " " : '') + columns.collect { it.paddedFooter }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
+                lines << (
+                    (style.window ? vb + " " : '') +
+                    columns.collect { it.fmtFooter }.join(" " + cs + " ") +
+                    (style.window ? " " + vb : '')
+                )
             }
             // Bottom border
             if (style.window) {
