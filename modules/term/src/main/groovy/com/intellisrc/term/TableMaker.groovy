@@ -159,6 +159,15 @@ class TableMaker {
         rows << new Row(cells : cells)
     }
     /**
+     * Add multiple rows at once
+     * @param rows
+     */
+    void addRows(List<List> rows) {
+        rows.each {
+            addRow(it)
+        }
+    }
+    /**
      * Alias of addRow
      * @param cells
      */
