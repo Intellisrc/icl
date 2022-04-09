@@ -162,7 +162,7 @@ class TableMaker {
      * Add multiple rows at once
      * @param rows
      */
-    void addRows(List<List> rows) {
+    void setRows(List<List> rows) {
         rows.each {
             addRow(it)
         }
