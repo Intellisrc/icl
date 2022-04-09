@@ -136,4 +136,24 @@ class TableMakerTest extends Specification {
             tp.print(new ClassicStyle())
             assert !tp.rows.empty
     }
+    def "Using setRows"() {
+        setup:
+            TableMaker tp = new TableMaker(
+                headers: ["Fruit", "QTY", "Price", "Seller"],
+                rows: [
+                    ["Apple", 1000, 10.00, "some@example.com"],
+                    ["Banana", 2002, 15.00, "anyone@example.com"],
+                    ["Mango", 400, 134.10, "dummy200@example.com"],
+                    ["Kiwi", 900, 2350.40, "example@example.com"]
+                ],
+                footer: "Fruits: 4"
+            )
+        when:
+            tp.print()
+        then:
+            assert tp.toString().contains("Apple")
+            assert tp.toString().contains("Banana")
+            assert tp.toString().contains("Mango")
+            assert tp.toString().contains("Kiwi")
+    }
 }

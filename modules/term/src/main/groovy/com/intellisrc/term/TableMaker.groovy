@@ -1,13 +1,11 @@
 package com.intellisrc.term
 
-import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Log
 import com.intellisrc.term.styles.SafeStyle
 import com.intellisrc.term.styles.Stylable
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.core.AnsiColor.*
-import static com.intellisrc.core.AnsiColor.removeColor
 import static com.intellisrc.term.TableMaker.Align.*
 
 /**
@@ -180,7 +178,7 @@ class TableMaker {
      */
     void setFooter(String foot) {
         if(! columns.empty) {
-            columns.first().footer = foot
+            setFooter([foot])
         } else {
             Log.w("Footer can not be set until data exists (current limitation)")
         }
