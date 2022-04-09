@@ -38,7 +38,7 @@ class TableMakerTest extends Specification {
             assert tp.toString().contains("Kiwi")
         where:
             header  | footer | style                    | compact
-            true    | true   | new ClassicStyle()       | true
+            true    | true   | new SafeStyle()          | true
             true    | false  | new BoldStyle()          | false
             false   | true   | new DoubleLineStyle()    | true
             false   | false  | new ThinStyle()          | false
@@ -96,7 +96,8 @@ class TableMakerTest extends Specification {
         setup:
             TableMaker tp = new TableMaker(
                 headers: ["Name","Email","Age"],
-                footer: ["All names here are fictitious"]
+                footer: ["All names here are fictitious"],
+                compact: true
             )
         when:
             tp << ["Joshep Patrishius", "jp@example.com", "41"]
@@ -104,7 +105,7 @@ class TableMakerTest extends Specification {
             tp << ["Raphael Kawami", "kawami-rapha@example.com", "33"]
             tp.addRow(["Zoe Mendoza", "you-know-who@example.com", "54"])
         then:
-            tp.print(new SafeStyle())
+            tp.print(new ClassicStyle())
             assert !tp.rows.empty
     }
 }

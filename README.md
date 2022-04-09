@@ -308,6 +308,7 @@ Includes : core
  | ★   | `ConsoleDefault`    | Simple implementation of `Consolable` which provides common commands            |
  | @   | `MatchAnyCompleter` | Utility to find partial matches to commands                                     |
  | ★   | `Progress`          | Show a progress bar in a terminal (it has multiple implementations and options) |
+| ★   | `TableMaker`        | Create tables for the terminal to display data in a nicely way                  |
 
 [Documentation](modules/term/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/term/docs/)
 

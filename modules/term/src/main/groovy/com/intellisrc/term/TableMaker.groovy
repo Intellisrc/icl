@@ -1,5 +1,6 @@
 package com.intellisrc.term
 
+import com.intellisrc.core.Log
 import com.intellisrc.term.styles.SafeStyle
 import com.intellisrc.term.styles.Stylable
 import groovy.transform.CompileStatic
@@ -35,10 +36,10 @@ class TableMaker {
      */
     static class Column {
         int maxLen = 0
-        boolean cut = false
+        /*boolean cut = false
         boolean ellipsis = false
         boolean wrap = false
-        boolean show = true
+        boolean show = true*/ //TODO
         boolean expandFooter = false // Single cell row
         Align align = LEFT
 
@@ -69,8 +70,11 @@ class TableMaker {
      * Cell text
      */
     static class Cell {
-        Cell(String string) {
+        Cell(String string, Formatter format = null) {
             text = string
+            if(format) {
+                formatter = format
+            }
         }
         protected String text = ""
         Formatter formatter = { String it -> return it } as Formatter
@@ -153,11 +157,32 @@ class TableMaker {
         rows << new Row(cells : cells.collect { new Cell(it) })
     }
     /**
+     * Add row using cells
+     * @param cells
+     */
+    void addCells(List<Cell> cells) {
+        if(columns.empty) {
+            columns.addAll(cells.collect { new Column() })
+        }
+        rows << new Row(cells : cells)
+    }
+    /**
      * Alias of addRow
      * @param cells
      */
     void leftShift(List<String> cells) {
         addRow(cells)
+    }
+    /**
+     * Add footer as text
+     * @param foot
+     */
+    void setFooter(String foot) {
+        if(! columns.empty) {
+            columns.first().footer = foot
+        } else {
+            Log.w("Footer can not be set until data exists (current limitation)")
+        }
     }
     /**
      * Add table footer
@@ -180,8 +205,8 @@ class TableMaker {
      * Generate table
      * @return
      */
-    @Override
-    String toString() {
+    //@Override
+    String toString(boolean compacted = compact) {
         List<String> lines = []
         String rs = style.rowSeparator
         String cs = style.colSeparator
@@ -228,13 +253,13 @@ class TableMaker {
                     Cell cell, int col ->
                         columns.get(col).pad(cell.text)
                 }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
-                boolean lastRow = row == rows.last() &&! hasFooter()
-                if(lastRow) {
+                boolean lastRow = row == rows.last()
+                if(lastRow &&! hasFooter()) {
                     lines << (style.bottomLeft + getHR(style.horizontalUp, true) + style.bottomRight)
-                } else {
-                    if(columns.first().expandFooter) {
+                } else if(!compacted || lastRow) {
+                    if(lastRow && columns.first().expandFooter) {
                         lines << (style.verticalRight + getHR(style.horizontalUp, false) + style.verticalLeft)
-                    } else if(! compact || row == rows.last()) {
+                    } else {
                         lines << (style.verticalRight + getHR(style.intercept, false) + style.verticalLeft)
                     }
                 }
@@ -271,16 +296,15 @@ class TableMaker {
      * @param style
      */
     void print() {
-        print(null, false)
+        print(null, compact)
     }
-    void print(boolean compact, Stylable style = null) {
-        print(style, compact)
+    void print(boolean compacted, Stylable style = null) {
+        print(style, compacted)
     }
-    void print(Stylable style, boolean compact = false) {
+    void print(Stylable style, boolean compacted = compact) {
         if(style) {
             this.style = style
         }
-        this.compact = compact
-        println this.toString()
+        println this.toString(compacted)
     }
 }

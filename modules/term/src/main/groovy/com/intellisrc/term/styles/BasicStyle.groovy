@@ -10,10 +10,10 @@ import groovy.transform.CompileStatic
 abstract class BasicStyle implements Stylable {
     String getHorizontalBorder() { return rowSeparator }
     String getVerticalBorder() { return colSeparator }
-    // Draw box around table
+    // Draw box around table FIXME
     boolean getWindow() { return true }
-    // Draw borders
+    // Draw borders TODO
     boolean getBorders() { return true }
-    // If true, will add space in cells (left/right)
+    // If true, will add space in cells (left/right) TODO
     boolean getPadding() { return true }
 }
