@@ -1,5 +1,6 @@
 package com.intellisrc.core
 
+import com.intellisrc.core.props.EnvironmentProperties
 import spock.lang.Specification
 
 
@@ -48,5 +49,14 @@ class ConfigTest extends Specification {
         expect:
             assert cfg.get("my") == "test"
             assert cfg.getInt("num") == 200
+    }
+    def "Test Environment Variables"() {
+        setup:
+            EnvironmentProperties env = Config.env
+        expect:
+            assert env.keys.contains("lang")
+            env.keys.each {
+                println it + ":" + env.get(it)
+            }
     }
 }

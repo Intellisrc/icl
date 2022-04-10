@@ -9,14 +9,12 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class EnvironmentProperties implements StringPropertiesGet, StringToYamlConverter {
-    protected final Map<String, String> values
+    protected final Map<String, String> values = [:]
     EnvironmentProperties() {
         // Fill Environment variables into env
-        values = System.getenv()
-        // Add config style keys
-        values.putAll(values.collectEntries {
-            [(it.key.toLowerCase().replaceAll("_",".")) : it.value ]
-        } as Map<String,String>)
+        System.getenv().each {
+            values[(it.key.toLowerCase().replaceAll("_","."))] = values[it.key] = it.value
+        }
     }
     @Override
     String get(String key, String defVal) {
