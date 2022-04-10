@@ -195,6 +195,8 @@ I recommend you to import static `core.AnsiColor.*` to simplify code:
 println RED + "Alert! " + YELLOW + "You are about to do something risky... " + CYAN + "Please proceed with caution" + RESET
 ```
 
+You can use `AnsiColor.decolor(string)` to remove colors from a string.
+
 ## Cmd 
 
 Execute system commands easily. Asynchronously or synchronously.

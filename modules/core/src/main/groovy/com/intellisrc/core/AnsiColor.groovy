@@ -105,7 +105,7 @@ class AnsiColor {
      * @param String
      * @return
      */
-    static String removeColor(String str) {
+    static String decolor(String str) {
         return str.replaceAll("\u001B\\[[;\\d]*m", "")
     }
 }

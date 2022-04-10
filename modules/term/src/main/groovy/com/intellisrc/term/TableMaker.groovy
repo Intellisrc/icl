@@ -41,7 +41,7 @@ class TableMaker {
         boolean ellipsis = false
         boolean expandFooter = false // Single cell row
         Align align = LEFT
-        Formatter formatter = { Object it -> return removeColor(it.toString()) } as Formatter
+        Formatter formatter = { Object it -> return decolor(it.toString()) } as Formatter
         Formatter color = { Object it -> return "" } as Formatter // Return AnsiColor.* to color cell
         Object header = ""
         Object footer = ""
@@ -214,19 +214,19 @@ class TableMaker {
 
         columns.collect { it.header }.eachWithIndex {
             Object entry, int i ->
-                columns.get(i).length = [columns.get(i).length, removeColor(entry.toString()).length()].max()
+                columns.get(i).length = [columns.get(i).length, decolor(entry.toString()).length()].max()
         }
         rows.each {
             it.cells.eachWithIndex {
                 Object entry, int i ->
-                    columns.get(i).length = [columns.get(i).length, removeColor(columns.get(i).format(entry, false)).length()].max()
+                    columns.get(i).length = [columns.get(i).length, decolor(columns.get(i).format(entry, false)).length()].max()
             }
         }
         // Merge footer in several columns if its of length 1
         if (!columns.first().expandFooter) {
             columns.collect { it.footer }.eachWithIndex {
                 Object entry, int i ->
-                    columns.get(i).length = [columns.get(i).length, removeColor(entry.toString()).length()].max()
+                    columns.get(i).length = [columns.get(i).length, decolor(entry.toString()).length()].max()
             }
         }
 
