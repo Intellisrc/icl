@@ -1,5 +1,7 @@
 package com.intellisrc.core
 
+import com.intellisrc.core.props.AnyProperties
+import com.intellisrc.core.props.EnvironmentProperties
 import com.intellisrc.core.props.StringPropertiesYaml
 import groovy.transform.CompileStatic
 
@@ -25,6 +27,8 @@ import java.time.LocalTime
 class Config {
     static public Props global = new Props(new File(SysInfo.userDir, "config.properties"))
     static public Props system = new Props(System.properties)
+    static public EnvironmentProperties env = new EnvironmentProperties()
+    static public AnyProperties any = new AnyProperties()
 
     /**
      * Static methods will call global instance

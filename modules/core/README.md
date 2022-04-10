@@ -133,6 +133,29 @@ system.flags=[readonly, superadmin]
 system.options={ debug: false, export: true }
 ```
 
+To access `System.properties` in the same way, you can use:
+
+```groovy
+String linuxVersion = Config.system.get("os.version")
+```
+
+To access `Environment variables` as well, you can use:
+
+```groovy
+String javaVersion = Config.env.get("JAVA_VERSION")
+```
+or (keys automatically translated):
+```groovy
+String javaVersion = Config.env.get("java.version")
+```
+
+To search in any configuration (config file, system or environment), you can use:
+```groovy
+String version = Config.any.get("version")
+```
+This is particularly useful if you are using docker. You can set configuration either
+in the config file or pass it by environment.
+
 ## Log 
 
 Provides a simpler interface to `SLF4J`. If no SLF4J logger is present, it provides a very simple
