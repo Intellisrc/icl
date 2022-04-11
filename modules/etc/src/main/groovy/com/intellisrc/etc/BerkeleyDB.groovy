@@ -2,7 +2,6 @@ package com.intellisrc.etc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import com.intellisrc.core.props.StringPropertiesYaml
 import com.sleepycat.je.*
 import groovy.transform.CompileStatic
@@ -13,7 +12,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class BerkeleyDB extends StringPropertiesYaml {
-    static File databaseDir = Config.getFile("berkeley.dir", SysInfo.getFile(".berkeley"))
+    static File databaseDir = Config.getFile("berkeley.dir", File.get(".berkeley"))
     boolean deferredWrite = Config.get("berkeley.deferred", true)
     String encoding = "UTF-8"
     final String keyPrefix

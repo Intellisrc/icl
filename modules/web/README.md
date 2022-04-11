@@ -163,7 +163,7 @@ new Service(
     path : "/videos/intro.mp4",
     //contentType : Mime.getType("mp4"), <-- not required unless it can not be guessed
     action : {
-        return SysInfo.getFile("resources", "private", "videos", "vid001.mp4")
+        return File.get("resources", "private", "videos", "vid001.mp4")
     }
 )
 // Get user information as YAML
@@ -195,7 +195,7 @@ new Service(
             Log.i("Uploaded file original name is : %s", file.originalName)
             Log.i("HTML input field name used to upload is: %s", file.inputName)
             // Move file from temporally directory to another location
-            File targetFile = SysInfo.getFile("resources", "upload", file.originalName)
+            File targetFile = File.get("resources", "upload", file.originalName)
             file.moveTo(targetFile)
             return [ uploaded : targetFile.exists() ]
     } 
@@ -372,7 +372,7 @@ class SSLService implements ServiciableHTTPS, ServiciableSingle {
     
     // Must be absolute path. Do not store it in public directory
     @Override
-    String keyStoreFile = SysInfo.getFile(SysInfo.userDir, "res", "key.store").absolutePath
+    String keyStoreFile = File.get(File.userDir, "res", "key.store").absolutePath
     // The password for the keystore
     @Override
     String password = "e7LcrHoWe3iuogAiwPdTCzAk"

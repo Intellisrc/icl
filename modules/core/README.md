@@ -281,7 +281,7 @@ def "Changing year should not be a problem"() {
         // Execute some code
         assert somethingToDo()
         // Wait some time
-        sleep(5000)
+        sleep(Millis.SECONDS_5)
     then :
         // Execute the code again
         assert somethingToDo()
@@ -291,9 +291,21 @@ def "Changing year should not be a problem"() {
 }
 ```
 
+## Millis
+
+Useful constants to use instead of numeric representation of milliseconds:
+> Note : not all times are available, but most of the common times from 1 second up to 1 year.
+
+```groovy
+sleep(MINUTE)
+sleep(SECONDS_10)
+// If one desired time is not available, you can easily use:
+int days6 = DAY * 6
+```
+
 ## SysInfo
 
-Get files, paths or identify your OS.
+Information about the OS
 
 ### Most common fields/methods:
 * getOS()      : get System OS
@@ -301,24 +313,7 @@ Get files, paths or identify your OS.
   * isWindows()
   * isMac()
   * isAndroid()
-* getFile()    : get a file
-* getHomeDir() : Home directory
-* getUserDir() : Directory in which the system is running
-* getTempDir() : Get the temporal directory
 * newLine      : New line in the running OS
-
-The most used methods is `getFile()`, which
-is similar to `new File()`, but with the difference
-that accepts multiple strings and other ways to
-create a File.
-
-### Example:
-
-```groovy
-File file1 = SysInfo.getFile("~/home.cfg")
-File file2 = SysInfo.getFile("relative/file.txt")
-File file3 = SysInfo.getFile(SysInfo.tempDir, "dir1", "dir2", "file.txt")
-```
 
 ## SysMain and SysService
 

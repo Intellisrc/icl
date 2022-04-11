@@ -25,7 +25,7 @@ import java.time.LocalTime
  */
 @CompileStatic
 class Config {
-    static public Props global = new Props(new File(SysInfo.userDir, "config.properties"))
+    static public Props global = new Props(new File(File.userDir, "config.properties"))
     static public Props system = new Props(System.properties)
     static public EnvironmentProperties env = new EnvironmentProperties()
     static public AnyProperties any = new AnyProperties()
@@ -144,7 +144,7 @@ class Config {
          * @param props
          */
         Props(String configName, Properties props = null) {
-            configFile = SysInfo.getFile(configName + ".properties")
+            configFile = File.get(configName + ".properties")
             this.props = props ?: new Properties()
             update()
         }

@@ -2,8 +2,8 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.JSON
+import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -13,11 +13,11 @@ import spock.util.concurrent.AsyncConditions
  * @since 17/04/19.
  */
 class WebServiceTest extends Specification {
-    File publicDir = SysInfo.getFile(SysInfo.userDir, "res", "public")
+    File publicDir = File.get(File.userDir, "res", "public")
 
     def "General Test"() {
         setup:
-            int port = NetworkInterface.getFreePort()
+            int port = LocalHost.freePort
             def web = new WebService(
                 port : port,
                 resources: publicDir,

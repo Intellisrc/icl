@@ -148,7 +148,7 @@ You can add your own printer, for example:
 ```groovy
 class MyPrinter implements LoggableOutputLevels {
     // `Output` can also be initialized with any `PrintStream` of your choice.
-    Output output             = new Output(SysInfo.getFile("test.log"))
+    Output output             = new Output(File.get("test.log"))
     Level level               = Level.TRACE
     boolean enabled           = true
     boolean useColor          = false

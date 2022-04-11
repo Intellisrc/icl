@@ -82,18 +82,19 @@ For more detailed explanation, click on the module title.<br>
 > For example, configuration, logging, executing commands, controlling services and 
 > displaying colors in the console. [read more...](modules/core/README.md)
 
-|     | Class               | Usage                                                                          |
-|-----|---------------------|--------------------------------------------------------------------------------|
-|     |`AnsiColor`          | Color dictionary for Linux terminal                                            |
-|     |`Cmd`                | Execute system commands                                                        |
-| ★  |`Config`             | Manage configuration files (by default config.properties)                      |
-| ★  |`Log`                | Log messages to `SLF4J`                                                        |
-| @   |`StringProperties` | Base class for properties setters and getters                                  |
-| ★   |`SysClock`           | Provides simple methods to interact with LocalDateTime. Useful for Unit Testing. |
-| ★   |`SysInfo`            | Get information about the system (usually paths)                               |
-|     |`SysMain`            | Convert class into runnable class                                              |
-| ★   |`SysService`         | Convert class into service (only one by project)                               |
-|     |`Version`            | Return system/application version and makes it easy to handle versions         |
+|     | Class              | Usage                                                                            |
+|-----|--------------------|----------------------------------------------------------------------------------|
+|     | `AnsiColor`        | Color dictionary for Linux terminal                                              |
+|     | `Cmd`              | Execute system commands                                                          |
+| ★   | `Config`           | Manage configuration files (by default config.properties)                        |
+| ★   | `Log`              | Log messages to `SLF4J`                                                          |
+| @   | `StringProperties` | Base class for properties setters and getters                                    |
+| ★   | `SysClock`         | Provides simple methods to interact with LocalDateTime. Useful for Unit Testing. |
+|     | `Millis`           | Milliseconds constants to be used instead numeric values.                        |
+|     | `SysInfo`          | Get information about the system                                                 |
+|     | `SysMain`          | Convert class into runnable class                                                |
+| ★   | `SysService`       | Convert class into service (only one by project)                                 |
+|     | `Version`          | Return system/application version and makes it easy to handle versions           |
 
 [Documentation](modules/core/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/core/docs/) 
 
@@ -221,7 +222,7 @@ Includes : core, etc
 [Documentation](modules/serial/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/serial/docs/)
 
 ### [web](modules/web/README.md)
-Includes : core, etc
+Includes : core, etc, net
 
 > Create restful HTTP (GET, POST, PUT, DELETE, etc) or WebSocket application services. 
 > Manage JSON data from and to the server easily. It is build on top of

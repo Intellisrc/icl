@@ -61,12 +61,15 @@ abstract class SysService {
                     Log.e("Unable to initialize main class", e)
                 }
             } else {
-                Log.e("`service` is not defined. To define it, set it in 'config.properties' e.g. 'main.class = org.example.app.MyClass' or use: \n static { service = new MyClass() }\n inside MyClass")
+                Log.e("`service` is not defined. To define it, set it in 'config.properties' " +
+                    "e.g. 'main.class = org.example.app.MyClass' or use: " + SysInfo.newLine +
+                    " static { service = new MyClass() }" + SysInfo.newLine +
+                    " inside MyClass")
                 System.exit(3)
             }
         }
         Version.mainClass = service.class
-        def sysSrv = service
+        SysService sysSrv = service
         sysSrv.args.clear()
         sysSrv.args.addAll(args.toList())
         String action = sysSrv.args.isEmpty() ? "start" : sysSrv.args.first()
@@ -74,8 +77,12 @@ abstract class SysService {
             //Initialize
             sysSrv.onInit()
         }
-        def usrDir = SysInfo.getWritablePath()
-        def lockFile = new File(usrDir, sysSrv.lockFile)
+        File usrDir = File.userDir
+        if(! usrDir.canWrite()) {
+            usrDir = File.tempDir
+        }
+        File lockFile = new File(usrDir, sysSrv.lockFile)
+        //noinspection GroovyFallthrough
         switch(action) {
             case "stop" :
                 if(started) {
@@ -117,7 +124,7 @@ abstract class SysService {
                     } catch (Exception e) {
                         Log.e("Exception in method: on${action.capitalize()}", e)
                     }
-                } catch (NoSuchMethodException e) {
+                } catch (NoSuchMethodException ignore) {
                     started = true
                     sysSrv.onStart()
                 }
@@ -130,7 +137,7 @@ abstract class SysService {
                 sleep(2000)
             }
             Log.v("Creating lock file: "+lockFile.toString())
-            lockFile << "ok\n"
+            lockFile << ("ok" + SysInfo.newLine)
             Log.i("Waiting for command...")
             lockFile.deleteOnExit()
             while(lockFile.exists()) {
@@ -141,6 +148,8 @@ abstract class SysService {
         service.onStop()
         service.kill(0)
     }
+
+    @SuppressWarnings('GrMethodMayBeStatic')
     void exit(int code = 0) {
         exitCode = code
         main("stop")
@@ -172,6 +181,8 @@ abstract class SysService {
     void onStop() {
         Log.i("System exiting...")
     }
+
+    @SuppressWarnings('GrMethodMayBeStatic')
     void onStatus(boolean running) {
         Log.i("Status: "+(running ? "RUNNING" : "STOPPED"))
         System.exit(2)

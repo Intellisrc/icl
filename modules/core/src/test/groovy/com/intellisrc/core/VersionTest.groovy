@@ -13,7 +13,7 @@ class VersionTest extends Specification {
             String ver = Version.get()
             println ver
         expect:
-            assert ver == "0.0" //This will return 0.0 as SysInfo.userDir points to the module when running with IDE.
+            assert ver == "0.0" //This will return 0.0 as File.userDir points to the module when running with IDE.
     }
     @Unroll
     def "Parse version"() {

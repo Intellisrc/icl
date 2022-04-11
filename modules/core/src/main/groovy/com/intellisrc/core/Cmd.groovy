@@ -22,6 +22,9 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class Cmd {
+    interface CmdOutput {
+        void call(String line)
+    }
     static interface Done {
         void done(String out)
     }
@@ -62,10 +65,10 @@ class Cmd {
                 String cmd, List args ->
                     exec(cmd, args, {
                         String out ->
-                            totOut += (totOut.isEmpty() ? "" : "\n") + out
+                            totOut += (totOut.isEmpty() ? "" : SysInfo.newLine) + out
                     }, {
                         String out, int code ->
-                            totErr += (totErr.isEmpty() ? "" : "\n") + out
+                            totErr += (totErr.isEmpty() ? "" : SysInfo.newLine) + out
                     })
             }
             totOut = totOut.trim()
@@ -219,6 +222,24 @@ class Cmd {
         return comm
     }
     ////// STATIC METHODS
+    /**
+     * Execute command and get results as they are being produced.
+     * example: exec(["tail", "-f", "syslog.log", { String line -> Log.i(line) })
+     * @param cmd
+     * @param out
+     */
+    static void exec(List<String> cmd, CmdOutput out) {
+        String line
+        Log.d("> " + cmd.join(" "))
+        ProcessBuilder pb = new ProcessBuilder(cmd)
+        Process p = pb.start()
+        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))
+        while ((line = input.readLine()) != null) {
+            Log.v("[%s] %s", cmd.join(" "), line)
+            out.call(line)
+        }
+        input.close()
+    }
     /**
      * execute command with no args
      * @param cmd

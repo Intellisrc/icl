@@ -1,7 +1,6 @@
 package com.intellisrc.core.props
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Field
@@ -62,7 +61,7 @@ trait StringPropertiesSet implements PropertiesSet {
     boolean set(String key, InetAddress val)    { setObj(key, val.hostAddress) }
     @Override
     boolean set(String key, File val)           {
-        return setObj(key, val.absolutePath.replace(SysInfo.userDir.absolutePath + File.separator, "") +
+        return setObj(key, val.absolutePath.replace(File.userDir.absolutePath + File.separator, "") +
                 (val.directory ? File.separator : ""))
     }
     @Override

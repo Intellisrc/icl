@@ -37,12 +37,12 @@ class CoolMaker {
         Tasks.add({
             // Creating 10,000 text files
             (1..10000).each {
-                SysInfo.getFile("created","files","file-${it}.txt") << "Some content here"
+                File.get("created","files","file-${it}.txt") << "Some content here"
             }
         }, "CoolMaker.newFiles")
         // This task will be added and executed in the foreground (blocking):
         Tasks.run({
-            SysInfo.getFile("downloads","pages","downloaded.html") << "https://example.com".toURL().text
+            File.get("downloads","pages","downloaded.html") << "https://example.com".toURL().text
         }, "CoolMaker.download")
     }
 }

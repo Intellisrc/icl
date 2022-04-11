@@ -1,11 +1,11 @@
 package com.intellisrc.web
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.Cache
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
 import com.intellisrc.etc.YAML
+import com.intellisrc.net.LocalHost
 import groovy.transform.CompileStatic
 import org.apache.tools.ant.types.resources.StringResource
 import spark.Request
@@ -107,11 +107,11 @@ class WebService {
                 if (embedded) {
                     srv.staticFiles.location(resources)
                 } else {
-                    File resFile = SysInfo.getFile(resources)
+                    File resFile = File.get(resources)
                     srv.staticFiles.externalLocation(resFile.absolutePath)
                 }
             }
-            if (NetworkInterface.isPortAvailable(port)) {
+            if (LocalHost.isPortAvailable(port)) {
                 srv.port(port).threadPool(threads) //Initialize it right away
                 Log.i("Starting server in port $port with pool size of $threads")
                 listServices.each {
@@ -324,6 +324,7 @@ class WebService {
             output.type = getTypeFromContentTypeString(output.contentType)
             output.fileName = "download." + output.contentType.tokenize("/").last()
         } else { // Auto detect contentType:
+            //noinspection GroovyFallthrough
             switch (output.content) {
                 case String:
                     String resStr = output.type.toString()
@@ -410,6 +411,7 @@ class WebService {
                 }
                 break
             case OutputType.JSON:
+                //noinspection GroovyFallthrough
                 switch (output.content) {
                     case Collection:
                     case Map:
@@ -419,6 +421,7 @@ class WebService {
                 }
                 break
             case OutputType.YAML:
+                //noinspection GroovyFallthrough
                 switch (output.content) {
                     case Collection:
                     case Map:
@@ -516,16 +519,15 @@ class WebService {
                     // Only Allowed clients:
                     if (sp.allow.check(request)) {
                         HttpServletRequest raw = request.raw()
-                        String tempDir = SysInfo.getTempDir()
-                        request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir))
+                        File tempDir = File.tempDir
+                        request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir.absolutePath))
                         boolean hasParts = false
                         try {
                             hasParts = !raw.parts.empty
                         } catch(Exception ignored) {}
                         // If we have uploads:
                         if (hasParts) {
-                            File tempFileDir = SysInfo.getFile(tempDir)
-                            if (tempFileDir.canWrite()) {
+                            if (tempDir.canWrite()) {
                                 List<UploadFile> uploadFiles = []
                                 if (raw.contentLength > 0) {
                                     raw.parts.each {

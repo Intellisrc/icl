@@ -1,7 +1,6 @@
 package com.intellisrc.core.props
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 import java.time.*
 
@@ -101,7 +100,7 @@ trait StringPropertiesGet implements PropertiesGet {
      */
     @Override
     File getFile(String key, String defPath) {
-        return getFile(key, SysInfo.getFile(defPath))
+        return getFile(key, File.get(defPath))
     }
     /**
      * Get File using default File object
@@ -145,7 +144,7 @@ trait StringPropertiesGet implements PropertiesGet {
         File file = null
         if(exists(key)) {
             try {
-                file = SysInfo.getFile(get(key))
+                file = File.get(get(key))
             } catch (Exception ignore) {
                 Log.w("Unable to parse value as File of key: %s", key)
             }
