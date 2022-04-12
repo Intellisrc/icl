@@ -54,6 +54,14 @@ class LocalHost {
     }
 
     /**
+     * Get all network interfaces in local host
+     * @return
+     */
+    static List<NetworkInterface> getInterfaces() {
+        return NetworkInterface.getNetworkInterfaces().toList()
+    }
+
+    /**
      * Get all IP addresses registered in local host
      * @return
      */
@@ -62,6 +70,19 @@ class LocalHost {
         NetworkInterface.getNetworkInterfaces().each {
             NetworkInterface it ->
                 addresses.addAll(new NetFace(it).ip4List)
+        }
+        return addresses
+    }
+
+    /**
+     * Get all local network IP addresses registered in local host
+     * @return
+     */
+    static List<Inet4Address> getLocalNetworkAddresses() {
+        List<Inet4Address> addresses = []
+        NetworkInterface.getNetworkInterfaces().each {
+            NetworkInterface it ->
+                addresses.addAll(new NetFace(it).localAddresses)
         }
         return addresses
     }
