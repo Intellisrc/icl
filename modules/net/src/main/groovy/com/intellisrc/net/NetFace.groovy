@@ -58,11 +58,13 @@ class NetFace {
      * @return
      */
     List<Inet4Address> getLocalAddresses() {
-        return ip4List.findAll {
-            Inet4Address inet ->
-                String addr = inet.hostAddress
-                int second = addr.tokenize(".")[1] as int
-                return addr.startsWith("10.") || addr.startsWith("192.168") || (addr.startsWith("172.") && (second >= 16 && second <= 31))
-        }
+        return ip4List.findAll { Network.isIpLocal(it) }
+    }
+    /**
+     * Return true if interface is connected
+     * @return
+     */
+    boolean isConnected() {
+        return iface.up
     }
 }

@@ -15,7 +15,7 @@ class Network {
      * @param subnet
      */
     Network(SubnetUtils subnet) {
-        this.subnet = subnet
+        this.subnet = getNetworkSubnetUtils(subnet)
     }
     /**
      * Constructor from Inet4Address and mask (optional)
@@ -23,7 +23,7 @@ class Network {
      * @param mask
      */
     Network(Inet4Address address, int mask = 24) {
-        this.subnet = new SubnetUtils(address.hostAddress, mask.toString())
+        this.subnet = getNetworkSubnetUtils(new SubnetUtils(address.hostAddress + "/" + mask.toString()))
     }
     /**
      * Constructor having CIDR annotation (e.g. 192.168.10.0/24)
@@ -32,6 +32,7 @@ class Network {
     Network(String cidr) {
         this.subnet = new SubnetUtils(cidr)
     }
+
     /**
      * Returns true if IP address is contained in subnetwork
      * @param subnet
@@ -152,14 +153,6 @@ class Network {
 
         return IPs
     }
-    
-    /**
-     * List Network Interfaces
-     * @return
-     */
-    static List<NetFace> getNetworkInterfaces() {
-        return NetworkInterface.networkInterfaces.collect { NetworkInterface ni -> new NetFace(ni) }
-    }
 
     /**
      * Generates a random IP4 any network
@@ -169,5 +162,24 @@ class Network {
     static Inet4Address anyRandomIP4() {
         Random rand = new Random()
         return StringExt.toInet4Address(rand.nextInt(256) + "." + rand.nextInt(256) + "." + rand.nextInt(256) + "." + rand.nextInt(256))
+    }
+
+    /**
+     * Resets the network IP to the network address
+     * @param tmp
+     * @return
+     */
+    static SubnetUtils getNetworkSubnetUtils(SubnetUtils tmp) {
+        return new SubnetUtils(tmp.info.networkAddress, tmp.info.netmask)
+    }
+
+    /**
+     * Return true if IP address is local network address
+     * @return
+     */
+    static boolean isIpLocal(Inet4Address inet) {
+        String addr = inet.hostAddress
+        int second = addr.tokenize(".")[1] as int
+        return addr.startsWith("10.") || addr.startsWith("192.168") || (addr.startsWith("172.") && (second >= 16 && second <= 31))
     }
 }

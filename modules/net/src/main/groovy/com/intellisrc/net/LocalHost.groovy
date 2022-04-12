@@ -62,12 +62,46 @@ class LocalHost {
     }
 
     /**
+     * Get all network interfaces as NetFace objects
+     * @return
+     */
+    static List<NetFace> getNetFaces() {
+        return interfaces.collect { new NetFace(it) }
+    }
+
+    /**
+     * Get the NetworkInterface object for InetAdress
+     * @param ip
+     * @return
+     */
+    static Optional<NetworkInterface> getNetworkInterface(InetAddress ip) {
+        NetworkInterface iface = null
+        try {
+            iface = NetworkInterface.getByInetAddress(ip)
+        } catch(Exception ignore) {}
+        return Optional.ofNullable(iface)
+    }
+    /**
+     * Get the NetFace object which contains IP4 address
+     * @param ip4
+     * @return
+     */
+    static Optional<NetFace> getNetFace(InetAddress ip) {
+        NetFace face = null
+        Optional<NetworkInterface> iface = getNetworkInterface(ip)
+        if(iface.present) {
+            face = new NetFace(iface.get())
+        }
+        return Optional.ofNullable(face)
+    }
+
+    /**
      * Get all IP addresses registered in local host
      * @return
      */
     static List<Inet4Address> getIp4Addresses() {
         List<Inet4Address> addresses = []
-        NetworkInterface.getNetworkInterfaces().each {
+        interfaces.each {
             NetworkInterface it ->
                 addresses.addAll(new NetFace(it).ip4List)
         }
@@ -75,14 +109,34 @@ class LocalHost {
     }
 
     /**
+     * Get the first IP which matches the local network
+     * NOTE: if other services are running in server (like docker, lxd,
+     * the returned IP address may be not what we expect).
+     * If the interface is connected to a network, it works better
+     * @return
+     */
+    static Inet4Address getLocalNetworkIp4() {
+        return (getLocalNetworkAddresses(true) ?: getLocalNetworkAddresses())?.first() ?: loopbackAddress
+    }
+
+    /**
+     * Return local network NetFace object
+     * @return
+     */
+    static NetFace getLocalNetFace() {
+        return new NetFace(getNetworkInterface(localNetworkIp4).get())
+    }
+    /**
      * Get all local network IP addresses registered in local host
      * @return
      */
-    static List<Inet4Address> getLocalNetworkAddresses() {
+    static List<Inet4Address> getLocalNetworkAddresses(boolean mustBeConnected = false) {
         List<Inet4Address> addresses = []
         NetworkInterface.getNetworkInterfaces().each {
             NetworkInterface it ->
-                addresses.addAll(new NetFace(it).localAddresses)
+                if(!mustBeConnected || it.up) {
+                    addresses.addAll(new NetFace(it).localAddresses)
+                }
         }
         return addresses
     }
@@ -106,6 +160,23 @@ class LocalHost {
      * @return
      */
     static boolean hasOpenPort(int port) {
-        new Host(loopbackAddress).hasOpenPort(port, Millis.SECOND)
+        return new Host(loopbackAddress).hasOpenPort(port, Millis.SECOND)
+    }
+
+    /**
+     * Automatically try to get the local network
+     * @return
+     */
+    static Network getLocalNetwork() {
+        return getLocalNetworkForIP(getLocalNetworkIp4())
+    }
+
+    /**
+     * Get Network for IP (automatic mask)
+     * @param ip
+     * @return
+     */
+    static Network getLocalNetworkForIP(Inet4Address ip) {
+        return new Network(ip, getNetworkInterface(ip).get().interfaceAddresses.find { it.address.hostAddress == ip.hostAddress }.networkPrefixLength)
     }
 }

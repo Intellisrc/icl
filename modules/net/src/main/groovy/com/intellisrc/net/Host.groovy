@@ -1,7 +1,11 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Millis
+import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
+
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 /**
  * Class which represents a network host
@@ -44,7 +48,29 @@ class Host {
      * @param timeout
      * @return
      */
-    boolean isOnline(int timeout = Millis.SECOND_10) {
+    boolean isUp(int timeout = Millis.SECOND_10) {
         return ip.isReachable(timeout)
+    }
+
+    /**
+     * Returns the time in microseconds taken to check if host is up
+     * @param timeout
+     * @return -1 if timeout expired
+     */
+    long pingMicro(int timeout = Millis.SECOND_10) {
+        LocalDateTime start = SysClock.now
+        boolean up = isUp(timeout)
+        return up ? ChronoUnit.MICROS.between(start, SysClock.now) : -1
+    }
+
+    /**
+     * Returns the time in milliseconds taken to check if host is up
+     * @param timeout
+     * @return -1 if timeout expired
+     */
+    int ping(int timeout = Millis.SECOND_10) {
+        LocalDateTime start = SysClock.now
+        boolean up = isUp(timeout)
+        return up ? ChronoUnit.MILLIS.between(start, SysClock.now) as int : -1
     }
 }
