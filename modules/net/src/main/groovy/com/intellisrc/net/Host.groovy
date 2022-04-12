@@ -1,5 +1,6 @@
 package com.intellisrc.net
 
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 
 /**
@@ -21,6 +22,21 @@ class Host {
         String hn = ip.canonicalHostName
         return hn != ip.hostAddress ? hn : ""
     }
+
+    /**
+     * Test if host has an open port
+     * @param port
+     * @return
+     */
+    boolean hasOpenPort(int port, int timeout = Millis.SECOND_10) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(ip, port), timeout)
+            return true
+        } catch (IOException ignore) {
+            return false
+        }
+    }
+
     /**
      * Test is host is online
      * @param host
@@ -28,16 +44,7 @@ class Host {
      * @param timeout
      * @return
      */
-    boolean isOnline(int port = 0, int timeout = 30 * 1000) {
-        if(port) {
-            try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(ip, port), timeout)
-                return true
-            } catch (IOException ignore) {
-                return false
-            }
-        } else {
-            return ip.isReachable(timeout)
-        }
+    boolean isOnline(int timeout = Millis.SECOND_10) {
+        return ip.isReachable(timeout)
     }
 }

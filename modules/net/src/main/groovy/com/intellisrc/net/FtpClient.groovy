@@ -2,6 +2,7 @@ package com.intellisrc.net
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 import org.apache.commons.net.ftp.*
 
@@ -40,7 +41,7 @@ class FtpClient {
         boolean connected = false
         try {
             Log.i("Connecting to server : %s", ip.hostAddress)
-            client.setConnectTimeout(10 * 1000)
+            client.setConnectTimeout(Millis.SECOND_10)
             if(port) {
                 Log.i("Setting port: %d", port)
                 client.setDefaultPort(port)

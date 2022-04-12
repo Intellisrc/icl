@@ -37,9 +37,12 @@ class TableMaker {
      */
     static class Column {
         int length = 0 // The calculated length of the column
+        int minLen = 1 // Minimum length of column
         int maxLen = 0 // The maximum length allowed (user input)
-        boolean ellipsis = false
+        boolean ellipsis = true
         boolean expandFooter = false // Single cell row
+        boolean autoCollapse = false // Reduce column width as much as possible
+        boolean hideWhenEmpty = true // Do not show column if has no data
         Align align = LEFT
         Formatter formatter = { Object it -> return decolor(it.toString()) } as Formatter
         Formatter color = { Object it -> return "" } as Formatter // Return AnsiColor.* to color cell
@@ -63,8 +66,8 @@ class TableMaker {
                     case LEFT:   padded = padded.padRight(len); break
                     case RIGHT:  padded = padded.padLeft(len); break
                     case CENTER:
-                        int half = Math.round(len / 2d) as int
-                        padded = padded.padLeft(half).padRight(len - half)
+                        int half = Math.round((len - text.length()) / 2d) as int
+                        padded = padded.padLeft(text.length() + half).padRight(len)
                         break
                 }
             }
@@ -73,7 +76,19 @@ class TableMaker {
         String trim(String text, boolean useEllipsis = ellipsis, int len = getMaxLen()) {
             String trimmed = text
             if(len && text.length() > len) {
-                trimmed = text.substring(0, len - (useEllipsis ? 1 : 0)) + (useEllipsis ? "…" : "")
+                switch (align) {
+                    case LEFT:
+                        trimmed = text.substring(0, len - (useEllipsis ? 1 : 0)) + (useEllipsis ? "…" : "")
+                        break
+                    case RIGHT:
+                        trimmed = (useEllipsis ? "…" : "") + text.takeRight(len - (useEllipsis ? 1 : 0))
+                        break
+                    case CENTER:
+                        int offset = Math.floor((text.length() - len) / 2d) as int
+                        int diff   = (text.length() - len) - offset
+                        trimmed = (useEllipsis ? "…" : "") + text.substring(offset, (text.length() - diff) - (useEllipsis ? 2 : 0)) + (useEllipsis ? "…" : "")
+                        break
+                }
             }
             return trimmed
         }
@@ -212,22 +227,54 @@ class TableMaker {
         String hb = style.horizontalBorder
         String vb = style.verticalBorder
 
+        // Initialize map with min values
+        Map<Column, Double> colWidthStats = columns.collectEntries {
+            [(it) : it.minLen ]
+        }
+        // Initialize map with true
+        Map<Column, Boolean> emptyCol = columns.collectEntries {
+            [(it) : true]
+        }
         columns.collect { it.header }.eachWithIndex {
             Object entry, int i ->
-                columns.get(i).length = [columns.get(i).length, decolor(entry.toString()).length()].max()
+                int cellWidth = decolor(entry.toString()).length()
+                Column col = columns.get(i)
+                col.length = [col.minLen, col.length, cellWidth].max()
+                colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
         }
         rows.each {
             it.cells.eachWithIndex {
                 Object entry, int i ->
-                    columns.get(i).length = [columns.get(i).length, decolor(columns.get(i).format(entry, false)).length()].max()
+                    int cellWidth = decolor(columns.get(i).format(entry, false)).length()
+                    Column col = columns.get(i)
+                    col.length = [col.minLen, col.length, cellWidth].max()
+                    colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
+                    if(cellWidth > 0 ||! col.hideWhenEmpty) {
+                        emptyCol[col] = false
+                    }
             }
         }
         // Merge footer in several columns if its of length 1
         if (!columns.first().expandFooter) {
             columns.collect { it.footer }.eachWithIndex {
                 Object entry, int i ->
-                    columns.get(i).length = [columns.get(i).length, decolor(entry.toString()).length()].max()
+                    int cellWidth = decolor(entry.toString()).length()
+                    Column col = columns.get(i)
+                    col.length = [col.minLen, col.length, cellWidth].max()
+                    colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
             }
+        }
+
+        columns.each {
+            Column col ->
+                if(col.autoCollapse) {
+                    col.maxLen = [col.minLen, Math.round(colWidthStats[col]) as int].max()
+                }
+                if(col.hideWhenEmpty && emptyCol.get(col)) {
+                    col.length = 0
+                    col.maxLen = 0
+                    col.minLen = 0
+                }
         }
 
         Closure getHR = {
@@ -235,7 +282,7 @@ class TableMaker {
                 String ch = border ? hb : rs
                 return ch + columns.collect {
                     ch * it.maxLen
-                }.join(ch + sep + ch) + ch
+                }.findAll { it != "" }.join(ch + sep + ch) + ch
         }
 
         // Top border
@@ -243,15 +290,20 @@ class TableMaker {
             lines << (style.topLeft + getHR(style.horizontalDown, true) + style.topRight)
         }
         if (hasHeaders()) {
-            lines << ((style.window ? vb + " " : '') + columns.collect { it.fmtHeader }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
+            lines << ((style.window ? vb + " " : '') + columns
+                .findAll { ! (it.hideWhenEmpty && emptyCol.get(it)) }
+                .collect { it.fmtHeader }
+                .join(" " + cs + " ") + (style.window ? " " + vb : ''))
             lines << (style.verticalRight + getHR(style.intercept, false) + style.verticalLeft)
         }
         rows.each {
             Row row ->
                 lines << ((style.window ? vb + " " : '') + row.cells.withIndex().collect {
-                    Object cell, int col ->
-                        columns.get(col).format(cell)
-                }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
+                    Object cell, int i ->
+                        Column col = columns.get(i)
+                        boolean include = !(col.hideWhenEmpty && emptyCol.get(col))
+                        return include ? col.format(cell) : null
+                }.findAll { it != null }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
                 boolean lastRow = row == rows.last()
                 if(lastRow &&! hasFooter()) {
                     lines << (style.bottomLeft + getHR(style.horizontalUp, true) + style.bottomRight)
@@ -268,13 +320,15 @@ class TableMaker {
                 Column first = columns.first()
                 lines << (
                     (style.window ? vb + " " : '') +
-                    first.trimPad(first.footer.toString(), (columns.sum { it.maxLen } as int) + // We don't use fmtFooter as that one is trimmed
-                    (columns.size() - 1) * 3) + (style.window ? " " + vb : '')
+                    first.trimPad(first.footer.toString(), (columns.findAll { ! emptyCol.get(it) }.sum { it.maxLen } as int) + // We don't use fmtFooter as that one is trimmed
+                    ((emptyCol.count { ! it.value } as int) - 1) * 3) + (style.window ? " " + vb : '')
                 )
             } else {
                 lines << (
                     (style.window ? vb + " " : '') +
-                    columns.collect { it.fmtFooter }.join(" " + cs + " ") +
+                    columns
+                        .findAll { ! (it.hideWhenEmpty && emptyCol.get(it)) }
+                        .collect { it.fmtFooter }.join(" " + cs + " ") +
                     (style.window ? " " + vb : '')
                 )
             }

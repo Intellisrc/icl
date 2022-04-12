@@ -3,6 +3,8 @@ package com.intellisrc.core
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
 
+import static com.intellisrc.core.Millis.*
+
 /**
  * @since 17/11/17.
  */
@@ -10,7 +12,7 @@ class CmdTest extends Specification {
     def "Command Test As parameter"() {
         setup:
             def arg = "hello"
-            def cmd = Cmd.options(timeout: 2000, secret: true)
+            def cmd = Cmd.options(timeout: SECOND_2, secret: true)
         when:
             cmd.exec("echo",[arg], {
                 String output ->
@@ -39,7 +41,7 @@ class CmdTest extends Specification {
         setup:
         def cmds = ["sleep 3","echo done"]
         expect:
-        Cmd.options(timeout: 5000).exec(cmds, {
+        Cmd.options(timeout: SECOND_5).exec(cmds, {
             String out ->
                 assert out == "done"
         },
@@ -51,7 +53,7 @@ class CmdTest extends Specification {
         setup:
         def cmds = [ sleep : [3], echo  : ["done"] ]
         expect:
-        Cmd.options(timeout: 5000).exec(cmds, {
+        Cmd.options(timeout: SECOND_5).exec(cmds, {
             String out ->
                 assert out == "done"
             },
@@ -64,7 +66,7 @@ class CmdTest extends Specification {
             def async = new AsyncConditions()
             def cmds = [ sleep : [3], echo : ["done"] ]
         expect:
-            Cmd.options(timeout: 5000).async(cmds, {
+            Cmd.options(timeout: SECOND_5).async(cmds, {
                 String out ->
                     async.evaluate({ assert out == "done" })
                 },

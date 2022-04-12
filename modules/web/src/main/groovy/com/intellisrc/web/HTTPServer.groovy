@@ -1,6 +1,7 @@
 package com.intellisrc.web
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 
 import java.nio.file.Path
@@ -39,7 +40,7 @@ class HTTPServer {
      */
     void start() {
         serverSocket = new ServerSocket(port)
-        serverSocket.setSoTimeout(timeout * 1000)
+        serverSocket.setSoTimeout(timeout * Millis.SECOND)
         Log.i( "HTTP Server [$serverString] started on port: $port , with root: $root")
         running = true
 

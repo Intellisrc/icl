@@ -1,6 +1,7 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -64,7 +65,7 @@ class TaskTest extends Specification {
             assert ft.callTimes == 1
         when:
             Log.i("sleeping... ")
-            int waitTime = 1000
+            int waitTime = Millis.SECOND
             sleep(waitTime)
         then:
             Log.i("[%s] Status: %s", info.name, info.state)

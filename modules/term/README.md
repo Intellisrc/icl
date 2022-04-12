@@ -216,14 +216,18 @@ You can further customize columns or how data is displayed by accessing
 the `table.columns` before printing:
 
 ```groovy
-table.columns[1].maxLen = 10        // Force to specific with
-table.columns[1].ellipsis = true    // Use ellipsis to indicate when a string has been trimmed
-table.columns[2].align = RIGHT      // Align LEFT, RIGHT or CENTER
-table.columns[2].headerColor = YELLOW  // Add color to header (see: AnsiColor in core module)
-table.columns[2].formatter = {         // Use formatter to change the resulting String 
-    String.format("\$ %.2f", it as double)
+table.columns[1].with {
+    maxLen = 10        // Force to specific with   
+    ellipsis = true    // Use ellipsis to indicate when a string has been trimmed (default: true)
 }
-table.columns[2].color = { it > 2000 ? RED : GREEN } // Use 'color' to set the cell color based on its contents (previous to formatter)
+table.columns[2].with {
+    align = RIGHT         // Align LEFT, RIGHT or CENTER
+    headerColor = YELLOW  // Add color to header (see: AnsiColor in core module)
+    formatter = {         // Use formatter to change the resulting String 
+        String.format("\$ %.2f", it as double)
+    }
+    color = { it > 2000 ? RED : GREEN } // Use 'color' to set the cell color based on its contents (previous to formatter)
+}  
 ```
 
 Example: (colors are not displayed, but are indicated)

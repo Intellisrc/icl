@@ -3,6 +3,7 @@ package com.intellisrc.db
 import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
@@ -46,7 +47,7 @@ class DBPool {
 			// Start with one connector:
 			Thread.startDaemon {
 				int minTime = [expireSeconds, timeoutSeconds].min()
-				long waitTime = (minTime < 60 ? minTime : 60) * 1000
+				long waitTime = (minTime < 60 ? minTime : 60) * Millis.SECOND
 				while (initialized) {
 					timeoutPool()
 					sleep waitTime

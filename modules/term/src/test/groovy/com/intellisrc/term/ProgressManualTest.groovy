@@ -1,5 +1,7 @@
 package com.intellisrc.term
 
+import static com.intellisrc.core.Millis.getMILLIS_10
+
 /**
  * @since 19/07/10.
  */
@@ -8,11 +10,11 @@ class ProgressManualTest {
         int total = 500
         (0..total).each {
             Progress.summary(it, total, "So far... ")
-            sleep(5)
+            sleep(MILLIS_10)
         }
         (0..total).each {
             Progress.bar(it, total, "Done", 50)
-            sleep(5)
+            sleep(MILLIS_10)
         }
     }
 }

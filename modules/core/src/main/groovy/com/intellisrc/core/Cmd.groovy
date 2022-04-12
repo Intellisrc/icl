@@ -19,6 +19,8 @@ import groovy.transform.CompileStatic
  *  to create an script and execute it only once (more performance efficient).
  *
  * @since 1/9/17
+ *
+ * FIXME: make it standard: all must use ProcessBuilder as others are not portable
  */
 @CompileStatic
 class Cmd {
@@ -35,7 +37,7 @@ class Cmd {
         boolean secret = false
         boolean sendErr = false // Send stdErr on success
         int exit = 0
-        int timeout = 10000
+        int timeout = Millis.SECOND_10
         /**
          * Execute multiple commands one by one
          * example:

@@ -2,6 +2,7 @@ package com.intellisrc.etc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
@@ -61,7 +62,7 @@ class Cache<V> {
 	Cache() {
         Thread.start {
             while(gcInterval > 0) {
-                sleep(gcInterval * 1000)
+                sleep(gcInterval * Millis.SECOND)
                 garbageCollect()
             }
         }

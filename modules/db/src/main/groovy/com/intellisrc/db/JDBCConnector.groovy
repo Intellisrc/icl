@@ -1,6 +1,7 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.db.DB.Connector
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
@@ -22,7 +23,7 @@ import static java.sql.Types.*
  * @author Alberto Lepe
  */
 class JDBCConnector implements Connector {
-	protected static int TIMEOUT = 1000
+	protected static int TIMEOUT = Millis.SECOND
 	protected Connection db
 	protected JDBC type = new Dummy()
 	long lastUsed = 0

@@ -1,6 +1,7 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
@@ -21,7 +22,7 @@ class TaskManager {
     public LocalDateTime initTime = SysClock.dateTime
     public LocalDateTime okTime = SysClock.dateTime
     public boolean running = true
-    public long queueTimeout = 1000L
+    public long queueTimeout = Millis.SECOND
     /**
      * Setup task
      * @param taskable

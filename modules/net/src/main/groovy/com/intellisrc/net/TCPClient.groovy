@@ -1,6 +1,7 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 
 import java.nio.charset.Charset
@@ -19,7 +20,7 @@ class TCPClient {
     protected InetAddress dstAddress
     protected int dstPort
 	protected final synchronized Queue<Request> requestList = [] as Queue<Request>
-    public int timeout = 20000
+    public int timeout = Millis.SECOND_20
 
 	static enum TCPStatus {
 		SENT, NO_CONN, ERROR, NO_RESPONSE

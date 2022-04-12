@@ -1,11 +1,14 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.*
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * A ThreadPoolExecutor which interact with TaskInfo objects
@@ -52,7 +55,7 @@ class ThreadPool extends ThreadPoolExecutor {
         }
     }
     
-    ThreadPool(int iniPoolSize = 0, int maxPoolSize = 100, long timeoutMillis = 1000L, ErrorCallback onError = {}) {
+    ThreadPool(int iniPoolSize = 0, int maxPoolSize = 100, long timeoutMillis = SECOND, ErrorCallback onError = {}) {
         super(iniPoolSize, maxPoolSize, timeoutMillis, TimeUnit.MILLISECONDS, new SynchronousQueue<Runnable>())
         this.onError = onError
     }
@@ -77,7 +80,7 @@ class ThreadPool extends ThreadPoolExecutor {
                         //TODO: count times it gets rejected so we can adjust pool size
                     } else {
                         executorItem.info.state = TaskInfo.State.WAITING
-                        sleep(10)
+                        sleep(MILLIS_10)
                     }
                 } else {
                     rejected = true
@@ -211,7 +214,7 @@ class ThreadPool extends ThreadPoolExecutor {
                 it.hashID == runnable.hashCode()
             }
             if(!item) {
-                sleep(10)
+                sleep(MILLIS_10)
             }
         }
         if (item) {
@@ -357,7 +360,7 @@ class ThreadPool extends ThreadPoolExecutor {
                     Log.v("[%s] Cancelling task", info.fullName)
                 }
                 killed = item.future.cancel(true)
-                sleep(10)
+                sleep(MILLIS_10)
             } else {
                 if(Tasks.debug) {
                     Log.v("[%s] Unable to find future to cancel", info.fullName)
@@ -370,7 +373,7 @@ class ThreadPool extends ThreadPoolExecutor {
                 item.thread.interrupt()
                 if(item.info.task instanceof TaskKillable) {
                     (item.info.task as TaskKillable).kill()
-                    sleep(10)
+                    sleep(MILLIS_10)
                     Log.i("[%s] Killing thread", info.fullName)
                     //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
                     item.thread.stop() //Force it to finish

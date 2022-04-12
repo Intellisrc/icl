@@ -71,7 +71,7 @@ class WebServiceTest extends Specification {
             assert json
             println "Json: "+json
         when:
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             def json_new = new URL("http://localhost:${port}/id/1/").text
         then:
             //TODO: count if method was called

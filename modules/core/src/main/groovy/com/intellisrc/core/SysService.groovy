@@ -134,14 +134,14 @@ abstract class SysService {
             if(lockFile.exists()) {
                 Log.v("Lock file was present... removing")
                 lockFile.delete()
-                sleep(2000)
+                sleep(Millis.SECOND_2)
             }
             Log.v("Creating lock file: "+lockFile.toString())
             lockFile << ("ok" + SysInfo.newLine)
             Log.i("Waiting for command...")
             lockFile.deleteOnExit()
             while(lockFile.exists()) {
-                sleep(1000)
+                sleep(Millis.SECOND)
                 sysSrv.onSleep()
             }
         }

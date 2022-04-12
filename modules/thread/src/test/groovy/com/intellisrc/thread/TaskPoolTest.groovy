@@ -1,6 +1,9 @@
 package com.intellisrc.thread
 
+import com.intellisrc.core.Millis
 import spock.lang.Specification
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/10/11.
@@ -14,8 +17,8 @@ class TaskPoolTest extends Specification {
         setup:
             Tasks.add(IntervalTask.create({
                 print "."
-            }, "Printer", 1000, 10))
-            sleep(1000)
+            }, "Printer", SECOND, 10))
+            sleep(SECOND)
         expect:
             Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {
                 assert it.executed > 40: "Executed times must be executed several times"
@@ -41,8 +44,8 @@ class TaskPoolTest extends Specification {
                 if(counter && counter++ > 50) {
                     throw new Exception("Break it!")
                 }
-            }, "Printer", 1000, 10))
-            sleep(1000)
+            }, "Printer", SECOND, 10))
+            sleep(SECOND)
             counter = 0 //disable exceptions
         expect:
             Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {

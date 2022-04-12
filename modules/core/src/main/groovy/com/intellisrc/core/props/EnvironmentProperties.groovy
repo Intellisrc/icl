@@ -13,7 +13,7 @@ class EnvironmentProperties implements StringPropertiesGet, StringToYamlConverte
     EnvironmentProperties() {
         // Fill Environment variables into env
         System.getenv().each {
-            values[(it.key.toLowerCase().replaceAll("_","."))] = values[it.key] = it.value
+            values[(it.key.toDotCase())] = values[it.key] = it.value
         }
     }
     @Override

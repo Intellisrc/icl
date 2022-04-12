@@ -1,6 +1,7 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import com.intellisrc.thread.ThreadPool.ErrorCallback
 import groovy.transform.CompileStatic
@@ -8,6 +9,8 @@ import groovy.transform.CompileStatic
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * Pool controller for tasks
@@ -42,7 +45,7 @@ class TaskPool implements TaskLoggable {
     LocalDateTime failTime
     LocalDateTime doneTime
 
-    TaskPool(String name, int minThreads = 0, int maxThreads = 5, long timeout = 1000L, ErrorCallback onError = {}) {
+    TaskPool(String name, int minThreads = 0, int maxThreads = 5, long timeout = SECOND, ErrorCallback onError = {}) {
         this.name = name
         assert minThreads <= maxThreads : "Min threads (" + minThreads + ") can't be equal or grater than max threads (" + maxThreads + ")"
         assert timeout >= 0 : "Timeout can not be negative"
@@ -114,7 +117,7 @@ class TaskPool implements TaskLoggable {
                 if(!info.name.endsWith("-monitor") && info.task.maxExecutionTime) {
                     Tasks.add({
                         while(!(info.done || (info.doneTime && info.startTime <= info.doneTime))) {
-                            sleep(10)
+                            sleep(MILLIS_10)
                             long timed = ChronoUnit.MILLIS.between(info.startTime, SysClock.dateTime)
                             if (timed > info.task.maxExecutionTime) {
                                 Log.w("[%s] Timed out (Took: %d ms)", info.name, timed)

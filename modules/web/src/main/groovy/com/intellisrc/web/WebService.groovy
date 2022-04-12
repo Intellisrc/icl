@@ -1,6 +1,7 @@
 package com.intellisrc.web
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.Cache
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
@@ -205,11 +206,11 @@ class WebService {
                 }
                 if (!background) {
                     while (running) {
-                        sleep 1000L
+                        sleep (Millis.SECOND)
                     }
                 }
                 //Wait until the server is Up
-                sleep 1000L
+                sleep (Millis.SECOND)
             } else {
                 Log.w("Port %d is already in use", port)
             }

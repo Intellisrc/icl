@@ -1,6 +1,9 @@
 package com.intellisrc.thread
 
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * Extend this class for processes which are intent
@@ -31,7 +34,7 @@ abstract class IntervalTask extends Task implements TaskCancellable {
      * @param sleepMillis
      * @return
      */
-    static IntervalTask create(final Runnable runnable, String name, long maxExecutionMillis = 1000, int sleepMillis = 1000, Priority priority = Priority.NORMAL) {
+    static IntervalTask create(final Runnable runnable, String name, long maxExecutionMillis = SECOND, int sleepMillis = SECOND, Priority priority = Priority.NORMAL) {
         return new IntervalTask(maxExecutionMillis, sleepMillis) {
             @Override
             void setup() {}

@@ -12,9 +12,17 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class Millis {
+    static final int MILLIS_10    = 10
+    static final int MILLIS_100   = 100
+    static final int MILLIS_200   = 200
+    static final int MILLIS_300   = 300
+    static final int HALF_SECOND  = 500
+    static final int MILLIS_800   = 800
+    static final int MILLIS_900   = 900
     static final int SECOND       = 1000
     static final int SECOND_2     = 2000
     static final int SECOND_3     = 3000
+    static final int SECOND_4     = 4000
     static final int SECOND_5     = 5000
     static final int SECOND_10    = 10000
     static final int SECOND_15    = 1500

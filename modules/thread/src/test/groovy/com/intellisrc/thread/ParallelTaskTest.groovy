@@ -1,9 +1,12 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicInteger
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/10.
@@ -33,7 +36,7 @@ class ParallelTaskTest extends Specification {
                         //Small but fast
                         (1..20).each {
                             print "s"
-                            sleep(10)
+                            sleep(MILLIS_10)
                         }
                         print "[s]"
                         smallFinished = true
@@ -42,7 +45,7 @@ class ParallelTaskTest extends Specification {
                         //Big and slow
                         (1..20).each {
                             print "B"
-                            sleep(30)
+                            sleep(MILLIS_10 * 3)
                         }
                         print "[B]"
                         bigFinished = true
@@ -51,7 +54,7 @@ class ParallelTaskTest extends Specification {
                         //Ratatouille mouse
                         (1..20).each {
                             print "r"
-                            sleep(20)
+                            sleep(MILLIS_10 * 2)
                         }
                         print "[r]"
                         ratFinished = true
@@ -106,7 +109,7 @@ class ParallelTaskTest extends Specification {
                 }
             }
             assert runnables.size() == 20
-            ParallelTask parallelTask = ParallelTask.create( runnables, "Sleeping", 5, 60 * 60 * 1000, Task.Priority.NORMAL, true)
+            ParallelTask parallelTask = ParallelTask.create( runnables, "Sleeping", 5, HOUR, Task.Priority.NORMAL, true)
             Tasks.add(parallelTask)
         expect :
             assert times.get() == 20
@@ -122,7 +125,7 @@ class ParallelTaskTest extends Specification {
                     runnables << {
                         println "[$instance] starting ..."
                         (1..10).each {
-                            sleep(100)
+                            sleep(MILLIS_100)
                         }
                         println "[$instance] finished in "+times.incrementAndGet()+" place"
                     }
@@ -131,11 +134,11 @@ class ParallelTaskTest extends Specification {
             ParallelTask parallelTask
             Tasks.runLater({
                 parallelTask.cancel()
-            }, "Later", 300)
-            parallelTask = ParallelTask.create(runnables, "Sleeping", 2, 10 * 1000, Task.Priority.NORMAL, true)
+            }, "Later", MILLIS_300)
+            parallelTask = ParallelTask.create(runnables, "Sleeping", 2, SECOND_10, Task.Priority.NORMAL, true)
             Tasks.add(parallelTask)
         when:
-            sleep(200)
+            sleep(MILLIS_200)
         then:
             assert parallelTask.cancelled
             assert times.get() < 4

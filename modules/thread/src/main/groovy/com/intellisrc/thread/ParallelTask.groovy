@@ -1,7 +1,10 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * Extend this class for process to be run
@@ -28,7 +31,7 @@ abstract class ParallelTask extends Task implements TaskCancellable {
      * @param maxExecutionMillis
      * @return
      */
-    static ParallelTask create(final List<Runnable> runnables, String name, int threads = 5, int maxExecutionMillis = 1000, Priority priority = Priority.NORMAL, boolean waitToEnd = false) {
+    static ParallelTask create(final List<Runnable> runnables, String name, int threads = 5, int maxExecutionMillis = SECOND, Priority priority = Priority.NORMAL, boolean waitToEnd = false) {
         return new ParallelTask(threads, maxExecutionMillis, waitToEnd) {
             @Override
             String getTaskName() {
@@ -53,7 +56,7 @@ abstract class ParallelTask extends Task implements TaskCancellable {
      * @param maxExecutionMillis
      * @return
      */
-    static ParallelTask create(final Runnable runnable, String name, int threads = 5, int maxExecutionMillis = 1000, Priority priority = Priority.NORMAL, boolean waitToEnd = false) {
+    static ParallelTask create(final Runnable runnable, String name, int threads = 5, int maxExecutionMillis = SECOND, Priority priority = Priority.NORMAL, boolean waitToEnd = false) {
         return new ParallelTask(threads, maxExecutionMillis, waitToEnd) {
             @Override
             String getTaskName() {

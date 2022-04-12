@@ -1,7 +1,14 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import spock.lang.Specification
+
+import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.HALF_SECOND
+import static com.intellisrc.core.Millis.HALF_SECOND
+import static com.intellisrc.core.Millis.HALF_SECOND
+import static com.intellisrc.core.Millis.HALF_SECOND
 
 
 /**
@@ -27,7 +34,7 @@ class ServiceTaskTest extends Specification {
                 while(running &&! goOut) {
                     calledTimes++
                     println "*****************[ CALLED $calledTimes ]**********************"
-                    sleep(100)
+                    sleep(MILLIS_100)
                     if(throwException) {
                         throwException = false
                         if(exit) {
@@ -56,11 +63,11 @@ class ServiceTaskTest extends Specification {
         expect:
             assert Tasks.add(st) : "Adding the first one should be ok"
         when:
-            sleep(500)
+            sleep(HALF_SECOND)
         then:
             assert !Tasks.add(st) : "Trying to add another one should fail"
         when:
-            sleep(500)
+            sleep(HALF_SECOND)
         then:
             assert Tasks.taskManager.pools.findAll { it.name.contains("ServiceTest") }.size() == 2 //Plus the monitor
             assert Tasks.taskManager.failed == 0
@@ -73,14 +80,14 @@ class ServiceTaskTest extends Specification {
             int called
         expect:
             assert Tasks.add(st) : "Adding the first one should be ok"
-            sleep(1000)
+            sleep(SECOND)
             assert Tasks.taskManager.pools.findAll { it.name.contains("ServiceTest") }.size() == 2 // Plus the monitor
             assert Tasks.taskManager.failed == 0
             assert st.calledTimes > 0
         when:
             called = st.calledTimes
             st.throwException = true
-            sleep(500)
+            sleep(HALF_SECOND)
         then:
             assert st.resetCalled
             assert st.calledTimes > 0
@@ -96,14 +103,14 @@ class ServiceTaskTest extends Specification {
             int called
         expect:
             assert Tasks.add(st) : "Adding the first one should be ok"
-            sleep(1000)
+            sleep(SECOND)
             assert Tasks.taskManager.pools.findAll { it.name.contains("ServiceTest") }.size() == 2 // Plus the monitor
             assert Tasks.taskManager.failed == 0
             assert st.calledTimes > 0
         when:
             called = st.calledTimes
             st.throwException = true
-            sleep(500)
+            sleep(HALF_SECOND)
         then:
             assert st.resetCalled
             assert st.calledTimes > 0

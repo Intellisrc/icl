@@ -2,6 +2,7 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import com.intellisrc.web.ServiciableWebSocket.WSMessage
 import groovy.transform.CompileStatic
@@ -66,7 +67,7 @@ class WebSocketService {
     void onConnect(JettySession sockSession) {
         if(sockSession) {
             // Set limits
-            sockSession.idleTimeout = timeout * 1000
+            sockSession.idleTimeout = timeout * Millis.SECOND
             sockSession.policy.maxBinaryMessageSize =
                 sockSession.policy.maxBinaryMessageBufferSize =
                     sockSession.policy.maxTextMessageSize =

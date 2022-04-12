@@ -1,5 +1,6 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import spock.lang.Specification
 
@@ -40,10 +41,10 @@ class CacheTest extends Specification {
          //   oc.set("Hello","World") <--must be marked by IDE as wrong
             oc.set(key,1, 3)
         expect:
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             assert oc.contains(key) : "Must exists in this point"
 
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             assert ! oc.contains(key) : "Must NOT exists in this point"
         cleanup:
             oc.clear()
@@ -55,13 +56,13 @@ class CacheTest extends Specification {
             def key = "Wow"
             oc.set(key,1, 3)
         expect:
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             assert oc.contains(key) : "After 2 seconds it should be there"
 
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             assert oc.contains(key) : "After 4 seconds it should be there as it was renewed"
 
-            sleep(4000)
+            sleep(Millis.SECOND_4)
             assert ! oc.contains(key) : "After 4 seconds from the last read it should NOT be there"
 
         cleanup:
@@ -75,10 +76,10 @@ class CacheTest extends Specification {
             //   oc.set("Hello","World") <--must be marked by IDE as wrong
             oc.set(key,1) //This will be forever
         expect:
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             assert oc.contains(key) : "Must exists in this point"
 
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             assert oc.contains(key) : "Must exists in this point"
         cleanup:
             oc.clear()

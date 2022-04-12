@@ -2,6 +2,7 @@ package com.intellisrc.thread
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import com.intellisrc.thread.Task.Priority
 import groovy.transform.CompileStatic
@@ -12,6 +13,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import static com.intellisrc.core.AnsiColor.*
+import static com.intellisrc.core.Millis.*
 
 /**
  * This class is used to simplify access to TaskManager
@@ -23,7 +25,7 @@ class Tasks {
     static String logFileName = Config.get("tasks.log.file", "status.log")
     static int minPoolSize = Config.get("tasks.pool.min", 1)
     static int maxPoolSize = Config.get("tasks.pool.max", 30)
-    static int bufferMillis = Config.get("tasks.buffer", 1000)
+    static int bufferMillis = Config.get("tasks.buffer", SECOND)
     static int timeout = Config.getInt("tasks.timeout")
     static boolean printOnScreen = Config.getBool("tasks.print")
     static boolean logToFile = Config.getBool("tasks.log")
@@ -89,7 +91,7 @@ class Tasks {
     static class TaskReset extends IntervalTask {
         LocalDate lastReset
         TaskReset() {
-            super(1000, 1000)
+            super(SECOND, SECOND)
             warnOnSkip = false
         }
 
@@ -136,7 +138,7 @@ class Tasks {
      * @param simpleProcess : Runnable
      * @param name
      */
-    static boolean add(Runnable simpleProcess, String name, Priority priority = Priority.NORMAL, int maxExecuteMillis = 1000) {
+    static boolean add(Runnable simpleProcess, String name, Priority priority = Priority.NORMAL, int maxExecuteMillis = SECOND) {
         taskManager.add(Task.create(simpleProcess, name, priority, maxExecuteMillis))
     }
     /**
@@ -320,8 +322,8 @@ class Tasks {
                 (item.startTime ? getLogDate(item.startTime) + " " + CYAN + SysClock.getTimeSince(item.setupTime, item.startTime).padRight(5) : " " * 23) + RESET + " | " +
                 (item.doneTime ? getLogDate(item.doneTime) + " " + CYAN + SysClock.getTimeSince(item.startTime, item.doneTime).padRight(5) + RESET + " " + item.executed.toString().padRight(7) : " " * 31) + RESET + " | " +
                 (item.failTime ? RED + getLogDate(item.failTime) + " " + CYAN + SysClock.getTimeSince(item.failTime).padRight(5) + " " + RED + item.failed.toString().padRight(5) : " " * 29) + RESET + " | " +
-                (summ ? dangerColor(summ.average, 500, item.maxExec ?: 1000) : " ".padRight(5)) + " | " +
-                (summ ? dangerColor(summ.maxTime, 500, item.maxExec ?: 1000) : " ".padRight(5)) + " | " +
+                (summ ? dangerColor(summ.average, HALF_SECOND, item.maxExec ?: SECOND) : " ".padRight(5)) + " | " +
+                (summ ? dangerColor(summ.maxTime, HALF_SECOND, item.maxExec ?: SECOND) : " ".padRight(5)) + " | " +
                 SysClock.millisToString(item.maxExec).padRight(5) + " | " +
                 SysClock.millisToString(item.sleep).padRight(5) + " | " +
                 (item.running ? (changed ? GREEN : YELLOW) : RED) + item.status + RESET + "\n"
@@ -341,14 +343,14 @@ class Tasks {
      */
     static void block() {
         while (taskManager.running) {
-            sleep(100)
+            sleep(MILLIS_100)
         }
     }
     /**
      * Report every N ms the status of tasks
      * @param each
      */
-    static void report(int each = 1000) {
+    static void report(int each = SECOND) {
         add(IntervalTask.create({
             logStatus()
         }, "Tasks.report", each, each, Priority.LOW))

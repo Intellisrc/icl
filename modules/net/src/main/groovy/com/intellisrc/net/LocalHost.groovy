@@ -1,6 +1,7 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 
 /**
@@ -8,17 +9,14 @@ import groovy.transform.CompileStatic
  * @since 2022/04/11.
  */
 @CompileStatic
-class LocalHost extends Host {
-    LocalHost() {
-        super("127.0.0.1".toInet4Address())
-    }
+class LocalHost {
+    final static Inet4Address loopbackAddress = "127.0.0.1".toInet4Address()
 
     /**
      * Returns the localhost name
      * @return
      */
-    @Override
-    String getName() {
+    static String getName() {
         return InetAddress.getLocalHost().getHostName()
     }
 
@@ -79,5 +77,14 @@ class LocalHost extends Host {
                 addresses.addAll(new NetFace(it).ip6List)
         }
         return addresses
+    }
+
+    /**
+     * Test if port is open in localhost
+     * @param port
+     * @return
+     */
+    static boolean hasOpenPort(int port) {
+        new Host(loopbackAddress).hasOpenPort(port, Millis.SECOND)
     }
 }

@@ -1,5 +1,6 @@
 package com.intellisrc.web.samples
 
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import com.intellisrc.web.WebSocketServiceClient
 
@@ -80,7 +81,7 @@ class ChatClient
         })
         wssc.sendMessage("Yoo Humans!")
         while(timeout > 0) {
-            Thread.sleep(1000L)
+            Thread.sleep(Millis.SECOND)
             timeout--
         }
         wssc.sendMessage("Hmm.. Boring you are. Quiting I am.")
