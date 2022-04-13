@@ -222,30 +222,148 @@ You can use `AnsiColor.decolor(string)` to remove colors from a string.
 
 ## Cmd 
 
-Execute system commands easily. Asynchronously or synchronously.
+Execute system commands easily, asynchronously or synchronously.
 
-### Examples:
+There are mainly two ways to use this class, using its static methods or
+creating an instance. 
+
+Using the static methods is much simple, but it lacks of many options which
+the instance supports.
+
+### Using static methods:
+
+Synchronously:
+```groovy
+String output = Cmd.exec("echo", [arg1, arg2])
+println output
+```
+
+Asynchronously:
+```groovy
+Cmd.async("echo", [arg1, arg2], {
+  String output ->
+     println output
+})
+```
+
+The `Fail` (on Fail) interface is optional in both methods:
 
 ```groovy
-Cmd.exec("echo",[arg1, arg2], {
-    String output ->
-        output.eachLine {
-            println "> " + it
-        }
-}, {
+Cmd.exec("unknown command", { /* on Fail */
     String err, int code ->
         Log.w("There was an error code [%d]: %s", code, err)
 })
 ```
 
-You can set special options like:
+Both methods accept different ways to specify your command:
+
 ```groovy
-Cmd.options(timeout: 2000, secret: true).exec(/*...*/)
+// All are the same:
+Cmd.exec("echo $arg1 $arg2")
+Cmd.exec("echo", [arg1, arg2])
+Cmd.exec(["echo", arg1, arg2])
 ```
 
-Or execute instructions asynchronously in the same way as `exec`:
+### Using instance
+
+Synchronously: This process will run in the foreground and will wait until
+it finishes to continue (default)
 ```groovy
-Cmd.async(/*...*/)
+// Additionally to the ways to set a command explained above,
+// the constructor supports variable arguments (String...)
+new Cmd("echo", arg1, arg2).getText {
+  String output ->
+    println output
+}.exec()
+```
+
+Asynchronously: Just set `true` in `exec` to send the process to the background.
+```groovy
+new Cmd("echo", arg1, arg2).getText {
+  String output ->
+    println output
+}.exec(/* background */ true)
+```
+
+You can add arguments on the go:
+```groovy
+new Cmd("echo")
+     .arg(arg1)
+     .arg([arg2, arg3])
+     .exec()
+```
+
+You can also return a `List` with all the lines:
+```groovy
+new Cmd("echo", arg1, arg2).getLines {
+  List<String> output ->
+        output.each { println it }
+}.exec()
+```
+
+Or process Line by Line:
+```groovy
+new Cmd("echo", arg1, arg2).eachLine {
+  String line ->
+    println line
+}.exec()
+```
+
+Or get the `stderr`:
+
+```groovy
+new Cmd("echo", arg1, arg2).eachError {
+  String errLine ->
+    println errLine
+}.exec()
+```
+
+Or execute something in case it fails:
+```groovy
+new Cmd("echo", arg1, arg2).onFail {
+  String msg, int code ->
+    Log.e("Command failed: {} with error {}", msg, code)
+}.exec()
+```
+
+You can also set a timeout:
+
+```groovy
+new Cmd("echo", arg1, arg2).eachLine {
+  String line ->
+    println line
+}.exec(/* timeout */ Millis.SECONDS_10)
+```
+
+Or cancel processes:
+```groovy
+Cmd cmd = new Cmd("sleep 50").exec(/*background*/ true)
+sleep(Millis.SECOND)
+cmd.cancel()
+```
+
+If you want to disable logs for a command (in case it might contain
+sensitive or private information):
+
+```groovy
+new Cmd("echo", arg1, arg2).secret(true).exec()
+```
+
+Change the default expected `exitCode` (which is 0):
+
+```groovy
+new Cmd("echo", arg1, arg2).exitCode(100).exec()
+```
+
+Pipes and multiple commands are supported (Windows too!):
+
+```groovy
+new Cmd("tail -f /var/log/syslog | grep 'auth' | sed 's/root/****/'")
+    .eachLine {  Log.i("Found line: %s", it) }
+    .onFail { String msg, int code -> Log.w("Something failed: %s", msg) }
+    .secret(true)
+    .exitCode(143)
+    .exec(/*background*/ true, /*timeout*/ Millis.HOUR)
 ```
 
 ## SysClock
