@@ -204,7 +204,7 @@ extends java.lang.Object</pre>
                         <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#async(List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.util.List&lt;java.lang.String&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one
+                            <td class="colLast"><code><strong><a href="#async(List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.util.List&lt;java.lang.String&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one
  example:
  [ "ls", "top" ]
  the output will be added</td>
@@ -213,7 +213,7 @@ extends java.lang.Object</pre>
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#async(Map, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.util.Map&lt;java.lang.String, java.util.List&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one with arguments
+                            <td class="colLast"><code><strong><a href="#async(Map, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.util.Map&lt;java.lang.String, java.util.List&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one with arguments
  example:
  [
    "ls" : ["-a","-b"],
@@ -225,19 +225,19 @@ extends java.lang.Object</pre>
                         <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#async(java.lang.String, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.lang.String cmd, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Executes a command Asynchronously</td>
+                            <td class="colLast"><code><strong><a href="#async(java.lang.String, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.lang.String cmd, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Executes a command Asynchronously</td>
                         </tr>
                         
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#async(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.lang.String cmd, java.util.List args, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br></td>
+                            <td class="colLast"><code><strong><a href="#async(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">async</a></strong>(java.lang.String cmd, java.util.List args, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br></td>
                         </tr>
                         
                         <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#exec(List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.util.List&lt;java.lang.String&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one
+                            <td class="colLast"><code><strong><a href="#exec(List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.util.List&lt;java.lang.String&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one
  example:
  [ "ls", "top" ]
  the output will be added</td>
@@ -246,7 +246,7 @@ extends java.lang.Object</pre>
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#exec(Map, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.util.Map&lt;java.lang.String, java.util.List&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one with arguments
+                            <td class="colLast"><code><strong><a href="#exec(Map, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.util.Map&lt;java.lang.String, java.util.List&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute multiple commands one by one with arguments
  example:
  [
    "ls" : ["-a","-b"],
@@ -258,13 +258,13 @@ extends java.lang.Object</pre>
                         <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#exec(java.lang.String, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.lang.String cmd, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute a command Synchronously</td>
+                            <td class="colLast"><code><strong><a href="#exec(java.lang.String, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.lang.String cmd, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br>Execute a command Synchronously</td>
                         </tr>
                         
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#exec(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.lang.String cmd, java.util.List args, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br></td>
+                            <td class="colLast"><code><strong><a href="#exec(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)">exec</a></strong>(java.lang.String cmd, java.util.List args, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</code><br></td>
                         </tr>
                         
                     </table>
@@ -377,7 +377,7 @@ extends java.lang.Object</pre>
                 </a>
                     <h3>Method Detail</h3>
                     
-                        <a name="async(List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="async(List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>async</strong>(java.util.List&lt;java.lang.String&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>
@@ -388,7 +388,7 @@ extends java.lang.Object</pre>
                             </li>
                         </ul>
                     
-                        <a name="async(Map, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="async(Map, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>async</strong>(java.util.Map&lt;java.lang.String, java.util.List&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>
@@ -402,7 +402,7 @@ extends java.lang.Object</pre>
                             </li>
                         </ul>
                     
-                        <a name="async(java.lang.String, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="async(java.lang.String, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>async</strong>(java.lang.String cmd, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>
@@ -411,7 +411,7 @@ extends java.lang.Object</pre>
                             </li>
                         </ul>
                     
-                        <a name="async(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="async(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>async</strong>(java.lang.String cmd, java.util.List args, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>
@@ -419,7 +419,7 @@ extends java.lang.Object</pre>
                             </li>
                         </ul>
                     
-                        <a name="exec(List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="exec(List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>exec</strong>(java.util.List&lt;java.lang.String&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>
@@ -430,7 +430,7 @@ extends java.lang.Object</pre>
                             </li>
                         </ul>
                     
-                        <a name="exec(Map, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="exec(Map, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>exec</strong>(java.util.Map&lt;java.lang.String, java.util.List&gt; cmds, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>
@@ -444,7 +444,7 @@ extends java.lang.Object</pre>
                             </li>
                         </ul>
                     
-                        <a name="exec(java.lang.String, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="exec(java.lang.String, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>exec</strong>(java.lang.String cmd, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>
@@ -453,7 +453,7 @@ extends java.lang.Object</pre>
                             </li>
                         </ul>
                     
-                        <a name="exec(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Done, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
+                        <a name="exec(java.lang.String, java.util.List, com.intellisrc.core.Cmd.Lines, com.intellisrc.core.Cmd.Fail)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>void <strong>exec</strong>(java.lang.String cmd, java.util.List args, <a href='../../../com/intellisrc/core/Cmd.Done.html'>Cmd.Done</a> onDone, <a href='../../../com/intellisrc/core/Cmd.Fail.html'>Cmd.Fail</a> onFail)</h4>

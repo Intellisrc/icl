@@ -23,6 +23,7 @@ class SysInfo {
     static OSType getOS() {
         def osType = OSType.UNKNOWN
         def osStr = System.getProperty("os.name")
+        //noinspection GroovyFallthrough
         switch(osStr) {
             case ~/(?i).*version.*service.*pack.*/ :
             case ~/.*(?i)win.*/ : osType = OSType.WINDOWS; break
@@ -101,7 +102,7 @@ class SysInfo {
      * New Line by OS
      */
     enum NewLine {
-        LINUX("\n"), IOS("\r"), WIN("\r\n")
+        LINUX("\n"), IOS("\n"), WIN("\r")
         final String value
         NewLine(String nl) { value = nl }
     }
@@ -111,15 +112,6 @@ class SysInfo {
      * @return
      */
     static private String getNewLineForCurrentOS() {
-        String nl = NewLine.LINUX.value
-        switch (getOS()) {
-            case OSType.IOS:
-                nl = NewLine.IOS.value
-                break
-            case OSType.WINDOWS:
-                nl = NewLine.IOS.value
-                break
-        }
-        return nl
+        return System.lineSeparator()
     }
 }
