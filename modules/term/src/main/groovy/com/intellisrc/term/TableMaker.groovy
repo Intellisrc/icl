@@ -103,7 +103,7 @@ class TableMaker {
 
     // Style used to generate table
     Stylable style = new SafeStyle()
-    final List<Column> columns = []
+    List<Column> columns = []
     final List<Row> rows = []
     boolean compact = false
     /**
