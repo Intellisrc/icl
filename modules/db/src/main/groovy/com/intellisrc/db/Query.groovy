@@ -141,6 +141,11 @@ class Query {
         String key = getKey() //For the moment no multiple keys allowed
         //noinspection GroovyFallthrough
         switch (where) {
+            case null:
+                if(key) {
+                    wherePart.append(sqlName(key) + " IS NULL")
+                }
+                break
             case String:
                 if(where.toString().contains("?")) {
                     def params = []
@@ -161,7 +166,11 @@ class Query {
             case Map:
                 (where as Map<String, Object>).each {
                     String k, Object v ->
-                        wherePart.append(sqlName(k) + " = ? ", [v])
+                        if(v == null) {
+                            wherePart.append(sqlName(k) + " IS NULL ")
+                        } else {
+                            wherePart.append(sqlName(k) + " = ? ", [v])
+                        }
                 }
                 break
             case LocalDateTime:
