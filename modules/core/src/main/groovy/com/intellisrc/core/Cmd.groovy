@@ -171,7 +171,10 @@ class Cmd {
      */
     protected void processCommand(int timeout) {
         try {
-            process = new ProcessBuilder().command(cmd).start()
+            ProcessBuilder pb = new ProcessBuilder()
+            // Import PATH
+            pb.environment().put("path", Config.env.get("path"))
+            process = pb.command(cmd).start()
             boolean done = false
             Thread.start {
                 try {
