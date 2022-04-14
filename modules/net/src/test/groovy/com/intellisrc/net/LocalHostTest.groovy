@@ -7,6 +7,7 @@ import spock.lang.Specification
 /**
  * @since 17/04/19.
  */
+@Ignore // Not available in CI/CD
 class LocalHostTest extends Specification {
     def "Free port"() {
         setup:

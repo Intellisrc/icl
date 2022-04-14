@@ -6,6 +6,7 @@ import spock.lang.Specification
 /**
  * @since 2022/04/12.
  */
+@Ignore // Not available in CI/CD
 class NetFaceTest extends Specification {
     def "get first ip4"() {
         setup :

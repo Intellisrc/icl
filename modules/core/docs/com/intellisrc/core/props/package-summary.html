@@ -22,7 +22,7 @@
 <html>
 <head>
 
-<title>com.intellisrc.core.props (core 2.8.3 API)</title>
+<title>com.intellisrc.core.props (core 2.8.4 API)</title>
 <meta name="keywords" content="com.intellisrc.core.props package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" title="Style">
@@ -31,7 +31,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.intellisrc.core.props (core 2.8.3 API)";
+    parent.document.title="com.intellisrc.core.props (core 2.8.4 API)";
 }
 </script>
 <noscript>
@@ -125,14 +125,6 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="PrefixedPropertiesRW.html" title="class in com/intellisrc/core/props">
-                                    PrefixedPropertiesRW
-                                </a></strong>
-                            </td>
-                            <td> <DL><DT><B>Since:</B></DT><DD>2021/07/26.</DD></DL></td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
                                 <strong><a href="PropertiesGet.html" title="class in com/intellisrc/core/props">
                                     PropertiesGet
                                 </a></strong>
@@ -148,6 +140,34 @@ function windowTitle()
                                 </a></strong>
                             </td>
                             <td>A class which has common get/set methods</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="StringPropertiesGet.html" title="class in com/intellisrc/core/props">
+                                    StringPropertiesGet
+                                </a></strong>
+                            </td>
+                            <td>This class is a partial implementation
+ for those classes which get values
+ as String (Properties)</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="StringPropertiesSet.html" title="class in com/intellisrc/core/props">
+                                    StringPropertiesSet
+                                </a></strong>
+                            </td>
+                            <td>This class is a partial implementation
+ for those classes which stores values
+ as String (Config, BerkeleyDB, etc)</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="StringToYamlConverter.html" title="class in com/intellisrc/core/props">
+                                    StringToYamlConverter
+                                </a></strong>
+                            </td>
+                            <td>Yaml conversion from String</td>
                         </tr>
 
                     </tbody>
@@ -170,6 +190,23 @@ function windowTitle()
                     </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="AnyProperties.html" title="class in com/intellisrc/core/props">
+                                    AnyProperties
+                                </a></strong>
+                            </td>
+                            <td>These properties will try to find any property either
+ in `Environment variables`, `config.properties` and `System.properties` (in that order)</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="EnvironmentProperties.html" title="class in com/intellisrc/core/props">
+                                    EnvironmentProperties
+                                </a></strong>
+                            </td>
+                            <td>Environment Properties accessor</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="StringProperties.html" title="class in com/intellisrc/core/props">
                                     StringProperties
                                 </a></strong>
@@ -184,7 +221,7 @@ function windowTitle()
                                     StringPropertiesYaml
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>String properties in which List and Map are converted from/into YAML objects</td>
                         </tr>
 
                     </tbody>

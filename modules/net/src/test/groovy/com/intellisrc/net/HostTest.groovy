@@ -1,11 +1,13 @@
 package com.intellisrc.net
 
 import com.intellisrc.core.Millis
+import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
  * @since 2022/04/12.
  */
+@Ignore // Not available in CI/CD
 class HostTest extends Specification {
     def "host is connected"() {
         expect:
