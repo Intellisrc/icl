@@ -30,6 +30,7 @@ class NetFace {
                 }
         }
     }
+
     /**
      * For convenience, it returns the first IP4 found
      * @return

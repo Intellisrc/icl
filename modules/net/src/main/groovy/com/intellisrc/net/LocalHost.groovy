@@ -96,6 +96,20 @@ class LocalHost {
     }
 
     /**
+     * Get the NetFace by name
+     * @param name
+     * @return
+     */
+    static Optional<NetFace> getNetFace(String name) {
+        NetFace face = null
+        NetworkInterface iface = interfaces.find { it.name.toLowerCase() == name.toLowerCase() }
+        if(iface) {
+            face = new NetFace(iface)
+        }
+        return Optional.ofNullable(face)
+    }
+
+    /**
      * Get all IP addresses registered in local host
      * @return
      */
@@ -126,6 +140,7 @@ class LocalHost {
     static NetFace getLocalNetFace() {
         return new NetFace(getNetworkInterface(localNetworkIp4).get())
     }
+
     /**
      * Get all local network IP addresses registered in local host
      * @return
