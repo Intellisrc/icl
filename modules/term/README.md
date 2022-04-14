@@ -210,6 +210,15 @@ The available styles are (additionally to the `SafeStyle` shown before:
 To create your own style, you can either extend any of the previous styles, 
 extend the abstract class `BasicStyle` or implement `Stylable` interface.
 
+You can also change the border color:
+
+```groovy
+TableMaker table = new TableMaker(
+    compact: true,
+    borderColor : AnsiColor.CYAN
+)
+```
+
 #### Customizing columns or cells
 
 You can further customize columns or how data is displayed by accessing
@@ -244,6 +253,35 @@ Example: (colors are not displayed, but are indicated)
 │ All names here are fictitious                 │
 └───────────────────────────────────────────────┘
 ```
+
+Another way to customize columns is during initialization:
+
+```groovy
+
+TableMaker table = new TableMaker(
+    columns : [
+        new Column(
+            header : "Name",
+            maxLen : 10,
+            /* ... */ 
+        ),
+        new Column(
+            header : "Email",
+            maxLen : 10,
+            formatter : {
+                return "<${it}>"
+            },
+            color : {
+                return it.toString().contains("example.com") ? BLUE : CYAN
+            }
+        ),
+
+    ],
+    compact: true,
+)
+```
+
+
 ## Console
 
 This class is a wrapper around `jLine` with the idea of making it easier

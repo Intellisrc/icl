@@ -23,4 +23,5 @@ interface Stylable {
     boolean getWindow()
     boolean getBorders()
     boolean getPadding()
+    Map<String, String> getAll()
 }

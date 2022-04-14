@@ -103,6 +103,7 @@ class TableMaker {
 
     // Style used to generate table
     Stylable style = new SafeStyle()
+    String borderColor = ""
     List<Column> columns = []
     final List<Row> rows = []
     boolean compact = false
@@ -222,11 +223,13 @@ class TableMaker {
     //@Override
     String toString(boolean compacted = compact) {
         List<String> lines = []
-        String rs = style.rowSeparator
-        String cs = style.colSeparator
-        String hb = style.horizontalBorder
-        String vb = style.verticalBorder
-
+        Map<String, String> s = style.all
+        // Add border color
+        if(borderColor) {
+            s.keySet().each {
+                s[it] = borderColor + s[it] + RESET
+            }
+        }
         // Initialize map with min values
         Map<Column, Double> colWidthStats = columns.collectEntries {
             [(it) : it.minLen ]
@@ -279,7 +282,7 @@ class TableMaker {
 
         Closure getHR = {
             String sep, boolean border ->
-                String ch = border ? hb : rs
+                String ch = border ? s.hb : s.rs
                 return ch + columns.collect {
                     ch * it.maxLen
                 }.findAll { it != "" }.join(ch + sep + ch) + ch
@@ -287,31 +290,31 @@ class TableMaker {
 
         // Top border
         if (style.window) {
-            lines << (style.topLeft + getHR(style.horizontalDown, true) + style.topRight)
+            lines << (s.tl + getHR(s.hd, true) + s.tr)
         }
         if (hasHeaders()) {
-            lines << ((style.window ? vb + " " : '') + columns
+            lines << ((style.window ? s.vb + " " : '') + columns
                 .findAll { ! (it.hideWhenEmpty && emptyCol.get(it)) }
                 .collect { it.fmtHeader }
-                .join(" " + cs + " ") + (style.window ? " " + vb : ''))
-            lines << (style.verticalRight + getHR(style.intercept, false) + style.verticalLeft)
+                .join(" " + s.cs + " ") + (style.window ? " " + s.vb : ''))
+            lines << (s.vr + getHR(s.in, false) + s.vl)
         }
         rows.each {
             Row row ->
-                lines << ((style.window ? vb + " " : '') + row.cells.withIndex().collect {
+                lines << ((style.window ? s.vb + " " : '') + row.cells.withIndex().collect {
                     Object cell, int i ->
                         Column col = columns.get(i)
                         boolean include = !(col.hideWhenEmpty && emptyCol.get(col))
                         return include ? col.format(cell) : null
-                }.findAll { it != null }.join(" " + cs + " ") + (style.window ? " " + vb : ''))
+                }.findAll { it != null }.join(" " + s.cs + " ") + (style.window ? " " + s.vb : ''))
                 boolean lastRow = row == rows.last()
                 if(lastRow &&! hasFooter()) {
-                    lines << (style.bottomLeft + getHR(style.horizontalUp, true) + style.bottomRight)
+                    lines << (s.bl + getHR(s.hu, true) + s.br)
                 } else if(!compacted || lastRow) {
                     if(lastRow && columns.first().expandFooter) {
-                        lines << (style.verticalRight + getHR(style.horizontalUp, false) + style.verticalLeft)
+                        lines << (s.vr + getHR(s.hu, false) + s.vl)
                     } else {
-                        lines << (style.verticalRight + getHR(style.intercept, false) + style.verticalLeft)
+                        lines << (s.vr + getHR(s.in, false) + s.vl)
                     }
                 }
         }
@@ -319,22 +322,22 @@ class TableMaker {
             if(columns.first().expandFooter) {
                 Column first = columns.first()
                 lines << (
-                    (style.window ? vb + " " : '') +
+                    (style.window ? s.vb + " " : '') +
                     first.trimPad(first.footer.toString(), (columns.findAll { ! emptyCol.get(it) }.sum { it.maxLen } as int) + // We don't use fmtFooter as that one is trimmed
-                    ((emptyCol.count { ! it.value } as int) - 1) * 3) + (style.window ? " " + vb : '')
+                    ((emptyCol.count { ! it.value } as int) - 1) * 3) + (style.window ? " " + s.vb : '')
                 )
             } else {
                 lines << (
-                    (style.window ? vb + " " : '') +
+                    (style.window ? s.vb + " " : '') +
                     columns
                         .findAll { ! (it.hideWhenEmpty && emptyCol.get(it)) }
-                        .collect { it.fmtFooter }.join(" " + cs + " ") +
-                    (style.window ? " " + vb : '')
+                        .collect { it.fmtFooter }.join(" " + s.cs + " ") +
+                    (style.window ? " " + s.vb : '')
                 )
             }
             // Bottom border
             if (style.window) {
-                lines << (style.bottomLeft + getHR(columns.first().expandFooter ? rs : style.horizontalUp, true) + style.bottomRight)
+                lines << (s.bl + getHR(columns.first().expandFooter ? s.rs : s.hu, true) + s.br)
             }
         }
         return lines.join("\n")
