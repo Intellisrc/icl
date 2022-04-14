@@ -27,6 +27,7 @@ import java.time.LocalTime
 class Config {
     static public Props global = new Props(new File(File.userDir, "config.properties"))
     static public Props system = new Props(System.properties)
+    static public final Props sys = system //Alias
     static public EnvironmentProperties env = new EnvironmentProperties()
     static public AnyProperties any = new AnyProperties()
 
