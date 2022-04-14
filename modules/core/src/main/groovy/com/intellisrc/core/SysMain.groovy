@@ -29,7 +29,10 @@ abstract class SysMain {
                     Log.e("Unable to initialize main class", e)
                 }
             } else {
-                Log.e("`main` is not defined. To define it, set it in 'config.properties' e.g. 'main.class = org.example.app.MyClass' or use: \n static { main = new MyClass() }\n inside MyClass")
+                Log.e("`main` is not defined. To define it, set it in 'config.properties' " +
+                    "e.g. 'main.class = org.example.app.MyClass' or use: " + SysInfo.newLine +
+                    " static { main = new MyClass() }" + SysInfo.newLine +
+                    " inside MyClass")
                 System.exit(3)
             }
         }

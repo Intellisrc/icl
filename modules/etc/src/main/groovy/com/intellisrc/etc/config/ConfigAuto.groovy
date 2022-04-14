@@ -2,8 +2,8 @@ package com.intellisrc.etc.config
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.props.PrefixedPropertiesRW
 import com.intellisrc.core.props.PropertiesGet
+import com.intellisrc.core.props.StringProperties
 import com.intellisrc.core.props.StringPropertiesYaml
 import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.BerkeleyDB
@@ -42,7 +42,7 @@ class ConfigAuto {
     static File defaultCfgFile = Config.getFile("config.auto.file", "system.properties")
 
     final File cfgFile
-    final PrefixedPropertiesRW props
+    final StringProperties props
     boolean importOnStart = Config.get("config.auto.import", true)
     // If `exportOnSave` is true, each time a value is updated in the db, it will also update
     // the config file (by default will save on exit)
@@ -191,7 +191,7 @@ class ConfigAuto {
      * @param configFile : where to store the configuration
      * @param storage : Storage used to save properties (Berkeley by default)
      */
-    ConfigAuto(String basePackage, File configFile, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
+    ConfigAuto(String basePackage, File configFile, StringProperties storage = new BerkeleyDB("main", "config")) {
         props = storage
         cfgFile = configFile
         try {
@@ -213,7 +213,7 @@ class ConfigAuto {
             Log.e("Unable to start AutoConfig", e)
         }
     }
-    ConfigAuto(String basePackage, PrefixedPropertiesRW storage = new BerkeleyDB("main", "config")) {
+    ConfigAuto(String basePackage, StringProperties storage = new BerkeleyDB("main", "config")) {
         this(basePackage, defaultCfgFile, storage)
     }
 
@@ -378,7 +378,7 @@ class ConfigAuto {
                     field.set(null, getter ? getter.getBigDec(key) : obj as BigDecimal)
                     break
                 case File:
-                    field.set(null, getter ? getter.getFile(key)?.get() : (obj instanceof File ? obj : SysInfo.getFile(obj.toString())))
+                    field.set(null, getter ? getter.getFile(key)?.get() : (obj instanceof File ? obj : File.get(obj.toString())))
                     break
                 case LocalDateTime:
                     field.set(null, getter ? getter.getDateTime(key)?.get() : (obj instanceof LocalDateTime ? obj : obj.toString().toDateTime()))

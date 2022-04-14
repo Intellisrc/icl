@@ -1,7 +1,18 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import spock.lang.Specification
+
+import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.HALF_SECOND
+import static com.intellisrc.core.Millis.HALF_SECOND
+import static com.intellisrc.core.Millis.HALF_SECOND
+import static com.intellisrc.core.Millis.MILLIS_100
+import static com.intellisrc.core.Millis.MILLIS_100
+import static com.intellisrc.core.Millis.MILLIS_200
+import static com.intellisrc.core.Millis.MILLIS_900
+import static com.intellisrc.core.Millis.SECOND_2
 
 /**
  * @since 2019/09/10.
@@ -51,13 +62,13 @@ class IntervalTaskTest extends Specification {
     
     def "Timings must match"() {
         setup:
-            int sleepTimeMilliSecs = 500
-            int maxExecutionTime = 1000
+            int sleepTimeMilliSecs = HALF_SECOND
+            int maxExecutionTime = SECOND
             ProcessTest pt = new ProcessTest(maxExecutionTime, sleepTimeMilliSecs)
-            pt.processTimeMilliSec = 200
+            pt.processTimeMilliSec = MILLIS_200
             Tasks.add(pt)
             Log.i("Sleeping ...")
-            int wait = 2000
+            int wait = SECOND_2
             sleep(wait)
             Log.i("Time's up!")
         expect:
@@ -89,7 +100,7 @@ class IntervalTaskTest extends Specification {
                 //while(threadState != State.TERMINATED) {
                 for(int i = 0;; i++) {
                     Log.i("[%s] <%d> Looping (%d) ...", Thread.currentThread().name, fid, i)
-                    sleep(100)
+                    sleep(MILLIS_100)
                 }
             }
         }
@@ -115,11 +126,11 @@ class IntervalTaskTest extends Specification {
     def "Frozen case"() {
         setup:
             //Turn off detection for this test:
-            int maxExec = 500
-            int sleepMillis = 100
+            int maxExec = HALF_SECOND
+            int sleepMillis = MILLIS_100
             FrozenIntervalTest ft = new FrozenIntervalTest(maxExec, sleepMillis)
             assert Tasks.add(ft)
-            sleep(100)
+            sleep(sleepMillis)
             TaskPool pool = Tasks.taskManager.pools.find {
                 it.name == "FrozenIntervalTest"
             }
@@ -133,7 +144,7 @@ class IntervalTaskTest extends Specification {
             assert ft.callTimes == 1
         when:
             Log.i("sleeping... ")
-            int waitTime = 2000
+            int waitTime = SECOND_2
             sleep(waitTime)
         then:
             Log.i("[%s] Status: %s", info.name, info.state)
@@ -150,12 +161,12 @@ class IntervalTaskTest extends Specification {
         setup:
             IntervalTask task = IntervalTask.create({
                 println ("Doing...")
-                sleep(900)
+                sleep(MILLIS_900)
                 println ("Done")
-            },"IntervalTest", 1000, 10)
+            },"IntervalTest", SECOND, MILLIS_10)
             task.warnOnSkip = false
             Tasks.add(task)
-            sleep(1000)
+            sleep(SECOND)
         expect:
             assert Tasks.taskManager.pools.findAll { it.name.contains("Interval") }.size() == 2 // + 1 Timeout
             assert Tasks.taskManager.pools.find { it.name.contains("Interval") }.executed < 3
@@ -168,16 +179,16 @@ class IntervalTaskTest extends Specification {
             int counter = 0
             IntervalTask task = IntervalTask.create({
                 println (++counter)
-            },"IntervalTest", 200, 100)
+            },"IntervalTest", MILLIS_200, MILLIS_100)
             Tasks.add(task)
-            sleep(500)
+            sleep(HALF_SECOND)
         when:
             task.cancel()
         then:
             assert task.cancelled
             assert counter > 4 && counter < 8
         when:
-            sleep(800)
+            sleep(MILLIS_800)
         then:
             assert counter > 4 && counter < 8
         cleanup:

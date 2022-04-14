@@ -10,7 +10,7 @@ class ConverterTest extends Specification {
 
     def "Convert File to BufferedImage"() {
         setup:
-            assert imgTest : "File not found."
+            assert imgTest.exists() : "File not found."
         when:
             BufferedImage img = Converter.FileToBuffered(imgTest)
         then:

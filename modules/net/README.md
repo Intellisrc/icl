@@ -61,10 +61,31 @@ smtp.send(listOfAddresses, subject, body)
 ```
 
 ## MacAddress
-Convert format from and to MacAddress: XX:XX:XX:XX
+Convert format from and to MacAddress format: 
+
+> Note: although it is usually used with networking, this class can be used in any
+> other context in which you need to handle pairs of hexadecimal values.
+
+From String to binary array
 ```groovy
-MacAddress mac = MacAddress.fromString("AA:BB:CC:00:11") //it will be stored as byte[]
-println mac.toString()
+MacAddress mac = MacAddress.fromString("3F:1A:99:05:3C:1B") //it will be stored as byte[]
+byte[] bytes = mac.bytes
+println bytes // [63, 42, 143, 5, 60, 27]
+```
+From binary array to String:
+```groovy
+MacAddress mac = new MacAddress(
+    bytes : [63, 42, 143, 5, 60, 27] as byte[],
+    separator : '-',    // Default ':'
+    upperCase : false   // Default true
+)
+println mac.toString() // 3f-2a-99-05-3c-1b
+```
+From String to String:
+```groovy
+MacAddress mac = MacAddress.fromString("3F-1a-99-05-3c-1B") // mixed case, any separator, any length
+mac.separator = ''
+println mac.toString() // 3F1A99053C1B
 ```
 
 ## Network

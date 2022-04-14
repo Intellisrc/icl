@@ -149,7 +149,7 @@ class Version {
      */
     static private Config.Props getGradleProps() {
         Config.Props props = null
-        File bg = new File(SysInfo.userDir, "gradle.properties")
+        File bg = new File(File.userDir, "gradle.properties")
         if(bg.exists()) {
             props = new Config.Props(bg)
         }

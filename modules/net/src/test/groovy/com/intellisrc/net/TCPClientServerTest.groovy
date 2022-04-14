@@ -10,7 +10,7 @@ import java.time.LocalDate
  * @since 17/03/03.
  */
 class TCPClientServerTest extends Specification {
-    def port = NetworkInterface.getFreePort()
+    def port = LocalHost.freePort
     TCPClient client
     TCPServer server
     String sendHello = "Hello Server"

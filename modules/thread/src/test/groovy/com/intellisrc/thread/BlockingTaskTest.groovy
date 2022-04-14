@@ -3,6 +3,7 @@ package com.intellisrc.thread
 import com.intellisrc.core.Log
 import spock.lang.Specification
 
+import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/17.
@@ -17,7 +18,7 @@ class BlockingTaskTest extends Specification {
         setup:
             int times = 5
             int called = 0
-            int sleepTime = 100
+            int sleepTime = MILLIS_10
             BlockingTask blockingTask = BlockingTask.create({
                 sleep(sleepTime)
                 Log.i("Blocked %s", ++called)
@@ -36,19 +37,19 @@ class BlockingTaskTest extends Specification {
             boolean two = false
             Thread.start {
                 Tasks.run({
-                    sleep(500)
+                    sleep(HALF_SECOND)
                     one = true
                 }, "blocker")
             }
-            sleep(100)
+            sleep(MILLIS_100)
             Thread.start {
                 Tasks.run({
-                    sleep(500)
+                    sleep(HALF_SECOND)
                     two = true
                 }, "blocker")
             }
         when:
-            sleep(850)
+            sleep(MILLIS_800)
         then:
             assert one && two
     }

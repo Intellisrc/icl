@@ -1,6 +1,7 @@
 package com.intellisrc.serial
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 import jssc.SerialPort
@@ -48,7 +49,7 @@ class Serial extends Seriable {
                 }
             } catch(Exception e) {
                 Log.w("Unable to open port [%s] : %s", serialPort, e.message)
-                sleep(1000)
+                sleep(Millis.SECOND)
             }
         }
     }

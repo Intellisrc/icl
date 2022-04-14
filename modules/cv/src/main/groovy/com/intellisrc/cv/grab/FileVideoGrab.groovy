@@ -2,6 +2,7 @@ package com.intellisrc.cv.grab
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.cv.CvFrameShot
 import com.intellisrc.cv.VideoGrab
 import com.intellisrc.img.FrameShot
@@ -116,7 +117,7 @@ class FileVideoGrab extends VideoGrab {
         if(!files.empty) {
             files.sort { a,b -> a.lastModified() <=> b.lastModified() }.any {
                 File file ->
-                    sleep(Math.round(1000d / fps).toInteger())
+                    sleep(Math.round((Millis.SECOND / fps) as double).toInteger())
                     return ! frameCallback.call(file)
             }
         }

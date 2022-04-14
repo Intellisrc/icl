@@ -21,6 +21,7 @@ class DummyConnector implements DB.Connector {
     private opened = false
     long lastUsed = 0
 
+    @Override
     boolean isOpen() {
         Log.v( "Is database open? "+(opened ? "YES" : "NO"))
         return opened
@@ -31,12 +32,14 @@ class DummyConnector implements DB.Connector {
         return "dummy"
     }
 
+    @Override
     boolean open() {
         opened = true
         Log.v( "Database opened")
         return opened
     }
 
+    @Override
     boolean close() {
         Log.v( "Database closed")
         opened = false
@@ -44,15 +47,18 @@ class DummyConnector implements DB.Connector {
         return true
     }
 
+    @Override
     DB.Statement prepare(Query query, boolean silent) {
         Log.v( "Query prepared: "+query.toString())
         return new DummyStatement()
     }
 
-    void onError(Exception ex) {
+    @Override
+    void onError(Throwable ex) {
         Log.e( "Error reported: ", ex)
     }
 
+    @Override
     JDBC getJdbc() {
         return new Dummy()
     }
@@ -74,22 +80,27 @@ class DummyConnector implements DB.Connector {
         List<Map<String,Object>> data = []
         private int dataIndex = 0
 
+        @Override
         boolean next() {
             return dataIndex++ < data.size()
         }
 
+        @Override
         void close() {
             data.clear()
         }
 
+        @Override
         int columnCount() {
             return data.first().keySet().size()
         }
 
+        @Override
         int firstColumn() {
             return 0
         }
 
+        @Override
         ColumnType columnType(int index) {
             ColumnType type = ColumnType.NULL
             if(index < columnCount() &! data.isEmpty()) {
@@ -104,35 +115,43 @@ class DummyConnector implements DB.Connector {
             return type
         }
 
+        @Override
         String columnName(int index) {
             Set<String> columns = data.first().keySet()
             return columns[index]
         }
 
+        @Override
         String columnStr(int index) {
             return data[dataIndex].get(columnName(index)).toString()
         }
 
+        @Override
         Integer columnInt(int index) {
             return Integer.parseInt(columnStr(index))
         }
 
+        @Override
         Float columnFloat(int index) {
             return Float.parseFloat(columnStr(index))
         }
 
+        @Override
         Double columnDbl(int index) {
             return Double.parseDouble(columnStr(index))
         }
 
+        @Override
         LocalDateTime columnDate(int index) {
             return LocalDateTime.parse(columnStr(index), DateTimeFormatter.ofPattern(datePattern))
         }
 
+        @Override
         byte[] columnBlob(int index) {
             return new byte[0]
         }
 
+        @Override
         boolean isColumnNull(int index) {
             return data[dataIndex].get(columnName(index)) == null
         }

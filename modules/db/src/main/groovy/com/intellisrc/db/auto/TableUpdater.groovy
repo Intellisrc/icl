@@ -34,20 +34,20 @@ class TableUpdater {
     }
     /**
      * Update a list of Table (instances)
-     * If a table has `onUpdate` interface set,
      *
      * NOTE: Adding columns or performing minor column changes (like length,
      *      onDelete conditions, unique constrains, indices, auto-increment,
-     *      etc) may not need to use a onUpdate.
+     *      etc) may not need to use `onUpdate`.
      *
      * @param tables
      * @param recordUpdater
      */
-    static void update(List<Table> tableList) {
+    static boolean update(List<Table> tableList) {
         DB db = Database.default.connect()
         Table.alwaysCheck = true
         DB.disableCache = true
 
+        boolean ok = false
         //noinspection GroovyFallthrough
         switch (db.jdbc) {
             case MySQL:
@@ -56,74 +56,124 @@ class TableUpdater {
                 break
             default:
                 Log.w("Only MySQL/MariaDB is supported for now.")
-                return
+                return ok
         }
-        db.exec(new Query("SET FOREIGN_KEY_CHECKS=0"))
-        List<TableInfo> tables = []
-        tableList.each {
-            tables << new TableInfo(
-                    table : it
-            )
-        }
-        boolean ok = ! tables.any { // It will stop if some table fails to create
-            TableInfo info ->
-                if(! db.table(info.backName).exists()) {
-                    db.exec(new Query("CREATE TABLE `${info.backName}` LIKE `${info.name}`"))
-                    db.exec(new Query("INSERT INTO `${info.backName}` SELECT * FROM `${info.name}`"))
-                }
-                return ! db.table(info.backName).exists()
-        }
-        if(ok) {
-            tables.reverseEach {
-                if(db.table(it.name).exists()) {
-                    db.table(it.name).drop()
-                }
+        if(db.set(new Query("SET FOREIGN_KEY_CHECKS=0"))) {
+            List<TableInfo> tables = []
+            tableList.each {
+                tables << new TableInfo(
+                    table: it
+                )
             }
-            ok = ! tables.any {
-                it.table.createTable()
-                return ! db.table(it.name).exists()
-            }
-            if(ok) {
-                tables.each {
-                    TableInfo info ->
-                        if (info.table.manualUpdate(db.table(info.backName), info.table.tableVersion, info.table.definedVersion)) {
-                            List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
-                            ok = db.table(info.name).insert(newData)
+            ok = !tables.any {
+                    // It will stop if some table fails to create
+                TableInfo info ->
+                    if (!db.table(info.backName).exists()) {
+                        if(db.set(new Query("CREATE TABLE `${info.backName}` LIKE `${info.name}`"))) {
+                            if(! db.set(new Query("INSERT INTO `${info.backName}` SELECT * FROM `${info.name}`"))) {
+                                db.table(info.backName).drop()
+                                return true //failed
+                            }
                         } else {
-                            db.exec(new Query("INSERT IGNORE INTO `${info.name}` SELECT * FROM `${info.backName}`"))
+                            return true //failed
                         }
+                    }
+                    return !db.table(info.backName).exists()
+            }
+            if (ok) {
+                tables.reverseEach {
+                    if (db.table(it.name).exists()) {
+                        db.table(it.name).drop()
+                    }
+                }
+                ok = !tables.any {
+                    it.table.createTable()
+                    return !db.table(it.name).exists()
+                }
+                if (ok) {
+                    tables.each {
+                        TableInfo info ->
+                            if (info.table.execOnUpdate(db.table(info.backName), info.table.tableVersion, info.table.definedVersion)) {
+                                List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
+                                ok = db.table(info.name).insert(newData)
+                            } else {
+                                ok = db.set(new Query("INSERT IGNORE INTO `${info.name}` SELECT * FROM `${info.backName}`"))
+                                if(!ok) {
+                                    // Probably column mismatch (using row by row method):
+                                    List<String> columnsOld = db.table(info.backName).info().collect { it.name }
+                                    List<String> columnsNew = db.table(info.name).info().collect { it.name }
+                                    List<String> columnsAdded = columnsNew - columnsOld
+                                    List<String> columnsRemoved = columnsOld - columnsNew
+                                    List<Map> newData = db.table(info.backName).get().toListMap().collect {
+                                        Map row ->
+                                            if (!columnsAdded.empty) {
+                                                columnsAdded.each {
+                                                    row[it] = null
+                                                }
+                                            }
+                                            if (!columnsRemoved.empty) {
+                                                columnsRemoved.each {
+                                                    row.remove(it)
+                                                }
+                                            }
+                                            return row
+                                    }
+                                    Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
+                                    ok = db.table(info.name).insert(newData)
+                                    if(ok) {
+                                        Log.i("Data was successfully imported.")
+                                    } else {
+                                        Log.w("Unable to import data to the new table structure. Try setting `execOnUpdate()` to true, and handle the data change in `onUpdate()`.")
+                                    }
+                                }
+                            }
+                    }
+                }
+                if (ok) {
+                    tables.each {
+                        TableInfo info ->
+                            db.table(info.backName).drop()
+                            // Replace the table version:
+                            String comment = info.table.comment
+                            String version = "v." + info.table.definedVersion
+                            if (comment =~ /v.(\d+)/) {
+                                comment = comment.replaceAll(/v.(\d+)/, version)
+                            } else {
+                                comment = (comment.empty ? "" : " ") + "${version}"
+                            }
+                            db.set(new Query("ALTER TABLE `${info.name}` COMMENT = '${comment}'"))
+                    }
+                } else {
+                    Log.w("Update failed!. Rolled back.")
+                    tables.each {
+                        TableInfo info ->
+                            db.table(info.name).drop()
+                            if(db.set(new Query("CREATE TABLE `${info.name}` LIKE `${info.backName}`"))) {
+                                if(db.set(new Query("INSERT INTO `${info.name}` SELECT * FROM `${info.backName}`"))) {
+                                    db.table(info.backName).drop()
+                                } else { //Table created but unable to import
+                                    db.table(info.name).drop()
+                                    if(!db.set(new Query("ALTER TABLE `${info.backName}` RENAME TO `${info.name}`"))) {
+                                        Log.w("Unable to rollback update. Please check table: [%s] manually.", info.name)
+                                        Log.w("    a backup of original table may exists with name: ", info.backName)
+                                    }
+                                }
+                            } else {
+                                if(!db.set(new Query("ALTER TABLE `${info.backName}` RENAME TO `${info.name}`"))) {
+                                    Log.w("Unable to rollback update. Please check table: [%s] manually.", info.name)
+                                    Log.w("    a backup of original table may exists with name: ", info.backName)
+                                }
+                            }
+                    }
                 }
             }
-            if(ok) {
-                tables.each {
-                    TableInfo info ->
-                        db.table(info.backName).drop()
-                }
-            } else {
-                Log.w("Update failed!. Rolled back.")
-                tables.each {
-                    TableInfo info ->
-                        db.table(info.name).drop()
-                        db.exec(new Query("CREATE TABLE `${info.name}` LIKE `${info.backName}`"))
-                        db.exec(new Query("INSERT INTO `${info.name}` SELECT * FROM `${info.backName}`"))
-                        db.table(info.backName).drop()
-                        // Replace the table version:
-                        String comment = info.table.comment
-                        String version = "v." + info.table.definedVersion
-                        if(comment =~ /v.(\d+)/) {
-                            comment = comment.replaceAll(/v.(\d+)/, version)
-                        } else {
-                            comment = (comment.empty ? "" : " ") + "${version}"
-                        }
-                        db.exec(new Query("ALTER TABLE `${info.name}` COMMENT = '${comment}'"))
-                }
-            }
+            db.set(new Query("SET FOREIGN_KEY_CHECKS=1"))
         }
-        db.exec(new Query("SET FOREIGN_KEY_CHECKS=1"))
         db.close()
 
         Table.alwaysCheck = false
         DB.disableCache = false
+        return ok
     }
     /**
      * Close all connections to the default database

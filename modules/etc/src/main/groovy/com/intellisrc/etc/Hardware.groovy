@@ -3,6 +3,7 @@ package com.intellisrc.etc
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import com.sun.management.OperatingSystemMXBean
 import com.sun.management.UnixOperatingSystemMXBean
 import groovy.transform.CompileStatic
@@ -331,13 +332,17 @@ class Hardware {
      */
     static boolean getScreenOn() {
         boolean on = false
-        Cmd.exec("xset -q", {
-            String out ->
-                on = out.contains("Monitor is On")
-        }, {
-            String out, int code ->
-                Log.w("Unable to detect monitor status")
-        })
+        if(SysInfo.isWindows()) {
+            Log.w("Screen control not available in Windows")
+        } else {
+            Cmd.async("xset -q", {
+                String out ->
+                    on = out.contains("Monitor is On")
+            }, {
+                String out, int code ->
+                    Log.w("Unable to detect monitor status")
+            })
+        }
         return on
     }
     
@@ -346,11 +351,14 @@ class Hardware {
      * @param on
      */
     static void setScreenOn(boolean on) {
-        Cmd.exec("xset dpms force " + (on ? "on" : "off"), {
-        }, {
-            String out, int code ->
-                Log.w("Unable to turn %s screen", on ? "ON": "OFF")
-        })
+        if(SysInfo.isWindows()) {
+            Log.w("Screen control not available in Windows")
+        } else {
+            Cmd.exec("xset dpms force " + (on ? "on" : "off"), {
+                String out, int code ->
+                    Log.w("Unable to turn %s screen", on ? "ON" : "OFF")
+            })
+        }
     }
     
     /**
@@ -398,22 +406,23 @@ class Hardware {
      * @param enable
      */
     static private void disableEnableInputDeviceCommon(String device = "", boolean enable) {
+        if(SysInfo.isWindows()) {
+            Log.w("Input control not available in Windows")
+            return
+        }
         String command = enable ? "enable" : "disable"
-        Cmd.exec("xinput list", {
-            String list ->
-                list.eachLine {
-                    String line ->
-                        if(line.contains("slave")) {
-                            if(!device || line.contains(device)) {
-                                Matcher matcher = (line =~ /id=(\d+)/)
-                                if (matcher) {
-                                    int id = Integer.parseInt(matcher.group(1))
-                                    Cmd.exec("xinput --${command} $id", {}, { String s, int c -> })
-                                }
-                            }
+        new Cmd("xinput list").eachLine({
+            String line ->
+                if(line.contains("slave")) {
+                    if(!device || line.contains(device)) {
+                        Matcher matcher = (line =~ /id=(\d+)/)
+                        if (matcher) {
+                            int id = Integer.parseInt(matcher.group(1))
+                            Cmd.exec("xinput --${command} $id")
                         }
+                    }
                 }
-        }, {
+        }).onFail({
             String out, int code ->
                 Log.w("Unable to read devices list")
         })

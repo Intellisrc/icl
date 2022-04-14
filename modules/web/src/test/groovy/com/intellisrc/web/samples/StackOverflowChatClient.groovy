@@ -1,5 +1,6 @@
 package com.intellisrc.web.samples
 
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import com.intellisrc.web.WebSocketServiceClient
 
@@ -52,7 +53,7 @@ class StackOverflowChatClient {
         })
         wssc.sendMessage("How can I help you? write: '\$ Your question'")
         while(timeout == 0) {
-            Thread.sleep(1000L)
+            Thread.sleep(Millis.SECOND)
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.Mime
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableMultiple
@@ -37,7 +36,7 @@ class UploadService implements ServiciableMultiple {
                         Log.i("File uploaded : %s", upFile.originalName)
 
                         // Example on how to move the uploaded file into a specific directory:
-                        File dstFile = SysInfo.getFile(uploadDir, upFile.originalName)
+                        File dstFile = File.get(uploadDir, upFile.originalName)
                         if(dstFile.exists()) { dstFile.delete() }
                         upFile.moveTo(dstFile)
 

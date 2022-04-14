@@ -8,4 +8,8 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum DeleteActions {
     CASCADE, NULL, RESTRICT
+    @Override
+    String toString() {
+        return (this == NULL ? "SET " : "") + super.toString()
+    }
 }

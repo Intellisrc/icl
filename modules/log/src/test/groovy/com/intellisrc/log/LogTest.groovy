@@ -3,8 +3,6 @@ package com.intellisrc.log
 import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
-import com.intellisrc.core.SysInfo
-import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import spock.lang.Shared
 import spock.lang.Specification
@@ -34,7 +32,7 @@ class LogTest extends Specification {
 
         fileLogger = new FileLogger(
             logFileName : "test.log",
-            logDir: SysInfo.getFile(SysInfo.tempDir, "test-log")
+            logDir: File.get(File.tempDir, "test-log")
         )
         fileLogger.initialize(basePrinter)
         fileLogger.onCleanList.clear()
@@ -269,10 +267,10 @@ class LogTest extends Specification {
     @Unroll
     def "Cleaning should remove old logs"() {
         setup:
-            File baseDir = SysInfo.getFile(SysInfo.tempDir, "test-many-dir")
+            File baseDir = File.get(File.tempDir, "test-many-dir")
             println "Location: " + baseDir.absolutePath
             println "[$base : Create: $create, Keep: $keep = $expected]"
-            fileLogger.logDir = SysInfo.getFile(baseDir, base + "-test-log")
+            fileLogger.logDir = File.get(baseDir, base + "-test-log")
             fileLogger.logDays = keep
             fileLogger.compress = compress
             LocalDateTime now = SysClock.now
@@ -344,7 +342,7 @@ class LogTest extends Specification {
     @Unroll
     def "When rotateOtherLogs is false it should not remove other logs, when its true, it should remove them"() {
         setup:
-            fileLogger.logDir = SysInfo.getFile(SysInfo.tempDir, "test-log-" + dir)
+            fileLogger.logDir = File.get(File.tempDir, "test-log-" + dir)
             fileLogger.logDays = keep
             fileLogger.rotateOtherLogs = rotateOthers
             LocalDateTime now = SysClock.now
@@ -358,12 +356,12 @@ class LogTest extends Specification {
                 SysClock.setClockAt(SysClock.now.plusDays(1).clearTime())
                 Log.i("[%d] This log is for day: %s", it, SysClock.now.toLocalDate().YMD)
                 fileLogger.logFile.setLastModified(SysClock.now.toMillis())
-                File otherFile = SysInfo.getFile(fileLogger.logDir, SysClock.now.toLocalDate().YMD + "-other.log")
+                File otherFile = File.get(fileLogger.logDir, SysClock.now.toLocalDate().YMD + "-other.log")
                 otherFile.text = "Whatever"
                 otherFile.setLastModified(SysClock.now.toMillis())
             }
             SysClock.setClockAt(now) //Reset time back to today
-            File otherFile = SysInfo.getFile(fileLogger.logDir, "other.log")
+            File otherFile = File.get(fileLogger.logDir, "other.log")
             otherFile.text = "Whatever"
             Log.w("This is for today")
 

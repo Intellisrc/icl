@@ -29,6 +29,259 @@ It provides two easy ways to visualize progress on a terminal:
 }
 ```
 
+## TableMaker
+
+Display data nicely in the terminal by creating tables using box drawing characters:
+
+There are 4 ways to create a table:
+
+### 1. Using List of List
+```groovy
+boolean header = true
+boolean footer = false
+new TableMaker([
+    ["Fruit", "QTY", "Price", "Seller"],
+    ["Apple",1000,10,"some@example.com"],
+    ["Banana",2002,15,"anyone@example.com"],
+    ["Mango",400,134.1,"dummy200@example.com"],
+    ["Kiwi",900,2350.4,"example@example.com"]
+], header, footer).print()
+```
+
+### 2. Using List of Map
+```groovy
+boolean footer = false
+new TableMaker([
+    [
+        Fruit   : "Apple",
+        QTY     : 1000,
+        Price   : 10,
+        Seller  : "some@example.com"
+    ],
+    [
+        Fruit   : "Banana",
+        QTY     : 2002,
+        Price   : 15.3,
+        Seller  : "anyone@example.com"
+    ]
+], footer).print()
+```
+
+### 3. Specifying parameters (Groovy style)
+```groovy
+TableMaker table = new TableMaker(
+    headers : ["Fruit", "QTY", "Price", "Seller"],
+    footer  : ["Fruits: 4", 4302, 2509.5, ""],
+    compact : true
+)
+data.each {
+    table << [data.fruit, data.qty.toString(), data.price * 1.05d, data.email]
+}
+table.print()
+```
+
+### 4. Using methods
+
+```groovy
+TableMaker table = new TableMaker()
+table.compact = true
+table.setHeaders(["Fruit", "QTY", "Price", "Seller"])
+table.addRow(["Apple",1000,10,"some@example.com"])
+table.addRow(["Mango",400,134.1,"dummy200@example.com"])
+table.addFooter("Have a healthy salad today!")
+table.print()
+```
+
+### Styling
+
+There are some options you can set to make your tables look the way you want:
+
+#### compact = true
+
+When enabled, it won't draw lines each row, for example:
+
+```groovy
+// You can set it in the constructor
+TableMaker table = new TableMaker(compact: true)
+// Or later on
+table.compact = true
+// Or during print
+table.print(true)
+```
+
+Example with `compact=false` (default):
+
+```
+ +-------------------+--------------------------------+-----+
+ | Name              | Email                          | Age |
+ |-------------------+--------------------------------+-----|
+ | Joshep Patrishius | jp@example.com                 | 41  |
+ |-------------------+--------------------------------+-----|
+ | Zoe Mendoza       | you-know-who@example.com       | 54  |
+ +-------------------+--------------------------------+-----+
+```
+
+Example with `compact=true`:
+
+```
+ +-------------------+--------------------------------+-----+
+ | Name              | Email                          | Age |
+ |-------------------+--------------------------------+-----|
+ | Joshep Patrishius | jp@example.com                 | 41  |
+ | Zoe Mendoza       | you-know-who@example.com       | 54  |
+ +-------------------+--------------------------------+-----+
+```
+
+#### Border styles
+
+There are several styles to choose from in the package : `term.styles`
+
+By default, tables are rendered with the `SafeStyle` class (which will render 
+correctly in any terminal or monospace font).
+
+You can choose a different style or create your own. To set it:
+```groovy
+// You can set it in the constructor
+TableMaker table = new TableMaker(style: new ClassicStyle())
+// Or later on
+table.style = new DoubleLineStyle()
+// Or during print
+table.print(new SemiDoubleStyle(), /* compact */ true)
+table.print(/* compact */ true, new SemiDoubleStyle())
+table.print(new SemiDoubleStyle())
+```
+
+The available styles are (additionally to the `SafeStyle` shown before:
+
+* ClassicStyle
+
+```
+┌───────────┬───────────┬───────────────┬──────────────────────┐
+│ Fruit     │ QTY       │ Price         │ Seller               │
+├───────────┼───────────┼───────────────┼──────────────────────┤
+│ Apple     │ 1000      │ 10.00         │ some@example.com     │
+├───────────┼───────────┼───────────────┼──────────────────────┤
+│ Fruits: 4 │ Sum: 4302 │ Total: 2509.5 │                      │
+└───────────┴───────────┴───────────────┴──────────────────────┘
+```
+
+* DoubleLineStyle
+
+```
+ ╔═══════════╦═══════════╦═══════════════╦══════════════════════╗
+ ║ Apple     ║ 1000      ║ 10.00         ║ some@example.com     ║
+ ╠═══════════╬═══════════╬═══════════════╬══════════════════════╣
+ ║ Fruits: 4 ║ Sum: 4302 ║ Total: 2509.5 ║                      ║
+ ╚═══════════╩═══════════╩═══════════════╩══════════════════════╝
+```
+
+* SemiDoubleStyle
+
+```
+╔════════╤══════╤═════════╤══════════════════════╗
+║ Fruit  │ QTY  │ Price   │ Seller               ║
+╟────────┼──────┼─────────┼──────────────────────╢
+║ Apple  │ 1000 │ 10.00   │ some@example.com     ║
+╟────────┼──────┼─────────┼──────────────────────╢
+║ Kiwi   │ 900  │ 2350.40 │ example@example.com  ║
+╚════════╧══════╧═════════╧══════════════════════╝
+```
+
+* BoldStyle
+
+```
+ ┏━━━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┓
+ ┃ Fruit  ┃ QTY  ┃ Price   ┃ Seller               ┃
+ ┣━━━━━━━━╋━━━━━━╋━━━━━━━━━╋━━━━━━━━━━━━━━━━━━━━━━┫
+ ┃ Kiwi   ┃ 900  ┃ 2350.40 ┃ example@example.com  ┃
+ ┗━━━━━━━━┻━━━━━━┻━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+* ThinStyle
+
+```
+┌╌╌╌╌╌╌╌╌┬╌╌╌╌╌╌┬╌╌╌╌╌╌╌╌╌┬╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+┊ Apple  ┊ 1000 ┊ 10.00   ┊ some@example.com     ┊
+├╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+┊ Kiwi   ┊ 900  ┊ 2350.40 ┊ example@example.com  ┊
+└╌╌╌╌╌╌╌╌┴╌╌╌╌╌╌┴╌╌╌╌╌╌╌╌╌┴╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+```
+
+To create your own style, you can either extend any of the previous styles, 
+extend the abstract class `BasicStyle` or implement `Stylable` interface.
+
+You can also change the border color:
+
+```groovy
+TableMaker table = new TableMaker(
+    compact: true,
+    borderColor : AnsiColor.CYAN
+)
+```
+
+#### Customizing columns or cells
+
+You can further customize columns or how data is displayed by accessing
+the `table.columns` before printing:
+
+```groovy
+table.columns[1].with {
+    maxLen = 10        // Force to specific with   
+    ellipsis = true    // Use ellipsis to indicate when a string has been trimmed (default: true)
+}
+table.columns[2].with {
+    align = RIGHT         // Align LEFT, RIGHT or CENTER
+    headerColor = YELLOW  // Add color to header (see: AnsiColor in core module)
+    formatter = {         // Use formatter to change the resulting String 
+        String.format("\$ %.2f", it as double)
+    }
+    color = { it > 2000 ? RED : GREEN } // Use 'color' to set the cell color based on its contents (previous to formatter)
+}  
+```
+
+Example: (colors are not displayed, but are indicated)
+
+```
+┌───────────────────┬────────────┬──────────────┐
+│ Name              │ User Emai… │         Cost │ <-- yellow
+├───────────────────┼────────────┼──────────────┤
+│ Joshep Patrishius │ jp@exampl… │      $ 41.00 │ <-- green
+│ Marilin Watson    │ marilin-w… │    $ 1339.00 │ <-- green
+│ Raphael Kawami    │ kawami-ra… │    $ 3893.00 │ <-- red
+│ Zoe Mendoza       │ you-know-… │ $ 1999254.00 │ <-- red
+├───────────────────┴────────────┴──────────────┤
+│ All names here are fictitious                 │
+└───────────────────────────────────────────────┘
+```
+
+Another way to customize columns is during initialization:
+
+```groovy
+
+TableMaker table = new TableMaker(
+    columns : [
+        new Column(
+            header : "Name",
+            maxLen : 10,
+            /* ... */ 
+        ),
+        new Column(
+            header : "Email",
+            maxLen : 10,
+            formatter : {
+                return "<${it}>"
+            },
+            color : {
+                return it.toString().contains("example.com") ? BLUE : CYAN
+            }
+        ),
+
+    ],
+    compact: true,
+)
+```
+
+
 ## Console
 
 This class is a wrapper around `jLine` with the idea of making it easier
@@ -97,7 +350,8 @@ class CustomConsole implements Consolable {
     
     // What to do on exit
     void onExit() {
-        Console.out(AnsiColor.RED + "Bye!" + AnsiColor.RESET)
+        // Console.out works like `Log` in `core` module.
+        Console.out("%s Bye! %s", AnsiColor.RED, "Bye!", AnsiColor.RESET)
     }
 }
 

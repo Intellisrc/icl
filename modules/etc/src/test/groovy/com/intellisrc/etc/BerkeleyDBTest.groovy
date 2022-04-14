@@ -65,7 +65,7 @@ class BerkeleyDBTest extends Specification {
             LocalDateTime now = SysClock.now
             Inet4Address ip = "10.0.0.1".toInet4Address()
             Inet6Address ip6 = "fe80::1ff:fe23:4567:890a".toInet6Address()
-            File file = SysInfo.getFile("example.txt")
+            File file = File.get("example.txt")
         when:
             db.set("uri", uri)
             db.set("time", now)

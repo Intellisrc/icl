@@ -1,4 +1,7 @@
 # ICL Library
+[![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.svg?v=103)](https://opensource.org/licenses/GPL-3.0/)
+[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+[![Maven Repository](https://maven-badges.herokuapp.com/maven-central/com.intellisrc/core/badge.svg?color=blue)](https://mvnrepository.com/artifact/com.intellisrc/)
 
 This library can help you to write less code and speedup the development of your next great application. It is particularly 
 designed to accomplish most of the common tasks required by backend services.
@@ -79,18 +82,19 @@ For more detailed explanation, click on the module title.<br>
 > For example, configuration, logging, executing commands, controlling services and 
 > displaying colors in the console. [read more...](modules/core/README.md)
 
-|     | Class               | Usage                                                                          |
-|-----|---------------------|--------------------------------------------------------------------------------|
-|     |`AnsiColor`          | Color dictionary for Linux terminal                                            |
-|     |`Cmd`                | Execute system commands                                                        |
-| ★  |`Config`             | Manage configuration files (by default config.properties)                      |
-| ★  |`Log`                | Log messages to `SLF4J`                                                        |
-| @   |`StringProperties` | Base class for properties setters and getters                                  |
-| ★   |`SysClock`           | Provides simple methods to interact with LocalDateTime. Useful for Unit Testing. |
-| ★   |`SysInfo`            | Get information about the system (usually paths)                               |
-|     |`SysMain`            | Convert class into runnable class                                              |
-| ★   |`SysService`         | Convert class into service (only one by project)                               |
-|     |`Version`            | Return system/application version and makes it easy to handle versions         |
+|     | Class              | Usage                                                                            |
+|-----|--------------------|----------------------------------------------------------------------------------|
+|     | `AnsiColor`        | Color dictionary for Linux terminal                                              |
+|     | `Cmd`              | Execute system commands                                                          |
+| ★   | `Config`           | Manage configuration files (by default config.properties)                        |
+| ★   | `Log`              | Log messages to `SLF4J`                                                          |
+| @   | `StringProperties` | Base class for properties setters and getters                                    |
+| ★   | `SysClock`         | Provides simple methods to interact with LocalDateTime. Useful for Unit Testing. |
+|     | `Millis`           | Milliseconds constants to be used instead numeric values.                        |
+|     | `SysInfo`          | Get information about the system                                                 |
+|     | `SysMain`          | Convert class into runnable class                                                |
+| ★   | `SysService`       | Convert class into service (only one by project)                                 |
+|     | `Version`          | Return system/application version and makes it easy to handle versions           |
 
 [Documentation](modules/core/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#core) 
 
@@ -218,7 +222,7 @@ Includes : core, etc
 [Documentation](modules/serial/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#serial)
 
 ### [web](modules/web/README.md)
-Includes : core, etc
+Includes : core, etc, net
 
 > Create restful HTTP (GET, POST, PUT, DELETE, etc) or WebSocket application services. 
 > Manage JSON data from and to the server easily. It is build on top of
@@ -305,6 +309,7 @@ Includes : core
  | ★   | `ConsoleDefault`    | Simple implementation of `Consolable` which provides common commands            |
  | @   | `MatchAnyCompleter` | Utility to find partial matches to commands                                     |
  | ★   | `Progress`          | Show a progress bar in a terminal (it has multiple implementations and options) |
+| ★   | `TableMaker`        | Create tables for the terminal to display data in a nicely way                  |
 
 [Documentation](modules/term/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#term)
 

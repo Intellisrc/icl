@@ -19,15 +19,11 @@ import java.util.concurrent.Future
  */
 @CompileStatic
 class WebSocketServiceClient {
-    private JettySession clientSession
-    private Callable onMessageReceived
-    private Callable onErrorReceived
-    private WebSocketClient client
-
-    // To be filled
-    public String hostname = "localhost"
-    public int port = 8888
-    public String path = ""
+    protected Callable onMessageReceived
+    protected Callable onErrorReceived
+    protected JettySession clientSession
+    protected WebSocketClient client
+    protected URI url
     /**
      * WebSocket which will handle the connection
      */
@@ -63,12 +59,35 @@ class WebSocketServiceClient {
     static interface Callable {
         void call(Map message)
     }
+
+    WebSocketServiceClient(URI uri) {
+        this.url = uri
+    }
+    WebSocketServiceClient(URL url) {
+        this.url = url.toURI()
+    }
+    WebSocketServiceClient(Map<String, Object> map) {
+        if(!map.protocol)   { map.protocol = "ws" }
+        if(!map.hostname)   { map.hostname = "localhost" }
+        if(!map.port)       { map.port = 8000 }
+        if(!map.path)       { map.path = "/" }
+        this.url = new URI(map.protocol.toString() + "//" + map.hostname.toString() + ":" + map.port.toString() + map.path.toString() )
+    }
+
     /**
      * Return JettySession (jetty Session) object
      * @return
      */
     JettySession getSession() {
         return clientSession
+    }
+
+    /**
+     * Return Jetty websocket client
+     * @return
+     */
+    WebSocketClient getClient() {
+        return client
     }
     /**
      * Connects to a WS Server
@@ -77,15 +96,20 @@ class WebSocketServiceClient {
      * @param onError
      */
     void connect(Callable onMessage = null, Callable onError = null) {
-        String serverURL = "ws://" + hostname + ":" + port + "/" + path
         client = new WebSocketClient()
         client.start()
-        URI echoUri = new URI(serverURL)
         ClientUpgradeRequest request = new ClientUpgradeRequest()
-        Future<JettySession> future = client.connect(new WSSocket(), echoUri, request)
+        Future<JettySession> future = client.connect(new WSSocket(), url, request)
         clientSession = future.get()
         onMessageReceived = onMessage
         onErrorReceived = onError
+    }
+    /**
+     * Returns true if client is connected
+     * @return
+     */
+    boolean isConnected() {
+        return clientSession && clientSession.open
     }
     /**
      * Sends a message

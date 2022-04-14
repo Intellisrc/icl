@@ -1,8 +1,8 @@
 package com.intellisrc.log
 
 import com.intellisrc.core.Config
+import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
-import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 import org.slf4j.event.Level
 
@@ -34,11 +34,11 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
     protected boolean initialized = false
     protected Output output
     protected int logDays               = 7
-    protected File logDir               = SysInfo.getFile("log")
+    protected File logDir               = File.get("log")
     protected String logFileName        = "system.log"
     protected boolean rotateOtherLogs   = false  //When true it will also remove other old logs in the log directory
     protected boolean compress          = false
-    protected int maxTaskExecTimeMs     = 60000
+    protected int maxTaskExecTimeMs     = Millis.MINUTE
     protected LocalDate today           = SysClock.now.toLocalDate()  // Keep track of day, so we can change log name when date changes
 
     /**
@@ -123,7 +123,7 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
         LocalDate current = SysClock.now.toLocalDate()
         if(current != today) {
             if(current > today) {
-                logFile.renameTo(SysInfo.getFile(logDir, today.YMD + "-" + logFileName))
+                logFile.renameTo(File.get(logDir, today.YMD + "-" + logFileName))
             }
             today = current
             this.output = new Output(logFile)

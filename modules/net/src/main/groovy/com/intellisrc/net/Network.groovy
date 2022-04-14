@@ -1,12 +1,93 @@
 package com.intellisrc.net
 
+import com.intellisrc.groovy.StringExt
 import groovy.transform.CompileStatic
+import org.apache.commons.net.util.SubnetUtils
 
 @CompileStatic
 /**
  * Methods related to Networking (not related to NetworkInterface)
  */
 class Network {
+    final SubnetUtils subnet
+    /**
+     * Constructor having a SubnetUtils object
+     * @param subnet
+     */
+    Network(SubnetUtils subnet) {
+        this.subnet = getNetworkSubnetUtils(subnet)
+    }
+    /**
+     * Constructor from Inet4Address and mask (optional)
+     * @param address
+     * @param mask
+     */
+    Network(Inet4Address address, int mask = 24) {
+        this.subnet = getNetworkSubnetUtils(new SubnetUtils(address.hostAddress + "/" + mask.toString()))
+    }
+    /**
+     * Constructor having CIDR annotation (e.g. 192.168.10.0/24)
+     * @param cidr
+     */
+    Network(String cidr) {
+        this.subnet = new SubnetUtils(cidr)
+    }
+
+    /**
+     * Returns true if IP address is contained in subnetwork
+     * @param subnet
+     * @param ip
+     * @return
+     */
+    boolean contains(Inet4Address ip) {
+        return subnet.info.isInRange(ip.hostAddress)
+    }
+    /**
+     * Return the first IP in network
+     * @param subnet
+     * @return
+     */
+    Inet4Address getFirstInNetwork() {
+        return subnet.info.lowAddress.toInet4Address()
+    }
+
+    /**
+     * Return the last IP in network
+     * @param subnet
+     * @return
+     */
+    Inet4Address getLastInNetwork() {
+        return subnet.info.highAddress.toInet4Address()
+    }
+
+    /**
+     * List all IP addresses in network
+     * @param subnet
+     * @return
+     */
+    List<Inet4Address> getAllInNetwork() {
+        return subnet.info.allAddresses.collect { it.toInet4Address() }
+    }
+
+    /**
+     * Generates a random IP4 (optionally a subnet can be specified)
+     * @return
+     * @since 17/02/22.
+     */
+    Inet4Address randomIP4() {
+        return subnet.info.allAddresses.toList().random().toInet4Address()
+    }
+
+    /**
+     * Return network as CIDR annotation
+     * @return
+     */
+    String getCidr() {
+        return subnet.info.cidrSignature
+    }
+
+    //////////////////////////////// STATIC ///////////////////////////////////////
+
     /**
      * Get range of IP addresses based in StringE range
      * http://stackoverflow.com/questions/31386323/
@@ -15,14 +96,8 @@ class Network {
      */
     static List<Inet4Address> getIpsFromRange(final String ipRange) { //117.211.141-147.20-218
         String[] segments = ipRange.split("\\.")    //split into 4 segments
-        int seg1Lower
-        int seg1Upper
-        int seg2Lower
-        int seg2Upper
-        int seg3Lower
-        int seg3Upper
-        int seg4Lower
-        int seg4Upper
+        int seg1Lower, seg1Upper, seg2Lower, seg2Upper
+        int seg3Lower, seg3Upper, seg4Lower, seg4Upper
 
         // get lower and upper bound of 1st segment
         String[] seg1 = segments[0].split("-")
@@ -78,12 +153,33 @@ class Network {
 
         return IPs
     }
-    
+
     /**
-     * List Network Interfaces
+     * Generates a random IP4 any network
+     * @return
+     * @since 17/02/22.
+     */
+    static Inet4Address anyRandomIP4() {
+        Random rand = new Random()
+        return StringExt.toInet4Address(rand.nextInt(256) + "." + rand.nextInt(256) + "." + rand.nextInt(256) + "." + rand.nextInt(256))
+    }
+
+    /**
+     * Resets the network IP to the network address
+     * @param tmp
      * @return
      */
-    static List<NetFace> getNetworkInterfaces() {
-        return NetworkInterface.networkInterfaces.collect { NetworkInterface ni -> new NetFace(ni) }
+    static SubnetUtils getNetworkSubnetUtils(SubnetUtils tmp) {
+        return new SubnetUtils(tmp.info.networkAddress, tmp.info.netmask)
+    }
+
+    /**
+     * Return true if IP address is local network address
+     * @return
+     */
+    static boolean isIpLocal(Inet4Address inet) {
+        String addr = inet.hostAddress
+        int second = addr.tokenize(".")[1] as int
+        return addr.startsWith("10.") || addr.startsWith("192.168") || (addr.startsWith("172.") && (second >= 16 && second <= 31))
     }
 }

@@ -2,8 +2,9 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
+import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
 import spock.lang.Ignore
 import spock.lang.Specification
@@ -13,11 +14,11 @@ import spock.util.concurrent.AsyncConditions
  * @since 17/04/19.
  */
 class WebServiceTest extends Specification {
-    File publicDir = SysInfo.getFile(SysInfo.userDir, "res", "public")
+    File publicDir = File.get(File.userDir, "res", "public")
 
     def "General Test"() {
         setup:
-            int port = NetworkInterface.getFreePort()
+            int port = LocalHost.freePort
             def web = new WebService(
                 port : port,
                 resources: publicDir,
@@ -54,7 +55,7 @@ class WebServiceTest extends Specification {
      */
     def "Testing auto cache"() {
         setup:
-            int port = NetworkInterface.getFreePort()
+            int port = LocalHost.freePort
             def web = new WebService(
                     port : port,
                     resources : publicDir,
@@ -71,7 +72,7 @@ class WebServiceTest extends Specification {
             assert json
             println "Json: "+json
         when:
-            sleep(2000)
+            sleep(Millis.SECOND_2)
             def json_new = new URL("http://localhost:${port}/id/1/").text
         then:
             //TODO: count if method was called
@@ -88,7 +89,7 @@ class WebServiceTest extends Specification {
     def "Test parameters and splat"() {
         setup:
             def conds = new AsyncConditions()
-            int port = NetworkInterface.getFreePort()
+            int port = LocalHost.freePort
             def web = new WebService(
                     port : port,
                     resources: publicDir,
@@ -116,7 +117,7 @@ class WebServiceTest extends Specification {
 
     def "Test Upload"() {
         setup:
-            int port = NetworkInterface.getFreePort()
+            int port = LocalHost.freePort
             def web = new WebService(
                     port : port,
                     resources: publicDir
@@ -180,7 +181,7 @@ class WebServiceTest extends Specification {
         setup:
         def keepalive = false // change to 'true' to test manually WebSocket Clients
         def web = new WebService(
-                port : NetworkInterface.getFreePort(),
+                port : LocalHost.freePort,
                 // Resources set as full path because code is executed under /tst/
                 resources : System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60

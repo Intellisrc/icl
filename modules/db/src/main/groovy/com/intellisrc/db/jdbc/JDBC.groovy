@@ -27,6 +27,9 @@ import java.lang.reflect.Field
  */
 @CompileStatic
 abstract class JDBC {
+    interface ErrorHandler {
+        void call(Throwable e)
+    }
     /**
      * Override this method for custom classes
      * No need to include user/password in URL
@@ -58,6 +61,7 @@ abstract class JDBC {
     abstract String getDriver()
     abstract void setDriver(String driver)
 
+    ErrorHandler onError = { Exception e -> Log.w("Database exception: %s", e.message) } as ErrorHandler
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):
@@ -202,32 +206,30 @@ abstract class JDBC {
      */
     static JDBC fromSettings(Map settings = [:]) {
         JDBC jdbc = null
-        String cfgType = settings.type ?: Config.get("db.type")
+        String cfgType = settings.type ?: Config.get("db.type", "dummy")
         if(settings.keySet().empty) {
             // Only set if exists:
             //noinspection GroovyMissingReturnStatement
-            settings.with {
-                if (Config.exists("db.name")) {
-                    dbname = Config.get("db.name")
-                }
-                if (Config.exists("db.host")) {
-                    hostname = Config.get("db.host")
-                }
-                if (Config.exists("db.port")) {
-                    port = Config.getInt("db.port")
-                }
-                if (Config.exists("db.user")) {
-                    user = Config.get("db.user")
-                }
-                if (Config.exists("db.pass")) {
-                    password = Config.get("db.pass")
-                }
-                if (Config.exists("db.driver")) {
-                    driver = Config.get("db.driver")
-                }
-                if (Config.exists("db.params")) {
-                    params = Config.getMap("db.params")
-                }
+            if (Config.exists("db.name")) {
+                settings.dbname = Config.get("db.name")
+            }
+            if (Config.exists("db.host")) {
+                settings.hostname = Config.get("db.host")
+            }
+            if (Config.exists("db.port")) {
+                settings.port = Config.getInt("db.port")
+            }
+            if (Config.exists("db.user")) {
+                settings.user = Config.get("db.user")
+            }
+            if (Config.exists("db.pass")) {
+                settings.password = Config.get("db.pass")
+            }
+            if (Config.exists("db.driver")) {
+                settings.driver = Config.get("db.driver")
+            }
+            if (Config.exists("db.params")) {
+                settings.params = Config.getMap("db.params")
             }
         } else {
             // Allow different aliases for keys
@@ -251,12 +253,16 @@ abstract class JDBC {
             }
             if(cj) {
                 jdbc = cj.getConstructor().newInstance()
-                cj.declaredFields.each {
-                    Field field ->
-                        if(settings.containsKey(field.name)) {
-                            field.setAccessible(true)
-                            field.set(jdbc, settings.get(field.name))
-                        }
+                Class cls = cj
+                while(cls != Object) {
+                    cls.declaredFields.findAll { !it.synthetic }.each {
+                        Field field ->
+                            if(settings.containsKey(field.name)) {
+                                field.setAccessible(true)
+                                field.set(jdbc, settings.get(field.name))
+                            }
+                    }
+                    cls = cls.superclass
                 }
             }
         } else {

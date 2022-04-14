@@ -1,9 +1,11 @@
 package com.intellisrc.thread.tasks
 
-
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.config.ConfigAuto
 import com.intellisrc.thread.IntervalTask
 import groovy.transform.CompileStatic
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * This Task is to update ConfigAuto from etc module.
@@ -13,8 +15,8 @@ import groovy.transform.CompileStatic
 class ConfigAutoTask extends IntervalTask {
     final ConfigAuto configAuto
 
-    ConfigAutoTask(ConfigAuto configAuto, int sleepMillis = 1000) {
-        super([sleepMillis - 100, 100].max(), sleepMillis)
+    ConfigAutoTask(ConfigAuto configAuto, int sleepMillis = SECOND) {
+        super([sleepMillis - MILLIS_100, MILLIS_100].max(), sleepMillis)
         this.configAuto = configAuto
     }
 

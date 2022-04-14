@@ -1,6 +1,5 @@
 package com.intellisrc.db
 
-import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.SQLite
 import spock.lang.Specification
 
@@ -22,5 +21,19 @@ class QueryTest extends Specification {
             println query.toString()
             query.args.each { println " ---> ${it}" }
             assert query.args.size() == 7
+    }
+    def "When passing NULL, should create IS NULL"() {
+        when :
+            Query query = new Query(new SQLite(memory: true), SELECT)
+            query.setTable("test").setKeys(["myid"]).setWhere(null)
+        then :
+            println query.toString()
+            assert query.toString().contains("IS NULL")
+        when :
+            query = new Query(new SQLite(memory: true), SELECT)
+            query.setTable("test").setKeys(["myid"]).setWhere([myid : null])
+        then :
+            println query.toString()
+            assert query.toString().contains("IS NULL")
     }
 }

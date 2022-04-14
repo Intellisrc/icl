@@ -37,12 +37,12 @@ class CoolMaker {
         Tasks.add({
             // Creating 10,000 text files
             (1..10000).each {
-                SysInfo.getFile("created","files","file-${it}.txt") << "Some content here"
+                File.get("created","files","file-${it}.txt") << "Some content here"
             }
         }, "CoolMaker.newFiles")
         // This task will be added and executed in the foreground (blocking):
         Tasks.run({
-            SysInfo.getFile("downloads","pages","downloaded.html") << "https://example.com".toURL().text
+            File.get("downloads","pages","downloaded.html") << "https://example.com".toURL().text
         }, "CoolMaker.download")
     }
 }
@@ -57,8 +57,8 @@ All the `Task` classes can be extended or created inline, for example:
 ```groovy
 class SuperMonitor extends IntervalTask {
     SuperMonitor() {
-        int maxWait = 1000
-        int interval = 5000
+        int maxWait = Millis.SECOND
+        int interval = Millis.SECOND_5
         super(maxWait, interval)
     }
     /* ... */
@@ -69,7 +69,7 @@ Is the same as (inline implementation):
 ```groovy
 IntervalTask superMonitor = IntervalTask.create({
     /* do something */    
-}, "SuperMonitor", 1000, 5000)
+}, "SuperMonitor", Millis.SECOND, Millis.SECOND_5)
 ```
 
 ## DelayedTask
@@ -78,7 +78,7 @@ The most common way to use this task is:
 ```groovy
 Tasks.runLater({
     /* do something after 10s */    
-}, "Runme.Later", 10000)
+}, "Runme.Later", Millis.SECOND_10)
 ```
 `runLater` will create and execute a `DelayedTask` after N milliseconds.
 
@@ -120,7 +120,7 @@ completed. For example:
 List<Runnable> processes = []
 (1..100).each {
     processes << {
-        sleep(Random.range(1000, 5000)) //Sleep between 1s and 5s
+        sleep(Random.range(Millis.SECOND, Millis.SECOND_5)) //Sleep between 1s and 5s
     } as Runnable
 }
 ParallelTask parallelTask = ParallelTask.create(

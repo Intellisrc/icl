@@ -5,6 +5,8 @@ import spock.lang.Specification
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
+import static com.intellisrc.core.Millis.*
+
 /**
  * @since 2020/05/25.
  */
@@ -15,7 +17,7 @@ class SysClockTest extends Specification {
         expect:
             assert Math.abs(SysClock.now.toMillis() - LocalDateTime.now().toMillis()) < 100
         when:
-        sleep( 1250)
+        sleep( SECOND + MILLIS_200)
         then:
             assert Math.abs(SysClock.now.toMillis() - LocalDateTime.now().toMillis()) < 100
     }
@@ -24,7 +26,7 @@ class SysClockTest extends Specification {
             SysClock.setClockAt(LocalDateTime.now())
             LocalDateTime time = SysClock.now.YMDHms.toDateTime() //Be sure is not reference
         when:
-            sleep(1100)
+            sleep(SECOND + MILLIS_100)
         then:
             assert time.YMDHms != SysClock.now.YMDHms
 
@@ -35,7 +37,7 @@ class SysClockTest extends Specification {
             SysClock.setClockAt(time)
         when:
             (1..2).each {
-                sleep(1000)
+                sleep(SECOND)
                 println SysClock.now.YMDHms
             }
         then:

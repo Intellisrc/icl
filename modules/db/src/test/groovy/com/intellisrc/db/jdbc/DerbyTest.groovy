@@ -1,5 +1,7 @@
 package com.intellisrc.db.jdbc
 
+import com.intellisrc.db.DB
+
 /**
  * @since 18/06/15.
  */
@@ -29,4 +31,21 @@ class DerbyTest extends JDBCTest {
             memory  : true
         )
     }
+
+    // Issue #18
+    def "Insert without ID"() {
+        setup:
+            JDBC jdbc = getDB()
+            DB db = jdbc.connect()
+            db.setSQL("""CREATE TABLE login (
+                userlogin VARCHAR(10) NOT NULL,
+                pass VARCHAR(64) NOT NULL
+            )""")
+        expect:
+            assert db.table("login").insert([
+                userlogin : "admin",
+                pass : "somepasss"
+            ])
+    }
+
 }

@@ -18,7 +18,7 @@ class SysServiceTest extends Specification {
             Thread.start {
                 SysServiceDummy.main("start")
             }
-            sleep(1000)
+            sleep(Millis.SECOND)
             def file = new File(SysServiceDummy.service.lockFile)
         expect:
             assert file.exists()
@@ -26,7 +26,7 @@ class SysServiceTest extends Specification {
             Thread.start {
                 SysServiceDummy.main("stop")
             }
-            sleep(1000)
+            sleep(Millis.SECOND)
         then:
             assert SysServiceDummy.exitCalled
             assert ! new File(SysServiceDummy.service.lockFile).exists()
@@ -34,7 +34,7 @@ class SysServiceTest extends Specification {
     def "Custom method"() {
         setup:
             SysServiceDummy.main("custom")
-            sleep(1000)
+            sleep(Millis.SECOND)
         expect:
             assert ! new File(SysServiceDummy.service.lockFile).exists()
             assert SysServiceDummy.customCalled

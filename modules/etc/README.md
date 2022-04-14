@@ -386,7 +386,7 @@ new Service(
     action : {
         Request request -> 
             int id = request.params("id") as int
-            return SysInfo.getFile("private", "documents", id)
+            return File.get("private", "documents", id)
     }
 )
 ```

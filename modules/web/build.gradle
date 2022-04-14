@@ -1,5 +1,6 @@
 dependencies {
     api project(':etc')
+    api project(':net')
     //https://github.com/perwendel/spark
     // We use Response, Request... so we use 'api' here:
     api 'com.sparkjava:spark-core:2.9.3'

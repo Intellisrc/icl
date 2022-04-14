@@ -49,7 +49,7 @@ class DB {
 		boolean close()
         boolean isOpen()
 		Statement prepare(Query query, boolean silent)
-		void onError(Exception ex)
+		void onError(Throwable ex)
 		JDBC getJdbc()
         long getLastUsed()
         void setLastUsed(long milliseconds)
@@ -302,7 +302,7 @@ class DB {
     boolean truncate() {
         boolean ok = false
         if(table) {
-            Log.w("Truncating table: " + table)
+            Log.i("Truncating table: " + table)
             query.setAction(TRUNCATE)
             ok = execSet()
         } else {
@@ -315,7 +315,7 @@ class DB {
     boolean drop() {
         boolean ok = false
         if(table) {
-            Log.w("Dropping table: " + table)
+            Log.i("Dropping table: " + table)
             query.setAction(DROP)
             ok = execSet()
         } else {
@@ -339,27 +339,17 @@ class DB {
      */
     boolean createDatabase() {
         Log.i("Creating database")
-        setSQL(jdbc.createDatabaseQuery)
-        return execSet()
+        return setSQL(jdbc.createDatabaseQuery)
     }
     /**
      * Drop database
      * @return
      */
     boolean dropDatabase() {
-        Log.w("Dropping database")
-        setSQL(jdbc.dropDatabaseQuery)
-        return execSet()
+        Log.i("Dropping database")
+        return setSQL(jdbc.dropDatabaseQuery)
     }
     //------------------------------ RAW set -------------------------------
-    /**
-     * Alias for setSQL()
-     * @return true on success
-     */
-    @Deprecated // Use setSQL instead (improved meaning)
-    boolean set(String query, List args = []) {
-        return setSQL(query, args)
-    }
     /** Executes a query with arguments directly
      * @param query
      * @param args
@@ -446,11 +436,27 @@ class DB {
     }
 
     /** Execute a Query **/
+    @Deprecated // Use get(Query) or set(Query)
     Data exec(Query q = null) {
         if(q) {
             queryBuilder = q
         }
         return execGet()
+    }
+
+    Data get(Query q) {
+        if(q) {
+            queryBuilder = q
+        }
+        return execGet()
+    }
+
+    /** Execute a Query **/
+    boolean set(Query q) {
+        if(q) {
+            queryBuilder = q
+        }
+        return execSet()
     }
 
     /**
@@ -691,12 +697,12 @@ class DB {
      * Last stop for read queries
      * @return Data (List<Map>)
      */
-    private Data execGet() {
+    protected Data execGet() {
         Log.v( "GET ::: " + query.toString())
         query.args.each {
             Log.v( " --> " + it)
         }
-        String cacheKey = cache && query.tableStr ? query.tableStr + "." + (query.toString() + query.argList?.join(",")).md5() : ""
+        String cacheKey = cache && query.tableStr ? query.tableStr + "." + (query.toString() + query.args ?.join(",")).md5() : ""
         Data data = dataCache.get(cacheKey, {
             // Connect if its not connected
             if(openIfClosed()) {
@@ -757,7 +763,7 @@ class DB {
      * Executes Query (Final stop for write queries)
      * @return true on success
      */
-    private boolean execSet() {
+    protected boolean execSet() {
 		boolean ok = false
         boolean upsert = false
         query.isSetQuery = true
@@ -806,26 +812,24 @@ class DB {
                     st.next()
                     if (query.isIdentityUpdate) {
                         String id = st.columnStr(1)
-                        if(id.isNumber()) {
+                        if(id && id.isNumber()) {
                             last_id = st.columnInt(1)
                         } else {
                             Log.d("Received last id: %s", id)
                             last_id = 0
                         }
+                        if (!last_id && jdbc.getLastIdQuery(query.table)) {
+                            Log.d("Last ID not found. Using fallback method...")
+                            String table = query.table
+                            queryBuilder = new Query(jdbc, LASTID)
+                            queryBuilder.table = table
+                            if(queryBuilder) {
+                                last_id = execGet().toInt()
+                                Log.d("Fallback method returned [%d] as last id", last_id)
+                            }
+                        }
                         if(!last_id) {
-                            if (!last_id) {
-                                Log.d("Last ID not found. Using fallback method...")
-                                String table = query.table
-                                queryBuilder = new Query(jdbc, LASTID)
-                                queryBuilder.table = table
-                                if(queryBuilder) {
-                                  last_id = execGet().toInt()
-                                  Log.d("Fallback method returned [%d] as last id", last_id)
-                                }
-                            }
-                            if(!last_id) {
-                                Log.w("Last ID was not found")
-                            }
+                            Log.w("Last ID was not found")
                         }
                     }
                     ok = true

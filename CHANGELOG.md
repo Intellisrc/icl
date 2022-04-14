@@ -1,5 +1,33 @@
 # Main Changes
 
+### 2.8.4
+* Moved `SysInfo.getFile` to `File.get()`
+* `Cmd` recoded and added new features like reading output line by line
+* Added methods to `AnsiColor`
+* Added `TableMaker` into `term` module
+* Added `Millis` class
+* Added `Config.any` and `Config.env`
+* Added `Host` and `LocalHost`
+* Improved `Network` and `NetFace`
+* Improved database classes
+
+### 2.8.3
+* Database module was improved
+* Added support for Oracle, SQLServer, Derby and Firebird (Fluid SQL Builder)
+
+### 2.8.2
+* AutoConfig prefix is no longer "config" by default
+* Fixed NULL issue in logs
+* LpCode added to crypt module
+* JDBC allows empty database name
+* Add support for streams in Zip and SMTP
+* Added limits to WebSocket
+
+### 2.8.1
+* JSON moved to `etc` package (and removed GSON dependency).
+* Added YAML into `etc`.
+* Simplified the use of JSON and YAML
+
 ## 2.8
 * Groovy version is no longer enforced. Compiled with Groovy 3, but any version can theoretically be used.
 * Some dependencies are no longer included by default (e.g: `db` drivers)
@@ -10,23 +38,6 @@
 * Created `Redis` class
 * Added support to upload multiples files in `web` and simplified its usage
 * All Properties set/get got standardized and moved into `core`
-
-### 2.8.1
-* JSON moved to `etc` package (and removed GSON dependency).
-* Added YAML into `etc`.
-* Simplified the use of JSON and YAML
-
-### 2.8.2
-* AutoConfig prefix is no longer "config" by default
-* Fixed NULL issue in logs
-* LpCode added to crypt module
-* JDBC allows empty database name
-* Add support for streams in Zip and SMTP
-* Added limits to WebSocket
-
-### 2.8.3
-* Database module was improved
-* Added support for Oracle, SQLServer, Derby and Firebird (Fluid SQL Builder)
 
 ## 2.7 (Groovy 2.5.6)
 

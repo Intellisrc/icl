@@ -1,8 +1,11 @@
 package com.intellisrc.term.console
 
+import com.intellisrc.core.Millis
 import com.intellisrc.term.Consolable
 import com.intellisrc.term.Console
 import groovy.transform.CompileStatic
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * @since 19/02/06.
@@ -28,7 +31,7 @@ class TestConsole implements Consolable {
                 Console.resetPreviousPrompt("ok!")
                 Console.read("Reading...", {
                     (1..30).each {
-                        sleep(100)
+                        sleep(MILLIS_100)
                         print "."
                     }
                     Console.cancel()

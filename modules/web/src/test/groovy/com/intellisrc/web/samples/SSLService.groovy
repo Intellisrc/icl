@@ -1,6 +1,5 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.core.SysInfo
 import com.intellisrc.web.Service
 import com.intellisrc.web.Service.Action
 import com.intellisrc.web.ServiciableHTTPS
@@ -28,7 +27,7 @@ class SSLService implements ServiciableHTTPS, ServiciableSingle {
 
     String getKeyStoreFile() {
         //Must be absolute path. Do not store it in public directory
-        return SysInfo.getFile(SysInfo.userDir, "res", "key.store")
+        return File.get(File.userDir, "res", "key.store")
     }
 
     String getPassword() {

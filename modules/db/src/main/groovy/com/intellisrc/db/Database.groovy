@@ -1,8 +1,9 @@
 package com.intellisrc.db
 
-import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
+import com.intellisrc.db.jdbc.JDBC.ErrorHandler
 import groovy.transform.CompileStatic
+
 /**
  * Database initialization class
  * If one database is used, you can use static "default".
@@ -16,7 +17,7 @@ class Database {
     protected DBPool pool
     Database(JDBC type = null, int timeout = 0, int expire = 0) {
 		if(type == null) {
-            type = new Dummy()
+            type = JDBC.fromSettings()
 		}
         if(!pool) {
             pool = new DBPool()
@@ -31,6 +32,9 @@ class Database {
     }
     boolean isInitialized() {
         return pool?.initialized ?: false
+    }
+    void onError(ErrorHandler handler) {
+        pool?.jdbc?.onError = handler
     }
     void quit() {
         pool?.quit()

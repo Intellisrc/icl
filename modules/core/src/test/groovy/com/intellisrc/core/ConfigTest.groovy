@@ -1,7 +1,7 @@
 package com.intellisrc.core
 
+import com.intellisrc.core.props.EnvironmentProperties
 import spock.lang.Specification
-
 
 /**
  * @since 19/01/10.
@@ -11,7 +11,7 @@ import spock.lang.Specification
 class ConfigTest extends Specification {
     def "Simple config file"() {
         setup:
-            File testCfg = new File(SysInfo.tempDir, "test.config")
+            File testCfg = new File(File.tempDir, "test.config")
             Config.Props cfg = new Config.Props(testCfg)
             cfg.set("text","something")
             cfg.set("number", 10)
@@ -48,5 +48,14 @@ class ConfigTest extends Specification {
         expect:
             assert cfg.get("my") == "test"
             assert cfg.getInt("num") == 200
+    }
+    def "Test Environment Variables"() {
+        setup:
+            EnvironmentProperties env = Config.env
+        expect:
+            assert env.keys.contains("lang")
+            env.keys.each {
+                println it + ":" + env.get(it)
+            }
     }
 }

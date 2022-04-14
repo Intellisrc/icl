@@ -23,6 +23,7 @@ class SysInfo {
     static OSType getOS() {
         def osType = OSType.UNKNOWN
         def osStr = System.getProperty("os.name")
+        //noinspection GroovyFallthrough
         switch(osStr) {
             case ~/(?i).*version.*service.*pack.*/ :
             case ~/.*(?i)win.*/ : osType = OSType.WINDOWS; break
@@ -37,90 +38,16 @@ class SysInfo {
         return osType
     }
     /**
-     * Returns a path in which can be written. It will try
-     * current path first, then temporally directory
-     */
-    static File getWritablePath() {
-        File usrDir = getUserDir()
-        if(!usrDir.canWrite()) {
-            usrDir = getTempDir()
-        }
-        return usrDir
-    }
-    /**
-     * Return the User's home directory
-     * @return
-     */
-    static File getHomeDir() {
-        return new File(System.getProperty('user.home'))
-    }
-    /**
-     * Returns the root path of the application
-     * @return
-     */
-    static File getUserDir() {
-        return new File(System.getProperty("user.dir"))
-    }
-    /**
-     * Returns the temporally directory path
-     * @return
-     */
-    static File getTempDir() {
-        return new File(System.getProperty("java.io.tmpdir"))
-    }
-    
-    /**
      * Alternative to `new File()` which is more flexible
-     * Examples:
-     *
-     * Convert path to home directory:
-     * SysInfo.getFile("~/system", "file.txt")
-     *
-     * Accepts multiple levels and automatically detect when reading from user directory:
-     * SysInfo.getFile("resources", "images", "thumbs", "logo.jpg")
-     *
-     * It accepts File objects and String as well:
-     * SysInfo.getFile(someDir, "directory", "file.txt")
+     * NOTE: Moved to File (groovy extends)
      *
      * @param self
      * @param path
      * @return
      */
+    @Deprecated // Use File.get()
     static File getFile(Object... path) {
-        File pathFile
-        boolean isFirstInPath = true
-        path.each {
-            def part ->
-                String pathPart
-                switch (part) {
-                    case File:
-                        if (isFirstInPath) {
-                            pathPart = (part as File).absolutePath
-                        } else {
-                            pathPart = (part as File).name
-                        }
-                        break
-                    default:
-                        pathPart = part.toString()
-                        break
-                }
-                if (isFirstInPath) {
-                    switch (pathPart) {
-                        case ~/^\/.*$/:
-                            pathFile = new File(pathPart)
-                            break
-                        case ~/^~.*$/:
-                            pathFile = new File(homeDir, pathPart.replace('~/', ''))
-                            break
-                        default:
-                            pathFile = new File(userDir, pathPart)
-                    }
-                } else {
-                    pathFile = new File(pathFile, pathPart)
-                }
-                isFirstInPath = false
-        }
-        return pathFile
+        return File.get(path)
     }
     
     /**
@@ -175,7 +102,7 @@ class SysInfo {
      * New Line by OS
      */
     enum NewLine {
-        LINUX("\n"), IOS("\r"), WIN("\r\n")
+        LINUX("\n"), IOS("\n"), WIN("\r")
         final String value
         NewLine(String nl) { value = nl }
     }
@@ -185,15 +112,6 @@ class SysInfo {
      * @return
      */
     static private String getNewLineForCurrentOS() {
-        String nl = NewLine.LINUX.value
-        switch (getOS()) {
-            case OSType.IOS:
-                nl = NewLine.IOS.value
-                break
-            case OSType.WINDOWS:
-                nl = NewLine.IOS.value
-                break
-        }
-        return nl
+        return System.lineSeparator()
     }
 }
