@@ -5,6 +5,8 @@ import com.intellisrc.term.styles.SafeStyle
 import com.intellisrc.term.styles.Stylable
 import groovy.transform.CompileStatic
 
+import java.util.regex.Matcher
+
 import static com.intellisrc.core.AnsiColor.*
 import static com.intellisrc.term.TableMaker.Align.*
 
@@ -50,6 +52,7 @@ class TableMaker {
         Object footer = ""
         String headerColor = ""
         String footerColor = ""
+        String ellipsisChar = "…"
         int getMaxLen() {
             return this.maxLen ?: this.length
         }
@@ -66,8 +69,10 @@ class TableMaker {
                     case LEFT:   padded = padded.padRight(len); break
                     case RIGHT:  padded = padded.padLeft(len); break
                     case CENTER:
-                        int half = Math.round((len - text.length()) / 2d) as int
-                        padded = padded.padLeft(text.length() + half).padRight(len)
+                        int half = Math.floor((len - text.length()) / 2d) as int
+                        if(half > 0) {
+                            padded = padded.padLeft(text.length() + half).padRight(len)
+                        }
                         break
                 }
             }
@@ -78,29 +83,89 @@ class TableMaker {
             if(len && text.length() > len) {
                 switch (align) {
                     case LEFT:
-                        trimmed = text.substring(0, len - (useEllipsis ? 1 : 0)) + (useEllipsis ? "…" : "")
+                        trimmed = text.substring(0, len - (useEllipsis ? 1 : 0)) + (useEllipsis ? ellipsisChar : "")
                         break
                     case RIGHT:
-                        trimmed = (useEllipsis ? "…" : "") + text.takeRight(len - (useEllipsis ? 1 : 0))
+                        trimmed = (useEllipsis ? ellipsisChar : "") + text.takeRight(len - (useEllipsis ? 1 : 0))
                         break
                     case CENTER:
                         int offset = Math.floor((text.length() - len) / 2d) as int
                         int diff   = (text.length() - len) - offset
-                        trimmed = (useEllipsis ? "…" : "") + text.substring(offset, (text.length() - diff) - (useEllipsis ? 2 : 0)) + (useEllipsis ? "…" : "")
+                        int left = useEllipsis && diff > 1 ? 1 : 0
+                        int right = useEllipsis && diff > 0 ? 1 : 0
+                        trimmed = (left ? ellipsisChar : "") + text.substring(offset, (text.length() - diff - (left + right))) + (right ? ellipsisChar : "")
                         break
                 }
             }
             return trimmed
         }
+        /**
+         * It will cut and pad the cell.
+         * If the cell has colors in it it will place them back after trimming the string
+         * @param text
+         * @param len
+         * @return
+         */
         String trimPad(String text, int len = getMaxLen()) {
-            return trim(pad(text, len), ellipsis, len)
+            boolean colored = hasColor(text)
+            List<Map> info = []
+            String original = decolor(text)
+            if(colored) {
+                Matcher match = (text =~ colorRegex)
+                while (match.find()) {
+                    info << [ c : match.group(), i : match.start() ]
+                }
+                text = decolor(text)
+            }
+            String after = trim(pad(text, len), ellipsis, len)
+            if(colored) {
+                Closure addColor = {
+                    int offset ->
+                        info.each {
+                            try {
+                                after = after.insertAt((it.i as int) + offset, it.c.toString())
+                            } catch (Exception ignore) {} // It means it falls out of the string after being trimmed
+                        }
+                }
+                switch (align) {
+                    case LEFT:
+                        addColor(0)
+                        break
+                    case RIGHT:
+                        // If spaces were added...
+                        if(original.trim().length() == after.trim().length()) {
+                            addColor(after.indexOf(original.trim()))
+                        } else {
+                            String sub = (26 as char).toString()
+                            after = after.padLeft(original.length(), sub)
+                            addColor(0)
+                            after = after.replace(sub, "")
+                        }
+                        break
+                    case CENTER:
+                        int half = (Math.floor((original.length() - after.length()) / 2d) as int) - 1 //TODO: not sure why -1, but it works
+                        // If spaces were added...
+                        if(original.trim().length() == after.trim().length()) {
+                            addColor(after.indexOf(original.trim()))
+                        } else { // The string was cut
+                            String sub = "*" //(26 as char).toString()
+                            after = after.padRight(original.length() - half, sub)
+                            after = after.padLeft(original.length(), sub)
+                            addColor(0)
+                            after = after.replace(sub, "")
+                        }
+                        break
+                }
+                if(! after.endsWith(RESET)) {
+                    after += RESET
+                }
+            }
+            return after
         }
         String format(Object cell, boolean trim = true) {
             String color = color.call(cell)
             String formatted = formatter.call(cell)
-            //TODO: if we trim the size, we need to remove color or it may break the output.
-            //      we need to find out a way to make this elegant
-            return color + (trim ? trimPad(decolor(formatted)) : formatted) + (color ? RESET : "")
+            return color + (trim ? trimPad(formatted) : formatted) + (color ? RESET : "")
         }
     }
 

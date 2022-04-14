@@ -312,4 +312,42 @@ class TableMakerTest extends Specification {
         then:
             assert tp.toString().trim() == answer16
     }
+    def "Trimming with colors should work fine"() {
+        setup:
+            TableMaker tp = new TableMaker(
+                headers: ["Fruit", "QTY", "Price", "Seller"],
+                rows: [
+                    ["Apple", 1000, "", "${RED}some${RESET}@${GREEN}example.com${RESET}"],
+                    ["Banana", 2002, "", "${RED}a${RESET}@${GREEN}example.com${RESET}"],
+                    ["Mango", 400, "", "${RED}very_long_dummy200${RESET}@${GREEN}example.com${RESET}"],
+                    ["Kiwi", 900, "", "${RED}example${RESET}@${GREEN}example.com${RESET}"]
+                ],
+                footer: "Fruits: 4"
+            )
+            tp.columns[3].with {
+                maxLen = len
+                align = al
+            }
+        when:
+            tp.print()
+        then:
+            assert true //TODO: test colors
+        where:
+            len         | al
+            10          | LEFT
+            15          | LEFT
+            20          | LEFT
+            25          | LEFT
+            30          | LEFT
+            10          | RIGHT
+            15          | RIGHT
+            20          | RIGHT
+            25          | RIGHT
+            30          | RIGHT
+            10          | CENTER
+            15          | CENTER
+            20          | CENTER
+            25          | CENTER
+            30          | CENTER
+    }
 }
