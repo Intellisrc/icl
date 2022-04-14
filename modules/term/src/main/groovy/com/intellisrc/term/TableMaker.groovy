@@ -44,7 +44,7 @@ class TableMaker {
         boolean autoCollapse = false // Reduce column width as much as possible
         boolean hideWhenEmpty = true // Do not show column if has no data
         Align align = LEFT
-        Formatter formatter = { Object it -> return decolor(it.toString()) } as Formatter
+        Formatter formatter = { Object it -> return it.toString() } as Formatter
         Formatter color = { Object it -> return "" } as Formatter // Return AnsiColor.* to color cell
         Object header = ""
         Object footer = ""
@@ -97,7 +97,10 @@ class TableMaker {
         }
         String format(Object cell, boolean trim = true) {
             String color = color.call(cell)
-            return color + (trim ? trimPad(formatter.call(cell)) : formatter.call(cell)) + (color ? RESET : "")
+            String formatted = formatter.call(cell)
+            //TODO: if we trim the size, we need to remove color or it may break the output.
+            //      we need to find out a way to make this elegant
+            return color + (trim ? trimPad(decolor(formatted)) : formatted) + (color ? RESET : "")
         }
     }
 
