@@ -315,14 +315,14 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param map
      * @return
      */
-    M setMap(Map<String, Object> map) {
+    M setMap(Map map) {
         M model = parametrizedInstance
         map.each {
-            String origName = it.key.toCamelCase()
+            String origName = it.key.toString().toCamelCase()
             Field field = getFields().find { it.name == origName }
             // Look for Type ID
-            if(!field && it.key.endsWith("_id")) {
-                origName = (it.key.replaceAll(/_id$/,'')).toCamelCase()
+            if(!field && it.key.toString().endsWith("_id")) {
+                origName = (it.key.toString().replaceAll(/_id$/,'')).toCamelCase()
                 field = getFields().find { it.name == origName }
             }
             if(field) {

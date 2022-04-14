@@ -1,5 +1,6 @@
 package com.intellisrc.web
 
+import com.intellisrc.net.LocalHost
 import groovy.xml.XmlUtil
 import spock.lang.Specification
 
@@ -14,7 +15,7 @@ class HTTPServerTest extends Specification {
             /**
              * This example uses XML parser, so HTML must be XML formed.
              */
-            def port = NetworkInterface.getFreePort()
+            def port = LocalHost.freePort
             HTTPServer http = new HTTPServer(root: publicDir, port: port, serverString: "Tomboy 2.1", action: {
                 Map<String,String> headers, Map<String,String> params, String content ->
                     def page = new XmlSlurper().parseText(content)
