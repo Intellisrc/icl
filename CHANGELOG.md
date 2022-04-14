@@ -7,6 +7,8 @@
 * Added `TableMaker` into `term` module
 * Added `Millis` class
 * Added `Config.any` and `Config.env`
+* Added `Host` and `LocalHost`
+* Improved `Network` and `NetFace`
 * Improved database classes
 
 ### 2.8.3
