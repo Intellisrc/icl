@@ -96,7 +96,7 @@ For more detailed explanation, click on the module title.<br>
 | ★   | `SysService`       | Convert class into service (only one by project)                                 |
 |     | `Version`          | Return system/application version and makes it easy to handle versions           |
 
-[Documentation](modules/core/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/core/docs/) 
+[Documentation](modules/core/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#core) 
 
 ### [log](modules/log/README.md)
 Includes : core
@@ -117,7 +117,7 @@ Includes : core
 | @   | `CommonLoggerFactory` | Used by SLF4J to get `CommonLogger` instance    |
 | @   | `CommonLoggerService` | Service provider for SLF4J                      |
 
-[Documentation](modules/log/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/log/docs/)
+[Documentation](modules/log/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#log)
 
 ### [etc](modules/etc/README.md)
 Includes : core
@@ -145,7 +145,7 @@ Includes : core
  | ★   | `YAML`        | Convert from and to YAML format                                                                                   |
  | ★   | `Zip`         | Compress files                                                                                                    |
 
-[Documentation](modules/etc/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/etc/docs/)
+[Documentation](modules/etc/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#etc)
 
 ### [db](modules/db/README.md) 
 Includes : core, etc
@@ -181,7 +181,7 @@ Includes : core, etc
  |     | `SQLite`                   | JDBC implementation for SQLite databases                                           |
 |     | `SQLServer`                | JDBC implementation for SQL Server databases                                       |
 
-[Documentation](modules/db/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/db/docs/)
+[Documentation](modules/db/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#db)
 
 ### [net](modules/net/README.md)         
 Includes : core, etc, crypt
@@ -204,7 +204,7 @@ Includes : core, etc, crypt
  |     | `UDPClient`   | UDP client                                                |
  |     | `UDPServer`   | UDP server                                                |
 
-[Documentation](modules/net/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/net/docs/)
+[Documentation](modules/net/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#net)
 
 ### [serial](modules/serial/README.md)
 Includes : core, etc
@@ -219,7 +219,7 @@ Includes : core, etc
  |     | `SerialDummy`  | Dummy implementation of `Seriable` for Unit Testing  |
  | @   | `SerialReader` | Class to only read data from a `Serial` port         |
 
-[Documentation](modules/serial/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/serial/docs/)
+[Documentation](modules/serial/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#serial)
 
 ### [web](modules/web/README.md)
 Includes : core, etc, net
@@ -246,7 +246,7 @@ Includes : core, etc, net
  |     | services/`LoginService`  | Implementation for login services                                                               |
  |     | services/`LogService`    | Implementation to browse logs in a browser                                                      |
 
-[Documentation](modules/web/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/web/docs/)
+[Documentation](modules/web/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#web)
 
 ### [crypt](modules/crypt/README.md)
 Includes : core, etc    
@@ -265,7 +265,7 @@ Includes : core, etc
  | ★   | `PasswordHash` | Provides strong hashing algorithms for passwords, like: BCRYPT, SCRYPT and PBKDF2                                                      |
 |     | `LpCode`       | Provides String obfuscation                                                                                                            |
 
-[Documentation](modules/crypt/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/crypt/docs/)
+[Documentation](modules/crypt/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#crypt)
 
 ### [thread](modules/thread/README.md)
 Includes : core
@@ -292,7 +292,7 @@ Includes : core
  | ★   | `Tasks`        | Generates report of all tasks and serves as entry point to add tasks to be monitored |
  | @   | `ThreadPool`   | Custom ThreadPoolExecutor object (Java management for threads)                       |
 
-[Documentation](modules/thread/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/thread/docs/)
+[Documentation](modules/thread/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#thread)
 
 ### [term](modules/term/README.md)         
 Includes : core
@@ -311,7 +311,7 @@ Includes : core
  | ★   | `Progress`          | Show a progress bar in a terminal (it has multiple implementations and options) |
 | ★   | `TableMaker`        | Create tables for the terminal to display data in a nicely way                  |
 
-[Documentation](modules/term/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/term/docs/)
+[Documentation](modules/term/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#term)
 
 ### [img](modules/img/README.md)
 Includes : core
@@ -328,7 +328,7 @@ Includes : core
  | ★   | `FrameShot`    | Represents a single frame (BufferedImage with name)                   |
  |     | `Metry`        | Performs geometric operations (e.g, Trigonometry)                     |
 
-[Documentation](modules/img/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/img/docs/)
+[Documentation](modules/img/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#img)
 
 ### [cv](modules/cv/README.md)
 Includes : core, img
@@ -351,7 +351,7 @@ Includes : core, img
  |     | `FileVideoGrab`     | Get File or FrameShot/CvFrameShot images from a directory (as frames) |
  | ★   | `FrameVideoGrab`    | Get Frame or FrameShot/CvFrameShot objects from video files           |
 
-[Documentation](modules/cv/README.md) / [JavaDoc](https://gl.githack.com/intellisrc/common/raw/master/modules/cv/docs/)
+[Documentation](modules/cv/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#cv)
 
 ## Dependencies
 
