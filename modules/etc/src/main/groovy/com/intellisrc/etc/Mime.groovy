@@ -72,6 +72,7 @@ class Mime {
             mp4		: "video/mp4",
             mpeg	: "video/mpeg",
             mpkg	: "application/vnd.apple.installer+xml",
+            ndjson  : "application/x-ndjson",
             odp		: "application/vnd.oasis.opendocument.presentation",
             ods		: "application/vnd.oasis.opendocument.spreadsheet",
             odt		: "application/vnd.oasis.opendocument.text",
