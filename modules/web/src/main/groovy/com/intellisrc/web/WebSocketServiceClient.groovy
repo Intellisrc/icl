@@ -1,5 +1,6 @@
 package com.intellisrc.web
 
+import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.Session as JettySession
@@ -116,14 +117,22 @@ class WebSocketServiceClient {
      * @param message
      */
     void sendMessage(Map message) {
-        sendMessage(JSON.encode(message))
+        if(message &&! message.isEmpty()) {
+            sendMessage(JSON.encode(message))
+        } else {
+            Log.d("Trying to send an empty message")
+        }
     }
     /**
      * Sends a message
      * @param message
      */
     void sendMessage(String message) {
-        clientSession.getRemote().sendString(message)
+        if(message) {
+            clientSession.getRemote().sendString(message)
+        } else {
+            Log.d("Trying to send an empty message")
+        }
     }
     /**
      * Disconnects from server
