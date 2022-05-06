@@ -388,7 +388,7 @@ class Table<M extends Model> implements Instanciable<M> {
                         } catch(Exception ignore) {
                             try {
                                 // Having a static method 'fromString'
-                                model[origName] = field.type.getDeclaredMethod("fromString", String.class).invoke(it.value.toString())
+                                model[origName] = field.type.getDeclaredMethod("fromString", String.class).invoke(null, it.value.toString())
                             } catch (Exception ignored) {
                                 try {
                                     model[origName] = it.value
