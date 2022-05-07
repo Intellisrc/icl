@@ -592,7 +592,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     String getPk() {
-        String pk = null
+        String pk = ""
         Field field = getFields().find {
             it.getAnnotation(Column)?.primary()
         }
@@ -605,6 +605,20 @@ class Table<M extends Model> implements Instanciable<M> {
             }
         }
         return pk
+    }
+    /**
+     * Returns the autoincrement field
+     * @return
+     */
+    String getAutoIncrement() {
+        String ai = ""
+        Field field = getFields().find {
+            it.getAnnotation(Column)?.autoincrement()
+        }
+        if(field) {
+            ai = getColumnName(field)
+        }
+        return ai
     }
     /**
      * Get one item using ID
@@ -671,7 +685,8 @@ class Table<M extends Model> implements Instanciable<M> {
         List<M> list = []
         if(f) {
             String id = getColumnName(f)
-            list = tableConnector.get([(id): model.id]).toListMap().collect { setMap(it) }
+            String main = autoIncrement ?: pk
+            list = tableConnector.get([(main): model[main]]).toListMap().collect { setMap(it) }
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
@@ -731,13 +746,18 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean update(M model, List<String> exclude = []) {
         boolean ok = false
-        int id = model.id
+        String primary = getPk()
+        Object id = primary ? model[primary] : null
         try {
             Map map = getMap(model)
             exclude.each {
                 map.remove(it)
             }
-            ok = tableConnector.key(pk).update(map, id)
+            if(primary) {
+                ok = tableConnector.key(primary).update(map, id)
+            } else {
+                Log.w("Trying to update a row without key. Please specify 'key()' or a primary key")
+            }
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
@@ -810,7 +830,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     int insert(M model) {
-        int id = model.id
+        String ai = getAutoIncrement()
         int lastId = 0
         DB db
         try {
@@ -819,7 +839,10 @@ class Table<M extends Model> implements Instanciable<M> {
             boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
-                lastId = db.lastID
+                if(ai) {
+                    lastId = db.lastID
+                    model[ai] = lastId
+                }
             } else {
                 Log.w("Unable to insert row : %s", map.toSpreadMap())
             }
@@ -828,7 +851,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } finally {
             closeConnections()
         }
-        return lastId ?: id
+        return lastId
     }
     /**
      * Return table updater
