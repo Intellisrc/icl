@@ -82,7 +82,9 @@ class Zip {
     static File compressDir(final File srcDir, final File zipFile) {
         Map<String, byte[]> namesData = [:]
         srcDir.eachFileRecurse {
-            namesData[it.path - srcDir.path + (it.directory ? File.separatorChar : "")] = it.bytes
+            if(it.file) {
+                namesData[it.path - srcDir.path + (it.directory ? File.separatorChar : "")] = it.bytes
+            }
         }
         zipFile.withOutputStream {
             zip(namesData).writeTo(it)
