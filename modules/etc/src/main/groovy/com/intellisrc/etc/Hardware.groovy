@@ -20,6 +20,15 @@ class Hardware {
     static public boolean debug     = Config.get("hardware.debug", false)
     static public boolean gpu       = Config.get("hardware.gpu", true)
     static public boolean monitor   = Config.get("hardware.monitor", true)
+
+    static public String sensorsCmd  = Config.get("hardware.cmd.sensors", "sensors")
+    static public String nvidiaSMI   = Config.get("hardware.cmd.nvidia.smi", "nvidia-smi -q")
+    static public String screenCheck = Config.get("hardware.cmd.screen", "xset -q")
+    static public String screenON    = Config.get("hardware.cmd.screen.on", "xset dpms force on")
+    static public String screenOFF   = Config.get("hardware.cmd.screen.off", "xset dpms force off")
+    static public String xinput      = Config.get("hardware.cmd.xinput", "xinput")
+    static public String xinputList  = Config.get("hardware.cmd.xinput.list", "xinput list")
+
     static private OperatingSystemMXBean os
     
     /**
@@ -122,7 +131,7 @@ class Hardware {
      * @param callback
      */
     static void getCpuTemp(Metric.MetricChanged callback) {
-        Cmd.async("sensors", {
+        Cmd.async(sensorsCmd, {
             String out ->
                 double temp = 0
                 List<Double> temps = []
@@ -152,7 +161,7 @@ class Hardware {
      */
     static void getGpuTemp(Metric.MetricChanged callback) {
         if(gpu) {
-            Cmd.async(["nvidia-smi", "-q"], {
+            Cmd.async(nvidiaSMI, {
                 String out ->
                     double temp = 0
                     out.readLines().find {
@@ -184,7 +193,7 @@ class Hardware {
      */
     static void getGpuMem(Metric.MetricChanged callback) {
         if(gpu) {
-            Cmd.async(["nvidia-smi","-q"], {
+            Cmd.async(nvidiaSMI, {
                 String out ->
                     double total = 0
                     double usable = 0
@@ -346,7 +355,7 @@ class Hardware {
             if (SysInfo.isWindows()) {
                 Log.w("Screen control not available in Windows")
             } else {
-                Cmd.async("xset -q", {
+                Cmd.async(screenCheck, {
                     String out ->
                         on = out.contains("Monitor is On")
                 }, {
@@ -367,7 +376,7 @@ class Hardware {
             if (SysInfo.isWindows()) {
                 Log.w("Screen control not available in Windows")
             } else {
-                Cmd.exec("xset dpms force " + (on ? "on" : "off"), {
+                Cmd.exec(on ? screenON : screenOFF, {
                     String out, int code ->
                         Log.w("Unable to turn %s screen", on ? "ON" : "OFF")
                 })
@@ -425,7 +434,7 @@ class Hardware {
             return
         }
         String command = enable ? "enable" : "disable"
-        new Cmd("xinput list").eachLine({
+        new Cmd(xinputList).eachLine({
             String line ->
                 if(line.contains("slave")) {
                     if(!device || line.contains(device)) {
