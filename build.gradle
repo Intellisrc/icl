@@ -116,7 +116,7 @@ subprojects {
 
     dependencies {
         def groovyVer = "3.0.7"   //3.0.8~3.0.10 is failing to compile (Fixed in 4x)
-        def groovyExt = "3.0.10.8"
+        def groovyExt = "3.0.10.9-SNAPSHOT-DEBUG"
         def spock = "2.0-groovy-3.0"
         def junit = "4.13.2"
 

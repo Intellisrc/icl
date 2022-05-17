@@ -17,7 +17,9 @@ import java.util.regex.Matcher
  */
 @CompileStatic
 class Hardware {
-    static public boolean debug = Config.getInt("hardware.debug")
+    static public boolean debug     = Config.get("hardware.debug", false)
+    static public boolean gpu       = Config.get("hardware.gpu", true)
+    static public boolean monitor   = Config.get("hardware.monitor", true)
     static private OperatingSystemMXBean os
     
     /**
@@ -61,7 +63,6 @@ class Hardware {
      * @param callback
      */
     static void getMemoryUsage(Metric.MetricChanged callback) {
-        String meminfo = new File("/proc/meminfo").text
         double memorySize = operatingSystem.totalPhysicalMemorySize.toDouble()
         double usedMem = memorySize - operatingSystem.freePhysicalMemorySize.toDouble()
         double buffers = 0
@@ -72,17 +73,20 @@ class Hardware {
             String line ->
                 return line.tokenize(" ")[1].toDouble() * 1024
         }
-        meminfo.eachLine {
-            if(it.startsWith("Buffers")) {
-                buffers = getValue(it)
-            } else if(it.startsWith("Cached")) {
-                cached = getValue(it)
-            } else if(it.startsWith("SReclaimable")) {
-                sreclaim = getValue(it)
-            } else if(it.startsWith("Shmem")) {
-                shmem = getValue(it)
+        if(! SysInfo.isWindows()) {
+            String meminfo = File.get("/proc/meminfo").text
+            meminfo.eachLine {
+                if (it.startsWith("Buffers")) {
+                    buffers = getValue(it)
+                } else if (it.startsWith("Cached")) {
+                    cached = getValue(it)
+                } else if (it.startsWith("SReclaimable")) {
+                    sreclaim = getValue(it)
+                } else if (it.startsWith("Shmem")) {
+                    shmem = getValue(it)
+                }
+                return
             }
-            return
         }
         double totalFree = memorySize - (usedMem - (buffers + cached))
         double pct = 0
@@ -147,28 +151,31 @@ class Hardware {
      * @param callback
      */
     static void getGpuTemp(Metric.MetricChanged callback) {
-        Cmd.async("nvidia-smi -q", {
-            String out ->
-                double temp = 0
-                out.readLines().find {
-                    if(it.contains("GPU Current Temp")) {
-                        Matcher matcher = (it =~ /(\d+)/)
-                        if(matcher.find()) {
-                            temp = Double.parseDouble(matcher.group(1))
+        if(gpu) {
+            Cmd.async(["nvidia-smi", "-q"], {
+                String out ->
+                    double temp = 0
+                    out.readLines().find {
+                        if (it.contains("GPU Current Temp")) {
+                            Matcher matcher = (it =~ /(\d+)/)
+                            if (matcher.find()) {
+                                temp = Double.parseDouble(matcher.group(1))
+                            }
+                        }
+                        return temp
+                    }
+                    if (temp) {
+                        if (debug) {
+                            Log.d("GPU TEMP: %d", temp)
                         }
                     }
-                    return temp
-                }
-                if(temp) {
-                    if(debug) {
-                        Log.d("GPU TEMP: %d", temp)
-                    }
-                }
-                callback(temp)
-        }, {
-            String out, int code ->
-                Log.w("GPU info is not available")
-        })
+                    callback(temp)
+            }, {
+                String out, int code ->
+                    Log.w("GPU info is not available")
+                    Log.v("You can disable last message by setting 'hardware.gpu=false' in config.properties")
+            })
+        }
     }
     
     /**
@@ -176,42 +183,45 @@ class Hardware {
      * @param callback
      */
     static void getGpuMem(Metric.MetricChanged callback) {
-        Cmd.async("nvidia-smi -q", {
-            String out ->
-                double total = 0
-                double usable = 0
-                boolean foundKey = false
-                out.readLines().any {
-                    if(it.contains("FB Memory Usage")) {
-                        foundKey = true
-                    }
-                    if(foundKey) {
-                        if(it.contains("Total")) {
-                            Matcher matcher = (it =~ /(\d+)/)
-                            if(matcher.find()) {
-                                total = matcher.group(1).toDouble()
-                            }
-                        } else if(it.contains("Free")) {
-                            Matcher matcher = (it =~ /(\d+)/)
-                            if(matcher.find()) {
-                                usable = matcher.group(1).toDouble()
+        if(gpu) {
+            Cmd.async(["nvidia-smi","-q"], {
+                String out ->
+                    double total = 0
+                    double usable = 0
+                    boolean foundKey = false
+                    out.readLines().any {
+                        if (it.contains("FB Memory Usage")) {
+                            foundKey = true
+                        }
+                        if (foundKey) {
+                            if (it.contains("Total")) {
+                                Matcher matcher = (it =~ /(\d+)/)
+                                if (matcher.find()) {
+                                    total = matcher.group(1).toDouble()
+                                }
+                            } else if (it.contains("Free")) {
+                                Matcher matcher = (it =~ /(\d+)/)
+                                if (matcher.find()) {
+                                    usable = matcher.group(1).toDouble()
+                                }
                             }
                         }
+                        return total && usable
                     }
-                    return total && usable
-                }
-                double pct = 0
-                if(total) {
-                    pct = 100 - ((usable / total).toDouble() * 100d)
-                    if(debug) {
-                        Log.d("GPU MEM: %.2f GB usable / %.2f GB total (%.2f ‰)", mbToGB(usable), mbToGB(total), pct)
+                    double pct = 0
+                    if (total) {
+                        pct = 100 - ((usable / total).toDouble() * 100d)
+                        if (debug) {
+                            Log.d("GPU MEM: %.2f GB usable / %.2f GB total (%.2f ‰)", mbToGB(usable), mbToGB(total), pct)
+                        }
                     }
-                }
-                callback(pct)
-        }, {
-            String out, int code ->
-                Log.w("GPU info is not available")
-        })
+                    callback(pct)
+            }, {
+                String out, int code ->
+                    Log.w("GPU info is not available")
+                    Log.v("You can disable last message by setting 'hardware.gpu=false' in config.properties")
+            })
+        }
     }
     
     /**
@@ -219,7 +229,7 @@ class Hardware {
      * @param callback
      */
     static void getHddSpace(Metric.MetricChanged callback) {
-        final File root = new File("/")
+        final File root = File.rootDir
         double usable = root.usableSpace.toDouble()
         double total  = root.totalSpace.toDouble()
         double pct = 0
@@ -239,7 +249,7 @@ class Hardware {
      * @param root
      * @return
      */
-    static double getTotalSpace(File root = new File("/")) {
+    static double getTotalSpace(File root = File.rootDir) {
         return root.totalSpace.toDouble()
     }
     /**
@@ -247,7 +257,7 @@ class Hardware {
      * @param root
      * @return
      */
-    static double getFreeSpace(File root = new File("/")) {
+    static double getFreeSpace(File root = File.rootDir) {
         return root.freeSpace.toDouble()
     }
     /**
@@ -255,7 +265,7 @@ class Hardware {
      * @param root
      * @return
      */
-    static double getUsedSpace(File root = new File("/")) {
+    static double getUsedSpace(File root = File.rootDir) {
         return root.usableSpace.toDouble()
     }
     
@@ -285,7 +295,7 @@ class Hardware {
      * @param callback
      */
     static void getTmpSpace(Metric.MetricChanged callback) {
-        final File root = new File("/tmp")
+        final File root = File.tempDir
         double usable = root.getUsableSpace().toDouble()
         double total  = root.getTotalSpace().toDouble()
         double pct = 0
@@ -332,16 +342,18 @@ class Hardware {
      */
     static boolean getScreenOn() {
         boolean on = false
-        if(SysInfo.isWindows()) {
-            Log.w("Screen control not available in Windows")
-        } else {
-            Cmd.async("xset -q", {
-                String out ->
-                    on = out.contains("Monitor is On")
-            }, {
-                String out, int code ->
-                    Log.w("Unable to detect monitor status")
-            })
+        if(monitor) {
+            if (SysInfo.isWindows()) {
+                Log.w("Screen control not available in Windows")
+            } else {
+                Cmd.async("xset -q", {
+                    String out ->
+                        on = out.contains("Monitor is On")
+                }, {
+                    String out, int code ->
+                        Log.w("Unable to detect monitor status")
+                })
+            }
         }
         return on
     }
@@ -351,13 +363,15 @@ class Hardware {
      * @param on
      */
     static void setScreenOn(boolean on) {
-        if(SysInfo.isWindows()) {
-            Log.w("Screen control not available in Windows")
-        } else {
-            Cmd.exec("xset dpms force " + (on ? "on" : "off"), {
-                String out, int code ->
-                    Log.w("Unable to turn %s screen", on ? "ON" : "OFF")
-            })
+        if(monitor) {
+            if (SysInfo.isWindows()) {
+                Log.w("Screen control not available in Windows")
+            } else {
+                Cmd.exec("xset dpms force " + (on ? "on" : "off"), {
+                    String out, int code ->
+                        Log.w("Unable to turn %s screen", on ? "ON" : "OFF")
+                })
+            }
         }
     }
     

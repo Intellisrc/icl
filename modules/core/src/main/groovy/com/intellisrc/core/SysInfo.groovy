@@ -39,13 +39,12 @@ class SysInfo {
     }
     /**
      * Alternative to `new File()` which is more flexible
-     * NOTE: Moved to File (groovy extends)
+     * (alias for File.get in groovy extends)
      *
      * @param self
      * @param path
      * @return
      */
-    @Deprecated // Use File.get()
     static File getFile(Object... path) {
         return File.get(path)
     }
