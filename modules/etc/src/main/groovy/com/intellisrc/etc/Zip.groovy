@@ -1,7 +1,12 @@
 package com.intellisrc.etc
 
 import groovy.transform.CompileStatic
+
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.util.zip.*
+
+import static java.nio.charset.StandardCharsets.*
 
 /**
  * @since 18/03/09.
@@ -12,6 +17,10 @@ import java.util.zip.*
 @CompileStatic
 class Zip {
     static public class InvalidExtensionException extends Exception {}
+    /**
+     * override if differs
+     */
+    static Charset charset = UTF_8
     /**
      * Compress a file and rename it to *.gz
      * @param file
@@ -152,7 +161,7 @@ class Zip {
      */
     static ByteArrayOutputStream zip(final Map<String, byte[]> namesData) {
         ByteArrayOutputStream os = new ByteArrayOutputStream()
-        ZipOutputStream zos = new ZipOutputStream(os)
+        ZipOutputStream zos = new ZipOutputStream(os, charset)
         namesData.each ({
             zos.putNextEntry(new ZipEntry(it.key))
             zos << it.value
@@ -169,7 +178,7 @@ class Zip {
     static Map<String, byte[]> unzip(InputStream is) {
         Map<String, byte[]> namesData = [:]
         byte[] buffer = new byte[1024]
-        ZipInputStream zis = new ZipInputStream(is)
+        ZipInputStream zis = new ZipInputStream(is, charset)
         ZipEntry zipEntry = zis.nextEntry
         while (zipEntry != null) {
             if(! zipEntry.directory) {
