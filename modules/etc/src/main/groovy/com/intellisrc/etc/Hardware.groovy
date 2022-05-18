@@ -11,6 +11,8 @@ import groovy.transform.CompileStatic
 import java.lang.management.ManagementFactory
 import java.util.regex.Matcher
 
+import static com.intellisrc.core.SysInfo.*
+
 /**
  * Hardware information
  * @since 19/02/26.
@@ -21,13 +23,27 @@ class Hardware {
     static public boolean gpu       = Config.get("hardware.gpu", true)
     static public boolean monitor   = Config.get("hardware.monitor", true)
 
-    static public String sensorsCmd  = Config.get("hardware.cmd.sensors", "sensors")
-    static public String nvidiaSMI   = Config.get("hardware.cmd.nvidia.smi", "nvidia-smi -q")
-    static public String screenCheck = Config.get("hardware.cmd.screen", "xset -q")
-    static public String screenON    = Config.get("hardware.cmd.screen.on", "xset dpms force on")
-    static public String screenOFF   = Config.get("hardware.cmd.screen.off", "xset dpms force off")
-    static public String xinput      = Config.get("hardware.cmd.xinput", "xinput")
-    static public String xinputList  = Config.get("hardware.cmd.xinput.list", "xinput list")
+    /**
+     * Default commands
+     */
+    static private final String sensorsCmd  = "sensors"
+    static private final String nvidiaSMI   = "nvidia-smi -q"
+    static private final String screenCheck = "xset -q"
+    static private final String screenON    = "xset dpms force on"
+    static private final String screenOFF   = "xset dpms force off"
+    static private final String xinput      = "xinput"
+    static private final String xinputList  = "xinput list"
+
+    /**
+     * Custom commands (override)
+     */
+    static public String customSensorsCmd  = Config.get("hardware.cmd.sensors")
+    static public String customNvidiaSMI   = Config.get("hardware.cmd.nvidia.smi")
+    static public String customScreenCheck = Config.get("hardware.cmd.screen")
+    static public String customScreenON    = Config.get("hardware.cmd.screen.on")
+    static public String customScreenOFF   = Config.get("hardware.cmd.screen.off")
+    static public String customXinput      = Config.get("hardware.cmd.xinput")
+    static public String customXinputList  = Config.get("hardware.cmd.xinput.list")
 
     static private OperatingSystemMXBean os
     
@@ -82,7 +98,7 @@ class Hardware {
             String line ->
                 return line.tokenize(" ")[1].toDouble() * 1024
         }
-        if(! SysInfo.isWindows()) {
+        if(! isWindows()) {
             String meminfo = File.get("/proc/meminfo").text
             meminfo.eachLine {
                 if (it.startsWith("Buffers")) {
@@ -131,7 +147,7 @@ class Hardware {
      * @param callback
      */
     static void getCpuTemp(Metric.MetricChanged callback) {
-        Cmd.async(sensorsCmd, {
+        Cmd.async(customSensorsCmd ?: sensorsCmd, {
             String out ->
                 double temp = 0
                 List<Double> temps = []
@@ -161,7 +177,7 @@ class Hardware {
      */
     static void getGpuTemp(Metric.MetricChanged callback) {
         if(gpu) {
-            Cmd.async(nvidiaSMI, {
+            Cmd.async(customNvidiaSMI ?: nvidiaSMI, {
                 String out ->
                     double temp = 0
                     out.readLines().find {
@@ -193,7 +209,7 @@ class Hardware {
      */
     static void getGpuMem(Metric.MetricChanged callback) {
         if(gpu) {
-            Cmd.async(nvidiaSMI, {
+            Cmd.async(customNvidiaSMI ?: nvidiaSMI, {
                 String out ->
                     double total = 0
                     double usable = 0
@@ -352,17 +368,18 @@ class Hardware {
     static boolean getScreenOn() {
         boolean on = false
         if(monitor) {
-            if (SysInfo.isWindows()) {
-                Log.w("Screen control not available in Windows")
-            } else {
-                Cmd.async(screenCheck, {
-                    String out ->
-                        on = out.contains("Monitor is On")
-                }, {
-                    String out, int code ->
+            Cmd.async(customScreenCheck ?: screenCheck, {
+                String out ->
+                    on = out.contains("Monitor is On")
+            }, {
+                String out, int code ->
+                    if(! customScreenCheck && isWindows()) {
+                        Log.w("Windows is not supported by default. You can implement your own command and" +
+                            "override Hardware.customScreenCheck or set 'hardware.cmd.screen' in config.properties")
+                    } else {
                         Log.w("Unable to detect monitor status")
-                })
-            }
+                    }
+            })
         }
         return on
     }
@@ -373,14 +390,17 @@ class Hardware {
      */
     static void setScreenOn(boolean on) {
         if(monitor) {
-            if (SysInfo.isWindows()) {
-                Log.w("Screen control not available in Windows")
-            } else {
-                Cmd.exec(on ? screenON : screenOFF, {
-                    String out, int code ->
-                        Log.w("Unable to turn %s screen", on ? "ON" : "OFF")
-                })
-            }
+            Cmd.exec(on ? (customScreenON ?: screenON) : (customScreenOFF ?: screenOFF), {
+                String out, int code ->
+                    String status = on ? "ON" : "OFF"
+                    if(! customScreenON && isWindows()) {
+                        Log.w("Windows is not supported by default. You can implement your own command and" +
+                            "override Hardware.customScreen${status} or set 'hardware.cmd.screen.${status.toLowerCase()}' " +
+                            "in config.properties")
+                    } else {
+                        Log.w("Unable to turn %s screen", status)
+                    }
+            })
         }
     }
     
@@ -429,25 +449,27 @@ class Hardware {
      * @param enable
      */
     static private void disableEnableInputDeviceCommon(String device = "", boolean enable) {
-        if(SysInfo.isWindows()) {
-            Log.w("Input control not available in Windows")
-            return
-        }
         String command = enable ? "enable" : "disable"
-        new Cmd(xinputList).eachLine({
+        new Cmd(customXinputList ?: xinputList).eachLine({
             String line ->
                 if(line.contains("slave")) {
                     if(!device || line.contains(device)) {
                         Matcher matcher = (line =~ /id=(\d+)/)
                         if (matcher) {
                             int id = Integer.parseInt(matcher.group(1))
-                            Cmd.exec("xinput --${command} $id")
+                            Cmd.exec([customXinput ?: xinput, "--${command}", id])
                         }
                     }
                 }
         }).onFail({
             String out, int code ->
-                Log.w("Unable to read devices list")
+                if(! customXinputList && isWindows()) {
+                    Log.w("Windows is not supported by default. You can implement your own command and" +
+                        "override Hardware.customXinput and Hardware.customXinputList or " +
+                        "set 'hardware.cmd.xinput' and 'hardware.cmd.xinput.list' in config.properties")
+                } else {
+                    Log.w("Unable to read devices list")
+                }
         })
     }
 }
