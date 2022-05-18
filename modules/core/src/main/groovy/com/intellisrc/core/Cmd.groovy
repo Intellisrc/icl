@@ -264,7 +264,7 @@ class Cmd {
      * @return
      */
     static void async(String cmd, Output onDone, Fail onFail = null) {
-        async([cmd], onDone, onFail)
+        async(cmd.tokenize(" "), onDone, onFail)
     }
     /**
      * Easiest way to execute a command using arguments as List on the background
@@ -273,7 +273,7 @@ class Cmd {
      * @return
      */
     static void async(String cmd, List args, Output onDone, Fail onFail = null) {
-        async([cmd] + args, onDone, onFail)
+        async(cmd.tokenize(" ") + args, onDone, onFail)
     }
     /**
      * Easiest way to execute a command using a List on the background
