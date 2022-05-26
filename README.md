@@ -193,7 +193,6 @@ Includes : core, etc, crypt
 |     | Class         | Usage                                                     |
 |-----|---------------|-----------------------------------------------------------|
  | ★   | `Email`       | Verify email format                                       |
- | @   | `ErrorMailer` | Send error and security alerts to administrator           |
  |     | `MacAddress`  | Convert format from and to MacAddress  XX:XX:XX:XX        |
  |     | `Network`     | Methods related to networking but not to NetworkInterface |
  |     | `NetFace`     | Simple representation of a Network Interface              |
