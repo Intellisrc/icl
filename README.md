@@ -233,7 +233,8 @@ Includes : core, etc, net
 |-----|--------------------------|-------------------------------------------------------------------------------------------------|
  |     | `HTTPServer`             | Simple HTTP server implementation for static files. `WebService` offers much more than this one |
  | ★   | `Service`                | Defines a single service to be used in `WebService`                                             |
- | @   | `Serviciable`            | Generic interface for services                                                                  |
+|     | `ServiceOutput`          | Customize output response from a `Service`                                                      |
+| @   | `Serviciable`            | Generic interface for services                                                                  |
  |     | `ServiciableAuth`        | Interface to be used in services which requires sessions                                        |
  |     | `ServiciableHTTPS`       | Interface to be used to support SSL                                                             |
  |     | `ServiciableSingle`      | Defines a web service with a single `Service`                                                   |
