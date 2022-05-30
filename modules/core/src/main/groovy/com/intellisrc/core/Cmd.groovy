@@ -227,6 +227,28 @@ class Cmd {
     }
     //----------- STATIC -------------
     /**
+     * Returns true if command succeeded
+     * @param cmd
+     * @param args
+     * @return
+     */
+    static boolean succeed(String cmd, List args = []) {
+        return succeed(cmd.tokenize(" ") + args)
+    }
+    /**
+     * Returns true if command succeeded
+     * @param cmd
+     * @return
+     */
+    static boolean succeed(List cmd) {
+        boolean ok = true
+        exec(cmd, {
+            String out, int code ->
+                ok = false
+        })
+        return ok
+    }
+    /**
      * Easiest way to execute a command using String
      * @param cmd
      * @param onFail
@@ -264,7 +286,7 @@ class Cmd {
      * @return
      */
     static void async(String cmd, Output onDone, Fail onFail = null) {
-        async([cmd], onDone, onFail)
+        async(cmd.tokenize(" "), onDone, onFail)
     }
     /**
      * Easiest way to execute a command using arguments as List on the background
@@ -273,7 +295,7 @@ class Cmd {
      * @return
      */
     static void async(String cmd, List args, Output onDone, Fail onFail = null) {
-        async([cmd] + args, onDone, onFail)
+        async(cmd.tokenize(" ") + args, onDone, onFail)
     }
     /**
      * Easiest way to execute a command using a List on the background

@@ -50,7 +50,7 @@ class WebService {
     protected List<String> listPaths = [] //mainly used to prevent collisions
     protected boolean running = false
     protected String resources = ""
-    protected Cache<Output> cache = new Cache<Output>()
+    protected Cache<ServiceOutput> cache = new Cache<ServiceOutput>()
     // Options:
     public int cacheTime = 0
     public int port = 80
@@ -61,27 +61,6 @@ class WebService {
 
     static interface StartCallback {
         void call(Srv srv)
-    }
-    /**
-     * Output types used in getOutput
-     */
-    protected static enum OutputType {
-        JSON, YAML, TEXT, IMAGE, BINARY
-    }
-    protected static class Output {
-        OutputType type     = OutputType.BINARY
-        Object content      = null
-        String contentType  = ""
-        String charSet      = "UTF-8"
-
-        // Used by URL
-        int responseCode    = 0
-        // Name used to download
-        String fileName     = ""
-        // Size of content
-        long size           = 0
-        // Store eTag in some cases
-        String etag         = ""
     }
     /**
      * Constructor: initializes Service instance
@@ -172,6 +151,7 @@ class WebService {
                                             request.session(true)
                                             sessionMap.each {
                                                 if(it.key == "response" && it.value instanceof Map) {
+                                                    //noinspection GrReassignedInClosureLocalVar
                                                     res += (it.value as Map)
                                                 } else {
                                                     request.session().attribute(it.key, it.value)
@@ -291,29 +271,16 @@ class WebService {
         }
     }
     /**
-     * From content type, get OutputType
-     * @param contentType
-     * @return
-     */
-    protected static OutputType getTypeFromContentTypeString(String contentType) {
-        OutputType type
-        switch (contentType) {
-            case ~/.*json.*/  : type = OutputType.JSON; break
-            case ~/.*yaml.*/  : type = OutputType.YAML; break
-            case ~/.*text.*/  : type = OutputType.TEXT; break
-            case ~/.*image.*/ : type = OutputType.IMAGE; break
-            default:
-                type = OutputType.BINARY
-        }
-        return type
-    }
-    /**
      * Get output content type and content
      * @param res (response from Service.Action)
      * @param contentType
      */
-    protected static Output handleContentType(Object res, String contentType, String charSet = "UTF-8", boolean forceBinary = false) {
-        Output output = new Output(contentType: contentType.toLowerCase(), charSet : charSet, content: res)
+    protected static ServiceOutput handleContentType(Object res, String contentType, String charSet = "UTF-8", boolean forceBinary = false) {
+        // Skip this if the object is ServiceOutput
+        if(res instanceof ServiceOutput) {
+            return res
+        }
+        ServiceOutput output = new ServiceOutput(contentType: contentType.toLowerCase(), charSet : charSet, content: res)
         // All Collection objects convert them to List so they are cleanly converted
         if(res instanceof Collection) {
             output.content = res.toList()
@@ -322,14 +289,14 @@ class WebService {
             output.content = res.toString()
         }
         if(output.contentType) {
-            output.type = getTypeFromContentTypeString(output.contentType)
+            output.type = ServiceOutput.Type.fromString(output.contentType)
             output.fileName = "download." + output.contentType.tokenize("/").last()
         } else { // Auto detect contentType:
             //noinspection GroovyFallthrough
             switch (output.content) {
                 case String:
                     String resStr = output.type.toString()
-                    output.type = OutputType.TEXT
+                    output.type = ServiceOutput.Type.TEXT
                     switch (true) {
                         case resStr.contains("<html") :
                             output.contentType = Mime.getType("html")
@@ -355,20 +322,20 @@ class WebService {
                 case File:
                     File file = output.content as File
                     output.contentType = Mime.getType(file)
-                    output.type = getTypeFromContentTypeString(output.contentType)
+                    output.type = ServiceOutput.Type.fromString(output.contentType)
                     output.fileName = file.name
                     break
                 case BufferedImage:
                     BufferedImage img = output.content as BufferedImage
                     boolean hasAlpha = img.colorModel.hasAlpha()
                     String ext = hasAlpha ? "png" : "jpg"
-                    output.type = OutputType.IMAGE
+                    output.type = ServiceOutput.Type.IMAGE
                     output.contentType = Mime.getType(ext)
                     output.fileName = "download.${ext}"
                     break
                 case List:
                 case Map:
-                    output.type = OutputType.JSON
+                    output.type = ServiceOutput.Type.JSON
                     output.contentType = Mime.getType("json")
                     output.fileName = "download.json"
                     break
@@ -380,22 +347,22 @@ class WebService {
                     output.contentType = conn.contentType ?: Mime.getType(url)
                     output.content = conn.content
                     output.responseCode = conn.responseCode
-                    output.type = getTypeFromContentTypeString(output.contentType)
+                    output.type = ServiceOutput.Type.fromString(output.contentType)
                     output.fileName = url.file
                     return output // Do not proceed to prevent changing content
                     break
                 default:
-                    output.type = OutputType.BINARY
+                    output.type = ServiceOutput.Type.BINARY
                     output.contentType = "" //Unknown type
                     output.fileName = "download.bin"
             }
         }
         if(forceBinary) {
-            output.type = OutputType.BINARY
+            output.type = ServiceOutput.Type.BINARY
         }
         // Set content
         switch (output.type) {
-            case OutputType.TEXT:
+            case ServiceOutput.Type.TEXT:
                 switch (output.content) {
                     case File :
                         File file = output.content as File
@@ -411,7 +378,7 @@ class WebService {
                         output.size = (output.content as String).size()
                 }
                 break
-            case OutputType.JSON:
+            case ServiceOutput.Type.JSON:
                 //noinspection GroovyFallthrough
                 switch (output.content) {
                     case Collection:
@@ -421,7 +388,7 @@ class WebService {
                         break
                 }
                 break
-            case OutputType.YAML:
+            case ServiceOutput.Type.YAML:
                 //noinspection GroovyFallthrough
                 switch (output.content) {
                     case Collection:
@@ -431,7 +398,7 @@ class WebService {
                         break
                 }
                 break
-            case OutputType.IMAGE:
+            case ServiceOutput.Type.IMAGE:
                 output.charSet = ""
                 switch (output.content) {
                     case File:
@@ -450,10 +417,10 @@ class WebService {
                         break
                 }
                 // Replace it with "Binary"
-                output.type = OutputType.BINARY
+                output.type = ServiceOutput.Type.BINARY
                 output.size = (output.content as byte[]).length
                 break
-            case OutputType.BINARY:
+            case ServiceOutput.Type.BINARY:
                 output.charSet = ""
                 switch (output.content) {
                     case String:
@@ -493,7 +460,7 @@ class WebService {
             Request request, Response response ->
                 try {
                     Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
-                    Output output
+                    ServiceOutput output
 
                     // Apply headers (initial): -----------------------
                     sp.headers.each {
@@ -572,7 +539,7 @@ class WebService {
                             }
                         } else if (sp.cacheTime) { // Check if its in Cache
                             output = cache.get(getCacheKey(request), {
-                                Output toSave = null
+                                ServiceOutput toSave = null
                                 try {
                                     Object res = callAction(sp.action, request, response)
                                     toSave = handleContentType(res,  response.type() ?: sp.contentType, sp.charSet,
@@ -591,7 +558,7 @@ class WebService {
                                         response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } else {
                                     response.status(404)
-                                    output = new Output(contentType: Mime.TXT, type : OutputType.TEXT)
+                                    output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
                                     response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                                     output.content = "Not Found"
                                     if(sp.download) {
@@ -619,7 +586,7 @@ class WebService {
                             if (sp.download || output.contentType == "application/octet-stream") {
                                 String fileName = sp.downloadFileName ?: output.fileName
                                 response.header("Content-Disposition", "attachment; filename=" + fileName)
-                                if (output.type == OutputType.BINARY) {
+                                if (output.type == ServiceOutput.Type.BINARY) {
                                     response.header("Content-Transfer-Encoding", "binary")
                                 }
                             }
@@ -632,7 +599,7 @@ class WebService {
                                     response.header("ETag", etag)
                                 } else {
                                     try {
-                                        if (output.type == OutputType.BINARY) {
+                                        if (output.type == ServiceOutput.Type.BINARY) {
                                             if (output.size > 1024 * eTagMaxKB) {
                                                 Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
                                             } else {
@@ -655,7 +622,7 @@ class WebService {
                             }
 
                             // Set content-length and Gzip headers
-                            if (output.type != OutputType.BINARY && request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
+                            if (output.type != ServiceOutput.Type.BINARY && request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
                                 response.header("Content-Encoding", "gzip")
                                 //TODO: Spark does not calculate size of gzip automatically:
                                 // https://stackoverflow.com/questions/56404858/
@@ -664,21 +631,21 @@ class WebService {
                             }
                         } else {
                             response.status(404)
-                            output = new Output(contentType: Mime.TXT, type : OutputType.TEXT)
+                            output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
                             response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                             output.content = "Not Found"
                         }
                     } else { // Unauthorized
                         response.status(403)
                         if(output == null) {
-                            output = new Output(contentType: sp.contentType, charSet: sp.charSet, type: getTypeFromContentTypeString(sp.contentType))
+                            output = new ServiceOutput(contentType: sp.contentType, charSet: sp.charSet, type: ServiceOutput.Type.fromString(sp.contentType))
                             response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                         }
                         switch (output.type) {
-                            case OutputType.JSON:
+                            case ServiceOutput.Type.JSON:
                                 output.content = JSON.encode(ok : false, error : 403)
                                 break
-                            case OutputType.YAML:
+                            case ServiceOutput.Type.YAML:
                                 output.content = YAML.encode(ok : false, error : 403)
                                 break
                             default:

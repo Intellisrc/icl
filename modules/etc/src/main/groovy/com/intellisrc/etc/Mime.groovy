@@ -72,6 +72,7 @@ class Mime {
             mp4		: "video/mp4",
             mpeg	: "video/mpeg",
             mpkg	: "application/vnd.apple.installer+xml",
+            ndjson  : "application/x-ndjson",
             odp		: "application/vnd.oasis.opendocument.presentation",
             ods		: "application/vnd.oasis.opendocument.spreadsheet",
             odt		: "application/vnd.oasis.opendocument.text",
@@ -193,12 +194,15 @@ class Mime {
      * @return
      */
     static String getType(final File file) {
-        String type = (file.exists() ? new Tika().detect(file) : "")
+        String type = getTypeFromConfig(file.name)
         if(!type) {
-            type = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
+            type = (file.exists() ? new Tika().detect(file) : "")
         }
-        if(!type) {
-            type = getTypeFromConfig(file.name)
+        if(!type || type == "text/plain" || type == "application/octet-stream") {
+            String guessType = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
+            if(guessType) {
+                type = guessType
+            }
         }
         if(!type) {
             Log.w("Unknown mime type for file: %s", file.name)

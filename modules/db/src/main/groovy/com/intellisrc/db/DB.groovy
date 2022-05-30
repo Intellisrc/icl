@@ -829,7 +829,7 @@ class DB {
                             }
                         }
                         if(!last_id) {
-                            Log.w("Last ID was not found")
+                            Log.d("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
                         }
                     }
                     ok = true

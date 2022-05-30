@@ -73,6 +73,7 @@ class Converter {
     //TODO: Untested
     static byte[] bufferedToBytes(BufferedImage input) {
         byte[] array = []
+        //noinspection GroovyFallthrough
         switch ( input.type ) {
             case BufferedImage.TYPE_BYTE_GRAY :
             case BufferedImage.TYPE_3BYTE_BGR :
@@ -95,6 +96,7 @@ class Converter {
     //TODO: Untested
     static short[] bufferedToShortArray(BufferedImage input) {
         short[] array = []
+        //noinspection GroovyFallthrough
         switch ( input.type ) {
             case BufferedImage.TYPE_USHORT_GRAY :
             case BufferedImage.TYPE_USHORT_555_RGB:
@@ -114,6 +116,7 @@ class Converter {
     //TODO: Untested
     static int[] bufferedToIntArray(BufferedImage input) {
         int[] array = []
+        //noinspection GroovyFallthrough
         switch ( input.type ) {
             case BufferedImage.TYPE_INT_RGB :
             case BufferedImage.TYPE_INT_BGR :

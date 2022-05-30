@@ -193,7 +193,6 @@ Includes : core, etc, crypt
 |     | Class         | Usage                                                     |
 |-----|---------------|-----------------------------------------------------------|
  | ★   | `Email`       | Verify email format                                       |
- | @   | `ErrorMailer` | Send error and security alerts to administrator           |
  |     | `MacAddress`  | Convert format from and to MacAddress  XX:XX:XX:XX        |
  |     | `Network`     | Methods related to networking but not to NetworkInterface |
  |     | `NetFace`     | Simple representation of a Network Interface              |
@@ -233,7 +232,8 @@ Includes : core, etc, net
 |-----|--------------------------|-------------------------------------------------------------------------------------------------|
  |     | `HTTPServer`             | Simple HTTP server implementation for static files. `WebService` offers much more than this one |
  | ★   | `Service`                | Defines a single service to be used in `WebService`                                             |
- | @   | `Serviciable`            | Generic interface for services                                                                  |
+|     | `ServiceOutput`          | Customize output response from a `Service`                                                      |
+| @   | `Serviciable`            | Generic interface for services                                                                  |
  |     | `ServiciableAuth`        | Interface to be used in services which requires sessions                                        |
  |     | `ServiciableHTTPS`       | Interface to be used to support SSL                                                             |
  |     | `ServiciableSingle`      | Defines a web service with a single `Service`                                                   |

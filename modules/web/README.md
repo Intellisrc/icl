@@ -214,6 +214,42 @@ new Service(
 )
 ```
 
+### Downloading files
+
+```groovy
+new Service(
+    path : "/download/file",
+    download : true, // Set this property and `WebService` will handle the rest
+    action: {
+        return File.get(File.userDir, "resources", "some.file.pdf")
+    }
+)
+```
+
+#### Customizing Output
+
+As in the example above, `WebService` will automatically set the required headers so the file
+can be downloaded (instead of displayed on the browser). But there are some special cases
+in which you may want to customize the name of the file each time (without changing the 
+original file name). In such cases, you can customize the output:
+
+```groovy
+new Service(
+    path : "/download/custom",
+    action : {
+        Request request ->
+            String downloadName = request.queryParams("name") ?: "default.file"
+            File toDownload = File.get(File.userDir, "resources", "last.file")
+            return new ServiceOutput(
+                content     : toDownload.bytes,
+                fileName    : downloadName,
+                size        : toDownload.size(),
+                etag        : toDownload.bytes.md5()
+            )
+    }
+)
+```
+
 ### Authentication (ServiciableAuth)
 
 This interface is used to create and manage sessions in order to enable authentication.
