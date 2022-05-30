@@ -227,6 +227,28 @@ class Cmd {
     }
     //----------- STATIC -------------
     /**
+     * Returns true if command succeeded
+     * @param cmd
+     * @param args
+     * @return
+     */
+    static boolean succeed(String cmd, List args = []) {
+        return succeed(cmd.tokenize(" ") + args)
+    }
+    /**
+     * Returns true if command succeeded
+     * @param cmd
+     * @return
+     */
+    static boolean succeed(List cmd) {
+        boolean ok = true
+        exec(cmd, {
+            String out, int code ->
+                ok = false
+        })
+        return ok
+    }
+    /**
      * Easiest way to execute a command using String
      * @param cmd
      * @param onFail
