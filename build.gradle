@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.5-SNAPSHOT-DEBUG-3"
+    version = "2.8.5"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -116,7 +116,7 @@ subprojects {
 
     dependencies {
         def groovyVer = "3.0.7"   //3.0.8~3.0.10 is failing to compile (Fixed in 4x)
-        def groovyExt = "3.0.10.9-SNAPSHOT-DEBUG"
+        def groovyExt = "3.0.10.9"
         def spock = "2.0-groovy-3.0"
         def junit = "4.13.2"
 
