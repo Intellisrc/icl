@@ -17,6 +17,7 @@ import javassist.Modifier
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -875,6 +876,14 @@ class Table<M extends Model> implements Instanciable<M> {
                 case Collection:
                     try {
                         retVal = YAML.decode((value ?: "").toString()) as List
+                        if(! (retVal as List).empty) {
+                            ParameterizedType type = (ParameterizedType) field.getGenericType()
+                            Class listClass = (Class) type.getActualTypeArguments()[0]
+                            Object obj = listClass.getDeclaredConstructor().newInstance()
+                            if (obj instanceof Model && retVal.first() instanceof Integer) {
+                                retVal = retVal.collect { relation[listClass.name].get(it as int) }
+                            }
+                        }
                     } catch (Exception e) {
                         Log.w("Unable to parse list value in field %s: %s", field.name, e.message)
                         retVal = []
