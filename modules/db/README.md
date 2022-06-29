@@ -298,10 +298,16 @@ You can read more about it next, as the update process is taken care by the `Tab
 A `Table` class is what we are going to use to interact with the data (CRUD
 operations, search data, etc). It must be of type `Table<Model>`. 
 
-Without a `Table` class, `Model` classes can be used as any other class. 
+`Model` classes can exist without a `Table` class (as normal classes), but
 `Table` classes are required if you want to keep your `Model` classes in
 a database. `Table` classes are used to create tables (based on their name) 
 and manage your `Model` objects (search, insert, update, delete, etc). 
+
+Tables will be created during initialization (only once). In other words,
+the table (in the database) won't be created until you initialize your `Table` class.
+If the table already exists, it will compare your declaration in `Model` class against
+your database. If there are changes, it will try to automatically update your table
+(more on this below). 
 
 Minimal representation:
 ```groovy
@@ -346,6 +352,21 @@ In the above example, when the `reservations` table is created, `User` field is 
 
 In the same way, `dateTime` is translated into `date_time`. Inside `findByDay`, we are using the 
 [Fluid SQL Instructions](#fluid-query-instructions) in order to search by day.
+
+I recommend you to keep a static instance of your `Table` classes, something like:
+```groovy
+class Instances {
+  static Users users = new Users()
+}
+// In other class:
+import static com.example.myproject.Instances.users
+
+class Printer {
+  void printUsersWithEmails() {
+     println users.all.collect { String.format("%d : %s <%s>", it.id, it.name, it.email) }.join(SysInfo.newLine)
+  }
+}
+```
 
 If you want to change the table declaration, you can use `@TableMeta`, for example:
 ```groovy
