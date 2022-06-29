@@ -3,9 +3,14 @@ package com.intellisrc.db.auto
 import com.intellisrc.core.Log
 import com.intellisrc.db.annot.Column
 import com.intellisrc.etc.Instanciable
+import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 
+import java.lang.reflect.Constructor
 import java.lang.reflect.Field
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @CompileStatic
 abstract class Model {
@@ -75,8 +80,9 @@ abstract class Model {
      */
     Map<String, Object> toMap() {
         Map<String, Object> map = fields.collectEntries {
-            [(Table.getColumnName(it)) : this[it.name]]
+            Field field ->
+                [(Table.getColumnName(field)) : this[field.name]]
         }
-        return Table.convertToDB(map)
+        return Table.convertToDB(map, true)
     }
 }

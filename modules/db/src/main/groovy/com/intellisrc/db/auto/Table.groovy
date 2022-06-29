@@ -247,16 +247,17 @@ class Table<M extends Model> implements Instanciable<M> {
     /**
      * Converts fields of a class into db
      * @param map
+     * @param preserve : Preserve some types to be exported into json/yaml
      * @return
      */
-    static Map<String, Object> convertToDB(Map<String, Object> map) {
+    static Map<String, Object> convertToDB(Map<String, Object> map, boolean preserve = false) {
         Map<String, Object> res = [:]
         map.each {
             key, val ->
                 if(val instanceof Model &&! key.endsWith("_id")) {
-                    res[key + "_id"] = toDBValue(val)
+                    res[key + "_id"] = toDBValue(val, preserve)
                 } else {
-                    res[key] = toDBValue(val)
+                    res[key] = toDBValue(val, preserve)
                 }
         }
         return res
@@ -264,9 +265,10 @@ class Table<M extends Model> implements Instanciable<M> {
     /**
      * Converts any Object to DB value
      * @param val
+     * @param preserve : preserve some types to be exported into json/yaml
      * @return
      */
-    static Object toDBValue(Object val) {
+    static Object toDBValue(Object val, boolean preserve = false) {
         //noinspection GroovyFallthrough
         switch (val) {
             case LocalTime:
@@ -277,17 +279,20 @@ class Table<M extends Model> implements Instanciable<M> {
                 return (val as LocalDateTime).YMDHms
             case Collection:
                 List list = (val as List)
-                return YAML.encode(list.empty ? [] : list.collect {
+                return preserve ? list : YAML.encode(list.empty ? [] : list.collect {
                    toDBValue(it)
                 }).trim()
             case Map:
-                return YAML.encode(val).trim()
+                return preserve ? val : YAML.encode(val).trim()
             case URL:
+                return (val as URL).toExternalForm()
             case URI:
+                return val.toString()
             case Enum:
+                return preserve ? (val as Enum).ordinal() : val.toString()
             case boolean: // bool = ENUM
             case Boolean:
-                return val.toString()
+                return preserve ? val : val.toString()
             case InetAddress:
                 return (val as InetAddress).hostAddress
             case Model:
@@ -328,78 +333,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 field = getFields().find { it.name == origName }
             }
             if(field) {
-                //noinspection GroovyFallthrough
-                switch (field.type) {
-                    case boolean:
-                    case Boolean:
-                        model[origName] = it.value.toString() == "true"
-                        break
-                    case Collection:
-                        try {
-                            model[origName] = YAML.decode((it.value ?: "").toString()) as List
-                        } catch (Exception e) {
-                            Log.w("Unable to parse list value in field %s: %s", origName, e.message)
-                            model[origName] = []
-                        }
-                        break
-                    case Map:
-                        try {
-                            model[origName] = YAML.decode((it.value ?: "").toString()) as Map
-                        } catch (Exception e) {
-                            Log.w("Unable to parse map value in field %s: %s", origName, e.message)
-                            model[origName] = [:]
-                        }
-                        break
-                    case LocalDate:
-                        model[origName] = (it.value as LocalDateTime).toLocalDate()
-                        break
-                    case LocalTime:
-                        model[origName] = (it.value as LocalDateTime).toLocalTime()
-                        break
-                    case URI:
-                        model[origName] = new URI(it.value.toString())
-                        break
-                    case URL:
-                        model[origName] = new URL(it.value.toString())
-                        break
-                    case Inet4Address:
-                        model[origName] = it.value.toString().toInet4Address()
-                        break
-                    case Inet6Address:
-                        model[origName] = it.value.toString().toInet6Address()
-                        break
-                    case InetAddress:
-                        model[origName] = it.value.toString().toInetAddress()
-                        break
-                    case Enum:
-                        if(it.value.toString().isNumber()) {
-                            model[origName] = (field.type as Class<Enum>).enumConstants[it.value as int]
-                        } else {
-                            model[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString().toUpperCase())
-                        }
-                        break
-                    case Model:
-                        Constructor<?> c = field.type.getConstructor()
-                        Model refType = (c.newInstance() as Model)
-                        model[origName] = relation[refType.class.name].get(it.value as int)
-                        break
-                    default:
-                        try {
-                            // Having a constructor with String
-                            model[origName] = field.type.getConstructor(String.class).newInstance(it.value.toString())
-                        } catch(Exception ignore) {
-                            try {
-                                // Having a static method 'fromString'
-                                model[origName] = field.type.getDeclaredMethod("fromString", String.class).invoke(null, it.value.toString())
-                            } catch (Exception ignored) {
-                                try {
-                                    model[origName] = it.value
-                                } catch(Exception e) {
-                                    Log.w("Unable to set Model[%s] field: %s with value: %s (%s)", model.class.simpleName, origName, it.value, e.message)
-                                }
-                            }
-                        }
-                }
+                model[origName] = fromDB(field, it.value)
             } else {
                 Log.w("Field not found: %s", origName)
             }
@@ -920,5 +854,91 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     void drop() {
         tableConnector.set(new Query("DROP TABLE IF EXISTS ${tableName}"))
+    }
+
+    /**
+     * Import value from database
+     * @param field
+     * @param value
+     * @return
+     */
+    @SuppressWarnings('GroovyUnusedAssignment')
+    static Object fromDB(Field field, Object value) {
+        Object retVal = null
+        if(value != null) {
+            //noinspection GroovyFallthrough
+            switch (field.type) {
+                case boolean:
+                case Boolean:
+                    retVal = value.toString() == "true"
+                    break
+                case Collection:
+                    try {
+                        retVal = YAML.decode((value ?: "").toString()) as List
+                    } catch (Exception e) {
+                        Log.w("Unable to parse list value in field %s: %s", field.name, e.message)
+                        retVal = []
+                    }
+                    break
+                case Map:
+                    try {
+                        retVal = YAML.decode((value ?: "").toString()) as Map
+                    } catch (Exception e) {
+                        Log.w("Unable to parse map value in field %s: %s", field.name, e.message)
+                        retVal = [:]
+                    }
+                    break
+                case LocalDate:
+                    retVal = (value as LocalDateTime).toLocalDate()
+                    break
+                case LocalTime:
+                    retVal = (value as LocalDateTime).toLocalTime()
+                    break
+                case URI:
+                    retVal = new URI(value.toString())
+                    break
+                case URL:
+                    retVal = new URL(value.toString())
+                    break
+                case Inet4Address:
+                    retVal = value.toString().toInet4Address()
+                    break
+                case Inet6Address:
+                    retVal = value.toString().toInet6Address()
+                    break
+                case InetAddress:
+                    retVal = value.toString().toInetAddress()
+                    break
+                case Enum:
+                    if (value.toString().isNumber()) {
+                        retVal = (field.type as Class<Enum>).enumConstants[value as int]
+                    } else {
+                        retVal = Enum.valueOf((Class<Enum>) field.type, value.toString().toUpperCase())
+                    }
+                    break
+                case Model:
+                    Constructor<?> c = field.type.getConstructor()
+                    Model refType = (c.newInstance() as Model)
+                    retVal = relation[refType.class.name].get(value as int)
+                    break
+                default:
+                    try {
+                        // Having a constructor with String
+                        retVal = field.type.getConstructor(String.class).newInstance(value.toString())
+                    } catch (Exception ignore) {
+                        try {
+                            // Having a static method 'fromString'
+                            retVal = field.type.getDeclaredMethod("fromString", String.class).invoke(null, value.toString())
+                        } catch (Exception ignored) {
+                            try {
+                                retVal = value
+                            } catch (Exception e) {
+                                Log.w("Unable to set Model field: %s with value: %s (%s)", field.name, value, e.message)
+                            }
+                        }
+                    }
+            }
+        }
+        return retVal
     }
 }
