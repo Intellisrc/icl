@@ -81,7 +81,7 @@ Features
   * TRUNCATE
 * Raw SQL execution
 
-NOTE: This method (Fluid Query) won't create the table for you.
+**NOTE**: This method (Fluid Query) won't create the table for you.
 If you want this library to create and update your tables for you, use the `Model` approach.
 
 To connect and query a database is easy:
@@ -224,7 +224,7 @@ db.getSQL("SHOW TABLES").toList().each { // You can also use: db.get(new Query(.
 }
 ```
 
-NOTE: For complex queries, we recommend you to create views or stored procedures (to keep your code simple).
+**NOTE**: For complex queries, we recommend you to create views or stored procedures (to keep your code simple).
 
 ## Model Based Operations
 
@@ -241,7 +241,7 @@ Features
 * Foreign keys creation
 * CRUD operations using Java objects
 
-NOTE: Databases and permissions are not created automatically.
+**NOTE**: Databases and permissions are not created automatically.
 
 ### Example:
 
@@ -250,7 +250,8 @@ The first step is to create your `Model` and `Table` classes:
 #### Model class
 
 A `Model` class is the data description of what we want to store in a table.
-It must be of type: `Model<Table>`.
+It must extend: `Model` and in most cases, they will need an `int id` field
+as primary key (except in `many-to-many` relationships).
 
 Each field that we want to create in the table, we need to annotate with 
 `@Column` (see `Column` annotation for more details on how to use it).
@@ -260,7 +261,7 @@ enum MyColor {
     WHITE, RED, GREEN, BLUE, YELLOW, BLACK
 }
 
-class User extends Model<Users> {
+class User extends Model {
     @Column(primary = true, autoincrement = true)
     int id
     @Column(nullable = false, length = 100)
@@ -284,7 +285,7 @@ example:
 
 ```groovy
 @ModelMeta(version = 2)
-class User extends Model<Users> { /* ... */ }
+class User extends Model { /* ... */ }
 ```
 
 When declared version is higher than the one stored in the database, 
@@ -295,9 +296,19 @@ You can read more about it next, as the update process is taken care by the `Tab
 #### Table class
 
 A `Table` class is what we are going to use to interact with the data (CRUD
-operations, search data, etc). It must be of type `Table<Model>` and the
-`Model` class must match the `Table` type. 
+operations, search data, etc). It must be of type `Table<Model>`. 
 
+Without a `Table` class, `Model` classes can be used as any other class. 
+`Table` classes are required if you want to keep your `Model` classes in
+a database. `Table` classes are used to create tables (based on their name) 
+and manage your `Model` objects (search, insert, update, delete, etc). 
+
+Minimal representation:
+```groovy
+class Users extends Table<User> {}
+```
+
+You can implement your own methods to make things easier:
 ```groovy
 class Users extends Table<User> {
     User findByEmail(String userEmail) {
@@ -306,15 +317,44 @@ class Users extends Table<User> {
 }
 ```
 
+**NOTE**: When implementing your own methods, you can use the [Fluid SQL Instructions](#fluid-query-instructions),
+however, field names should be converted into "database names", for example:
+
+```groovy
+class Reservation extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    @Column(key = true)
+    LocalDateTime dayTime
+    @Column(key = true)
+    User user
+}
+```
+```groovy
+class Reservations extends Table<Reservation> {
+    List<Reservation> findByUser(User user) {
+        return findAll(user_id : user.id)
+    }
+    List<Reservation> findByDay(LocalDate day) {
+        return tableConnector.where("DATE(day_time) = ?", day.YMD).get()
+    }
+}
+```
+
+In the above example, when the `reservations` table is created, `User` field is translated into `user_id` column
+(as well the foreign key). That is why, we use `user_id` instead of `user`.
+
+In the same way, `dateTime` is translated into `date_time`. Inside `findByDay`, we are using the 
+[Fluid SQL Instructions](#fluid-query-instructions) in order to search by day.
+
 If you want to change the table declaration, you can use `@TableMeta`, for example:
 ```groovy
 @TableMeta(name = 'my_table_name')
 class Users extends Table<User> { /* ... */ }
 ```
 
-By default, `Table` comes with
-many already implemented methods that you can use, for example (using `User`
-example):
+By default, `Table` comes with many already implemented methods that you can use, 
+for example (using `User` example):
 
 ```groovy
 Users users = new Users()

@@ -26,6 +26,7 @@ import java.util.regex.Matcher
 class Table<M extends Model> implements Instanciable<M> {
     static boolean alwaysCheck = false  //Used by updater
     static protected Map<String, Boolean> versionChecked = [:] // it will be set to true after the version has been checked
+    static protected Map<String, Table> relation = [:]
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
     protected Database database
     protected final String name
@@ -59,6 +60,7 @@ class Table<M extends Model> implements Instanciable<M> {
         }
         assert this.name : "Table name not set"
         updateOrCreate()
+        relation[parametrizedInstance.class.name] = this
     }
     /**
      * Decide if table needs to be updated or created
@@ -236,7 +238,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param model
      * @return
      */
-    Map<String, Object> getMap(M model) {
+    Map<String, Object> getMap(Model model) {
         Map<String, Object> map = fields.collectEntries {
             [(getColumnName(it)) : model[it.name]]
         }
@@ -373,13 +375,13 @@ class Table<M extends Model> implements Instanciable<M> {
                         if(it.value.toString().isNumber()) {
                             model[origName] = (field.type as Class<Enum>).enumConstants[it.value as int]
                         } else {
-                            model[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString())
+                            model[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString().toUpperCase())
                         }
                         break
                     case Model:
                         Constructor<?> c = field.type.getConstructor()
                         Model refType = (c.newInstance() as Model)
-                        model[origName] = refType.table.get(it.value as int)
+                        model[origName] = relation[refType.class.name].get(it.value as int)
                         break
                     default:
                         try {
