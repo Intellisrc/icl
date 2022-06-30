@@ -229,9 +229,15 @@ class Table<M extends Model> implements Instanciable<M> {
         return version
     }
 
+    /**
+     * Return the list of fields annotated with Column from the Model class
+     * @return
+     */
     List<Field> getFields() {
         int index = 0
-        return getParametrizedInstance(index).class.declaredFields.findAll {!it.synthetic }.toList()
+        return getParametrizedInstance(index).class.declaredFields.findAll {
+            !it.synthetic && it.isAnnotationPresent(Column)
+        }.toList()
     }
 
     /**
@@ -280,6 +286,9 @@ class Table<M extends Model> implements Instanciable<M> {
                 return (val as LocalDateTime).YMDHms
             case Collection:
                 List list = (val as List)
+                if(!list.empty && preserve) {
+                    preserve = ! list.first() instanceof Model
+                }
                 return preserve ? list : YAML.encode(list.empty ? [] : list.collect {
                    toDBValue(it)
                 }).trim()
@@ -687,6 +696,7 @@ class Table<M extends Model> implements Instanciable<M> {
         Object id = primary ? model[primary] : null
         try {
             Map map = getMap(model)
+            exclude << primary // Exclude pk from map
             exclude.each {
                 map.remove(it)
             }
@@ -864,90 +874,143 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     @SuppressWarnings('GroovyUnusedAssignment')
-    static Object fromDB(Field field, Object value) {
+    static Object fromDB(Field field, Object value, boolean convertModels = true) {
         Object retVal = null
         if(value != null) {
-            //noinspection GroovyFallthrough
-            switch (field.type) {
-                case boolean:
-                case Boolean:
-                    retVal = value.toString() == "true"
-                    break
-                case Collection:
-                    try {
-                        retVal = YAML.decode((value ?: "").toString()) as List
-                        if(! (retVal as List).empty) {
-                            ParameterizedType type = (ParameterizedType) field.getGenericType()
-                            Class listClass = (Class) type.getActualTypeArguments()[0]
-                            Object obj = listClass.getDeclaredConstructor().newInstance()
-                            if (obj instanceof Model && retVal.first() instanceof Integer) {
-                                retVal = retVal.collect { relation[listClass.name].get(it as int) }
-                            }
-                        }
-                    } catch (Exception e) {
-                        Log.w("Unable to parse list value in field %s: %s", field.name, e.message)
-                        retVal = []
-                    }
-                    break
-                case Map:
-                    try {
-                        retVal = YAML.decode((value ?: "").toString()) as Map
-                    } catch (Exception e) {
-                        Log.w("Unable to parse map value in field %s: %s", field.name, e.message)
-                        retVal = [:]
-                    }
-                    break
-                case LocalDate:
-                    retVal = (value as LocalDateTime).toLocalDate()
-                    break
-                case LocalTime:
-                    retVal = (value as LocalDateTime).toLocalTime()
-                    break
-                case URI:
-                    retVal = new URI(value.toString())
-                    break
-                case URL:
-                    retVal = new URL(value.toString())
-                    break
-                case Inet4Address:
-                    retVal = value.toString().toInet4Address()
-                    break
-                case Inet6Address:
-                    retVal = value.toString().toInet6Address()
-                    break
-                case InetAddress:
-                    retVal = value.toString().toInetAddress()
-                    break
-                case Enum:
-                    if (value.toString().isNumber()) {
-                        retVal = (field.type as Class<Enum>).enumConstants[value as int]
-                    } else {
-                        retVal = Enum.valueOf((Class<Enum>) field.type, value.toString().toUpperCase())
-                    }
-                    break
-                case Model:
-                    Constructor<?> c = field.type.getConstructor()
-                    Model refType = (c.newInstance() as Model)
-                    retVal = relation[refType.class.name].get(value as int)
-                    break
-                default:
-                    try {
-                        // Having a constructor with String
-                        retVal = field.type.getConstructor(String.class).newInstance(value.toString())
-                    } catch (Exception ignore) {
+            try {
+                //noinspection GroovyFallthrough
+                switch (field.type) {
+                    case short:
+                        retVal = value as short
+                        break
+                    case int:
+                    case Integer:
+                        retVal = value as int
+                        break
+                    case BigInteger:
+                        retVal = value as BigInteger
+                        break
+                    case long:
+                    case Long:
+                        retVal = value as long
+                        break
+                    case float:
+                    case Float:
+                        retVal = value as float
+                        break
+                    case double:
+                    case Double:
+                        retVal = value as double
+                        break
+                    case BigDecimal:
+                        retVal = value as BigDecimal
+                        break
+                    case String:
+                        retVal = value.toString()
+                        break
+                    case char:
+                        retVal = value as char
+                        break
+                    case boolean:
+                    case Boolean:
+                        retVal = value.toString() == "true"
+                        break
+                    case Collection:
                         try {
-                            // Having a static method 'fromString'
-                            retVal = field.type.getDeclaredMethod("fromString", String.class).invoke(null, value.toString())
-                        } catch (Exception ignored) {
+                            retVal = YAML.decode((value ?: "").toString()) as List
+                            if (retVal) {
+                                if (!(retVal as List).empty && convertModels) {
+                                    if (retVal.first() instanceof Integer && genericIsModel(field)) {
+                                        retVal = retVal.collect { relation[getParameterizedClass(field).class.name].get(it as int) }
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.w("Unable to parse list value in field %s: %s", field.name, e.message)
+                            retVal = []
+                        }
+                        break
+                    case Map:
+                        try {
+                            retVal = YAML.decode((value ?: "").toString()) as Map
+                        } catch (Exception e) {
+                            Log.w("Unable to parse map value in field %s: %s", field.name, e.message)
+                            retVal = [:]
+                        }
+                        break
+                    case LocalDate:
+                        retVal = (value as LocalDateTime).toLocalDate()
+                        break
+                    case LocalTime:
+                        retVal = (value as LocalDateTime).toLocalTime()
+                        break
+                    case URI:
+                        retVal = new URI(value.toString())
+                        break
+                    case URL:
+                        retVal = new URL(value.toString())
+                        break
+                    case Inet4Address:
+                        retVal = value.toString().toInet4Address()
+                        break
+                    case Inet6Address:
+                        retVal = value.toString().toInet6Address()
+                        break
+                    case InetAddress:
+                        retVal = value.toString().toInetAddress()
+                        break
+                    case Enum:
+                        if (value.toString().isNumber()) {
+                            retVal = (field.type as Class<Enum>).enumConstants[value as int]
+                        } else {
+                            retVal = Enum.valueOf((Class<Enum>) field.type, value.toString().toUpperCase())
+                        }
+                        break
+                    case Model:
+                        Constructor<?> c = field.type.getConstructor()
+                        Model refType = (c.newInstance() as Model)
+                        retVal = relation[refType.class.name].get(value as int)
+                        break
+                    default:
+                        try {
+                            // Having a constructor with String
+                            retVal = field.type.getConstructor(String.class).newInstance(value.toString())
+                        } catch (Exception ignore) {
                             try {
-                                retVal = value
-                            } catch (Exception e) {
-                                Log.w("Unable to set Model field: %s with value: %s (%s)", field.name, value, e.message)
+                                // Having a static method 'fromString'
+                                retVal = field.type.getDeclaredMethod("fromString", String.class).invoke(null, value.toString())
+                            } catch (Exception ignored) {
+                                try {
+                                    retVal = value
+                                } catch (Exception e) {
+                                    Log.w("Unable to set Model field: %s with value: %s (%s)", field.name, value, e.message)
+                                }
                             }
                         }
-                    }
+                }
+            } catch(Exception ex) {
+                Log.w("Unable to set value: %s in field: %s (%s)", value, field.name, ex.message)
             }
         }
         return retVal
+    }
+    /**
+     * Get the parameterized class of a List (using field)
+     * @param field
+     * @return
+     */
+    static Object getParameterizedClass(Field field) {
+        ParameterizedType type = (ParameterizedType) field.getGenericType()
+        Class listClass = (Class) type.getActualTypeArguments()[0]
+        Object obj = listClass.getDeclaredConstructor().newInstance()
+        return obj
+    }
+    /**
+     * True if generic type is Model, example : List<Model>
+     * @param field
+     * @return
+     */
+    static boolean genericIsModel(Field field) {
+        return getParameterizedClass(field) instanceof Model
     }
 }
