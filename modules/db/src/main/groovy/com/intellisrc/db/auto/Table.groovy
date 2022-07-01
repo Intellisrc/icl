@@ -939,10 +939,18 @@ class Table<M extends Model> implements Instanciable<M> {
                         }
                         break
                     case LocalDate:
-                        retVal = (value as LocalDateTime).toLocalDate()
+                        try {
+                            retVal = value.toString().toDate()
+                        } catch(Exception ignore) {
+                            retVal = (value.toString().toDateTime()).toLocalDate()
+                        }
                         break
                     case LocalTime:
-                        retVal = (value as LocalDateTime).toLocalTime()
+                        try {
+                            retVal = value.toString().toTime()
+                        } catch(Exception ignore) {
+                            retVal = (value.toString().toDateTime()).toLocalTime()
+                        }
                         break
                     case URI:
                         retVal = new URI(value.toString())
