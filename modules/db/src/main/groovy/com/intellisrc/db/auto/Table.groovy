@@ -7,8 +7,6 @@ import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
-import com.intellisrc.db.jdbc.MariaDB
-import com.intellisrc.db.jdbc.MySQL
 import com.intellisrc.etc.Instanciable
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
@@ -16,12 +14,10 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
-import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.regex.Matcher
 
 @CompileStatic
 class Table<M extends Model> implements Instanciable<M> {
@@ -42,6 +38,16 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     static interface RecordsUpdater {
         List<Map> fix(List<Map> records)
+    }
+    /**
+     * Information about a Field that will be used as column in a DB
+     * @see Column
+     */
+    static class ColumnDB {
+        String name
+        Class<?> type
+        Object defaultVal
+        Column annotation
     }
     /**
      * Constructor. A Database object can be passed
@@ -69,33 +75,34 @@ class Table<M extends Model> implements Instanciable<M> {
     void updateOrCreate() {
         if(alwaysCheck || !versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
             versionChecked[tableName.toString()] = true
-            boolean exists = tableConnector.exists()
             //noinspection GroovyFallthrough
             switch (tableConnector.jdbc) {
-                case MySQL:
-                case MariaDB:
-                    // TODO: support others
-                    break
-                default:
-                    Log.w("Create or Update : MySQL/MariaDB is only supported for now.")
-                    return
-                    break
-            }
-            if (exists) {
-                if(autoUpdate) {
-                    if (definedVersion > tableVersion) {
-                        Log.i("Table [%s] is going to be updated from version: %d to %d",
-                                tableName, tableVersion, definedVersion)
-                        if(!TableUpdater.update([this])) {
-                            Log.w("Table [%s] was not updated.", tableName)
+                case AutoJDBC:
+                    // Initialize Auto
+                    (tableConnector.jdbc as AutoJDBC).autoInit(tableConnector)
+                    boolean exists = tableConnector.exists()
+                    if (exists) {
+                        if(autoUpdate) {
+                            int version = TableUpdater.getTableVersion(tableConnector, tableName.toString())
+                            if (definedVersion > version) {
+                                Log.i("Table [%s] is going to be updated from version: %d to %d",
+                                    tableName, version, definedVersion)
+                                if(!TableUpdater.update([this])) {
+                                    Log.w("Table [%s] was not updated.", tableName)
+                                }
+                            } else {
+                                Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                                    tableName, version, definedVersion)
+                            }
                         }
                     } else {
-                        Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
-                                tableName, tableVersion, definedVersion)
+                        createTable()
                     }
-                }
-            } else {
-                createTable()
+                    break
+                default:
+                    Log.w("Create or Update : Database type can not be updated automatically. Please check the documentation to know which databases are supported.")
+                    return
+                    break
             }
         }
     }
@@ -113,96 +120,12 @@ class Table<M extends Model> implements Instanciable<M> {
                 }
                 charset = meta.charset()
             }
-            String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
-            List<String> columns = []
-            List<String> keys = []
-            Map<String, List<String>> uniqueGroups = [:]
-            getFields().each {
-                Field field ->
-                    field.setAccessible(true)
-                    if (Modifier.isPrivate(field.modifiers)) {
-                        Modifier.setPublic(field.modifiers)
-                    }
-                    String fieldName = getColumnName(field)
-                    Column column = field.getAnnotation(Column)
-                    List<String> parts = ["`${fieldName}`".toString()]
-                    if (!column) {
-                        String type = getColumnDefinition(field)
-                        assert type: "Unknown type: ${field.type.simpleName} in ${field.name}"
-                        parts << type
-                        String defaultVal = getDefaultValue(field)
-                        if (defaultVal) {
-                            parts << defaultVal
-                        }
-                    } else {
-                        if (column.columnDefinition()) {
-                            parts << column.columnDefinition()
-                        } else {
-                            String type = column.type() ?: getColumnDefinition(field, column)
-                            parts << type
-
-                            String defaultVal = getDefaultValue(field, column.nullable())
-                            if (defaultVal) {
-                                parts << defaultVal
-                            }
-
-                            List<String> extra = []
-                            if (column.unique() || column.uniqueGroup()) {
-                                if (column.uniqueGroup()) {
-                                    if (!uniqueGroups.containsKey(column.uniqueGroup())) {
-                                        uniqueGroups[column.uniqueGroup()] = []
-                                    }
-                                    uniqueGroups[column.uniqueGroup()] << fieldName
-                                } else {
-                                    extra << "UNIQUE"
-                                }
-                            }
-                            if (!extra.empty) {
-                                parts.addAll(extra)
-                            }
-                        }
-                        if (column.key()) {
-                            keys << "KEY `${tableName}_${fieldName}_key_index` (`${fieldName}`)".toString()
-                        }
-                    }
-                    columns << parts.join(' ')
-            }
-            if (!keys.empty) {
-                columns.addAll(keys)
-            }
-            if (!uniqueGroups.keySet().empty) {
-                uniqueGroups.each {
-                    columns << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
-                }
-            }
-            String fks = getFields().collect { getForeignKey(it) }.findAll { it }.join(",\n")
-            if (fks) {
-                columns << fks
-            }
-            if (engine) {
-                engine = "ENGINE=${engine}"
-            }
-            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
-            if (!tableConnector.set(new Query(createSQL))) {
-                Log.v(createSQL)
-                Log.e("Unable to create table.")
-            }
+            AutoJDBC auto = tableConnector.jdbc as AutoJDBC
+            auto.createTable(tableConnector, tableName, charset, engine, definedVersion, columns)
         }
         closeConnections()
     }
 
-    /**
-     * Returns the table comment
-     * @return
-     */
-    String getComment() {
-        DB connection = database.connect()
-        Query query = new Query("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=? AND table_name=?",
-                [tableConnector.jdbc.dbname, tableName])
-        String comment = connection.get(query).toString()
-        connection.close()
-        return comment
-    }
     /**
      * Get the defined version in code
      * @return
@@ -215,19 +138,6 @@ class Table<M extends Model> implements Instanciable<M> {
         }
         return version
     }
-    /**
-     * Get the defined version in the database
-     * @return
-     */
-    int getTableVersion() {
-        int version = 1
-        String comm = getComment()
-        Matcher matcher = (comm =~ /v.(\d+)/)
-        if(matcher.find()) {
-            version = matcher.group(1) as int
-        }
-        return version
-    }
 
     /**
      * Return the list of fields annotated with Column from the Model class
@@ -236,8 +146,28 @@ class Table<M extends Model> implements Instanciable<M> {
     List<Field> getFields() {
         int index = 0
         return getParametrizedInstance(index).class.declaredFields.findAll {
-            !it.synthetic && it.isAnnotationPresent(Column)
+            boolean inc = false
+            if(!it.synthetic && it.isAnnotationPresent(Column)) {
+                inc = true
+                it.setAccessible(true)
+                if (Modifier.isPrivate(it.modifiers)) {
+                    Modifier.setPublic(it.modifiers)
+                }
+            }
+            return inc
         }.toList()
+    }
+
+    List<ColumnDB> getColumns() {
+        return fields.collect {
+            Column column = it.getAnnotation(Column)
+            new ColumnDB(
+                name : getColumnName(it),
+                type : it.type,
+                defaultVal: getDefaultValue(it),
+                annotation: column
+            )
+        }
     }
 
     /**
@@ -287,7 +217,9 @@ class Table<M extends Model> implements Instanciable<M> {
             case Collection:
                 List list = (val as List)
                 if(!list.empty && preserve) {
-                    preserve = ! list.first() instanceof Model
+                    if(list.first() instanceof Model) {
+                        list = list.collect {(it as Model).id }
+                    }
                 }
                 return preserve ? list : YAML.encode(list.empty ? [] : list.collect {
                    toDBValue(it)
@@ -357,128 +289,16 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param nullable
      * @return
      */
-    String getDefaultValue(Field field, boolean nullable = false) {
+    Object getDefaultValue(Field field) {
         M model = parametrizedInstance
         Object val = field.get(model)
-        String defaultVal = ""
+        Object defaultVal = null
         Column column = field.getAnnotation(Column)
         boolean primary = column?.primary()
-        if(!primary) {
-            if (val != null) { // When default value is null, it will be set as nullable
-                val = toDBValue(val)
-                String dv = val.toString().isNumber() ? val.toString() : "'${val}'".toString()
-                defaultVal = (nullable ? "" : "NOT NULL ") + "DEFAULT ${dv}"
-            } else if(column &&! column.nullable()) {
-                defaultVal = "NOT NULL"
-            }
+        if(!primary && val != null) { // When default value is null, it will be set as nullable
+            defaultVal = toDBValue(val)
         }
         return defaultVal
-    }
-
-    /**
-     * Return SQL column definition for a field
-     * @param field
-     * @param column
-     * @return
-     */
-    static String getColumnDefinition(Field field, Column column = null) {
-        String type = ""
-        //noinspection GroovyFallthrough
-        switch (field.type) {
-            case boolean:
-            case Boolean:
-                type = "ENUM('true','false')"
-                break
-            case Inet4Address:
-                type = "VARCHAR(${column?.length() ?: 15})"
-                break
-            case Inet6Address:
-            case InetAddress:
-                type = "VARCHAR(${column?.length() ?: 45})"
-                break
-            case String:
-                type = "VARCHAR(${column?.length() ?: 255})"
-                break
-            case byte:
-                type = type ?: "TINYINT"
-            case short:
-                type = type ?: "SMALLINT"
-            case int:
-            case Integer:
-            case Model: //Another Model
-                type = type ?: "INT"
-            case BigInteger:
-            case long:
-            case Long:
-                type = type ?: "BIGINT"
-                boolean hasAnnotation = column != null
-                int len = hasAnnotation ? column.length() : 0
-                String length = len ? "(${len})" : ""
-                boolean unsignedDefault = Column.class.getMethod("unsigned").defaultValue
-                boolean autoIncDefault = Column.class.getMethod("autoincrement").defaultValue
-                boolean primaryDefault = Column.class.getMethod("primary").defaultValue
-                List<String> extra = [type, length]
-                        extra << ((hasAnnotation ? column.unsigned() : unsignedDefault) ? "UNSIGNED" : "")
-                        extra << ((hasAnnotation ? column.primary() && column.autoincrement() : autoIncDefault) ? "AUTO_INCREMENT" : "")
-                        extra << ((hasAnnotation ? column.primary() : primaryDefault) ? "PRIMARY KEY" : "")
-                type = extra.findAll {it }.join(" ")
-                break
-            case float:
-            case Float:
-                type = "FLOAT"
-                break
-            case double:
-            case Double:
-            case BigDecimal:
-                type = "DOUBLE"
-                break
-            case LocalDate:
-                type = "DATE"
-                break
-            case LocalDateTime:
-                type = "DATETIME"
-                break
-            case LocalTime:
-                type = "TIME"
-                break
-            case URL:
-            case URI:
-            case Collection:
-            case Map:
-                type = column?.key() || column?.unique() || (column?.length() ?: 256) <= 255 ? "VARCHAR(${column?.length() ?: 255})" : "TEXT"
-                break
-            case Enum:
-                type = "ENUM('" + field.type.getEnumConstants().join("','") + "')"
-                break
-            case byte[]:
-                int len = column?.length() ?: 65535
-                switch (true) {
-                    case len < 256      : type = "TINYBLOB"; break
-                    case len < 65536    : type = "BLOB"; break
-                    case len < 16777216 : type = "MEDIUMBLOB"; break
-                    default             : type = "LONGBLOB"; break
-                }
-            default:
-                // Having a constructor with String or Having a static method 'fromString'
-                boolean canImport = false
-                try {
-                    field.type.getConstructor(String.class)
-                    canImport = true
-                } catch(Exception ignore) {
-                    try {
-                        Method method = field.type.getDeclaredMethod("fromString", String.class)
-                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == field.type
-                    } catch(Exception ignored) {}
-                }
-                if(canImport) {
-                    int len = column?.length() ?: 256
-                    type = len < 256 ? "VARCHAR($len)" : "TEXT"
-                } else {
-                    Log.w("Unknown field type: %s", field.type.simpleName)
-                    Log.d("If you want to able to use '%s' type in the database, either set `fromString` as static method or set a constructor which accepts `String`", field.type.simpleName)
-                }
-            }
-            return type
     }
 
     /**
@@ -502,28 +322,6 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     static String getFieldName(final String columnName) {
         return columnName.toCamelCase()
-    }
-
-    /**
-     * Get FK
-     * @param field
-     * @return
-     */
-    protected String getForeignKey(final Field field) {
-        String cname = getColumnName(field)
-        String indices = ""
-        switch (field.type) {
-            case Model:
-                Constructor<?> ctor = field.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                Column column = field.getAnnotation(Column)
-                String action = column ? column.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "CONSTRAINT `${tableName}_${cname}_fk` FOREIGN KEY (`${cname}`) " +
-                          "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action}"
-                break
-        }
-        return indices
     }
 
     /**
@@ -782,6 +580,9 @@ class Table<M extends Model> implements Instanciable<M> {
         DB db
         try {
             Map<String, Object> map = getMap(model)
+            if(map.containsKey(ai) && map[ai] == 0) {
+                map.remove(ai)
+            }
             db = tableConnector
             boolean ok = db.insert(map)
             lastId = 0
@@ -864,7 +665,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * Drops the table
      */
     void drop() {
-        tableConnector.set(new Query("DROP TABLE IF EXISTS ${tableName}"))
+        tableConnector.set(new Query(tableConnector.jdbc, Query.Action.DROP))
     }
 
     /**

@@ -435,15 +435,6 @@ class DB {
         return dbConnector.isOpen()
     }
 
-    /** Execute a Query **/
-    @Deprecated // Use get(Query) or set(Query)
-    Data exec(Query q = null) {
-        if(q) {
-            queryBuilder = q
-        }
-        return execGet()
-    }
-
     Data get(Query q) {
         if(q) {
             queryBuilder = q
@@ -698,64 +689,70 @@ class DB {
      * @return Data (List<Map>)
      */
     protected Data execGet() {
-        Log.v( "GET ::: " + query.toString())
-        query.args.each {
-            Log.v( " --> " + it)
-        }
-        String cacheKey = cache && query.tableStr ? query.tableStr + "." + (query.toString() + query.args ?.join(",")).md5() : ""
-        Data data = dataCache.get(cacheKey, {
-            // Connect if its not connected
-            if(openIfClosed()) {
-                List<Map> rows = []
-                try {
-                    Statement st = dbConnector.prepare(query, false)
-                    if(st) {
-                        queryBuilder = null
-                        while (st.next()) {
-                            Map row = [:]
-                            for (int i = st.firstColumn(); i < st.columnCount() + st.firstColumn(); i++) {
-                                if (!st.isColumnNull(i)) {
-                                    String column = jdbc.convertToLowerCase ? st?.columnName(i)?.toLowerCase() : st?.columnName(i)
-                                    ColumnType type = st?.columnType(i)
-                                    switch (type) {
-                                        case TEXT:
-                                            row.put(column, st.columnStr(i))
-                                            break
-                                        case INTEGER:
-                                            row.put(column, st.columnInt(i))
-                                            break
-                                        case FLOAT:
-                                            row.put(column, st.columnFloat(i))
-                                            break
-                                        case DOUBLE:
-                                            row.put(column, st.columnDbl(i))
-                                            break
-                                        case BLOB:
-                                            row.put(column, st.columnBlob(i))
-                                            break
-                                        case DATE:
-                                            row.put(column, st.columnDate(i))
-                                            break
-                                        default:
-                                            Log.w("Type was NULL")
-                                            break
+        String qryStr = query.toString()
+        Data data
+        if(! qryStr.empty) {
+            Log.v("GET ::: " + qryStr)
+            query.args.each {
+                Log.v(" --> " + it)
+            }
+            String cacheKey = cache && query.tableStr ? query.tableStr + "." + (qryStr + query.args?.join(",")).md5() : ""
+            data = dataCache.get(cacheKey, {
+                // Connect if its not connected
+                if (openIfClosed()) {
+                    List<Map> rows = []
+                    try {
+                        Statement st = dbConnector.prepare(query, false)
+                        if (st) {
+                            queryBuilder = null
+                            while (st.next()) {
+                                Map row = [:]
+                                for (int i = st.firstColumn(); i < st.columnCount() + st.firstColumn(); i++) {
+                                    if (!st.isColumnNull(i)) {
+                                        String column = jdbc.convertToLowerCase ? st?.columnName(i)?.toLowerCase() : st?.columnName(i)
+                                        ColumnType type = st?.columnType(i)
+                                        switch (type) {
+                                            case TEXT:
+                                                row.put(column, st.columnStr(i))
+                                                break
+                                            case INTEGER:
+                                                row.put(column, st.columnInt(i))
+                                                break
+                                            case FLOAT:
+                                                row.put(column, st.columnFloat(i))
+                                                break
+                                            case DOUBLE:
+                                                row.put(column, st.columnDbl(i))
+                                                break
+                                            case BLOB:
+                                                row.put(column, st.columnBlob(i))
+                                                break
+                                            case DATE:
+                                                row.put(column, st.columnDate(i))
+                                                break
+                                            default:
+                                                Log.w("Type was NULL")
+                                                break
+                                        }
                                     }
                                 }
+                                rows.add(row)
                             }
-                            rows.add(row)
+                            st?.close()
                         }
-                        st?.close()
+                    } catch (Exception e) {
+                        dbConnector.onError(e)
                     }
-                } catch (Exception e) {
-                    dbConnector.onError(e)
+                    return new Data(rows)
+                } else {
+                    Log.e("Unable to read from server")
+                    dbConnector.onError(new ConnectException())
+                    return null
                 }
-                return new Data(rows)
-            } else {
-                Log.e("Unable to read from server")
-                dbConnector.onError(new ConnectException())
-                return null
-            }
-        }, disableCache ? 0 : cache)
+            }, disableCache ? 0 : cache)
+        } else {
+            data = new Data([])
+        }
         return data
     }
 
@@ -767,81 +764,84 @@ class DB {
 		boolean ok = false
         boolean upsert = false
         query.isSetQuery = true
-        if(openIfClosed()) {
-            if(query.actionType == REPLACE &&! jdbc.supportsReplace) {
-                if(query.key) {
-                    Map allBut = query.whereValues.findAll { it.key != query.key }
-                    Object id = query.whereValues.get(query.key)
-                    queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
-                        .setKeys(query.keys).setValues(allBut).setWhere(id)
-                    query.isSetQuery = true
-                    upsert = true
-                } else {
-                    Log.w("Unable to find key when emulating REPLACE command in table: %s", query.tableStr)
-                }
-            }
-
-			Log.v( "SET ::: " + query.toString())
-			query.args.each {
-				Log.v( " --> " + it)
-			}
-            if(cache && clearCache && query.tableStr) {
-                clearCache()
-            }
-            Statement st
-            try {
-                boolean silent = upsert
-                st = dbConnector.prepare(query, silent)
-                if(upsert && st.updatedCount() == 0) {
-                    try {
-                        query.setAction(INSERT)
-                        Log.v( "SET ::: " + query.toString())
-                        query.args.each {
-                            Log.v( " --> " + it)
-                        }
-                        st = dbConnector.prepare(query, false)
-                    } catch(Exception e2)  {
-                        Log.e("Query Syntax error: ", e2)
+        String qryStr = query.toString()
+        if(! qryStr.empty) {
+            if (openIfClosed()) {
+                if (query.actionType == REPLACE && !jdbc.supportsReplace) {
+                    if (query.key) {
+                        Map allBut = query.whereValues.findAll { it.key != query.key }
+                        Object id = query.whereValues.get(query.key)
+                        queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
+                            .setKeys(query.keys).setValues(allBut).setWhere(id)
+                        query.isSetQuery = true
+                        upsert = true
+                    } else {
+                        Log.w("Unable to find key when emulating REPLACE command in table: %s", query.tableStr)
                     }
                 }
-            } catch (Exception e) {
-                Log.e("Query Syntax error: ", e)
-            }
-            if(st != null) {
+
+                Log.v("SET ::: " + qryStr)
+                query.args.each {
+                    Log.v(" --> " + it)
+                }
+                if (cache && clearCache && query.tableStr) {
+                    clearCache()
+                }
+                Statement st
                 try {
-                    st.next()
-                    if (query.isIdentityUpdate) {
-                        String id = st.columnStr(1)
-                        if(id && id.isNumber()) {
-                            last_id = st.columnInt(1)
-                        } else {
-                            Log.d("Received last id: %s", id)
-                            last_id = 0
+                    boolean silent = upsert
+                    st = dbConnector.prepare(query, silent)
+                    if (upsert && st.updatedCount() == 0) {
+                        try {
+                            query.setAction(INSERT)
+                            Log.v("SET ::: " + query.toString())
+                            query.args.each {
+                                Log.v(" --> " + it)
+                            }
+                            st = dbConnector.prepare(query, false)
+                        } catch (Exception e2) {
+                            Log.e("Query Syntax error: ", e2)
                         }
-                        if (!last_id && jdbc.getLastIdQuery(query.table)) {
-                            Log.d("Last ID not found. Using fallback method...")
-                            String table = query.table
-                            queryBuilder = new Query(jdbc, LASTID)
-                            queryBuilder.table = table
-                            if(queryBuilder) {
-                                last_id = execGet().toInt()
-                                Log.d("Fallback method returned [%d] as last id", last_id)
+                    }
+                } catch (Exception e) {
+                    Log.e("Query Syntax error: ", e)
+                }
+                if (st != null) {
+                    try {
+                        st.next()
+                        if (query.isIdentityUpdate) {
+                            String id = st.columnStr(1)
+                            if (id && id.isNumber()) {
+                                last_id = st.columnInt(1)
+                            } else {
+                                Log.d("Received last id: %s", id)
+                                last_id = 0
+                            }
+                            if (!last_id && jdbc.getLastIdQuery(query.table)) {
+                                Log.d("Last ID not found. Using fallback method...")
+                                String table = query.table
+                                queryBuilder = new Query(jdbc, LASTID)
+                                queryBuilder.table = table
+                                if (queryBuilder) {
+                                    last_id = execGet().toInt()
+                                    Log.d("Fallback method returned [%d] as last id", last_id)
+                                }
+                            }
+                            if (!last_id) {
+                                Log.d("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
                             }
                         }
-                        if(!last_id) {
-                            Log.d("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
-                        }
+                        ok = true
+                    } catch (Exception e) {
+                        Log.e("%s failed. ", query.getAction().name(), e)
                     }
-                    ok = true
-                } catch (Exception e) {
-                    Log.e( "%s failed. ", query.getAction().name(), e)
+                    st.close()
                 }
-                st.close()
+                queryBuilder = null
+            } else {
+                Log.e("No changes done: database is not open")
+                dbConnector.onError(new ConnectException())
             }
-            queryBuilder = null
-        } else {
-            Log.e( "No changes done: database is not open")
-            dbConnector.onError(new ConnectException())
         }
         return ok
     }

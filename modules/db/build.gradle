@@ -4,15 +4,15 @@ dependencies {
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
-    compileOnly 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre11'
-    compileOnly 'com.oracle.database.jdbc:ojdbc11:21.4.0.0'
-    compileOnly 'mysql:mysql-connector-java:8.0.25'
+    compileOnly 'com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre11'
+    compileOnly 'com.oracle.database.jdbc:ojdbc11:21.5.0.0'
+    compileOnly 'mysql:mysql-connector-java:8.0.29'
     compileOnly 'org.apache.derby:derby:10.15.2.0' // This one includes also the database engine
   //compileOnly 'org.apache.derby:derbyclient:10.15.2.0' // This one includes only the JDBC driver
-    compileOnly 'org.firebirdsql.jdbc:jaybird:4.0.5.java11'
-    compileOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
-    compileOnly 'org.postgresql:postgresql:42.3.1'
-    compileOnly 'org.xerial:sqlite-jdbc:3.36.0.2'
+    compileOnly 'org.firebirdsql.jdbc:jaybird:4.0.6.java11'
+    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
+    compileOnly 'org.postgresql:postgresql:42.3.6'
+    compileOnly 'org.xerial:sqlite-jdbc:3.36.0.3'
 
     testImplementation 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre11'
     testImplementation 'com.oracle.database.jdbc:ojdbc11:21.4.0.0'

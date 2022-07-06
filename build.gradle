@@ -12,6 +12,15 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/intellisrc/spark")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
 
@@ -115,9 +124,9 @@ subprojects {
     boolean publishDev = ! version.contains("DEBUG")
 
     dependencies {
-        def groovyVer = "3.0.7"   //3.0.8~3.0.10 is failing to compile (Fixed in 4x)
+        def groovyVer = "3.0.11"
         def groovyExt = "3.0.10.9"
-        def spock = "2.0-groovy-3.0"
+        def spock = "2.1-groovy-3.0"
         def junit = "4.13.2"
 
         //Link it so we can choose version

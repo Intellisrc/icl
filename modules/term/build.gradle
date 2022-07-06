@@ -1,7 +1,7 @@
 dependencies {
     api project(':core')
     // As we expose 'LineReaderImpl' in Console, we use 'api' here:
-    api "org.jline:jline:3.20.0"
+    api 'org.jline:jline:3.21.0'
     // It seems that JLine requires this:
     api "org.fusesource.jansi:jansi:2.4.0"
 }
