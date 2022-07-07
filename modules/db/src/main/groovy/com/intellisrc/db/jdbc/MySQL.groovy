@@ -92,13 +92,13 @@ class MySQL extends JDBCServer implements AutoJDBC {
 
     /////////////////////////////// AUTO ////////////////////////
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> fields) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns) {
         boolean ok
         String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
         List<String> defs = []
         List<String> keys = []
         Map<String, List<String>> uniqueGroups = [:]
-        fields.each {
+        columns.each {
             ColumnDB column ->
                 List<String> parts = ["`${column.name}`".toString()]
                 if (column.annotation.columnDefinition()) {
@@ -139,7 +139,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 defs << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
             }
         }
-        String fks = fields.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
+        String fks = columns.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
         if (fks) {
             defs << fks
         }
