@@ -8,7 +8,8 @@ import com.intellisrc.web.ServiciableMultiple
 import groovy.transform.CompileStatic
 import spark.Request
 
-import static com.intellisrc.web.Service.Method.POST
+import static com.intellisrc.web.Service.*
+import static com.intellisrc.web.Service.Method.*
 
 @CompileStatic
 /**
@@ -23,21 +24,21 @@ class EmailService implements ServiciableMultiple {
                     "info@example.com",
                     "webmaster@example.com"
             ]
-    } as Action
+    } as ActionRequest
 
     Action saveEmails = {
         Request request ->
             return [
                     y : true
             ]
-    } as Action
+    } as ActionRequest
 
     Action getEmailsNew = {
         Request request ->
             return [
                     "new@example.com"
             ]
-    } as Action
+    } as ActionRequest
 
     Action getEmailsMore = {
         Request request ->
@@ -45,7 +46,7 @@ class EmailService implements ServiciableMultiple {
             return [
                     "new@example.com"
             ]
-    } as Action
+    } as ActionRequest
 
     /**
      * The root path exists to minimize the probability of URL collision
