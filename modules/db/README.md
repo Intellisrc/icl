@@ -357,13 +357,30 @@ I recommend you to keep a static instance of your `Table` classes, something lik
 ```groovy
 class Instances {
   static Users users = new Users()
+  static Reservations reservations = new Reservations()
 }
+```
+
+**NOTE**: If your `Model` class depends on other `Model` classes (e.g. `Reservation` Model contains a `User` Model field),
+those other classes tables must be initialized first (as it will create the foreign key constraint). 
+In this example, `Users` initialization must be before `Reservations`.
+
+```groovy
 // In other class:
-import static com.example.myproject.Instances.users
+import static com.example.myproject.Instances.*
 
 class Printer {
-  void printUsersWithEmails() {
-     println users.all.collect { String.format("%d : %s <%s>", it.id, it.name, it.email) }.join(SysInfo.newLine)
+  /**
+   * It will print all reservations
+   */
+  void printReservations() {
+     println reservations.all.sort { it.dayTime }.collect { String.format("%s : %s", it.dayTime.YMDHms, it.user.name) }.join(SysInfo.newLine)
+  }
+  /**
+   * It will print all users (name and email)
+   */
+  void printUsers() {
+    println users.all.collect { String.format("%d : %s <%s>", it.id, it.name, it.email) }.join(SysInfo.newLine)
   }
 }
 ```
