@@ -5,6 +5,7 @@ import com.intellisrc.db.DB
 import com.intellisrc.db.Database
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.DeleteActions
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
 import com.intellisrc.etc.Instanciable
@@ -53,7 +54,16 @@ class Table<M extends Model> implements Instanciable<M> {
      * Constructor. A Database object can be passed
      * when using multiple databases.
      *
-     * @param name
+     * @param database
+     */
+    Table(Database database) {
+        this("", database)
+    }
+    /**
+     * Constructor. A Database object can be passed
+     * when using multiple databases.
+     *
+     * @param name : Alternative way to set table name (besides @TableMeta)
      * @param database
      */
     Table(String name = "", Database database = null) {
@@ -157,17 +167,26 @@ class Table<M extends Model> implements Instanciable<M> {
             return inc
         }.toList()
     }
-
+    /**
+     * Get all fields as ColumnDB list
+     * @return
+     */
     List<ColumnDB> getColumns() {
-        return fields.collect {
-            Column column = it.getAnnotation(Column)
-            new ColumnDB(
-                name : getColumnName(it),
-                type : it.type,
-                defaultVal: getDefaultValue(it),
-                annotation: column
-            )
-        }
+        return fields.collect { getColumnDB(it) }
+    }
+    /**
+     * Convert Field to ColumnDB
+     * @param field
+     * @return
+     */
+    ColumnDB getColumnDB(final Field field) {
+        Column column = field.getAnnotation(Column)
+        return new ColumnDB(
+            name : getColumnName(field),
+            type : field.type,
+            defaultVal: getDefaultValue(field),
+            annotation: column
+        )
     }
 
     /**
@@ -177,7 +196,8 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     Map<String, Object> getMap(Model model) {
         Map<String, Object> map = fields.collectEntries {
-            [(getColumnName(it)) : model[it.name]]
+            Object val = model[it.name]
+            [(getColumnName(it)) : val]
         }
         return convertToDB(map)
     }
@@ -265,19 +285,22 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     M setMap(Map map) {
-        M model = parametrizedInstance
-        map.each {
-            String origName = it.key.toString().toCamelCase()
-            Field field = getFields().find { it.name == origName }
-            // Look for Type ID
-            if(!field && it.key.toString().endsWith("_id")) {
-                origName = (it.key.toString().replaceAll(/_id$/,'')).toCamelCase()
-                field = getFields().find { it.name == origName }
-            }
-            if(field) {
-                model[origName] = fromDB(field, it.value)
-            } else {
-                Log.w("Field not found: %s", origName)
+        M model = null
+        if(! map.isEmpty()) {
+            model = parametrizedInstance
+            map.each {
+                String origName = it.key.toString().toCamelCase()
+                Field field = getFields().find { it.name == origName }
+                // Look for Type ID
+                if (!field && it.key.toString().endsWith("_id")) {
+                    origName = (it.key.toString().replaceAll(/_id$/, '')).toCamelCase()
+                    field = getFields().find { it.name == origName }
+                }
+                if (field) {
+                    model[origName] = fromDB(field, it.value)
+                } else {
+                    Log.w("Field not found: %s", origName)
+                }
             }
         }
         return model
@@ -675,7 +698,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     @SuppressWarnings('GroovyUnusedAssignment')
-    static Object fromDB(Field field, Object value, boolean convertModels = true) {
+    Object fromDB(Field field, Object value, boolean convertModels = true) {
         Object retVal = null
         if(value != null) {
             try {
@@ -722,7 +745,24 @@ class Table<M extends Model> implements Instanciable<M> {
                             if (retVal) {
                                 if (!(retVal as List).empty && convertModels) {
                                     if (retVal.first() instanceof Integer && genericIsModel(field)) {
-                                        retVal = retVal.collect { relation[getParameterizedClass(field).class.name].get(it as int) }
+                                        Column annotation = field.getAnnotation(Column)
+                                        Table table = relation[getParameterizedClass(field).class.name]
+                                        retVal = table.get(retVal)
+                                        switch (annotation.ondelete()) {
+                                            case DeleteActions.NULL:
+                                                // Do nothing (must be null already)
+                                                break
+                                            default:
+                                                boolean warn = annotation.ondelete() == DeleteActions.RESTRICT
+                                                if(warn && retVal.find { it == null }) {
+                                                    Log.w("Table: [%s], field: %s, contains NULL values",
+                                                        this.name, field.name)
+                                                }
+                                                retVal = retVal.findAll {
+                                                    return it != null
+                                                }
+                                                break
+                                        }
                                     }
                                 }
                             }

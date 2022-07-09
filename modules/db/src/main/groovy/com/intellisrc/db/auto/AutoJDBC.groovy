@@ -3,10 +3,7 @@ package com.intellisrc.db.auto
 import com.intellisrc.db.DB
 import com.intellisrc.db.Data
 import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
 import groovy.transform.CompileStatic
-
-import java.lang.reflect.Field
 
 import static com.intellisrc.db.auto.Table.*
 
@@ -16,6 +13,11 @@ import static com.intellisrc.db.auto.Table.*
  */
 @CompileStatic
 trait AutoJDBC {
+    /**
+     * Property from JDBC
+     * @return
+     */
+    abstract boolean getSupportsBoolean()
     /**
      * Initialize additional functionality
      */
@@ -52,11 +54,71 @@ trait AutoJDBC {
     /**
      * Get default statement
      * @param val
-     * @param nullable
+     * @param column
+     * @param supportsNull
+     * @param supportBool
      * @return
      */
-    String getDefaultQuery(Object val, boolean nullable) {
-        return ""
+    String getDefaultQuery(ColumnDB column, boolean useParenthesis = false) {
+        String definition = ""
+        Object val = column.defaultVal
+        if(! column.annotation.autoincrement()) {
+            String dv = getDefaultForType(column)
+            if (val != null) { // When default value is null, it will be set as nullable
+                boolean isNum = val.toString().isNumber()
+                boolean isBool = false
+                if(supportsBoolean) {
+                    isBool = ["true","false"].contains(val.toString().toLowerCase())
+                }
+                dv = (isNum || isBool) ? val.toString().toUpperCase() : "'${val}'".toString()
+            }
+            String notNull = ! column.annotation.nullable() ? "NOT NULL" : ""
+            definition = [notNull, useParenthesis ? "DEFAULT ($dv)" : "DEFAULT $dv"].join(" ")
+        }
+        return definition
+    }
+
+    /**
+     * Converts type to default possible value in database
+     * For example, String should be ''
+     * @param type
+     * @return
+     */
+    String getDefaultForType(ColumnDB column) {
+        String dv
+        if(column.annotation.defaultValue() != "") {
+            dv = column.annotation.defaultValue()
+        } else {
+            //noinspection GroovyFallthrough
+            switch (column.type) {
+                case Collection:
+                    dv = "[]"
+                    break
+                case Map:
+                    dv = "{}"
+                    break
+                case int:
+                case short:
+                case Integer:
+                case BigInteger:
+                case long:
+                case Long:
+                case float:
+                case Float:
+                case double:
+                case Double:
+                case BigDecimal:
+                    dv = "0"
+                    break
+                case String:
+                case char:
+                    dv = "''"
+                    break
+                default:
+                    dv = "NULL"
+            }
+        }
+        return dv
     }
     /**
      * Turn Foreign Keys ON
@@ -121,6 +183,6 @@ trait AutoJDBC {
      * @param column
      * @return
      */
-    abstract String getColumnDefinition(Class cType, Column column)
+    abstract String getColumnDefinition(final ColumnDB column)
     abstract String getForeignKey(String tableName, final ColumnDB column)
 }

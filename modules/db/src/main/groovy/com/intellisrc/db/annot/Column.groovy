@@ -20,8 +20,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME
     boolean unsigned() default true             // Unsigned number
     boolean key() default false                 // Add KEY INDEX
     String type() default ""                    // Override field type, for example: DECIMAL(5,2)
-    String columnDefinition() default ""        // Override all column definition
     String uniqueGroup() default ""             // Used together with "unique" to add multi-column constraints by name
     DeleteActions ondelete() default RESTRICT   // Action to follow when deleting a FK
     int length() default 0                      // Override type length (specially numbers)
+
+    // NOTE: Setting any of the following, may not work correctly if database type changes (use only in extreme cases):
+    String columnDefinition() default ""        // Override all column definition (after column name)
+    String defaultValue() default ""            // Manually set which should be default value ("" == unset)
 }

@@ -15,6 +15,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Database {
     protected DBPool pool
+    protected PoolConnector poolConnector
     Database(JDBC type = null, int timeout = 0, int expire = 0) {
 		if(type == null) {
             type = JDBC.fromSettings()
@@ -25,7 +26,10 @@ class Database {
         }
     }
     DB connect() {
-        return new PoolConnector(pool).getDB()
+        if(!poolConnector) {
+            poolConnector = new PoolConnector(pool)
+        }
+        return poolConnector.getDB()
     }
     int getConnections() {
         return pool?.active ?: 0

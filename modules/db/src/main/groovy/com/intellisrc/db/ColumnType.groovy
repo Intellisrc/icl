@@ -22,6 +22,7 @@ enum ColumnType {
         //noinspection GroovyFallthrough
         switch (type) {
             case Types.NCLOB: //N means: Unicode
+            case Types.CLOB:  // Character blob
             case Types.CHAR:
             case Types.NCHAR:
             case Types.VARCHAR:
@@ -53,7 +54,6 @@ enum ColumnType {
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
             case Types.BLOB:
-            case Types.CLOB:
                 return BLOB
             case Types.NULL:
                 return NULL

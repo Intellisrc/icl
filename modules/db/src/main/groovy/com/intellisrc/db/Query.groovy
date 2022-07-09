@@ -228,15 +228,32 @@ class Query {
         String inspre = whereValues.collect { sqlName(it.key) }.join(",")
         return new Part().append("(" + inspre + ")")
     }
+    protected boolean isBoolean(Object value) {
+        return dbType.supportsBoolean && ["true","false"].contains(value.toString().toLowerCase())
+    }
+    protected String getPlaceHolder(Object value) {
+        String ph = "?"
+        switch (true) {
+            case value == null:
+                ph = "NULL"
+                break
+            case isBoolean(value):
+                ph = value.toString().toUpperCase()
+                break
+        }
+        return ph
+    }
     protected Part getInsertPart() {
-        String inspst = whereValues.collect {"?" }.join(",")
-        return new Part().append("VALUES (" + inspst + ")", whereValues.values().toList())
+        String inspst = whereValues.collect { getPlaceHolder(it.value) }.join(",")
+        return new Part().append("VALUES (" + inspst + ")", whereValues.values().toList().findAll {
+            it != null &&! isBoolean(it)
+        })
     }
     protected Part getUpdatePart() {
-        String updstr = whereValues.collect {
-            sqlName(it.key) + " = ?"
-        }.join(",")
-        return new Part().append(updstr, whereValues.values().toList())
+        String updstr = whereValues.collect { sqlName(it.key) + " = " + getPlaceHolder(it.value) }.join(",")
+        return new Part().append(updstr, whereValues.values().toList().findAll {
+            it != null &&! isBoolean(it)
+        })
     }
 
     Query setValues(final Map<String,Object> values) {
@@ -319,6 +336,24 @@ class Query {
             case REPLACE:   args = insertPart.data; break
 
             case UPDATE:    args = updatePart.data + wherePart.data; break
+        }
+        if(dbType.supportsBoolean) {
+            args = args.collect {
+                Object arg = it
+                switch (arg) {
+                    case String:
+                        switch (it.toString().toLowerCase()) {
+                            case 'true':
+                                arg = true
+                                break
+                            case 'false':
+                                arg = false
+                                break
+                        }
+                        break
+                }
+                return arg
+            }
         }
         return args
     }

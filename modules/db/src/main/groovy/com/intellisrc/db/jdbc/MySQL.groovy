@@ -7,12 +7,10 @@ import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
-import com.intellisrc.db.auto.Table
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
 import java.lang.reflect.Constructor
-import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -104,11 +102,11 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 if (column.annotation.columnDefinition()) {
                     parts << column.annotation.columnDefinition()
                 } else {
-                    String type = getColumnDefinition(column.type, column.annotation)
+                    String type = getColumnDefinition(column)
                     parts << type
 
                     if (column.defaultVal) {
-                        parts << getDefaultQuery(column.defaultVal, column.annotation.nullable())
+                        parts << getDefaultQuery(column)
                     }
 
                     List<String> extra = []
@@ -191,23 +189,23 @@ class MySQL extends JDBCServer implements AutoJDBC {
      * @return
      */
     @Override
-    String getColumnDefinition(Class cType, Column column = null) {
+    String getColumnDefinition(ColumnDB column) {
         String type = ""
         //noinspection GroovyFallthrough
-        switch (cType) {
+        switch (column.type) {
             case boolean:
             case Boolean:
                 type = "ENUM('true','false')"
                 break
             case Inet4Address:
-                type = "VARCHAR(${column?.length() ?: 15})"
+                type = "VARCHAR(${column.annotation.length() ?: 15})"
                 break
             case Inet6Address:
             case InetAddress:
-                type = "VARCHAR(${column?.length() ?: 45})"
+                type = "VARCHAR(${column.annotation.length() ?: 45})"
                 break
             case String:
-                type = "VARCHAR(${column?.length() ?: 255})"
+                type = "VARCHAR(${column.annotation.length() ?: 255})"
                 break
             // All numeric values share unsigned/autoincrement and primary instructions:
             case byte:
@@ -222,16 +220,12 @@ class MySQL extends JDBCServer implements AutoJDBC {
             case long:
             case Long:
                 type = type ?: "BIGINT"
-                boolean hasAnnotation = column != null
-                int len = hasAnnotation ? column.length() : 0
+                int len = column.annotation.length()
                 String length = len ? "(${len})" : ""
-                boolean unsignedDefault = Column.class.getMethod("unsigned").defaultValue
-                boolean autoIncDefault = Column.class.getMethod("autoincrement").defaultValue
-                boolean primaryDefault = Column.class.getMethod("primary").defaultValue
                 List<String> extra = [type, length]
-                extra << ((hasAnnotation ? column.unsigned() : unsignedDefault) ? "UNSIGNED" : "")
-                extra << ((hasAnnotation ? column.primary() && column.autoincrement() : autoIncDefault) ? "AUTO_INCREMENT" : "")
-                extra << ((hasAnnotation ? column.primary() : primaryDefault) ? "PRIMARY KEY" : "")
+                extra << (column.annotation.unsigned() ? "UNSIGNED" : "")
+                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "AUTO_INCREMENT" : "")
+                extra << (column.annotation.primary() ? "PRIMARY KEY" : "")
                 type = extra.findAll {it }.join(" ")
                 break
             case float:
@@ -256,13 +250,13 @@ class MySQL extends JDBCServer implements AutoJDBC {
             case URI:
             case Collection:
             case Map:
-                type = column?.key() || column?.unique() || (column?.length() ?: 256) <= 255 ? "VARCHAR(${column?.length() ?: 255})" : "TEXT"
+                type = column.annotation.key() || column.annotation.unique() || (column.annotation.length() ?: 256) <= 255 ? "VARCHAR(${column.annotation.length() ?: 255})" : "TEXT"
                 break
             case Enum:
-                type = "ENUM('" + cType.getEnumConstants().join("','") + "')"
+                type = "ENUM('" + column.type.getEnumConstants().join("','") + "')"
                 break
             case byte[]:
-                int len = column?.length() ?: 65535
+                int len = column.annotation.length() ?: 65535
                 switch (true) {
                     case len < 256      : type = "TINYBLOB"; break
                     case len < 65536    : type = "BLOB"; break
@@ -274,21 +268,21 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 // Having a constructor with String or Having a static method 'fromString'
                 boolean canImport = false
                 try {
-                    cType.getConstructor(String.class)
+                    column.type.getConstructor(String.class)
                     canImport = true
                 } catch(Exception ignore) {
                     try {
-                        Method method = cType.getDeclaredMethod("fromString", String.class)
-                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == cType
+                        Method method = column.type.getDeclaredMethod("fromString", String.class)
+                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == column.type
                     } catch(Exception ignored) {}
                 }
                 if(canImport) {
-                    int len = column?.length() ?: 256
+                    int len = column.annotation.length() ?: 256
                     type = len < 256 ? "VARCHAR($len)" : "TEXT"
                 } else {
-                    Log.w("Unknown field type: %s", cType.simpleName)
+                    Log.w("Unknown field type: %s", column.type.simpleName)
                     Log.d("If you want to able to use '%s' type in the database, either set `fromString` " +
-                        "as static method or set a constructor which accepts `String`", cType.simpleName)
+                        "as static method or set a constructor which accepts `String`", column.type.simpleName)
                 }
         }
         return type
@@ -313,23 +307,5 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 break
         }
         return indices
-    }
-
-    /**
-     * Return SQL rules related to NULL and DEFAULT
-     * @param field
-     * @param nullable
-     * @return
-     */
-    @Override
-    String getDefaultQuery(Object val, boolean nullable) {
-        String definition = ""
-        if (val != null) { // When default value is null, it will be set as nullable
-            String dv = val.toString().isNumber() ? val.toString() : "'${val}'".toString()
-            definition = (nullable ? "" : "NOT NULL ") + "DEFAULT ${dv}"
-        } else if(! nullable) {
-            definition = "NOT NULL"
-        }
-        return definition
     }
 }

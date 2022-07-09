@@ -7,19 +7,17 @@ import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
-import com.intellisrc.db.auto.Table
+import com.intellisrc.db.auto.Table.ColumnDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
 import java.lang.reflect.Constructor
-import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
 import static com.intellisrc.db.auto.Table.getColumnName
-import static com.intellisrc.db.auto.Table.toDBValue
 
 /**
  * SQLite Database
@@ -35,12 +33,20 @@ class SQLite extends JDBC implements AutoJDBC {
     String password = ""
     String driver = "org.sqlite.JDBC"
     String tableMeta = Config.get("db.sqlite.meta", "_meta")
+    boolean fkEnabled = Config.get("db.sqlite.fk", true) // ON By default
 
     // SQLite specific parameters:
     boolean memory = Config.get("db.sqlite.memory", false)
     @Override
     String getConnectionString() {
-        return memory ? "sqlite::memory:" : "sqlite:$dbname"
+        return (memory ? "sqlite::memory:" : "sqlite:$dbname") + (parameters.isEmpty() ? "" : "?" + parameters.toQueryString())
+    }
+
+    @Override
+    protected Map getParameters() {
+        return Config.get("db.sqlite.params", [
+            foreign_keys : fkEnabled
+        ])
     }
 
     @Override
@@ -81,29 +87,29 @@ class SQLite extends JDBC implements AutoJDBC {
     void autoInit(DB db) {
         db.set(new Query("CREATE TABLE IF NOT EXISTS `$tableMeta` (" +
             "table_name TEXT KEY NOT NULL UNIQUE," +
-            "version TEXT NOT NULL" +
+            "version INTEGER NOT NULL DEFAULT 1" +
         ")"))
     }
 
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<Table.ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns) {
         boolean ok
         String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
         List<String> defs = []
         List<String> keys = []
         Map<String, List<String>> uniqueGroups = [:]
         columns.each {
-            Table.ColumnDB column ->
+            ColumnDB column ->
                 List<String> parts = ["`${column.name}`".toString()]
                 if (column.annotation.columnDefinition()) {
                     parts << column.annotation.columnDefinition()
                 } else {
-                    String type = getColumnDefinition(column.type, column.annotation) +
+                    String type = getColumnDefinition(column) +
                                   (column.annotation.key() ? " KEY" : "")
                     parts << type
 
                     if (column.defaultVal) {
-                        parts << getDefaultQuery(column.defaultVal, column.annotation.nullable())
+                        parts << getDefaultQuery(column, true)
                     }
 
                     List<String> extra = []
@@ -162,10 +168,10 @@ class SQLite extends JDBC implements AutoJDBC {
     }
 
     @Override
-    String getColumnDefinition(Class cType, Column column) {
+    String getColumnDefinition(ColumnDB column) {
         String type = ""
         //noinspection GroovyFallthrough
-        switch (cType) {
+        switch (column.type) {
             case boolean:
             case Boolean:
             case String:
@@ -191,12 +197,9 @@ class SQLite extends JDBC implements AutoJDBC {
             case Long:
             case Model: //Another Model
                 type = "INTEGER"
-                boolean hasAnnotation = column != null
-                boolean autoIncDefault = Column.class.getMethod("autoincrement").defaultValue
-                boolean primaryDefault = Column.class.getMethod("primary").defaultValue
                 List<String> extra = [type]
-                extra << ((hasAnnotation ? column.primary() : primaryDefault) ? "PRIMARY KEY" : "")
-                extra << ((hasAnnotation ? column.primary() && column.autoincrement() : autoIncDefault) ? "AUTOINCREMENT" : "") //Autoincrement is after Primary Key
+                extra << (column.annotation.primary() ? "PRIMARY KEY" : "")
+                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "AUTOINCREMENT" : "") //Autoincrement is after Primary Key
                 type = extra.findAll {it }.join(" ")
                 break
             case float:
@@ -213,27 +216,27 @@ class SQLite extends JDBC implements AutoJDBC {
                 // Having a constructor with String or Having a static method 'fromString'
                 boolean canImport = false
                 try {
-                    cType.getConstructor(String.class)
+                    column.type.getConstructor(String.class)
                     canImport = true
                 } catch(Exception ignore) {
                     try {
-                        Method method = cType.getDeclaredMethod("fromString", String.class)
-                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == cType
+                        Method method = column.type.getDeclaredMethod("fromString", String.class)
+                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == column.type
                     } catch(Exception ignored) {}
                 }
                 if(canImport) {
                     type = "TEXT"
                 } else {
-                    Log.w("Unknown field type: %s", cType.simpleName)
+                    Log.w("Unknown field type: %s", column.type.simpleName)
                     Log.d("If you want to able to use '%s' type in the database, either set `fromString` " +
-                        "as static method or set a constructor which accepts `String`", cType.simpleName)
+                        "as static method or set a constructor which accepts `String`", column.type.simpleName)
                 }
         }
         return type
     }
 
     @Override
-    String getForeignKey(String tableName, Table.ColumnDB column) {
+    String getForeignKey(String tableName, ColumnDB column) {
         String indices = ""
         switch (column.type) {
             case Model:
@@ -246,23 +249,5 @@ class SQLite extends JDBC implements AutoJDBC {
                 break
         }
         return indices
-    }
-
-    /**
-     * Return SQL rules related to NULL and DEFAULT
-     * @param field
-     * @param nullable
-     * @return
-     */
-    @Override
-    String getDefaultQuery(Object val, boolean nullable) {
-        String definition = ""
-        if (val != null) { // When default value is null, it will be set as nullable
-            String dv = val.toString().isNumber() ? val.toString() : "'${val}'".toString()
-            definition = (nullable ? "" : "NOT NULL ") + "DEFAULT (${dv})"
-        } else if(! nullable) {
-            definition = "NOT NULL"
-        }
-        return definition
     }
 }

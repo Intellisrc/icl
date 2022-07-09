@@ -461,13 +461,13 @@ class MyTable extends Table<MyModel> {
 }
 ```
 
-### Joining Tables
+### Joining Tables / Foreign keys
 
 For `one-to-many` and `many-to-one` relations, you can simply add a `Model` 
 field, for example:
 
 ```groovy
-class Group extends Table<Groups> {
+class Group extends Model {
     @Column(primary = true)
     int id
     @Column
@@ -476,18 +476,60 @@ class Group extends Table<Groups> {
 ```
 
 ```groovy
-class User extends Model<Users> {
-    /* ... */
+class User extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    
     @Column
-    Group group = null
+    String login
+    
+    @Column
+    Group group
+    /* ... */
 }
 ```
+
+This will create a foreign key. You can specify an action for `ondelete` inside `@Column` annotation.
+
+There are some cases in which you don't need foreign keys and want to keep you code simple. For those scenarios,
+you can use for example: `List<Model>`:
+
+```groovy
+class Group extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    
+    @Column
+    String name
+    
+    @Column
+    List<User> users = []
+}
+```
+
+```groovy
+class User extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    
+    @Column
+    String login
+    /* ... */
+}
+```
+
+In the above example, the table `groups` will contain a column named `users`, in which all users ids are
+store as an array of integers. You don't need to know that, as everytime you use `group.users` it
+will contain a `List<User>`. By default, any `User` which doesn't exist anymore, will be omitted from the list
+and will be removed from it when the Model is updated. If you want non-existing Models to be returned as `null`
+you can specify `ondelete = NULL` (inside your `@Column` annotation). If you specify `ondelete = RESTRICT`,
+only a warning will be printed each time a `Model` is `null`.
 
 For `many-to-many` relations, you will need to add one extra `Model` class
 as follows:
 
 ```groovy
-class UserGroup extends Model<UserGroupRel> {
+class UserGroup extends Model {
     @Column(nullable = false, uniqueGroup = "usrgrp", ondelete = CASCADE)
     User user
     @Column(nullable = false, uniqueGroup = "usrgrp", ondelete = CASCADE)
@@ -507,27 +549,27 @@ class UserGroup extends Model<UserGroupRel> {
 
 #### Supported `@Column` types inside a `Model`:
 
-* All primitives are supported (boolean is converted to ENUM)
+* All primitives are supported (boolean is automatically converted depending on database support)
 * `Model` classes
 * `enum`
 * `LocalTime`, `LocalDate` and `LocalDateTime`
-* `Collection` (List, Set, Queue, etc)
+* `Collection` (List, Set, Queue, etc), including `Collection<Model>`
 * `Map` (HashMap, Properties, etc)
 * `URI` and `URL`
 * `InetAddress`, `Inet4Address`, `Inet6Address`
 
-Any other class, will be converted using `toString()`.
+Any other class, will be converted using `toString()` / `(static) fromString()`.
 
 ### Comparison with libraries with similar functionality:
 
-| Feature                   | ICL (this library)                                                                                                                    | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                                         | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
-| Supported Databases       | MySQL / MariaDB *<br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL<br><br>\* Automatic Update | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
-| Dependencies              | None (simple JDBC)                                                                                                                    | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
-| Clean Database identities | Yes                                                                                                                                   | No                                                                                                                 | Yes                                                                                                                 |
-| SQL Injection protection  | Yes                                                                                                                                   | Yes                                                                                                                | Yes                                                                                                                 |
-| Complexity                | Low                                                                                                                                   | High                                                                                                            | Medium                                                                                                              |
+| Feature                   | ICL (this library)                                                                                                                              | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
+|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                                                   | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
+| Supported Databases       | MySQL / MariaDB / Percona *<br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL<br><br>\* Automatic Update | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
+| Dependencies              | None (simple JDBC)                                                                                                                              | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
+| Clean Database identities | Yes                                                                                                                                             | No                                                                                                                 | Yes                                                                                                                 |
+| SQL Injection protection  | Yes                                                                                                                                             | Yes                                                                                                                | Yes                                                                                                                 |
+| Complexity                | Low                                                                                                                                             | High                                                                                                               | Medium                                                                                                              |
 
 <!-- TODO: add more explanation -->
 

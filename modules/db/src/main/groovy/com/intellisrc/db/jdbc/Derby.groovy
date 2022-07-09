@@ -7,7 +7,6 @@ import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
-import com.intellisrc.db.auto.Table
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
@@ -17,7 +16,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.auto.Table.getColumnName
+import static com.intellisrc.db.auto.Table.*
 import static com.intellisrc.db.jdbc.Derby.SubProtocol.*
 
 /**
@@ -47,7 +46,15 @@ class Derby extends JDBCServer implements AutoJDBC {
     boolean encrypt = Config.get("db.derby.encrypt", false)
     boolean memory = Config.get("db.derby.memory", false)
     boolean create = memory ?: Config.get("db.derby.create", false) //If in memory it will create automatically
+    String tableMeta = Config.get("db.derby.meta", "_meta")
     SubProtocol subProtocol = DIRECTORY
+
+    // QUERY BUILDING -------------------------
+    // Query parameters
+    String catalogSearchName = "%"
+    String schemaSearchName = "%"
+    boolean supportsReplace = false
+    boolean supportsBoolean = true
 
     // Derby specific parameters:
     // https://db.apache.org/derby/docs/10.0/manuals/reference/sqlj238.html#HDRSII-ATTRIB-24612
@@ -100,19 +107,20 @@ class Derby extends JDBCServer implements AutoJDBC {
                 }.join(";")
     }
 
-    // QUERY BUILDING -------------------------
-    // Query parameters
-    String catalogSearchName = "%"
-    String schemaSearchName = "%"
-    boolean supportsReplace = false
-
     @Override
     String getTableSearchName(String table) {
         return table.toUpperCase()
     }
     ////////////////////////////// AUTO ////////////////////////////////////
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<Table.ColumnDB> columns) {
+    void autoInit(DB db) {
+        db.set(new Query("CREATE TABLE IF NOT EXISTS `$tableMeta` (" +
+            "table_name VARCHAR(50) KEY NOT NULL PRIMARY KEY," +
+            "version INT NOT NULL DEFAULT 1" +
+            ")"))
+    }
+    @Override
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns) {
         boolean ok = false
         boolean exists = memory ? false : get(db, "SELECT TRUE FROM SYS.SYSTABLES WHERE TABLENAME = '${tableName}' AND TABLETYPE = 'T'")
         if(!exists) {
@@ -121,17 +129,15 @@ class Derby extends JDBCServer implements AutoJDBC {
             List<String> keys = []
             Map<String, List<String>> uniqueGroups = [:]
             columns.each {
-                Table.ColumnDB column ->
+                ColumnDB column ->
                     List<String> parts = ["${column.name}".toString()]
                     if (column.annotation.columnDefinition()) {
                         parts << column.annotation.columnDefinition()
                     } else {
-                        String type = getColumnDefinition(column.type, column.annotation).replace("_pk", tableName + "_pk")
+                        String type = getColumnDefinition(column).replace("_pk", tableName + "_pk")
                         parts << type
-
-                        if (column.defaultVal) {
-                            parts << getDefaultQuery(column.defaultVal, column.annotation.nullable())
-                        }
+                        // Default value
+                        parts << getDefaultQuery(column)
 
                         List<String> extra = []
                         if (column.annotation.unique() || column.annotation.uniqueGroup()) {
@@ -173,23 +179,42 @@ class Derby extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getColumnDefinition(Class cType, Column column) {
+    boolean turnFK(final DB db, boolean on) {
+        return set(db, String.format("PRAGMA foreign_keys = %s", on ? "ON" : "OFF"))
+    }
+    @Override
+    boolean copyTableDesc(final DB db, String from, String to) {
+        String qry = get(db, "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'").toString()
+        return set(db, qry.replace("CREATE TABLE ${from}", "CREATE TABLE ${to}"))
+    }
+    @Override
+    boolean setVersion(final DB db, String dbname, String table, int version) {
+        return set(db, "REPLACE INTO $tableMeta (table_name, version) VALUES ('${table}', '${version}')")
+    }
+    @Override
+    int getVersion(final DB db, String dbname, String table) {
+        return get(db, "SELECT version FROM $tableMeta WHERE table_name = '${table}'").toInt()
+    }
+
+
+    @Override
+    String getColumnDefinition(ColumnDB column) {
         String type = ""
         //noinspection GroovyFallthrough
-        switch (cType) {
+        switch (column.type) {
             case boolean:
             case Boolean:
                 type = "BOOLEAN"
                 break
             case Inet4Address:
-                type = "VARCHAR(${column?.length() ?: 15})"
+                type = "VARCHAR(${column.annotation.length() ?: 15})"
                 break
             case Inet6Address:
             case InetAddress:
-                type = "VARCHAR(${column?.length() ?: 45})"
+                type = "VARCHAR(${column.annotation.length() ?: 45})"
                 break
             case String:
-                type = column?.length() > 32672 ? "CLOB" : "VARCHAR(${column?.length() ?: 255})"
+                type = column.annotation.length() > 32672 ? "CLOB" : "VARCHAR(${column.annotation.length() ?: 255})"
                 break
                 // All numeric values share unsigned/autoincrement and primary instructions:
             case byte:
@@ -203,14 +228,11 @@ class Derby extends JDBCServer implements AutoJDBC {
             case long:
             case Long:
                 type = type ?: "BIGINT"
-                boolean hasAnnotation = column != null
-                int len = hasAnnotation ? column.length() : 0
+                int len = column.annotation.length()
                 String length = len ? "(${len})" : ""
-                boolean autoIncDefault = Column.class.getMethod("autoincrement").defaultValue
-                boolean primaryDefault = Column.class.getMethod("primary").defaultValue
                 List<String> extra = [type, length]
-                extra << ((hasAnnotation ? column.primary() && column.autoincrement() : autoIncDefault) ? "GENERATED ALWAYS AS IDENTITY" : "")
-                extra << ((hasAnnotation ? column.primary() : primaryDefault) ? "CONSTRAINT _pk PRIMARY KEY" : "")
+                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "GENERATED ALWAYS AS IDENTITY" : "")
+                extra << (column.annotation.primary() ? "CONSTRAINT _pk PRIMARY KEY" : "")
                 type = extra.findAll {it }.join(" ")
                 break
             case float:
@@ -233,10 +255,10 @@ class Derby extends JDBCServer implements AutoJDBC {
             case URI:
             case Collection:
             case Map:
-                type = column?.key() || column?.unique() || (column?.length() ?: 256) <= 255 ? "VARCHAR(${column?.length() ?: 255})" : "CLOB"
+                type = column.annotation.key() || column.annotation.unique() || (column.annotation.length() ?: 256) <= 255 ? "VARCHAR(${column.annotation.length() ?: 255})" : "CLOB"
                 break
             case Enum:
-                int maxLen = cType.getEnumConstants().toList().max { it.toString().length() }.toString().length()
+                int maxLen = column.type.getEnumConstants().toList().max { it.toString().length() }.toString().length()
                 type = "VARCHAR(${maxLen})"
                 break
             case byte[]:
@@ -246,28 +268,28 @@ class Derby extends JDBCServer implements AutoJDBC {
                 // Having a constructor with String or Having a static method 'fromString'
                 boolean canImport = false
                 try {
-                    cType.getConstructor(String.class)
+                    column.type.getConstructor(String.class)
                     canImport = true
                 } catch(Exception ignore) {
                     try {
-                        Method method = cType.getDeclaredMethod("fromString", String.class)
-                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == cType
+                        Method method = column.type.getDeclaredMethod("fromString", String.class)
+                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == column.type
                     } catch(Exception ignored) {}
                 }
                 if(canImport) {
-                    int len = column?.length() ?: 256
+                    int len = column.annotation.length() ?: 256
                     type = len < 256 ? "VARCHAR($len)" : "CLOB"
                 } else {
-                    Log.w("Unknown field type: %s", cType.simpleName)
+                    Log.w("Unknown field type: %s", column.type.simpleName)
                     Log.d("If you want to able to use '%s' type in the database, either set fromString " +
-                        "as static method or set a constructor which accepts String", cType.simpleName)
+                        "as static method or set a constructor which accepts String", column.type.simpleName)
                 }
         }
         return type
     }
 
     @Override
-    String getForeignKey(String tableName, Table.ColumnDB column) {
+    String getForeignKey(String tableName, ColumnDB column) {
         String indices = ""
         switch (column.type) {
             case Model:
@@ -281,5 +303,4 @@ class Derby extends JDBCServer implements AutoJDBC {
         }
         return indices
     }
-
 }

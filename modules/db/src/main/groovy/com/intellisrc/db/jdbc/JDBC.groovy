@@ -54,6 +54,10 @@ abstract class JDBC {
     final String getName() { return dbname }
     final String getUsername() { return user }
     final String getPass() { return password }
+
+    Map params = [:] // Store params passed in constructor
+    protected Map getParameters() { return params }
+
     /**
      * Class for driver
      * @return
@@ -112,6 +116,8 @@ abstract class JDBC {
     boolean getConvertToLowerCase() { return true }
     // When false it will use LIMIT ... OFFSET
     boolean getUseFetch() { return true }
+    // If Database supports native boolean
+    boolean getSupportsBoolean() { return false }
     // When true, it will use "replace" query, otherwise will try to update first and if it fails, will insert
     // FIXME: The best performance and thread-safe way is to implement MERGE/ON CONFLICT, however
     //        it is more complicated to implement.
