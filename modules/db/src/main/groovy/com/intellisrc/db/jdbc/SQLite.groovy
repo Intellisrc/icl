@@ -160,11 +160,14 @@ class SQLite extends JDBC implements AutoJDBC {
     }
     @Override
     boolean setVersion(final DB db, String dbname, String table, int version) {
-        return set(db, "REPLACE INTO $tableMeta (table_name, version) VALUES ('${table}', '${version}')")
+        return db.table(tableMeta).replace([
+            table_name : table,
+            version : version
+        ])
     }
     @Override
     int getVersion(final DB db, String dbname, String table) {
-        return get(db, "SELECT version FROM $tableMeta WHERE table_name = '${table}'").toInt()
+        return db.table(tableMeta).field("version").get(table_name : table).toInt()
     }
 
     @Override

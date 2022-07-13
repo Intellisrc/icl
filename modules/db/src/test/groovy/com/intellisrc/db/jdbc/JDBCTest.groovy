@@ -4,7 +4,8 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
-import spock.lang.Ignore
+import com.intellisrc.net.LocalHost
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 import static com.intellisrc.db.Query.SortOrder.*
@@ -14,6 +15,18 @@ import static com.intellisrc.db.Query.SortOrder.*
  */
 abstract class JDBCTest extends Specification {
     abstract JDBC getDB()
+
+    boolean shouldSkip() {
+        JDBC jdbc = this.getDB()
+        boolean skip = jdbc instanceof JDBCServer
+            && (jdbc as JDBCServer).port
+            &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)
+        if(skip) {
+            Log.w("Test skipped for : %s (environment not ready)", jdbc.class.simpleName)
+        }
+        return skip
+    }
+
     void clean(DB db, String table) {}
     /**
      * Create a table:
@@ -34,6 +47,7 @@ abstract class JDBCTest extends Specification {
         db.close()
     }
 
+    @IgnoreIf({ instance.shouldSkip() })
     def "Simple Connection"() {
         setup:
             String table = "linux"
@@ -214,11 +228,7 @@ abstract class JDBCTest extends Specification {
             assert db.table(table).key("id").delete(1,2,9)
             assert db.table(table).count().get().toInt() == 6
         then: "delete using Map criteria"
-            if(jdbc.supportsDate) {
-                assert db.table(table).delete([updated: "2021-12-01".toDate()])
-            } else {
-                assert db.table(table).delete([updated: "2021-12-01"])
-            }
+            assert db.table(table).delete([updated: setDate("2021-12-01")])
             assert db.table(table).count().get().toInt() == 5
         then: "delete using String IDs"
             assert db.table(table).key("name").delete("RedHat","Slackware")
@@ -232,10 +242,16 @@ abstract class JDBCTest extends Specification {
             db?.close()
     }
 
+    @IgnoreIf({ instance.shouldSkip() })
     def "Connection with Pool"() {
         setup:
-            Database database = new Database(getDB())
+            JDBC jdbc = getDB()
+            Database database = new Database(jdbc)
             String table = "linux"
+            Object setDate = {
+                String d ->
+                    return jdbc.supportsDate ? d.toDate() : d
+            }
         when: "Create connection"
             DB db = database.connect()
         then:
@@ -247,12 +263,12 @@ abstract class JDBCTest extends Specification {
             assert db.tables.contains(table)
         then: "Insert first"
             assert db.table(table).insert(
-                [ name : "Ubuntu",     active: "Y",    updated: "2022-08-01",     version: 3.7 ],
+                [ name : "Ubuntu", active: "Y", updated: setDate("2022-08-01"), version: 3.7 ],
             )
             assert db.lastID == 1
         then: "Insert Second"
             assert db.table(table).insert(
-                [ name : "Debian",     active: "Y",    updated: "2022-09-01",     version: 9.1 ],
+                [ name : "Debian", active: "Y", updated: setDate("2022-09-01"), version: 9.1 ],
             )
             assert db.lastID == 2
         then: "Retrieve second"
@@ -263,16 +279,18 @@ abstract class JDBCTest extends Specification {
             assert db.tables.empty
         cleanup:
             clean(db, table)
-            database.quit()
+            database?.quit()
     }
 
+    @IgnoreIf({ instance.shouldSkip() })
     def "Test Drop all tables"() {
-        when:
-            DB db = getDB().connect()
+        setup:
+            JDBC jdbc = getDB()
+            DB db = jdbc.connect()
             String table = "linux"
             boolean isSingleStm = getTableCreate(table) != ""
             int numTables = 5
-        then: "Create table"
+        when: "Create table"
             (1..numTables).each {
                 println "Creating ${table}${it}..."
                 assert isSingleStm ? db.setSQL(getTableCreate("${table}${it}")) : db.setSQL(getTableCreateMulti("${table}${it}"))
@@ -293,5 +311,4 @@ abstract class JDBCTest extends Specification {
             clean(db, table)
             db?.close()
     }
-
 }

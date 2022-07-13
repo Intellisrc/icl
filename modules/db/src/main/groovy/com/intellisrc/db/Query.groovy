@@ -91,6 +91,35 @@ class Query {
         argList = args
         setIdentityFlag()
     }
+    /**
+     * Copy a Query object
+     * @param query
+     * @param action
+     * @return
+     */
+    static Query copyOf(Query query, Action action = null) {
+        if(! action) {
+            action = query.action
+        }
+        Query nq = new Query(query.dbType, action)
+        nq.with {
+            table       = query.table
+            whereValues = query.whereValues.collectEntries { [(it.key) : it.value]}
+            argList     = query.argList.collect()
+            queryStr    = query.queryStr
+            tableStr    = query.tableStr
+            groupByStr  = query.groupByStr
+            limitInt    = query.limitInt
+            offsetInt   = query.offsetInt
+            sort        = query.sort
+            fieldList   = query.fieldList.collect()
+            keyList     = query.keyList.collect()
+            fieldType   = query.fieldType
+            isSetQuery  = query.isSetQuery
+            isIdentityUpdate = query.isIdentityUpdate
+        }
+        return nq
+    }
 
     /**
      * Update identity flag

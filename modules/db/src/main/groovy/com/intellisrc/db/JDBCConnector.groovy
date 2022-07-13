@@ -103,6 +103,7 @@ class JDBCConnector implements Connector {
 					defaultValue	: rsCols.getString("COLUMN_DEF"),
 					autoIncrement	: rsCols.getString("IS_AUTOINCREMENT") == "YES",
 					generated		: rsCols.getString("IS_GENERATEDCOLUMN") == "YES",
+					unique			: false, //TODO: not available through jdbc ??
 					primaryKey		: pks.contains(colName)
 				)
 				columns << col
@@ -420,6 +421,13 @@ class JDBCConnector implements Connector {
 	 */
 	@Override
 	void onError(Throwable ex) {
-		type.onError.call(ex)
+		if(ex instanceof SQLException) {
+			while(ex) {
+				type.onError.call(ex)
+				ex = (ex as SQLException).nextException
+			}
+		} else {
+			type.onError.call(ex)
+		}
 	}
 }

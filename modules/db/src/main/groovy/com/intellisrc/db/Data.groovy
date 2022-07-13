@@ -16,11 +16,48 @@ class Data {
     Data(List<Map> data) {
         this.data = data
     }
-
+    /**
+     * Return true if row was not found
+     * @return
+     */
     boolean isEmpty() {
         return this.data.isEmpty()
     }
-
+    /**
+     * Return true if row was found and the first column of the first row is NOT empty
+     * This method is for testing a single column value
+     * @return
+     */
+    boolean hasValue() {
+        boolean has = false
+        if(!data.isEmpty()) {
+            Map map = data.get(0)
+            if(!map.isEmpty()) {
+                Object value = getFirstElement(map)
+                has = value != null &&! value.toString().empty
+            }
+        }
+        return has
+    }
+    /**
+     * Return first column of the first row as Boolean
+     * This method will try different options for "true",
+     * like "yes", "1", "on", etc
+     *
+     * NOTE: non-empty values are not automatically translated into "true",
+     * if you want ot test if a column has or not any value, use: 'hasValue'
+     * @return
+     */
+    boolean toBool() {
+        boolean val = false
+        if(!data.isEmpty()) {
+            Map map = data.get(0)
+            if(!map.isEmpty()) {
+                val = ["true","on","yes","1","t","y"].contains(getFirstElement(map)?.toString()?.toLowerCase())
+            }
+        }
+        return val
+    }
     /**
      * Returns the first column of the first row as String
      * @return
@@ -31,7 +68,7 @@ class Data {
         if(!data.isEmpty()) {
             Map map = data.get(0)
             if(!map.isEmpty()) {
-                str = (String) getFirstElement(map)
+                str = (getFirstElement(map) ?: "").toString()
             }
         }
         return str
@@ -54,7 +91,7 @@ class Data {
 					    val = ((Double) o).intValue()
                         break
 				    default:
-    	                val = (Integer) o
+    	                val = (o ?: 0) as int
 				}
             }
         }
@@ -69,7 +106,7 @@ class Data {
         if(!data.isEmpty()) {
             Map map = data.get(0)
             if(!map.isEmpty()) {
-                val = (Float) getFirstElement(map)
+                val = (getFirstElement(map) ?: 0) as float
             }
         }
         return val
@@ -83,7 +120,7 @@ class Data {
         if(!data.isEmpty()) {
             Map map = data.get(0)
             if(!map.isEmpty()) {
-                val = (Double) getFirstElement(map)
+                val = (getFirstElement(map) ?: 0) as double
             }
         }
         return val

@@ -1,21 +1,20 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.db.DB
-import spock.lang.Ignore
 
 /**
  * @since 18/06/15.
  * Useful reference : https://blogs.oracle.com/sql/post/how-to-create-users-grant-them-privileges-and-remove-them-in-oracle-database
  */
-@Ignore //Ran manually
 class OracleSQLTest extends JDBCTest {
+
     // Requires Oracle 12c+
     List<String> getTableCreateMulti(String name) {
         return [
 "CREATE SEQUENCE ${name}_seq",
 """CREATE TABLE $name (
-    id NUMBER(10) default ${name}_seq.nextval,
-    name VARCHAR2(10) NOT NULL,
+    id NUMBER(10) DEFAULT ${name}_seq.nextval PRIMARY KEY,
+    name VARCHAR2(10) NOT NULL CONSTRAINT ${name}_name_uk UNIQUE,
     version FLOAT, 
     active CHAR, 
     updated DATE
@@ -37,7 +36,9 @@ class OracleSQLTest extends JDBCTest {
     }
 
     /**
-     * docker run -d -p 127.0.0.1:1521:1521 -e ORACLE_PASSWORD=test -e APP_USER=test -e APP_USER_PASSWORD=test -n oracle gvenzl/oracle-xe
+     * docker run -d -p 127.0.0.1:31521:1521 -e ORACLE_PASSWORD=test -e APP_USER=test -e APP_USER_PASSWORD=test -n oracle gvenzl/oracle-xe:21-slim
+     *
+     * You can use the `launch_dbs_for_testing.sh` script located in /modules/db/ to launch it.
      * @return
      */
     @Override
@@ -47,10 +48,11 @@ class OracleSQLTest extends JDBCTest {
             GRANT ALL PRIVILEGES TO test;
          */
         return new Oracle(
+            hostname: "127.0.0.1",
+            port    : 31521,
             user    : "test",
-            hostname: "localhost",
             password: "test",
-            dbname  : "XE" // or XEPDB1 //This is the service name (echo $ORACLE_SID)
+            dbname  : "XEPDB1" // or XE (lower than 18)  //This is the service name (echo $ORACLE_SID)
         )
     }
 }

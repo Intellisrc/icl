@@ -2,6 +2,7 @@ package com.intellisrc.thread
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
+import spock.lang.Retry
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -62,7 +63,8 @@ class ParallelTaskTest extends Specification {
             ]
         }
     }
-    
+
+    @Retry
     def "All need to get to the goal"() {
         setup:
             int smallTime = 20*10
@@ -93,6 +95,7 @@ class ParallelTaskTest extends Specification {
      * increasing the sleep time was causing stack overflow exception.
      * That was fixed in 2.7.4
      */
+    @Retry
     def "ParallelTask should not expire before time"() {
         setup :
             AtomicInteger times = new AtomicInteger()
@@ -116,6 +119,7 @@ class ParallelTaskTest extends Specification {
             
     }
 
+    @Retry
     def "If task is cancelled, it should not execute pending threads"() {
         setup :
             AtomicInteger times = new AtomicInteger()

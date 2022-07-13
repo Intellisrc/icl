@@ -22,15 +22,22 @@ import java.time.LocalTime
 
 @CompileStatic
 class Table<M extends Model> implements Instanciable<M> {
-    static boolean alwaysCheck = false  //Used by updater
+    // Keep relation of tables:
     static protected Map<String, Boolean> versionChecked = [:] // it will be set to true after the version has been checked
     static protected Map<String, Table> relation = [:]
+    static void reset() {
+        versionChecked = [:]
+        relation = [:]
+    }
+
+    // ----------- Flags and other instance properties -------------
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
     protected Database database
     protected final String name
     protected Set<DB> activeConnections = []
     protected int cache = 0
     protected boolean clearCache = false
+    String charset = "utf8"
 
     /**
      * Interface used to update values before inserting them.
@@ -83,7 +90,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * Decide if table needs to be updated or created
      */
     void updateOrCreate() {
-        if(alwaysCheck || !versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
+        if(!versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
             versionChecked[tableName.toString()] = true
             //noinspection GroovyFallthrough
             switch (tableConnector.jdbc) {
@@ -95,18 +102,16 @@ class Table<M extends Model> implements Instanciable<M> {
                         if(autoUpdate) {
                             int version = TableUpdater.getTableVersion(tableConnector, tableName.toString())
                             if (definedVersion > version) {
-                                Log.i("Table [%s] is going to be updated from version: %d to %d",
-                                    tableName, version, definedVersion)
-                                if(!TableUpdater.update([this])) {
-                                    Log.w("Table [%s] was not updated.", tableName)
-                                }
+                                updateTable()
                             } else {
                                 Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
                                     tableName, version, definedVersion)
                             }
                         }
                     } else {
-                        createTable()
+                        if(!createTable()) {
+                            Log.w("Table [%s] was not created.", tableName)
+                        }
                     }
                     break
                 default:
@@ -117,10 +122,25 @@ class Table<M extends Model> implements Instanciable<M> {
         }
     }
     /**
-     * Create the database based on @Column and @TableMeta
+     * Update database table
+     * @return
      */
-    void createTable() {
-        if (!tableConnector.exists()) {
+    boolean updateTable() {
+        Log.i("Updating table [%s] to version [%d]", tableName, definedVersion)
+        boolean ok = TableUpdater.update([this])
+        if(!ok) {
+            Log.w("Table [%s] was not updated.", tableName)
+        }
+        return ok
+    }
+    /**
+     * Create the database table based on @Column and @TableMeta
+     * @param copyName : if set, will create a table with another name (as copy)
+     */
+    boolean createTable(String copyName = "") {
+        boolean ok = false
+        String tableNameToCreate = copyName ?: tableName
+        if (!tableConnector.tables.contains(tableNameToCreate)) {
             String charset = "utf8"
             String engine = ""
             if (this.class.isAnnotationPresent(TableMeta)) {
@@ -131,9 +151,10 @@ class Table<M extends Model> implements Instanciable<M> {
                 charset = meta.charset()
             }
             AutoJDBC auto = tableConnector.jdbc as AutoJDBC
-            auto.createTable(tableConnector, tableName, charset, engine, definedVersion, columns)
+            ok = auto.createTable(tableConnector, tableNameToCreate, charset, engine, definedVersion, columns)
         }
         closeConnections()
+        return ok
     }
 
     /**
@@ -662,12 +683,19 @@ class Table<M extends Model> implements Instanciable<M> {
      * Get a connection. If its already opened, reuse
      * @return
      */
-    synchronized DB getTableConnector() {
+    protected synchronized DB getTableConnector() {
         DB db = database.connect().table(tableName)
         db.cache = cache
         db.clearCache = clearCache
         activeConnections.add(db)
         return db
+    }
+    /**
+     * Exposed tableConnector
+     * @return
+     */
+    synchronized DB getTable() {
+        return getTableConnector()
     }
     /**
      * Close active connections
@@ -688,7 +716,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * Drops the table
      */
     void drop() {
-        tableConnector.set(new Query(tableConnector.jdbc, Query.Action.DROP))
+        Query qry = new Query(tableConnector.jdbc, Query.Action.DROP)
+        qry.table = tableName
+        tableConnector.set(qry)
     }
 
     /**

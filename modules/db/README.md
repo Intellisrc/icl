@@ -342,7 +342,7 @@ class Reservations extends Table<Reservation> {
         return findAll(user_id : user.id)
     }
     List<Reservation> findByDay(LocalDate day) {
-        return tableConnector.where("DATE(day_time) = ?", day.YMD).get()
+        return table.where("DATE(day_time) = ?", day.YMD).get()
     }
 }
 ```
@@ -350,8 +350,18 @@ class Reservations extends Table<Reservation> {
 In the above example, when the `reservations` table is created, `User` field is translated into `user_id` column
 (as well the foreign key). That is why, we use `user_id` instead of `user`.
 
-In the same way, `dateTime` is translated into `date_time`. Inside `findByDay`, we are using the 
+In the same way, `dateTime` is translated into `date_time`. Inside `findByDay`, we are using the
 [Fluid SQL Instructions](#fluid-query-instructions) in order to search by day.
+
+** NOTE** : You can always access the [Fluid SQL Instructions](#fluid-query-instructions) 
+using `table` or `getTable()` in your `Table` class, for example:
+
+```groovy
+// This will get only the reservation time for a given user:
+int uid = 1
+LocalTime time = reservations.table.field("dayTime").get(uid).toString().toDateTime().toLocalTime()
+println time.HHmmss
+```
 
 I recommend you to keep a static instance of your `Table` classes, something like:
 ```groovy
@@ -562,16 +572,16 @@ Any other class, will be converted using `toString()` / `(static) fromString()`.
 
 ### Comparison with libraries with similar functionality:
 
-| Feature                   | ICL (this library)                                                                                                                              | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
-|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                                                   | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
-| Supported Databases       | MySQL / MariaDB / Percona *<br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL<br><br>\* Automatic Update | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
-| Dependencies              | None (simple JDBC)                                                                                                                              | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
-| Clean Database identities | Yes                                                                                                                                             | No                                                                                                                 | Yes                                                                                                                 |
-| SQL Injection protection  | Yes                                                                                                                                             | Yes                                                                                                                | Yes                                                                                                                 |
-| Complexity                | Low                                                                                                                                             | High                                                                                                               | Medium                                                                                                              |
+| Feature                   | ICL (this library)                                                                                                  | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                       | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
+| Supported Databases       | MySQL / MariaDB / Percona <br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
+| Dependencies              | None (simple JDBC)                                                                                                  | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
+| Clean Database identities | Yes                                                                                                                 | No                                                                                                                 | Yes                                                                                                                 |
+| SQL Injection protection  | Yes                                                                                                                 | Yes                                                                                                                | Yes                                                                                                                 |
+| Complexity                | Low                                                                                                                 | High                                                                                                               | Medium                                                                                                              |
 
-<!-- TODO: add more explanation -->
+
 
 ## Looking for something else ?
 

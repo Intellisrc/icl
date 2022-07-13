@@ -1,12 +1,10 @@
 package com.intellisrc.db.jdbc
 
-import spock.lang.Ignore
-
 /**
  * @since 18/06/15.
  */
-@Ignore //Ran manually
 class MariaDBTest extends JDBCTest {
+
     String getTableCreate(String name) {
         return """CREATE TABLE `$name` (
                 `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -19,9 +17,9 @@ class MariaDBTest extends JDBCTest {
 
     /**
      * Launch example:
-     * docker run --name mariadb -e MARIADB_ROOT_PASSWORD=rootpassword -e MARIADB_DATABASE=test -e MARIADB_USER=test -e MARIADB_PASSWORD=test -p 127.0.0.1:3306:3306 -d mariadb
+     * docker run --name mariadb -e MARIADB_ROOT_PASSWORD=rootpassword -e MARIADB_DATABASE=test -e MARIADB_USER=test -e MARIADB_PASSWORD=test -p 127.0.0.1:33007:3306 -d mariadb
      *
-     * NOTE: if you are running mysql already, change the port number (e.g. 3307) or remove that container first
+     * You can use the `launch_dbs_for_testing.sh` script located in /modules/db/ to launch it.
      *
      * @return
      */
@@ -29,10 +27,10 @@ class MariaDBTest extends JDBCTest {
     JDBC getDB() {
         return new MariaDB(
             user    : "test",
-            hostname: "localhost",
+            hostname: "127.0.0.1",
             password: "test",
             dbname  : "test",
-            //port  : 3307
+            port    : 33007
         )
     }
 }

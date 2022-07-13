@@ -405,6 +405,7 @@ class DB {
                     position: (it.position ?: 0) as int,
                     name: it.column?.toString() ?: "",
                     nullable: ((it.nullable ?: 0) as int) == 1,
+                    unique: ((it.unique ?: 0) as int) == 1,
                     primaryKey: ((it.primary ?: 0) as int) == 1,
                     autoIncrement: ((it.autoinc ?: 0) as int) == 1
                 )
@@ -414,7 +415,14 @@ class DB {
         }
         return columns
     }
-
+    /**
+     * Shortcut to get only the information about a column
+     * @param column
+     * @return
+     */
+    ColumnInfo info(String column) {
+        return info().find { it.name == column }
+    }
     /** Quit **/
     boolean close() {
 		Log.v( "Closing connection...")
@@ -762,43 +770,59 @@ class DB {
      */
     protected boolean execSet() {
 		boolean ok = false
-        boolean upsert = false
+        Map<String,Object> replaceData = [:]
         query.isSetQuery = true
         String qryStr = query.toString()
         if(! qryStr.empty) {
             if (openIfClosed()) {
-                if (query.actionType == REPLACE && !jdbc.supportsReplace) {
-                    if (query.key) {
-                        Map allBut = query.whereValues.findAll { it.key != query.key }
-                        Object id = query.whereValues.get(query.key)
-                        queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
-                            .setKeys(query.keys).setValues(allBut).setWhere(id)
-                        query.isSetQuery = true
-                        upsert = true
-                    } else {
-                        Log.w("Unable to find key when emulating REPLACE command in table: %s", query.tableStr)
-                    }
-                }
-
                 Log.v("SET ::: " + qryStr)
                 query.args.each {
                     Log.v(" --> " + it)
+                }
+                if (query.actionType == REPLACE && !jdbc.supportsReplace) {
+                    if (query.key) {
+                        replaceData = query.whereValues
+                        Map allBut = replaceData.findAll { it.key != query.key }
+                        Object id = replaceData.get(query.key)
+                        queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
+                            .setKeys(query.keys).setValues(allBut).setWhere(id)
+                        queryBuilder.isSetQuery = true
+                        Log.v("SET ::: " + queryBuilder.toString())
+                        queryBuilder.args.each {
+                            Log.v(" --> " + it)
+                        }
+                        // query will import queryBuilder
+                    } else {
+                        Log.w("Unable to find key when emulating REPLACE command in table: %s", query.tableStr)
+                    }
                 }
                 if (cache && clearCache && query.tableStr) {
                     clearCache()
                 }
                 Statement st
                 try {
+                    boolean upsert = ! replaceData.isEmpty()
                     boolean silent = upsert
                     st = dbConnector.prepare(query, silent)
                     if (upsert && st.updatedCount() == 0) {
                         try {
-                            query.setAction(INSERT)
-                            Log.v("SET ::: " + query.toString())
-                            query.args.each {
+                            // Copy query:
+                            Query insert = Query.copyOf(query, INSERT)
+                            // With original args:
+                            insert.whereValues = replaceData
+                            // If its autoincrement, remove the insert value
+                            if(info(insert.key).autoIncrement) {
+                                int pki = insert.whereValues.keySet().toList().indexOf(insert.key)
+                                if (pki >= 0) {
+                                    insert.args.remove(pki)
+                                    insert.whereValues.remove(insert.key)
+                                }
+                            }
+                            Log.v("SET ::: " + insert.toString())
+                            insert.args.each {
                                 Log.v(" --> " + it)
                             }
-                            st = dbConnector.prepare(query, false)
+                            st = dbConnector.prepare(insert, false)
                         } catch (Exception e2) {
                             Log.e("Query Syntax error: ", e2)
                         }
@@ -814,7 +838,9 @@ class DB {
                             if (id && id.isNumber()) {
                                 last_id = st.columnInt(1)
                             } else {
-                                Log.d("Received last id: %s", id)
+                                if(! st.isColumnNull(1)) {
+                                    Log.d("Received last id: %s", id)
+                                }
                                 last_id = 0
                             }
                             if (!last_id && jdbc.getLastIdQuery(query.table)) {

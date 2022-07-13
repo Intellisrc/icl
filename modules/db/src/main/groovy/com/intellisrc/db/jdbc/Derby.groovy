@@ -46,7 +46,7 @@ class Derby extends JDBCServer implements AutoJDBC {
     boolean encrypt = Config.get("db.derby.encrypt", false)
     boolean memory = Config.get("db.derby.memory", false)
     boolean create = memory ?: Config.get("db.derby.create", false) //If in memory it will create automatically
-    String tableMeta = Config.get("db.derby.meta", "_meta")
+    String tableMeta = Config.get("db.derby.meta", "sys_meta")
     SubProtocol subProtocol = DIRECTORY
 
     // QUERY BUILDING -------------------------
@@ -61,8 +61,10 @@ class Derby extends JDBCServer implements AutoJDBC {
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.derby.params", [
-            create : create
+        if(create) {
+            params.create = create
+        }
+        return Config.get("db.derby.params", [ :
             // encryptionProvider :
             // encryptionAlgorithm :
             // logDevice :
@@ -91,6 +93,9 @@ class Derby extends JDBCServer implements AutoJDBC {
                 break
             case MEMORY:
                 sub = "memory:"
+                if(dbname.empty) {
+                    dbname = "default"
+                }
                 break
             case CLASSPATH:
             case JAR:
@@ -101,10 +106,10 @@ class Derby extends JDBCServer implements AutoJDBC {
                 }
                 break
         }
-        return "derby:" + (subProtocol == SERVER ? "//$hostname:$port/$dbname" : "${sub}$dbname") + ";" +
+        return "derby:" + (subProtocol == SERVER ? "//$hostname:$port/$dbname" : "${sub}$dbname") + (parameters.isEmpty() ? "" : ";" +
                 parameters.collect {
                     "${it.key}=${it.value}"
-                }.join(";")
+                }.join(";"))
     }
 
     @Override
@@ -112,18 +117,22 @@ class Derby extends JDBCServer implements AutoJDBC {
         return table.toUpperCase()
     }
     ////////////////////////////// AUTO ////////////////////////////////////
+    boolean exists(DB db, String tableName) {
+        return get(db, "SELECT TRUE FROM SYS.SYSTABLES WHERE TABLENAME = '${tableName.toUpperCase()}' AND TABLETYPE = 'T'").toBool()
+    }
     @Override
     void autoInit(DB db) {
-        db.set(new Query("CREATE TABLE IF NOT EXISTS `$tableMeta` (" +
-            "table_name VARCHAR(50) KEY NOT NULL PRIMARY KEY," +
-            "version INT NOT NULL DEFAULT 1" +
-            ")"))
+        if(! exists(db, tableMeta)) {
+            db.set(new Query("CREATE TABLE $tableMeta (" +
+                "table_name VARCHAR(50) PRIMARY KEY," +
+                "version INT NOT NULL DEFAULT 1" +
+                ")"))
+        }
     }
     @Override
     boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns) {
         boolean ok = false
-        boolean exists = memory ? false : get(db, "SELECT TRUE FROM SYS.SYSTABLES WHERE TABLENAME = '${tableName}' AND TABLETYPE = 'T'")
-        if(!exists) {
+        if(! exists(db, tableName)) {
             String createSQL = "CREATE TABLE ${tableName} (\n"
             List<String> defs = []
             List<String> keys = []
@@ -134,7 +143,7 @@ class Derby extends JDBCServer implements AutoJDBC {
                     if (column.annotation.columnDefinition()) {
                         parts << column.annotation.columnDefinition()
                     } else {
-                        String type = getColumnDefinition(column).replace("_pk", tableName + "_pk")
+                        String type = getColumnDefinition(column).replace("_pk", tableName + "_pk" + "_v" + version)
                         parts << type
                         // Default value
                         parts << getDefaultQuery(column)
@@ -180,20 +189,32 @@ class Derby extends JDBCServer implements AutoJDBC {
 
     @Override
     boolean turnFK(final DB db, boolean on) {
-        return set(db, String.format("PRAGMA foreign_keys = %s", on ? "ON" : "OFF"))
+        return true //Not supported: https://www.mail-archive.com/derby-user@db.apache.org/msg05345.html
     }
     @Override
     boolean copyTableDesc(final DB db, String from, String to) {
-        String qry = get(db, "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'").toString()
-        return set(db, qry.replace("CREATE TABLE ${from}", "CREATE TABLE ${to}"))
+        return set(db, "CREATE TABLE ${to} AS SELECT * FROM ${from} WITH NO DATA")
+    }
+    @Override
+    boolean copyTableData(DB db, String from, String to, List<ColumnDB> columns) {
+        boolean ok = set(db, "INSERT INTO ${to} SELECT * FROM ${from}")
+        ColumnDB ai = columns.find { it.annotation.autoincrement() }
+        if(ai) {
+            int max = get(db, "SELECT (MAX(${ai.name}) + 1) AS m FROM ${from}").toInt()
+            set(db, "ALTER TABLE ${to} ALTER COLUMN ${ai.name} RESTART WITH $max")
+        }
+        return ok
     }
     @Override
     boolean setVersion(final DB db, String dbname, String table, int version) {
-        return set(db, "REPLACE INTO $tableMeta (table_name, version) VALUES ('${table}', '${version}')")
+        return db.table(tableMeta).replace([
+            table_name : table,
+            version : version
+        ])
     }
     @Override
     int getVersion(final DB db, String dbname, String table) {
-        return get(db, "SELECT version FROM $tableMeta WHERE table_name = '${table}'").toInt()
+        return db.table(tableMeta).field("version").get(table_name : table).toInt()
     }
 
 
@@ -231,7 +252,7 @@ class Derby extends JDBCServer implements AutoJDBC {
                 int len = column.annotation.length()
                 String length = len ? "(${len})" : ""
                 List<String> extra = [type, length]
-                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "GENERATED ALWAYS AS IDENTITY" : "")
+                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "GENERATED BY DEFAULT AS IDENTITY" : "")
                 extra << (column.annotation.primary() ? "CONSTRAINT _pk PRIMARY KEY" : "")
                 type = extra.findAll {it }.join(" ")
                 break
@@ -302,5 +323,9 @@ class Derby extends JDBCServer implements AutoJDBC {
                 break
         }
         return indices
+    }
+    @Override
+    boolean renameTable(final DB db, String from, String to) {
+        return set(db, "RENAME TABLE ${from} TO ${to}")
     }
 }

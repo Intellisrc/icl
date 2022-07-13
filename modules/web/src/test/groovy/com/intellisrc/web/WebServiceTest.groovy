@@ -7,6 +7,7 @@ import com.intellisrc.etc.JSON
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
 import spock.lang.Ignore
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
 
@@ -158,7 +159,7 @@ class WebServiceTest extends Specification {
             uploadDir.eachFile { it.delete() }
     }
 
-    @Ignore("Broken") // Requires a valid certificate
+    @PendingFeature // Requires a valid certificate
     def "HTTPS"() {
         setup:
             def port = NetworkInterface.getFreePort()
@@ -195,7 +196,7 @@ class WebServiceTest extends Specification {
     }
 
     /* Comment next line to test and set "keepalive = true" in the server test */
-    @Ignore("Broken")
+    @PendingFeature
     def "WebSocket Client"() {
         setup:
         ChatClient cc = new ChatClient()
@@ -203,7 +204,7 @@ class WebServiceTest extends Specification {
     }
 
     /* Comment next line to test and set "keepalive = true" in the server test */
-    @Ignore("Broken")
+    @PendingFeature
     def "WebSocket StackOverflow Client"() {
         setup:
         StackOverflowChatClient cc = new StackOverflowChatClient()

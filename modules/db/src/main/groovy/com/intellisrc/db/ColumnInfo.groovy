@@ -25,6 +25,7 @@ class ColumnInfo {
     boolean autoIncrement = false
     boolean nullable = true
     boolean generated = false
+    boolean unique = false
 
     String toString() {
         return "$position | " +
@@ -34,6 +35,7 @@ class ColumnInfo {
             (primaryKey ? "PRI | " : "") +
             (autoIncrement ? "AUTO | " : "") +
             (nullable ? "Nullable | " : "") +
-            (generated ? "Generated | " : "")
+            (generated ? "Generated | " : "") +
+            (unique ? "Unique | " : "")
     }
 }

@@ -6,10 +6,12 @@ import com.intellisrc.db.DB
  * @since 18/06/15.
  */
 class DerbyTest extends JDBCTest {
+    File derbyLog = File.get("derby.log")
+
     String getTableCreate(String name) {
         return """CREATE TABLE $name (
                 id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-                name VARCHAR(10) NOT NULL,
+                name VARCHAR(10) NOT NULL UNIQUE,
                 version FLOAT,
                 active CHAR,
                 updated DATE
@@ -28,8 +30,15 @@ class DerbyTest extends JDBCTest {
         return new Derby(
             hostname: "localhost",
             create  : true,
-            memory  : true
+            memory  : true,
+            port    : 0 //Do not skip test
         )
+    }
+
+    def cleanup() {
+        if(derbyLog.exists()) {
+            derbyLog.delete()
+        }
     }
 
     // Issue #18

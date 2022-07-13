@@ -6,6 +6,7 @@ import com.intellisrc.db.Query
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.db.auto.Table.*
+import static com.intellisrc.db.auto.TableUpdater.*
 
 /**
  * @since 2022/07/05.
@@ -121,34 +122,29 @@ trait AutoJDBC {
         return dv
     }
     /**
-     * Turn Foreign Keys ON
+     * Copy table
+     * @param db
+     * @param info
      * @return
      */
-    boolean turnFK(final DB db, boolean on) {
-        return true
+    boolean copyTable(final DB db, Table table, String copyName) {
+        return table.createTable(copyName) // && copyTableData(db, table.name, copyName, table.columns)
     }
     /**
-     * Copy table (schema and data)
+     * Copy a table description (most of the time will not include full column definitions)
      * @param db
      * @param from
      * @param to
+     * @param columns
      * @return
      */
-    boolean copyTable(final DB db, String from, String to) {
-        return copyTableDesc(db, from, to) && copyTableData(db, from, to)
-    }
-    /**
-     * Copy table description
-     * @return
-     */
-    boolean copyTableDesc(final DB db, String from, String to) {
-        return true
-    }
+    @Deprecated // Changed for createTable with a name instead
+    boolean copyTableDesc(final DB db, String from, String to) { true }
     /**
      * Copy table data
      * @return
      */
-    boolean copyTableData(final DB db, String from, String to) {
+    boolean copyTableData(final DB db, String from, String to, List<ColumnDB> columns) {
         return set(db, "INSERT INTO $to SELECT * FROM $from")
     }
     /**
@@ -159,6 +155,13 @@ trait AutoJDBC {
      */
     boolean renameTable(final DB db, String from, String to) {
         return set(db, "ALTER TABLE ${from} RENAME TO ${to}")
+    }
+    /**
+     * Turn Foreign Keys ON
+     * @return
+     */
+    boolean turnFK(final DB db, boolean on) {
+        return true
     }
     /**
      * Add version to table
