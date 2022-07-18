@@ -5,9 +5,7 @@ import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.*
 
 import static com.intellisrc.db.Query.Action.*
 
@@ -197,6 +195,12 @@ class Query {
                     String k, Object v ->
                         if(v == null) {
                             wherePart.append(sqlName(k) + " IS NULL ")
+                        } else if(v instanceof Boolean) {
+                            if(dbType.supportsBoolean) {
+                                wherePart.append(sqlName(k) + " = " + v.toString().toUpperCase())
+                            } else {
+                                wherePart.append(sqlName(k) + " = ? ", [v.toString()])
+                            }
                         } else {
                             wherePart.append(sqlName(k) + " = ? ", [v])
                         }
