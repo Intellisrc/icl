@@ -19,6 +19,7 @@ class Firebird extends JDBCServer {
     String hostname = "localhost"
     int port = 3050
     String driver = "org.firebirdsql.jdbc.FBDriver"
+    boolean supportsBoolean = true
 
     boolean embedded = Config.get("db.firebird.embedded", false)
     boolean local = Config.get("db.firebird.local", false)

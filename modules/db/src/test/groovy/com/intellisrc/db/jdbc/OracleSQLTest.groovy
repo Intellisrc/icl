@@ -10,13 +10,14 @@ class OracleSQLTest extends JDBCTest {
 
     // Requires Oracle 12c+
     List<String> getTableCreateMulti(String name) {
+        // Oracle doesn't support ENUM nor BOOLEAN
         return [
 "CREATE SEQUENCE ${name}_seq",
 """CREATE TABLE $name (
     id NUMBER(10) DEFAULT ${name}_seq.nextval PRIMARY KEY,
     name VARCHAR2(10) NOT NULL CONSTRAINT ${name}_name_uk UNIQUE,
     version FLOAT, 
-    active CHAR, 
+    active VARCHAR(5) CHECK(active IN('true', 'false')),
     updated DATE
 )"""
         ]

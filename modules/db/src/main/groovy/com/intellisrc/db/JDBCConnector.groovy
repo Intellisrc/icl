@@ -77,6 +77,7 @@ class JDBCConnector implements Connector {
 	/**
 	 * Get columns via JDBC
 	 * @return Map [ column_name : is_primary ]
+	 * https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getColumns
 	 */
 	List<ColumnInfo> getColumns(String table) {
 		List<ColumnInfo> columns = []
@@ -103,7 +104,7 @@ class JDBCConnector implements Connector {
 					defaultValue	: rsCols.getString("COLUMN_DEF"),
 					autoIncrement	: rsCols.getString("IS_AUTOINCREMENT") == "YES",
 					generated		: rsCols.getString("IS_GENERATEDCOLUMN") == "YES",
-					unique			: false, //TODO: not available through jdbc ??
+					unique			: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
 					primaryKey		: pks.contains(colName)
 				)
 				columns << col
@@ -205,6 +206,8 @@ class JDBCConnector implements Connector {
 				Object o = values[index - 1]
 				if (o == null) {
 					st.setNull(index, NULL)
+				} else if (o instanceof Boolean) {
+					st.setBoolean(index, (Boolean) o)
 				} else if (o instanceof Float) {
 					st.setFloat(index, (Float) o)
 				} else if (o instanceof Double || o instanceof BigDecimal) {
@@ -322,6 +325,17 @@ class JDBCConnector implements Connector {
 						Log.w( "column Str failed for index: %d", index)
 						onError(ex)
 						return ""
+					}
+				}
+
+				@Override
+				boolean columnBool(int index) {
+					try {
+						return jdbc.supportsBoolean ? rs.getBoolean(index) : (rs.getString(index).trim().toLowerCase() == 'true')
+					} catch (SQLException ex) {
+						Log.w( "column Boolean failed for index: %d", index)
+						onError(ex)
+						return false
 					}
 				}
 

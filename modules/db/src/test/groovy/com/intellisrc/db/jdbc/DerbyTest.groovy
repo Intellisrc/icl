@@ -13,7 +13,7 @@ class DerbyTest extends JDBCTest {
                 id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
                 name VARCHAR(10) NOT NULL UNIQUE,
                 version FLOAT,
-                active CHAR,
+                active BOOLEAN,
                 updated DATE
         )"""
     }

@@ -127,6 +127,11 @@ class DummyConnector implements DB.Connector {
         }
 
         @Override
+        boolean columnBool(int index) {
+            return Boolean.parseBoolean(columnStr(index))
+        }
+
+        @Override
         Integer columnInt(int index) {
             return Integer.parseInt(columnStr(index))
         }

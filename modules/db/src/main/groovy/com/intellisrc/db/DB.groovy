@@ -66,6 +66,7 @@ class DB {
 		ColumnType columnType(int index)
 		String columnName(int index)
 		String columnStr(int index)
+        boolean columnBool(int index)
 		Integer columnInt(int index)
 		Double columnDbl(int index)
         Float columnFloat(int index)
@@ -721,7 +722,15 @@ class DB {
                                         ColumnType type = st?.columnType(i)
                                         switch (type) {
                                             case TEXT:
-                                                row.put(column, st.columnStr(i))
+                                                String val = st.columnStr(i).trim()
+                                                if(["true","false"].contains(val.toLowerCase())) {
+                                                    row.put(column, st.columnBool(i))
+                                                } else {
+                                                    row.put(column, st.columnStr(i))
+                                                }
+                                                break
+                                            case BOOLEAN:
+                                                row.put(column, st.columnBool(i))
                                                 break
                                             case INTEGER:
                                                 row.put(column, st.columnInt(i))

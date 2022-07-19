@@ -14,7 +14,7 @@ class PostgreSQLTest extends JDBCTest {
                 "id INTEGER PRIMARY KEY DEFAULT NEXTVAL ('${name}_seq'), " +
                 "name VARCHAR(10) NOT NULL CONSTRAINT ${name}_name_uk UNIQUE, " +
                 "version FLOAT, " +
-                "active CHAR, " + // ENUM is possible, using CREATE TYPE mybool ('N','Y'), but it will make tests more complicated
+                "active BOOLEAN, " +
                 "updated DATE" +
             ")"
         ]

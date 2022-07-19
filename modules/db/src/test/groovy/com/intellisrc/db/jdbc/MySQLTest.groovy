@@ -6,11 +6,12 @@ package com.intellisrc.db.jdbc
 class MySQLTest extends JDBCTest {
 
     String getTableCreate(String name) {
+        //NOTE: in ENUM, 'false' is first to represent 0 ordinal (used for sorting)
         return """CREATE TABLE `$name` (
                 `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
                 `name` VARCHAR(10) NOT NULL UNIQUE,
                 `version` FLOAT,
-                `active` ENUM('N','Y'),
+                `active` ENUM('false','true'),
                 `updated` DATE
         )"""
     }

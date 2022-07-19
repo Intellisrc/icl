@@ -47,6 +47,7 @@ class PostgreSQL extends JDBCServer {
     // Query parameters
     boolean useFetch = false
     boolean supportsReplace = false
+    boolean supportsBoolean = true
     /**
      * Fallback for last ID
      * @param table

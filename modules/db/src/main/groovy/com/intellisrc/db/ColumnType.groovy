@@ -10,7 +10,7 @@ import java.sql.Types
  */
 @CompileStatic
 enum ColumnType {
-    TEXT, INTEGER, FLOAT, DOUBLE, BLOB, DATE, NULL
+    TEXT, BOOLEAN, INTEGER, FLOAT, DOUBLE, BLOB, DATE, NULL
 
     /**
      * Converts Java SQL int to ColumnType:
@@ -32,6 +32,7 @@ enum ColumnType {
                 return TEXT
             case Types.BIT:
             case Types.BOOLEAN:
+                return BOOLEAN
             case Types.TINYINT:
             case Types.SMALLINT:
             case Types.INTEGER:

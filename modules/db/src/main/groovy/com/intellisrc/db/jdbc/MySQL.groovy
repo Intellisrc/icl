@@ -76,6 +76,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
     // QUERY BUILDING -------------------------
     // Query parameters
     String fieldsQuotation = '`'
+    String tablesQuotation = '`'
     boolean useFetch = false
 
     /**

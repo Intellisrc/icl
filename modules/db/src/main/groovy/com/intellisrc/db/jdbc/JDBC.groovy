@@ -108,8 +108,10 @@ abstract class JDBC {
      * Properties:
      * Override if its different
      */
-    // Some databases require fields and tables to be quoted, for example, MySQL uses "`"
+    // Some databases require fields to be quoted, for example, MySQL uses "`"
     String getFieldsQuotation() { return "" }
+    // Some databases require tables to be quoted, for example, MySQL uses "`"
+    String getTablesQuotation() { return "" }
     // Some databases (like SQLite) does not support DATE type. Turn this off.
     boolean getSupportsDate() { return true }
     // Some databases (like Oracle) stores tables and fields in UpperCase, with this, all all converted into lower:
@@ -118,6 +120,8 @@ abstract class JDBC {
     boolean getUseFetch() { return true }
     // If Database supports native boolean
     boolean getSupportsBoolean() { return false }
+    // Syntax to specify column is null
+    String getIsNullQuery() { return  "IS NULL" }
     // When true, it will use "replace" query, otherwise will try to update first and if it fails, will insert
     // FIXME: The best performance and thread-safe way is to implement MERGE/ON CONFLICT, however
     //        it is more complicated to implement.

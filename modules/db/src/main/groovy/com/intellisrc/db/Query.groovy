@@ -170,7 +170,7 @@ class Query {
         switch (where) {
             case null:
                 if(key) {
-                    wherePart.append(sqlName(key) + " IS NULL")
+                    wherePart.append(fieldName(key) + " " + dbType.isNullQuery)
                 }
                 break
             case String:
@@ -179,13 +179,13 @@ class Query {
                     return setWhere(where.toString(), params)
                 }
                 if(key) {
-                    wherePart.append(sqlName(key) + " = ? ", [where])
+                    wherePart.append(fieldName(key) + " = ? ", [where])
                 }
                 break
             case Collection:
                 if(key) {
                     String marks = where.collect {'?'}.join(",")
-                    wherePart.append(sqlName(key) + " IN (" + marks + ")", (where as List))
+                    wherePart.append(fieldName(key) + " IN (" + marks + ")", (where as List))
                 } else {
                     Log.w("Where for key: %s already existed.", key)
                 }
@@ -194,15 +194,15 @@ class Query {
                 (where as Map<String, Object>).each {
                     String k, Object v ->
                         if(v == null) {
-                            wherePart.append(sqlName(k) + " IS NULL ")
+                            wherePart.append(fieldName(k) + " " + dbType.isNullQuery)
                         } else if(v instanceof Boolean) {
                             if(dbType.supportsBoolean) {
-                                wherePart.append(sqlName(k) + " = " + v.toString().toUpperCase())
+                                wherePart.append(fieldName(k) + " = " + v.toString().toUpperCase())
                             } else {
-                                wherePart.append(sqlName(k) + " = ? ", [v.toString()])
+                                wherePart.append(fieldName(k) + " = ? ", [v.toString()])
                             }
                         } else {
-                            wherePart.append(sqlName(k) + " = ? ", [v])
+                            wherePart.append(fieldName(k) + " = ? ", [v])
                         }
                 }
                 break
@@ -219,7 +219,7 @@ class Query {
                 }
             default:
                 if(key) {
-                    wherePart.append(sqlName(key) + " = ? ", [where])
+                    wherePart.append(fieldName(key) + " = ? ", [where])
                 }
                 break
         }
@@ -256,14 +256,27 @@ class Query {
         return this
     }
     */
-
+    /**
+     * Get the fields part for an INSERT statement
+     * @return
+     */
     protected Part getInsertFieldsPart() {
-        String inspre = whereValues.collect { sqlName(it.key) }.join(",")
+        String inspre = whereValues.collect { fieldName(it.key) }.join(",")
         return new Part().append("(" + inspre + ")")
     }
+    /**
+     * Identifies if value is boolean
+     * @param value
+     * @return
+     */
     protected boolean isBoolean(Object value) {
         return dbType.supportsBoolean && ["true","false"].contains(value.toString().toLowerCase())
     }
+    /**
+     * Prepare '?' characters for values
+     * @param value
+     * @return
+     */
     protected String getPlaceHolder(Object value) {
         String ph = "?"
         switch (true) {
@@ -283,14 +296,17 @@ class Query {
         })
     }
     protected Part getUpdatePart() {
-        String updstr = whereValues.collect { sqlName(it.key) + " = " + getPlaceHolder(it.value) }.join(",")
+        String updstr = whereValues.collect { fieldName(it.key) + " = " + getPlaceHolder(it.value) }.join(",")
         return new Part().append(updstr, whereValues.values().toList().findAll {
             it != null &&! isBoolean(it)
         })
     }
 
     Query setValues(final Map<String,Object> values) {
-        whereValues = values
+        whereValues = values.collectEntries {
+            Object val = (it.value instanceof Boolean &&! dbType.supportsBoolean) ? it.value.toString() : it.value
+            return [(it.key) : val ]
+        }
         return this
     }
 
@@ -306,13 +322,13 @@ class Query {
 
     Query setOrder(final Map<String,SortOrder> orderPair) {
         sort = orderPair.collectEntries {
-            [(sqlName(it.key)) : it.value]
+            [(fieldName(it.key)): it.value]
         } as Map<String, SortOrder>
         return this
     }
 
     Query setOrder(final String column,final  SortOrder order) {
-        sort[sqlName(column)] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
+        sort[fieldName(column)] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
         return this
     }
 
@@ -341,7 +357,7 @@ class Query {
             fieldstr = "*"
         } else {
             fieldList.each {
-                fieldstr += (fieldstr.isEmpty() ? "" : ',') + sqlName(it)
+                fieldstr += (fieldstr.isEmpty() ? "" : ',') + fieldName(it)
             }
         }
         return fieldType.getSQL(fieldstr)
@@ -353,7 +369,7 @@ class Query {
         return wherePart.empty ? "" : "WHERE " + wherePart.toString()
     }
     String getGroupBy() {
-        return groupByStr.empty ? "" : "GROUP BY "+sqlName(groupByStr)
+        return groupByStr.empty ? "" : "GROUP BY "+fieldName(groupByStr)
     }
 
     List<Object> getArgs() {
@@ -427,15 +443,15 @@ class Query {
      * @return
      */
     private String tableName(final String str) {
-        return sqlName(str)
+        return fieldName(str, true)
     }
 
     /**
      * Returns column or table name clean and with ``
      */
-    private String sqlName(final String str) {
+    private String fieldName(final String str, boolean tableName = false) {
         String result = str.toLowerCase().replaceAll("/[^a-z0-9._]/", "")
-        String ch = dbType.fieldsQuotation
+        String ch = tableName ? dbType.tablesQuotation : dbType.fieldsQuotation
         return ch + result + ch
     }
 	/**
