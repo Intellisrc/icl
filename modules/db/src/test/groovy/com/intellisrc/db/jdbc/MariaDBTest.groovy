@@ -16,6 +16,15 @@ class MariaDBTest extends JDBCTest {
         );"""
     }
 
+    String getTableCreateMultiplePK(String name) {
+        return """CREATE TABLE `${name}` (
+                  `uid` SMALLINT NOT NULL,
+                  `gid` SMALLINT NOT NULL,
+                  `name` VARCHAR(30) NOT NULL,
+                  PRIMARY KEY (`gid`,`uid`)
+        )"""
+    }
+
     /**
      * Launch example:
      * docker run --name mariadb -e MARIADB_ROOT_PASSWORD=rootpassword -e MARIADB_DATABASE=test -e MARIADB_USER=test -e MARIADB_PASSWORD=test -p 127.0.0.1:33007:3306 -d mariadb

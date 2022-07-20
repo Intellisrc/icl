@@ -15,6 +15,15 @@ class SQLServerTest extends JDBCTest {
         )"""
     }
 
+    String getTableCreateMultiplePK(String name) {
+        return """CREATE TABLE ${name} (
+                  uid INT NOT NULL,
+                  gid INT NOT NULL,
+                  name VARCHAR(30) NOT NULL,
+                  PRIMARY KEY (gid,uid)
+        )"""
+    }
+
     /**
      * Launch test:
      * NOTE: requires strong password

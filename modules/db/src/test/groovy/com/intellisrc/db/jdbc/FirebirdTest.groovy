@@ -15,6 +15,15 @@ class FirebirdTest extends JDBCTest {
         );"""
     }
 
+    String getTableCreateMultiplePK(String name) {
+        return """CREATE TABLE ${name} (
+                  uid INTEGER NOT NULL,
+                  gid INTEGER NOT NULL,
+                  name VARCHAR(30) NOT NULL,
+                  PRIMARY KEY (gid,uid)
+        )"""
+    }
+
     /**
      * Launch test:
      * docker run --name firebird -e ISC_PASSWORD=test -e FIREBIRD_DATABASE=test -e FIREBIRD_USER=test -e FIREBIRD_PASSWORD=test -p 127.0.0.1:33050:3050 -d jacobalberty/firebird:3.0

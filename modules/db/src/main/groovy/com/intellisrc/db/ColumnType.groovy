@@ -60,6 +60,11 @@ enum ColumnType {
                 return NULL
             case Types.JAVA_OBJECT:
                 return TEXT
+            //Postgresql report these types on system tables:
+            case Types.DISTINCT:
+            case Types.ARRAY:
+            case Types.OTHER:
+                return NULL // We ignore them
             default:
                 Log.w("Data type not supported: %d", type)
                 return NULL

@@ -45,25 +45,29 @@ class Oracle extends JDBCServer {
     // QUERY BUILDING -------------------------
     // Query parameters
     boolean supportsReplace = false
+    String fieldsQuotation = '"'
     String catalogSearchName = "%"
     @Override
     String getSchemaSearchName() {
         return user.toUpperCase()
     }
+    String getTableSearchName(String table) {
+        return table.toUpperCase()
+    }
 
-    /**
+    /*
      * Must return:
      *      position, column, type, length, default, notnull, primary
      *
-     * FIXME: JDBC is unable to get this information
+     * JDBC is unable to get this information
      *
-     * FIXME: 'default':
-     *      at.data_default AS "default",
-     *      is causing connection to crash for some reason
+     * NOTE: We did not include constraint_type 'C' (NOT NULL) as they are not needed here.
+     * NOTE: Returning at.data_default won't work as it is LONG inside Oracle and its really
+     *       complicated to get that from the DB.
      *
      * @param table
      * @return
-     */
+     *
     @Override
     String getInfoQuery(String table) {
         return """
@@ -71,13 +75,13 @@ class Oracle extends JDBCServer {
                 at.column_id AS "position",
                 LOWER(at.column_name) as "column",
                 LOWER(at.data_type) as "type",
+                '' as "default",
             CASE at.nullable
                 WHEN 'N' THEN 0
                 WHEN 'Y' THEN 1
             END AS "nullable",
             CASE
-                WHEN LOWER(cc.GENERATED) = 'generated name' 
-                 AND cc.constraint_type = 'P' THEN 1
+                WHEN cc.constraint_type = 'P' THEN 1
                 ELSE 0
             END AS "autoinc",
             CASE
@@ -95,8 +99,8 @@ class Oracle extends JDBCServer {
                 AND at.column_name = ac.column_name)
             LEFT JOIN all_constraints cc 
               ON (ac.constraint_name = cc.constraint_name)    
-            WHERE LOWER(at.table_name) = LOWER('${table}')"""
-    }
+            WHERE cc.constraint_type != 'C' AND LOWER(at.table_name) = LOWER('${table}')"""
+    }*/
 
     /**
      * FIXME: JDBC is unable to get last ID (returning some sequence string id instead, like: 'AAATPDAAHAAAALDAAB')

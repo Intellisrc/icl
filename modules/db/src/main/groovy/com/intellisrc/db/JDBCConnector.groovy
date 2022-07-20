@@ -102,7 +102,7 @@ class JDBCConnector implements Connector {
 					decimalDigits	: rsCols.getInt("DECIMAL_DIGITS"),
 					nullable		: rsCols.getString("IS_NULLABLE") == "YES",
 					defaultValue	: rsCols.getString("COLUMN_DEF"),
-					autoIncrement	: rsCols.getString("IS_AUTOINCREMENT") == "YES",
+					autoIncrement	: rsCols.getString("IS_AUTOINCREMENT") == "YES" || (rsCols.getString("COLUMN_DEF") ?: "").contains("NEXTVAL"), // For Oracle
 					generated		: rsCols.getString("IS_GENERATEDCOLUMN") == "YES",
 					unique			: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
 					primaryKey		: pks.contains(colName)

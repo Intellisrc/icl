@@ -165,12 +165,14 @@ class Query {
     }
 
     Query setWhere(Object where) {
-        String key = getKey() //For the moment no multiple keys allowed
+        List<String> keys = getKeys()
         //noinspection GroovyFallthrough
         switch (where) {
             case null:
-                if(key) {
+                if(keys.size() == 1) {
                     wherePart.append(fieldName(key) + " " + dbType.isNullQuery)
+                } else {
+                    Log.w("Multiple columns were defined as Primary Key but a single value was passed (null). Query may fail.")
                 }
                 break
             case String:
@@ -178,16 +180,37 @@ class Query {
                     def params = []
                     return setWhere(where.toString(), params)
                 }
-                if(key) {
+                if(keys.size() == 1) {
                     wherePart.append(fieldName(key) + " = ? ", [where])
+                } else {
+                    Log.w("Multiple columns were defined as Primary Key but a single value was passed (%s). Query may fail.", where.toString())
                 }
                 break
             case Collection:
-                if(key) {
-                    String marks = where.collect {'?'}.join(",")
-                    wherePart.append(fieldName(key) + " IN (" + marks + ")", (where as List))
+                if(! keys.empty) {
+                    if(keys.size() == 1) {
+                        if((where as List).size() == 1) {
+                            wherePart.append(fieldName(key) + " = ?", (where as List))
+                        } else {
+                            String marks = where.collect { '?' }.join(",")
+                            wherePart.append(fieldName(key) + " IN (" + marks + ")", (where as List))
+                        }
+                    } else {
+                        if((where as List).empty) {
+                            Log.w("Values used as parameter were not found for key(s): %s in table %s", keys.join(","), table)
+                        }  else {
+                            if((where as List).first() instanceof Collection) {
+                                wherePart.append(
+                                    where.collect { "(" + keys.collect { fieldName(it) + " = ? " }.join(" AND ") + ")" }.join(" OR "),
+                                    (where as List).flatten() as List
+                                )
+                            } else {
+                                wherePart.append(keys.collect { fieldName(it) + " = ? " }.join(" AND "), (where as List))
+                            }
+                        }
+                    }
                 } else {
-                    Log.w("Where for key: %s already existed.", key)
+                    Log.w("Primary key was not set for table: %s", table)
                 }
                 break
             case Map:
@@ -218,8 +241,10 @@ class Query {
                     }
                 }
             default:
-                if(key) {
-                    wherePart.append(fieldName(key) + " = ? ", [where])
+                if(keys.empty) {
+                    Log.w("Primary key was not set for table: %s", table)
+                } else {
+                    wherePart.append(keys.collect { fieldName(it) + " = ? " }.join(" AND "), where instanceof Collection ? (where as List) : [where])
                 }
                 break
         }
@@ -349,7 +374,7 @@ class Query {
     }
     // Returns the first specified key
     String getKey() {
-        return getKeys().empty ? null : getKeys().get(0)
+        return getKeys()?.first()
     }
     String getFields() {
         String fieldstr = ""

@@ -14,15 +14,25 @@ class OracleSQLTest extends JDBCTest {
         return [
 "CREATE SEQUENCE ${name}_seq",
 """CREATE TABLE $name (
-    id NUMBER(10) DEFAULT ${name}_seq.nextval PRIMARY KEY,
-    name VARCHAR2(10) NOT NULL CONSTRAINT ${name}_name_uk UNIQUE,
-    version FLOAT, 
-    active VARCHAR(5) CHECK(active IN('true', 'false')),
-    updated DATE
+    "id" NUMBER(10) DEFAULT ${name}_seq.nextval PRIMARY KEY,
+    "name" VARCHAR2(10) NOT NULL UNIQUE,
+    "version" FLOAT, 
+    "active" VARCHAR(5) CHECK("active" IN('true', 'false')),
+    "updated" DATE
 )"""
         ]
         // Can also be used, but sequence table name is random:
         //return "CREATE TABLE $name (id NUMBER(10) generated as identity, name VARCHAR2(10) NOT NULL)"
+    }
+
+    String getTableCreateMultiplePK(String name) {
+        // 'uid' is a reserved word in Oracle. it should be quoted
+        return """CREATE TABLE ${name} (
+          "uid" INT NOT NULL,
+          "gid" INT NOT NULL,
+          "name" VARCHAR(30) NOT NULL,
+          PRIMARY KEY ("uid","gid")
+        )"""
     }
 
     @Override

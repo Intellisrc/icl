@@ -1,5 +1,9 @@
 package com.intellisrc.db.jdbc
 
+import com.intellisrc.db.DB
+import com.intellisrc.term.TableMaker
+import spock.lang.IgnoreIf
+
 /**
  * @since 18/06/15.
  */
@@ -13,6 +17,15 @@ class MySQLTest extends JDBCTest {
                 `version` FLOAT,
                 `active` ENUM('false','true'),
                 `updated` DATE
+        )"""
+    }
+
+    String getTableCreateMultiplePK(String name) {
+        return """CREATE TABLE `${name}` (
+                  `uid` SMALLINT NOT NULL,
+                  `gid` SMALLINT NOT NULL,
+                  `name` VARCHAR(30) NOT NULL,
+                  PRIMARY KEY (`gid`,`uid`)
         )"""
     }
 

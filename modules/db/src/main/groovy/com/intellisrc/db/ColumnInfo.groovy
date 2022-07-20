@@ -38,4 +38,20 @@ class ColumnInfo {
             (generated ? "Generated | " : "") +
             (unique ? "Unique | " : "")
     }
+
+    Map toMap() {
+        return [
+            position    : position,
+            name        : name,
+            type        : type.toString(),
+            length      : length ?: charLength ?: bufferLength,
+            digits      : decimalDigits,
+            default     : defaultValue,
+            primary     : primaryKey,
+            autoIncrement : autoIncrement,
+            nullable    : nullable,
+            generated   : generated,
+            unique      : unique
+        ]
+    }
 }

@@ -15,6 +15,15 @@ class SQLiteTest extends JDBCTest {
         );"""
     }
 
+    String getTableCreateMultiplePK(String name) {
+        return """CREATE TABLE `${name}` (
+                  `uid` SMALLINT NOT NULL,
+                  `gid` SMALLINT NOT NULL,
+                  `name` VARCHAR(30) NOT NULL,
+                  PRIMARY KEY (`gid`,`uid`)
+        )"""
+    }
+
     @Override
     JDBC getDB() {
         return new SQLite(

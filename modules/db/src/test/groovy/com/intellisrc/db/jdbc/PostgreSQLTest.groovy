@@ -20,6 +20,15 @@ class PostgreSQLTest extends JDBCTest {
         ]
     }
 
+    String getTableCreateMultiplePK(String name) {
+        return """CREATE TABLE ${name} (
+                  uid INTEGER NOT NULL,
+                  gid INTEGER NOT NULL,
+                  name VARCHAR(30) NOT NULL,
+                  PRIMARY KEY (gid,uid)
+        )"""
+    }
+
     @Override
     void clean(DB db, String table) {
         if(db) {

@@ -18,6 +18,15 @@ class DerbyTest extends JDBCTest {
         )"""
     }
 
+    String getTableCreateMultiplePK(String name) {
+        return """CREATE TABLE ${name} (
+                  uid INT NOT NULL,
+                  gid INT NOT NULL,
+                  name VARCHAR(30) NOT NULL,
+                  PRIMARY KEY (gid,uid)
+        )"""
+    }
+
     /**
      * Launch test:
      * (Nothing is needed as it will run in memory).

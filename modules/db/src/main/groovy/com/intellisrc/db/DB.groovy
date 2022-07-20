@@ -30,7 +30,7 @@ class DB {
     protected int last_id = 0
     protected Query queryBuilder = null
 	//Setter / Getters
-	Map<String, List<String>> priKeys = [:]
+	Map<String, List<ColumnInfo>> colsInfo = [:]
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
@@ -206,6 +206,7 @@ class DB {
 	 * @return 
      **/
     boolean insert(Map insvals) {
+        autoSetKeys()
         query.setAction(INSERT).setValues(insvals)
         return execSet()
     }
@@ -225,7 +226,7 @@ class DB {
 		return ok
     }
     /**
-     * Upsert row using key => values
+     * Upsert row using key => values (like insert)
      * @param vals
      * @param id
      * @return
@@ -236,7 +237,7 @@ class DB {
         return execSet()
     }
     /**
-     * Upsert data using List<Map>
+     * Upsert data using List<Map> (like insert)
      * @param repvals
      * @return
      **/
@@ -244,6 +245,52 @@ class DB {
         return repvals.every {
             replace(it)
         }
+    }
+    /**
+     * Upsert data using ID (like update)
+     * @param vals
+     * @param id
+     * @return
+     */
+    boolean replace(Map vals, Object id) {
+        return replace(vals, [id])
+    }
+    /**
+     * Upsert data using a list of ids (like update)
+     * @param vals
+     * @param ids
+     * @return
+     */
+    boolean replace(Map vals, List ids) {
+        Map keyvals
+        List pks = getPKs(table)
+        if(pks.size() == 1) { // Single pk, single id
+            if(ids.size() == 1) {
+                keyvals = [(pks.first()) : ids.first()]
+            } else { // Handle multiple ids in single pk
+                boolean ok = ids.any {
+                    replace(vals, [it])
+                }
+                return ok
+            }
+        } else if(ids.size() == ids.size()) { // Multiple ids matching pk columns
+            keyvals = pks.withIndex().collectEntries { [(it.v1): ids[it.v2]] }
+        } else { // Invalid case
+            Log.w("Incorrect number of keys passed to REPLACE for table: %s", table)
+            return false
+        }
+        return replace(vals, keyvals)
+    }
+    /**
+     * Upsert data using Map (like update)
+     * @param vals
+     * @param keyvals
+     * @return
+     */
+    boolean replace(Map vals, Map keyvals) {
+        autoSetKeys()
+        query.setAction(REPLACE).setValues((vals + keyvals) as Map)
+        return execSet()
     }
     /**
      * Delete a single ID
@@ -272,7 +319,8 @@ class DB {
     }
 
     /**
-     * Performs a data deletion using an array of ids
+     * Performs a data deletion using an array of ids.
+     * The list can be the PK ids in multiple-key tables
      * @param ids
      * @return true on success
      */
@@ -399,20 +447,27 @@ class DB {
 	 * @return  **/
     List<ColumnInfo> info() {
         List<ColumnInfo> columns
-        String infoSQL = jdbc.getInfoQuery(table)
-        if(infoSQL) {
-            columns = getSQL(infoSQL).toListMap().collect {
-                new ColumnInfo(
-                    position: (it.position ?: 0) as int,
-                    name: it.column?.toString() ?: "",
-                    nullable: ((it.nullable ?: 0) as int) == 1,
-                    unique: ((it.unique ?: 0) as int) == 1,
-                    primaryKey: ((it.primary ?: 0) as int) == 1,
-                    autoIncrement: ((it.autoinc ?: 0) as int) == 1
-                )
-            }
+        if(colsInfo.containsKey(table)) {
+            columns = colsInfo.get(table)
         } else {
-            columns = dbConnector.getColumns(table)
+            String infoSQL = jdbc.getInfoQuery(table)
+            if (infoSQL) {
+                columns = getSQL(infoSQL).toListMap().collect {
+                    new ColumnInfo(
+                        position: (it.position ?: 0) as int,
+                        name: it.column?.toString() ?: "",
+                        nullable: ((it.nullable ?: 0) as int) == 1,
+                        unique: ((it.unique ?: 0) as int) == 1,
+                        primaryKey: ((it.primary ?: 0) as int) == 1,
+                        autoIncrement: ((it.autoinc ?: 0) as int) == 1
+                    )
+                }
+            } else {
+                columns = dbConnector.getColumns(table)
+            }
+            if(!columns.empty) {
+                colsInfo[table] = columns
+            }
         }
         return columns
     }
@@ -567,9 +622,6 @@ class DB {
     DB keys(List<String> keys) {
         if(!keys.empty) {
             query.setKeys(keys)
-        }
-        if(keys.size() > 1) {
-            Log.w("Multiple keys is not yet supported, use a single key.")
         }
         return this
     }
@@ -789,12 +841,18 @@ class DB {
                     Log.v(" --> " + it)
                 }
                 if (query.actionType == REPLACE && !jdbc.supportsReplace) {
-                    if (query.key) {
+                    if (! query.keys.empty) {
+                        List keys = query.keys
                         replaceData = query.whereValues
-                        Map allBut = replaceData.findAll { it.key != query.key }
-                        Object id = replaceData.get(query.key)
+                        Map allBut = replaceData.findAll {
+                            ! info(it.key).primaryKey
+                        }
+                        Object id = replaceData.findAll { info(it.key).primaryKey }?.collect { it.value }
                         queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
-                            .setKeys(query.keys).setValues(allBut).setWhere(id)
+                        if(id) {
+                            queryBuilder.setKeys(keys).setWhere(id)
+                        }
+                        queryBuilder.setValues(allBut)
                         queryBuilder.isSetQuery = true
                         Log.v("SET ::: " + queryBuilder.toString())
                         queryBuilder.args.each {
@@ -813,7 +871,7 @@ class DB {
                     boolean upsert = ! replaceData.isEmpty()
                     boolean silent = upsert
                     st = dbConnector.prepare(query, silent)
-                    if (upsert && st.updatedCount() == 0) {
+                    if (upsert && st && st.updatedCount() == 0) {
                         try {
                             // Copy query:
                             Query insert = Query.copyOf(query, INSERT)
@@ -842,7 +900,8 @@ class DB {
                 if (st != null) {
                     try {
                         st.next()
-                        if (query.isIdentityUpdate) {
+                        List<String> pks = getPKs()
+                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first()).autoIncrement) {
                             String id = st.columnStr(1)
                             if (id && id.isNumber()) {
                                 last_id = st.columnInt(1)
@@ -886,34 +945,19 @@ class DB {
      */
     void autoSetKeys() {
         if(query.keyList.empty) {
-            searchPriKeys()
-            if(priKeys.containsKey(table)) {
-                keys(priKeys[table])
+            if(! getPKs(table).empty) {
+                keys(getPKs(table))
             }
         }
     }
     /**
-     * Search and set PKs for tables in the database
+     * Get Primary key(s) from table
+     * @param table
+     * @return
      */
-    void searchPriKeys() {
-        boolean ok = false
-        if(openIfClosed()) {
-            if (!priKeys.containsKey(table)) {
-                List<ColumnInfo> info = info()
-                List<ColumnInfo> pks = info.findAll {
-                    it.primaryKey
-                }
-                if(!pks.empty) {
-                    priKeys.put(table, pks.collect { it.name })
-                }
-            } else {
-                ok = true
-            }
-            if (ok) {
-                query.setKeys(priKeys.get(table))
-            }
-        }
+    List<String> getPKs(String tbl = table) {
+        info()
+        return colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: []
     }
-
 }
 

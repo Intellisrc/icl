@@ -3,7 +3,7 @@ dependencies {
     api "org.reflections:reflections:0.10.2"
 
     def sqlserver = '10.2.1.jre11'
-    def oracle = '21.5.0.0'
+    def oracle = '21.6.0.0'
     def mysql = '8.0.29'
     def mariadb = '3.0.5'
     def derby= '10.15.2.0'
@@ -25,6 +25,7 @@ dependencies {
 
     // NOTE: it seems repetitive, but it was done like that, so IntelliJ can identify dependencies versions.
     testImplementation project(':net')
+    testImplementation project(':term')
     testImplementation "com.microsoft.sqlserver:mssql-jdbc:${sqlserver}"
     testImplementation "com.oracle.database.jdbc:ojdbc11:${oracle}"
     testImplementation "mysql:mysql-connector-java:${mysql}"
