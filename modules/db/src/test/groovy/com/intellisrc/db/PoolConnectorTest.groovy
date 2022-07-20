@@ -1,7 +1,6 @@
 package com.intellisrc.db
 
-import com.intellisrc.db.jdbc.Dummy
-import com.intellisrc.db.jdbc.SQLite
+import com.intellisrc.db.jdbc.Derby
 import spock.lang.Specification
 
 /**
@@ -10,7 +9,7 @@ import spock.lang.Specification
 class PoolConnectorTest extends Specification {
     def "Testing return-to-pool"() {
         setup:
-            Database database = new Database(new Dummy())
+            Database database = new Database(new Derby(memory: true))
         when:
             List<DB> dbArr = []
             (1..10).each {
@@ -57,7 +56,7 @@ class PoolConnectorTest extends Specification {
     }
     def "Testing disable Pool"() {
         setup:
-            Database database = new Database(new Dummy())
+            Database database = new Database(new Derby(memory: true))
         when:
             DB db = database.connect()
             db.openIfClosed()
