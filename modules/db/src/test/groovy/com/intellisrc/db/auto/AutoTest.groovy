@@ -23,9 +23,9 @@ class AutoTest extends Specification {
     static File derbyTmp = File.get(File.tempDir, "derby.db")
     static Map<Object, Boolean> dbTest = [
         (Derby)     : true,
-        (SQLite)    : false,
-        (MariaDB)   : false,
-        (MySQL)     : false,
+        (SQLite)    : true,
+        (MariaDB)   : true,
+        (MySQL)     : true,
         (Firebird)  : false,
         (Oracle)    : false,
         (SQLServer) : false,
@@ -154,7 +154,7 @@ class AutoTest extends Specification {
             sqliteTmp.delete()
         }
         if(derbyTmp.exists()) {
-            derbyTmp.delete()
+            derbyTmp.deleteDir()
         }
         File derbyLog = File.get("derby.log")
         if(derbyLog.exists()) {

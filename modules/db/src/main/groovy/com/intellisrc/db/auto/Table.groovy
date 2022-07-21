@@ -104,7 +104,7 @@ class Table<M extends Model> implements Instanciable<M> {
                             }
                         }
                     } else {
-                        if(!createTable()) {
+                        if(!createTable(conn)) {
                             Log.w("Table [%s] was not created.", tableName)
                         }
                     }
@@ -133,10 +133,10 @@ class Table<M extends Model> implements Instanciable<M> {
      * Create the database table based on @Column and @TableMeta
      * @param copyName : if set, will create a table with another name (as copy)
      */
-    boolean createTable(String copyName = "") {
+    boolean createTable(DB db, String copyName = "") {
         boolean ok = false
         String tableNameToCreate = copyName ?: tableName
-        if (!connect().tables.contains(tableNameToCreate)) {
+        if (!db.tables.contains(tableNameToCreate)) {
             String charset = "utf8"
             String engine = ""
             if (this.class.isAnnotationPresent(TableMeta)) {
@@ -149,7 +149,6 @@ class Table<M extends Model> implements Instanciable<M> {
             AutoJDBC auto = jdbc as AutoJDBC
             ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns)
         }
-        close()
         return ok
     }
 

@@ -83,13 +83,18 @@ class DB {
 	 * Reconnect in case it is not connected
 	 */
 	boolean openIfClosed() {
-        boolean isopen = false
-        if(!returned) {
-            isopen = opened
-            if(!isopen) {
-                Log.v( "Connecting...")
-                isopen = dbConnector.open()
+        boolean isopen = opened
+        if(!isopen) {
+            if(returned) {
+                /*
+                 * If you use a connection after calling close(), it can lead to a sudden disconnection
+                 * on timeout (from pool).
+                 * To prevent that you will need to call connect() again.
+                 */
+                Log.w("Connection was previously returned (using db.close()). It might get disconnected unexpectedly.")
             }
+            Log.v( "Connecting...")
+            isopen = dbConnector.open()
         }
         return isopen
 	}
@@ -350,6 +355,7 @@ class DB {
      * @return true on success
      */
     boolean delete(Map keyvals) {
+        autoSetKeys()
         query.setAction(DELETE).setWhere(keyvals)
         return execSet()
     }

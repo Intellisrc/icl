@@ -128,7 +128,7 @@ trait AutoJDBC {
      * @return
      */
     boolean copyTable(final DB db, Table table, String copyName) {
-        return table.createTable(copyName) // && copyTableData(db, table.name, copyName, table.columns)
+        return table.createTable(db, copyName) // && copyTableData(db, table.name, copyName, table.columns)
     }
     /**
      * Copy a table description (most of the time will not include full column definitions)
