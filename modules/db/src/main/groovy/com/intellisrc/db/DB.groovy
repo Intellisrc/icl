@@ -29,6 +29,8 @@ class DB {
     protected String table = ""
     protected int last_id = 0
     protected Query queryBuilder = null
+    // Flag to mark connections which were returned already
+    protected boolean returned = false
 	//Setter / Getters
 	Map<String, List<ColumnInfo>> colsInfo = [:]
 
@@ -81,11 +83,14 @@ class DB {
 	 * Reconnect in case it is not connected
 	 */
 	boolean openIfClosed() {
-        boolean isopen = opened
-		if(!isopen) {
-			Log.v( "Connecting...")
-            isopen = dbConnector.open()
-		}
+        boolean isopen = false
+        if(!returned) {
+            isopen = opened
+            if(!isopen) {
+                Log.v( "Connecting...")
+                isopen = dbConnector.open()
+            }
+        }
         return isopen
 	}
 
@@ -482,6 +487,7 @@ class DB {
     /** Quit **/
     boolean close() {
 		Log.v( "Closing connection...")
+        returned = true
     	return dbConnector.close()
     }
     /**
@@ -489,14 +495,14 @@ class DB {
      * @return
      */
     boolean isClosed() {
-        return ! dbConnector.isOpen()
+        return returned || !dbConnector.isOpen()
     }
     /**
      * Return true if connection is opened
      * @return
      */
     boolean isOpened() {
-        return dbConnector.isOpen()
+        return ! returned && dbConnector.isOpen()
     }
 
     Data get(Query q) {
@@ -813,6 +819,8 @@ class DB {
                         dbConnector.onError(e)
                     }
                     return new Data(rows)
+                } else if(returned) {
+                    Log.w("Connection was closed (returned to the pool). Unable to execute query: %s", query.queryStr)
                 } else {
                     Log.e("Unable to read from server")
                     dbConnector.onError(new ConnectException())
@@ -932,6 +940,8 @@ class DB {
                     st.close()
                 }
                 queryBuilder = null
+            } else if(returned) {
+                Log.w("Connection was closed (returned to the pool). Unable to execute query: %s", query.queryStr)
             } else {
                 Log.e("No changes done: database is not open")
                 dbConnector.onError(new ConnectException())

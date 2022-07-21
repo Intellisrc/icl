@@ -4,21 +4,12 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
-import com.intellisrc.db.annot.Column
-import com.intellisrc.db.annot.DeleteActions
-import com.intellisrc.db.annot.ModelMeta
-import com.intellisrc.db.jdbc.Derby
-import com.intellisrc.db.jdbc.Firebird
-import com.intellisrc.db.jdbc.JDBC
-import com.intellisrc.db.jdbc.JDBCServer
-import com.intellisrc.db.jdbc.MariaDB
-import com.intellisrc.db.jdbc.MySQL
-import com.intellisrc.db.jdbc.Oracle
-import com.intellisrc.db.jdbc.PostgreSQL
-import com.intellisrc.db.jdbc.SQLServer
-import com.intellisrc.db.jdbc.SQLite
+import com.intellisrc.db.annot.*
+import com.intellisrc.db.jdbc.*
+import com.intellisrc.log.CommonLogger
+import com.intellisrc.log.PrintLogger
 import com.intellisrc.net.LocalHost
-import spock.lang.PendingFeature
+import org.slf4j.event.Level
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -28,12 +19,13 @@ import java.time.LocalDate
  * @since 2022/07/08.
  */
 class AutoTest extends Specification {
-    static File sqliteTmp = File.get("/tmp/sqlite.db")
+    static File sqliteTmp = File.get(File.tempDir, "sqlite.db")
+    static File derbyTmp = File.get(File.tempDir, "derby.db")
     static Map<Object, Boolean> dbTest = [
         (Derby)     : true,
-        (SQLite)    : true,
-        (MariaDB)   : true,
-        (MySQL)     : true,
+        (SQLite)    : false,
+        (MariaDB)   : false,
+        (MySQL)     : false,
         (Firebird)  : false,
         (Oracle)    : false,
         (SQLServer) : false,
@@ -116,15 +108,13 @@ class AutoTest extends Specification {
             case Derby:
                 jdbc = new Derby(
                     create  : true,
-                    dbname  : File.get(File.tempDir, "derby").absolutePath
-                    //memory  : true
+                    dbname  : derbyTmp.absolutePath
                 )
                 //now = "CURRENT DATE"
                 break
             case SQLite:
                 jdbc = new SQLite(
-                    memory  : true
-                    //dbname: sqliteTmp.absolutePath
+                    dbname: sqliteTmp.absolutePath
                 )
                 //now = "DATE('now')"
                 break
@@ -154,12 +144,17 @@ class AutoTest extends Specification {
     }
 
     def setup() {
-        println "----------------------------------------------------------------------"
+        Log.i("Initializing Test...")
+        PrintLogger printLogger = CommonLogger.default.printLogger
+        printLogger.setLevel(Level.TRACE)
     }
 
     def cleanup() {
         if(sqliteTmp.exists()) {
             sqliteTmp.delete()
+        }
+        if(derbyTmp.exists()) {
+            derbyTmp.delete()
         }
         File derbyLog = File.get("derby.log")
         if(derbyLog.exists()) {
@@ -269,11 +264,5 @@ class AutoTest extends Specification {
             users?.quit()
         where:
             type << testable
-    }
-
-    @PendingFeature
-    def "Test unique constraint"() {
-        expect:
-            assert false
     }
 }

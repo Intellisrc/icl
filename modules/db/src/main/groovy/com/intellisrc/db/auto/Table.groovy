@@ -24,8 +24,8 @@ class Table<M extends Model> implements Instanciable<M> {
 
     // ----------- Flags and other instance properties -------------
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
-    protected Database database
-    protected JDBC jdbc
+    protected final Database database
+    protected final JDBC jdbc
     protected final String name
     protected DB connection
     protected int cache = 0
@@ -76,10 +76,9 @@ class Table<M extends Model> implements Instanciable<M> {
             this.autoUpdate = meta.autoUpdate()
         }
         assert this.name : "Table name not set"
+        jdbc = connect().jdbc
         updateOrCreate()
         relation[parametrizedInstance.class.name] = this
-        jdbc = connect().jdbc
-        close()
     }
     /**
      * Decide if table needs to be updated or created
@@ -109,7 +108,6 @@ class Table<M extends Model> implements Instanciable<M> {
                             Log.w("Table [%s] was not created.", tableName)
                         }
                     }
-                    close()
                     break
                 default:
                     Log.w("Create or Update : Database type can not be updated automatically. Please check the documentation to know which databases are supported.")
@@ -117,6 +115,7 @@ class Table<M extends Model> implements Instanciable<M> {
                     break
             }
         }
+        close()
     }
     /**
      * Update database table
@@ -150,7 +149,7 @@ class Table<M extends Model> implements Instanciable<M> {
             AutoJDBC auto = jdbc as AutoJDBC
             ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns)
         }
-        closeConnections()
+        close()
         return ok
     }
 
@@ -413,7 +412,7 @@ class Table<M extends Model> implements Instanciable<M> {
     M get(int id) {
         Map map = connect().key(pk).get(id)?.toMap() ?: [:]
         M model = setMap(map)
-        closeConnections()
+        close()
         return model
     }
     /**
@@ -427,7 +426,7 @@ class Table<M extends Model> implements Instanciable<M> {
             Map map ->
                 return setMap(map)
         }
-        closeConnections()
+        close()
         return all
     }
     /**
@@ -453,7 +452,7 @@ class Table<M extends Model> implements Instanciable<M> {
             Map map ->
                 return setMap(map)
         }
-        closeConnections()
+        close()
         return all
     }
 
@@ -475,7 +474,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
-        closeConnections()
+        close()
         return list
     }
     /**
@@ -496,7 +495,7 @@ class Table<M extends Model> implements Instanciable<M> {
         criteria = convertToDB(criteria)
         Map map = connect().get(criteria)?.toMap() ?: [:]
         M model = setMap(map)
-        closeConnections()
+        close()
         return model
     }
     /**
@@ -520,7 +519,7 @@ class Table<M extends Model> implements Instanciable<M> {
             Map map ->
                 return setMap(map)
         }
-        closeConnections()
+        close()
         return all
     }
     /**
@@ -547,7 +546,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            closeConnections()
+            close()
         }
         return ok
     }
@@ -567,7 +566,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            closeConnections()
+            close()
         }
         return ok
     }
@@ -586,7 +585,7 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean delete(int id) {
         boolean ok = connect().key(pk).delete(id)
-        closeConnections()
+        close()
         return ok
     }
     /**
@@ -597,7 +596,7 @@ class Table<M extends Model> implements Instanciable<M> {
     boolean delete(Map map) {
         map = convertToDB(map)
         boolean ok = connect().key(pk).delete(map)
-        closeConnections()
+        close()
         return ok
     }
     /**
@@ -607,7 +606,7 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean delete(List<Integer> ids) {
         boolean ok = connect().key(pk).delete(ids)
-        closeConnections()
+        close()
         return ok
     }
     /**
@@ -638,7 +637,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            closeConnections()
+            close()
         }
         return lastId
     }
@@ -688,6 +687,7 @@ class Table<M extends Model> implements Instanciable<M> {
             db = database.connect().table(tableName)
             db.cache = cache
             db.clearCache = clearCache
+            connection = db
         }
         return db
     }
@@ -703,12 +703,6 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param db
      */
     synchronized void close() {
-        connection?.close()
-    }
-    /**
-     * Close active connections
-     */
-    synchronized void closeConnections() {
         if(connection?.opened) {
             connection.close()
         }

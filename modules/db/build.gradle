@@ -26,6 +26,7 @@ dependencies {
     // NOTE: it seems repetitive, but it was done like that, so IntelliJ can identify dependencies versions.
     testImplementation project(':net')
     testImplementation project(':term')
+    testImplementation project(':log')
     testImplementation "com.microsoft.sqlserver:mssql-jdbc:${sqlserver}"
     testImplementation "com.oracle.database.jdbc:ojdbc11:${oracle}"
     testImplementation "mysql:mysql-connector-java:${mysql}"
