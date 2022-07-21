@@ -486,7 +486,8 @@ class Table<M extends Model> implements Instanciable<M> {
         List<M> list = []
         DB db = connect()
         if(f) {
-            Object id = (pks.empty ? null : (pks.size() == 1) ? model[pk] : pks.collect {model[it] })
+            Map map = getMap(model)
+            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
             if(pks) { db.keys(pks) }
             list = db.get(id).toListMap().collect { setMap(it) }
         } else {
@@ -550,10 +551,10 @@ class Table<M extends Model> implements Instanciable<M> {
         boolean ok = false
         DB db = connect()
         if(pk) { db.keys(pks) }
-        // id can be a List or the value of the field
-        Object id = (pks.empty ? null : (pks.size() == 1) ? model[pk] : pks.collect {model[it] })
         try {
             Map map = getMap(model)
+            // id can be a List or the value of the field
+            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
             pks.each {
                 exclude << it// Exclude pk from map
             }

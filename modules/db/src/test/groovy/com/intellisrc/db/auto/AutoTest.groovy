@@ -298,7 +298,7 @@ class AutoTest extends Specification {
             Emails emails = new Emails(database)
             Inboxes inboxes = new Inboxes(database)
         when:
-            int rows = 10
+            int rows = 3
             (1..rows).each {
                 User usr = new User(
                     name: "User${it}",
@@ -310,16 +310,30 @@ class AutoTest extends Specification {
                 )
                 assert users.insert(usr)
                 assert emails.insert(email)
-                assert inboxes.insert(new Inbox(
+                inboxes.insert(new Inbox(
                     user: usr,
                     email: email
                 ))
+                Inbox inbox = inboxes.get([usr.id, email.id]).first()
+                assert inbox.enabled
+                inbox.enabled = false
+                assert inboxes.update(inbox)
+                assert ! inboxes.table.field("enabled").get([usr.id, email.id]).toBool()
             }
         then:
-            assert users.all.size() == rows : "Number of rows failed before updating"
+            assert users.all.size() == rows     : "Number of rows failed"
+            assert emails.all.size() == rows    : "Number of rows failed"
+            assert inboxes.all.size() == rows   : "Number of rows failed"
+        then:
+            [inboxes, users, emails].each {
+                Table t ->
+                    t.all.each {
+                        assert t.delete(it)
+                    }
+            }
         cleanup:
             Table.reset()
-            [users, emails, inboxes].each {
+            [inboxes, users, emails].each {
                 it?.drop()
                 it?.quit()
             }
