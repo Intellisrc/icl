@@ -446,9 +446,9 @@ class DB {
      *      position, column, type, length, default, nullable, primary, comment
 	 * @return  **/
     List<ColumnInfo> info() {
-        List<ColumnInfo> columns
+        List<ColumnInfo> columns = []
         if(colsInfo.containsKey(table)) {
-            columns = colsInfo.get(table)
+            columns = colsInfo.get(table) ?: []
         } else {
             String infoSQL = jdbc.getInfoQuery(table)
             if (infoSQL) {
@@ -736,7 +736,7 @@ class DB {
     private Query getQuery() {
         if(queryBuilder == null) {
             queryBuilder = new Query(jdbc)
-            Log.v("Initializing Query")
+            //Log.v("Initializing Query")
             if(!table.isEmpty()) {
                 queryBuilder.setTable(table)
             }

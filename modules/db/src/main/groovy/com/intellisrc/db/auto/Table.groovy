@@ -1,24 +1,16 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB
-import com.intellisrc.db.Database
-import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
-import com.intellisrc.db.annot.DeleteActions
-import com.intellisrc.db.annot.ModelMeta
-import com.intellisrc.db.annot.TableMeta
+import com.intellisrc.db.*
+import com.intellisrc.db.annot.*
+import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Instanciable
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.reflect.Constructor
-import java.lang.reflect.Field
-import java.lang.reflect.ParameterizedType
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
+import java.lang.reflect.*
+import java.time.*
 
 @CompileStatic
 class Table<M extends Model> implements Instanciable<M> {
@@ -33,8 +25,9 @@ class Table<M extends Model> implements Instanciable<M> {
     // ----------- Flags and other instance properties -------------
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
     protected Database database
+    protected JDBC jdbc
     protected final String name
-    protected Set<DB> activeConnections = []
+    protected DB connection
     protected int cache = 0
     protected boolean clearCache = false
     String charset = "utf8"
@@ -85,6 +78,8 @@ class Table<M extends Model> implements Instanciable<M> {
         assert this.name : "Table name not set"
         updateOrCreate()
         relation[parametrizedInstance.class.name] = this
+        jdbc = connect().jdbc
+        close()
     }
     /**
      * Decide if table needs to be updated or created
@@ -93,14 +88,15 @@ class Table<M extends Model> implements Instanciable<M> {
         if(!versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
             versionChecked[tableName.toString()] = true
             //noinspection GroovyFallthrough
-            switch (tableConnector.jdbc) {
+            switch (jdbc) {
                 case AutoJDBC:
                     // Initialize Auto
-                    (tableConnector.jdbc as AutoJDBC).autoInit(tableConnector)
-                    boolean exists = tableConnector.exists()
+                    DB conn = connect()
+                    (jdbc as AutoJDBC).autoInit(conn)
+                    boolean exists = conn.exists()
                     if (exists) {
                         if(autoUpdate) {
-                            int version = TableUpdater.getTableVersion(tableConnector, tableName.toString())
+                            int version = TableUpdater.getTableVersion(conn, tableName.toString())
                             if (definedVersion > version) {
                                 updateTable()
                             } else {
@@ -113,6 +109,7 @@ class Table<M extends Model> implements Instanciable<M> {
                             Log.w("Table [%s] was not created.", tableName)
                         }
                     }
+                    close()
                     break
                 default:
                     Log.w("Create or Update : Database type can not be updated automatically. Please check the documentation to know which databases are supported.")
@@ -140,7 +137,7 @@ class Table<M extends Model> implements Instanciable<M> {
     boolean createTable(String copyName = "") {
         boolean ok = false
         String tableNameToCreate = copyName ?: tableName
-        if (!tableConnector.tables.contains(tableNameToCreate)) {
+        if (!connect().tables.contains(tableNameToCreate)) {
             String charset = "utf8"
             String engine = ""
             if (this.class.isAnnotationPresent(TableMeta)) {
@@ -150,8 +147,8 @@ class Table<M extends Model> implements Instanciable<M> {
                 }
                 charset = meta.charset()
             }
-            AutoJDBC auto = tableConnector.jdbc as AutoJDBC
-            ok = auto.createTable(tableConnector, tableNameToCreate, charset, engine, definedVersion, columns)
+            AutoJDBC auto = jdbc as AutoJDBC
+            ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns)
         }
         closeConnections()
         return ok
@@ -414,7 +411,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     M get(int id) {
-        Map map = tableConnector.key(pk).get(id)?.toMap() ?: [:]
+        Map map = connect().key(pk).get(id)?.toMap() ?: [:]
         M model = setMap(map)
         closeConnections()
         return model
@@ -425,7 +422,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> get(List<Integer> ids) {
-        List<Map> list = tableConnector.key(pk).get(ids).toListMap()
+        List<Map> list = connect().key(pk).get(ids).toListMap()
         List<M> all = list.collect {
             Map map ->
                 return setMap(map)
@@ -444,7 +441,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> getAll(Map options = [:]) {
-        DB con = tableConnector
+        DB con = connect()
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
         }
@@ -474,7 +471,7 @@ class Table<M extends Model> implements Instanciable<M> {
         if(f) {
             String id = getColumnName(f)
             String main = autoIncrement ?: pk
-            list = tableConnector.get([(main): model[main]]).toListMap().collect { setMap(it) }
+            list = connect().get([(main): model[main]]).toListMap().collect { setMap(it) }
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
@@ -497,7 +494,7 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     M find(Map criteria) {
         criteria = convertToDB(criteria)
-        Map map = tableConnector.get(criteria)?.toMap() ?: [:]
+        Map map = connect().get(criteria)?.toMap() ?: [:]
         M model = setMap(map)
         closeConnections()
         return model
@@ -518,7 +515,7 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     List<M> findAll(Map criteria) {
         criteria = convertToDB(criteria)
-        List<Map> list = tableConnector.get(criteria).toListMap()
+        List<Map> list = connect().get(criteria).toListMap()
         List<M> all = list.collect {
             Map map ->
                 return setMap(map)
@@ -543,7 +540,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 map.remove(it)
             }
             if(primary) {
-                ok = tableConnector.key(primary).update(map, id)
+                ok = connect().key(primary).update(map, id)
             } else {
                 Log.w("Trying to update a row without key. Please specify 'key()' or a primary key")
             }
@@ -566,7 +563,7 @@ class Table<M extends Model> implements Instanciable<M> {
             exclude.each {
                 map.remove(it)
             }
-            ok = tableConnector.replace(map)
+            ok = connect().replace(map)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
@@ -588,7 +585,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(int id) {
-        boolean ok = tableConnector.key(pk).delete(id)
+        boolean ok = connect().key(pk).delete(id)
         closeConnections()
         return ok
     }
@@ -599,7 +596,7 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean delete(Map map) {
         map = convertToDB(map)
-        boolean ok = tableConnector.key(pk).delete(map)
+        boolean ok = connect().key(pk).delete(map)
         closeConnections()
         return ok
     }
@@ -609,7 +606,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(List<Integer> ids) {
-        boolean ok = tableConnector.key(pk).delete(ids)
+        boolean ok = connect().key(pk).delete(ids)
         closeConnections()
         return ok
     }
@@ -627,7 +624,7 @@ class Table<M extends Model> implements Instanciable<M> {
             if(map.containsKey(ai) && map[ai] == 0) {
                 map.remove(ai)
             }
-            db = tableConnector
+            db = connect()
             boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
@@ -677,17 +674,21 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     Query getQuery() {
-        return new Query(tableConnector.jdbc).setTable(tableName)
+        return new Query(jdbc).setTable(tableName)
     }
     /**
      * Get a connection. If its already opened, reuse
      * @return
      */
-    protected synchronized DB getTableConnector() {
-        DB db = database.connect().table(tableName)
-        db.cache = cache
-        db.clearCache = clearCache
-        activeConnections.add(db)
+    protected synchronized DB connect() {
+        DB db
+        if(connection?.opened) {
+            db = connection
+        } else {
+            db = database.connect().table(tableName)
+            db.cache = cache
+            db.clearCache = clearCache
+        }
         return db
     }
     /**
@@ -695,16 +696,22 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     synchronized DB getTable() {
-        return getTableConnector()
+        return connect()
+    }
+    /**
+     * Close current connection
+     * @param db
+     */
+    synchronized void close() {
+        connection?.close()
     }
     /**
      * Close active connections
      */
     synchronized void closeConnections() {
-        activeConnections.each {
-            it.close()
+        if(connection?.opened) {
+            connection.close()
         }
-        activeConnections.clear()
     }
     /**
      * Close all connections (in all threads) to the database
@@ -716,9 +723,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * Drops the table
      */
     void drop() {
-        Query qry = new Query(tableConnector.jdbc, Query.Action.DROP)
+        Query qry = new Query(jdbc, Query.Action.DROP)
         qry.table = tableName
-        tableConnector.set(qry)
+        connect().set(qry)
     }
 
     /**

@@ -44,7 +44,7 @@ class TableUpdater {
         boolean ok = false
         List<TableInfo> tables = []
         tableList.each {
-            DB db = it.tableConnector
+            DB db = it.connect()
             tables << new TableInfo(
                 table: it
             )

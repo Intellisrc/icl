@@ -51,7 +51,7 @@ class PoolConnector implements Connector {
 
 	@Override
 	List<ColumnInfo> getColumns(String table) {
-		return currentConnector?.getColumns(table)
+		return open() ? currentConnector?.getColumns(table) : []
 	}
 
 	@Override
