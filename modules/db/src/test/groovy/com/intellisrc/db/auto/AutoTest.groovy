@@ -8,6 +8,7 @@ import com.intellisrc.db.annot.*
 import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
 import com.intellisrc.log.PrintLogger
+import com.intellisrc.net.Email
 import com.intellisrc.net.LocalHost
 import org.slf4j.event.Level
 import spock.lang.Specification
@@ -91,6 +92,22 @@ class AutoTest extends Specification {
         LocalDate added
     }
 
+    static class UserEmail extends Model {
+        @Column(primary = true, autoincrement = true)
+        int id
+        @Column
+        Email email
+    }
+
+    static class Inbox extends Model {
+        @Column(primary = true)
+        User user
+        @Column(primary = true)
+        UserEmail email
+        @Column
+        boolean enabled = true
+    }
+
     static class Aliases extends Table<Alias>{
         Aliases(Database database) { super(database) }
     }
@@ -100,6 +117,12 @@ class AutoTest extends Specification {
     }
     static class UsersV2 extends Table<UserV2>{
         UsersV2(String name, Database database) { super(name, database) }
+    }
+    static class Emails extends Table<UserEmail> {
+        Emails(Database database) { super(database) }
+    }
+    static class Inboxes extends Table<Inbox> {
+        Inboxes(Database database) { super(database) }
     }
 
     JDBC getDB(Class type) {
@@ -263,6 +286,43 @@ class AutoTest extends Specification {
             Table.reset()
             users?.drop()
             users?.quit()
+        where:
+            type << testable
+    }
+
+    def "Multi-column Primary Key should work fine"() {
+        setup:
+            DB.disableCache = true
+            Database database = new Database(getDB(type))
+            Users users = new Users(database)
+            Emails emails = new Emails(database)
+            Inboxes inboxes = new Inboxes(database)
+        when:
+            int rows = 10
+            (1..rows).each {
+                User usr = new User(
+                    name: "User${it}",
+                    age : it + 20,
+                    ip4 : "10.0.0.${it}".toInet4Address()
+                )
+                UserEmail email = new UserEmail(
+                    email: new Email("user${it}@example.com")
+                )
+                assert users.insert(usr)
+                assert emails.insert(email)
+                assert inboxes.insert(new Inbox(
+                    user: usr,
+                    email: email
+                ))
+            }
+        then:
+            assert users.all.size() == rows : "Number of rows failed before updating"
+        cleanup:
+            Table.reset()
+            [users, emails, inboxes].each {
+                it?.drop()
+                it?.quit()
+            }
         where:
             type << testable
     }

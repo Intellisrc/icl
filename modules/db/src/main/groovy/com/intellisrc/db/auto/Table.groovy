@@ -30,6 +30,7 @@ class Table<M extends Model> implements Instanciable<M> {
     protected DB connection
     protected int cache = 0
     protected boolean clearCache = false
+    protected List<String> primaryKeys = []
     String charset = "utf8"
 
     /**
@@ -372,21 +373,33 @@ class Table<M extends Model> implements Instanciable<M> {
         return this.name
     }
     /**
-     * Returns Primary Key
+     * Return first column marked as Primary Key
      * @return
      */
     String getPk() {
-        String pk = ""
-        Field field = getFields().find {
-            it.getAnnotation(Column)?.primary()
-        }
-        if(field) {
-            pk = getColumnName(field)
-        } else {
-            // By default, search for "id"
-            if(getFields().find { it.name == "id"} ) {
-                pk = "id"
+        return pks.empty ? "" : pks.first()
+    }
+    /**
+     * Returns Primary Key column(s)
+     * @return
+     */
+    List<String> getPks() {
+        List<String> pk = []
+        if(primaryKeys.empty) {
+            List<Field> fields = getFields().toList().findAll {
+                it.getAnnotation(Column)?.primary()
             }
+            if (!fields.empty) {
+                pk = fields.collect { getColumnName(it) }
+            } else {
+                // By default, search for "id"
+                if (getFields().find { it.name == "id" }) {
+                    pk = ["id"]
+                }
+            }
+            primaryKeys = pk
+        } else {
+            pk = primaryKeys
         }
         return pk
     }
@@ -410,7 +423,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     M get(int id) {
-        Map map = connect().key(pk).get(id)?.toMap() ?: [:]
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        Map map = db.get(id)?.toMap() ?: [:]
         M model = setMap(map)
         close()
         return model
@@ -421,7 +436,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> get(List<Integer> ids) {
-        List<Map> list = connect().key(pk).get(ids).toListMap()
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        List<Map> list = db.get(ids).toListMap()
         List<M> all = list.collect {
             Map map ->
                 return setMap(map)
@@ -467,10 +484,11 @@ class Table<M extends Model> implements Instanciable<M> {
             it.name == fieldName
         }
         List<M> list = []
+        DB db = connect()
         if(f) {
-            String id = getColumnName(f)
-            String main = autoIncrement ?: pk
-            list = connect().get([(main): model[main]]).toListMap().collect { setMap(it) }
+            Object id = (pks.empty ? null : (pks.size() == 1) ? model[pk] : pks.collect {model[it] })
+            if(pks) { db.keys(pks) }
+            list = db.get(id).toListMap().collect { setMap(it) }
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
@@ -530,19 +548,19 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean update(M model, List<String> exclude = []) {
         boolean ok = false
-        String primary = getPk()
-        Object id = primary ? model[primary] : null
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        // id can be a List or the value of the field
+        Object id = (pks.empty ? null : (pks.size() == 1) ? model[pk] : pks.collect {model[it] })
         try {
             Map map = getMap(model)
-            exclude << primary // Exclude pk from map
+            pks.each {
+                exclude << it// Exclude pk from map
+            }
             exclude.each {
                 map.remove(it)
             }
-            if(primary) {
-                ok = connect().key(primary).update(map, id)
-            } else {
-                Log.w("Trying to update a row without key. Please specify 'key()' or a primary key")
-            }
+            ok = db.update(map, id)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
@@ -584,7 +602,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(int id) {
-        boolean ok = connect().key(pk).delete(id)
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        boolean ok = db.delete(id)
         close()
         return ok
     }
@@ -594,8 +614,10 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(Map map) {
+        DB db = connect()
+        if(pk) { db.keys(pks) }
         map = convertToDB(map)
-        boolean ok = connect().key(pk).delete(map)
+        boolean ok = db.delete(map)
         close()
         return ok
     }
@@ -605,7 +627,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(List<Integer> ids) {
-        boolean ok = connect().key(pk).delete(ids)
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        boolean ok = db.delete(ids)
         close()
         return ok
     }
