@@ -49,6 +49,7 @@ class Table<M extends Model> implements Instanciable<M> {
         Class<?> type
         Object defaultVal
         Column annotation
+        boolean multipleKey = false // Filled automatically
     }
     /**
      * Constructor. A Database object can be passed

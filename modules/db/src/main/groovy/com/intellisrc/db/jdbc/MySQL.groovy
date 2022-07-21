@@ -12,12 +12,11 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.*
 import java.util.regex.Matcher
 
-import static com.intellisrc.db.auto.Table.*
+import static com.intellisrc.db.auto.Table.ColumnDB
+import static com.intellisrc.db.auto.Table.getColumnName
 
 /**
  * MySQL Database
@@ -97,6 +96,10 @@ class MySQL extends JDBCServer implements AutoJDBC {
         List<String> defs = []
         List<String> keys = []
         Map<String, List<String>> uniqueGroups = [:]
+        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }
+        if(pks.size() > 1) {
+            pks.each { it.multipleKey = true }
+        }
         columns.each {
             ColumnDB column ->
                 List<String> parts = ["`${column.name}`".toString()]
@@ -132,6 +135,9 @@ class MySQL extends JDBCServer implements AutoJDBC {
         }
         if (!keys.empty) {
             defs.addAll(keys)
+        }
+        if (pks.size() > 1) {
+            defs << ("PRIMARY KEY (" + (pks.collect {"`${ it.name }`" }).join(",") + ")")
         }
         if (!uniqueGroups.keySet().empty) {
             uniqueGroups.each {
@@ -225,7 +231,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 List<String> extra = [type, length]
                 extra << (column.annotation.unsigned() ? "UNSIGNED" : "")
                 extra << (column.annotation.primary() && column.annotation.autoincrement() ? "AUTO_INCREMENT" : "")
-                extra << (column.annotation.primary() ? "PRIMARY KEY" : "")
+                extra << (! column.multipleKey && column.annotation.primary() ? "PRIMARY KEY" : "")
                 type = extra.findAll {it }.join(" ")
                 break
             case float:

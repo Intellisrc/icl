@@ -13,9 +13,7 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.*
 
 import static com.intellisrc.db.auto.Table.getColumnName
 
@@ -98,6 +96,10 @@ class SQLite extends JDBC implements AutoJDBC {
         List<String> defs = []
         List<String> keys = []
         Map<String, List<String>> uniqueGroups = [:]
+        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }
+        if(pks.size() > 1) {
+            pks.each { it.multipleKey = true }
+        }
         columns.each {
             ColumnDB column ->
                 List<String> parts = ["`${column.name}`".toString()]
@@ -131,6 +133,9 @@ class SQLite extends JDBC implements AutoJDBC {
         }
         if (!keys.empty) {
             defs.addAll(keys)
+        }
+        if (pks.size() > 1) {
+            defs << ("PRIMARY KEY (" + (pks.collect {"`${ it.name }`" }).join(",") + ")")
         }
         String fks = columns.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
         if (fks) {
@@ -201,7 +206,7 @@ class SQLite extends JDBC implements AutoJDBC {
             case Model: //Another Model
                 type = "INTEGER"
                 List<String> extra = [type]
-                extra << (column.annotation.primary() ? "PRIMARY KEY" : "")
+                extra << (! column.multipleKey && column.annotation.primary() ? "PRIMARY KEY" : "")
                 extra << (column.annotation.primary() && column.annotation.autoincrement() ? "AUTOINCREMENT" : "") //Autoincrement is after Primary Key
                 type = extra.findAll {it }.join(" ")
                 break

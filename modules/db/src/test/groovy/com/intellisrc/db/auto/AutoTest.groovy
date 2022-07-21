@@ -22,10 +22,10 @@ class AutoTest extends Specification {
     static File sqliteTmp = File.get(File.tempDir, "sqlite.db")
     static File derbyTmp = File.get(File.tempDir, "derby.db")
     static Map<Object, Boolean> dbTest = [
-        (Derby)     : true,
+        (Derby)     : false,
         (SQLite)    : true,
-        (MariaDB)   : true,
-        (MySQL)     : true,
+        (MariaDB)   : false,
+        (MySQL)     : false,
         (Firebird)  : false,
         (Oracle)    : false,
         (SQLServer) : false,
@@ -108,13 +108,15 @@ class AutoTest extends Specification {
             case Derby:
                 jdbc = new Derby(
                     create  : true,
-                    dbname  : derbyTmp.absolutePath
+                    memory  : true,
+                    //dbname  : derbyTmp.absolutePath
                 )
                 //now = "CURRENT DATE"
                 break
             case SQLite:
                 jdbc = new SQLite(
-                    dbname: sqliteTmp.absolutePath
+                    memory  : true
+                    //dbname: sqliteTmp.absolutePath
                 )
                 //now = "DATE('now')"
                 break
