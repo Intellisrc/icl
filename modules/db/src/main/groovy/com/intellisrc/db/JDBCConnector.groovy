@@ -11,8 +11,7 @@ import java.sql.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-import static com.intellisrc.db.Query.Action.*
-import static java.sql.Types.*
+import static java.sql.Types.NULL
 
 @CompileStatic
 /**
@@ -276,10 +275,12 @@ class JDBCConnector implements Connector {
 						if(rs != null) {
 							rs.close()
 						}
-						st.close()
-					} catch (SQLException ex) {
-						Log.w( "Unable to close Statement")
-						onError(ex)
+						st?.close()
+					} catch (Exception ex) {
+						Log.w("Unable to close Statement")
+						if(ex instanceof SQLException) {
+							onError(ex)
+						}
 					}
 				}
 
