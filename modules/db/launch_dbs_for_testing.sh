@@ -43,6 +43,26 @@ docker run --name oracle_test \
   -e "APP_USER_PASSWORD=test" \
   -p 127.0.0.1:31521:1521 \
   -d gvenzl/oracle-xe:21-slim
+echo "Oracle may take a few minutes to be available. You can check the logs with:"
+echo "docker logs -f oracle_test"
+fi
+# Oracle Enterprise
+if [[ $1 == "oracle-12" ]]; then
+# You must login into container-registry.oracle.com and go to Database
+# and accept the licence terms before be able to download
+# It requires 21GB of HDD and 2GB of memory
+docker login container-registry.oracle.com
+docker run --name oracle_test \
+  -e "ORACLE_SID=XEPDB" \
+  -e "ORACLE_PWD=test" \
+  -e "ORACLE_PDB=XEPDB1" \
+  -p 127.0.0.1:31521:1521 \
+  -d container-registry.oracle.com/database/enterprise:12.2.0.1
+echo "Oracle may take a few minutes to be available. You can check the logs with:"
+echo "docker logs -f oracle_test"
+read -n "Press ENTER when oracle is ready, to create initial database." enter
+docker exec -it oracle_test sqlplus XEPDB/test@XEPDB1 < "CREATE USER test IDENTIFIED BY test;"
+docker exec -it oracle_test sqlplus XEPDB/test@XEPDB1 < "GRANT ALL PRIVILEGES TO test;"
 fi
 # PostgresSQL
 if [[ $1 == "" || $1 == "postgres" ]]; then

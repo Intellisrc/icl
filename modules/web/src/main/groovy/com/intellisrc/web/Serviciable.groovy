@@ -22,6 +22,6 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 trait Serviciable {
-    String getPath() { return "/" }
+    String getPath() { return "" }
     String getAllowOrigin() { return null }
 }

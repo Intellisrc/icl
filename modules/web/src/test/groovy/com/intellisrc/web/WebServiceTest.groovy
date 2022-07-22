@@ -25,7 +25,7 @@ class WebServiceTest extends Specification {
                 resources: publicDir,
                 cacheTime: 60
             )
-            // Resources set as full path because code is executed under /tst/ usually use above method
+            // Resources set as full path because code is executed under /tst/
             Log.i("Running in port: %d with resources at: %s", port, publicDir)
             web.addService(new IDService())
         when:
@@ -35,7 +35,8 @@ class WebServiceTest extends Specification {
             assert ("http://localhost:"+port).toURL().text.contains("Hello")
         when:
             int number = new Random().nextInt(100)
-            def json = ("http://localhost:"+port+"/id/"+number+"/").toURL().text
+            URL url = ("http://localhost:"+port+"/id/"+number+"/").toURL()
+            def json = url.text
         then:
             assert json
             assert !json.contains("<html>")

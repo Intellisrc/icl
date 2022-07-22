@@ -62,7 +62,7 @@ class ConfigAutoTest extends Specification {
             Test.map2.b = 2
             Test.map3.a = 2
             Test.num = Enum.TWO
-            Test.file = Files.newTemporaryFile()
+            Test.file = File.createTempFile("test","test")
             Test.inet = "1.1.1.1".toInet4Address()
             Test.uri = "https://example.com/index.html".toURI()
             Test.date = Test.date.plusDays(2)
