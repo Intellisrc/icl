@@ -63,7 +63,7 @@ class OracleSQLTest extends JDBCTest {
             port    : 31521,
             user    : "test",
             password: "test",
-            dbname  : "XEPDB1" // or XE (lower than 18)  //This is the service name (echo $ORACLE_SID)
+            dbname  : "XEPDB1" // or XE (for docker XE lower than 18). It can be service name as well (SID)
         )
     }
 }
