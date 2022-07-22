@@ -943,7 +943,7 @@ class DB {
                     } catch (Exception e) {
                         Log.e("%s failed. ", query.getAction().name(), e)
                     }
-                    st.close()
+                    st?.close()
                 }
                 queryBuilder = null
             } else if(returned) {

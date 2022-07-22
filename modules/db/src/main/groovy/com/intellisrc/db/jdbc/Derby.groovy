@@ -324,7 +324,7 @@ class Derby extends JDBCServer implements AutoJDBC {
                 Model refType = (ctor.newInstance() as Model)
                 String joinTable = refType.tableName
                 String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "CONSTRAINT ${tableName}_${column.name}_fk FOREIGN KEY (${column.name}) " +
+                indices = "FOREIGN KEY (${column.name}) " +
                     "REFERENCES ${joinTable}(${getColumnName(refType.pk)}) ON DELETE ${action}"
                 break
         }

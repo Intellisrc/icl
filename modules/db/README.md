@@ -535,14 +535,14 @@ and will be removed from it when the Model is updated. If you want non-existing 
 you can specify `ondelete = NULL` (inside your `@Column` annotation). If you specify `ondelete = RESTRICT`,
 only a warning will be printed each time a `Model` is `null`.
 
-For `many-to-many` relations, you will need to add one extra `Model` class
+For `many-to-many` relations, you will need to add one extra `Model` class (using multiple columns as primary key)
 as follows:
 
 ```groovy
 class UserGroup extends Model {
-    @Column(nullable = false, uniqueGroup = "usrgrp", ondelete = CASCADE)
+    @Column(primary = true, ondelete = CASCADE)
     User user
-    @Column(nullable = false, uniqueGroup = "usrgrp", ondelete = CASCADE)
+    @Column(primary = true, ondelete = CASCADE)
     Group group
     @Column
     LocalDateTime updated
