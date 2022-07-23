@@ -12,15 +12,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/intellisrc/spark")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
     }
 }
 
