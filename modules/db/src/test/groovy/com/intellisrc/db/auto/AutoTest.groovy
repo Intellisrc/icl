@@ -1,5 +1,6 @@
 package com.intellisrc.db.auto
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.DB

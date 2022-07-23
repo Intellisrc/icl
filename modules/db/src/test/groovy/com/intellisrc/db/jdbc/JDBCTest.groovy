@@ -1,5 +1,6 @@
 package com.intellisrc.db.jdbc
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
