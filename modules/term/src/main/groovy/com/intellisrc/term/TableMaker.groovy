@@ -184,7 +184,7 @@ class TableMaker {
      * @param data
      * @param footer
      */
-    TableMaker(List<Map> data, boolean footer) {
+    TableMaker(List<Map> data, boolean footer = false) {
         setHeaders(data.first().keySet().toList())
         data.each {
             Map entry ->

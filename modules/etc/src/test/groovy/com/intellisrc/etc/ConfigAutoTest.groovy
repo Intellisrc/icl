@@ -2,7 +2,6 @@ package com.intellisrc.etc
 
 import com.intellisrc.core.SysClock
 import com.intellisrc.etc.config.AutoConfig
-import org.assertj.core.util.Files
 import spock.lang.Specification
 import java.time.LocalDateTime
 
@@ -38,7 +37,7 @@ class ConfigAutoTest extends Specification {
         @AutoConfig
         public static Enum num            = Enum.ONE
         @AutoConfig
-        public static File file           = Files.newTemporaryFile()
+        public static File file           = File.createTempFile("auto", "config")
         @AutoConfig
         public static Inet4Address inet   = "0.0.0.0".toInet4Address()
         @AutoConfig
@@ -63,7 +62,7 @@ class ConfigAutoTest extends Specification {
             Test.map2.b = 2
             Test.map3.a = 2
             Test.num = Enum.TWO
-            Test.file = Files.newTemporaryFile()
+            Test.file = File.createTempFile("test","test")
             Test.inet = "1.1.1.1".toInet4Address()
             Test.uri = "https://example.com/index.html".toURI()
             Test.date = Test.date.plusDays(2)

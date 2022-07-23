@@ -3,7 +3,7 @@ dependencies {
     api project(':net')
     //https://github.com/perwendel/spark
     // We use Response, Request... so we use 'api' here:
-    api 'com.sparkjava:spark-core:2.9.3'
+    api 'com.intellisrc:spark-core:2.9.4-unofficial-1'
     //TODO: reimplement security (LoginService) :
     //implementation 'org.pac4j:spark-pac4j:2.1.0'
     //implementation 'org.pac4j:pac4j-http:2.1.0'

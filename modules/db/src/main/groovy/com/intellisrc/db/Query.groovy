@@ -5,9 +5,7 @@ import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.*
 
 import static com.intellisrc.db.Query.Action.*
 
@@ -91,6 +89,35 @@ class Query {
         argList = args
         setIdentityFlag()
     }
+    /**
+     * Copy a Query object
+     * @param query
+     * @param action
+     * @return
+     */
+    static Query copyOf(Query query, Action action = null) {
+        if(! action) {
+            action = query.action
+        }
+        Query nq = new Query(query.dbType, action)
+        nq.with {
+            table       = query.table
+            whereValues = query.whereValues.collectEntries { [(it.key) : it.value]}
+            argList     = query.argList.collect()
+            queryStr    = query.queryStr
+            tableStr    = query.tableStr
+            groupByStr  = query.groupByStr
+            limitInt    = query.limitInt
+            offsetInt   = query.offsetInt
+            sort        = query.sort
+            fieldList   = query.fieldList.collect()
+            keyList     = query.keyList.collect()
+            fieldType   = query.fieldType
+            isSetQuery  = query.isSetQuery
+            isIdentityUpdate = query.isIdentityUpdate
+        }
+        return nq
+    }
 
     /**
      * Update identity flag
@@ -138,12 +165,14 @@ class Query {
     }
 
     Query setWhere(Object where) {
-        String key = getKey() //For the moment no multiple keys allowed
+        List<String> keys = getKeys()
         //noinspection GroovyFallthrough
         switch (where) {
             case null:
-                if(key) {
-                    wherePart.append(sqlName(key) + " IS NULL")
+                if(keys.size() == 1) {
+                    wherePart.append(fieldName(key) + " " + dbType.isNullQuery)
+                } else {
+                    Log.w("Multiple columns were defined as Primary Key but a single value was passed (null). Query may fail.")
                 }
                 break
             case String:
@@ -151,25 +180,52 @@ class Query {
                     def params = []
                     return setWhere(where.toString(), params)
                 }
-                if(key) {
-                    wherePart.append(sqlName(key) + " = ? ", [where])
+                if(keys.size() == 1) {
+                    wherePart.append(fieldName(key) + " = ? ", [where])
+                } else {
+                    Log.w("Multiple columns were defined as Primary Key but a single value was passed (%s). Query may fail.", where.toString())
                 }
                 break
             case Collection:
-                if(key) {
-                    String marks = where.collect {'?'}.join(",")
-                    wherePart.append(sqlName(key) + " IN (" + marks + ")", (where as List))
+                if(! keys.empty) {
+                    if(keys.size() == 1) {
+                        if((where as List).size() == 1) {
+                            wherePart.append(fieldName(key) + " = ?", (where as List))
+                        } else {
+                            String marks = where.collect { '?' }.join(",")
+                            wherePart.append(fieldName(key) + " IN (" + marks + ")", (where as List))
+                        }
+                    } else {
+                        if((where as List).empty) {
+                            Log.w("Values used as parameter were not found for key(s): %s in table %s", keys.join(","), table)
+                        }  else {
+                            if((where as List).first() instanceof Collection) {
+                                wherePart.append(
+                                    where.collect { "(" + keys.collect { fieldName(it) + " = ? " }.join(" AND ") + ")" }.join(" OR "),
+                                    (where as List).flatten() as List
+                                )
+                            } else {
+                                wherePart.append(keys.collect { fieldName(it) + " = ? " }.join(" AND "), (where as List))
+                            }
+                        }
+                    }
                 } else {
-                    Log.w("Where for key: %s already existed.", key)
+                    Log.w("Primary key was not set for table: %s", table)
                 }
                 break
             case Map:
                 (where as Map<String, Object>).each {
                     String k, Object v ->
                         if(v == null) {
-                            wherePart.append(sqlName(k) + " IS NULL ")
+                            wherePart.append(fieldName(k) + " " + dbType.isNullQuery)
+                        } else if(v instanceof Boolean) {
+                            if(dbType.supportsBoolean) {
+                                wherePart.append(fieldName(k) + " = " + v.toString().toUpperCase())
+                            } else {
+                                wherePart.append(fieldName(k) + " = ? ", [v.toString()])
+                            }
                         } else {
-                            wherePart.append(sqlName(k) + " = ? ", [v])
+                            wherePart.append(fieldName(k) + " = ? ", [v])
                         }
                 }
                 break
@@ -185,8 +241,10 @@ class Query {
                     }
                 }
             default:
-                if(key) {
-                    wherePart.append(sqlName(key) + " = ? ", [where])
+                if(keys.empty) {
+                    Log.w("Primary key was not set for table: %s", table)
+                } else {
+                    wherePart.append(keys.collect { fieldName(it) + " = ? " }.join(" AND "), where instanceof Collection ? (where as List) : [where])
                 }
                 break
         }
@@ -223,24 +281,57 @@ class Query {
         return this
     }
     */
-
+    /**
+     * Get the fields part for an INSERT statement
+     * @return
+     */
     protected Part getInsertFieldsPart() {
-        String inspre = whereValues.collect { sqlName(it.key) }.join(",")
+        String inspre = whereValues.collect { fieldName(it.key) }.join(",")
         return new Part().append("(" + inspre + ")")
     }
+    /**
+     * Identifies if value is boolean
+     * @param value
+     * @return
+     */
+    protected boolean isBoolean(Object value) {
+        return dbType.supportsBoolean && ["true","false"].contains(value.toString().toLowerCase())
+    }
+    /**
+     * Prepare '?' characters for values
+     * @param value
+     * @return
+     */
+    protected String getPlaceHolder(Object value) {
+        String ph = "?"
+        switch (true) {
+            case value == null:
+                ph = "NULL"
+                break
+            case isBoolean(value):
+                ph = value.toString().toUpperCase()
+                break
+        }
+        return ph
+    }
     protected Part getInsertPart() {
-        String inspst = whereValues.collect {"?" }.join(",")
-        return new Part().append("VALUES (" + inspst + ")", whereValues.values().toList())
+        String inspst = whereValues.collect { getPlaceHolder(it.value) }.join(",")
+        return new Part().append("VALUES (" + inspst + ")", whereValues.values().toList().findAll {
+            it != null &&! isBoolean(it)
+        })
     }
     protected Part getUpdatePart() {
-        String updstr = whereValues.collect {
-            sqlName(it.key) + " = ?"
-        }.join(",")
-        return new Part().append(updstr, whereValues.values().toList())
+        String updstr = whereValues.collect { fieldName(it.key) + " = " + getPlaceHolder(it.value) }.join(",")
+        return new Part().append(updstr, whereValues.values().toList().findAll {
+            it != null &&! isBoolean(it)
+        })
     }
 
     Query setValues(final Map<String,Object> values) {
-        whereValues = values
+        whereValues = values.collectEntries {
+            Object val = (it.value instanceof Boolean &&! dbType.supportsBoolean) ? it.value.toString() : it.value
+            return [(it.key) : val ]
+        }
         return this
     }
 
@@ -256,13 +347,13 @@ class Query {
 
     Query setOrder(final Map<String,SortOrder> orderPair) {
         sort = orderPair.collectEntries {
-            [(sqlName(it.key)) : it.value]
+            [(fieldName(it.key)): it.value]
         } as Map<String, SortOrder>
         return this
     }
 
     Query setOrder(final String column,final  SortOrder order) {
-        sort[sqlName(column)] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
+        sort[fieldName(column)] = order //This will also allow chained commands like: .setOrder(x,y).setOrder(v,w)
         return this
     }
 
@@ -283,7 +374,7 @@ class Query {
     }
     // Returns the first specified key
     String getKey() {
-        return getKeys().empty ? null : getKeys().get(0)
+        return getKeys()?.first()
     }
     String getFields() {
         String fieldstr = ""
@@ -291,7 +382,7 @@ class Query {
             fieldstr = "*"
         } else {
             fieldList.each {
-                fieldstr += (fieldstr.isEmpty() ? "" : ',') + sqlName(it)
+                fieldstr += (fieldstr.isEmpty() ? "" : ',') + fieldName(it)
             }
         }
         return fieldType.getSQL(fieldstr)
@@ -303,7 +394,7 @@ class Query {
         return wherePart.empty ? "" : "WHERE " + wherePart.toString()
     }
     String getGroupBy() {
-        return groupByStr.empty ? "" : "GROUP BY "+sqlName(groupByStr)
+        return groupByStr.empty ? "" : "GROUP BY "+fieldName(groupByStr)
     }
 
     List<Object> getArgs() {
@@ -319,6 +410,24 @@ class Query {
             case REPLACE:   args = insertPart.data; break
 
             case UPDATE:    args = updatePart.data + wherePart.data; break
+        }
+        if(dbType.supportsBoolean) {
+            args = args.collect {
+                Object arg = it
+                switch (arg) {
+                    case String:
+                        switch (it.toString().toLowerCase()) {
+                            case 'true':
+                                arg = true
+                                break
+                            case 'false':
+                                arg = false
+                                break
+                        }
+                        break
+                }
+                return arg
+            }
         }
         return args
     }
@@ -359,15 +468,15 @@ class Query {
      * @return
      */
     private String tableName(final String str) {
-        return sqlName(str)
+        return fieldName(str, true)
     }
 
     /**
      * Returns column or table name clean and with ``
      */
-    private String sqlName(final String str) {
+    private String fieldName(final String str, boolean tableName = false) {
         String result = str.toLowerCase().replaceAll("/[^a-z0-9._]/", "")
-        String ch = dbType.fieldsQuotation
+        String ch = tableName ? dbType.tablesQuotation : dbType.fieldsQuotation
         return ch + result + ch
     }
 	/**

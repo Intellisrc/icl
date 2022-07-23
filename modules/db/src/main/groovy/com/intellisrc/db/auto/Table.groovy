@@ -1,37 +1,37 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB
-import com.intellisrc.db.Database
-import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
-import com.intellisrc.db.annot.ModelMeta
-import com.intellisrc.db.annot.TableMeta
-import com.intellisrc.db.jdbc.MariaDB
-import com.intellisrc.db.jdbc.MySQL
+import com.intellisrc.db.*
+import com.intellisrc.db.annot.*
+import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Instanciable
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.reflect.Constructor
-import java.lang.reflect.Field
-import java.lang.reflect.Method
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.util.regex.Matcher
+import java.lang.reflect.*
+import java.time.*
 
 @CompileStatic
 class Table<M extends Model> implements Instanciable<M> {
-    static boolean alwaysCheck = false  //Used by updater
+    // Keep relation of tables:
     static protected Map<String, Boolean> versionChecked = [:] // it will be set to true after the version has been checked
+    static protected Map<String, Table> relation = [:]
+    static void reset() {
+        versionChecked = [:]
+        relation = [:]
+    }
+
+    // ----------- Flags and other instance properties -------------
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
-    protected Database database
+    protected final Database database
+    protected final JDBC jdbc
     protected final String name
-    protected Set<DB> activeConnections = []
+    protected DB connection
     protected int cache = 0
     protected boolean clearCache = false
+    protected List<String> primaryKeys = []
+    String charset = "utf8"
 
     /**
      * Interface used to update values before inserting them.
@@ -42,10 +42,30 @@ class Table<M extends Model> implements Instanciable<M> {
         List<Map> fix(List<Map> records)
     }
     /**
+     * Information about a Field that will be used as column in a DB
+     * @see Column
+     */
+    static class ColumnDB {
+        String name
+        Class<?> type
+        Object defaultVal
+        Column annotation
+        boolean multipleKey = false // Filled automatically
+    }
+    /**
      * Constructor. A Database object can be passed
      * when using multiple databases.
      *
-     * @param name
+     * @param database
+     */
+    Table(Database database) {
+        this("", database)
+    }
+    /**
+     * Constructor. A Database object can be passed
+     * when using multiple databases.
+     *
+     * @param name : Alternative way to set table name (besides @TableMeta)
      * @param database
      */
     Table(String name = "", Database database = null) {
@@ -58,49 +78,67 @@ class Table<M extends Model> implements Instanciable<M> {
             this.autoUpdate = meta.autoUpdate()
         }
         assert this.name : "Table name not set"
+        jdbc = connect().jdbc
         updateOrCreate()
+        relation[parametrizedInstance.class.name] = this
     }
     /**
      * Decide if table needs to be updated or created
      */
     void updateOrCreate() {
-        if(alwaysCheck || !versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
+        if(!versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
             versionChecked[tableName.toString()] = true
-            boolean exists = tableConnector.exists()
             //noinspection GroovyFallthrough
-            switch (tableConnector.jdbc) {
-                case MySQL:
-                case MariaDB:
-                    // TODO: support others
+            switch (jdbc) {
+                case AutoJDBC:
+                    // Initialize Auto
+                    DB conn = connect()
+                    (jdbc as AutoJDBC).autoInit(conn)
+                    boolean exists = conn.exists()
+                    if (exists) {
+                        if(autoUpdate) {
+                            int version = TableUpdater.getTableVersion(conn, tableName.toString())
+                            if (definedVersion > version) {
+                                updateTable()
+                            } else {
+                                Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                                    tableName, version, definedVersion)
+                            }
+                        }
+                    } else {
+                        if(!createTable(conn)) {
+                            Log.w("Table [%s] was not created.", tableName)
+                        }
+                    }
                     break
                 default:
-                    Log.w("Create or Update : MySQL/MariaDB is only supported for now.")
+                    Log.w("Create or Update : Database type can not be updated automatically. Please check the documentation to know which databases are supported.")
                     return
                     break
             }
-            if (exists) {
-                if(autoUpdate) {
-                    if (definedVersion > tableVersion) {
-                        Log.i("Table [%s] is going to be updated from version: %d to %d",
-                                tableName, tableVersion, definedVersion)
-                        if(!TableUpdater.update([this])) {
-                            Log.w("Table [%s] was not updated.", tableName)
-                        }
-                    } else {
-                        Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
-                                tableName, tableVersion, definedVersion)
-                    }
-                }
-            } else {
-                createTable()
-            }
         }
+        close()
     }
     /**
-     * Create the database based on @Column and @TableMeta
+     * Update database table
+     * @return
      */
-    void createTable() {
-        if (!tableConnector.exists()) {
+    boolean updateTable() {
+        Log.i("Updating table [%s] to version [%d]", tableName, definedVersion)
+        boolean ok = TableUpdater.update([this])
+        if(!ok) {
+            Log.w("Table [%s] was not updated.", tableName)
+        }
+        return ok
+    }
+    /**
+     * Create the database table based on @Column and @TableMeta
+     * @param copyName : if set, will create a table with another name (as copy)
+     */
+    boolean createTable(DB db, String copyName = "") {
+        boolean ok = false
+        String tableNameToCreate = copyName ?: tableName
+        if (!db.tables.contains(tableNameToCreate)) {
             String charset = "utf8"
             String engine = ""
             if (this.class.isAnnotationPresent(TableMeta)) {
@@ -110,96 +148,12 @@ class Table<M extends Model> implements Instanciable<M> {
                 }
                 charset = meta.charset()
             }
-            String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
-            List<String> columns = []
-            List<String> keys = []
-            Map<String, List<String>> uniqueGroups = [:]
-            getFields().each {
-                Field field ->
-                    field.setAccessible(true)
-                    if (Modifier.isPrivate(field.modifiers)) {
-                        Modifier.setPublic(field.modifiers)
-                    }
-                    String fieldName = getColumnName(field)
-                    Column column = field.getAnnotation(Column)
-                    List<String> parts = ["`${fieldName}`".toString()]
-                    if (!column) {
-                        String type = getColumnDefinition(field)
-                        assert type: "Unknown type: ${field.type.simpleName} in ${field.name}"
-                        parts << type
-                        String defaultVal = getDefaultValue(field)
-                        if (defaultVal) {
-                            parts << defaultVal
-                        }
-                    } else {
-                        if (column.columnDefinition()) {
-                            parts << column.columnDefinition()
-                        } else {
-                            String type = column.type() ?: getColumnDefinition(field, column)
-                            parts << type
-
-                            String defaultVal = getDefaultValue(field, column.nullable())
-                            if (defaultVal) {
-                                parts << defaultVal
-                            }
-
-                            List<String> extra = []
-                            if (column.unique() || column.uniqueGroup()) {
-                                if (column.uniqueGroup()) {
-                                    if (!uniqueGroups.containsKey(column.uniqueGroup())) {
-                                        uniqueGroups[column.uniqueGroup()] = []
-                                    }
-                                    uniqueGroups[column.uniqueGroup()] << fieldName
-                                } else {
-                                    extra << "UNIQUE"
-                                }
-                            }
-                            if (!extra.empty) {
-                                parts.addAll(extra)
-                            }
-                        }
-                        if (column.key()) {
-                            keys << "KEY `${tableName}_${fieldName}_key_index` (`${fieldName}`)".toString()
-                        }
-                    }
-                    columns << parts.join(' ')
-            }
-            if (!keys.empty) {
-                columns.addAll(keys)
-            }
-            if (!uniqueGroups.keySet().empty) {
-                uniqueGroups.each {
-                    columns << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
-                }
-            }
-            String fks = getFields().collect { getForeignKey(it) }.findAll { it }.join(",\n")
-            if (fks) {
-                columns << fks
-            }
-            if (engine) {
-                engine = "ENGINE=${engine}"
-            }
-            createSQL += columns.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${definedVersion}'"
-            if (!tableConnector.set(new Query(createSQL))) {
-                Log.v(createSQL)
-                Log.e("Unable to create table.")
-            }
+            AutoJDBC auto = jdbc as AutoJDBC
+            ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns)
         }
-        closeConnections()
+        return ok
     }
 
-    /**
-     * Returns the table comment
-     * @return
-     */
-    String getComment() {
-        DB connection = database.connect()
-        Query query = new Query("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=? AND table_name=?",
-                [tableConnector.jdbc.dbname, tableName])
-        String comment = connection.get(query).toString()
-        connection.close()
-        return comment
-    }
     /**
      * Get the defined version in code
      * @return
@@ -212,23 +166,45 @@ class Table<M extends Model> implements Instanciable<M> {
         }
         return version
     }
+
     /**
-     * Get the defined version in the database
+     * Return the list of fields annotated with Column from the Model class
      * @return
      */
-    int getTableVersion() {
-        int version = 1
-        String comm = getComment()
-        Matcher matcher = (comm =~ /v.(\d+)/)
-        if(matcher.find()) {
-            version = matcher.group(1) as int
-        }
-        return version
-    }
-
     List<Field> getFields() {
         int index = 0
-        return getParametrizedInstance(index).class.declaredFields.findAll {!it.synthetic }.toList()
+        return getParametrizedInstance(index).class.declaredFields.findAll {
+            boolean inc = false
+            if(!it.synthetic && it.isAnnotationPresent(Column)) {
+                inc = true
+                it.setAccessible(true)
+                if (Modifier.isPrivate(it.modifiers)) {
+                    Modifier.setPublic(it.modifiers)
+                }
+            }
+            return inc
+        }.toList()
+    }
+    /**
+     * Get all fields as ColumnDB list
+     * @return
+     */
+    List<ColumnDB> getColumns() {
+        return fields.collect { getColumnDB(it) }
+    }
+    /**
+     * Convert Field to ColumnDB
+     * @param field
+     * @return
+     */
+    ColumnDB getColumnDB(final Field field) {
+        Column column = field.getAnnotation(Column)
+        return new ColumnDB(
+            name : getColumnName(field),
+            type : field.type,
+            defaultVal: getDefaultValue(field),
+            annotation: column
+        )
     }
 
     /**
@@ -236,25 +212,27 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param model
      * @return
      */
-    Map<String, Object> getMap(M model) {
+    Map<String, Object> getMap(Model model) {
         Map<String, Object> map = fields.collectEntries {
-            [(getColumnName(it)) : model[it.name]]
+            Object val = model[it.name]
+            [(getColumnName(it)) : val]
         }
         return convertToDB(map)
     }
     /**
      * Converts fields of a class into db
      * @param map
+     * @param preserve : Preserve some types to be exported into json/yaml
      * @return
      */
-    static Map<String, Object> convertToDB(Map<String, Object> map) {
+    static Map<String, Object> convertToDB(Map<String, Object> map, boolean preserve = false) {
         Map<String, Object> res = [:]
         map.each {
             key, val ->
                 if(val instanceof Model &&! key.endsWith("_id")) {
-                    res[key + "_id"] = toDBValue(val)
+                    res[key + "_id"] = toDBValue(val, preserve)
                 } else {
-                    res[key] = toDBValue(val)
+                    res[key] = toDBValue(val, preserve)
                 }
         }
         return res
@@ -262,9 +240,10 @@ class Table<M extends Model> implements Instanciable<M> {
     /**
      * Converts any Object to DB value
      * @param val
+     * @param preserve : preserve some types to be exported into json/yaml
      * @return
      */
-    static Object toDBValue(Object val) {
+    static Object toDBValue(Object val, boolean preserve = false) {
         //noinspection GroovyFallthrough
         switch (val) {
             case LocalTime:
@@ -275,17 +254,25 @@ class Table<M extends Model> implements Instanciable<M> {
                 return (val as LocalDateTime).YMDHms
             case Collection:
                 List list = (val as List)
-                return YAML.encode(list.empty ? [] : list.collect {
+                if(!list.empty && preserve) {
+                    if(list.first() instanceof Model) {
+                        list = list.collect {(it as Model).id }
+                    }
+                }
+                return preserve ? list : YAML.encode(list.empty ? [] : list.collect {
                    toDBValue(it)
                 }).trim()
             case Map:
-                return YAML.encode(val).trim()
+                return preserve ? val : YAML.encode(val).trim()
             case URL:
+                return (val as URL).toExternalForm()
             case URI:
+                return val.toString()
             case Enum:
+                return preserve ? (val as Enum).ordinal() : val.toString()
             case boolean: // bool = ENUM
             case Boolean:
-                return val.toString()
+                return preserve ? val : val.toString()
             case InetAddress:
                 return (val as InetAddress).hostAddress
             case Model:
@@ -316,90 +303,22 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     M setMap(Map map) {
-        M model = parametrizedInstance
-        map.each {
-            String origName = it.key.toString().toCamelCase()
-            Field field = getFields().find { it.name == origName }
-            // Look for Type ID
-            if(!field && it.key.toString().endsWith("_id")) {
-                origName = (it.key.toString().replaceAll(/_id$/,'')).toCamelCase()
-                field = getFields().find { it.name == origName }
-            }
-            if(field) {
-                //noinspection GroovyFallthrough
-                switch (field.type) {
-                    case boolean:
-                    case Boolean:
-                        model[origName] = it.value.toString() == "true"
-                        break
-                    case Collection:
-                        try {
-                            model[origName] = YAML.decode((it.value ?: "").toString()) as List
-                        } catch (Exception e) {
-                            Log.w("Unable to parse list value in field %s: %s", origName, e.message)
-                            model[origName] = []
-                        }
-                        break
-                    case Map:
-                        try {
-                            model[origName] = YAML.decode((it.value ?: "").toString()) as Map
-                        } catch (Exception e) {
-                            Log.w("Unable to parse map value in field %s: %s", origName, e.message)
-                            model[origName] = [:]
-                        }
-                        break
-                    case LocalDate:
-                        model[origName] = (it.value as LocalDateTime).toLocalDate()
-                        break
-                    case LocalTime:
-                        model[origName] = (it.value as LocalDateTime).toLocalTime()
-                        break
-                    case URI:
-                        model[origName] = new URI(it.value.toString())
-                        break
-                    case URL:
-                        model[origName] = new URL(it.value.toString())
-                        break
-                    case Inet4Address:
-                        model[origName] = it.value.toString().toInet4Address()
-                        break
-                    case Inet6Address:
-                        model[origName] = it.value.toString().toInet6Address()
-                        break
-                    case InetAddress:
-                        model[origName] = it.value.toString().toInetAddress()
-                        break
-                    case Enum:
-                        if(it.value.toString().isNumber()) {
-                            model[origName] = (field.type as Class<Enum>).enumConstants[it.value as int]
-                        } else {
-                            model[origName] = Enum.valueOf((Class<Enum>) field.type, it.value.toString())
-                        }
-                        break
-                    case Model:
-                        Constructor<?> c = field.type.getConstructor()
-                        Model refType = (c.newInstance() as Model)
-                        model[origName] = refType.table.get(it.value as int)
-                        break
-                    default:
-                        try {
-                            // Having a constructor with String
-                            model[origName] = field.type.getConstructor(String.class).newInstance(it.value.toString())
-                        } catch(Exception ignore) {
-                            try {
-                                // Having a static method 'fromString'
-                                model[origName] = field.type.getDeclaredMethod("fromString", String.class).invoke(null, it.value.toString())
-                            } catch (Exception ignored) {
-                                try {
-                                    model[origName] = it.value
-                                } catch(Exception e) {
-                                    Log.w("Unable to set Model[%s] field: %s with value: %s (%s)", model.class.simpleName, origName, it.value, e.message)
-                                }
-                            }
-                        }
+        M model = null
+        if(! map.isEmpty()) {
+            model = parametrizedInstance
+            map.each {
+                String origName = it.key.toString().toCamelCase()
+                Field field = getFields().find { it.name == origName }
+                // Look for Type ID
+                if (!field && it.key.toString().endsWith("_id")) {
+                    origName = (it.key.toString().replaceAll(/_id$/, '')).toCamelCase()
+                    field = getFields().find { it.name == origName }
                 }
-            } else {
-                Log.w("Field not found: %s", origName)
+                if (field) {
+                    model[origName] = fromDB(field, it.value)
+                } else {
+                    Log.w("Field not found: %s", origName)
+                }
             }
         }
         return model
@@ -411,128 +330,16 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param nullable
      * @return
      */
-    String getDefaultValue(Field field, boolean nullable = false) {
+    Object getDefaultValue(Field field) {
         M model = parametrizedInstance
         Object val = field.get(model)
-        String defaultVal = ""
+        Object defaultVal = null
         Column column = field.getAnnotation(Column)
         boolean primary = column?.primary()
-        if(!primary) {
-            if (val != null) { // When default value is null, it will be set as nullable
-                val = toDBValue(val)
-                String dv = val.toString().isNumber() ? val.toString() : "'${val}'".toString()
-                defaultVal = (nullable ? "" : "NOT NULL ") + "DEFAULT ${dv}"
-            } else if(column &&! column.nullable()) {
-                defaultVal = "NOT NULL"
-            }
+        if(!primary && val != null) { // When default value is null, it will be set as nullable
+            defaultVal = toDBValue(val)
         }
         return defaultVal
-    }
-
-    /**
-     * Return SQL column definition for a field
-     * @param field
-     * @param column
-     * @return
-     */
-    static String getColumnDefinition(Field field, Column column = null) {
-        String type = ""
-        //noinspection GroovyFallthrough
-        switch (field.type) {
-            case boolean:
-            case Boolean:
-                type = "ENUM('true','false')"
-                break
-            case Inet4Address:
-                type = "VARCHAR(${column?.length() ?: 15})"
-                break
-            case Inet6Address:
-            case InetAddress:
-                type = "VARCHAR(${column?.length() ?: 45})"
-                break
-            case String:
-                type = "VARCHAR(${column?.length() ?: 255})"
-                break
-            case byte:
-                type = type ?: "TINYINT"
-            case short:
-                type = type ?: "SMALLINT"
-            case int:
-            case Integer:
-            case Model: //Another Model
-                type = type ?: "INT"
-            case BigInteger:
-            case long:
-            case Long:
-                type = type ?: "BIGINT"
-                boolean hasAnnotation = column != null
-                int len = hasAnnotation ? column.length() : 0
-                String length = len ? "(${len})" : ""
-                boolean unsignedDefault = Column.class.getMethod("unsigned").defaultValue
-                boolean autoIncDefault = Column.class.getMethod("autoincrement").defaultValue
-                boolean primaryDefault = Column.class.getMethod("primary").defaultValue
-                List<String> extra = [type, length]
-                        extra << ((hasAnnotation ? column.unsigned() : unsignedDefault) ? "UNSIGNED" : "")
-                        extra << ((hasAnnotation ? column.primary() && column.autoincrement() : autoIncDefault) ? "AUTO_INCREMENT" : "")
-                        extra << ((hasAnnotation ? column.primary() : primaryDefault) ? "PRIMARY KEY" : "")
-                type = extra.findAll {it }.join(" ")
-                break
-            case float:
-            case Float:
-                type = "FLOAT"
-                break
-            case double:
-            case Double:
-            case BigDecimal:
-                type = "DOUBLE"
-                break
-            case LocalDate:
-                type = "DATE"
-                break
-            case LocalDateTime:
-                type = "DATETIME"
-                break
-            case LocalTime:
-                type = "TIME"
-                break
-            case URL:
-            case URI:
-            case Collection:
-            case Map:
-                type = column?.key() || column?.unique() || (column?.length() ?: 256) <= 255 ? "VARCHAR(${column?.length() ?: 255})" : "TEXT"
-                break
-            case Enum:
-                type = "ENUM('" + field.type.getEnumConstants().join("','") + "')"
-                break
-            case byte[]:
-                int len = column?.length() ?: 65535
-                switch (true) {
-                    case len < 256      : type = "TINYBLOB"; break
-                    case len < 65536    : type = "BLOB"; break
-                    case len < 16777216 : type = "MEDIUMBLOB"; break
-                    default             : type = "LONGBLOB"; break
-                }
-            default:
-                // Having a constructor with String or Having a static method 'fromString'
-                boolean canImport = false
-                try {
-                    field.type.getConstructor(String.class)
-                    canImport = true
-                } catch(Exception ignore) {
-                    try {
-                        Method method = field.type.getDeclaredMethod("fromString", String.class)
-                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == field.type
-                    } catch(Exception ignored) {}
-                }
-                if(canImport) {
-                    int len = column?.length() ?: 256
-                    type = len < 256 ? "VARCHAR($len)" : "TEXT"
-                } else {
-                    Log.w("Unknown field type: %s", field.type.simpleName)
-                    Log.d("If you want to able to use '%s' type in the database, either set `fromString` as static method or set a constructor which accepts `String`", field.type.simpleName)
-                }
-            }
-            return type
     }
 
     /**
@@ -559,28 +366,6 @@ class Table<M extends Model> implements Instanciable<M> {
     }
 
     /**
-     * Get FK
-     * @param field
-     * @return
-     */
-    protected String getForeignKey(final Field field) {
-        String cname = getColumnName(field)
-        String indices = ""
-        switch (field.type) {
-            case Model:
-                Constructor<?> ctor = field.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                Column column = field.getAnnotation(Column)
-                String action = column ? column.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "CONSTRAINT `${tableName}_${cname}_fk` FOREIGN KEY (`${cname}`) " +
-                          "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action}"
-                break
-        }
-        return indices
-    }
-
-    /**
      * Get the table name. Override to change it
      * @return
      */
@@ -588,21 +373,33 @@ class Table<M extends Model> implements Instanciable<M> {
         return this.name
     }
     /**
-     * Returns Primary Key
+     * Return first column marked as Primary Key
      * @return
      */
     String getPk() {
-        String pk = ""
-        Field field = getFields().find {
-            it.getAnnotation(Column)?.primary()
-        }
-        if(field) {
-            pk = getColumnName(field)
-        } else {
-            // By default, search for "id"
-            if(getFields().find { it.name == "id"} ) {
-                pk = "id"
+        return pks.empty ? "" : pks.first()
+    }
+    /**
+     * Returns Primary Key column(s)
+     * @return
+     */
+    List<String> getPks() {
+        List<String> pk = []
+        if(primaryKeys.empty) {
+            List<Field> fields = getFields().toList().findAll {
+                it.getAnnotation(Column)?.primary()
             }
+            if (!fields.empty) {
+                pk = fields.collect { getColumnName(it) }
+            } else {
+                // By default, search for "id"
+                if (getFields().find { it.name == "id" }) {
+                    pk = ["id"]
+                }
+            }
+            primaryKeys = pk
+        } else {
+            pk = primaryKeys
         }
         return pk
     }
@@ -626,9 +423,11 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     M get(int id) {
-        Map map = tableConnector.key(pk).get(id)?.toMap() ?: [:]
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        Map map = db.get(id)?.toMap() ?: [:]
         M model = setMap(map)
-        closeConnections()
+        close()
         return model
     }
     /**
@@ -637,12 +436,14 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> get(List<Integer> ids) {
-        List<Map> list = tableConnector.key(pk).get(ids).toListMap()
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        List<Map> list = db.get(ids).toListMap()
         List<M> all = list.collect {
             Map map ->
                 return setMap(map)
         }
-        closeConnections()
+        close()
         return all
     }
     /**
@@ -656,7 +457,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> getAll(Map options = [:]) {
-        DB con = tableConnector
+        DB con = connect()
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
         }
@@ -668,7 +469,7 @@ class Table<M extends Model> implements Instanciable<M> {
             Map map ->
                 return setMap(map)
         }
-        closeConnections()
+        close()
         return all
     }
 
@@ -683,14 +484,16 @@ class Table<M extends Model> implements Instanciable<M> {
             it.name == fieldName
         }
         List<M> list = []
+        DB db = connect()
         if(f) {
-            String id = getColumnName(f)
-            String main = autoIncrement ?: pk
-            list = tableConnector.get([(main): model[main]]).toListMap().collect { setMap(it) }
+            Map map = getMap(model)
+            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
+            if(pks) { db.keys(pks) }
+            list = db.get(id).toListMap().collect { setMap(it) }
         } else {
             Log.w("Unable to find field: %s", fieldName)
         }
-        closeConnections()
+        close()
         return list
     }
     /**
@@ -709,9 +512,9 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     M find(Map criteria) {
         criteria = convertToDB(criteria)
-        Map map = tableConnector.get(criteria)?.toMap() ?: [:]
+        Map map = connect().get(criteria)?.toMap() ?: [:]
         M model = setMap(map)
-        closeConnections()
+        close()
         return model
     }
     /**
@@ -730,12 +533,12 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     List<M> findAll(Map criteria) {
         criteria = convertToDB(criteria)
-        List<Map> list = tableConnector.get(criteria).toListMap()
+        List<Map> list = connect().get(criteria).toListMap()
         List<M> all = list.collect {
             Map map ->
                 return setMap(map)
         }
-        closeConnections()
+        close()
         return all
     }
     /**
@@ -746,22 +549,23 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean update(M model, List<String> exclude = []) {
         boolean ok = false
-        String primary = getPk()
-        Object id = primary ? model[primary] : null
+        DB db = connect()
+        if(pk) { db.keys(pks) }
         try {
             Map map = getMap(model)
+            // id can be a List or the value of the field
+            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
+            pks.each {
+                exclude << it// Exclude pk from map
+            }
             exclude.each {
                 map.remove(it)
             }
-            if(primary) {
-                ok = tableConnector.key(primary).update(map, id)
-            } else {
-                Log.w("Trying to update a row without key. Please specify 'key()' or a primary key")
-            }
+            ok = db.update(map, id)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            closeConnections()
+            close()
         }
         return ok
     }
@@ -777,11 +581,11 @@ class Table<M extends Model> implements Instanciable<M> {
             exclude.each {
                 map.remove(it)
             }
-            ok = tableConnector.replace(map)
+            ok = connect().replace(map)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            closeConnections()
+            close()
         }
         return ok
     }
@@ -799,8 +603,10 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(int id) {
-        boolean ok = tableConnector.key(pk).delete(id)
-        closeConnections()
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        boolean ok = db.delete(id)
+        close()
         return ok
     }
     /**
@@ -809,9 +615,11 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(Map map) {
+        DB db = connect()
+        if(pk) { db.keys(pks) }
         map = convertToDB(map)
-        boolean ok = tableConnector.key(pk).delete(map)
-        closeConnections()
+        boolean ok = db.delete(map)
+        close()
         return ok
     }
     /**
@@ -820,8 +628,10 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(List<Integer> ids) {
-        boolean ok = tableConnector.key(pk).delete(ids)
-        closeConnections()
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        boolean ok = db.delete(ids)
+        close()
         return ok
     }
     /**
@@ -835,7 +645,10 @@ class Table<M extends Model> implements Instanciable<M> {
         DB db
         try {
             Map<String, Object> map = getMap(model)
-            db = tableConnector
+            if(map.containsKey(ai) && map[ai] == 0) {
+                map.remove(ai)
+            }
+            db = connect()
             boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
@@ -849,7 +662,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            closeConnections()
+            close()
         }
         return lastId
     }
@@ -885,27 +698,39 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     Query getQuery() {
-        return new Query(tableConnector.jdbc).setTable(tableName)
+        return new Query(jdbc).setTable(tableName)
     }
     /**
      * Get a connection. If its already opened, reuse
      * @return
      */
-    synchronized DB getTableConnector() {
-        DB db = database.connect().table(tableName)
-        db.cache = cache
-        db.clearCache = clearCache
-        activeConnections.add(db)
+    protected synchronized DB connect() {
+        DB db
+        if(connection?.opened) {
+            db = connection
+        } else {
+            db = database.connect().table(tableName)
+            db.cache = cache
+            db.clearCache = clearCache
+            connection = db
+        }
         return db
     }
     /**
-     * Close active connections
+     * Exposed tableConnector
+     * @return
      */
-    synchronized void closeConnections() {
-        activeConnections.each {
-            it.close()
+    synchronized DB getTable() {
+        return connect()
+    }
+    /**
+     * Close current connection
+     * @param db
+     */
+    synchronized void close() {
+        if(connection?.opened) {
+            connection.close()
         }
-        activeConnections.clear()
     }
     /**
      * Close all connections (in all threads) to the database
@@ -917,6 +742,180 @@ class Table<M extends Model> implements Instanciable<M> {
      * Drops the table
      */
     void drop() {
-        tableConnector.set(new Query("DROP TABLE IF EXISTS ${tableName}"))
+        Query qry = new Query(jdbc, Query.Action.DROP)
+        qry.table = tableName
+        connect().set(qry)
+    }
+
+    /**
+     * Import value from database
+     * @param field
+     * @param value
+     * @return
+     */
+    @SuppressWarnings('GroovyUnusedAssignment')
+    Object fromDB(Field field, Object value, boolean convertModels = true) {
+        Object retVal = null
+        if(value != null) {
+            try {
+                //noinspection GroovyFallthrough
+                switch (field.type) {
+                    case short:
+                        retVal = value as short
+                        break
+                    case int:
+                    case Integer:
+                        retVal = value as int
+                        break
+                    case BigInteger:
+                        retVal = value as BigInteger
+                        break
+                    case long:
+                    case Long:
+                        retVal = value as long
+                        break
+                    case float:
+                    case Float:
+                        retVal = value as float
+                        break
+                    case double:
+                    case Double:
+                        retVal = value as double
+                        break
+                    case BigDecimal:
+                        retVal = value as BigDecimal
+                        break
+                    case String:
+                        retVal = value.toString()
+                        break
+                    case char:
+                        retVal = value as char
+                        break
+                    case boolean:
+                    case Boolean:
+                        retVal = value.toString() == "true"
+                        break
+                    case Collection:
+                        try {
+                            retVal = YAML.decode((value ?: "").toString()) as List
+                            if (retVal) {
+                                if (!(retVal as List).empty && convertModels) {
+                                    if (retVal.first() instanceof Integer && genericIsModel(field)) {
+                                        Column annotation = field.getAnnotation(Column)
+                                        Table table = relation[getParameterizedClass(field).class.name]
+                                        retVal = table.get(retVal)
+                                        switch (annotation.ondelete()) {
+                                            case DeleteActions.NULL:
+                                                // Do nothing (must be null already)
+                                                break
+                                            default:
+                                                boolean warn = annotation.ondelete() == DeleteActions.RESTRICT
+                                                if(warn && retVal.find { it == null }) {
+                                                    Log.w("Table: [%s], field: %s, contains NULL values",
+                                                        this.name, field.name)
+                                                }
+                                                retVal = retVal.findAll {
+                                                    return it != null
+                                                }
+                                                break
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.w("Unable to parse list value in field %s: %s", field.name, e.message)
+                            retVal = []
+                        }
+                        break
+                    case Map:
+                        try {
+                            retVal = YAML.decode((value ?: "").toString()) as Map
+                        } catch (Exception e) {
+                            Log.w("Unable to parse map value in field %s: %s", field.name, e.message)
+                            retVal = [:]
+                        }
+                        break
+                    case LocalDate:
+                        try {
+                            retVal = value.toString().toDate()
+                        } catch(Exception ignore) {
+                            retVal = (value.toString().toDateTime()).toLocalDate()
+                        }
+                        break
+                    case LocalTime:
+                        try {
+                            retVal = value.toString().toTime()
+                        } catch(Exception ignore) {
+                            retVal = (value.toString().toDateTime()).toLocalTime()
+                        }
+                        break
+                    case URI:
+                        retVal = new URI(value.toString())
+                        break
+                    case URL:
+                        retVal = new URL(value.toString())
+                        break
+                    case Inet4Address:
+                        retVal = value.toString().toInet4Address()
+                        break
+                    case Inet6Address:
+                        retVal = value.toString().toInet6Address()
+                        break
+                    case InetAddress:
+                        retVal = value.toString().toInetAddress()
+                        break
+                    case Enum:
+                        if (value.toString().isNumber()) {
+                            retVal = (field.type as Class<Enum>).enumConstants[value as int]
+                        } else {
+                            retVal = Enum.valueOf((Class<Enum>) field.type, value.toString().toUpperCase())
+                        }
+                        break
+                    case Model:
+                        Constructor<?> c = field.type.getConstructor()
+                        Model refType = (c.newInstance() as Model)
+                        retVal = relation[refType.class.name].get(value as int)
+                        break
+                    default:
+                        try {
+                            // Having a constructor with String
+                            retVal = field.type.getConstructor(String.class).newInstance(value.toString())
+                        } catch (Exception ignore) {
+                            try {
+                                // Having a static method 'fromString'
+                                retVal = field.type.getDeclaredMethod("fromString", String.class).invoke(null, value.toString())
+                            } catch (Exception ignored) {
+                                try {
+                                    retVal = value
+                                } catch (Exception e) {
+                                    Log.w("Unable to set Model field: %s with value: %s (%s)", field.name, value, e.message)
+                                }
+                            }
+                        }
+                }
+            } catch(Exception ex) {
+                Log.w("Unable to set value: %s in field: %s (%s)", value, field.name, ex.message)
+            }
+        }
+        return retVal
+    }
+    /**
+     * Get the parameterized class of a List (using field)
+     * @param field
+     * @return
+     */
+    static Object getParameterizedClass(Field field) {
+        ParameterizedType type = (ParameterizedType) field.getGenericType()
+        Class listClass = (Class) type.getActualTypeArguments()[0]
+        Object obj = listClass.getDeclaredConstructor().newInstance()
+        return obj
+    }
+    /**
+     * True if generic type is Model, example : List<Model>
+     * @param field
+     * @return
+     */
+    static boolean genericIsModel(Field field) {
+        return getParameterizedClass(field) instanceof Model
     }
 }

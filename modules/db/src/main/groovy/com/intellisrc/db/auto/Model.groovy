@@ -3,12 +3,17 @@ package com.intellisrc.db.auto
 import com.intellisrc.core.Log
 import com.intellisrc.db.annot.Column
 import com.intellisrc.etc.Instanciable
+import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 
+import java.lang.reflect.Constructor
 import java.lang.reflect.Field
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @CompileStatic
-abstract class Model<T extends Table> implements Instanciable<T> {
+abstract class Model {
     protected Field pkField
     /**
      * Get ID as Int
@@ -38,7 +43,14 @@ abstract class Model<T extends Table> implements Instanciable<T> {
      * @return
      */
     String getTableName() {
-        return table.tableName
+        String name
+        if(Table.relation.containsKey(this.class.name)) {
+            name = Table.relation[this.class.name].tableName
+        } else {
+            Log.w("Unable to find table for Model. Be sure that Table class has the generic Model type specified: 'extends Table<%s>'", this.class.simpleName)
+            name = (this.class.simpleName + "s").toSnakeCase()
+        }
+        return name
     }
     /**
      * Get Primary Name field
@@ -56,13 +68,6 @@ abstract class Model<T extends Table> implements Instanciable<T> {
     }
 
     /**
-     * Get Table instance
-     * @return
-     */
-    T getTable() {
-        return getParametrizedInstance()
-    }
-    /**
      * Get all fields
      * @return
      */
@@ -74,6 +79,10 @@ abstract class Model<T extends Table> implements Instanciable<T> {
      * @return
      */
     Map<String, Object> toMap() {
-        return table.getMap(this)
+        Map<String, Object> map = fields.collectEntries {
+            Field field ->
+                [(Table.getColumnName(field)) : this[field.name]]
+        }
+        return Table.convertToDB(map, true)
     }
 }

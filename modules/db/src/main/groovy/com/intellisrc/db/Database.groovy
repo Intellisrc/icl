@@ -14,15 +14,13 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class Database {
-    protected DBPool pool
+    protected final DBPool pool
     Database(JDBC type = null, int timeout = 0, int expire = 0) {
 		if(type == null) {
             type = JDBC.fromSettings()
 		}
-        if(!pool) {
-            pool = new DBPool()
-            pool.init(type, timeout, expire)
-        }
+        pool = new DBPool()
+        pool.init(type, timeout, expire)
     }
     DB connect() {
         return new PoolConnector(pool).getDB()
@@ -38,7 +36,6 @@ class Database {
     }
     void quit() {
         pool?.quit()
-        pool = null
     }
     // Static --------------------------------
     static protected Database defaultDB

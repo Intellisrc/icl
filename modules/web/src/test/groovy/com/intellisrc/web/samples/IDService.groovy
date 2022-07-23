@@ -11,13 +11,9 @@ import spark.Response
  * @since 17/04/19.
  */
 class IDService implements ServiciableSingle {
-
-    String getPath() {
-        return "/id"
-    }
     Service getService() {
         return new Service(
-            path: "/:id/",
+            path : "/id/:id/",
             cacheTime: 10,
             cacheExtend: true,
             action: {

@@ -81,7 +81,7 @@ Features
   * TRUNCATE
 * Raw SQL execution
 
-NOTE: This method (Fluid Query) won't create the table for you.
+**NOTE**: This method (Fluid Query) won't create the table for you.
 If you want this library to create and update your tables for you, use the `Model` approach.
 
 To connect and query a database is easy:
@@ -224,7 +224,7 @@ db.getSQL("SHOW TABLES").toList().each { // You can also use: db.get(new Query(.
 }
 ```
 
-NOTE: For complex queries, we recommend you to create views or stored procedures (to keep your code simple).
+**NOTE**: For complex queries, we recommend you to create views or stored procedures (to keep your code simple).
 
 ## Model Based Operations
 
@@ -241,7 +241,7 @@ Features
 * Foreign keys creation
 * CRUD operations using Java objects
 
-NOTE: Databases and permissions are not created automatically.
+**NOTE**: Databases and permissions are not created automatically.
 
 ### Example:
 
@@ -250,7 +250,8 @@ The first step is to create your `Model` and `Table` classes:
 #### Model class
 
 A `Model` class is the data description of what we want to store in a table.
-It must be of type: `Model<Table>`.
+It must extend: `Model` and in most cases, they will need an `int id` field
+as primary key (except in `many-to-many` relationships).
 
 Each field that we want to create in the table, we need to annotate with 
 `@Column` (see `Column` annotation for more details on how to use it).
@@ -260,7 +261,7 @@ enum MyColor {
     WHITE, RED, GREEN, BLUE, YELLOW, BLACK
 }
 
-class User extends Model<Users> {
+class User extends Model {
     @Column(primary = true, autoincrement = true)
     int id
     @Column(nullable = false, length = 100)
@@ -284,7 +285,7 @@ example:
 
 ```groovy
 @ModelMeta(version = 2)
-class User extends Model<Users> { /* ... */ }
+class User extends Model { /* ... */ }
 ```
 
 When declared version is higher than the one stored in the database, 
@@ -295,14 +296,102 @@ You can read more about it next, as the update process is taken care by the `Tab
 #### Table class
 
 A `Table` class is what we are going to use to interact with the data (CRUD
-operations, search data, etc). It must be of type `Table<Model>` and the
-`Model` class must match the `Table` type. 
+operations, search data, etc). It must be of type `Table<Model>`. 
 
+`Model` classes can exist without a `Table` class (as normal classes), but
+`Table` classes are required if you want to keep your `Model` classes in
+a database. `Table` classes are used to create tables (based on their name) 
+and manage your `Model` objects (search, insert, update, delete, etc). 
+
+Tables will be created during initialization (only once). In other words,
+the table (in the database) won't be created until you initialize your `Table` class.
+If the table already exists, it will compare your declaration in `Model` class against
+your database. If there are changes, it will try to automatically update your table
+(more on this below). 
+
+Minimal representation:
+```groovy
+class Users extends Table<User> {}
+```
+
+You can implement your own methods to make things easier:
 ```groovy
 class Users extends Table<User> {
     User findByEmail(String userEmail) {
         return findAll(email : userEmail)
     }
+}
+```
+
+**NOTE**: When implementing your own methods, you can use the [Fluid SQL Instructions](#fluid-query-instructions),
+however, field names should be converted into "database names", for example:
+
+```groovy
+class Reservation extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    @Column(key = true)
+    LocalDateTime dayTime
+    @Column(key = true)
+    User user
+}
+```
+```groovy
+class Reservations extends Table<Reservation> {
+    List<Reservation> findByUser(User user) {
+        return findAll(user_id : user.id)
+    }
+    List<Reservation> findByDay(LocalDate day) {
+        return table.where("DATE(day_time) = ?", day.YMD).get()
+    }
+}
+```
+
+In the above example, when the `reservations` table is created, `User` field is translated into `user_id` column
+(as well the foreign key). That is why, we use `user_id` instead of `user`.
+
+In the same way, `dateTime` is translated into `date_time`. Inside `findByDay`, we are using the
+[Fluid SQL Instructions](#fluid-query-instructions) in order to search by day.
+
+** NOTE** : You can always access the [Fluid SQL Instructions](#fluid-query-instructions) 
+using `table` or `getTable()` in your `Table` class, for example:
+
+```groovy
+// This will get only the reservation time for a given user:
+int uid = 1
+LocalTime time = reservations.table.field("dayTime").get(uid).toString().toDateTime().toLocalTime()
+println time.HHmmss
+```
+
+I recommend you to keep a static instance of your `Table` classes, something like:
+```groovy
+class Instances {
+  static Users users = new Users()
+  static Reservations reservations = new Reservations()
+}
+```
+
+**NOTE**: If your `Model` class depends on other `Model` classes (e.g. `Reservation` Model contains a `User` Model field),
+those other classes tables must be initialized first (as it will create the foreign key constraint). 
+In this example, `Users` initialization must be before `Reservations`.
+
+```groovy
+// In other class:
+import static com.example.myproject.Instances.*
+
+class Printer {
+  /**
+   * It will print all reservations
+   */
+  void printReservations() {
+     println reservations.all.sort { it.dayTime }.collect { String.format("%s : %s", it.dayTime.YMDHms, it.user.name) }.join(SysInfo.newLine)
+  }
+  /**
+   * It will print all users (name and email)
+   */
+  void printUsers() {
+    println users.all.collect { String.format("%d : %s <%s>", it.id, it.name, it.email) }.join(SysInfo.newLine)
+  }
 }
 ```
 
@@ -312,9 +401,8 @@ If you want to change the table declaration, you can use `@TableMeta`, for examp
 class Users extends Table<User> { /* ... */ }
 ```
 
-By default, `Table` comes with
-many already implemented methods that you can use, for example (using `User`
-example):
+By default, `Table` comes with many already implemented methods that you can use, 
+for example (using `User` example):
 
 ```groovy
 Users users = new Users()
@@ -383,13 +471,13 @@ class MyTable extends Table<MyModel> {
 }
 ```
 
-### Joining Tables
+### Joining Tables / Foreign keys
 
 For `one-to-many` and `many-to-one` relations, you can simply add a `Model` 
 field, for example:
 
 ```groovy
-class Group extends Table<Groups> {
+class Group extends Model {
     @Column(primary = true)
     int id
     @Column
@@ -398,21 +486,63 @@ class Group extends Table<Groups> {
 ```
 
 ```groovy
-class User extends Model<Users> {
-    /* ... */
+class User extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    
     @Column
-    Group group = null
+    String login
+    
+    @Column
+    Group group
+    /* ... */
 }
 ```
 
-For `many-to-many` relations, you will need to add one extra `Model` class
+This will create a foreign key. You can specify an action for `ondelete` inside `@Column` annotation.
+
+There are some cases in which you don't need foreign keys and want to keep you code simple. For those scenarios,
+you can use for example: `List<Model>`:
+
+```groovy
+class Group extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    
+    @Column
+    String name
+    
+    @Column
+    List<User> users = []
+}
+```
+
+```groovy
+class User extends Model {
+    @Column(primary = true, autoincrement = true)
+    int id
+    
+    @Column
+    String login
+    /* ... */
+}
+```
+
+In the above example, the table `groups` will contain a column named `users`, in which all users ids are
+store as an array of integers. You don't need to know that, as everytime you use `group.users` it
+will contain a `List<User>`. By default, any `User` which doesn't exist anymore, will be omitted from the list
+and will be removed from it when the Model is updated. If you want non-existing Models to be returned as `null`
+you can specify `ondelete = NULL` (inside your `@Column` annotation). If you specify `ondelete = RESTRICT`,
+only a warning will be printed each time a `Model` is `null`.
+
+For `many-to-many` relations, you will need to add one extra `Model` class (using multiple columns as primary key)
 as follows:
 
 ```groovy
-class UserGroup extends Model<UserGroupRel> {
-    @Column(nullable = false, uniqueGroup = "usrgrp", ondelete = CASCADE)
+class UserGroup extends Model {
+    @Column(primary = true, ondelete = CASCADE)
     User user
-    @Column(nullable = false, uniqueGroup = "usrgrp", ondelete = CASCADE)
+    @Column(primary = true, ondelete = CASCADE)
     Group group
     @Column
     LocalDateTime updated
@@ -429,29 +559,29 @@ class UserGroup extends Model<UserGroupRel> {
 
 #### Supported `@Column` types inside a `Model`:
 
-* All primitives are supported (boolean is converted to ENUM)
+* All primitives are supported (boolean is automatically converted depending on database support)
 * `Model` classes
 * `enum`
 * `LocalTime`, `LocalDate` and `LocalDateTime`
-* `Collection` (List, Set, Queue, etc)
+* `Collection` (List, Set, Queue, etc), including `Collection<Model>`
 * `Map` (HashMap, Properties, etc)
 * `URI` and `URL`
 * `InetAddress`, `Inet4Address`, `Inet6Address`
 
-Any other class, will be converted using `toString()`.
+Any other class, will be converted using `toString()` / `(static) fromString()`.
 
 ### Comparison with libraries with similar functionality:
 
-| Feature                   | ICL (this library)                                                                                                                    | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                                         | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
-| Supported Databases       | MySQL / MariaDB *<br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL<br><br>\* Automatic Update | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
-| Dependencies              | None (simple JDBC)                                                                                                                    | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
-| Clean Database identities | Yes                                                                                                                                   | No                                                                                                                 | Yes                                                                                                                 |
-| SQL Injection protection  | Yes                                                                                                                                   | Yes                                                                                                                | Yes                                                                                                                 |
-| Complexity                | Low                                                                                                                                   | High                                                                                                            | Medium                                                                                                              |
+| Feature                   | ICL (this library)                                                                                                  | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                       | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
+| Supported Databases       | MySQL / MariaDB / Percona <br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
+| Dependencies              | None (simple JDBC)                                                                                                  | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
+| Clean Database identities | Yes                                                                                                                 | No                                                                                                                 | Yes                                                                                                                 |
+| SQL Injection protection  | Yes                                                                                                                 | Yes                                                                                                                | Yes                                                                                                                 |
+| Complexity                | Low                                                                                                                 | High                                                                                                               | Medium                                                                                                              |
 
-<!-- TODO: add more explanation -->
+
 
 ## Looking for something else ?
 

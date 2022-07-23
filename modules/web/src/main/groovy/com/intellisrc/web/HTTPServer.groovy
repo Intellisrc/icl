@@ -32,7 +32,8 @@ class HTTPServer {
         Response call(Map<String,String> headers, Map<String,String> params, String output)
     }
     Action action = {
-        return ""
+        Map<String,String> headers, Map<String,String> params, String output ->
+            return ""
     } as Action
 
     /**

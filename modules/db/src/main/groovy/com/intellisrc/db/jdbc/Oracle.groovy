@@ -45,46 +45,62 @@ class Oracle extends JDBCServer {
     // QUERY BUILDING -------------------------
     // Query parameters
     boolean supportsReplace = false
+    String fieldsQuotation = '"'
     String catalogSearchName = "%"
     @Override
     String getSchemaSearchName() {
         return user.toUpperCase()
     }
+    String getTableSearchName(String table) {
+        return table.toUpperCase()
+    }
 
-    /**
+    /*
      * Must return:
      *      position, column, type, length, default, notnull, primary
      *
-     * FIXME: JDBC is unable to get this information
+     * JDBC is unable to get this information
      *
-     * FIXME: 'default':
-     *      at.data_default AS "default",
-     *      is causing connection to crash for some reason
+     * NOTE: We did not include constraint_type 'C' (NOT NULL) as they are not needed here.
+     * NOTE: Returning at.data_default won't work as it is LONG inside Oracle and its really
+     *       complicated to get that from the DB.
      *
      * @param table
      * @return
-     */
+     *
     @Override
     String getInfoQuery(String table) {
-        return """SELECT
-at.COLUMN_ID AS "position",
-LOWER(at.COLUMN_NAME) AS "column",
-LOWER(at.data_type) AS "type",
-CASE at.nullable
-    WHEN 'N' THEN 0
-    WHEN 'Y' THEN 1
-END AS "nullable",
-NVL((SELECT DISTINCT 1
-     FROM all_cons_columns cc
-     JOIN all_constraints ac
-     ON(cc.CONSTRAINT_NAME = ac.CONSTRAINT_NAME)
-     WHERE ac.CONSTRAINT_TYPE = 'P'
-     AND at.COLUMN_NAME = cc.COLUMN_NAME
-     AND at.OWNER = cc.OWNER
-), 0) AS "primary"
-FROM all_tab_columns at 
-WHERE LOWER(at.table_name) = LOWER('${table}')"""
-    }
+        return """
+            SELECT 
+                at.column_id AS "position",
+                LOWER(at.column_name) as "column",
+                LOWER(at.data_type) as "type",
+                '' as "default",
+            CASE at.nullable
+                WHEN 'N' THEN 0
+                WHEN 'Y' THEN 1
+            END AS "nullable",
+            CASE
+                WHEN cc.constraint_type = 'P' THEN 1
+                ELSE 0
+            END AS "autoinc",
+            CASE
+                WHEN cc.constraint_type = 'P' THEN 1
+                ELSE 0
+            END AS "primary",
+            CASE
+                WHEN cc.constraint_type = 'U' THEN 1
+                ELSE 0
+            END AS "unique"
+            FROM all_tab_columns at
+            LEFT JOIN all_cons_columns ac 
+              ON (at.owner = ac.owner
+                AND at.table_name = ac.table_name 
+                AND at.column_name = ac.column_name)
+            LEFT JOIN all_constraints cc 
+              ON (ac.constraint_name = cc.constraint_name)    
+            WHERE cc.constraint_type != 'C' AND LOWER(at.table_name) = LOWER('${table}')"""
+    }*/
 
     /**
      * FIXME: JDBC is unable to get last ID (returning some sequence string id instead, like: 'AAATPDAAHAAAALDAAB')

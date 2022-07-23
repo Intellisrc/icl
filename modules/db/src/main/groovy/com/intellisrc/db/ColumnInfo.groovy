@@ -25,6 +25,7 @@ class ColumnInfo {
     boolean autoIncrement = false
     boolean nullable = true
     boolean generated = false
+    boolean unique = false
 
     String toString() {
         return "$position | " +
@@ -34,6 +35,23 @@ class ColumnInfo {
             (primaryKey ? "PRI | " : "") +
             (autoIncrement ? "AUTO | " : "") +
             (nullable ? "Nullable | " : "") +
-            (generated ? "Generated | " : "")
+            (generated ? "Generated | " : "") +
+            (unique ? "Unique | " : "")
+    }
+
+    Map toMap() {
+        return [
+            position    : position,
+            name        : name,
+            type        : type.toString(),
+            length      : length ?: charLength ?: bufferLength,
+            digits      : decimalDigits,
+            default     : defaultValue,
+            primary     : primaryKey,
+            autoIncrement : autoIncrement,
+            nullable    : nullable,
+            generated   : generated,
+            unique      : unique
+        ]
     }
 }

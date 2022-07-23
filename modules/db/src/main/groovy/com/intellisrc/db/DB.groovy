@@ -29,8 +29,10 @@ class DB {
     protected String table = ""
     protected int last_id = 0
     protected Query queryBuilder = null
+    // Flag to mark connections which were returned already
+    protected boolean returned = false
 	//Setter / Getters
-	Map<String, List<String>> priKeys = [:]
+	Map<String, List<ColumnInfo>> colsInfo = [:]
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
@@ -66,6 +68,7 @@ class DB {
 		ColumnType columnType(int index)
 		String columnName(int index)
 		String columnStr(int index)
+        boolean columnBool(int index)
 		Integer columnInt(int index)
 		Double columnDbl(int index)
         Float columnFloat(int index)
@@ -81,10 +84,18 @@ class DB {
 	 */
 	boolean openIfClosed() {
         boolean isopen = opened
-		if(!isopen) {
-			Log.v( "Connecting...")
+        if(!isopen) {
+            if(returned) {
+                /*
+                 * If you use a connection after calling close(), it can lead to a sudden disconnection
+                 * on timeout (from pool).
+                 * To prevent that you will need to call connect() again.
+                 */
+                Log.w("Connection was previously returned (using db.close()). It might get disconnected unexpectedly.")
+            }
+            Log.v( "Connecting...")
             isopen = dbConnector.open()
-		}
+        }
         return isopen
 	}
 
@@ -205,6 +216,7 @@ class DB {
 	 * @return 
      **/
     boolean insert(Map insvals) {
+        autoSetKeys()
         query.setAction(INSERT).setValues(insvals)
         return execSet()
     }
@@ -224,7 +236,7 @@ class DB {
 		return ok
     }
     /**
-     * Upsert row using key => values
+     * Upsert row using key => values (like insert)
      * @param vals
      * @param id
      * @return
@@ -235,7 +247,7 @@ class DB {
         return execSet()
     }
     /**
-     * Upsert data using List<Map>
+     * Upsert data using List<Map> (like insert)
      * @param repvals
      * @return
      **/
@@ -243,6 +255,52 @@ class DB {
         return repvals.every {
             replace(it)
         }
+    }
+    /**
+     * Upsert data using ID (like update)
+     * @param vals
+     * @param id
+     * @return
+     */
+    boolean replace(Map vals, Object id) {
+        return replace(vals, [id])
+    }
+    /**
+     * Upsert data using a list of ids (like update)
+     * @param vals
+     * @param ids
+     * @return
+     */
+    boolean replace(Map vals, List ids) {
+        Map keyvals
+        List pks = getPKs(table)
+        if(pks.size() == 1) { // Single pk, single id
+            if(ids.size() == 1) {
+                keyvals = [(pks.first()) : ids.first()]
+            } else { // Handle multiple ids in single pk
+                boolean ok = ids.any {
+                    replace(vals, [it])
+                }
+                return ok
+            }
+        } else if(ids.size() == ids.size()) { // Multiple ids matching pk columns
+            keyvals = pks.withIndex().collectEntries { [(it.v1): ids[it.v2]] }
+        } else { // Invalid case
+            Log.w("Incorrect number of keys passed to REPLACE for table: %s", table)
+            return false
+        }
+        return replace(vals, keyvals)
+    }
+    /**
+     * Upsert data using Map (like update)
+     * @param vals
+     * @param keyvals
+     * @return
+     */
+    boolean replace(Map vals, Map keyvals) {
+        autoSetKeys()
+        query.setAction(REPLACE).setValues((vals + keyvals) as Map)
+        return execSet()
     }
     /**
      * Delete a single ID
@@ -271,7 +329,8 @@ class DB {
     }
 
     /**
-     * Performs a data deletion using an array of ids
+     * Performs a data deletion using an array of ids.
+     * The list can be the PK ids in multiple-key tables
      * @param ids
      * @return true on success
      */
@@ -296,6 +355,7 @@ class DB {
      * @return true on success
      */
     boolean delete(Map keyvals) {
+        autoSetKeys()
         query.setAction(DELETE).setWhere(keyvals)
         return execSet()
     }
@@ -397,27 +457,43 @@ class DB {
      *      position, column, type, length, default, nullable, primary, comment
 	 * @return  **/
     List<ColumnInfo> info() {
-        List<ColumnInfo> columns
-        String infoSQL = jdbc.getInfoQuery(table)
-        if(infoSQL) {
-            columns = getSQL(infoSQL).toListMap().collect {
-                new ColumnInfo(
-                    position: (it.position ?: 0) as int,
-                    name: it.column?.toString() ?: "",
-                    nullable: ((it.nullable ?: 0) as int) == 1,
-                    primaryKey: ((it.primary ?: 0) as int) == 1,
-                    autoIncrement: ((it.autoinc ?: 0) as int) == 1
-                )
-            }
+        List<ColumnInfo> columns = []
+        if(colsInfo.containsKey(table)) {
+            columns = colsInfo.get(table) ?: []
         } else {
-            columns = dbConnector.getColumns(table)
+            String infoSQL = jdbc.getInfoQuery(table)
+            if (infoSQL) {
+                columns = getSQL(infoSQL).toListMap().collect {
+                    new ColumnInfo(
+                        position: (it.position ?: 0) as int,
+                        name: it.column?.toString() ?: "",
+                        nullable: ((it.nullable ?: 0) as int) == 1,
+                        unique: ((it.unique ?: 0) as int) == 1,
+                        primaryKey: ((it.primary ?: 0) as int) == 1,
+                        autoIncrement: ((it.autoinc ?: 0) as int) == 1
+                    )
+                }
+            } else {
+                columns = dbConnector.getColumns(table)
+            }
+            if(!columns.empty) {
+                colsInfo[table] = columns
+            }
         }
         return columns
     }
-
+    /**
+     * Shortcut to get only the information about a column
+     * @param column
+     * @return
+     */
+    ColumnInfo info(String column) {
+        return info().find { it.name == column }
+    }
     /** Quit **/
     boolean close() {
 		Log.v( "Closing connection...")
+        returned = true
     	return dbConnector.close()
     }
     /**
@@ -425,23 +501,14 @@ class DB {
      * @return
      */
     boolean isClosed() {
-        return ! dbConnector.isOpen()
+        return returned || !dbConnector.isOpen()
     }
     /**
      * Return true if connection is opened
      * @return
      */
     boolean isOpened() {
-        return dbConnector.isOpen()
-    }
-
-    /** Execute a Query **/
-    @Deprecated // Use get(Query) or set(Query)
-    Data exec(Query q = null) {
-        if(q) {
-            queryBuilder = q
-        }
-        return execGet()
+        return ! returned && dbConnector.isOpen()
     }
 
     Data get(Query q) {
@@ -568,9 +635,6 @@ class DB {
         if(!keys.empty) {
             query.setKeys(keys)
         }
-        if(keys.size() > 1) {
-            Log.w("Multiple keys is not yet supported, use a single key.")
-        }
         return this
     }
 
@@ -684,7 +748,7 @@ class DB {
     private Query getQuery() {
         if(queryBuilder == null) {
             queryBuilder = new Query(jdbc)
-            Log.v("Initializing Query")
+            //Log.v("Initializing Query")
             if(!table.isEmpty()) {
                 queryBuilder.setTable(table)
             }
@@ -698,64 +762,80 @@ class DB {
      * @return Data (List<Map>)
      */
     protected Data execGet() {
-        Log.v( "GET ::: " + query.toString())
-        query.args.each {
-            Log.v( " --> " + it)
-        }
-        String cacheKey = cache && query.tableStr ? query.tableStr + "." + (query.toString() + query.args ?.join(",")).md5() : ""
-        Data data = dataCache.get(cacheKey, {
-            // Connect if its not connected
-            if(openIfClosed()) {
-                List<Map> rows = []
-                try {
-                    Statement st = dbConnector.prepare(query, false)
-                    if(st) {
-                        queryBuilder = null
-                        while (st.next()) {
-                            Map row = [:]
-                            for (int i = st.firstColumn(); i < st.columnCount() + st.firstColumn(); i++) {
-                                if (!st.isColumnNull(i)) {
-                                    String column = jdbc.convertToLowerCase ? st?.columnName(i)?.toLowerCase() : st?.columnName(i)
-                                    ColumnType type = st?.columnType(i)
-                                    switch (type) {
-                                        case TEXT:
-                                            row.put(column, st.columnStr(i))
-                                            break
-                                        case INTEGER:
-                                            row.put(column, st.columnInt(i))
-                                            break
-                                        case FLOAT:
-                                            row.put(column, st.columnFloat(i))
-                                            break
-                                        case DOUBLE:
-                                            row.put(column, st.columnDbl(i))
-                                            break
-                                        case BLOB:
-                                            row.put(column, st.columnBlob(i))
-                                            break
-                                        case DATE:
-                                            row.put(column, st.columnDate(i))
-                                            break
-                                        default:
-                                            Log.w("Type was NULL")
-                                            break
+        String qryStr = query.toString()
+        Data data
+        if(! qryStr.empty) {
+            Log.v("GET ::: " + qryStr)
+            query.args.each {
+                Log.v(" --> " + it)
+            }
+            String cacheKey = cache && query.tableStr ? query.tableStr + "." + (qryStr + query.args?.join(",")).md5() : ""
+            data = dataCache.get(cacheKey, {
+                // Connect if its not connected
+                if (openIfClosed()) {
+                    List<Map> rows = []
+                    try {
+                        Statement st = dbConnector.prepare(query, false)
+                        if (st) {
+                            queryBuilder = null
+                            while (st.next()) {
+                                Map row = [:]
+                                for (int i = st.firstColumn(); i < st.columnCount() + st.firstColumn(); i++) {
+                                    if (!st.isColumnNull(i)) {
+                                        String column = jdbc.convertToLowerCase ? st?.columnName(i)?.toLowerCase() : st?.columnName(i)
+                                        ColumnType type = st?.columnType(i)
+                                        switch (type) {
+                                            case TEXT:
+                                                String val = st.columnStr(i).trim()
+                                                if(["true","false"].contains(val.toLowerCase())) {
+                                                    row.put(column, st.columnBool(i))
+                                                } else {
+                                                    row.put(column, st.columnStr(i))
+                                                }
+                                                break
+                                            case BOOLEAN:
+                                                row.put(column, st.columnBool(i))
+                                                break
+                                            case INTEGER:
+                                                row.put(column, st.columnInt(i))
+                                                break
+                                            case FLOAT:
+                                                row.put(column, st.columnFloat(i))
+                                                break
+                                            case DOUBLE:
+                                                row.put(column, st.columnDbl(i))
+                                                break
+                                            case BLOB:
+                                                row.put(column, st.columnBlob(i))
+                                                break
+                                            case DATE:
+                                                row.put(column, st.columnDate(i))
+                                                break
+                                            default:
+                                                Log.w("Type was NULL")
+                                                break
+                                        }
                                     }
                                 }
+                                rows.add(row)
                             }
-                            rows.add(row)
+                            st?.close()
                         }
-                        st?.close()
+                    } catch (Exception e) {
+                        dbConnector.onError(e)
                     }
-                } catch (Exception e) {
-                    dbConnector.onError(e)
+                    return new Data(rows)
+                } else if(returned) {
+                    Log.w("Connection was closed (returned to the pool). Unable to execute query: %s", query.queryStr)
+                } else {
+                    Log.e("Unable to read from server")
+                    dbConnector.onError(new ConnectException())
+                    return null
                 }
-                return new Data(rows)
-            } else {
-                Log.e("Unable to read from server")
-                dbConnector.onError(new ConnectException())
-                return null
-            }
-        }, disableCache ? 0 : cache)
+            }, disableCache ? 0 : cache)
+        } else {
+            data = new Data([])
+        }
         return data
     }
 
@@ -765,83 +845,113 @@ class DB {
      */
     protected boolean execSet() {
 		boolean ok = false
-        boolean upsert = false
+        Map<String,Object> replaceData = [:]
         query.isSetQuery = true
-        if(openIfClosed()) {
-            if(query.actionType == REPLACE &&! jdbc.supportsReplace) {
-                if(query.key) {
-                    Map allBut = query.whereValues.findAll { it.key != query.key }
-                    Object id = query.whereValues.get(query.key)
-                    queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
-                        .setKeys(query.keys).setValues(allBut).setWhere(id)
-                    query.isSetQuery = true
-                    upsert = true
-                } else {
-                    Log.w("Unable to find key when emulating REPLACE command in table: %s", query.tableStr)
+        String qryStr = query.toString()
+        if(! qryStr.empty) {
+            if (openIfClosed()) {
+                Log.v("SET ::: " + qryStr)
+                query.args.each {
+                    Log.v(" --> " + it)
                 }
-            }
-
-			Log.v( "SET ::: " + query.toString())
-			query.args.each {
-				Log.v( " --> " + it)
-			}
-            if(cache && clearCache && query.tableStr) {
-                clearCache()
-            }
-            Statement st
-            try {
-                boolean silent = upsert
-                st = dbConnector.prepare(query, silent)
-                if(upsert && st.updatedCount() == 0) {
-                    try {
-                        query.setAction(INSERT)
-                        Log.v( "SET ::: " + query.toString())
-                        query.args.each {
-                            Log.v( " --> " + it)
+                if (query.actionType == REPLACE && !jdbc.supportsReplace) {
+                    if (! query.keys.empty) {
+                        List keys = query.keys
+                        replaceData = query.whereValues
+                        Map allBut = replaceData.findAll {
+                            ! info(it.key).primaryKey
                         }
-                        st = dbConnector.prepare(query, false)
-                    } catch(Exception e2)  {
-                        Log.e("Query Syntax error: ", e2)
+                        Object id = replaceData.findAll { info(it.key).primaryKey }?.collect { it.value }
+                        queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
+                        if(id) {
+                            queryBuilder.setKeys(keys).setWhere(id)
+                        }
+                        queryBuilder.setValues(allBut)
+                        queryBuilder.isSetQuery = true
+                        Log.v("SET ::: " + queryBuilder.toString())
+                        queryBuilder.args.each {
+                            Log.v(" --> " + it)
+                        }
+                        // query will import queryBuilder
+                    } else {
+                        Log.w("Unable to find key when emulating REPLACE command in table: %s", query.tableStr)
                     }
                 }
-            } catch (Exception e) {
-                Log.e("Query Syntax error: ", e)
-            }
-            if(st != null) {
+                if (cache && clearCache && query.tableStr) {
+                    clearCache()
+                }
+                Statement st
                 try {
-                    st.next()
-                    if (query.isIdentityUpdate) {
-                        String id = st.columnStr(1)
-                        if(id && id.isNumber()) {
-                            last_id = st.columnInt(1)
-                        } else {
-                            Log.d("Received last id: %s", id)
-                            last_id = 0
+                    boolean upsert = ! replaceData.isEmpty()
+                    boolean silent = upsert
+                    st = dbConnector.prepare(query, silent)
+                    if (upsert && st && st.updatedCount() == 0) {
+                        try {
+                            // Copy query:
+                            Query insert = Query.copyOf(query, INSERT)
+                            // With original args:
+                            insert.whereValues = replaceData
+                            // If its autoincrement, remove the insert value
+                            if(info(insert.key).autoIncrement) {
+                                int pki = insert.whereValues.keySet().toList().indexOf(insert.key)
+                                if (pki >= 0) {
+                                    insert.args.remove(pki)
+                                    insert.whereValues.remove(insert.key)
+                                }
+                            }
+                            Log.v("SET ::: " + insert.toString())
+                            insert.args.each {
+                                Log.v(" --> " + it)
+                            }
+                            st = dbConnector.prepare(insert, false)
+                        } catch (Exception e2) {
+                            Log.e("Query Syntax error: ", e2)
                         }
-                        if (!last_id && jdbc.getLastIdQuery(query.table)) {
-                            Log.d("Last ID not found. Using fallback method...")
-                            String table = query.table
-                            queryBuilder = new Query(jdbc, LASTID)
-                            queryBuilder.table = table
-                            if(queryBuilder) {
-                                last_id = execGet().toInt()
-                                Log.d("Fallback method returned [%d] as last id", last_id)
+                    }
+                } catch (Exception e) {
+                    Log.e("Query Syntax error: ", e)
+                }
+                if (st != null) {
+                    try {
+                        st.next()
+                        List<String> pks = getPKs()
+                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first()).autoIncrement) {
+                            String id = st.columnStr(1)
+                            if (id && id.isNumber()) {
+                                last_id = st.columnInt(1)
+                            } else {
+                                if(! st.isColumnNull(1)) {
+                                    Log.d("Received last id: %s", id)
+                                }
+                                last_id = 0
+                            }
+                            if (!last_id && jdbc.getLastIdQuery(query.table)) {
+                                Log.d("Last ID not found. Using fallback method...")
+                                String table = query.table
+                                queryBuilder = new Query(jdbc, LASTID)
+                                queryBuilder.table = table
+                                if (queryBuilder) {
+                                    last_id = execGet().toInt()
+                                    Log.d("Fallback method returned [%d] as last id", last_id)
+                                }
+                            }
+                            if (!last_id) {
+                                Log.d("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
                             }
                         }
-                        if(!last_id) {
-                            Log.d("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
-                        }
+                        ok = true
+                    } catch (Exception e) {
+                        Log.e("%s failed. ", query.getAction().name(), e)
                     }
-                    ok = true
-                } catch (Exception e) {
-                    Log.e( "%s failed. ", query.getAction().name(), e)
+                    st?.close()
                 }
-                st.close()
+                queryBuilder = null
+            } else if(returned) {
+                Log.w("Connection was closed (returned to the pool). Unable to execute query: %s", query.queryStr)
+            } else {
+                Log.e("No changes done: database is not open")
+                dbConnector.onError(new ConnectException())
             }
-            queryBuilder = null
-        } else {
-            Log.e( "No changes done: database is not open")
-            dbConnector.onError(new ConnectException())
         }
         return ok
     }
@@ -851,34 +961,19 @@ class DB {
      */
     void autoSetKeys() {
         if(query.keyList.empty) {
-            searchPriKeys()
-            if(priKeys.containsKey(table)) {
-                keys(priKeys[table])
+            if(! getPKs(table).empty) {
+                keys(getPKs(table))
             }
         }
     }
     /**
-     * Search and set PKs for tables in the database
+     * Get Primary key(s) from table
+     * @param table
+     * @return
      */
-    void searchPriKeys() {
-        boolean ok = false
-        if(openIfClosed()) {
-            if (!priKeys.containsKey(table)) {
-                List<ColumnInfo> info = info()
-                List<ColumnInfo> pks = info.findAll {
-                    it.primaryKey
-                }
-                if(!pks.empty) {
-                    priKeys.put(table, pks.collect { it.name })
-                }
-            } else {
-                ok = true
-            }
-            if (ok) {
-                query.setKeys(priKeys.get(table))
-            }
-        }
+    List<String> getPKs(String tbl = table) {
+        info()
+        return colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: []
     }
-
 }
 

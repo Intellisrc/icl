@@ -10,7 +10,7 @@ import java.sql.Types
  */
 @CompileStatic
 enum ColumnType {
-    TEXT, INTEGER, FLOAT, DOUBLE, BLOB, DATE, NULL
+    TEXT, BOOLEAN, INTEGER, FLOAT, DOUBLE, BLOB, DATE, NULL
 
     /**
      * Converts Java SQL int to ColumnType:
@@ -22,6 +22,7 @@ enum ColumnType {
         //noinspection GroovyFallthrough
         switch (type) {
             case Types.NCLOB: //N means: Unicode
+            case Types.CLOB:  // Character blob
             case Types.CHAR:
             case Types.NCHAR:
             case Types.VARCHAR:
@@ -31,6 +32,7 @@ enum ColumnType {
                 return TEXT
             case Types.BIT:
             case Types.BOOLEAN:
+                return BOOLEAN
             case Types.TINYINT:
             case Types.SMALLINT:
             case Types.INTEGER:
@@ -53,12 +55,16 @@ enum ColumnType {
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
             case Types.BLOB:
-            case Types.CLOB:
                 return BLOB
             case Types.NULL:
                 return NULL
             case Types.JAVA_OBJECT:
                 return TEXT
+            //Postgresql report these types on system tables:
+            case Types.DISTINCT:
+            case Types.ARRAY:
+            case Types.OTHER:
+                return NULL // We ignore them
             default:
                 Log.w("Data type not supported: %d", type)
                 return NULL

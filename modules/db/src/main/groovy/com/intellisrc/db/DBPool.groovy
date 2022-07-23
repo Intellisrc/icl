@@ -1,9 +1,6 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.AnsiColor
-import com.intellisrc.core.Config
-import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
+import com.intellisrc.core.*
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
@@ -14,6 +11,10 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Manage the DB connection pool
  * It handles automatically the number of connections as it
  * increases or decrease the pool according to demand.
+ *
+ * It will keep connections for some time (specified by expireSeconds) in which
+ * they can be reused to increase performance
+ *
  * @author Alberto Lepe
  */
 class DBPool {
@@ -160,11 +161,13 @@ class DBPool {
             increasePoolIfEmpty()
             connection = availableConnections.poll()
 			connection.lastUsed = System.currentTimeSeconds()
-			currentConnections.add(connection)
+			if(!currentConnections.contains(connection)) {
+				currentConnections.add(connection)
+				Log.v( "[ADD] Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
+			}
 			if(debugTimeout) {
 				connTrace[connection] = Thread.currentThread().stackTrace.toList()
 			}
-            Log.v( "Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
 		} else {
 			Log.e( "Database Pool was not initialized")
 		}
@@ -174,8 +177,10 @@ class DBPool {
 	synchronized void returnConnectionToPool(DB.Connector connection) {
 		if(connection) {
 			currentConnections.remove(connection)
-			availableConnections.add(connection)
-			Log.v("Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
+			if(!availableConnections.contains(connection)) {
+				availableConnections.add(connection)
+				Log.v("[DEL] Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
+			}
 		}
 	}
 }

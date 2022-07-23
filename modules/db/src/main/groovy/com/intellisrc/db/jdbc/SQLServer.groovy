@@ -1,6 +1,7 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
+import com.intellisrc.db.auto.AutoJDBC
 import groovy.transform.CompileStatic
 
 /**

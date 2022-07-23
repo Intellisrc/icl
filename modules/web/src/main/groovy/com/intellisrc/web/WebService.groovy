@@ -228,7 +228,12 @@ class WebService {
      * @return
      */
     protected void addServicePath(Service service, String rootPath) {
-        String fullPath = (rootPath + service.path).replaceAll(/\/\//,"/") //Remove double "/"
+        // Remove double slashes
+        String fullPath = (rootPath + service.path).replaceAll(/\/\//,"/")
+        // Be sure it starts with "/"
+        if(!fullPath.startsWith("/")) { fullPath = "/" + fullPath }
+        // Remove last "/" (no longer needed)
+        if(fullPath.endsWith("/")) { fullPath = fullPath.dropRight(1) }
         if (listPaths.contains(service.method.toString() + fullPath)) {
             Log.w("Warning, duplicated path [" + fullPath + "] and method [" + service.method.toString() + "] found.")
         } else {

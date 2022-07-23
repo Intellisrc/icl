@@ -46,12 +46,12 @@ class PoolConnector implements Connector {
 
 	@Override
 	List<String> getTables() {
-		return currentConnector.tables
+		return currentConnector?.tables
 	}
 
 	@Override
 	List<ColumnInfo> getColumns(String table) {
-		return currentConnector.getColumns(table)
+		return open() ? currentConnector?.getColumns(table) : []
 	}
 
 	@Override

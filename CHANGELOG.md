@@ -1,5 +1,22 @@
 # Main Changes
 
+### 2.8.6
+* Simplified use of `Model` : Changed `Model<Table>` to `Model` (db)
+* Added support for SQLite and Derby for `Model` (Auto) (db)
+* Added support for multiple-column primary keys (db)
+* Improved support for NULL and Boolean in databases (db)
+* Improved stability for many classes in `db` module
+* Updated Spark version to fix vulnerabilities and add features (web)
+
+### 2.8.5
+* Improved WebSocket behaviour (web)
+* Improved and fixed minor issues in `Table` (db)
+* Fixed `Zip` when using subdirectories and added charset.  (etc)
+* Improved Windows compatibility in `Hardware` (etc)
+* Fixed `Cmd` when command contained spaces (core)
+* Added `Cmd.succeed` (core)
+* Improved `Mime` detection priority (etc)
+
 ### 2.8.4
 * Moved `SysInfo.getFile` to `File.get()`
 * `Cmd` recoded and added new features like reading output line by line

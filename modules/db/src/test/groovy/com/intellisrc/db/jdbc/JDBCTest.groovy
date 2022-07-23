@@ -1,10 +1,13 @@
 package com.intellisrc.db.jdbc
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
-import spock.lang.Ignore
+import com.intellisrc.net.LocalHost
+import com.intellisrc.term.TableMaker
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 import static com.intellisrc.db.Query.SortOrder.*
@@ -13,20 +16,42 @@ import static com.intellisrc.db.Query.SortOrder.*
  * @since 2022/01/20.
  */
 abstract class JDBCTest extends Specification {
+    static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
+
     abstract JDBC getDB()
+
+    boolean shouldSkip() {
+        JDBC jdbc = this.getDB()
+        boolean skip = jdbc instanceof JDBCServer
+            && (ci || ((jdbc as JDBCServer).port &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)))
+        if(skip) {
+            Log.w("Test skipped for : %s (environment not ready)", jdbc.class.simpleName)
+        }
+        return skip
+    }
+
     void clean(DB db, String table) {}
     /**
      * Create a table:
      *      id      : int auto-increment
      *      name    : varchar
      *      version : float / double
-     *      active  : enum(Y,N)
+     *      active  : boolean
      *      updated : datetime
      * @param name
      * @return
      */
     String getTableCreate(String nam) { return "" }
     List<String> getTableCreateMulti(String name) { [] }
+    /**
+     * Create a table with multiple columns as Primary key
+     *      uid     : int not null primary
+     *      gid     : int not null primary
+     *      name    : varchar not null
+     * @param name
+     * @return
+     */
+    String getTableCreateMultiplePK(String name) { return "" }
 
     def setup() {
         DB db = getDB().connect()
@@ -34,6 +59,7 @@ abstract class JDBCTest extends Specification {
         db.close()
     }
 
+    @IgnoreIf({ instance.shouldSkip() })
     def "Simple Connection"() {
         setup:
             String table = "linux"
@@ -46,6 +72,10 @@ abstract class JDBCTest extends Specification {
             Object setDate = {
                 String d ->
                     return jdbc.supportsDate ? d.toDate() : d
+            }
+            def q = {
+                String s ->
+                    return jdbc.fieldsQuotation + s + jdbc.fieldsQuotation
             }
         then:
             assert db : "Unable to connect"
@@ -60,12 +90,7 @@ abstract class JDBCTest extends Specification {
             assert ! db.closed
         when: "Table info"
             List<ColumnInfo> info = db.table(table).info()
-            Log.i("Table Info:")
-            Log.i("-----------------------------------------------------------")
-            info.each {
-                Log.i("\t\t%s",it.toString())
-            }
-            Log.i("-----------------------------------------------------------")
+            new TableMaker(info.collect { it.toMap() }).print()
         then: "Must have information"
             assert ! info.empty
         then: "Must have a primary key"
@@ -74,30 +99,35 @@ abstract class JDBCTest extends Specification {
             assert db.table(table).exists()
         then: "Insert first"
             assert db.table(table).insert(
-                [ name : "Ubuntu",     active: "Y",    updated: setDate("2022-08-01"),     version: 3.7 ],
+                [ name : "Ubuntu",     active: true,    updated: setDate("2022-08-01"),     version: 3.7 ],
             )
             assert db.lastID == 1
         then: "Insert Second"
             assert db.table(table).insert(
-                [ name : "Debian",     active: "Y",    updated: setDate("2022-09-01"),     version: 9.1 ],
+                [ name : "Debian",     active: true,    updated: setDate("2022-09-01"),     version: 9.1 ],
             )
             assert db.lastID == 2
-        then: "Retrieve all"
-            assert db.table(table).get().toListMap().size() == 2
+        then: "Count all"
+            assert db.table(table).count().get().toInt() == 2
+        when:
+            new TableMaker(db.table(table).get().toListMap()).print()
         then: "Columns must match (getting first with automatic PK)"
-            assert db.table(table).get(1).toMap().keySet().size() == 5
+            assert db.table(table).limit(1).get().toMap().keySet().size() == 5
+            assert db.table(table).field("name").get(1).toString() == "Ubuntu"
         then: "Retrieve second (using manual PK)"
             assert db.table(table).field("name").key("id").get(2).toString() == "Debian"
         then: "Bulk insert"
             assert db.table(table).insert([
-                [ name : "RedHat",      active: "N",    updated: setDate("2009-11-01"),     version: 3.3 ],
-                [ name : "Slackware",   active: "N",    updated: setDate("2007-09-01"),     version: 2.1 ],
-                [ name : "Suse",        active: "N",    updated: setDate("2006-01-01"),     version: 3.9 ],
-                [ name : "Kali",        active: "Y",    updated: setDate("2021-12-01"),     version: 7.4 ],
-                [ name : "Fedora",      active: "N",    updated: setDate("2012-03-01"),     version: 7.3 ],
-                [ name : "MX Linux",    active: "Y",    updated: setDate("2021-04-01"),     version: 1.2 ],
-                [ name : "Manjaro",     active: "Y",    updated: setDate("2022-06-01"),     version: 3.2 ],
+                [ name : "RedHat",      active: false,   updated: setDate("2009-11-01"),     version: 3.3 ],
+                [ name : "Slackware",   active: false,   updated: setDate("2007-09-01"),     version: 2.1 ],
+                [ name : "Suse",        active: false,   updated: setDate("2006-01-01"),     version: 3.9 ],
+                [ name : "Kali",        active: true,    updated: setDate("2021-12-01"),     version: 7.4 ],
+                [ name : "Fedora",      active: false,   updated: setDate("2012-03-01"),     version: 7.3 ],
+                [ name : "MX Linux",    active: true,    updated: setDate("2021-04-01"),     version: 1.2 ],
+                [ name : "Manjaro",     active: true,    updated: setDate("2022-06-01"),     version: 3.2 ],
             ])
+        when:
+            new TableMaker(db.table(table).get().toListMap()).print()
         then:
             assert db.table(table).count().get().toInt() == 9
         when: "Get selected IDs"
@@ -119,12 +149,12 @@ abstract class JDBCTest extends Specification {
                 ]).toMap().name == "Manjaro"
             }
         when: "Get using where"
-            list = db.table(table).field("name").where("version > ?", 5).get().toList()
+            list = db.table(table).field("name").where(q("version") + " > ?", 5).get().toList()
         then:
             assert list.size() == 3
             assert list.contains("Fedora".toString())
         when: "Get using where multiple args"
-            list = db.table(table).field("name").where("version > ? AND version < ?", [2, 5]).get().toList()
+            list = db.table(table).field("name").where(q("version") + " > ? AND " + q("version") + " < ?", [2, 5]).get().toList()
         then:
             assert list.size() == 5
             assert list.contains("Ubuntu".toString())
@@ -156,18 +186,19 @@ abstract class JDBCTest extends Specification {
             assert list.size() == 2
             assert list.first() as float == 7.4f // Kali
         then: "Group By"
-            assert db.table(table).count().group("active").get([ active : "Y" ]).toInt() == 5
+            assert db.table(table).count().group("active").get([ active : true ]).toInt() == 5
         when: "Group By with Order"
-            List<Map> listOfMaps = db.table(table).fields("active").order([
-                active : ASC    // N, Y   NOTE: when ordering an enum in MySQL/MariaDB is ordered based on the ordinal not the label
-            ]).group("active").get().toListMap()
+            new TableMaker(db.table(table).get().toListMap()).print()
+            List<Map> listOfMaps = db.table(table).fields("active").order(
+                active : ASC    // false, true   NOTE: when ordering an enum is ordered based on the ordinal not the label
+            ).group("active").get().toListMap()
             listOfMaps.each {
-                Log.i("%s --> %s", it.name, it.active)
+                Log.i("--> %s", it.active)
             }
         then: "Match order and group"
             assert listOfMaps.size() == 2
-            assert listOfMaps.first().active == "N"
-            assert listOfMaps.last().active == "Y"
+            assert listOfMaps.first().active == false
+            assert listOfMaps.last().active == true
         then: "Updating with single ID"
             assert db.table(table).key("id").update([
                 name : "Kubuntu"
@@ -182,10 +213,10 @@ abstract class JDBCTest extends Specification {
             assert db.table(table).field("name").get(1).toString() == "Xubuntu"
         then: "Updating with more than one ID"
             assert db.table(table).key("id").update([
-                active : "N"
+                active : false
             ],[8,9])
         then: "Update with map criteria"
-            assert db.table(table).update([ active: "N" ], [ active: "Y" ])
+            assert db.table(table).update([ active: false ], [ active: true ])
         then: "Update with id, multiple"
             assert db.table(table).update([
                 3 : [ version : 3.4f ],
@@ -199,9 +230,9 @@ abstract class JDBCTest extends Specification {
             assert db.table(table).field("name").get(9).toString() == "Mandrake"
         then: "Replace Multiple"
             assert db.table(table).replace([
-                [id : 9,    name: "Mandriva", version : 3.2f, active: "Y", updated: setDate("2022-06-01") ],
-                [id : 8,    name: "MXLinux",  version : 1.2f, active: "Y", updated: setDate("2021-04-01") ],
-                [id : 10,   name: "Mint",     version : 7.8f, active: "Y", updated: setDate("2022-01-01") ] // Must be inserted
+                [id : 9,    name: "Mandriva", version : 3.2f, active: true, updated: setDate("2022-06-01") ],
+                [id : 8,    name: "MXLinux",  version : 1.2f, active: true, updated: setDate("2021-04-01") ],
+                [id : 10,   name: "Mint",     version : 7.8f, active: true, updated: setDate("2022-01-01") ] // Must be inserted
             ])
             assert db.table(table).field("name").get(8).toString() == "MXLinux"
             assert db.table(table).field("name").get(9).toString() == "Mandriva"
@@ -214,11 +245,7 @@ abstract class JDBCTest extends Specification {
             assert db.table(table).key("id").delete(1,2,9)
             assert db.table(table).count().get().toInt() == 6
         then: "delete using Map criteria"
-            if(jdbc.supportsDate) {
-                assert db.table(table).delete([updated: "2021-12-01".toDate()])
-            } else {
-                assert db.table(table).delete([updated: "2021-12-01"])
-            }
+            assert db.table(table).delete([updated: setDate("2021-12-01")])
             assert db.table(table).count().get().toInt() == 5
         then: "delete using String IDs"
             assert db.table(table).key("name").delete("RedHat","Slackware")
@@ -232,10 +259,16 @@ abstract class JDBCTest extends Specification {
             db?.close()
     }
 
+    @IgnoreIf({ instance.shouldSkip() })
     def "Connection with Pool"() {
         setup:
-            Database database = new Database(getDB())
+            JDBC jdbc = getDB()
+            Database database = new Database(jdbc)
             String table = "linux"
+            Object setDate = {
+                String d ->
+                    return jdbc.supportsDate ? d.toDate() : d
+            }
         when: "Create connection"
             DB db = database.connect()
         then:
@@ -247,12 +280,12 @@ abstract class JDBCTest extends Specification {
             assert db.tables.contains(table)
         then: "Insert first"
             assert db.table(table).insert(
-                [ name : "Ubuntu",     active: "Y",    updated: "2022-08-01",     version: 3.7 ],
+                [ name : "Ubuntu", active: true, updated: setDate("2022-08-01"), version: 3.7 ],
             )
             assert db.lastID == 1
         then: "Insert Second"
             assert db.table(table).insert(
-                [ name : "Debian",     active: "Y",    updated: "2022-09-01",     version: 9.1 ],
+                [ name : "Debian", active: true, updated: setDate("2022-09-01"), version: 9.1 ],
             )
             assert db.lastID == 2
         then: "Retrieve second"
@@ -263,16 +296,18 @@ abstract class JDBCTest extends Specification {
             assert db.tables.empty
         cleanup:
             clean(db, table)
-            database.quit()
+            database?.quit()
     }
 
+    @IgnoreIf({ instance.shouldSkip() })
     def "Test Drop all tables"() {
-        when:
-            DB db = getDB().connect()
+        setup:
+            JDBC jdbc = getDB()
+            DB db = jdbc.connect()
             String table = "linux"
             boolean isSingleStm = getTableCreate(table) != ""
             int numTables = 5
-        then: "Create table"
+        when: "Create table"
             (1..numTables).each {
                 println "Creating ${table}${it}..."
                 assert isSingleStm ? db.setSQL(getTableCreate("${table}${it}")) : db.setSQL(getTableCreateMulti("${table}${it}"))
@@ -294,4 +329,91 @@ abstract class JDBCTest extends Specification {
             db?.close()
     }
 
+    @IgnoreIf({ instance.shouldSkip() })
+    def "Test NULL"() {
+        setup:
+            JDBC jdbc = getDB()
+            DB db = jdbc.connect()
+            String table = "nullable"
+            Object setDate = {
+                String d ->
+                    return jdbc.supportsDate ? d.toDate() : d
+            }
+        when: "Create table"
+            assert db.setSQL(getTableCreate(table)) ?: db.setSQL(getTableCreateMulti(table))
+        then: "Insert values"
+            assert db.table(table).insert([
+                [ name : "RedHat",      active: false,   updated: null,     version: 3.3 ],
+                [ name : "Slackware",   active: false,   updated: null,     version: 2.1 ],
+                [ name : "Suse",        active: false,   updated: setDate("2006-01-01"),     version: 3.9 ],
+                [ name : "Kali",        active: true,    updated: setDate("2021-12-01"),     version: 7.4 ],
+                [ name : "Fedora",      active: false,   updated: setDate("2012-03-01"),     version: 7.3 ],
+                [ name : "MX Linux",    active: true,    updated: setDate("2021-04-01"),     version: 1.2 ],
+                [ name : "Manjaro",     active: true,    updated: setDate("2022-06-01"),     version: 3.2 ],
+            ])
+        then: "Select with null"
+            assert db.table(table).get(updated: null).toList().size() == 2
+        when: "Drop tables"
+            db.dropAllTables()
+        then:
+            assert db.tables.empty
+        cleanup:
+            clean(db, table)
+            db?.close()
+    }
+
+    @IgnoreIf({ instance.shouldSkip() })
+    def "Multiple key support"() {
+        setup:
+            JDBC jdbc = getDB()
+            DB db = jdbc.connect()
+            String table = "mulpk"
+        expect: "No tables"
+            assert db.tables.empty
+        when: "Create table"
+            assert db.setSQL(getTableCreateMultiplePK(table))
+        then : "Be sure the table is there"
+            assert db.tables.size() == 1
+            assert db.tables.contains(table)
+        then: "Insert values"
+            assert db.table(table).insert([
+                [ uid : 1, gid : 1, name : "User1-1" ],
+                [ uid : 2, gid : 1, name : "User2-1" ],
+                [ uid : 2, gid : 2, name : "User2-2" ],
+                [ uid : 3, gid : 2, name : "User3-2" ],
+                [ uid : 3, gid : 3, name : "User3-3" ],
+                [ uid : 4, gid : 3, name : "User4-3" ],
+                [ uid : 4, gid : 4, name : "User4-4" ],
+                [ uid : 5, gid : 4, name : "User5-4" ],
+                [ uid : 5, gid : 5, name : "User5-5" ],
+                [ uid : 5, gid : 6, name : "User5-6" ],
+            ])
+        then: "Select using multiple keys"
+            assert db.table(table).get().toListMap().size() == 10
+            assert db.table(table).get([1,1]).toMap().name == "User1-1"
+            assert db.table(table).keys(["uid","gid"]).get([4,3]).toMap().name == "User4-3"
+        then: "Update"
+            assert db.table(table).update([name: "User2-1-upd"], [2,1])
+            assert db.table(table).get([2,1]).toMap().name == "User2-1-upd"
+        then: "Update Using map"
+            assert db.table(table).update([name: "User2-1-upd2"], [gid : 1, uid : 2])
+            assert db.table(table).get([2,1]).toMap().name == "User2-1-upd2"
+        when:
+            new TableMaker(db.table(table).get().toListMap()).print(true)
+        then: "Replace"
+            assert db.table(table).replace([name: "User2-1"], [2,1])
+            assert db.table(table).get([2,1]).toMap().name == "User2-1"
+        when:
+            new TableMaker(db.table(table).get().toListMap()).print(true)
+        then: "Delete"
+            assert db.table(table).delete([[1,1] , [2,1]])
+            assert db.table(table).get().toListMap().size() == 8
+        when: "Drop tables"
+            db.dropAllTables()
+        then:
+            assert db.tables.empty
+        cleanup:
+            clean(db, table)
+            db?.close()
+    }
 }

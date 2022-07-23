@@ -44,6 +44,14 @@ abstract class JDBC {
     abstract String getDbname()
     abstract String getUser()
     abstract String getPassword()
+    /**
+     * Class for driver
+     * @return
+     */
+    abstract String getDriver()
+    abstract void setDriver(String driver)
+
+    ErrorHandler onError = { Throwable e -> Log.w("Database exception: %s", e.message) } as ErrorHandler
 
     // Aliases
     final void setDatabase(String name) { dbname = name }
@@ -54,14 +62,10 @@ abstract class JDBC {
     final String getName() { return dbname }
     final String getUsername() { return user }
     final String getPass() { return password }
-    /**
-     * Class for driver
-     * @return
-     */
-    abstract String getDriver()
-    abstract void setDriver(String driver)
 
-    ErrorHandler onError = { Exception e -> Log.w("Database exception: %s", e.message) } as ErrorHandler
+    Map params = [:] // Store params passed in constructor
+    protected Map getParameters() { return params }
+
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):
@@ -104,14 +108,20 @@ abstract class JDBC {
      * Properties:
      * Override if its different
      */
-    // Some databases require fields and tables to be quoted, for example, MySQL uses "`"
+    // Some databases require fields to be quoted, for example, MySQL uses "`"
     String getFieldsQuotation() { return "" }
+    // Some databases require tables to be quoted, for example, MySQL uses "`"
+    String getTablesQuotation() { return "" }
     // Some databases (like SQLite) does not support DATE type. Turn this off.
     boolean getSupportsDate() { return true }
     // Some databases (like Oracle) stores tables and fields in UpperCase, with this, all all converted into lower:
     boolean getConvertToLowerCase() { return true }
     // When false it will use LIMIT ... OFFSET
     boolean getUseFetch() { return true }
+    // If Database supports native boolean
+    boolean getSupportsBoolean() { return false }
+    // Syntax to specify column is null
+    String getIsNullQuery() { return  "IS NULL" }
     // When true, it will use "replace" query, otherwise will try to update first and if it fails, will insert
     // FIXME: The best performance and thread-safe way is to implement MERGE/ON CONFLICT, however
     //        it is more complicated to implement.
