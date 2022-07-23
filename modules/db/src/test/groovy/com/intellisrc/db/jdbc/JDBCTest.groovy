@@ -15,13 +15,14 @@ import static com.intellisrc.db.Query.SortOrder.*
  * @since 2022/01/20.
  */
 abstract class JDBCTest extends Specification {
+    static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
+
     abstract JDBC getDB()
 
     boolean shouldSkip() {
         JDBC jdbc = this.getDB()
         boolean skip = jdbc instanceof JDBCServer
-            && (jdbc as JDBCServer).port
-            &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)
+            && (ci || ((jdbc as JDBCServer).port &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)))
         if(skip) {
             Log.w("Test skipped for : %s (environment not ready)", jdbc.class.simpleName)
         }

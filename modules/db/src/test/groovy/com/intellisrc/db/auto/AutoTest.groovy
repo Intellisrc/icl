@@ -20,13 +20,14 @@ import java.time.LocalDate
  * @since 2022/07/08.
  */
 class AutoTest extends Specification {
+    static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
     static File sqliteTmp = File.get(File.tempDir, "sqlite.db")
     static File derbyTmp = File.get(File.tempDir, "derby.db")
     static Map<Object, Boolean> dbTest = [
         (Derby)     : true,
         (SQLite)    : true,
-        (MariaDB)   : true,
-        (MySQL)     : true,
+        (MariaDB)   : !ci,
+        (MySQL)     : !ci,
         (Firebird)  : false,
         (Oracle)    : false,
         (SQLServer) : false,
