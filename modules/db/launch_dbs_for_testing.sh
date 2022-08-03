@@ -52,22 +52,22 @@ if [[ $1 == "oracle-12" ]]; then
 # and accept the licence terms before be able to download
 # It requires 25GB of HDD and 4GB of memory
 docker login container-registry.oracle.com
-#  -e "ORACLE_SID=XEPDB" \
-#  -e "ORACLE_PWD=test" \
-#  -e "ORACLE_PDB=XEPDB1" \
 docker run --name oracle_test \
   --shm-size="4g" \
   -e "DB_SID=XEPDB" \
   -e "DB_PASSWD=test" \
   -e "DB_PDB=XEPDB1" \
   -e "DB_BUDLE=basic" \
+  -e "ORACLE_SID=XEPDB" \
+  -e "ORACLE_PWD=test" \
+  -e "ORACLE_PDB=XEPDB1" \
   -p 127.0.0.1:31521:1521 \
   -d container-registry.oracle.com/database/standard:12.1.0.2
 echo "Oracle may take a few minutes to be available (Wait until it displays it is ready): "
 echo "docker logs -f oracle_test"
 read -p "Press ENTER when oracle is ready, to create initial database."
-docker exec -it oracle_test sh -c '"CREATE USER test IDENTIFIED BY test;"|/u01/app/oracle/product/12.1.0/dbhome_1/bin/sqlplus system/test@XEPDB1'
-docker exec -it oracle_test sh -c '";GRANT ALL PRIVILEGES TO test"|/u01/app/oracle/product/12.1.0/dbhome_1/bin/sqlplus system/test@XEPDB1'
+docker exec -it oracle_test sh -c 'echo "CREATE USER test IDENTIFIED BY test;"|/u01/app/oracle/product/12.1.0/dbhome_1/bin/sqlplus system/test@XEPDB1'
+docker exec -it oracle_test sh -c 'echo "GRANT ALL PRIVILEGES TO test;"|/u01/app/oracle/product/12.1.0/dbhome_1/bin/sqlplus system/test@XEPDB1'
 fi
 # PostgresSQL
 if [[ $1 == "" || $1 == "postgres" ]]; then

@@ -3,7 +3,7 @@ package com.intellisrc.web.samples
 import com.intellisrc.web.Service
 import com.intellisrc.web.Service.Action
 import com.intellisrc.web.ServiciableHTTPS
-import com.intellisrc.web.ServiciableSingle
+import com.intellisrc.web.SingleService
 import spark.Request
 
 /**
@@ -14,7 +14,7 @@ import spark.Request
  * 2. Execute: java-cert-importer.sh (inside res/public/)
  * in order to import keystore file into trusted certs
  */
-class SSLService implements ServiciableHTTPS, ServiciableSingle {
+class SSLService extends SingleService implements ServiciableHTTPS {
     private static final String SUPER_SECRET = "9EEyYMvmqTqppiNVjRxgWcgViMoKbMPcLutbWJEqvN93uNbkuxCV7tCLVxzVpPkUhUWJYzu"
     Action getSecret = {
         Request request ->

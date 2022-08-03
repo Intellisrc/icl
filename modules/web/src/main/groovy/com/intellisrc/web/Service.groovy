@@ -4,11 +4,13 @@ import groovy.transform.CompileStatic
 import spark.Request
 import spark.Response
 
+import java.util.regex.Pattern
+
 /**
  * @since 17/04/04.
  */
 @CompileStatic
-class Service {
+class Service implements Serviciable {
     /**
      * Execute an action and return for example, JSON data
      */
@@ -66,6 +68,8 @@ class Service {
     boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     boolean isPrivate           = false                 // Browser Rule: These responses are typically intended for a single user
     boolean noStore             = false                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
+    boolean compress            = false                 // Whether to compress or not the output
+    boolean compressSize        = false                 // If true, when compressed will buffer the output to report size
     int cacheTime               = 0                     // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
     int maxAge                  = 0                     // Seconds to suggest to keep in browser
     String contentType          = ""                    // Content Type, for example: Mime.getType("png") or "image/png". (default : auto)
@@ -77,6 +81,33 @@ class Service {
     Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
+    String allowType            = ""                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
     Map<String,String> headers  = [:]                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
+    /**
+     * Default set path (as String)
+     * @param path
+     */
+    void setPath(String path) {
+        boolean isRegex = ["\\","(","{","[","^","\$"].any { path.contains(it) }
+        this.path = (isRegex ? "~" + (path.startsWith("/") ? "" : "/") : "") + addRoot(path) // Trailing slash is optional
+    }
+    /**
+     * Optional method to use Pattern as path
+     * @param pattern
+     */
+    void setPath(Pattern pattern) {
+        this.path = "~/" + addRoot(pattern.toString()) + "/"
+    }
+    /**
+     * Will modify the regex to add the starting slash if it is not present
+     * @param regex
+     * @return
+     */
+    private static String addRoot(String regex) {
+        if(regex.startsWith("^") &&! regex.startsWith("^/")) {
+            regex = regex.replaceFirst("\\^","^/")
+        }
+        return regex
+    }
 }

@@ -3,14 +3,14 @@ package com.intellisrc.web.samples
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.web.Service
-import com.intellisrc.web.ServiciableSingle
+import com.intellisrc.web.SingleService
 import spark.Request
 import spark.Response
 
 /**
  * @since 17/04/19.
  */
-class IDService implements ServiciableSingle {
+class IDService extends SingleService {
     Service getService() {
         return new Service(
             path : "/id/:id/",

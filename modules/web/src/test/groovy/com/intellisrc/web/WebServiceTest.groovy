@@ -6,7 +6,7 @@ import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
-import spock.lang.Ignore
+import spark.Request
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
@@ -21,7 +21,7 @@ class WebServiceTest extends Specification {
         setup:
             int port = LocalHost.freePort
             def web = new WebService(
-                port : port,
+                port: port,
                 resources: publicDir,
                 cacheTime: 60
             )
@@ -32,10 +32,10 @@ class WebServiceTest extends Specification {
             web.start(true)
         then:
             assert web.isRunning()
-            assert ("http://localhost:"+port).toURL().text.contains("Hello")
+            assert ("http://localhost:" + port).toURL().text.contains("Hello")
         when:
             int number = new Random().nextInt(100)
-            URL url = ("http://localhost:"+port+"/id/"+number+"/").toURL()
+            URL url = ("http://localhost:" + port + "/id/" + number + "/").toURL()
             def json = url.text
         then:
             assert json
@@ -59,9 +59,9 @@ class WebServiceTest extends Specification {
         setup:
             int port = LocalHost.freePort
             def web = new WebService(
-                    port : port,
-                    resources : publicDir,
-                    cacheTime: 60
+                port: port,
+                resources: publicDir,
+                cacheTime: 60
             )
             web.addService(new IDService())
         when:
@@ -72,7 +72,7 @@ class WebServiceTest extends Specification {
             def json = new URL("http://localhost:${port}/id/1/").text
         then:
             assert json
-            println "Json: "+json
+            println "Json: " + json
         when:
             sleep(Millis.SECOND_2)
             def json_new = new URL("http://localhost:${port}/id/1/").text
@@ -93,10 +93,10 @@ class WebServiceTest extends Specification {
             def conds = new AsyncConditions()
             int port = LocalHost.freePort
             def web = new WebService(
-                    port : port,
-                    resources: publicDir,
-                    cacheTime: 60,
-                    allowOrigin: "*"
+                port: port,
+                resources: publicDir,
+                cacheTime: 60,
+                allowOrigin: "*"
             ).add(new EmailService()).start(true, {
                 conds.evaluate {
                     assert true
@@ -117,18 +117,62 @@ class WebServiceTest extends Specification {
             assert !web.isRunning()
     }
 
+    def "Test Regex paths"() {
+        setup:
+            def conds = new AsyncConditions()
+            int port = LocalHost.freePort
+            def srv = new Service(
+                path : regex,
+                action: {
+                    Request request ->
+                        return request.params("number")
+                }
+            )
+            def web = new WebService(
+                port: port,
+                resources: publicDir,
+                allowOrigin: "*"
+            ).add(srv).start(true, {
+                conds.evaluate {
+                    assert true
+                }
+            })
+            Log.i("Testing regex: %s  :  %s <-- %s", regex, srv.path, path)
+        expect:
+            conds.await()
+            assert web.isRunning()
+            println "Server running on port: $port"
+        when:
+            URL url = "http://localhost:${port}/${path}".toURL()
+            Log.i("Requesting: %s", url)
+            def text = url.text
+            int num = text as int
+        then:
+            assert num == id
+        when:
+            web.stop()
+        then:
+            assert !web.isRunning()
+        where:
+            regex                                   | path                              | id
+            ~/(?<number>\d+)-\w+\.html/             | "1234-hello.html"                 | 1234
+            /(?<number>\d+)-\w+\.html/              | "9999-hello.html"                 | 9999
+            "/(?<number>\\d+)-\\w+\\.html/"         | "5432-hello.html"                 | 5432
+            ~/^(?<number>\d+)-\w+\.html$/           | "6868-hello.html"                 | 6868
+    }
+
     def "Test Upload"() {
         setup:
             int port = LocalHost.freePort
             def web = new WebService(
-                    port : port,
-                    resources: publicDir
+                port: port,
+                resources: publicDir
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             Log.i("Public directory is: %s", publicDir.absolutePath)
             File uploadDir = new File(publicDir, "upload")
             Log.i("Upload directory is: %s", uploadDir.absolutePath)
-            if(!uploadDir.exists()) {
+            if (!uploadDir.exists()) {
                 uploadDir.mkdirs()
             }
             web.addService(new UploadService(uploadDir))
@@ -139,14 +183,14 @@ class WebServiceTest extends Specification {
         when:
             URL chkUrl = "http://localhost:$port/check".toURL()
         then:
-            assert chkUrl.text == "ok" : "Web Server failed to respond"
+            assert chkUrl.text == "ok": "Web Server failed to respond"
             Log.i("Web server responded 'ok'")
         when:
             File emptyGif = new File(publicDir, "empty.gif")
         then:
             URL url = "http://localhost:$port/upload".toURL()
             Log.i("Uploading file to: %s", url.toExternalForm())
-            Cmd.exec("curl",["-s", "-F", "image_name=@${emptyGif.absolutePath}", url.toExternalForm()], {
+            Cmd.exec("curl", ["-s", "-F", "image_name=@${emptyGif.absolutePath}", url.toExternalForm()], {
                 String out ->
                     assert out.startsWith("GIF89a")
                     assert new File(uploadDir, "empty.gif").exists()
@@ -160,14 +204,15 @@ class WebServiceTest extends Specification {
             uploadDir.eachFile { it.delete() }
     }
 
-    @PendingFeature // Requires a valid certificate
+    @PendingFeature
+    // Requires a valid certificate
     def "HTTPS"() {
         setup:
             def port = NetworkInterface.getFreePort()
             def web = new WebService(
-                    port : port,
-                    resources: publicDir,
-                    cacheTime: 60
+                port: port,
+                resources: publicDir,
+                cacheTime: 60
             )
             // Resources set as full path because code is executed under /tst/ usually use above method
             web.addService(new SSLService())
@@ -181,34 +226,36 @@ class WebServiceTest extends Specification {
 
     def "Websocket Test"() {
         setup:
-        def keepalive = false // change to 'true' to test manually WebSocket Clients
-        def web = new WebService(
-                port : LocalHost.freePort,
+            def keepalive = false // change to 'true' to test manually WebSocket Clients
+            def web = new WebService(
+                port: LocalHost.freePort,
                 // Resources set as full path because code is executed under /tst/
-                resources : System.getProperty("user.dir") + "/res/public/",
+                resources: System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
-        )
-        web.addService(new ChatService(timeout: 60))
-        web.start(!keepalive)
+            )
+            web.addService(new ChatService(timeout: 60))
+            web.start(!keepalive)
         expect:
-        assert web.isRunning()
-        web.stop()
-        assert !web.isRunning()
+            assert web.isRunning()
+            web.stop()
+            assert !web.isRunning()
     }
 
     /* Comment next line to test and set "keepalive = true" in the server test */
+
     @PendingFeature
     def "WebSocket Client"() {
         setup:
-        ChatClient cc = new ChatClient()
-        cc.Connect()
+            ChatClient cc = new ChatClient()
+            cc.Connect()
     }
 
     /* Comment next line to test and set "keepalive = true" in the server test */
+
     @PendingFeature
     def "WebSocket StackOverflow Client"() {
         setup:
-        StackOverflowChatClient cc = new StackOverflowChatClient()
-        cc.Connect()
+            StackOverflowChatClient cc = new StackOverflowChatClient()
+            cc.Connect()
     }
 }

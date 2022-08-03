@@ -3,7 +3,7 @@ package com.intellisrc.web.samples
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Mime
 import com.intellisrc.web.Service
-import com.intellisrc.web.ServiciableMultiple
+import com.intellisrc.web.Services
 import com.intellisrc.web.UploadFile
 
 import static com.intellisrc.web.Service.Method.POST
@@ -11,7 +11,7 @@ import static com.intellisrc.web.Service.Method.POST
 /**
  * @since 11/30/17.
  */
-class UploadService implements ServiciableMultiple {
+class UploadService extends Services {
     final File uploadDir
     UploadService(File upDir) {
         uploadDir = upDir

@@ -3,7 +3,7 @@ package com.intellisrc.web
 import groovy.transform.CompileStatic
 
 /**
- * Use this interface if you need more than one service
+ * Prefer Services over this interface
  *
  * @since 17/04/19.
  */
