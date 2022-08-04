@@ -58,6 +58,14 @@ class Console {
     static void add(Consolable consolable) {
         consoles << consolable
     }
+    /**
+     * Add several Consolable objects to the list
+     * @param consolable
+     * @return
+     */
+    static void add(List<Consolable> consolable) {
+        consoles.addAll(consolable)
+    }
 
     /**
      * Launches the console and loop indefinitely
@@ -69,7 +77,7 @@ class Console {
         if(addDefault) {
             if(!consoles) {
                 Log.w("Consoles have not been added. Using only default.")
-                Log.w("    Example to add:  Console << new MyConsole()")
+                Log.w("    Example to add:  Console.add(new MyConsole())")
                 Log.w("    where MyConsole() implements Consolable")
             }
             consoles << new ConsoleDefault()
@@ -97,6 +105,8 @@ class Console {
                 }
             }
             reader.terminal.flush()
+            // Update auto complete after each command
+            updateAutoComplete()
             if(timeout) {
                 timer = Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
                     // It will loop until `onCommand` returns a 'false'
@@ -161,7 +171,7 @@ class Console {
      * @param tempPrompt
      * @return
      */
-    static String read(final String tempPrompt = Console.prompt, final BackgroundTask backProcess = null) {
+    static String read(final String tempPrompt = prompt, final BackgroundTask backProcess = null) {
         String line
         ScheduledFuture process
         if(backProcess) {
@@ -169,7 +179,7 @@ class Console {
         }
         try {
             line = reader.readLine(tempPrompt).trim()
-        } catch (Exception uie) {
+        } catch (Exception ignore) {
             line = "exit"
             if(process) {
                 process.cancel(true)
@@ -200,7 +210,7 @@ class Console {
      * @param mask
      * @return
      */
-    static char[] readPassword(final String tempPrompt = Console.prompt, final Character mask = Console.mask, final BackgroundTask backProcess = null) {
+    static char[] readPassword(final String tempPrompt = prompt, final Character mask = Console.mask, final BackgroundTask backProcess = null) {
         char[] pass = null
         ScheduledFuture process
         if(backProcess) {
