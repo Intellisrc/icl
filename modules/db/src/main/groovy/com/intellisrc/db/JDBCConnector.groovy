@@ -137,6 +137,9 @@ class JDBCConnector implements Connector {
 			if(!conn.toLowerCase().startsWith("jdbc")) {
 				conn = "jdbc:$conn"
 			}
+			// Be sure that the driver is loaded
+			Class.forName(type.driver)
+
 			Log.v( "Connecting to DB: %s", conn)
 			db = DriverManager.getConnection(conn, type.user, type.password)
 			Log.d( "Connected to DB: %s", type.dbname ?: type.toString())

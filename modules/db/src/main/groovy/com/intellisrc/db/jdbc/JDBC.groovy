@@ -280,4 +280,21 @@ abstract class JDBC {
         }
         return jdbc
     }
+    /**
+     * Get a JDBC object from connection URI
+     * @param uri
+     * @return
+     */
+    static JDBC fromURI(String uri, String userName = "", char[] pwd = []) {
+        return new JDBC() {
+            String dbname = ""
+            String user = userName
+            String password = pwd.toString()
+            String driver = ""
+            @Override
+            String getConnectionString() {
+                return uri
+            }
+        }
+    }
 }
