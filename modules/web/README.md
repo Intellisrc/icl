@@ -541,56 +541,53 @@ new Service(
 )
 ```
 
-### HTTPS (ServiciableHTTPS)
+### HTTPS 
 
-Although I recommend using a reverse proxy server (like HAProxy or Apache) to
-handle HTTPS connections, you can add HTTPS support without the need of extra
-packages. 
+To enable HTTPS, you will need a certificate. You can generate one and create the key store in a single command:
 
-#### Example
+```bash
+keytool -genkey -keyalg RSA -alias localhost -keystore keystore.jks -storepass yourpasswordhere -validity 365 -keysize 2048
+```
+After answering some basic questions, that command will generate a file named `keystore.jks`. 
+Feel free to move that file anywhere you want.
+Then, use the file and your password in your `WebService` initialization:
 
 ```groovy
-/**
- * Example of HTTPS Service
- *
- * 1. Issue a certificate (self-signed or not)
- * 2. Execute: java-cert-importer.sh (inside res/public/) 
- *      or follow: https://stackoverflow.com/a/31133183/196507
- *      or : http://sparkjava.com/documentation.html#enable-ssl
- * in order to import keystore file into trusted certs
- */
-class SSLService extends SingleService implements ServiciableHTTPS {
-    //----- From ServiciableHTTPS:
-    
-    // Must be absolute path. Do not store it in public directory
-    @Override
-    String keyStoreFile = File.get(File.userDir, "res", "key.store").absolutePath
-    // The password for the keystore
-    @Override
-    String password = "e7LcrHoWe3iuogAiwPdTCzAk"
-
-    //----- From Serviciable:
-    @Override
-    String path = "/admin"
-
-    @Override
-    Service getService() {
-        return new Service(
-            action: {
-                /* .. */
-            }
-        )
-    }
-}
+new WebService(
+        port: 443, 
+        resources: "res",
+        https: new KeyStore(
+            File.get("private", "keystore.jks"), 
+            "yourpasswordhere"
+        ),
+    ).add(new Service(
+        path : "/ssl",
+        action : { "ok" }
+    )).start()
 ```
 
-Do not forget to add it to your `WebService`:
+Opening `https://localhost:443/ssl` should display "ok" (after showing a security warning, as it is self-signed).
+
+### HTTP2
+
+You can enable HTTP2 protocol for your services by setting the `http2` property to `true`:
 
 ```groovy
-new WebService(port: 443, resources: "res")
-        .add(new SSLService())
-        .start()
+new WebService(
+    port: 443,
+    resources: "res",
+    https: new KeyStore(
+        File.get("private", "keystore.jks"),
+        "yourpasswordhere"
+    ),
+    http2 : true
+).add(new Service(
+    path : "/admin",
+    action : { "ok" }
+)).start()
 ```
+
+**NOTE** : HTTP2 requires HTTPS to be enabled. 
 
 ## WebSocket Server
 

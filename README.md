@@ -230,7 +230,6 @@ Includes : core, etc, net
 
 |     | Class                    | Usage                                                                                           |
 |-----|--------------------------|-------------------------------------------------------------------------------------------------|
- |     | `HTTPServer`             | Simple HTTP server implementation for static files. `WebService` offers much more than this one |
  | ★   | `Service`                | Defines a single service to be used in `WebService`                                             |
 |     | `ServiceOutput`          | Customize output response from a `Service`                                                      |
 | @   | `Serviciable`            | Generic interface for services                                                                  |

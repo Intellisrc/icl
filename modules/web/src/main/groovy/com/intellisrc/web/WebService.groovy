@@ -4,13 +4,13 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import com.intellisrc.etc.*
 import com.intellisrc.net.LocalHost
-import com.nixxcode.jvmbrotli.common.BrotliLoader
 import groovy.transform.CompileStatic
 import org.apache.tools.ant.types.resources.StringResource
 import spark.Request
 import spark.Response
 import spark.Route
-import spark.Service as Srv
+import spark.Service as SparkService
+import spark.utils.CompressUtil
 
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriter
@@ -44,9 +44,10 @@ import static spark.Response.Compression.*
  *
  */
 class WebService {
-    protected final Srv srv
+    protected SparkService srv
     protected List<Serviciable> listServices = []
     protected List<String> listPaths = [] //mainly used to prevent collisions
+    protected boolean initialized = false
     protected boolean running = false
     protected String resources = ""
     protected Cache<ServiceOutput> cache = new Cache<ServiceOutput>()
@@ -56,16 +57,50 @@ class WebService {
     public int threads = 20
     public int eTagMaxKB = 1024
     public boolean embedded = false //Turn to true if resources are inside jar
+    public boolean http2 = false //Turn HTTP2 in all services
+    public KeyStore https = null // Key Store File location and password
     public String allowOrigin = "" //apply by default to all
 
     static interface StartCallback {
-        void call(Srv srv)
+        void call(SparkService srv)
     }
     /**
-     * Constructor: initializes Service instance
+     * Initialize Spark service
      */
-    WebService() {
-        srv = Srv.ignite()
+    protected void init() {
+        if(!initialized) {
+            initialized = true
+            try {
+                if(https &&! https.valid) {
+                    https = null
+                }
+                switch (true) {
+                    // Enable HTTP2 && HTTPS
+                    case (http2 && https?.valid):
+                        srv = SparkService.ignite()
+                            .secure(https.file.absolutePath, https.password.toString(), null, null)
+                            .http2()
+                        Log.i("HTTP2/HTTPS is enabled")
+                        break
+                    // Enable HTTPS
+                    case (https?.valid):
+                        srv = SparkService.ignite()
+                            .secure(https.file.absolutePath, https.password.toString(), null, null)
+                        Log.i("HTTPS is enabled")
+                        break
+                    // Enable HTTP2
+                    case http2:
+                        Log.w("HTTP2 protocol was enabled but HTTPS was not set. Connection may be downgraded in most browsers.")
+                        srv = SparkService.ignite().http2()
+                        break
+                    default:
+                        srv = SparkService.ignite()
+                }
+            } catch(Exception e) {
+                Log.e("Unable to initialize web service", e)
+            }
+        }
+        https = null // Removed from memory for security
     }
     /**
      * start and specify callback "onStart"
@@ -80,14 +115,15 @@ class WebService {
      * this method is chainable
      */
     WebService start(boolean background = false, StartCallback onStart = null) {
+        init()
         try {
             srv.staticFiles.expireTime(cacheTime)
             if (!resources.isEmpty()) {
                 if (embedded) {
-                    srv.staticFiles.location(resources)
+                    srv.staticFileLocation(resources)
                 } else {
                     File resFile = File.get(resources)
-                    srv.staticFiles.externalLocation(resFile.absolutePath)
+                    srv.externalStaticFileLocation(resFile.absolutePath)
                 }
             }
             if (LocalHost.isPortAvailable(port)) {
@@ -194,9 +230,6 @@ class WebService {
         sp.allowType = serviciable.allowType
         if (serviciable instanceof ServiciableWebSocket) {
             addWebSocketService(serviciable, (serviciable.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/'))
-        } else if (serviciable instanceof ServiciableHTTPS) {
-            addSSLService(serviciable)
-            addServicePath(sp, serviciable.path)
         } else {
             addServicePath(sp, serviciable.path)
         }
@@ -211,15 +244,6 @@ class WebService {
         ServiciableWebSocket webSocket = serviciable as ServiciableWebSocket
         webSocket.service = new WebSocketService(webSocket)
         srv.webSocket(path, webSocket.service)
-    }
-
-    /**
-     * Add SSL to connection
-     * @param serviciable
-     */
-    protected void addSSLService(Serviciable serviciable) {
-        ServiciableHTTPS ssl = serviciable as ServiciableHTTPS
-        srv.secure(ssl.getKeyStoreFile(), ssl.getPassword(), null, null)
     }
 
     /**
@@ -630,7 +654,7 @@ class WebService {
                             if(sp.compress) {
                                 response.compression = AUTO //By default, we will let Spark to do the compression (Stream)
                                 if(sp.compressSize) { //Unless we specify to calculate size, we do it here:
-                                    boolean brotliAvailable = BrotliLoader.isBrotliAvailable()
+                                    boolean brotliAvailable = CompressUtil.brotliAvailable
                                     response.compression = brotliAvailable ? BROTLI_COMPRESSED : GZIP_COMPRESSED
                                     byte[] bytes = []
                                     switch (output.content) {
@@ -819,8 +843,9 @@ class WebService {
      * @param srv : Serviciable implementation
      */
     void addService(Serviciable srv) {
+        init()
         if (!running) {
-            if (srv instanceof ServiciableWebSocket || srv instanceof ServiciableHTTPS) {
+            if (srv instanceof ServiciableWebSocket) {
                 listServices.add(0, srv)
             } else if(srv) {
                 listServices << srv
@@ -849,5 +874,4 @@ class WebService {
             Log.w("WebService is already running. You can not change the resource path")
         }
     }
-
 }

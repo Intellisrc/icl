@@ -13,7 +13,7 @@ import spark.Response
 class IDService extends SingleService {
     Service getService() {
         return new Service(
-            path : "/id/:id/",
+            path : "/id/:id/?",
             cacheTime: 10,
             cacheExtend: true,
             action: {

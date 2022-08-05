@@ -17,6 +17,27 @@ import spock.util.concurrent.AsyncConditions
 class WebServiceTest extends Specification {
     File publicDir = File.get(File.userDir, "res", "public")
 
+    def "Starting server without resources directory"() {
+        setup:
+            int port = LocalHost.freePort
+            def web = new WebService(
+                port: port
+            )
+            Log.i("Running in port: %d", port)
+            web.add(new Service(
+                path: "test",
+                action: { "ok" }
+            ))
+        when:
+            web.start(true)
+        then:
+            assert web.isRunning()
+            assert ("http://localhost:" + port + "/test").toURL().text.contains("ok")
+        cleanup:
+            web.stop()
+            assert ! web.running
+    }
+
     def "General Test"() {
         setup:
             int port = LocalHost.freePort
@@ -202,26 +223,6 @@ class WebServiceTest extends Specification {
             assert !web.isRunning()
         cleanup:
             uploadDir.eachFile { it.delete() }
-    }
-
-    @PendingFeature
-    // Requires a valid certificate
-    def "HTTPS"() {
-        setup:
-            def port = NetworkInterface.getFreePort()
-            def web = new WebService(
-                port: port,
-                resources: publicDir,
-                cacheTime: 60
-            )
-            // Resources set as full path because code is executed under /tst/ usually use above method
-            web.addService(new SSLService())
-            web.start(true)
-        expect:
-            assert web.isRunning()
-            assert "https://localhost:$port/admin.txt".toURL().text.contains("9EEyY")
-            web.stop()
-            assert !web.isRunning()
     }
 
     def "Websocket Test"() {
