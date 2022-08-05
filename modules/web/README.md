@@ -546,9 +546,28 @@ new Service(
 To enable HTTPS, you will need a certificate. You can generate one and create the key store in a single command:
 
 ```bash
+# It will ask you some basic information
 keytool -genkey -keyalg RSA -alias localhost -keystore keystore.jks -storepass yourpasswordhere -validity 365 -keysize 2048
 ```
-After answering some basic questions, that command will generate a file named `keystore.jks`. 
+
+
+If you already have a valid certificate, you can create the key store with these commands instead:
+
+```bash
+# First export your x.509 certificate and key to pkcs12:
+openssl pkcs12 -export -in example.crt -inkey example.key -out example.p12 -name example.com -CAfile ca.crt -chain
+# If you use Let's Encrypt, use this command instead:
+# openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem -out example.p12 -name example.com
+
+#NOTE#: Be sure you set a password or you won't be able to import it
+
+# Then, create or import into the key store:
+keytool -importkeystore -deststorepass yourpasswordhere -destkeypass yourpasswordhere -destkeystore keystore.jks \
+        -srckeystore example.p12 -srcstoretype PKCS12 -srcstorepass thePasswordYouSetInTheStepBefore \
+        -deststoretype JKS -alias example.com
+```
+
+That command will generate a file named `keystore.jks` (or the name you specified). 
 Feel free to move that file anywhere you want.
 Then, use the file and your password in your `WebService` initialization:
 
