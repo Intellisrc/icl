@@ -2,9 +2,9 @@ dependencies {
 
     api project(':etc')
     api project(':net')
-    //https://github.com/perwendel/spark
+    //https://github.com/intellisrc/spark
     // We use Response, Request... so we use 'api' here:
-    api 'com.intellisrc:spark-core:2.9.4-unofficial-3-SNAPSHOT'
+    api 'com.intellisrc:spark-core:2.9.4-unofficial-3'
     //api 'com.intellisrc:spark-core:2.9.4-unofficial-1'
 
     //TODO: reimplement security (LoginService) :

@@ -115,7 +115,7 @@ subprojects {
     boolean publishDev = ! version.contains("DEBUG")
 
     dependencies {
-        def groovyVer = "3.0.11"
+        def groovyVer = "3.0.12"
         def groovyExt = "3.0.10.9"
         def spock = "2.1-groovy-3.0"
         def junit = "4.13.2"

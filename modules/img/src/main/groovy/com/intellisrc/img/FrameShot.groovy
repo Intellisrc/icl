@@ -21,7 +21,7 @@ class FrameShot {
      */
     FrameShot(final BufferedImage img, String fileName = "none.jpg") {
         image = img
-        name = fileName.replace(".tiff", ".jpg")
+        name = fileName
     }
     /**
      * Use this method to convert File to FrameShot
