@@ -115,23 +115,12 @@ println original
 **NOTE** : Please check the comments inside the class. There are many 
 possible conversions like: NUM, HASH, BASE64, KOR, HIRA, KANA, etc.
 
-
-## How to install BouncyCastle Security provider
-
-To use BouncyCastle library, you don't need to do anything, 
-but in the case that the list of supported algorithms doesn't include
-all the supported by that library, you may need to add it manually
-to your `java.security` file. This is how:
-
-### JAVA 11 or up: ---------------------------------------------------------------------
-
-Adding it through gradle is all its needed.
-
-For your reference, security file is located at: 
-/etc/java-11-openjdk/security/java.security
-/usr/lib/jvm/java-11-openjdk-amd64/conf/security/java.security
-
 ### JAVA 8: -----------------------------------------------------------------------------
+
+To use BouncyCastle library, you don't need to do anything,
+but if you are using Java 8 and the list of supported algorithms doesn't include
+all the supported by that library, you may need to add it manually
+to your `java.security` file:
 
 ### Download
 * Go to https://www.bouncycastle.org/latest_releases.html
