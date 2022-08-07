@@ -156,7 +156,6 @@ abstract class JDBC {
     }
     // hasOrder is only needed in SQL Server
     String getLimitQuery(int limit, int offset, boolean hasOrder = false) {
-        Log.i("Fetch is: %s", useFetch ? "TRUE" : "FALSE")
         return useFetch ? ((offset > 0 ? "OFFSET $offset ROWS " : "") + (limit > 0 ? "FETCH NEXT $limit ROWS ONLY" : ""))
                         : ((limit > 0 ? "LIMIT $limit " : "") + (offset > 0 ? "OFFSET $offset" : ""))
     }

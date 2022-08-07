@@ -587,9 +587,9 @@ new WebService(
 
 Opening `https://localhost:443/ssl` should display "ok" (after showing a security warning, as it is self-signed).
 
-### HTTP2
+### HTTP/2
 
-You can enable HTTP2 protocol for your services by setting the `http2` property to `true`:
+You can enable HTTP/2 protocol for your services by setting the `http2` property to `true`:
 
 ```groovy
 new WebService(
@@ -606,7 +606,7 @@ new WebService(
 )).start()
 ```
 
-**NOTE** : HTTP2 requires HTTPS to be enabled. 
+**NOTE** : Must browsers require HTTPS to be enabled in order to use HTTP/2. 
 
 ## WebSocket Server
 
