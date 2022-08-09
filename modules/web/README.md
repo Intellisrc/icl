@@ -550,7 +550,6 @@ To enable HTTPS, you will need a certificate. You can generate one and create th
 keytool -genkey -keyalg RSA -alias localhost -keystore keystore.jks -storepass yourpasswordhere -validity 365 -keysize 2048
 ```
 
-
 If you already have a valid certificate, you can create the key store with these commands instead:
 
 ```bash
@@ -575,7 +574,7 @@ Then, use the file and your password in your `WebService` initialization:
 new WebService(
         port: 443, 
         resources: "res",
-        https: new KeyStore(
+        ssl : new KeyStore(
             File.get("private", "keystore.jks"), 
             "yourpasswordhere"
         ),
@@ -595,7 +594,7 @@ You can enable HTTP2 protocol for your services by setting the `http2` property 
 new WebService(
     port: 443,
     resources: "res",
-    https: new KeyStore(
+    ssl: new KeyStore(
         File.get("private", "keystore.jks"),
         "yourpasswordhere"
     ),
@@ -745,6 +744,25 @@ websocket.timeout=600
 # Set maximum message size to 1MB: (default 64Kb)
 websocket.max.size=1024
 ```
+
+## WebSocketSecure (WSS)
+
+You can add a SSL certificate to enable `wss` protocol:
+
+**NOTE**: To generate a certificate or import an existing one, please see [https](#https) section above.
+
+```groovy
+new WebService(
+    port: 9999,
+    ssl : new KeyStore(
+        File.get("private", "keystore.jks"),
+        "yourpasswordhere"
+    )
+).add(new MyWebSocketService(timeout: 600, maxSize: 1024))
+ .start()
+```
+
+Then you can access that in: `wss://localhost:9999/`
 
 ## WebSocket Client
 

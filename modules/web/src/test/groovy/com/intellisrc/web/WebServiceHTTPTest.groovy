@@ -27,7 +27,7 @@ class WebServiceHTTPTest extends Specification {
                 http2: http2,
                 port: port,
                 resources: publicDir,
-                https: https ? new KeyStore(storeFile, pass) : null,
+                ssl: https ? new KeyStore(storeFile, pass) : null,
             )
             Log.i("Running in port: %d", port)
         when:
@@ -61,7 +61,7 @@ class WebServiceHTTPTest extends Specification {
             def web = new WebService(
                 http2: http2,
                 port: port,
-                https: https ? new KeyStore(storeFile, pass) : null,
+                ssl: https ? new KeyStore(storeFile, pass) : null,
             )
             Log.i("Running in port: %d", port)
             web.add(new Service(

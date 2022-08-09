@@ -58,7 +58,7 @@ class WebService {
     public int eTagMaxKB = 1024
     public boolean embedded = false //Turn to true if resources are inside jar
     public boolean http2 = false //Turn HTTP2 in all services
-    public KeyStore https = null // Key Store File location and password
+    public KeyStore ssl = null // Key Store File location and password (For WSS and HTTPS)
     public String allowOrigin = "" //apply by default to all
 
     static interface StartCallback {
@@ -71,21 +71,21 @@ class WebService {
         if(!initialized) {
             initialized = true
             try {
-                if(https &&! https.valid) {
-                    https = null
+                if(ssl &&! ssl.valid) {
+                    ssl = null
                 }
                 switch (true) {
                     // Enable HTTP2 && HTTPS
-                    case (http2 && https?.valid):
+                    case (http2 && ssl?.valid):
                         srv = SparkService.ignite()
-                            .secure(https.file.absolutePath, https.password.toString(), null, null)
+                            .secure(ssl.file.absolutePath, ssl.password.toString(), null, null)
                             .http2()
                         Log.i("HTTP2/HTTPS is enabled")
                         break
                     // Enable HTTPS
-                    case (https?.valid):
+                    case (ssl?.valid):
                         srv = SparkService.ignite()
-                            .secure(https.file.absolutePath, https.password.toString(), null, null)
+                            .secure(ssl.file.absolutePath, ssl.password.toString(), null, null)
                         Log.i("HTTPS is enabled")
                         break
                     // Enable HTTP2
@@ -100,7 +100,7 @@ class WebService {
                 Log.e("Unable to initialize web service", e)
             }
         }
-        https = null // Removed from memory for security
+        ssl = null // Removed from memory for security
     }
     /**
      * start and specify callback "onStart"

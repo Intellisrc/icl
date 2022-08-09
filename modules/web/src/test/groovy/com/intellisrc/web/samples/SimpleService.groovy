@@ -26,7 +26,7 @@ class SimpleService {
             http2: true,
             port: fixedPort ?: LocalHost.freePort,
             resources: publicDir,
-            https: new KeyStore(storeFile, pass)
+            ssl: new KeyStore(storeFile, pass)
         )
         Log.i("Web Service available at port: %d", ws.port)
         ws.add(new Service(
