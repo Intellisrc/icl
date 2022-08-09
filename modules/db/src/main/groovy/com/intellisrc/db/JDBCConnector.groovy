@@ -2,7 +2,6 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
-import com.intellisrc.db.DB.Connector
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
@@ -189,49 +188,55 @@ class JDBCConnector implements Connector {
 		}
 		return closed
 	}
-
+	/**
+	 * Set values in prepared statement
+	 * @param st
+	 * @param values
+	 */
+	protected static void setValues(PreparedStatement st, List<Object> values) {
+		for (int index = 1; index <= values.size(); index++) {
+			Object o = values[index - 1]
+			if (o == null) {
+				st.setNull(index, NULL)
+			} else if (o instanceof Boolean) {
+				st.setBoolean(index, (Boolean) o)
+			} else if (o instanceof Float) {
+				st.setFloat(index, (Float) o)
+			} else if (o instanceof Double || o instanceof BigDecimal) {
+				st.setDouble(index, (Double) o)
+			} else if (o instanceof Integer) {
+				st.setInt(index, (Integer) o)
+			} else if (o instanceof Long || o instanceof BigInteger) {
+				st.setLong(index, (Long) o)
+			} else if (o instanceof byte[]) {
+				st.setBytes(index, (byte[]) o)
+			} else if (o instanceof String) {
+				st.setString(index, (String) o)
+			} else if (o instanceof LocalDate) {
+				st.setDate(index, Date.valueOf(o.toString()))
+			} else if (o instanceof LocalDateTime) {
+				long millis = o.toMillis()
+				st.setTimestamp(index, new Timestamp(millis))
+			} else {
+				st.setNull(index, NULL)
+				Log.e( "Wrong data type: " + o)
+			}
+		}
+	}
 	/**
 	 * Prepare statement using Query
 	 * @param query
 	 * @return
 	 */
 	@Override
-	DB.Statement prepare(Query query, boolean silent) {
+	ResultStatement execute(Query query, boolean silent) {
 		try {
 			assert query.toString() : "Query can not be empty"
 			final PreparedStatement st = query.isIdentityUpdate ?
 				 db.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS) :
 				 db.prepareStatement(query.toString())
 			st.setQueryTimeout(TIMEOUT)
-			Object[] values = query.getArgs()
-			for (int index = 1; index <= values.length; index++) {
-				Object o = values[index - 1]
-				if (o == null) {
-					st.setNull(index, NULL)
-				} else if (o instanceof Boolean) {
-					st.setBoolean(index, (Boolean) o)
-				} else if (o instanceof Float) {
-					st.setFloat(index, (Float) o)
-				} else if (o instanceof Double || o instanceof BigDecimal) {
-					st.setDouble(index, (Double) o)
-				} else if (o instanceof Integer) {
-					st.setInt(index, (Integer) o)
-				} else if (o instanceof Long || o instanceof BigInteger) {
-					st.setLong(index, (Long) o)
-				} else if (o instanceof byte[]) {
-					st.setBytes(index, (byte[]) o)
-				} else if (o instanceof String) {
-					st.setString(index, (String) o)
-				} else if (o instanceof LocalDate) {
-					st.setDate(index, Date.valueOf(o.toString()))
-				} else if (o instanceof LocalDateTime) {
-					long millis = o.toMillis()
-					st.setTimestamp(index, new Timestamp(millis))
-				} else {
-					st.setNull(index, NULL)
-					Log.e( "Wrong data type: " + o)
-				}
-			}
+			setValues(st, query.args)
 			boolean updaction = query.isSetQuery
 			int countUpdated = 0
 			//noinspection GroovyFallthrough
@@ -257,169 +262,7 @@ class JDBCConnector implements Connector {
 			}
 			final ResultSet rs = updaction ? (query.isIdentityUpdate ? st.getGeneratedKeys() : null) : st.executeQuery()
 			final ResultSetMetaData rm = updaction ? null : rs.getMetaData()
-			return new DB.Statement() {
-				@Override
-				boolean next() {
-					boolean ok = false
-					try {
-						if(rs != null) {
-							ok = rs.next()
-						}
-					} catch (SQLException ex) {
-						Log.w( "Step failed")
-						onError(ex)
-					}
-					return ok
-				}
-
-				@Override
-				void close() {
-					try {
-						if(rs != null) {
-							rs.close()
-						}
-						st?.close()
-					} catch (Exception ex) {
-						Log.w("Unable to close Statement")
-						if(ex instanceof SQLException) {
-							onError(ex)
-						}
-					}
-				}
-
-				@Override
-				int columnCount() {
-					int count = 0
-					try {
-						count = rm.getColumnCount()
-					} catch (SQLException ex) {
-						Log.w( "column count failed")
-						onError(ex)
-					}
-					return count
-				}
-
-				@Override
-				ColumnType columnType(int index) {
-					try {
-						return ColumnType.fromJavaSQL(rm.getColumnType(index))
-					} catch (SQLException ex) {
-						Log.w( "column type failed for index: %d", index)
-						onError(ex)
-						return null
-					}
-				}
-
-				@Override
-				String columnName(int index) {
-					try {
-						return rm.getColumnLabel(index)
-					} catch (SQLException ex) {
-						Log.w( "column name failed for index: %d", index)
-						onError(ex)
-						return ""
-					}
-				}
-
-				@Override
-				String columnStr(int index) {
-					try {
-						return rs.getString(index)
-					} catch (SQLException ex) {
-						Log.w( "column Str failed for index: %d", index)
-						onError(ex)
-						return ""
-					}
-				}
-
-				@Override
-				boolean columnBool(int index) {
-					try {
-						return jdbc.supportsBoolean ? rs.getBoolean(index) : (rs.getString(index).trim().toLowerCase() == 'true')
-					} catch (SQLException ex) {
-						Log.w( "column Boolean failed for index: %d", index)
-						onError(ex)
-						return false
-					}
-				}
-
-				@Override
-				Integer columnInt(int index) {
-					try {
-						return rs.getInt(index)
-					} catch (SQLException ex) {
-						Log.w( "column Int failed for index: %d", index)
-						onError(ex)
-						return 0
-					}
-				}
-
-				@Override
-				Float columnFloat(int index) {
-					try {
-						return rs.getFloat(index)
-					} catch (SQLException ex) {
-						Log.w( "column Float failed for index: %d", index)
-						onError(ex)
-						return 0f
-					}
-				}
-
-				@Override
-				Double columnDbl(int index) {
-					try {
-						return rs.getDouble(index)
-					} catch (SQLException ex) {
-						Log.w( "column Dbl failed for index: %d", index)
-						onError(ex)
-						return 0d
-					}
-				}
-
-				@Override
-				byte[] columnBlob(int index) {
-					try {
-						return rs.getBytes(index)
-					} catch (SQLException ex) {
-						Log.w( "column Blob failed for index: %d", index)
-						onError(ex)
-						return null
-					}
-				}
-
-				@Override
-				LocalDateTime columnDate(int index) {
-					try {
-						return rs.getTimestamp(index).toLocalDateTime()
-					} catch (SQLException ex) {
-						Log.w( "column Date failed for index: %d", index)
-						onError(ex)
-						return null
-					}
-				}
-
-				@Override
-				boolean isColumnNull(int index) {
-					try {
-						rs.getString(index)
-						return rs.wasNull()
-					} catch (SQLException ex) {
-						Log.w( "column isColumnNull failed for index: %d", index)
-						onError(ex)
-						return true
-					}
-				}
-
-				@Override
-				int firstColumn() {
-					return 1
-				}
-
-				@Override
-				int updatedCount() {
-					return countUpdated
-				}
-			}
+			return new DBStatement(jdbc, this, st, rs, rm, countUpdated)
 		} catch (SQLException ex) {
 			Log.w("Statement failed")
 			onError(ex)
@@ -433,6 +276,28 @@ class JDBCConnector implements Connector {
 		return null
 	}
 
+	@Override
+	boolean commit(List<Query> queries) {
+        boolean commited = false
+		db.autoCommit = false
+		Set<String> uniqueQueries = queries.collect { it.toString() }.toSet()
+        Map<String, PreparedStatement> statementList = [:]
+		try {
+			uniqueQueries.each {
+				statementList[it] = db.prepareStatement(it)
+			}
+			queries.each {
+				PreparedStatement ps = statementList[it.toString()]
+				setValues(ps, it.args) //List must contain Prepared statements
+				ps.executeUpdate()
+			}
+			db.commit()
+            commited = true
+		} catch(Exception e) {
+			onError(e)
+		}
+        return commited
+	}
 	/**
 	 * General error handling
 	 * @param ex
@@ -441,11 +306,11 @@ class JDBCConnector implements Connector {
 	void onError(Throwable ex) {
 		if(ex instanceof SQLException) {
 			while(ex) {
-				type.onError.call(ex)
+				jdbc.onError.call(ex)
 				ex = (ex as SQLException).nextException
 			}
 		} else {
-			type.onError.call(ex)
+			jdbc.onError.call(ex)
 		}
 	}
 }

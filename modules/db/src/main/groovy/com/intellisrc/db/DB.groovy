@@ -6,8 +6,6 @@ import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
-import java.time.LocalDateTime
-
 import static com.intellisrc.db.ColumnType.*
 import static com.intellisrc.db.Query.Action.*
 import static com.intellisrc.db.Query.FieldType.*
@@ -28,6 +26,7 @@ class DB {
     protected Connector dbConnector
     protected String table = ""
     protected int last_id = 0
+    // We need a global Query object to allow fluid building
     protected Query queryBuilder = null
     // Flag to mark connections which were returned already
     protected boolean returned = false
@@ -41,40 +40,6 @@ class DB {
 
     JDBC getJdbc() {
 		return dbConnector?.jdbc ?: new Dummy()
-	}
-
-    ////////////////////////// Interfaces ////////////////////////////////
-
-	static interface Connector {
-        String getName()
-		boolean open()
-		boolean close()
-        boolean isOpen()
-		Statement prepare(Query query, boolean silent)
-		void onError(Throwable ex)
-		JDBC getJdbc()
-        long getLastUsed()
-        void setLastUsed(long milliseconds)
-        List<String> getTables()
-        List<ColumnInfo> getColumns(String table)
-	}
-
-	static interface Statement {
-		boolean next()
-		void close()
-		int columnCount()
-		int firstColumn()
-        int updatedCount()
-		ColumnType columnType(int index)
-		String columnName(int index)
-		String columnStr(int index)
-        boolean columnBool(int index)
-		Integer columnInt(int index)
-		Double columnDbl(int index)
-        Float columnFloat(int index)
-		LocalDateTime columnDate(int index)
-		byte[] columnBlob(int index)
-		boolean isColumnNull(int index)
 	}
 
     ////////////////////////// Public ////////////////////////////////
@@ -161,7 +126,7 @@ class DB {
         return list
     }
     /**
-     * Update data (Map) where ID is an int with specified value
+     * Update data (Map) where ID is the key(s) to use
 	 * @param updvals
 	 * @param id
 	 * @return 
@@ -200,6 +165,8 @@ class DB {
      * @param updvals
      * @return
      **/
+    @Deprecated // It doesn't support multiple columns PK and it might be confusing
+    //TODO: remove in 2.8.8
     boolean update(Map<Object, Map> updvals) {
         return updvals.every {
             boolean ok = false
@@ -210,6 +177,27 @@ class DB {
             return ok
         }
     }
+    /**
+     * Update multiple rows
+     * @param rows
+     * @return
+     */
+    boolean update(List<Map> rows, List<Object> keyvals) {
+        boolean updated = false
+        boolean sameSize = rows.size() == keyvals.size()
+        if(sameSize) {
+            autoSetKeys()
+            List<Query> queries = rows.withIndex().collect({
+                Map row, int idx ->
+                    createQuery().setAction(UPDATE).setWhere(keyvals[idx]).setValues(row)
+            })
+            updated = dbConnector.commit(queries)
+        } else {
+            Log.w("Trying to update data with unequal number of rows and keys")
+        }
+        return updated
+    }
+
     /**
      * Inserts row using key => values
 	 * @param insvals
@@ -225,15 +213,12 @@ class DB {
 	 * @param insvals
 	 * @return 
      **/
-    boolean insert(List<Map> insvals) {
-		boolean ok = true
-		for(Map<String, Object> row: insvals) {
-	        ok = insert(row)
-			if(!ok) {
-				break
-			}
-		}
-		return ok
+    boolean insert(List<Map> insvalsList) {
+        autoSetKeys()
+        List<Query> queries = insvalsList.collect({
+            createQuery().setAction(INSERT).setValues(it)
+        })
+        return dbConnector.commit(queries)
     }
     /**
      * Upsert row using key => values (like insert)
@@ -252,9 +237,22 @@ class DB {
      * @return
      **/
     boolean replace(List<Map> repvals) {
-        return repvals.every {
-            replace(it)
+        boolean ok = false
+        if(jdbc.supportsReplace) {
+            autoSetKeys()
+            List<Query> queries = repvals.collect({
+                createQuery().setAction(REPLACE).setValues(it)
+            })
+            ok = dbConnector.commit(queries)
+        } else {
+            if (repvals.size() > 100 && !jdbc.supportsReplace) {
+                Log.w("Using REPLACE with many records in [%s] may be too slow. Consider using INSERT or UPDATE instead", jdbc.class.simpleName)
+            }
+            ok = repvals.every {
+                replace(it)
+            }
         }
+        return ok
     }
     /**
      * Upsert data using ID (like update)
@@ -278,7 +276,7 @@ class DB {
             if(ids.size() == 1) {
                 keyvals = [(pks.first()) : ids.first()]
             } else { // Handle multiple ids in single pk
-                boolean ok = ids.any {
+                boolean ok = ids.every {
                     replace(vals, [it])
                 }
                 return ok
@@ -388,8 +386,8 @@ class DB {
      * @return
      */
     boolean dropAllTables() {
-        boolean ok = tables.any {
-            ! table(it).drop()
+        boolean ok = tables.every {
+            return table(it).drop()
         }
         return ok
     }
@@ -458,27 +456,31 @@ class DB {
 	 * @return  **/
     List<ColumnInfo> info() {
         List<ColumnInfo> columns = []
-        if(colsInfo.containsKey(table)) {
-            columns = colsInfo.get(table) ?: []
-        } else {
-            String infoSQL = jdbc.getInfoQuery(table)
-            if (infoSQL) {
-                columns = getSQL(infoSQL).toListMap().collect {
-                    new ColumnInfo(
-                        position: (it.position ?: 0) as int,
-                        name: it.column?.toString() ?: "",
-                        nullable: ((it.nullable ?: 0) as int) == 1,
-                        unique: ((it.unique ?: 0) as int) == 1,
-                        primaryKey: ((it.primary ?: 0) as int) == 1,
-                        autoIncrement: ((it.autoinc ?: 0) as int) == 1
-                    )
-                }
+        if(table) {
+            if (colsInfo.containsKey(table)) {
+                columns = colsInfo.get(table) ?: []
             } else {
-                columns = dbConnector.getColumns(table)
+                String infoSQL = jdbc.getInfoQuery(table)
+                if (infoSQL) {
+                    columns = getSQL(infoSQL).toListMap().collect {
+                        new ColumnInfo(
+                            position: (it.position ?: 0) as int,
+                            name: it.column?.toString() ?: "",
+                            nullable: ((it.nullable ?: 0) as int) == 1,
+                            unique: ((it.unique ?: 0) as int) == 1,
+                            primaryKey: ((it.primary ?: 0) as int) == 1,
+                            autoIncrement: ((it.autoinc ?: 0) as int) == 1
+                        )
+                    }
+                } else {
+                    columns = dbConnector.getColumns(table)
+                }
+                if (!columns.empty) {
+                    colsInfo[table] = columns
+                }
             }
-            if(!columns.empty) {
-                colsInfo[table] = columns
-            }
+        } else {
+            Log.d("Table name was not specified")
         }
         return columns
     }
@@ -742,18 +744,26 @@ class DB {
     ////////////////////////// Private ////////////////////////////////
 
     /**
-     * Starts or recycle a query
+     * Starts or reuse a query
      * @return Query
      */
     private Query getQuery() {
         if(queryBuilder == null) {
-            queryBuilder = new Query(jdbc)
-            //Log.v("Initializing Query")
-            if(!table.isEmpty()) {
-                queryBuilder.setTable(table)
-            }
+            queryBuilder = createQuery()
         }
         return queryBuilder
+    }
+
+    /**
+     * Return new Query (do not reuse it)
+     * @return
+     */
+    private Query createQuery() {
+        Query q = new Query(jdbc)
+        if(!table.isEmpty()) {
+            q.setTable(table)
+        }
+        return q
     }
 
     /**
@@ -775,7 +785,7 @@ class DB {
                 if (openIfClosed()) {
                     List<Map> rows = []
                     try {
-                        Statement st = dbConnector.prepare(query, false)
+                        ResultStatement st = dbConnector.execute(query, false)
                         if (st) {
                             queryBuilder = null
                             while (st.next()) {
@@ -880,11 +890,11 @@ class DB {
                 if (cache && clearCache && query.tableStr) {
                     clearCache()
                 }
-                Statement st
+                ResultStatement st
                 try {
                     boolean upsert = ! replaceData.isEmpty()
                     boolean silent = upsert
-                    st = dbConnector.prepare(query, silent)
+                    st = dbConnector.execute(query, silent)
                     if (upsert && st && st.updatedCount() == 0) {
                         try {
                             // Copy query:
@@ -903,7 +913,7 @@ class DB {
                             insert.args.each {
                                 Log.v(" --> " + it)
                             }
-                            st = dbConnector.prepare(insert, false)
+                            st = dbConnector.execute(insert, false)
                         } catch (Exception e2) {
                             Log.e("Query Syntax error: ", e2)
                         }

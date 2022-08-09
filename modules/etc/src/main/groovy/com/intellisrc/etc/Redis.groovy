@@ -195,8 +195,8 @@ class Redis extends StringProperties {
         try {
             Jedis jedis = new Jedis()
             if(prefix) {
-                deleted = ! keys.any {
-                    ! delete(it)
+                deleted = keys.every {
+                    delete(it)
                 }
             } else {
                 deleted = jedis.flushAll().toLowerCase() == "ok"

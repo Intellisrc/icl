@@ -51,7 +51,10 @@ abstract class JDBC {
     abstract String getDriver()
     abstract void setDriver(String driver)
 
-    ErrorHandler onError = { Throwable e -> Log.w("Database exception: %s", e.message) } as ErrorHandler
+    ErrorHandler onError = {
+        Throwable e ->
+            Log.w("Database exception: %s", e.message)
+    } as ErrorHandler
 
     // Aliases
     final void setDatabase(String name) { dbname = name }

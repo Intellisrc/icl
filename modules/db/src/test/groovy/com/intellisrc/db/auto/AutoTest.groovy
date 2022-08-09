@@ -5,7 +5,9 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
-import com.intellisrc.db.annot.*
+import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.DeleteActions
+import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
 import com.intellisrc.log.PrintLogger
@@ -16,6 +18,8 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.LocalDate
+
+import static com.intellisrc.db.Query.SortOrder.DESC
 
 /**
  * @since 2022/07/08.
@@ -118,7 +122,14 @@ class AutoTest extends Specification {
         Users(String name, Database database) { super(name, database) }
     }
     static class UsersV2 extends Table<UserV2>{
+        boolean execFired = false
         UsersV2(String name, Database database) { super(name, database) }
+
+        @Override
+        boolean execOnUpdate(DB table, int prevVersion, int currVersion) {
+            execFired = true
+            return false
+        }
     }
     static class Emails extends Table<UserEmail> {
         Emails(Database database) { super(database) }
@@ -198,7 +209,8 @@ class AutoTest extends Specification {
             Aliases aliases = new Aliases(database)
         when:
             User u = new User(
-                name : "Benjamin"
+                name : "Benjamin",
+                age  : 99
             )
         then:
             assert users.get(1) == null
@@ -211,6 +223,7 @@ class AutoTest extends Specification {
                 added: SysClock.now.toLocalDate()
             )
         then:
+            assert Table.getFieldName("some_name") == "someName"
             assert aliases.insert(alias)
             assert aliases.table.field("name").get(1).hasValue()
         when:
@@ -238,6 +251,7 @@ class AutoTest extends Specification {
             assert users.get(1).age == (77 as short)
         then:
             assert users.find { it.name == "None" } == null
+            assert users.find("name", "Ben").age == (77 as short)
             assert users.get(20) == null
             assert users.delete(u)
             assert aliases.all.empty
@@ -270,10 +284,28 @@ class AutoTest extends Specification {
             }
         then:
             assert users.all.size() == rows : "Number of rows failed before updating"
+            assert users.getAll(5).size() == 5 : "Limit failed"
+            assert users.getAll("age", DESC).first().id == rows : "Limit failed"
+            assert users.getAll("age", DESC, 5).last().id == rows - 5 + 1 : "Sort with limit failed"
+        when:
+            int times = 0
+            List<Short> ageList = []
+            users.chunkSize = 3
+            users.getAll({
+                times++
+                it.each {
+                    ageList << it.age
+                }
+            })
+        then:
+            assert times == Math.ceil(rows / 3) as int : "Number of chunks were incorrect"
+            assert ageList.size() == rows // Checking for duplicated
+            assert ageList.unique().size() == rows // No duplication
         when:
             UsersV2 users2 = new UsersV2(tableName, database)
             users2.updateTable() // Update it manually
         then:
+            assert users2.execFired : "execOnUpdate was not fired"
             assert users.all.size() == rows : "Number of rows failed after updating"
         when:
             UserV2 u = new UserV2(

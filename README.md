@@ -24,7 +24,6 @@ With this library you can:
 - Encrypt data or hash passwords easily and safely (using BountyCastle library) [crypt module](#crypt)
 - Create a terminal application in which you can interact using commands (using JLine) [term module](#term)
 - Communicate through a serial port (JSSC wrapper) [serial module](#serial)
-- Grab images from a video source, convert and modify them or simply draw over them (tools for javaCV) [cv module](#cv) and [img module](#img)
 - Use cache, monitor your hardware or automate configuration changes (using Jedis or BerkeleyDB) [etc module](#etc)
 
 **NOTE** : This library was designed using Groovy, but it can be used in Java and Kotlin (however, all the examples in the

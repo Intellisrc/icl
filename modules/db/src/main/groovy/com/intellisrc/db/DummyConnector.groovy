@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
  * it is required to use "dummy" as Connection string
  * @since 17/03/02.
  */
-class DummyConnector implements DB.Connector {
+class DummyConnector implements Connector {
     static String datePattern = "yyyy-MM-dd HH:mm:ss"
     private connected = false
     private opened = false
@@ -48,9 +48,14 @@ class DummyConnector implements DB.Connector {
     }
 
     @Override
-    DB.Statement prepare(Query query, boolean silent) {
+    ResultStatement execute(Query query, boolean silent) {
         Log.v( "Query prepared: "+query.toString())
         return new DummyStatement()
+    }
+
+    @Override
+    boolean commit(List<Query> query) {
+        return true
     }
 
     @Override
@@ -76,7 +81,7 @@ class DummyConnector implements DB.Connector {
         ]
     }
 
-    static class DummyStatement implements DB.Statement {
+    static class DummyStatement implements ResultStatement {
         List<Map<String,Object>> data = []
         private int dataIndex = 0
 

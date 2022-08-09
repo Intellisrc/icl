@@ -1,8 +1,8 @@
 package com.intellisrc.web.services
 
 import com.intellisrc.core.Log
-import com.intellisrc.etc.config.ConfigAuto
 import com.intellisrc.etc.JSON
+import com.intellisrc.etc.config.ConfigAuto
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableMultiple
 import groovy.transform.CompileStatic
@@ -44,10 +44,8 @@ class AutoConfigService implements ServiciableMultiple {
                     action: {
                         Request request ->
                             Map val = JSON.decode(request.body()) as Map
-                            boolean ok = true
-                            val.any {
-                                ok = configAuto.update(it.key.toString(), it.value)
-                                return !ok //This will stop if the previous was false
+                            boolean ok = val.every {// Will stop in first failure
+                                configAuto.update(it.key.toString(), it.value)
                             }
                             return [ ok : ok ]
                     }

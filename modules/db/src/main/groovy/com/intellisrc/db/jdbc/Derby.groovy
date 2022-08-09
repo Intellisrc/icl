@@ -12,7 +12,9 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 import static com.intellisrc.db.auto.Table.ColumnDB
 import static com.intellisrc.db.auto.Table.getColumnName
@@ -41,7 +43,7 @@ class Derby extends JDBCServer implements AutoJDBC {
     String password = ""
     String hostname = "localhost"
     int port = 1527
-    String driver = "org.apache.derby.jdbc.EmbeddedDriver"
+    String driver = "org.apache.derby.iapi.jdbc.AutoloadedDriver"
     boolean encrypt = Config.get("db.derby.encrypt", false)
     boolean memory = Config.get("db.derby.memory", false)
     boolean create = memory ?: Config.get("db.derby.create", false) //If in memory it will create automatically

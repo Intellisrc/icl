@@ -54,7 +54,7 @@ class TableUpdater {
                     auto.autoInit(db)
 
                     if(auto.turnFK(db, false)) {
-                        ok = !tables.any {
+                        ok = tables.every {
                             // It will stop if some table fails to create
                             TableInfo info ->
                                 if (db.tables.contains(info.backName)) {
@@ -71,16 +71,6 @@ class TableUpdater {
                                 return !db.table(info.backName).exists()
                         }
                         if (ok) {
-                            /*
-                            tables.reverseEach {
-                                if (db.table(it.name).exists()) {
-                                    db.table(it.name).drop()
-                                }
-                            }*/
-                            /*ok = !tables.any {
-                                it.table.createTable()
-                                return !db.table(it.name).exists()
-                            }*/
                             if (ok) {
                                 tables.each {
                                     TableInfo info ->
