@@ -545,17 +545,17 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param chunkReader
      */
     void getAll(Map options, ChunkReader chunkReader) {
-        int max = table.count().get().toInt()
-        if(max > chunkSize) {
-            (0..(max - 1)).step(chunkSize).each {
-                chunkReader.call(getAll(options + [
-                    limit : chunkSize,
-                    offset: it
-                ]))
-            }
-        } else {
-            chunkReader.call(getAll())
-        }
+        int offset = 0
+        int size
+        do {
+            List<M> buffer = getAll(options + [
+                limit : chunkSize,
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
     }
     /**
      * Find a single item which matches some column an some value
@@ -667,13 +667,17 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param chunkReader
      */
     void findAll(Map criteria, ChunkReader chunkReader) {
-        int max = table.count().get().toInt()
-        (0..(max - 1)).step(chunkSize).each {
-            chunkReader.call(findAll(criteria, [
+        int offset = 0
+        int size
+        do {
+            List<M> buffer = findAll(criteria + [
                 limit : chunkSize,
-                offset: it
-            ]))
-        }
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
     }
     /**
      * Update a model
