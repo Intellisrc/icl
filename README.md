@@ -55,7 +55,6 @@ Follow the instructions on the last published version for each module in [maven 
 In which `VERSION` is for example: `2.8.x`, and MODULE any of these: 
 * [core](#core)
 * [crypt](#crypt)
-* [cv](#cv)
 * [db](#db)
 * [etc](#etc)
 * [img](#img)
@@ -329,29 +328,6 @@ Includes : core
 
 [Documentation](modules/img/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#img)
 
-### [cv](modules/cv/README.md)
-Includes : core, img
-
-> Classes for Computer Vision (extension to OpenCV). Convert image formats, crop, rotate images
-> or draw objects on top of them. It simplifies grabbing images from any video source.
-> [read more...](modules/cv/README.md)
-
-|     | Class               | Usage                                                                 |
-|-----|---------------------|-----------------------------------------------------------------------|
- | ★   | `Converter`         | Convert from and to CV image formats (extends img.Converter)          |
- | ★   | `CvTools`           | Perform common operations in images : rotate, resize, etc             |
- | ★   | `FrameShot`         | Extends img.FrameShot to support CV image format                      |
- | @   | `JpegFormat`        | JPEG Format                                                           |
- | @   | `MjpegFormat`       | MJPEG Format                                                          |
- | @   | `MjpegFrame`        | MJPEG single frame                                                    |
- | @   | `MjpegInputStream`  | Provides MJPEG as InputStream                                         |
- | @   | `VideoGrab`         | Extract frames from most video formats                                |
- |     | `BufferedVideoGrab` | Get BufferedImages or FrameShot/CvFrameShot from a MJPEG stream       |
- |     | `FileVideoGrab`     | Get File or FrameShot/CvFrameShot images from a directory (as frames) |
- | ★   | `FrameVideoGrab`    | Get Frame or FrameShot/CvFrameShot objects from video files           |
-
-[Documentation](modules/cv/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#cv)
-
 ## Dependencies
 
 Starting from 2.8, this library no longer includes some dependencies, so you need to 
@@ -377,8 +353,6 @@ Below each module, I'm including the recommended version (the one used during co
 
 The following modules are already included in the specified modules:
 
-* `cv`     
-  * JavaCV (`org.bytedeco:javacv-platform:1.5`)
 * `crypt`  
   * Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.69`, `org.bouncycastle:bcpg-jdk15on:1.69`, `org.bouncycastle:bcprov-ext-jdk15on:1.69`)
 * `net`    
