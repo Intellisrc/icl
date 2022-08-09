@@ -117,16 +117,16 @@ class WebService {
     WebService start(boolean background = false, StartCallback onStart = null) {
         init()
         try {
-            srv.staticFiles.expireTime(cacheTime)
-            if (!resources.isEmpty()) {
-                if (embedded) {
-                    srv.staticFileLocation(resources)
-                } else {
-                    File resFile = File.get(resources)
-                    srv.externalStaticFileLocation(resFile.absolutePath)
-                }
-            }
             if (LocalHost.isPortAvailable(port)) {
+                srv.staticFiles.expireTime(cacheTime)
+                if (!resources.isEmpty()) {
+                    if (embedded) {
+                        srv.staticFileLocation(resources)
+                    } else {
+                        File resFile = File.get(resources)
+                        srv.externalStaticFileLocation(resFile.absolutePath)
+                    }
+                }
                 srv.port(port).threadPool(threads) //Initialize it right away
                 Log.i("Starting server in port $port with pool size of $threads")
                 // Preparing a service (common between Services and SingleService):
