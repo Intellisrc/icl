@@ -7,11 +7,13 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class Email {
+    @SuppressWarnings('GrFinalVariableAccess')
     final String user
+    @SuppressWarnings('GrFinalVariableAccess')
     final String domain
 
     Email(String email) throws EmailMalformedException {
-        if(email.matches(/(?!.*\.\.)(^[^\.@][\w_\.+-]+@[\w_\.+-]+\.[^@\s\.]+$)/)) {
+        if(email.matches(/(?!.*\.\.)(^[^.@][\w_.+-]+@[\w_.+-]+\.[^@\s.]+$)/)) {
             def parts = email.split("@")
             user = parts[0]
             domain = parts[1]
@@ -19,9 +21,11 @@ class Email {
             throw new EmailMalformedException()
         }
     }
+    @Override
     String toString() {
         return user+"@"+domain
     }
+
     static class EmailMalformedException extends Exception {}
     /**
      * When used as boolean... check if email is correct and not empty

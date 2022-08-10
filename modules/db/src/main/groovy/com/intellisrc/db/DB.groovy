@@ -186,10 +186,9 @@ class DB {
         boolean updated = false
         boolean sameSize = rows.size() == keyvals.size()
         if(sameSize) {
-            autoSetKeys()
             List<Query> queries = rows.withIndex().collect({
                 Map row, int idx ->
-                    createQuery().setAction(UPDATE).setWhere(keyvals[idx]).setValues(row)
+                    removeAutoId(autoKeys(createQuery().setAction(UPDATE)).setWhere(keyvals[idx]).setValues(row))
             })
             updated = dbConnector.commit(queries)
         } else {
@@ -211,12 +210,11 @@ class DB {
     /**
      * Inserts multiple rows using List(Map).
 	 * @param insvals
-	 * @return 
+	 * @return
      **/
     boolean insert(List<Map> insvalsList) {
-        autoSetKeys()
         List<Query> queries = insvalsList.collect({
-            createQuery().setAction(INSERT).setValues(it)
+            removeAutoId(autoKeys(createQuery().setAction(INSERT)).setValues(it))
         })
         return dbConnector.commit(queries)
     }
@@ -237,11 +235,10 @@ class DB {
      * @return
      **/
     boolean replace(List<Map> repvals) {
-        boolean ok = false
+        boolean ok
         if(jdbc.supportsReplace) {
-            autoSetKeys()
             List<Query> queries = repvals.collect({
-                createQuery().setAction(REPLACE).setValues(it)
+                autoKeys(createQuery().setAction(REPLACE)).setValues(it)
             })
             ok = dbConnector.commit(queries)
         } else {
@@ -357,10 +354,23 @@ class DB {
         query.setAction(DELETE).setWhere(keyvals)
         return execSet()
     }
+    /**
+     * Delete all records in a table (basically: DELETE FROM <table>)
+     * @return
+     */
+    boolean clear() {
+        Log.i("Clearing all records in table: %s", table)
+        query.setAction(DELETE)
+        return execSet()
+    }
+    /**
+     * Truncate a table (in some cases it will reset autoincrement ids as well)
+     * @return
+     */
     boolean truncate() {
         boolean ok = false
         if(table) {
-            Log.i("Truncating table: " + table)
+            Log.i("Truncating table: %s", table)
             query.setAction(TRUNCATE)
             ok = execSet()
         } else {
@@ -373,7 +383,7 @@ class DB {
     boolean drop() {
         boolean ok = false
         if(table) {
-            Log.i("Dropping table: " + table)
+            Log.i("Dropping table: %s", table)
             query.setAction(DROP)
             ok = execSet()
         } else {
@@ -901,14 +911,7 @@ class DB {
                             Query insert = Query.copyOf(query, INSERT)
                             // With original args:
                             insert.whereValues = replaceData
-                            // If its autoincrement, remove the insert value
-                            if(info(insert.key).autoIncrement) {
-                                int pki = insert.whereValues.keySet().toList().indexOf(insert.key)
-                                if (pki >= 0) {
-                                    insert.args.remove(pki)
-                                    insert.whereValues.remove(insert.key)
-                                }
-                            }
+                            insert = removeAutoId(insert)
                             Log.v("SET ::: " + insert.toString())
                             insert.args.each {
                                 Log.v(" --> " + it)
@@ -970,11 +973,21 @@ class DB {
      * Set Primary Keys automatically if they are not set
      */
     void autoSetKeys() {
-        if(query.keyList.empty) {
-            if(! getPKs(table).empty) {
-                keys(getPKs(table))
+        autoKeys(query)
+    }
+    /**
+     * Set keys for a Query
+     * @param q
+     * @return
+     */
+    Query autoKeys(Query q) {
+        if(q.keyList.empty) {
+            List<String> pks = getPKs(q.tableStr)
+            if(! pks.empty) {
+                q.setKeys(pks)
             }
         }
+        return q
     }
     /**
      * Get Primary key(s) from table
@@ -984,6 +997,22 @@ class DB {
     List<String> getPKs(String tbl = table) {
         info()
         return colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: []
+    }
+    /**
+     * Removes AutoID from Query (INSERT)
+     * @param qry
+     * @return
+     */
+    protected Query removeAutoId(Query qry) {
+        qry = autoKeys(qry)
+        if(info(qry.key).autoIncrement) {
+            int pki = qry.whereValues.keySet().toList().indexOf(qry.key)
+            if (pki >= 0) {
+                qry.args.remove(pki)
+                qry.whereValues.remove(qry.key)
+            }
+        }
+        return qry
     }
 }
 

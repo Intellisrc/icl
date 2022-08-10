@@ -18,6 +18,8 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 import static com.intellisrc.db.Query.SortOrder.DESC
 
@@ -361,13 +363,57 @@ class AutoTest extends Specification {
         then:
             [inboxes, users, emails].each {
                 Table t ->
-                    t.all.each {
-                        assert t.delete(it)
-                    }
+                    assert t.deleteAll()
+                    assert t.all.size() == 0
             }
         cleanup:
             Table.reset()
             [inboxes, users, emails].each {
+                it?.drop()
+                it?.quit()
+            }
+        where:
+            type << testable
+    }
+    def "Insert, update and delete in bulk"() {
+        setup:
+            DB.disableCache = true
+            Database database = new Database(getDB(type))
+            Emails emails = new Emails(database)
+            assert ! emails.pks.empty
+        when:
+            int rows = 10
+            List<UserEmail> emailList = []
+            (1..rows).each {
+                emailList << new UserEmail(
+                    email: new Email("user${it}@example.com")
+                )
+            }
+            Log.i("Inserting rows...")
+            LocalDateTime start = SysClock.now
+            assert emails.insert(emailList)
+            long time = ChronoUnit.MILLIS.between(start, SysClock.now)
+            Log.i("%d new records, took: %d ms", rows, time)
+            //assert time < 5000
+        then:
+            assert emails.count() == rows    : "Number of rows failed"
+        then:
+            List<UserEmail> newEmailList = []
+            emails.getAll({
+                List<UserEmail> chunk ->
+                    assert chunk.size() <= rows
+                    chunk.each {
+                        it.email = new Email(it.email.toString().replace("example.com", "example.net"))
+                        newEmailList << it
+                    }
+            })
+            assert emails.update(newEmailList)
+        then:
+            assert emails.clear()
+            assert emails.count() == 0
+        cleanup:
+            Table.reset()
+            [emails].each {
                 it?.drop()
                 it?.quit()
             }

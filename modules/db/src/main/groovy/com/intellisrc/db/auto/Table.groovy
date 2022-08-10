@@ -40,7 +40,7 @@ class Table<M extends Model> implements Instanciable<M> {
     protected DB connection
     protected int cache = 0
     protected boolean clearCache = false
-    protected List<String> primaryKeys = []
+    protected List<String> primaryKey = []
     protected int chunkSize = 100
 
     /**
@@ -394,7 +394,7 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     List<String> getPks() {
         List<String> pk = []
-        if(primaryKeys.empty) {
+        if(primaryKey.empty) {
             List<Field> fields = getFields().toList().findAll {
                 it.getAnnotation(Column)?.primary()
             }
@@ -406,9 +406,9 @@ class Table<M extends Model> implements Instanciable<M> {
                     pk = ["id"]
                 }
             }
-            primaryKeys = pk
+            primaryKey = pk
         } else {
-            pk = primaryKeys
+            pk = primaryKey
         }
         return pk
     }
@@ -610,14 +610,24 @@ class Table<M extends Model> implements Instanciable<M> {
         close()
         return list
     }
+    /**
+     * Find all using Model and return by chunks
+     * @param fieldName
+     * @param model
+     * @param chunkReader
+     */
     void findAll(String fieldName, Model model, ChunkReader chunkReader) {
-        int max = table.count().get().toInt()
-        (0..(max - 1)).step(chunkSize).each {
-            chunkReader.call(findAll(fieldName, model, [
+        int offset = 0
+        int size
+        do {
+            List<M> buffer = findAll(fieldName, model, [
                 limit : chunkSize,
-                offset: it
-            ]))
-        }
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
     }
     /**
      * Find all items which matches a column and a value
@@ -678,6 +688,16 @@ class Table<M extends Model> implements Instanciable<M> {
             offset += chunkSize
             size = buffer.size()
         } while(size == chunkSize)
+    }
+    /**
+     * Return records count
+     * @return
+     */
+    int count() {
+        DB db = connect()
+        int c = db.count().get().toInt()
+        close()
+        return c
     }
     /**
      * Update a model
@@ -806,6 +826,29 @@ class Table<M extends Model> implements Instanciable<M> {
         close()
         return ok
     }
+
+    /**
+     * Delete all rows which match a criteria. If there is no criteria,
+     * it will delete all rows in a table
+     * @param criteria
+     * @return
+     */
+    boolean deleteAll(Map<String, Object> criteria = [:]) {
+        DB db = connect()
+        boolean ok = criteria.isEmpty() ? (db.truncate() ?: db.clear()) : db.delete(criteria.collectEntries {
+            boolean isModel = it.value instanceof Model
+            return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).id : it.value)]
+        })
+        close()
+        return ok
+    }
+    /**
+     * Alias for deleteAll without criteria
+     * @return
+     */
+    boolean clear() {
+        return deleteAll()
+    }
     /**
      * Insert a model
      * @param model
@@ -901,6 +944,8 @@ class Table<M extends Model> implements Instanciable<M> {
     }
     /**
      * Exposed tableConnector
+     * (NOTE: To use it inside this class, use: `DB db = connect()`
+     * instead to prevent opening more connections)
      * @return
      */
     synchronized DB getTable() {
@@ -985,8 +1030,8 @@ class Table<M extends Model> implements Instanciable<M> {
                                 if (!(retVal as List).empty && convertModels) {
                                     if (retVal.first() instanceof Integer && genericIsModel(field)) {
                                         Column annotation = field.getAnnotation(Column)
-                                        Table table = relation[getParameterizedClass(field).class.name]
-                                        retVal = table.get(retVal)
+                                        Table tbl = relation[getParameterizedClass(field).class.name]
+                                        retVal = tbl.get(retVal)
                                         switch (annotation.ondelete()) {
                                             case DeleteActions.NULL:
                                                 // Do nothing (must be null already)
