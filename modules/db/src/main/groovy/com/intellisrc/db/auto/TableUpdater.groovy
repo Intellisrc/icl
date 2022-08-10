@@ -65,10 +65,10 @@ class TableUpdater {
                                         Log.w("Unable to copy table. Reverting")
                                         db.table(info.name).drop()
                                         auto.renameTable(db, info.backName, info.name)
-                                        return true //failed
+                                        return false //failed
                                     }
                                 }
-                                return !db.table(info.backName).exists()
+                                return db.table(info.backName).exists()
                         }
                         if (ok) {
                             if (ok) {

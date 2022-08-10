@@ -375,6 +375,7 @@ class AutoTest extends Specification {
         where:
             type << testable
     }
+    @Unroll
     def "Insert, update and delete in bulk"() {
         setup:
             DB.disableCache = true
@@ -382,7 +383,7 @@ class AutoTest extends Specification {
             Emails emails = new Emails(database)
             assert ! emails.pks.empty
         when:
-            int rows = 10
+            int rows = 500
             List<UserEmail> emailList = []
             (1..rows).each {
                 emailList << new UserEmail(
@@ -394,7 +395,7 @@ class AutoTest extends Specification {
             assert emails.insert(emailList)
             long time = ChronoUnit.MILLIS.between(start, SysClock.now)
             Log.i("%d new records, took: %d ms", rows, time)
-            //assert time < 5000
+            assert time < 2000
         then:
             assert emails.count() == rows    : "Number of rows failed"
         then:
