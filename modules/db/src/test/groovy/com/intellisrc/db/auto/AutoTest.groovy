@@ -300,6 +300,31 @@ class AutoTest extends Specification {
             type << testable
     }
 
+    def "Update Stock"() {
+        setup:
+            DB.disableCache = true
+            String tableName = "users"
+            Database database = new Database(type)
+            Users users = new Users(tableName, database)
+        when:
+            UsersV2 users2 = new UsersV2(tableName, database)
+            users2.updateTable() // Update it manually
+            DB.disableCache = true //updateTable re-enable it
+            UserV2 u = new UserV2(
+                name : "Benjamin",
+                age : 22,
+                webpage: "http://example.com".toURL()
+            )
+            int uid = users2.insert(u)
+        then:
+            assert uid == 1
+        cleanup:
+            users?.drop()
+            users?.quit()
+        where:
+            type << testable
+    }
+
     def "Multi-column Primary Key should work fine"() {
         setup:
             DB.disableCache = true

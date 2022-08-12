@@ -54,8 +54,7 @@ class JDBCConnector implements Connector {
 	List<String> getTables() {
 		List<String> list = []
 		try {
-
-			ResultSet rs = db.getMetaData().getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", "TABLE", "VIEW")
+			ResultSet rs = db.metaData.getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", "TABLE", "VIEW")
 			while (rs.next()) {
 				list << (jdbc.convertToLowerCase ? rs.getString("TABLE_NAME")?.toLowerCase() : rs.getString("TABLE_NAME"))
 				/*Log.v("Cat: %s, Sch: %s, Name: %s, Type: %s",
