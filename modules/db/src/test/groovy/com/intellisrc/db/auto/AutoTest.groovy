@@ -30,32 +30,11 @@ class AutoTest extends Specification {
     static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
     static File sqliteTmp = File.get(File.tempDir, "sqlite.db")
     static File derbyTmp = File.get(File.tempDir, "derby.db")
-    static Map<Object, Boolean> dbTest = [
-        (Derby)     : true,
-        (SQLite)    : true,
-        (MariaDB)   : !ci,
-        (MySQL)     : !ci,
-        (Firebird)  : false,
-        (Oracle)    : false,
-        (SQLServer) : false,
-        (PostgreSQL): false
-    ] as Map<Object, Boolean>
 
-    static boolean shouldSkip(Object jdbc) {
-        boolean skip = jdbc instanceof JDBCServer
-            && (jdbc as JDBCServer).port
-            &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)
-        if(skip) {
-            Log.w("Test skipped for : %s (environment not ready)", jdbc.class.simpleName)
-        }
-        return skip
-    }
-
-    static List<JDBC> getTestable() {
-        return dbTest.findAll {
-            it.value &&! shouldSkip(it.key)
-        }.collect { it.key } as List<JDBC>
-    }
+    static Map<String, Integer> ports = [
+        mysql : 33006,
+        mariadb : 33007
+    ]
 
     static class User extends Model {
         @Column(primary = true, autoincrement = true)
@@ -140,46 +119,37 @@ class AutoTest extends Specification {
         Inboxes(Database database) { super(database) }
     }
 
-    JDBC getDB(Class type) {
-        JDBC jdbc
-        switch (type) {
-            case Derby:
-                jdbc = new Derby(
-                    create  : true,
-                    memory  : true,
-                    //dbname  : derbyTmp.absolutePath
-                )
-                //now = "CURRENT DATE"
-                break
-            case SQLite:
-                jdbc = new SQLite(
-                    dbname: sqliteTmp.absolutePath
-                )
-                //now = "DATE('now')"
-                break
-            case MySQL:
-                jdbc = new MySQL(
-                    user    : "test",
-                    hostname: "127.0.0.1",
-                    password: "test",
-                    dbname  : "test",
-                    port    : 33006
-                )
-                break
-            case MariaDB:
-                jdbc = new MariaDB(
-                    user    : "test",
-                    hostname: "127.0.0.1",
-                    password: "test",
-                    dbname  : "test",
-                    port    : 33007
-                )
-                break
-            default:
-                jdbc = null
-                assert jdbc : "Unknown type : " + type.simpleName
+    List<JDBC> getTestable() {
+        List<JDBC> dbs = []
+        dbs << new Derby(
+            create: true,
+            memory: true,
+            //dbname  : derbyTmp.absolutePath
+        )
+        //now = "CURRENT DATE"
+        dbs << new SQLite(
+                dbname: sqliteTmp.absolutePath
+        )
+        //now = "DATE('now')"
+        if(LocalHost.hasOpenPort(ports.mariadb)) {
+            dbs << new MariaDB(
+                user: "test",
+                hostname: "127.0.0.1",
+                password: "test",
+                dbname: "test",
+                port: ports.mariadb
+            )
         }
-        return jdbc
+        if(LocalHost.hasOpenPort(ports.mysql)) {
+            dbs << new MySQL(
+                user: "test",
+                hostname: "127.0.0.1",
+                password: "test",
+                dbname: "test",
+                port: ports.mysql
+            )
+        }
+        return dbs
     }
 
     def setup() {
@@ -206,9 +176,11 @@ class AutoTest extends Specification {
     def "Create table model"() {
         setup:
             DB.disableCache = true
-            Database database = new Database(getDB(type))
+            Database database = new Database(type)
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
+            aliases.clear()
+            users.clear()
         when:
             User u = new User(
                 name : "Benjamin",
@@ -271,21 +243,22 @@ class AutoTest extends Specification {
     def "Test Update"() {
         setup:
             DB.disableCache = true
-            String tableName = "test_upd"
-            Database database = new Database(getDB(type))
+            String tableName = "users"
+            Database database = new Database(type)
             Users users = new Users(tableName, database)
         when:
             int rows = 10
+            List<User> userList = []
             (1..rows).each {
-                User usr = new User(
+                userList << new User(
                     name: "User${it}",
                     age : it + 20,
                     ip4 : "10.0.0.${it}".toInet4Address()
                 )
-                users.insert(usr)
             }
+            users.insert(userList)
         then:
-            assert users.all.size() == rows : "Number of rows failed before updating"
+            assert users.count() == rows : "Number of rows failed before updating"
             assert users.getAll(5).size() == 5 : "Limit failed"
             assert users.getAll("age", DESC).first().id == rows : "Limit failed"
             assert users.getAll("age", DESC, 5).last().id == rows - 5 + 1 : "Sort with limit failed"
@@ -308,10 +281,11 @@ class AutoTest extends Specification {
             users2.updateTable() // Update it manually
         then:
             assert users2.execFired : "execOnUpdate was not fired"
-            assert users.all.size() == rows : "Number of rows failed after updating"
+            assert users.count() == rows : "Number of rows failed after updating"
         when:
             UserV2 u = new UserV2(
                 name : "Benjamin",
+                age : 22,
                 webpage: "http://example.com".toURL()
             )
             int uid = users2.insert(u)
@@ -329,10 +303,13 @@ class AutoTest extends Specification {
     def "Multi-column Primary Key should work fine"() {
         setup:
             DB.disableCache = true
-            Database database = new Database(getDB(type))
+            Database database = new Database(type)
             Users users = new Users(database)
             Emails emails = new Emails(database)
             Inboxes inboxes = new Inboxes(database)
+            inboxes.clear()
+            emails.clear()
+            users.clear()
         when:
             int rows = 3
             (1..rows).each {
@@ -379,8 +356,9 @@ class AutoTest extends Specification {
     def "Insert, update and delete in bulk"() {
         setup:
             DB.disableCache = true
-            Database database = new Database(getDB(type))
+            Database database = new Database(type)
             Emails emails = new Emails(database)
+            emails.clear()
             assert ! emails.pks.empty
         when:
             int rows = 500

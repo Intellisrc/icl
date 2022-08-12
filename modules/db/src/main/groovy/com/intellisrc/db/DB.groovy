@@ -996,7 +996,7 @@ class DB {
      */
     List<String> getPKs(String tbl = table) {
         info()
-        return colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: []
+        return !colsInfo.isEmpty() ? colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: [] : []
     }
     /**
      * Removes AutoID from Query (INSERT)

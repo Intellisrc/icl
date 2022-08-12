@@ -17,10 +17,10 @@ fi
 # MariaDB
 if [[ $1 == "" || $1 == "mariadb" ]]; then
 docker run --name mariadb_test \
-  -e "MARIADB_ROOT_PASSWORD=rootpassword" \
-  -e "MARIADB_DATABASE=test" \
-  -e "MARIADB_USER=test" \
-  -e "MARIADB_PASSWORD=test" \
+  -e "MYSQL_ROOT_PASSWORD=rootpassword" \
+  -e "MYSQL_DATABASE=test" \
+  -e "MYSQL_USER=test" \
+  -e "MYSQL_PASSWORD=test" \
   -p 127.0.0.1:33007:3306 \
   -d mariadb
 
