@@ -4,7 +4,7 @@ dependencies {
 
     def sqlserver = '10.2.1.jre11'
     def oracle = '21.6.0.0'
-    def mysql = '8.0.29'
+    def mysql = '8.0.30'
     def mariadb = '3.0.6'
     def derby= '10.15.2.0'
     def firebird = '4.0.6.java11'
