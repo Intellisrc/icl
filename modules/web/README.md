@@ -1,8 +1,9 @@
 # WEB Module (ICL.web)
 
-Create restful HTTP (GET, POST, PUT, DELETE, etc) or WebSocket application services. 
-Manage JSON data from and to the server easily. It is build on top of Spark-Java Web Framework, 
-so it is very flexible and powerful, but designed to be elegant and easier to use.
+Create restful HTTP (GET, POST, PUT, DELETE, etc) or WebSocket application services.
+Manage JSON data from and to the server easily. It is build on top of [Spark-Java Web Framework](https://github.com/perwendel/spark) (with
+[few extra modifications](https://github.com/intellisrc/spark)),
+so it is very flexible, well tested and powerful, but designed in a way which is easier to organize and reuse your code (like plug-and-play).
 
 [JavaDoc](https://intellisrc.gitlab.io/common/#web)
 
