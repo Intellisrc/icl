@@ -1,6 +1,9 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.*
+import com.intellisrc.core.AnsiColor
+import com.intellisrc.core.Config
+import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
@@ -25,9 +28,9 @@ class DBPool {
 	// Turn it true to debug connections
 	protected boolean debugTimeout = Config.get("db.timeout.debug", false)
 	protected boolean initialized = false
-	Map<DB.Connector, List<StackTraceElement>> connTrace = [:]
-	ConcurrentLinkedQueue<DB.Connector> availableConnections = new ConcurrentLinkedQueue<>()
-	ConcurrentLinkedQueue<DB.Connector> currentConnections = new ConcurrentLinkedQueue<>()
+	Map<Connector, List<StackTraceElement>> connTrace = [:]
+	ConcurrentLinkedQueue<Connector> availableConnections = new ConcurrentLinkedQueue<>()
+	ConcurrentLinkedQueue<Connector> currentConnections = new ConcurrentLinkedQueue<>()
 	JDBC jdbc = null
 
 	/**
@@ -63,8 +66,8 @@ class DBPool {
 	 */
 	synchronized void timeoutPool() {
 		if(!availableConnections.isEmpty()) {
-			Set<DB.Connector> connectors = availableConnections.findAll {
-                DB.Connector conn ->
+			Set<Connector> connectors = availableConnections.findAll {
+                Connector conn ->
 					return conn.lastUsed > 0 && (System.currentTimeSeconds() - conn.lastUsed > expireSeconds)
 			}.toSet()
             if(!connectors.empty) {
@@ -78,8 +81,8 @@ class DBPool {
 			}
 		}
 		if(!currentConnections.empty) {
-			Set<DB.Connector> connectors = currentConnections.findAll {
-				DB.Connector conn ->
+			Set<Connector> connectors = currentConnections.findAll {
+				Connector conn ->
 					return conn.lastUsed > 0 && (System.currentTimeSeconds() - conn.lastUsed > timeoutSeconds)
 			}.toSet()
 			if(!connectors.empty) {
@@ -119,11 +122,11 @@ class DBPool {
      */
 	synchronized void quit() {
 		while (!availableConnections.isEmpty()) {
-			DB.Connector c = availableConnections.poll()
+			Connector c = availableConnections.poll()
 			c.close()
 		}
 		while (!currentConnections.isEmpty()) {
-			DB.Connector c = currentConnections.poll()
+			Connector c = currentConnections.poll()
 			c.close()
 		}
 		Log.i( "Database has closed all connections")
@@ -145,8 +148,8 @@ class DBPool {
 	}
 
 	//Creating a connection
-	private synchronized DB.Connector createNewConnectionForPool() {
-		DB.Connector conn = null
+	private synchronized Connector createNewConnectionForPool() {
+		Connector conn = null
 		try {
 			conn = new JDBCConnector(jdbc)
 		} catch (Exception e) {
@@ -155,8 +158,8 @@ class DBPool {
 		return conn
 	}
 
-	synchronized DB.Connector getConnectionFromPool() {
-		DB.Connector connection = null
+	synchronized Connector getConnectionFromPool() {
+		Connector connection = null
 		if(initialized) {
             increasePoolIfEmpty()
             connection = availableConnections.poll()
@@ -174,7 +177,7 @@ class DBPool {
 		return connection
 	}
 
-	synchronized void returnConnectionToPool(DB.Connector connection) {
+	synchronized void returnConnectionToPool(Connector connection) {
 		if(connection) {
 			currentConnections.remove(connection)
 			if(!availableConnections.contains(connection)) {

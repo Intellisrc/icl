@@ -12,7 +12,9 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 import static com.intellisrc.db.auto.Table.ColumnDB
 import static com.intellisrc.db.auto.Table.getColumnName
@@ -41,7 +43,7 @@ class Derby extends JDBCServer implements AutoJDBC {
     String password = ""
     String hostname = "localhost"
     int port = 1527
-    String driver = "org.apache.derby.jdbc.EmbeddedDriver"
+    String driver = "org.apache.derby.iapi.jdbc.AutoloadedDriver"
     boolean encrypt = Config.get("db.derby.encrypt", false)
     boolean memory = Config.get("db.derby.memory", false)
     boolean create = memory ?: Config.get("db.derby.create", false) //If in memory it will create automatically
@@ -207,7 +209,7 @@ class Derby extends JDBCServer implements AutoJDBC {
         ColumnDB ai = columns.find { it.annotation.autoincrement() }
         if(ai) {
             int max = get(db, "SELECT (MAX(${ai.name}) + 1) AS m FROM ${from}").toInt()
-            set(db, "ALTER TABLE ${to} ALTER COLUMN ${ai.name} RESTART WITH $max")
+            set(db, "ALTER TABLE ${to} ALTER COLUMN ${ai.name} RESTART WITH ${max ?: 1}")
         }
         return ok
     }

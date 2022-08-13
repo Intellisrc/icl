@@ -24,7 +24,6 @@ With this library you can:
 - Encrypt data or hash passwords easily and safely (using BountyCastle library) [crypt module](#crypt)
 - Create a terminal application in which you can interact using commands (using JLine) [term module](#term)
 - Communicate through a serial port (JSSC wrapper) [serial module](#serial)
-- Grab images from a video source, convert and modify them or simply draw over them (tools for javaCV) [cv module](#cv) and [img module](#img)
 - Use cache, monitor your hardware or automate configuration changes (using Jedis or BerkeleyDB) [etc module](#etc)
 
 **NOTE** : This library was designed using Groovy, but it can be used in Java and Kotlin (however, all the examples in the
@@ -55,7 +54,6 @@ Follow the instructions on the last published version for each module in [maven 
 In which `VERSION` is for example: `2.8.x`, and MODULE any of these: 
 * [core](#core)
 * [crypt](#crypt)
-* [cv](#cv)
 * [db](#db)
 * [etc](#etc)
 * [img](#img)
@@ -230,7 +228,6 @@ Includes : core, etc, net
 
 |     | Class                    | Usage                                                                                           |
 |-----|--------------------------|-------------------------------------------------------------------------------------------------|
- |     | `HTTPServer`             | Simple HTTP server implementation for static files. `WebService` offers much more than this one |
  | ★   | `Service`                | Defines a single service to be used in `WebService`                                             |
 |     | `ServiceOutput`          | Customize output response from a `Service`                                                      |
 | @   | `Serviciable`            | Generic interface for services                                                                  |
@@ -330,29 +327,6 @@ Includes : core
 
 [Documentation](modules/img/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#img)
 
-### [cv](modules/cv/README.md)
-Includes : core, img
-
-> Classes for Computer Vision (extension to OpenCV). Convert image formats, crop, rotate images
-> or draw objects on top of them. It simplifies grabbing images from any video source.
-> [read more...](modules/cv/README.md)
-
-|     | Class               | Usage                                                                 |
-|-----|---------------------|-----------------------------------------------------------------------|
- | ★   | `Converter`         | Convert from and to CV image formats (extends img.Converter)          |
- | ★   | `CvTools`           | Perform common operations in images : rotate, resize, etc             |
- | ★   | `FrameShot`         | Extends img.FrameShot to support CV image format                      |
- | @   | `JpegFormat`        | JPEG Format                                                           |
- | @   | `MjpegFormat`       | MJPEG Format                                                          |
- | @   | `MjpegFrame`        | MJPEG single frame                                                    |
- | @   | `MjpegInputStream`  | Provides MJPEG as InputStream                                         |
- | @   | `VideoGrab`         | Extract frames from most video formats                                |
- |     | `BufferedVideoGrab` | Get BufferedImages or FrameShot/CvFrameShot from a MJPEG stream       |
- |     | `FileVideoGrab`     | Get File or FrameShot/CvFrameShot images from a directory (as frames) |
- | ★   | `FrameVideoGrab`    | Get Frame or FrameShot/CvFrameShot objects from video files           |
-
-[Documentation](modules/cv/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#cv)
-
 ## Dependencies
 
 Starting from 2.8, this library no longer includes some dependencies, so you need to 
@@ -362,35 +336,33 @@ you to choose your library versions, reduce the compilation time and your projec
 Below each module, I'm including the recommended version (the one used during compilation).
 
 * `core` : Groovy version is now up to you (required by any module). 
-    * `org.codehaus.groovy:groovy-all:3.0.7`
+    * `org.codehaus.groovy:groovy-all:3.0.11`
 * `db`   : Database drivers need to be included (Choose the one(s) which match(es) your database(s)):
-    * `com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre11`
-    * `com.oracle.database.jdbc:ojdbc11:21.4.0.0`
-    * `mysql:mysql-connector-java:8.0.25`
+    * `com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre11`
+    * `com.oracle.database.jdbc:ojdbc11:21.6.0.0`
+    * `mysql:mysql-connector-java:8.0.30`
     * `org.apache.derby:derby:10.15.2.0`
-    * `org.firebirdsql.jdbc:jaybird:4.0.5.java11`
-    * `org.mariadb.jdbc:mariadb-java-client:2.7.4`
-    * `org.postgresql:postgresql:42.3.1`
-    * `org.xerial:sqlite-jdbc:3.36.0.2`
+    * `org.firebirdsql.jdbc:jaybird:4.0.6.java11`
+    * `org.mariadb.jdbc:mariadb-java-client:3.0.6`
+    * `org.postgresql:postgresql:42.3.6`
+    * `org.xerial:sqlite-jdbc:3.36.0.3`
 * `etc`  :
-  * Jedis (`redis.clients:jedis:3.6.3`)
+  * Jedis (`redis.clients:jedis:4.2.3`)
   * BerkeleyDB (`com.sleepycat:je:18.3.12`)
 
 The following modules are already included in the specified modules:
 
-* `cv`     
-  * JavaCV (`org.bytedeco:javacv-platform:1.5`)
 * `crypt`  
-  * Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.69`, `org.bouncycastle:bcpg-jdk15on:1.69`, `org.bouncycastle:bcprov-ext-jdk15on:1.69`)
+  * Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.70`, `org.bouncycastle:bcpg-jdk15on:1.70`, `org.bouncycastle:bcprov-ext-jdk15on:1.70`)
 * `net`    
   * Apache Common Net (`commons-net:commons-net:3.8.0`) 
   * JavaX Mail(`com.sun.mail:javax.mail:1.6.2`)
 * `serial` 
   * JSSC library (`org.scream3r:jssc:2.8.0`) 
 * `term`   
-  * JLine library (`org.jline:jline:3.20.0`)
+  * JLine library (`org.jline:jline:3.21.0`)
 * `web`    
-  * Spark Framework (`com.sparkjava:spark-core:2.9.3`)
+  * Spark Framework (`com.intellisrc:spark-core:2.9.4-unofficial-4`)
 
 ## Recommendations
 

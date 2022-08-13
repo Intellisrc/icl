@@ -1,10 +1,18 @@
 dependencies {
+
     api project(':etc')
     api project(':net')
-    //https://github.com/perwendel/spark
+    //https://github.com/intellisrc/spark
     // We use Response, Request... so we use 'api' here:
-    api 'com.intellisrc:spark-core:2.9.4-unofficial-1'
+    api 'com.intellisrc:spark-core:2.9.4-unofficial-4'
+
     //TODO: reimplement security (LoginService) :
     //implementation 'org.pac4j:spark-pac4j:2.1.0'
     //implementation 'org.pac4j:pac4j-http:2.1.0'
+
+    // NOTE: To enable Brotli compression, you may need to add this to your project:
+    //def jvmbrotli = "0.2.0"
+    //compileOnly "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
+    //compileOnly "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
+
 }

@@ -12,7 +12,9 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.regex.Matcher
 
 import static com.intellisrc.db.auto.Table.ColumnDB
@@ -40,6 +42,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
 
     // MySQL Parameters
     // https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-reference-configuration-properties.html
+    // https://mysql-net.github.io/MySqlConnector/connection-options/
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
@@ -56,6 +59,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
             characterEncoding       : "UTF-8",
             characterSetResults     : "utf8",
             connectionCollation     : "utf8_general_ci",
+            allowPublicKeyRetrieval : ! ssl     //
 
             // These properties are not compatible with MariaDB:
             //emptyStringsConvertToZero : true,

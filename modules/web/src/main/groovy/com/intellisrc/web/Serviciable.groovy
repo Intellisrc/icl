@@ -24,4 +24,5 @@ import groovy.transform.CompileStatic
 trait Serviciable {
     String getPath() { return "" }
     String getAllowOrigin() { return null }
+    String getAllowType() { return "*/*" }
 }

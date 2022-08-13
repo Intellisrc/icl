@@ -36,36 +36,60 @@ new WebService(
 )
 ```
 
-### Services (ServiciableSingle, ServiciableMultiple)
+`WebService` manages the server, which handles one or more `Service`(s). A `Service` executes an `Action`.
 
-One advantage of using this wrapper against using Spark-Java Web Framework, is that you can 
-easily create services and add them to your web server, making them totally recyclable among
-your projects. For example, to create one service:
+### Service
+
+One advantage of using this library instead of using Spark-Java Web Framework, is that you can 
+easily create services and make them totally reusable among your projects. 
+For example, to create one service:
 
 ```groovy
-class VersionService implements ServiciableSingle {
-    Service getService() {
-        return new Service(
-                path : "/version",
-                action : {
-                    return [
-                        version : Version.get()
-                    ]
-                }
-        )
-    }
+class VersionService extends Service {
+     String path = "/version"
+     Action action = {
+        [ version : Version.get() ]
+     }
 }
-// Then when you launch your web server:
+```
+
+Then add it to your web server and start it:
+```groovy
 new WebService(port: 8080, resources: "res")
         .add(new VersionService())
         .start()
 ```
 
-`ServiciableSingle` interface will only return a single service, to return a list of services
-use `ServiciableMultiple`:
+The `VersionService` (above example) could be written as well (easier to use in Groovy):
 
 ```groovy
-class CRUDService implements ServiciableMultiple {
+class VersionService extends SingleService {
+    Service getService() {
+        return new Service(
+            path: "/version",
+            action: {
+                return [
+                    version: Version.get()
+                ]
+            }
+        )
+    }
+}
+```
+
+If you prefer to use an interface, you can use `ServiciableSingle`:
+
+```groovy
+class VersionService implements SeviciableSingle {
+    /* The code is exactly the same as above */
+}
+```
+
+`SingleService` abstract class or `ServiciableSingle` interface will only return a single service, 
+to return a list of services use `Services` (abstract class) or `ServiciableMultiple` (interface):
+
+```groovy
+class CRUDService extends Services {
     /**
      * Prefix path for all services in this class
      */
@@ -96,31 +120,34 @@ class CRUDService implements ServiciableMultiple {
     }
 }
 ```
-`WebService` manages the server, which handles one or more `Service`(s). A `Service` executes an `Action`.
 
 `Service` can also take several others properties:
 ```groovy
 new Service(
-    // Required:    
-    action        : { } as Action,        // Closure that will return an Object (usually Map) to be converted to JSON as response
-    // Most common:
-    path          : "",                   // URL path relative to parent (inherited from `Spark` : check Spark documentation)
-    method        : Method.GET,           // HTTP Method to be used
-    contentType   : "",                   // Content Type, for example: Mime.getType("png") or "image/png". (default : auto)
-    allow         : { true } as Allow,    // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
-    // Cache related:    
-    cacheExtend   : false,                // Extend time upon read (similar as sessions)
-    cacheTime     : 0,                    // Seconds to store action in Server's Cache // 0 : "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER : forever
-    maxAge        : 0,                    // Seconds to suggest to keep in browser
-    noStore       : false,                // Browser Rule: If true, response will never cached (as it may contain sensitive information)
-    etag          : { "" } as ETag,       // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
-    // Less common:    
-    isPrivate     : false,                // Browser Rule: These responses are typically intended for a single user
-    download      : "",                   // Specify if instead of display, show download dialog with the name of the file.
-    allowOrigin   : null,                 // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
-    headers       : [:]                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
+    action              : { },                   // Closure that will return an Object (usually Map) to be converted to JSON as response
+    allow               : { true } as Allow,     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
+    allowOrigin         : null,                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
+    allowType           : "",                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
+    cacheExtend         : false,                 // Extend time upon read (similar as sessions)
+    cacheTime           : 0,                     // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER : forever
+    charSet             : "UTF-8",               // Output charset (default: UTF-8)
+    compress            : false,                 // Whether to compress or not the output
+    compressSize        : false,                 // If true, when compressed will buffer the output to report size
+    contentType         : "",                    // Content Type, for example: Mime.getType("png") or "image/png". (default : auto)
+    download            : false,                 // Specify if instead of display, show download dialog
+    downloadFileName    : "",                    // Use this name if download is requested
+    etag                : { "" } as ETag,        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
+    headers             : [:],                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
+    isPrivate           : false,                 // Browser Rule: These responses are typically intended for a single user
+    maxAge              : 0,                     // Seconds to suggest to keep in browser
+    method              : Method.GET,            // HTTP Method to be used
+    noStore             : false,                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
+    path                : "",                    // URL path relative to parent
 )
 ```
+
+### Action
+
 `Action` is a group of interfaces with optional return arguments, for example:
 
  * (empty) // The most simple `Action` with no `Request` or `Response` (which are `Spark` classes)
@@ -135,14 +162,15 @@ new Service(
 itself is converted into `JSON`. Depending on the object you are returning, you may need to change the `contentType`
 property (it will try to guess it if you don't specify it), for example:
 
-| Object        | Content Type                                          |
-|---------------|-------------------------------------------------------|
-| String        | automatic: plain, xml, html, svg, etc                 |
-| List / Map    | "text/json" unless Mime.getType("yaml") is used       |
-| File          | automatic: depending on name and content              |
-| BufferedImage | automatic: JPEG or PNG (if transparency is detected)  |
-| URL           | automatic: Will "proxy" content and type from remote  |
-| byte[]        | "application/octet-stream"                            |
+| Object        | Content Type                                         |
+|---------------|------------------------------------------------------|
+| String        | automatic: plain, xml, html, svg, etc                |
+| List / Map    | "text/json" unless "Mime.YAML" is used               |
+| File          | automatic: depending on name and content             |
+| BufferedImage | automatic: JPEG or PNG (if transparency is detected) |
+| URL           | automatic: Will "proxy" content and type from remote |
+| byte[]        | "application/octet-stream"                           |
+| OutputStream  | "application/octet-stream"                           |
 
 If you want to make the `File` downloadable (by the client), you don't need to specify any `contentType`, 
 but you will need to set the property `download` to `true`. Now if you want to "serve" or "stream" a `File`
@@ -214,6 +242,86 @@ new Service(
 )
 ```
 
+### Path
+
+`path` can be either a string or a `Pattern` object (RegExp). Paths don't need to start with a slash (is automatically added).
+You can use everything that is supported in [Spark](http://sparkjava.com/documentation#routes) and
+the [experimental features](https://github.com/Intellisrc/spark/blob/next-3/DIFFERENCES.md). For example:
+
+You can use params:
+```groovy
+new Service(
+    path : "/user/:id/",
+    action: {
+        Request request ->
+            String id = request.params("id")
+            return "ok"
+    }
+)
+```
+
+You can use `splat`:
+```groovy
+new Service(
+    path : "/user/*/panel",
+    action: {
+        Request request ->
+            String splat = request.splat()[0]
+            return "ok"
+    }
+)
+```
+
+Trailing slash can be optional:
+```groovy
+new Service(
+    path : "/main/page/?", 
+    action: {
+        Request request ->
+            return "ok"
+    }
+)
+```
+
+You can use regular expressions to define and validate paths and create groups:
+```groovy
+new Service(
+    path : /^(\d+)-(\w+)\.([a-z]+)$/,
+    action: {
+        Request request ->
+            int id = request.params(1) as int
+            String title = request.params(2)
+            String ext = request.params(3)
+            return "ok"
+    }
+)
+```
+
+**NOTE** : If you use `Java`, you can specify your path as RegExp by starting it with `~/`, for example:
+
+```java
+class PrepareService {
+    public static void main(String[] args) {
+        Service service = new Service();
+        service.path ="~/^(\\d+)-(\\w+)\\.([a-z]+)$/";
+        /* ... */
+    }
+}
+```
+
+You can use named groups in your regular expressions (in this example we are using a `Pattern` object instead of String
+just for illustration):
+```groovy
+new Service(
+    path : ~/u(?<uid>\d+)/,  // equivalent to Pattern.compile("/u(?<uid>\\d+)/")
+    action: {
+        Request request ->
+            int id = request.params("uid") as int
+            return "ok"
+    }
+)
+```
+
 ### Downloading files
 
 ```groovy
@@ -226,7 +334,10 @@ new Service(
 )
 ```
 
-#### Customizing Output
+By setting `download` to `true`, the needed headers will be added into the response, for example: 
+`Content-Disposition`, `Content-Encoding`, `Content-Length`, etc
+
+#### Customizing the Output
 
 As in the example above, `WebService` will automatically set the required headers so the file
 can be downloaded (instead of displayed on the browser). But there are some special cases
@@ -249,6 +360,51 @@ new Service(
     }
 )
 ```
+
+### Compressing the Output
+
+You can request the compression of your output by setting the property `compress` to `true`. Additionally, it will
+set the required header (`Content-Encoding`).
+
+```groovy
+new Service(
+    path: "/download.txt",
+    download : true,
+    compress : true,
+    action : {    
+        return File.get("~/report.csv")
+    }
+)
+```
+
+If you don't use compression, `Content-Length` will always be added automatically, however, when compression is 
+requested, the output is compressed in chunks at the same time it is being downloaded, so there is no easy
+way to calculate the final size until all the data has been served (by which point setting the `Content-Length` header
+is useless). We can compress the output before serving it, but this will require more resources (specially memory or cpu), 
+and may delay the response time. If you want to include the size anyway (to show the progress bar in the browser), 
+you can specify the property : `compressSize` to `true`:
+
+```groovy
+new Service(
+    path: "/download.txt",
+    download : true,
+    compress : true,
+    compressSize : true,
+    action : {    
+        return File.get("~/report.csv")
+    }
+)
+```
+
+By default, it will use `GZip` to compress the output, but you can use [Brotli](https://en.wikipedia.org/wiki/Brotli) compression,
+which is [widely supported](https://caniuse.com/brotli) by modern browsers.
+
+In order to use `Brotli` compression, you only need to add the
+[com.nixxcode.jvmbrotli](https://mvnrepository.com/artifact/com.nixxcode.jvmbrotli) dependency
+in your project (Gradle, Maven, etc).
+
+**NOTE**: If you are using Gradle, you may need to also include the native library according to your
+system architecture.
 
 ### Authentication (ServiciableAuth)
 
@@ -385,56 +541,71 @@ new Service(
 )
 ```
 
-### HTTPS (ServiciableHTTPS)
+### HTTPS 
 
-Although I recommend using a reverse proxy server (like HAProxy or Apache) to
-handle HTTPS connections, you can add HTTPS support without the need of extra
-packages. 
+To enable HTTPS, you will need a certificate. You can generate one and create the key store in a single command:
 
-#### Example
-
-```groovy
-/**
- * Example of HTTPS Service
- *
- * 1. Issue a certificate (self-signed or not)
- * 2. Execute: java-cert-importer.sh (inside res/public/) 
- *      or follow: https://stackoverflow.com/a/31133183/196507
- *      or : http://sparkjava.com/documentation.html#enable-ssl
- * in order to import keystore file into trusted certs
- */
-class SSLService implements ServiciableHTTPS, ServiciableSingle {
-    //----- From ServiciableHTTPS:
-    
-    // Must be absolute path. Do not store it in public directory
-    @Override
-    String keyStoreFile = File.get(File.userDir, "res", "key.store").absolutePath
-    // The password for the keystore
-    @Override
-    String password = "e7LcrHoWe3iuogAiwPdTCzAk"
-
-    //----- From ServiciableSingle:
-    @Override
-    String path = "/admin"
-
-    @Override
-    Service getService() {
-        return new Service(
-            action: {
-                /* .. */
-            }
-        )
-    }
-}
+```bash
+# It will ask you some basic information
+keytool -genkey -keyalg RSA -alias localhost -keystore keystore.jks -storepass yourpasswordhere -validity 365 -keysize 2048
 ```
 
-Do not forget to add it to your `WebService`:
+If you already have a valid certificate, you can create the key store with these commands instead:
+
+```bash
+# First export your x.509 certificate and key to pkcs12:
+openssl pkcs12 -export -in example.crt -inkey example.key -out example.p12 -name example.com -CAfile ca.crt -chain
+# If you use Let's Encrypt, use this command instead:
+# openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem -out example.p12 -name example.com
+
+#NOTE#: Be sure you set a password or you won't be able to import it
+
+# Then, create or import into the key store:
+keytool -importkeystore -deststorepass yourpasswordhere -destkeypass yourpasswordhere -destkeystore keystore.jks \
+        -srckeystore example.p12 -srcstoretype PKCS12 -srcstorepass thePasswordYouSetInTheStepBefore \
+        -deststoretype JKS -alias example.com
+```
+
+That command will generate a file named `keystore.jks` (or the name you specified). 
+Feel free to move that file anywhere you want.
+Then, use the file and your password in your `WebService` initialization:
 
 ```groovy
-new WebService(port: 443, resources: "res")
-        .add(new SSLService())
-        .start()
+new WebService(
+        port: 443, 
+        resources: "res",
+        ssl : new KeyStore(
+            File.get("private", "keystore.jks"), 
+            "yourpasswordhere"
+        ),
+    ).add(new Service(
+        path : "/ssl",
+        action : { "ok" }
+    )).start()
 ```
+
+Opening `https://localhost:443/ssl` should display "ok" (after showing a security warning, as it is self-signed).
+
+### HTTP/2
+
+You can enable HTTP/2 protocol for your services by setting the `http2` property to `true`:
+
+```groovy
+new WebService(
+    port: 443,
+    resources: "res",
+    ssl: new KeyStore(
+        File.get("private", "keystore.jks"),
+        "yourpasswordhere"
+    ),
+    http2 : true
+).add(new Service(
+    path : "/admin",
+    action : { "ok" }
+)).start()
+```
+
+**NOTE** : Must browsers require HTTPS to be enabled in order to use HTTP/2. 
 
 ## WebSocket Server
 
@@ -573,6 +744,25 @@ websocket.timeout=600
 # Set maximum message size to 1MB: (default 64Kb)
 websocket.max.size=1024
 ```
+
+## WebSocketSecure (WSS)
+
+You can add a SSL certificate to enable `wss` protocol:
+
+**NOTE**: To generate a certificate or import an existing one, please see [https](#https) section above.
+
+```groovy
+new WebService(
+    port: 9999,
+    ssl : new KeyStore(
+        File.get("private", "keystore.jks"),
+        "yourpasswordhere"
+    )
+).add(new MyWebSocketService(timeout: 600, maxSize: 1024))
+ .start()
+```
+
+Then you can access that in: `wss://localhost:9999/`
 
 ## WebSocket Client
 

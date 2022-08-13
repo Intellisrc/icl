@@ -51,7 +51,10 @@ abstract class JDBC {
     abstract String getDriver()
     abstract void setDriver(String driver)
 
-    ErrorHandler onError = { Throwable e -> Log.w("Database exception: %s", e.message) } as ErrorHandler
+    ErrorHandler onError = {
+        Throwable e ->
+            Log.w("Database exception: %s", e.message)
+    } as ErrorHandler
 
     // Aliases
     final void setDatabase(String name) { dbname = name }
@@ -156,7 +159,6 @@ abstract class JDBC {
     }
     // hasOrder is only needed in SQL Server
     String getLimitQuery(int limit, int offset, boolean hasOrder = false) {
-        Log.i("Fetch is: %s", useFetch ? "TRUE" : "FALSE")
         return useFetch ? ((offset > 0 ? "OFFSET $offset ROWS " : "") + (limit > 0 ? "FETCH NEXT $limit ROWS ONLY" : ""))
                         : ((limit > 0 ? "LIMIT $limit " : "") + (offset > 0 ? "OFFSET $offset" : ""))
     }
@@ -279,5 +281,22 @@ abstract class JDBC {
             Log.e("No `type` was specified in argument or in configuration. Connection will fail.")
         }
         return jdbc
+    }
+    /**
+     * Get a JDBC object from connection URI
+     * @param uri
+     * @return
+     */
+    static JDBC fromURI(String uri, String userName = "", char[] pwd = []) {
+        return new JDBC() {
+            String dbname = ""
+            String user = userName
+            String password = pwd.toString()
+            String driver = ""
+            @Override
+            String getConnectionString() {
+                return uri
+            }
+        }
     }
 }

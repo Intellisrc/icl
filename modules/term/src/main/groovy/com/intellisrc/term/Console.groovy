@@ -1,5 +1,6 @@
 package com.intellisrc.term
 
+import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
@@ -16,6 +17,8 @@ import org.jline.utils.InfoCmp
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+
+import static com.intellisrc.core.AnsiColor.*
 
 /**
  * A wrapper around jLine
@@ -43,6 +46,10 @@ class Console {
     static private boolean timerRunning = false
     static private final List<Consolable> consoles = []
 
+    static public String warnColor      = YELLOW
+    static public String errorColor     = RED
+    static public String infoColor      = CYAN
+    static public String successColor   = GREEN
     /**
      * Execute some code on the background while waiting for input
      */
@@ -58,6 +65,14 @@ class Console {
     static void add(Consolable consolable) {
         consoles << consolable
     }
+    /**
+     * Add several Consolable objects to the list
+     * @param consolable
+     * @return
+     */
+    static void add(List<Consolable> consolable) {
+        consoles.addAll(consolable)
+    }
 
     /**
      * Launches the console and loop indefinitely
@@ -69,7 +84,7 @@ class Console {
         if(addDefault) {
             if(!consoles) {
                 Log.w("Consoles have not been added. Using only default.")
-                Log.w("    Example to add:  Console << new MyConsole()")
+                Log.w("    Example to add:  Console.add(new MyConsole())")
                 Log.w("    where MyConsole() implements Consolable")
             }
             consoles << new ConsoleDefault()
@@ -97,6 +112,8 @@ class Console {
                 }
             }
             reader.terminal.flush()
+            // Update auto complete after each command
+            updateAutoComplete()
             if(timeout) {
                 timer = Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
                     // It will loop until `onCommand` returns a 'false'
@@ -123,6 +140,42 @@ class Console {
         //We are not using reader.terminal.writer().println as is not always displayed
         //We are using Log.formatString to support all what Log supports
         println Log.formatString(output, params.toList())
+    }
+
+    /**
+     * Print a warning in yellow
+     * @param output
+     * @param params
+     */
+    static void warn(String output, Object... params) {
+        out(String.format("%s%s%s", warnColor, output, RESET), params)
+    }
+
+    /**
+     * Print an error in red
+     * @param output
+     * @param params
+     */
+    static void error(String output, Object... params) {
+        out(String.format("%s%s%s", errorColor, output, RESET), params)
+    }
+
+    /**
+     * Print a success in green
+     * @param output
+     * @param params
+     */
+    static void success(String output, Object... params) {
+        out(String.format("%s%s%s", successColor, output, RESET), params)
+    }
+
+    /**
+     * Print a message in cyan (you can change it by setting Console.infoColor)
+     * @param output
+     * @param params
+     */
+    static void info(String output, Object... params) {
+        out(String.format("%s%s%s", infoColor, output, RESET), params)
     }
 
     /**
@@ -161,7 +214,7 @@ class Console {
      * @param tempPrompt
      * @return
      */
-    static String read(final String tempPrompt = Console.prompt, final BackgroundTask backProcess = null) {
+    static String read(final String tempPrompt = prompt, final BackgroundTask backProcess = null) {
         String line
         ScheduledFuture process
         if(backProcess) {
@@ -169,7 +222,7 @@ class Console {
         }
         try {
             line = reader.readLine(tempPrompt).trim()
-        } catch (Exception uie) {
+        } catch (Exception ignore) {
             line = "exit"
             if(process) {
                 process.cancel(true)
@@ -200,7 +253,7 @@ class Console {
      * @param mask
      * @return
      */
-    static char[] readPassword(final String tempPrompt = Console.prompt, final Character mask = Console.mask, final BackgroundTask backProcess = null) {
+    static char[] readPassword(final String tempPrompt = prompt, final Character mask = Console.mask, final BackgroundTask backProcess = null) {
         char[] pass = null
         ScheduledFuture process
         if(backProcess) {

@@ -63,7 +63,11 @@ class OracleSQLTest extends JDBCTest {
             port    : 31521,
             user    : "test",
             password: "test",
-            dbname  : "XEPDB1" // or XE (for docker XE lower than 18). It can be service name as well (SID)
+            dbname  : "XEPDB1" // PDB name (or SID)
+            // For docker XE lower than 18 :
+            // dbname  : "XE"
+            // If you don't have `tnsnames.ora` set, you may need to specify: XEPDB1.localdomain (Specially Oracle 12)
+            // dbname  : "XEPDB1.localdomain"
         )
     }
 }

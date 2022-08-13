@@ -6,8 +6,6 @@ import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
-import java.time.LocalDateTime
-
 import static com.intellisrc.db.ColumnType.*
 import static com.intellisrc.db.Query.Action.*
 import static com.intellisrc.db.Query.FieldType.*
@@ -28,6 +26,7 @@ class DB {
     protected Connector dbConnector
     protected String table = ""
     protected int last_id = 0
+    // We need a global Query object to allow fluid building
     protected Query queryBuilder = null
     // Flag to mark connections which were returned already
     protected boolean returned = false
@@ -41,40 +40,6 @@ class DB {
 
     JDBC getJdbc() {
 		return dbConnector?.jdbc ?: new Dummy()
-	}
-
-    ////////////////////////// Interfaces ////////////////////////////////
-
-	static interface Connector {
-        String getName()
-		boolean open()
-		boolean close()
-        boolean isOpen()
-		Statement prepare(Query query, boolean silent)
-		void onError(Throwable ex)
-		JDBC getJdbc()
-        long getLastUsed()
-        void setLastUsed(long milliseconds)
-        List<String> getTables()
-        List<ColumnInfo> getColumns(String table)
-	}
-
-	static interface Statement {
-		boolean next()
-		void close()
-		int columnCount()
-		int firstColumn()
-        int updatedCount()
-		ColumnType columnType(int index)
-		String columnName(int index)
-		String columnStr(int index)
-        boolean columnBool(int index)
-		Integer columnInt(int index)
-		Double columnDbl(int index)
-        Float columnFloat(int index)
-		LocalDateTime columnDate(int index)
-		byte[] columnBlob(int index)
-		boolean isColumnNull(int index)
 	}
 
     ////////////////////////// Public ////////////////////////////////
@@ -161,7 +126,7 @@ class DB {
         return list
     }
     /**
-     * Update data (Map) where ID is an int with specified value
+     * Update data (Map) where ID is the key(s) to use
 	 * @param updvals
 	 * @param id
 	 * @return 
@@ -200,6 +165,8 @@ class DB {
      * @param updvals
      * @return
      **/
+    @Deprecated // It doesn't support multiple columns PK and it might be confusing
+    //TODO: remove in 2.8.8
     boolean update(Map<Object, Map> updvals) {
         return updvals.every {
             boolean ok = false
@@ -211,29 +178,64 @@ class DB {
         }
     }
     /**
+     * Update multiple rows
+     * @param rows
+     * @return
+     */
+    boolean update(List<Map> rows, List<Object> keyvals) {
+        boolean updated = false
+        if(! rows.empty) {
+            boolean sameSize = rows.size() == keyvals.size()
+            if (sameSize) {
+                List<Query> queries = rows.withIndex().collect({
+                    Map row, int idx ->
+                        removeAutoId(autoKeys(createQuery().setAction(UPDATE)).setWhere(keyvals[idx]).setValues(row))
+                })
+                updated = dbConnector.commit(queries)
+                if(!updated) {
+                    dbConnector.rollback()
+                }
+            } else {
+                Log.w("Trying to update data with unequal number of rows and keys")
+            }
+        } else {
+            Log.d("Update received an empty list")
+        }
+        return updated
+    }
+
+    /**
      * Inserts row using key => values
 	 * @param insvals
 	 * @return 
      **/
     boolean insert(Map insvals) {
         autoSetKeys()
-        query.setAction(INSERT).setValues(insvals)
+        queryBuilder = removeAutoId(query.setAction(INSERT).setValues(insvals))
         return execSet()
     }
     /**
      * Inserts multiple rows using List(Map).
 	 * @param insvals
-	 * @return 
+	 * @return
      **/
-    boolean insert(List<Map> insvals) {
-		boolean ok = true
-		for(Map<String, Object> row: insvals) {
-	        ok = insert(row)
-			if(!ok) {
-				break
-			}
-		}
-		return ok
+    boolean insert(List<Map> insvalsList) {
+        boolean ok = false
+        if(!insvalsList.empty) {
+            List<Query> queries = insvalsList.collect({
+                removeAutoId(autoKeys(createQuery().setAction(INSERT)).setValues(it))
+            })
+            ok = dbConnector.commit(queries)
+            if (!ok) {
+                dbConnector.rollback()
+            }
+        } else {
+            Log.d("Insert received an empty list")
+        }/*
+        ok = insvalsList.every {
+            insert(it)
+        }*/
+        return ok
     }
     /**
      * Upsert row using key => values (like insert)
@@ -252,9 +254,28 @@ class DB {
      * @return
      **/
     boolean replace(List<Map> repvals) {
-        return repvals.every {
-            replace(it)
+        boolean ok = false
+        if(!repvals.empty) {
+            if (jdbc.supportsReplace) {
+                List<Query> queries = repvals.collect({
+                    autoKeys(createQuery().setAction(REPLACE)).setValues(it)
+                })
+                ok = dbConnector.commit(queries)
+                if(!ok) {
+                    dbConnector.rollback()
+                }
+            } else {
+                if (repvals.size() > 100 && !jdbc.supportsReplace) {
+                    Log.w("Using REPLACE with many records in [%s] may be too slow. Consider using INSERT or UPDATE instead", jdbc.class.simpleName)
+                }
+                ok = repvals.every {
+                    replace(it)
+                }
+            }
+        } else {
+            Log.d("Replace received empty list")
         }
+        return ok
     }
     /**
      * Upsert data using ID (like update)
@@ -278,7 +299,7 @@ class DB {
             if(ids.size() == 1) {
                 keyvals = [(pks.first()) : ids.first()]
             } else { // Handle multiple ids in single pk
-                boolean ok = ids.any {
+                boolean ok = ids.every {
                     replace(vals, [it])
                 }
                 return ok
@@ -359,10 +380,23 @@ class DB {
         query.setAction(DELETE).setWhere(keyvals)
         return execSet()
     }
+    /**
+     * Delete all records in a table (basically: DELETE FROM <table>)
+     * @return
+     */
+    boolean clear() {
+        Log.i("Clearing all records in table: %s", table)
+        query.setAction(DELETE)
+        return execSet()
+    }
+    /**
+     * Truncate a table (in some cases it will reset autoincrement ids as well)
+     * @return
+     */
     boolean truncate() {
         boolean ok = false
         if(table) {
-            Log.i("Truncating table: " + table)
+            Log.i("Truncating table: %s", table)
             query.setAction(TRUNCATE)
             ok = execSet()
         } else {
@@ -375,7 +409,7 @@ class DB {
     boolean drop() {
         boolean ok = false
         if(table) {
-            Log.i("Dropping table: " + table)
+            Log.i("Dropping table: %s", table)
             query.setAction(DROP)
             ok = execSet()
         } else {
@@ -388,8 +422,8 @@ class DB {
      * @return
      */
     boolean dropAllTables() {
-        boolean ok = tables.any {
-            ! table(it).drop()
+        boolean ok = tables.every {
+            return table(it).drop()
         }
         return ok
     }
@@ -458,27 +492,31 @@ class DB {
 	 * @return  **/
     List<ColumnInfo> info() {
         List<ColumnInfo> columns = []
-        if(colsInfo.containsKey(table)) {
-            columns = colsInfo.get(table) ?: []
-        } else {
-            String infoSQL = jdbc.getInfoQuery(table)
-            if (infoSQL) {
-                columns = getSQL(infoSQL).toListMap().collect {
-                    new ColumnInfo(
-                        position: (it.position ?: 0) as int,
-                        name: it.column?.toString() ?: "",
-                        nullable: ((it.nullable ?: 0) as int) == 1,
-                        unique: ((it.unique ?: 0) as int) == 1,
-                        primaryKey: ((it.primary ?: 0) as int) == 1,
-                        autoIncrement: ((it.autoinc ?: 0) as int) == 1
-                    )
-                }
+        if(table) {
+            if (colsInfo.containsKey(table)) {
+                columns = colsInfo.get(table) ?: []
             } else {
-                columns = dbConnector.getColumns(table)
+                String infoSQL = jdbc.getInfoQuery(table)
+                if (infoSQL) {
+                    columns = getSQL(infoSQL).toListMap().collect {
+                        new ColumnInfo(
+                            position: (it.position ?: 0) as int,
+                            name: it.column?.toString() ?: "",
+                            nullable: ((it.nullable ?: 0) as int) == 1,
+                            unique: ((it.unique ?: 0) as int) == 1,
+                            primaryKey: ((it.primary ?: 0) as int) == 1,
+                            autoIncrement: ((it.autoinc ?: 0) as int) == 1
+                        )
+                    }
+                } else {
+                    columns = dbConnector.getColumns(table)
+                }
+                if (!columns.empty) {
+                    colsInfo[table] = columns
+                }
             }
-            if(!columns.empty) {
-                colsInfo[table] = columns
-            }
+        } else {
+            Log.d("Table name was not specified")
         }
         return columns
     }
@@ -742,18 +780,26 @@ class DB {
     ////////////////////////// Private ////////////////////////////////
 
     /**
-     * Starts or recycle a query
+     * Starts or reuse a query
      * @return Query
      */
     private Query getQuery() {
         if(queryBuilder == null) {
-            queryBuilder = new Query(jdbc)
-            //Log.v("Initializing Query")
-            if(!table.isEmpty()) {
-                queryBuilder.setTable(table)
-            }
+            queryBuilder = createQuery()
         }
         return queryBuilder
+    }
+
+    /**
+     * Return new Query (do not reuse it)
+     * @return
+     */
+    private Query createQuery() {
+        Query q = new Query(jdbc)
+        if(!table.isEmpty()) {
+            q.setTable(table)
+        }
+        return q
     }
 
     /**
@@ -775,7 +821,7 @@ class DB {
                 if (openIfClosed()) {
                     List<Map> rows = []
                     try {
-                        Statement st = dbConnector.prepare(query, false)
+                        ResultStatement st = dbConnector.execute(query, false)
                         if (st) {
                             queryBuilder = null
                             while (st.next()) {
@@ -859,9 +905,13 @@ class DB {
                         List keys = query.keys
                         replaceData = query.whereValues
                         Map allBut = replaceData.findAll {
-                            ! info(it.key).primaryKey
+                            ! info(it.key)?.primaryKey
                         }
-                        Object id = replaceData.findAll { info(it.key).primaryKey }?.collect { it.value }
+                        Object id = replaceData.findAll {
+                            info(it.key)?.primaryKey
+                        }?.collect {
+                            it.value
+                        }
                         queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
                         if(id) {
                             queryBuilder.setKeys(keys).setWhere(id)
@@ -880,30 +930,24 @@ class DB {
                 if (cache && clearCache && query.tableStr) {
                     clearCache()
                 }
-                Statement st
+                ResultStatement st
                 try {
                     boolean upsert = ! replaceData.isEmpty()
                     boolean silent = upsert
-                    st = dbConnector.prepare(query, silent)
+                    st = dbConnector.execute(query, silent)
                     if (upsert && st && st.updatedCount() == 0) {
                         try {
                             // Copy query:
                             Query insert = Query.copyOf(query, INSERT)
                             // With original args:
                             insert.whereValues = replaceData
-                            // If its autoincrement, remove the insert value
-                            if(info(insert.key).autoIncrement) {
-                                int pki = insert.whereValues.keySet().toList().indexOf(insert.key)
-                                if (pki >= 0) {
-                                    insert.args.remove(pki)
-                                    insert.whereValues.remove(insert.key)
-                                }
-                            }
+                            insert = removeAutoId(insert, true)
                             Log.v("SET ::: " + insert.toString())
                             insert.args.each {
                                 Log.v(" --> " + it)
                             }
-                            st = dbConnector.prepare(insert, false)
+                            st?.close() // Close previous
+                            st = dbConnector.execute(insert, false)
                         } catch (Exception e2) {
                             Log.e("Query Syntax error: ", e2)
                         }
@@ -911,11 +955,11 @@ class DB {
                 } catch (Exception e) {
                     Log.e("Query Syntax error: ", e)
                 }
-                if (st != null) {
+                if (st) {
                     try {
                         st.next()
                         List<String> pks = getPKs()
-                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first()).autoIncrement) {
+                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first())?.autoIncrement) {
                             String id = st.columnStr(1)
                             if (id && id.isNumber()) {
                                 last_id = st.columnInt(1)
@@ -960,11 +1004,21 @@ class DB {
      * Set Primary Keys automatically if they are not set
      */
     void autoSetKeys() {
-        if(query.keyList.empty) {
-            if(! getPKs(table).empty) {
-                keys(getPKs(table))
+        autoKeys(query)
+    }
+    /**
+     * Set keys for a Query
+     * @param q
+     * @return
+     */
+    Query autoKeys(Query q) {
+        if(q.keyList.empty) {
+            List<String> pks = getPKs(q.tableStr)
+            if(! pks.empty) {
+                q.setKeys(pks)
             }
         }
+        return q
     }
     /**
      * Get Primary key(s) from table
@@ -973,7 +1027,25 @@ class DB {
      */
     List<String> getPKs(String tbl = table) {
         info()
-        return colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: []
+        return !colsInfo.isEmpty() ? colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: [] : []
+    }
+    /**
+     * Removes AutoID from Query (INSERT)
+     * @param qry
+     * @return
+     */
+    protected Query removeAutoId(Query qry, boolean force = false) {
+        qry = autoKeys(qry)
+        if(info(qry.key)?.autoIncrement) {
+            int pki = qry.whereValues.keySet().toList().indexOf(qry.key)
+            if (pki >= 0) {
+                if(force || qry.whereValues.get(qry.key) as int == 0) {
+                    qry.args.remove(pki)
+                    qry.whereValues.remove(qry.key)
+                }
+            }
+        }
+        return qry
     }
 }
 

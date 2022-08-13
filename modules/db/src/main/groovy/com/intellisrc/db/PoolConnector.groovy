@@ -1,8 +1,6 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB.Connector
-import com.intellisrc.db.DB.Statement
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
@@ -82,8 +80,18 @@ class PoolConnector implements Connector {
 	}
 
 	@Override
-	Statement prepare(Query query, boolean silent) {
-		return currentConnector?.prepare(query, silent)
+	ResultStatement execute(Query query, boolean silent) {
+		return currentConnector?.execute(query, silent)
+	}
+
+    @Override
+    boolean commit(List<Query> queries) {
+        return currentConnector?.commit(queries)
+    }
+
+	@Override
+	void rollback() {
+		currentConnector?.rollback()
 	}
 
 	@Override

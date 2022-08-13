@@ -54,7 +54,7 @@ class TableUpdater {
                     auto.autoInit(db)
 
                     if(auto.turnFK(db, false)) {
-                        ok = !tables.any {
+                        ok = tables.every {
                             // It will stop if some table fails to create
                             TableInfo info ->
                                 if (db.tables.contains(info.backName)) {
@@ -65,22 +65,12 @@ class TableUpdater {
                                         Log.w("Unable to copy table. Reverting")
                                         db.table(info.name).drop()
                                         auto.renameTable(db, info.backName, info.name)
-                                        return true //failed
+                                        return false //failed
                                     }
                                 }
-                                return !db.table(info.backName).exists()
+                                return db.table(info.backName).exists()
                         }
                         if (ok) {
-                            /*
-                            tables.reverseEach {
-                                if (db.table(it.name).exists()) {
-                                    db.table(it.name).drop()
-                                }
-                            }*/
-                            /*ok = !tables.any {
-                                it.table.createTable()
-                                return !db.table(it.name).exists()
-                            }*/
                             if (ok) {
                                 tables.each {
                                     TableInfo info ->
@@ -111,7 +101,7 @@ class TableUpdater {
                                                         return row
                                                 }
                                                 Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
-                                                ok = db.table(info.name).insert(newData)
+                                                ok = newData.empty ?: db.table(info.name).insert(newData)
                                                 if (ok) {
                                                     Log.i("Data was successfully imported.")
                                                 } else {
@@ -130,7 +120,7 @@ class TableUpdater {
                                 }
                             } else {
                                 Log.w("Update failed!. Rolled back.")
-                                tables.each { //TODO: analyze with more detail
+                                tables.each { 
                                     TableInfo info ->
                                         if(db.table(info.backName).exists()) {
                                             db.table(info.name).drop()

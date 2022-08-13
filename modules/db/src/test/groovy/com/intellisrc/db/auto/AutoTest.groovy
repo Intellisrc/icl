@@ -5,7 +5,8 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
-import com.intellisrc.db.annot.*
+import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.DeleteActions
 import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
 import com.intellisrc.log.PrintLogger
@@ -16,6 +17,8 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 /**
  * @since 2022/07/08.
@@ -24,32 +27,11 @@ class AutoTest extends Specification {
     static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
     static File sqliteTmp = File.get(File.tempDir, "sqlite.db")
     static File derbyTmp = File.get(File.tempDir, "derby.db")
-    static Map<Object, Boolean> dbTest = [
-        (Derby)     : true,
-        (SQLite)    : true,
-        (MariaDB)   : !ci,
-        (MySQL)     : !ci,
-        (Firebird)  : false,
-        (Oracle)    : false,
-        (SQLServer) : false,
-        (PostgreSQL): false
-    ] as Map<Object, Boolean>
 
-    static boolean shouldSkip(Object jdbc) {
-        boolean skip = jdbc instanceof JDBCServer
-            && (jdbc as JDBCServer).port
-            &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)
-        if(skip) {
-            Log.w("Test skipped for : %s (environment not ready)", jdbc.class.simpleName)
-        }
-        return skip
-    }
-
-    static List<JDBC> getTestable() {
-        return dbTest.findAll {
-            it.value &&! shouldSkip(it.key)
-        }.collect { it.key } as List<JDBC>
-    }
+    static Map<String, Integer> ports = [
+        mysql : 33006,
+        mariadb : 33007
+    ]
 
     static class User extends Model {
         @Column(primary = true, autoincrement = true)
@@ -62,25 +44,6 @@ class AutoTest extends Specification {
         boolean active = true
         @Column(nullable = true)
         Inet4Address ip4 = null
-    }
-
-    /**
-     * Model used to update table
-     */
-    @ModelMeta(version = 2)
-    static class UserV2 extends Model {
-        @Column(primary = true, autoincrement = true)
-        int id
-        @Column
-        String name
-        @Column(unsigned = true)
-        short age
-        @Column
-        boolean active = true
-        @Column(nullable = true)
-        Inet4Address ip4 = null
-        @Column
-        URL webpage = null
     }
 
     static class Alias extends Model {
@@ -117,9 +80,6 @@ class AutoTest extends Specification {
         Users(Database database) { super(database) }
         Users(String name, Database database) { super(name, database) }
     }
-    static class UsersV2 extends Table<UserV2>{
-        UsersV2(String name, Database database) { super(name, database) }
-    }
     static class Emails extends Table<UserEmail> {
         Emails(Database database) { super(database) }
     }
@@ -127,52 +87,44 @@ class AutoTest extends Specification {
         Inboxes(Database database) { super(database) }
     }
 
-    JDBC getDB(Class type) {
-        JDBC jdbc
-        switch (type) {
-            case Derby:
-                jdbc = new Derby(
-                    create  : true,
-                    memory  : true,
-                    //dbname  : derbyTmp.absolutePath
-                )
-                //now = "CURRENT DATE"
-                break
-            case SQLite:
-                jdbc = new SQLite(
-                    dbname: sqliteTmp.absolutePath
-                )
-                //now = "DATE('now')"
-                break
-            case MySQL:
-                jdbc = new MySQL(
-                    user    : "test",
-                    hostname: "127.0.0.1",
-                    password: "test",
-                    dbname  : "test",
-                    port    : 33006
-                )
-                break
-            case MariaDB:
-                jdbc = new MariaDB(
-                    user    : "test",
-                    hostname: "127.0.0.1",
-                    password: "test",
-                    dbname  : "test",
-                    port    : 33007
-                )
-                break
-            default:
-                jdbc = null
-                assert jdbc : "Unknown type : " + type.simpleName
+    static List<JDBC> getTestable() {
+        List<JDBC> dbs = []
+        dbs << new Derby(
+            create: true,
+            memory: true,
+            //dbname  : derbyTmp.absolutePath
+        )
+        //now = "CURRENT DATE"
+        dbs << new SQLite(
+                dbname: sqliteTmp.absolutePath
+        )
+        //now = "DATE('now')"
+        if(!ci && LocalHost.hasOpenPort(ports.mariadb)) {
+            dbs << new MariaDB(
+                user: "test",
+                hostname: "127.0.0.1",
+                password: "test",
+                dbname: "test",
+                port: ports.mariadb
+            )
         }
-        return jdbc
+        if(!ci && LocalHost.hasOpenPort(ports.mysql)) {
+            dbs << new MySQL(
+                user: "test",
+                hostname: "127.0.0.1",
+                password: "test",
+                dbname: "test",
+                port: ports.mysql
+            )
+        }
+        return dbs
     }
 
     def setup() {
         Log.i("Initializing Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
         printLogger.setLevel(Level.TRACE)
+        if(sqliteTmp.exists()) { sqliteTmp.delete() }
     }
 
     def cleanup() {
@@ -193,12 +145,15 @@ class AutoTest extends Specification {
     def "Create table model"() {
         setup:
             DB.disableCache = true
-            Database database = new Database(getDB(type))
+            Database database = new Database(type)
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
+            aliases.clear()
+            users.clear()
         when:
             User u = new User(
-                name : "Benjamin"
+                name : "Benjamin",
+                age  : 99
             )
         then:
             assert users.get(1) == null
@@ -211,6 +166,7 @@ class AutoTest extends Specification {
                 added: SysClock.now.toLocalDate()
             )
         then:
+            assert Table.getFieldName("some_name") == "someName"
             assert aliases.insert(alias)
             assert aliases.table.field("name").get(1).hasValue()
         when:
@@ -238,6 +194,7 @@ class AutoTest extends Specification {
             assert users.get(1).age == (77 as short)
         then:
             assert users.find { it.name == "None" } == null
+            assert users.find("name", "Ben").age == (77 as short)
             assert users.get(20) == null
             assert users.delete(u)
             assert aliases.all.empty
@@ -252,53 +209,16 @@ class AutoTest extends Specification {
     }
 
     @Unroll
-    def "Test Update"() {
-        setup:
-            DB.disableCache = true
-            String tableName = "test_upd"
-            Database database = new Database(getDB(type))
-            Users users = new Users(tableName, database)
-        when:
-            int rows = 10
-            (1..rows).each {
-                User usr = new User(
-                    name: "User${it}",
-                    age : it + 20,
-                    ip4 : "10.0.0.${it}".toInet4Address()
-                )
-                users.insert(usr)
-            }
-        then:
-            assert users.all.size() == rows : "Number of rows failed before updating"
-        when:
-            UsersV2 users2 = new UsersV2(tableName, database)
-            users2.updateTable() // Update it manually
-        then:
-            assert users.all.size() == rows : "Number of rows failed after updating"
-        when:
-            UserV2 u = new UserV2(
-                name : "Benjamin",
-                webpage: "http://example.com".toURL()
-            )
-            int uid = users2.insert(u)
-        then:
-            assert uid == rows + 1
-            assert users.table.field("webpage").get(uid).toString().startsWith("http")
-        cleanup:
-            Table.reset()
-            users?.drop()
-            users?.quit()
-        where:
-            type << testable
-    }
-
     def "Multi-column Primary Key should work fine"() {
         setup:
             DB.disableCache = true
-            Database database = new Database(getDB(type))
+            Database database = new Database(type)
             Users users = new Users(database)
             Emails emails = new Emails(database)
             Inboxes inboxes = new Inboxes(database)
+            inboxes.clear()
+            emails.clear()
+            users.clear()
         when:
             int rows = 3
             (1..rows).each {
@@ -329,13 +249,59 @@ class AutoTest extends Specification {
         then:
             [inboxes, users, emails].each {
                 Table t ->
-                    t.all.each {
-                        assert t.delete(it)
-                    }
+                    assert t.deleteAll()
+                    assert t.all.size() == 0
             }
         cleanup:
             Table.reset()
             [inboxes, users, emails].each {
+                it?.drop()
+                it?.quit()
+            }
+        where:
+            type << testable
+    }
+    @Unroll
+    def "Insert, update and delete in bulk"() {
+        setup:
+            DB.disableCache = true
+            Database database = new Database(type)
+            Emails emails = new Emails(database)
+            emails.clear()
+            assert ! emails.pks.empty
+        when:
+            int rows = 500
+            List<UserEmail> emailList = []
+            (1..rows).each {
+                emailList << new UserEmail(
+                    email: new Email("user${it}@example.com")
+                )
+            }
+            Log.i("Inserting rows...")
+            LocalDateTime start = SysClock.now
+            assert emails.insert(emailList)
+            long time = ChronoUnit.MILLIS.between(start, SysClock.now)
+            Log.i("%d new records, took: %d ms", rows, time)
+            assert time < 5000
+        then:
+            assert emails.count() == rows    : "Number of rows failed"
+        then:
+            List<UserEmail> newEmailList = []
+            emails.getAll({
+                List<UserEmail> chunk ->
+                    assert chunk.size() <= rows
+                    chunk.each {
+                        it.email = new Email(it.email.toString().replace("example.com", "example.net"))
+                        newEmailList << it
+                    }
+            })
+            assert emails.update(newEmailList)
+        then:
+            assert emails.clear()
+            assert emails.count() == 0
+        cleanup:
+            Table.reset()
+            [emails].each {
                 it?.drop()
                 it?.quit()
             }

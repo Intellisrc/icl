@@ -2,7 +2,6 @@ rootProject.name = 'common'
 
 include ':core'
 include ':crypt'
-include ':cv'
 include ':db'
 include ':etc'
 include ':img'
@@ -15,7 +14,6 @@ include ':web'
 
 project(':core').projectDir     = new File(rootProject.projectDir, 'modules/core')
 project(':crypt').projectDir    = new File(rootProject.projectDir, 'modules/crypt')
-project(':cv').projectDir       = new File(rootProject.projectDir, 'modules/cv')
 project(':db').projectDir       = new File(rootProject.projectDir, 'modules/db')
 project(':etc').projectDir      = new File(rootProject.projectDir, 'modules/etc')
 project(':img').projectDir      = new File(rootProject.projectDir, 'modules/img')

@@ -374,7 +374,8 @@ class Query {
     }
     // Returns the first specified key
     String getKey() {
-        return getKeys()?.first()
+        List<String> ks = getKeys()
+        return ks &&! ks.empty ? ks.first() : ""
     }
     String getFields() {
         String fieldstr = ""

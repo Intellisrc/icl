@@ -2,17 +2,15 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
-import com.intellisrc.etc.Cache
-import com.intellisrc.etc.JSON
-import com.intellisrc.etc.Mime
-import com.intellisrc.etc.YAML
+import com.intellisrc.etc.*
 import com.intellisrc.net.LocalHost
 import groovy.transform.CompileStatic
 import org.apache.tools.ant.types.resources.StringResource
 import spark.Request
 import spark.Response
 import spark.Route
-import spark.Service as Srv
+import spark.Service as SparkService
+import spark.utils.CompressUtil
 
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriter
@@ -26,6 +24,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
 import static com.intellisrc.web.Service.Method.*
+import static spark.Response.Compression.*
 
 @CompileStatic
 /**
@@ -45,9 +44,10 @@ import static com.intellisrc.web.Service.Method.*
  *
  */
 class WebService {
-    protected final Srv srv
+    protected SparkService srv
     protected List<Serviciable> listServices = []
     protected List<String> listPaths = [] //mainly used to prevent collisions
+    protected boolean initialized = false
     protected boolean running = false
     protected String resources = ""
     protected Cache<ServiceOutput> cache = new Cache<ServiceOutput>()
@@ -57,16 +57,50 @@ class WebService {
     public int threads = 20
     public int eTagMaxKB = 1024
     public boolean embedded = false //Turn to true if resources are inside jar
+    public boolean http2 = false //Turn HTTP2 in all services
+    public KeyStore ssl = null // Key Store File location and password (For WSS and HTTPS)
     public String allowOrigin = "" //apply by default to all
 
     static interface StartCallback {
-        void call(Srv srv)
+        void call(SparkService srv)
     }
     /**
-     * Constructor: initializes Service instance
+     * Initialize Spark service
      */
-    WebService() {
-        srv = Srv.ignite()
+    protected void init() {
+        if(!initialized) {
+            initialized = true
+            try {
+                if(ssl &&! ssl.valid) {
+                    ssl = null
+                }
+                switch (true) {
+                    // Enable HTTP2 && HTTPS
+                    case (http2 && ssl?.valid):
+                        srv = SparkService.ignite()
+                            .secure(ssl.file.absolutePath, ssl.password.toString(), null, null)
+                            .http2()
+                        Log.i("HTTP2/HTTPS is enabled")
+                        break
+                    // Enable HTTPS
+                    case (ssl?.valid):
+                        srv = SparkService.ignite()
+                            .secure(ssl.file.absolutePath, ssl.password.toString(), null, null)
+                        Log.i("HTTPS is enabled")
+                        break
+                    // Enable HTTP2
+                    case http2:
+                        Log.w("HTTP2 protocol was enabled but HTTPS was not set. Connection may be downgraded in most browsers.")
+                        srv = SparkService.ignite().http2()
+                        break
+                    default:
+                        srv = SparkService.ignite()
+                }
+            } catch(Exception e) {
+                Log.e("Unable to initialize web service", e)
+            }
+        }
+        ssl = null // Removed from memory for security
     }
     /**
      * start and specify callback "onStart"
@@ -81,19 +115,21 @@ class WebService {
      * this method is chainable
      */
     WebService start(boolean background = false, StartCallback onStart = null) {
+        init()
         try {
-            srv.staticFiles.expireTime(cacheTime)
-            if (!resources.isEmpty()) {
-                if (embedded) {
-                    srv.staticFiles.location(resources)
-                } else {
-                    File resFile = File.get(resources)
-                    srv.staticFiles.externalLocation(resFile.absolutePath)
-                }
-            }
             if (LocalHost.isPortAvailable(port)) {
+                srv.staticFiles.expireTime(cacheTime)
+                if (!resources.isEmpty()) {
+                    if (embedded) {
+                        srv.staticFileLocation(resources)
+                    } else {
+                        File resFile = File.get(resources)
+                        srv.externalStaticFileLocation(resFile.absolutePath)
+                    }
+                }
                 srv.port(port).threadPool(threads) //Initialize it right away
                 Log.i("Starting server in port $port with pool size of $threads")
+                // Preparing a service (common between Services and SingleService):
                 listServices.each {
                     final Serviciable serviciable ->
                         switch (serviciable) {
@@ -101,30 +137,11 @@ class WebService {
                                 ServiciableMultiple serviciables = serviciable as ServiciableMultiple
                                 serviciables.services.each {
                                     Service sp ->
-                                        // If Serviciable specifies allowOrigin and the Service doesn't, set it.
-                                        if(serviciable.allowOrigin != null && sp.allowOrigin == null) {
-                                            sp.allowOrigin = serviciable.allowOrigin
-                                        }
-                                        if (serviciable instanceof ServiciableWebSocket) {
-                                            addWebSocketService(serviciable, (serviciables.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/'))
-                                        } else if (serviciable instanceof ServiciableHTTPS) {
-                                            addSSLService(serviciable)
-                                            addServicePath(sp, serviciables.path)
-                                        } else {
-                                            addServicePath(sp, serviciables.path)
-                                        }
+                                        setupService(serviciable, sp)
                                 }
                                 break
                             case ServiciableSingle:
-                                ServiciableSingle single = serviciable as ServiciableSingle
-                                if (serviciable instanceof ServiciableWebSocket) {
-                                    addWebSocketService(single, single.path)
-                                } else if (serviciable instanceof ServiciableHTTPS) {
-                                    addSSLService(serviciable)
-                                    addServicePath(single.service, single.path)
-                                } else {
-                                    addServicePath(single.service, single.path)
-                                }
+                                setupService(serviciable, (serviciable as ServiciableSingle).service)
                                 break
                             case ServiciableWebSocket:
                                 addWebSocketService(serviciable, serviciable.path)
@@ -141,7 +158,7 @@ class WebService {
                         switch (serviciable) {
                             case ServiciableAuth:
                                 ServiciableAuth auth = serviciable as ServiciableAuth
-                                srv.post(auth.path + auth.loginPath, {
+                                srv.post(auth.path + auth.loginPath, auth.allowType,{
                                     Request request, Response response ->
                                         boolean ok = false
                                         Map<String, Object> sessionMap = auth.onLogin(request, response)
@@ -165,7 +182,7 @@ class WebService {
                                         res.ok = ok
                                         return JSON.encode(res)
                                 })
-                                srv.get(auth.path + auth.logoutPath, {
+                                srv.get(auth.path + auth.logoutPath, auth.allowType,{
                                     Request request, Response response ->
                                         boolean  ok = auth.onLogout(request, response)
                                         if(ok) {
@@ -201,6 +218,24 @@ class WebService {
     }
 
     /**
+     * Common code for ServiciableSingle and ServiciableMultiple
+     * @param serviciable
+     * @param sp
+     */
+    protected void setupService(Serviciable serviciable, Service sp) {
+        // If Serviciable specifies allowOrigin and the Service doesn't, set it.
+        if(serviciable.allowOrigin != null && sp.allowOrigin == null) {
+            sp.allowOrigin = serviciable.allowOrigin
+        }
+        sp.allowType = serviciable.allowType
+        if (serviciable instanceof ServiciableWebSocket) {
+            addWebSocketService(serviciable, (serviciable.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/'))
+        } else {
+            addServicePath(sp, serviciable.path)
+        }
+    }
+
+    /**
      * Sets WebSocketService
      * @param serviciable
      * @param path
@@ -209,15 +244,6 @@ class WebService {
         ServiciableWebSocket webSocket = serviciable as ServiciableWebSocket
         webSocket.service = new WebSocketService(webSocket)
         srv.webSocket(path, webSocket.service)
-    }
-
-    /**
-     * Add SSL to connection
-     * @param serviciable
-     */
-    protected void addSSLService(Serviciable serviciable) {
-        ServiciableHTTPS ssl = serviciable as ServiciableHTTPS
-        srv.secure(ssl.getKeyStoreFile(), ssl.getPassword(), null, null)
     }
 
     /**
@@ -230,10 +256,6 @@ class WebService {
     protected void addServicePath(Service service, String rootPath) {
         // Remove double slashes
         String fullPath = (rootPath + service.path).replaceAll(/\/\//,"/")
-        // Be sure it starts with "/"
-        if(!fullPath.startsWith("/")) { fullPath = "/" + fullPath }
-        // Remove last "/" (no longer needed)
-        if(fullPath.endsWith("/")) { fullPath = fullPath.dropRight(1) }
         if (listPaths.contains(service.method.toString() + fullPath)) {
             Log.w("Warning, duplicated path [" + fullPath + "] and method [" + service.method.toString() + "] found.")
         } else {
@@ -268,11 +290,11 @@ class WebService {
     protected void addAction(final String fullPath, final Service sp) {
         //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
         switch (sp.method) {
-            case GET: srv.get(fullPath, onAction(sp)); break
-            case POST: srv.post(fullPath, onAction(sp)); break
-            case PUT: srv.put(fullPath, onAction(sp)); break
-            case DELETE: srv.delete(fullPath, onAction(sp)); break
-            case OPTIONS: srv.options(fullPath, onAction(sp)); break
+            case GET: srv.get(fullPath, sp.allowType, onAction(sp)); break
+            case POST: srv.post(fullPath, sp.allowType, onAction(sp)); break
+            case PUT: srv.put(fullPath, sp.allowType, onAction(sp)); break
+            case DELETE: srv.delete(fullPath, sp.allowType, onAction(sp)); break
+            case OPTIONS: srv.options(fullPath, sp.allowType, onAction(sp)); break
         }
     }
     /**
@@ -464,6 +486,7 @@ class WebService {
         return {
             Request request, Response response ->
                 try {
+                    //noinspection GrDeprecatedAPIUsage : IDE mistake
                     Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
                     ServiceOutput output
 
@@ -523,6 +546,7 @@ class WebService {
                                     }
                                     try {
                                         Object res = callAction(sp.action, request, response, uploadFiles)
+                                        //noinspection GroovyUnusedAssignment : IDE mistake
                                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
                                                 response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                     } catch (Exception e) {
@@ -543,6 +567,7 @@ class WebService {
                                 Log.e("Temporally directory %s is not writable", tempDir)
                             }
                         } else if (sp.cacheTime) { // Check if its in Cache
+                            //noinspection GroovyUnusedAssignment : IDE mistake
                             output = cache.get(getCacheKey(request), {
                                 ServiceOutput toSave = null
                                 try {
@@ -559,6 +584,7 @@ class WebService {
                             try {
                                 Object res = callAction(sp.action, request, response)
                                 if(res != null) {
+                                    //noinspection GroovyUnusedAssignment : IDE mistake
                                     output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
                                         response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } else {
@@ -595,8 +621,7 @@ class WebService {
                                     response.header("Content-Transfer-Encoding", "binary")
                                 }
                             }
-
-                            // Set ETag:
+                            // Set ETag: (even if we compress it later, we keep the original Etag of content)
                             if (sp.etag != null) {
                                 String etag = sp.etag.calc(output.content) ?: output.etag
                                 if (etag) {
@@ -625,13 +650,41 @@ class WebService {
                                     }
                                 }
                             }
-
-                            // Set content-length and Gzip headers
-                            if (output.type != ServiceOutput.Type.BINARY && request.headers().size() > 0 && request.headers("Accept-Encoding")?.contains("gzip")) {
-                                response.header("Content-Encoding", "gzip")
-                                //TODO: Spark does not calculate size of gzip automatically:
-                                // https://stackoverflow.com/questions/56404858/
-                            } else {
+                            // Compress if requested
+                            if(sp.compress) {
+                                response.compression = AUTO //By default, we will let Spark to do the compression (Stream)
+                                if(sp.compressSize) { //Unless we specify to calculate size, we do it here:
+                                    boolean brotliAvailable = CompressUtil.brotliAvailable
+                                    response.compression = brotliAvailable ? BROTLI_COMPRESSED : GZIP_COMPRESSED
+                                    byte[] bytes = []
+                                    switch (output.content) {
+                                        case String:
+                                            bytes = output.content.toString().bytes
+                                            break
+                                        case File:
+                                            bytes = (output.content as File).bytes
+                                            break
+                                        case OutputStream:
+                                            ByteArrayOutputStream baos = new ByteArrayOutputStream()
+                                            baos.writeTo(output.content as OutputStream)
+                                            bytes = baos.toByteArray()
+                                            break
+                                        case byte[]:
+                                            bytes = output.content as byte[]
+                                            break
+                                        default: // Do not compress here
+                                            sp.compressSize = false
+                                            response.compression = AUTO
+                                            break
+                                    }
+                                    if(bytes.size() > 0) {
+                                        output.content = brotliAvailable ? Zip.brotliCompress(bytes) : Zip.gzip(bytes)
+                                        output.size = (output.content as byte[]).size()
+                                    }
+                                }
+                            }
+                            // Set content-length
+                            if(output.size > 0 && response.compression != AUTO) {
                                 response.header("Content-Length", sprintf("%d", output.size))
                             }
                         } else {
@@ -769,13 +822,30 @@ class WebService {
         addService(srv)
         return this
     }
+
+    /**
+     * Add a single Service
+     * @param srv
+     * @return
+     */
+    WebService add(Service srv) {
+        addService(new ServiciableSingle() {
+            @Override
+            Service getService() {
+                return srv
+            }
+        })
+        return this
+    }
+
     /**
      * Adds Services to the controller
      * @param srv : Serviciable implementation
      */
     void addService(Serviciable srv) {
+        init()
         if (!running) {
-            if (srv instanceof ServiciableWebSocket || srv instanceof ServiciableHTTPS) {
+            if (srv instanceof ServiciableWebSocket) {
                 listServices.add(0, srv)
             } else if(srv) {
                 listServices << srv
@@ -804,5 +874,4 @@ class WebService {
             Log.w("WebService is already running. You can not change the resource path")
         }
     }
-
 }

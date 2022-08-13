@@ -1,5 +1,16 @@
 # Main Changes
 
+### 2.8.7
+* Moved CV module to its [own project](https://gitlab.com/intellisrc/icv) (cv)
+* Improved Table methods `getAll` (db)
+* Improved performance on large datasets by getting data by chunks (db)
+* Added automatic commit/rollback on bulk operations (db)
+* Fixed : When using multiple databases JDBC, sometimes db type was mistaken (db)
+* Improved `WebServer` HTTPS/WSS support (web)
+* Added HTTP2 support or `WebServer` (web)
+* Added regex support in paths (web)
+* Improved `Console` by allowing to add a list of `Consolables` (term)
+
 ### 2.8.6
 * Simplified use of `Model` : Changed `Model<Table>` to `Model` (db)
 * Added support for SQLite and Derby for `Model` (Auto) (db)

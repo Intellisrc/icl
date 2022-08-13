@@ -1,12 +1,14 @@
 package com.intellisrc.etc
 
+import com.nixxcode.jvmbrotli.common.BrotliLoader
+import com.nixxcode.jvmbrotli.dec.Decoder
+import com.nixxcode.jvmbrotli.enc.Encoder
 import groovy.transform.CompileStatic
 
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
 import java.util.zip.*
 
-import static java.nio.charset.StandardCharsets.*
+import static java.nio.charset.StandardCharsets.UTF_8
 
 /**
  * @since 18/03/09.
@@ -26,6 +28,7 @@ class Zip {
      * @param file
      */
     static boolean gzip(File file) {
+        //noinspection GroovyUnusedAssignment : IDE mistake
         boolean ok = false
         if (file.exists()) {
             if (!file.name.endsWith(".gz")) {
@@ -58,6 +61,7 @@ class Zip {
      * @param file
      */
     static boolean gunzip(File file) {
+        //noinspection GroovyUnusedAssignment : IDE mistake
         boolean ok = false
         if (file.exists()) {
             if (file.name.endsWith(".gz")) {
@@ -79,6 +83,38 @@ class Zip {
     static byte[] gunzip(byte[] compressed) {
         def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(compressed))
         return inflaterStream.getBytes()
+    }
+
+    /**
+     * Compress using Brotli.
+     * NOTE: in order to use this method, you need to add the dependency: https://mvnrepository.com/artifact/com.nixxcode.jvmbrotli
+     * (it might be necessary to include the architecture-specific-library dependency as well)
+     * @param uncompressed
+     * @param q quality (from 0 to 11)
+     * @return
+     */
+    static byte[] brotliCompress(byte[] uncompressed, int q = 9) {
+        byte[] out = uncompressed
+        if(BrotliLoader.isBrotliAvailable()) {
+                if (q <= 0) { q = 10 }
+                if (q > 11) { q = 11 }
+                out = Encoder.compress(uncompressed, new Encoder.Parameters().setQuality(q))
+        }
+        return out
+    }
+    /**
+     * Decompress using Brotli
+     * NOTE: in order to use this method, you need to add the dependency: https://mvnrepository.com/artifact/com.nixxcode.jvmbrotli
+     * (it might be necessary to include the architecture-specific-library dependency as well)
+     * @param compressed
+     * @return
+     */
+    static byte[] brotliDecode(byte[] compressed) {
+        byte[] out = compressed
+        if(BrotliLoader.isBrotliAvailable()) {
+            out = Decoder.decompress(compressed)
+        }
+        return out
     }
     /**
      * Compress a directory and create a zip file (v.2 : not compatible with Windows compress directory)

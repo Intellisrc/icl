@@ -1,21 +1,24 @@
 package com.intellisrc.web.samples
+
+import com.intellisrc.web.Service
+import com.intellisrc.web.Service.Action
+
 /**
  * @since 17/04/19.
  */
-import com.intellisrc.web.Service
-import com.intellisrc.web.Service.Action
-import com.intellisrc.web.ServiciableMultiple
+
+import com.intellisrc.web.Services
 import groovy.transform.CompileStatic
 import spark.Request
 
-import static com.intellisrc.web.Service.*
-import static com.intellisrc.web.Service.Method.*
+import static com.intellisrc.web.Service.ActionRequest
+import static com.intellisrc.web.Service.Method.POST
 
 @CompileStatic
 /**
  * @since 17/04/03.
  */
-class EmailService implements ServiciableMultiple {
+class EmailService extends Services {
 
     Action getEmails = {
         Request request ->

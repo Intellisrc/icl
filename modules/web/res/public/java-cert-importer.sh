@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # From : https://stackoverflow.com/a/31133183/196507
+# You can import a certificate by executing (SSL service should be running):
+# ./java-cert-importer.sh example.com 443
 
 # Exit on error
 set -e
@@ -50,8 +52,14 @@ echo "Detected Java Home: $javahome"
 cacertspath=${javahome}/lib/security/cacerts
 cacertsbackup="${cacertspath}.$$.backup"
 
+stty -echo
+printf "Password: "
+read storepassword
+stty echo
+printf "\n"
+
 if ( [ "$deleteCmd" == "-d" ] || [ "$deleteCmd" == "--delete" ] ); then
-    sudo keytool -delete -alias ${host} -keystore ${cacertspath} -storepass changeit
+    sudo keytool -delete -alias ${host} -keystore ${cacertspath} -storepass ${storepassword}
     echo "Certificate is deleted for ${host}"
     exit 0
 fi
@@ -72,13 +80,13 @@ echo "Java CaCerts Backup: ${cacertsbackup}"
 openssl x509 -in <(openssl s_client -connect ${host}:${port} -prexit 2>/dev/null) -out ${tmpfile}
 
 # Import certificate into java cacerts file
-sudo keytool -importcert -file ${tmpfile} -alias ${host} -keystore ${cacertspath} -storepass changeit
+sudo keytool -importcert -file ${tmpfile} -alias ${host} -keystore ${cacertspath} -storepass ${storepassword}
 
 # Remove temp certificate file
 rm ${tmpfile}
 
 # Check certificate alias name (same with host) that imported successfully
-result=$(keytool -list -v -keystore ${cacertspath} -storepass changeit | grep "Alias name: ${host}")
+result=$(keytool -list -v -keystore ${cacertspath} -storepass ${storepassword} | grep "Alias name: ${host}")
 
 # Show results to user
 if [ "$result" ]; then

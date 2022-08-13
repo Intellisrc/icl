@@ -1,16 +1,25 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.*
-import com.intellisrc.db.annot.*
+import com.intellisrc.db.DB
+import com.intellisrc.db.Database
+import com.intellisrc.db.Query
+import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.DeleteActions
+import com.intellisrc.db.annot.ModelMeta
+import com.intellisrc.db.annot.TableMeta
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Instanciable
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.reflect.*
-import java.time.*
+import java.lang.reflect.Constructor
+import java.lang.reflect.Field
+import java.lang.reflect.ParameterizedType
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @CompileStatic
 class Table<M extends Model> implements Instanciable<M> {
@@ -25,22 +34,22 @@ class Table<M extends Model> implements Instanciable<M> {
     // ----------- Flags and other instance properties -------------
     boolean autoUpdate = true // set to false if you don't want the table to update automatically
     protected final Database database
+    @SuppressWarnings('GrFinalVariableAccess')
     protected final JDBC jdbc
     protected final String name
     protected DB connection
     protected int cache = 0
     protected boolean clearCache = false
-    protected List<String> primaryKeys = []
-    String charset = "utf8"
+    protected List<String> primaryKey = []
+    protected int chunkSize = 100
 
     /**
-     * Interface used to update values before inserting them.
-     * Useful specially when columns were removed or require data conversion.
-     * If a row fails, all fails
+     * When using `getAllByChunks` it will use this interface to return as it goes
      */
-    static interface RecordsUpdater {
-        List<Map> fix(List<Map> records)
+    interface ChunkReader<M> {
+        void call(List<M> rows)
     }
+
     /**
      * Information about a Field that will be used as column in a DB
      * @see Column
@@ -385,7 +394,7 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     List<String> getPks() {
         List<String> pk = []
-        if(primaryKeys.empty) {
+        if(primaryKey.empty) {
             List<Field> fields = getFields().toList().findAll {
                 it.getAnnotation(Column)?.primary()
             }
@@ -397,9 +406,9 @@ class Table<M extends Model> implements Instanciable<M> {
                     pk = ["id"]
                 }
             }
-            primaryKeys = pk
+            primaryKey = pk
         } else {
-            pk = primaryKeys
+            pk = primaryKey
         }
         return pk
     }
@@ -447,6 +456,64 @@ class Table<M extends Model> implements Instanciable<M> {
         return all
     }
     /**
+     * Get all limiting number of rows to return
+     * @param options
+     * @return
+     */
+    List<M> getAll(int limit, int offset = 0) {
+        return getAll(
+            limit: limit,
+            offset: offset
+        )
+    }
+    /**
+     * Get all sorting it database-side
+     * @param sortBy
+     * @param order
+     * @return
+     */
+    List<M> getAll(String sortBy, Query.SortOrder order) {
+        return getAll(
+            sort: sortBy,
+            order: order.toString()
+        )
+    }
+    /**
+     * Get all sorting it database-side and getting results by chunks
+     * @param sortBy
+     * @param order
+     * @param chunkReader
+     */
+    void getAll(String sortBy, Query.SortOrder order, ChunkReader chunkReader) {
+        getAll([
+            sort: sortBy,
+            order: order
+        ], chunkReader)
+    }
+    /**
+     * Get all limiting and sorting it database-side
+     * @param sortBy
+     * @param order
+     * @return
+     */
+    List<M> getAll(String sortBy, Query.SortOrder order, int limit, int offset = 0) {
+        return getAll(
+            limit: limit,
+            offset: offset,
+            sort: sortBy,
+            order: order.toString()
+        )
+    }
+    /**
+     * Sometimes if there are too many records `getAll()` may timeout.
+     * For those cases, this method will work faster than `getAll` but
+     * it will execute more queries.
+     * @param chunkReader
+     */
+    void getAll(ChunkReader<M> chunkReader) {
+        getAll([:], chunkReader)
+    }
+    /**
      * Get all with options:
      * limit : Total of items to get
      * offset : Starting from...
@@ -472,29 +539,23 @@ class Table<M extends Model> implements Instanciable<M> {
         close()
         return all
     }
-
     /**
-     * Find all of a kind of model
-     * @param fieldName
-     * @param type
-     * @return
+     * Common method to get chunks with options
+     * @param options
+     * @param chunkReader
      */
-    List<M> findAll(String fieldName, Model model) {
-        Field f = getFields().find {
-            it.name == fieldName
-        }
-        List<M> list = []
-        DB db = connect()
-        if(f) {
-            Map map = getMap(model)
-            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
-            if(pks) { db.keys(pks) }
-            list = db.get(id).toListMap().collect { setMap(it) }
-        } else {
-            Log.w("Unable to find field: %s", fieldName)
-        }
-        close()
-        return list
+    void getAll(Map options, ChunkReader chunkReader) {
+        int offset = 0
+        int size
+        do {
+            List<M> buffer = getAll(options + [
+                limit : chunkSize,
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
     }
     /**
      * Find a single item which matches some column an some value
@@ -518,6 +579,57 @@ class Table<M extends Model> implements Instanciable<M> {
         return model
     }
     /**
+     * Find all of a kind of model
+     * @param fieldName
+     * @param type
+     * @param options (limit, sort, etc)
+     * @return
+     */
+    List<M> findAll(String fieldName, Model model, Map options = [:]) {
+        Field f = getFields().find {
+            it.name == fieldName
+        }
+        List<M> list = []
+        DB db = connect()
+        if(f) {
+            Map map = getMap(model)
+            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
+            if(pks) { db.keys(pks) }
+            if(! options.isEmpty()) {
+                if(options.limit) {
+                    db.limit(options.limit as int, (options.offset ?: "0") as int)
+                }
+                if(options.sort) {
+                    db.order(options.sort.toString(), (options.order ?: "ASC") as Query.SortOrder)
+                }
+            }
+            list = db.get(id).toListMap().collect { setMap(it) }
+        } else {
+            Log.w("Unable to find field: %s", fieldName)
+        }
+        close()
+        return list
+    }
+    /**
+     * Find all using Model and return by chunks
+     * @param fieldName
+     * @param model
+     * @param chunkReader
+     */
+    void findAll(String fieldName, Model model, ChunkReader chunkReader) {
+        int offset = 0
+        int size
+        do {
+            List<M> buffer = findAll(fieldName, model, [
+                limit : chunkSize,
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
+    }
+    /**
      * Find all items which matches a column and a value
      * @param column
      * @param value
@@ -527,19 +639,65 @@ class Table<M extends Model> implements Instanciable<M> {
         return findAll([(column): value])
     }
     /**
+     * Find all items which matches a column and a value and return by chunks
+     * @param column
+     * @param value
+     * @param chunkReader
+     */
+    void findAll(String column, Object value, ChunkReader chunkReader) {
+        findAll([(column): value], chunkReader)
+    }
+    /**
      * Find all items matching multiple columns
      * @param criteria
      * @return
      */
-    List<M> findAll(Map criteria) {
+    List<M> findAll(Map criteria, Map options = [:]) {
         criteria = convertToDB(criteria)
-        List<Map> list = connect().get(criteria).toListMap()
+        DB db = connect()
+        if(! options.isEmpty()) {
+            if(options.limit) {
+                db.limit(options.limit as int, (options.offset ?: "0") as int)
+            }
+            if(options.sort) {
+                db.order(options.sort.toString(), (options.order ?: "ASC") as Query.SortOrder)
+            }
+        }
+        List<Map> list = db.get(criteria).toListMap()
         List<M> all = list.collect {
             Map map ->
                 return setMap(map)
         }
         close()
         return all
+    }
+    /**
+     * Find all items matching multiple columns returning by chunks
+     * @param criteria
+     * @param chunkReader
+     */
+    void findAll(Map criteria, ChunkReader chunkReader) {
+        int offset = 0
+        int size
+        do {
+            List<M> buffer = findAll(criteria + [
+                limit : chunkSize,
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
+    }
+    /**
+     * Return records count
+     * @return
+     */
+    int count() {
+        DB db = connect()
+        int c = db.count().get().toInt()
+        close()
+        return c
     }
     /**
      * Update a model
@@ -570,6 +728,29 @@ class Table<M extends Model> implements Instanciable<M> {
         return ok
     }
     /**
+     * Update multiple models
+     * @param models
+     * @return
+     */
+    boolean update(List<M> models) {
+        DB db = connect()
+        boolean singlePk = false
+        boolean multiPk = false
+        if(pk) {
+            db.keys(pks)
+            singlePk = pks.size() == 1
+            multiPk = pks.size() > 1
+        }
+        boolean ok = db.update(models.collect {
+            it.toMap()
+        }, models.collect {
+            return singlePk ? [(pk) : it.toMap().get(pk)] :
+                (multiPk ? it.toMap().subMap(pks) : [])
+        })
+        close()
+        return ok
+    }
+    /**
      * Replace a model
      * @param model
      * @return
@@ -587,6 +768,17 @@ class Table<M extends Model> implements Instanciable<M> {
         } finally {
             close()
         }
+        return ok
+    }
+    /**
+     * Replace multiple models
+     * @param models
+     * @return
+     */
+    boolean replace(List<M> models) {
+        DB db = connect()
+        boolean ok = db.replace(models.collect { it.toMap() })
+        close()
         return ok
     }
     /**
@@ -623,16 +815,39 @@ class Table<M extends Model> implements Instanciable<M> {
         return ok
     }
     /**
-     * Delete using multiple IDs
+     * Delete using multiple Models
      * @param ids
      * @return
      */
-    boolean delete(List<Integer> ids) {
+    boolean delete(List<M> models) {
         DB db = connect()
         if(pk) { db.keys(pks) }
-        boolean ok = db.delete(ids)
+        boolean ok = db.delete(models.collect { getMap(it) })
         close()
         return ok
+    }
+
+    /**
+     * Delete all rows which match a criteria. If there is no criteria,
+     * it will delete all rows in a table
+     * @param criteria
+     * @return
+     */
+    boolean deleteAll(Map<String, Object> criteria = [:]) {
+        DB db = connect()
+        boolean ok = criteria.isEmpty() ? (db.truncate() ?: db.clear()) : db.delete(criteria.collectEntries {
+            boolean isModel = it.value instanceof Model
+            return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).id : it.value)]
+        })
+        close()
+        return ok
+    }
+    /**
+     * Alias for deleteAll without criteria
+     * @return
+     */
+    boolean clear() {
+        return deleteAll()
     }
     /**
      * Insert a model
@@ -665,6 +880,17 @@ class Table<M extends Model> implements Instanciable<M> {
             close()
         }
         return lastId
+    }
+    /**
+     * Insert multiple models
+     * @param models
+     * @return
+     */
+    boolean insert(List<M> models) {
+        DB db = connect()
+        boolean ok = db.insert(models.collect { it.toMap() })
+        close()
+        return ok
     }
     /**
      * Return table updater
@@ -718,6 +944,8 @@ class Table<M extends Model> implements Instanciable<M> {
     }
     /**
      * Exposed tableConnector
+     * (NOTE: To use it inside this class, use: `DB db = connect()`
+     * instead to prevent opening more connections)
      * @return
      */
     synchronized DB getTable() {
@@ -742,9 +970,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * Drops the table
      */
     void drop() {
-        Query qry = new Query(jdbc, Query.Action.DROP)
-        qry.table = tableName
-        connect().set(qry)
+        DB db = connect()
+        db.drop()
+        db.close()
     }
 
     /**
@@ -802,8 +1030,8 @@ class Table<M extends Model> implements Instanciable<M> {
                                 if (!(retVal as List).empty && convertModels) {
                                     if (retVal.first() instanceof Integer && genericIsModel(field)) {
                                         Column annotation = field.getAnnotation(Column)
-                                        Table table = relation[getParameterizedClass(field).class.name]
-                                        retVal = table.get(retVal)
+                                        Table tbl = relation[getParameterizedClass(field).class.name]
+                                        retVal = tbl.get(retVal)
                                         switch (annotation.ondelete()) {
                                             case DeleteActions.NULL:
                                                 // Do nothing (must be null already)
