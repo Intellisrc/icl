@@ -22,7 +22,7 @@
 <html>
 <head>
 
-<title>com.intellisrc.web (web 2.8.6 API)</title>
+<title>com.intellisrc.web (web 2.8.7 API)</title>
 <meta name="keywords" content="com.intellisrc.web package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../stylesheet.css" title="Style">
@@ -31,7 +31,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.intellisrc.web (web 2.8.6 API)";
+    parent.document.title="com.intellisrc.web (web 2.8.7 API)";
 }
 </script>
 <noscript>
@@ -86,14 +86,6 @@ function windowTitle()
                         <th class="colFirst" scope="col">Interface</th>
                         <th class="colLast" scope="col">Description</th>
                     </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="HTTPServer.Action.html" title="class in com/intellisrc/web">
-                                    HTTPServer.Action
-                                </a></strong>
-                            </td>
-                            <td></td>
-                        </tr>
 <tr class="altColor">
                             <td class="colOne">
                                 <strong><a href="Service.Action.html" title="class in com/intellisrc/web">
@@ -195,20 +187,11 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="ServiciableHTTPS.html" title="class in com/intellisrc/web">
-                                    ServiciableHTTPS
-                                </a></strong>
-                            </td>
-                            <td>Enable HTTPS on service
- Requires you to have a keystore file, which you can generate using the Java keytool:</td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
                                 <strong><a href="ServiciableMultiple.html" title="class in com/intellisrc/web">
                                     ServiciableMultiple
                                 </a></strong>
                             </td>
-                            <td>Use this interface if you need more than one service</td>
+                            <td>Prefer Services over this interface</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -216,7 +199,7 @@ function windowTitle()
                                     ServiciableSingle
                                 </a></strong>
                             </td>
-                            <td>Use this interface if you need a single service</td>
+                            <td>Prefer SingleService instead this interface</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -317,22 +300,11 @@ function windowTitle()
                     </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="HTTPServer.html" title="class in com/intellisrc/web">
-                                    HTTPServer
+                                <strong><a href="KeyStore.html" title="class in com/intellisrc/web">
+                                    KeyStore
                                 </a></strong>
                             </td>
-                            <td>Simple HTTP server
- The main difference with Serviciable* classes is that this code does not depend on Spark
- This implementation is for basic static server and does not provide any advanced feature
- present in common Web Servers</td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="HTTPServer.Response.html" title="class in com/intellisrc/web">
-                                    HTTPServer.Response
-                                </a></strong>
-                            </td>
-                            <td>Response object</td>
+                            <td>Used for HTTPS</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -361,6 +333,14 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="Services.html" title="class in com/intellisrc/web">
+                                    Services
+                                </a></strong>
+                            </td>
+                            <td>Alternative to ServiciableMultiple as class</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="ServiciableWebSocket.WSMessage.html" title="class in com/intellisrc/web">
                                     ServiciableWebSocket.WSMessage
                                 </a></strong>
@@ -378,6 +358,14 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="SingleService.html" title="class in com/intellisrc/web">
+                                    SingleService
+                                </a></strong>
+                            </td>
+                            <td>Alternative to ServiciableSingle as class</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="UploadFile.html" title="class in com/intellisrc/web">
                                     UploadFile
                                 </a></strong>
@@ -388,6 +376,14 @@ function windowTitle()
                             <td class="colOne">
                                 <strong><a href="WebService.html" title="class in com/intellisrc/web">
                                     WebService
+                                </a></strong>
+                            </td>
+                            <td></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="WebService.1.html" title="class in com/intellisrc/web">
+                                    WebService.1
                                 </a></strong>
                             </td>
                             <td></td>
