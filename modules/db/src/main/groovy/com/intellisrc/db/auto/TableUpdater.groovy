@@ -101,7 +101,7 @@ class TableUpdater {
                                                         return row
                                                 }
                                                 Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
-                                                ok = db.table(info.name).insert(newData)
+                                                ok = newData.empty ?: db.table(info.name).insert(newData)
                                                 if (ok) {
                                                     Log.i("Data was successfully imported.")
                                                 } else {
@@ -120,7 +120,7 @@ class TableUpdater {
                                 }
                             } else {
                                 Log.w("Update failed!. Rolled back.")
-                                tables.each { //TODO: analyze with more detail
+                                tables.each { 
                                     TableInfo info ->
                                         if(db.table(info.backName).exists()) {
                                             db.table(info.name).drop()

@@ -59,6 +59,10 @@ class DummyConnector implements Connector {
     }
 
     @Override
+    void rollback() {
+    }
+
+    @Override
     void onError(Throwable ex) {
         Log.e( "Error reported: ", ex)
     }

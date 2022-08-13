@@ -7,7 +7,6 @@ import com.intellisrc.db.DB
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.DeleteActions
-import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
 import com.intellisrc.log.PrintLogger
@@ -20,8 +19,6 @@ import spock.lang.Unroll
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-
-import static com.intellisrc.db.Query.SortOrder.DESC
 
 /**
  * @since 2022/07/08.
@@ -47,25 +44,6 @@ class AutoTest extends Specification {
         boolean active = true
         @Column(nullable = true)
         Inet4Address ip4 = null
-    }
-
-    /**
-     * Model used to update table
-     */
-    @ModelMeta(version = 2)
-    static class UserV2 extends Model {
-        @Column(primary = true, autoincrement = true)
-        int id
-        @Column
-        String name
-        @Column(unsigned = true)
-        short age
-        @Column
-        boolean active = true
-        @Column(nullable = true)
-        Inet4Address ip4 = null
-        @Column
-        URL webpage = null
     }
 
     static class Alias extends Model {
@@ -102,16 +80,6 @@ class AutoTest extends Specification {
         Users(Database database) { super(database) }
         Users(String name, Database database) { super(name, database) }
     }
-    static class UsersV2 extends Table<UserV2>{
-        boolean execFired = false
-        UsersV2(String name, Database database) { super(name, database) }
-
-        @Override
-        boolean execOnUpdate(DB table, int prevVersion, int currVersion) {
-            execFired = true
-            return false
-        }
-    }
     static class Emails extends Table<UserEmail> {
         Emails(Database database) { super(database) }
     }
@@ -119,7 +87,7 @@ class AutoTest extends Specification {
         Inboxes(Database database) { super(database) }
     }
 
-    List<JDBC> getTestable() {
+    static List<JDBC> getTestable() {
         List<JDBC> dbs = []
         dbs << new Derby(
             create: true,
@@ -131,7 +99,7 @@ class AutoTest extends Specification {
                 dbname: sqliteTmp.absolutePath
         )
         //now = "DATE('now')"
-        if(LocalHost.hasOpenPort(ports.mariadb)) {
+        if(!ci && LocalHost.hasOpenPort(ports.mariadb)) {
             dbs << new MariaDB(
                 user: "test",
                 hostname: "127.0.0.1",
@@ -140,7 +108,7 @@ class AutoTest extends Specification {
                 port: ports.mariadb
             )
         }
-        if(LocalHost.hasOpenPort(ports.mysql)) {
+        if(!ci && LocalHost.hasOpenPort(ports.mysql)) {
             dbs << new MySQL(
                 user: "test",
                 hostname: "127.0.0.1",
@@ -156,6 +124,7 @@ class AutoTest extends Specification {
         Log.i("Initializing Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
         printLogger.setLevel(Level.TRACE)
+        if(sqliteTmp.exists()) { sqliteTmp.delete() }
     }
 
     def cleanup() {
@@ -240,91 +209,6 @@ class AutoTest extends Specification {
     }
 
     @Unroll
-    def "Test Update"() {
-        setup:
-            DB.disableCache = true
-            String tableName = "users"
-            Database database = new Database(type)
-            Users users = new Users(tableName, database)
-        when:
-            int rows = 10
-            List<User> userList = []
-            (1..rows).each {
-                userList << new User(
-                    name: "User${it}",
-                    age : it + 20,
-                    ip4 : "10.0.0.${it}".toInet4Address()
-                )
-            }
-            users.insert(userList)
-        then:
-            assert users.count() == rows : "Number of rows failed before updating"
-            assert users.getAll(5).size() == 5 : "Limit failed"
-            assert users.getAll("age", DESC).first().id == rows : "Limit failed"
-            assert users.getAll("age", DESC, 5).last().id == rows - 5 + 1 : "Sort with limit failed"
-        when:
-            int times = 0
-            List<Short> ageList = []
-            users.chunkSize = 3
-            users.getAll({
-                times++
-                it.each {
-                    ageList << it.age
-                }
-            })
-        then:
-            assert times == Math.ceil(rows / 3) as int : "Number of chunks were incorrect"
-            assert ageList.size() == rows // Checking for duplicated
-            assert ageList.unique().size() == rows // No duplication
-        when:
-            UsersV2 users2 = new UsersV2(tableName, database)
-            users2.updateTable() // Update it manually
-        then:
-            assert users2.execFired : "execOnUpdate was not fired"
-            assert users.count() == rows : "Number of rows failed after updating"
-        when:
-            UserV2 u = new UserV2(
-                name : "Benjamin",
-                age : 22,
-                webpage: "http://example.com".toURL()
-            )
-            int uid = users2.insert(u)
-        then:
-            assert uid == rows + 1
-            assert users.table.field("webpage").get(uid).toString().startsWith("http")
-        cleanup:
-            Table.reset()
-            users?.drop()
-            users?.quit()
-        where:
-            type << testable
-    }
-
-    def "Update Stock"() {
-        setup:
-            DB.disableCache = true
-            String tableName = "users"
-            Database database = new Database(type)
-            Users users = new Users(tableName, database)
-        when:
-            UsersV2 users2 = new UsersV2(tableName, database)
-            users2.updateTable() // Update it manually
-            DB.disableCache = true //updateTable re-enable it
-            UserV2 u = new UserV2(
-                name : "Benjamin",
-                age : 22,
-                webpage: "http://example.com".toURL()
-            )
-            int uid = users2.insert(u)
-        then:
-            assert uid == 1
-        cleanup:
-            users?.drop()
-            users?.quit()
-        where:
-            type << testable
-    }
-
     def "Multi-column Primary Key should work fine"() {
         setup:
             DB.disableCache = true
@@ -398,7 +282,7 @@ class AutoTest extends Specification {
             assert emails.insert(emailList)
             long time = ChronoUnit.MILLIS.between(start, SysClock.now)
             Log.i("%d new records, took: %d ms", rows, time)
-            assert time < 2000
+            assert time < 5000
         then:
             assert emails.count() == rows    : "Number of rows failed"
         then:

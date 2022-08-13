@@ -209,7 +209,7 @@ class Derby extends JDBCServer implements AutoJDBC {
         ColumnDB ai = columns.find { it.annotation.autoincrement() }
         if(ai) {
             int max = get(db, "SELECT (MAX(${ai.name}) + 1) AS m FROM ${from}").toInt()
-            set(db, "ALTER TABLE ${to} ALTER COLUMN ${ai.name} RESTART WITH $max")
+            set(db, "ALTER TABLE ${to} ALTER COLUMN ${ai.name} RESTART WITH ${max ?: 1}")
         }
         return ok
     }

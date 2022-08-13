@@ -89,7 +89,12 @@ class PoolConnector implements Connector {
         return currentConnector?.commit(queries)
     }
 
-    @Override
+	@Override
+	void rollback() {
+		currentConnector?.rollback()
+	}
+
+	@Override
 	void onError(Throwable ex) {
 		currentConnector?.onError(ex)
 	}

@@ -184,15 +184,22 @@ class DB {
      */
     boolean update(List<Map> rows, List<Object> keyvals) {
         boolean updated = false
-        boolean sameSize = rows.size() == keyvals.size()
-        if(sameSize) {
-            List<Query> queries = rows.withIndex().collect({
-                Map row, int idx ->
-                    removeAutoId(autoKeys(createQuery().setAction(UPDATE)).setWhere(keyvals[idx]).setValues(row))
-            })
-            updated = dbConnector.commit(queries)
+        if(! rows.empty) {
+            boolean sameSize = rows.size() == keyvals.size()
+            if (sameSize) {
+                List<Query> queries = rows.withIndex().collect({
+                    Map row, int idx ->
+                        removeAutoId(autoKeys(createQuery().setAction(UPDATE)).setWhere(keyvals[idx]).setValues(row))
+                })
+                updated = dbConnector.commit(queries)
+                if(!updated) {
+                    dbConnector.rollback()
+                }
+            } else {
+                Log.w("Trying to update data with unequal number of rows and keys")
+            }
         } else {
-            Log.w("Trying to update data with unequal number of rows and keys")
+            Log.d("Update received an empty list")
         }
         return updated
     }
@@ -204,7 +211,7 @@ class DB {
      **/
     boolean insert(Map insvals) {
         autoSetKeys()
-        query.setAction(INSERT).setValues(insvals)
+        queryBuilder = removeAutoId(query.setAction(INSERT).setValues(insvals))
         return execSet()
     }
     /**
@@ -213,10 +220,22 @@ class DB {
 	 * @return
      **/
     boolean insert(List<Map> insvalsList) {
-        List<Query> queries = insvalsList.collect({
-            removeAutoId(autoKeys(createQuery().setAction(INSERT)).setValues(it))
-        })
-        return dbConnector.commit(queries)
+        boolean ok = false
+        if(!insvalsList.empty) {
+            List<Query> queries = insvalsList.collect({
+                removeAutoId(autoKeys(createQuery().setAction(INSERT)).setValues(it))
+            })
+            ok = dbConnector.commit(queries)
+            if (!ok) {
+                dbConnector.rollback()
+            }
+        } else {
+            Log.d("Insert received an empty list")
+        }/*
+        ok = insvalsList.every {
+            insert(it)
+        }*/
+        return ok
     }
     /**
      * Upsert row using key => values (like insert)
@@ -235,19 +254,26 @@ class DB {
      * @return
      **/
     boolean replace(List<Map> repvals) {
-        boolean ok
-        if(jdbc.supportsReplace) {
-            List<Query> queries = repvals.collect({
-                autoKeys(createQuery().setAction(REPLACE)).setValues(it)
-            })
-            ok = dbConnector.commit(queries)
+        boolean ok = false
+        if(!repvals.empty) {
+            if (jdbc.supportsReplace) {
+                List<Query> queries = repvals.collect({
+                    autoKeys(createQuery().setAction(REPLACE)).setValues(it)
+                })
+                ok = dbConnector.commit(queries)
+                if(!ok) {
+                    dbConnector.rollback()
+                }
+            } else {
+                if (repvals.size() > 100 && !jdbc.supportsReplace) {
+                    Log.w("Using REPLACE with many records in [%s] may be too slow. Consider using INSERT or UPDATE instead", jdbc.class.simpleName)
+                }
+                ok = repvals.every {
+                    replace(it)
+                }
+            }
         } else {
-            if (repvals.size() > 100 && !jdbc.supportsReplace) {
-                Log.w("Using REPLACE with many records in [%s] may be too slow. Consider using INSERT or UPDATE instead", jdbc.class.simpleName)
-            }
-            ok = repvals.every {
-                replace(it)
-            }
+            Log.d("Replace received empty list")
         }
         return ok
     }
@@ -879,9 +905,13 @@ class DB {
                         List keys = query.keys
                         replaceData = query.whereValues
                         Map allBut = replaceData.findAll {
-                            ! info(it.key).primaryKey
+                            ! info(it.key)?.primaryKey
                         }
-                        Object id = replaceData.findAll { info(it.key).primaryKey }?.collect { it.value }
+                        Object id = replaceData.findAll {
+                            info(it.key)?.primaryKey
+                        }?.collect {
+                            it.value
+                        }
                         queryBuilder = new Query(jdbc, UPDATE).setTable(query.tableStr)
                         if(id) {
                             queryBuilder.setKeys(keys).setWhere(id)
@@ -911,11 +941,12 @@ class DB {
                             Query insert = Query.copyOf(query, INSERT)
                             // With original args:
                             insert.whereValues = replaceData
-                            insert = removeAutoId(insert)
+                            insert = removeAutoId(insert, true)
                             Log.v("SET ::: " + insert.toString())
                             insert.args.each {
                                 Log.v(" --> " + it)
                             }
+                            st?.close() // Close previous
                             st = dbConnector.execute(insert, false)
                         } catch (Exception e2) {
                             Log.e("Query Syntax error: ", e2)
@@ -924,11 +955,11 @@ class DB {
                 } catch (Exception e) {
                     Log.e("Query Syntax error: ", e)
                 }
-                if (st != null) {
+                if (st) {
                     try {
                         st.next()
                         List<String> pks = getPKs()
-                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first()).autoIncrement) {
+                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first())?.autoIncrement) {
                             String id = st.columnStr(1)
                             if (id && id.isNumber()) {
                                 last_id = st.columnInt(1)
@@ -1003,13 +1034,15 @@ class DB {
      * @param qry
      * @return
      */
-    protected Query removeAutoId(Query qry) {
+    protected Query removeAutoId(Query qry, boolean force = false) {
         qry = autoKeys(qry)
-        if(info(qry.key).autoIncrement) {
+        if(info(qry.key)?.autoIncrement) {
             int pki = qry.whereValues.keySet().toList().indexOf(qry.key)
             if (pki >= 0) {
-                qry.args.remove(pki)
-                qry.whereValues.remove(qry.key)
+                if(force || qry.whereValues.get(qry.key) as int == 0) {
+                    qry.args.remove(pki)
+                    qry.whereValues.remove(qry.key)
+                }
             }
         }
         return qry

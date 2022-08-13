@@ -970,9 +970,9 @@ class Table<M extends Model> implements Instanciable<M> {
      * Drops the table
      */
     void drop() {
-        Query qry = new Query(jdbc, Query.Action.DROP)
-        qry.table = tableName
-        connect().set(qry)
+        DB db = connect()
+        db.drop()
+        db.close()
     }
 
     /**

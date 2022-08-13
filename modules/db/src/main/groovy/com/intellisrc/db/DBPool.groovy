@@ -1,6 +1,5 @@
 package com.intellisrc.db
 
-
 import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log

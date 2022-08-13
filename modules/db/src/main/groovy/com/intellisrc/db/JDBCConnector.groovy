@@ -295,8 +295,15 @@ class JDBCConnector implements Connector {
 		} catch(Exception e) {
 			onError(e)
 		}
+		db.autoCommit = true
         return commited
 	}
+
+	@Override
+	void rollback() {
+		db?.rollback()
+	}
+
 	/**
 	 * General error handling
 	 * @param ex
