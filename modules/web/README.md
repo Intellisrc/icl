@@ -789,3 +789,18 @@ wssc.sendMessage([ ping : true ])
 // Exit:
 wssc.disconnect()
 ```
+
+## Troubleshooting
+
+If you compile your project using gradle and `shadowJar` to produce a jar, you may face
+an `ArrayIndexOutOfBoundsException` due to a missing `HttpFieldPreEncoder`.
+The reason this is happening is that the compilation is overwriting instead of appending
+the `org.eclipse.jetty.http2:http2-hpack` encoder in the file:
+`META-INF/services/org.eclipse.jetty.http.HttpFieldPreEncoder`. 
+In order to fix this, you need to specify that those service files should be merged:
+
+```groovy
+shadowJar {
+    mergeServiceFiles()
+}
+```
