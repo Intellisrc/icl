@@ -15,23 +15,35 @@ dependencies {
     //implementation 'org.pac4j:pac4j-http:2.1.0'
 
     // NOTE: To enable Brotli compression, you may need to add this to your project:
+    // implementation "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
+    // And depending on your platform:
+    // implementation "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli""
+    //
+    // The following enables Brotli only during development (automatically detecting your development platform):
     def jvmbrotli = "0.2.0"
-    api "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
+    def jvmBrotliMain = "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
+    def jvmBrotliLib = ""
     switch (true) {
         case os.windows && arch.i386:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86:$jvmbrotli"
+            jvmBrotliLib = "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86:$jvmbrotli"
             break
         case os.windows && arch.amd64:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86-amd64:$jvmbrotli"
+            jvmBrotliLib = "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86-amd64:$jvmbrotli"
             break
         case os.macOsX && arch.amd64:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-darwin-x86-amd64:$jvmbrotli"
+            jvmBrotliLib = "com.nixxcode.jvmbrotli:jvmbrotli-darwin-x86-amd64:$jvmbrotli"
             break
         case os.linux && arch.amd64:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
+            jvmBrotliLib = "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
             break
         default:
             println "No suitable driver of Brotli found for current " +
                 "OS (${os.displayName}) and architecture (${arch.displayName}). Brotli will be disabled."
+    }
+    compileOnly jvmBrotliMain
+    testImplementation jvmBrotliMain
+    if(jvmBrotliLib) {
+        compileOnly jvmBrotliLib
+        testImplementation jvmBrotliLib
     }
 }
