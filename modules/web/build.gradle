@@ -14,24 +14,10 @@ dependencies {
     //implementation 'org.pac4j:spark-pac4j:2.1.0'
     //implementation 'org.pac4j:pac4j-http:2.1.0'
 
-    // NOTE: To enable Brotli compression, you may need to add this to your project:
+    // We include most Brotli native libraries here:
     def jvmbrotli = "0.2.0"
     api "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
-    switch (true) {
-        case os.windows && arch.i386:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86:$jvmbrotli"
-            break
-        case os.windows && arch.amd64:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86-amd64:$jvmbrotli"
-            break
-        case os.macOsX && arch.amd64:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-darwin-x86-amd64:$jvmbrotli"
-            break
-        case os.linux && arch.amd64:
-            api "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
-            break
-        default:
-            println "No suitable driver of Brotli found for current " +
-                "OS (${os.displayName}) and architecture (${arch.displayName}). Brotli will be disabled."
-    }
+    api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86-amd64:$jvmbrotli"
+    api "com.nixxcode.jvmbrotli:jvmbrotli-darwin-x86-amd64:$jvmbrotli"
+    api "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
 }
