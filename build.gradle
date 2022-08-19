@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.7-DEBUG-SNAPSHOT"
+    version = "2.8.8-DEBUG-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()

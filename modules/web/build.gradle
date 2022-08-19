@@ -1,4 +1,8 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 dependencies {
+    def os = DefaultNativePlatform.currentOperatingSystem
+    def arch = DefaultNativePlatform.currentArchitecture
 
     api project(':etc')
     api project(':net')
@@ -11,8 +15,23 @@ dependencies {
     //implementation 'org.pac4j:pac4j-http:2.1.0'
 
     // NOTE: To enable Brotli compression, you may need to add this to your project:
-    //def jvmbrotli = "0.2.0"
-    //compileOnly "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
-    //compileOnly "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
-
+    def jvmbrotli = "0.2.0"
+    api "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
+    switch (true) {
+        case os.isWindows() && arch.i386:
+            api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86:$jvmbrotli"
+            break
+        case os.isWindows() && arch.amd64:
+            api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86-amd64:$jvmbrotli"
+            break
+        case os.isMacOsX() && arch.amd64:
+            api "com.nixxcode.jvmbrotli:jvmbrotli-darwin-x86-amd64:$jvmbrotli"
+            break
+        case os.isLinux() && arch.amd64:
+            api "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
+            break
+        default:
+            println "No suitable driver of Brotli found for current " +
+                "OS (${os.getDisplayName()}) and architecture (${arch.displayName}). Brotli will be disabled."
+    }
 }
