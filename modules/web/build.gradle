@@ -32,6 +32,6 @@ dependencies {
             break
         default:
             println "No suitable driver of Brotli found for current " +
-                "OS (${os.getDisplayName()}) and architecture (${arch.displayName}). Brotli will be disabled."
+                "OS (${os.displayName}) and architecture (${arch.displayName}). Brotli will be disabled."
     }
 }
