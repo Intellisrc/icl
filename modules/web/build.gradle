@@ -18,16 +18,16 @@ dependencies {
     def jvmbrotli = "0.2.0"
     api "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
     switch (true) {
-        case os.isWindows() && arch.i386:
+        case os.windows && arch.i386:
             api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86:$jvmbrotli"
             break
-        case os.isWindows() && arch.amd64:
+        case os.windows && arch.amd64:
             api "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86-amd64:$jvmbrotli"
             break
-        case os.isMacOsX() && arch.amd64:
+        case os.macOsX && arch.amd64:
             api "com.nixxcode.jvmbrotli:jvmbrotli-darwin-x86-amd64:$jvmbrotli"
             break
-        case os.isLinux() && arch.amd64:
+        case os.linux && arch.amd64:
             api "com.nixxcode.jvmbrotli:jvmbrotli-linux-x86-amd64:$jvmbrotli"
             break
         default:
