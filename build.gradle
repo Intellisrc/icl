@@ -152,6 +152,7 @@ subprojects {
            mavenJava(MavenPublication) {
                artifactId project.name
                from components.java
+               group "com.intellisrc"
 
                pom {
                    name = projectName + " : " + project.name.capitalize() + " Module"

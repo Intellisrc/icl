@@ -821,8 +821,18 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean delete(List<M> models) {
         DB db = connect()
-        if(pk) { db.keys(pks) }
-        boolean ok = db.delete(models.collect { getMap(it) })
+
+        boolean singlePk = false
+        boolean multiPk = false
+        if(pk) {
+            db.keys(pks)
+            singlePk = pks.size() == 1
+            multiPk = pks.size() > 1
+        }
+        boolean ok = db.delete(models.collect {
+            return singlePk ? it.toMap().get(pk) :
+                (multiPk ? it.toMap().subMap(pks) : [])
+        })
         close()
         return ok
     }

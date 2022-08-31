@@ -296,6 +296,7 @@ class AutoTest extends Specification {
                     }
             })
             assert emails.update(newEmailList)
+            assert emails.delete(newEmailList)
         then:
             assert emails.clear()
             assert emails.count() == 0
