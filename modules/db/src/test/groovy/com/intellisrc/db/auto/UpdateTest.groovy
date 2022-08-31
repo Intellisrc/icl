@@ -98,8 +98,8 @@ class UpdateTest extends AutoTest {
         then:
             assert users.count() == rows : "Number of rows failed before updating"
             assert users.getAll(5).size() == 5 : "Limit failed"
-            assert users.getAll("age", DESC).first().id == rows : "Limit failed"
-            assert users.getAll("age", DESC, 5).last().id == rows - 5 + 1 : "Sort with limit failed"
+            assert users.getAll("age", DESC).first().uniqueId == rows : "Limit failed"
+            assert users.getAll("age", DESC, 5).last().uniqueId == rows - 5 + 1 : "Sort with limit failed"
         when:
             int times = 0
             List<Short> ageList = []

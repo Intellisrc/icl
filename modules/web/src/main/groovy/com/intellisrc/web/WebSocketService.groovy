@@ -74,27 +74,35 @@ class WebSocketService {
                         sockSession.policy.maxTextMessageBufferSize =
                             sockSession.policy.inputBufferSize = maxSize * 1024
 
-            String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, sockSession.remoteAddress.address)
-            Session session = sessionQueue.find {
-                Session sess ->
-                    user == sess.userID
-            }
-            if (session) {
-                if (listener.replaceOnDuplicate) {
-                    Log.v("Client replaced [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
-                    session.websocketSession = sockSession
-                    session.address = sockSession.remoteAddress.address
+            InetAddress address = sockSession.upgradeRequest.headers.containsKey("X-Forwarded-For")
+                                ? sockSession.upgradeRequest.headers["X-Forwarded-For"].first().toInetAddress()
+                                : sockSession.remoteAddress.address
+            String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, address)
+            if(! user) {
+                Log.w("User connected had no userID")
+                sockSession.close()
+            } else {
+                Session session = sessionQueue.find {
+                    Session sess ->
+                        user == sess.userID
+                }
+                if (session) {
+                    if (listener.replaceOnDuplicate) {
+                        Log.v("Client replaced [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
+                        session.websocketSession = sockSession
+                        session.address = sockSession.remoteAddress.address
+                        listener.onClientsChange(getConnected())
+                        broadcast(listener.onConnect(session))
+                    } else {
+                        Log.w("Client with userID [%s] already exits.", user)
+                    }
+                } else {
+                    Log.i("Client connected [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
+                    session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
+                    sessionQueue.add(session)
                     listener.onClientsChange(getConnected())
                     broadcast(listener.onConnect(session))
-                } else {
-                    Log.w("Client with userID [%s] already exits.", user)
                 }
-            } else {
-                Log.i("Client connected [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
-                session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
-                sessionQueue.add(session)
-                listener.onClientsChange(getConnected())
-                broadcast(listener.onConnect(session))
             }
         }
     }
