@@ -38,11 +38,7 @@ class CommonLoggerService implements SLF4JServiceProvider {
     }
 
     @Override
-    String getRequesteApiVersion() { //FIXME: it should be getRequested... (typo in 2.0.0-alpha)
-        return REQUESTED_API_VERSION
-    }
-
-    String getRequestedApiVersion() { //FIXME: this is the correct method.
+    String getRequestedApiVersion() {
         return REQUESTED_API_VERSION
     }
 
