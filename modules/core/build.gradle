@@ -1,4 +1,8 @@
 dependencies {
     api 'org.yaml:snakeyaml:1.30' //Same as in DB
-    api 'org.slf4j:slf4j-api:1.8.0-beta4'
+    api 'org.slf4j:slf4j-api:2.0.0'
+}
+
+repositories {
+    mavenCentral()
 }

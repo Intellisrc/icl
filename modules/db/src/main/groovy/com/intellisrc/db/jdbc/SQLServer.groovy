@@ -1,7 +1,6 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
-import com.intellisrc.db.auto.AutoJDBC
 import groovy.transform.CompileStatic
 
 /**
@@ -21,7 +20,6 @@ class SQLServer extends JDBCServer {
     String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
     // SQLServer specific parameters:
     // Most common:
-    boolean ssl = false
     boolean useWinLogin = false
     boolean trustCert = false
     // https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15
@@ -29,7 +27,8 @@ class SQLServer extends JDBCServer {
     @Override
     Map getParameters() {
         return Config.get("db.sqlserver.params", [
-            encrypt : ssl,
+            //encrypt : true // for drivers 10.2 and below
+            //encrypt : "strict" // For drivers 11.2 or above
             integratedSecurity : useWinLogin,
             loginTimeout : 15,
             trustServerCertificate : trustCert,
