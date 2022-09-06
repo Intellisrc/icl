@@ -524,8 +524,8 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> getAll(Map options = [:]) {
-        if(! ["limit", "sort"].any { options.containsKey(it) }) {
-            Log.w("Incorrect options: (%s) passed to `getAll`, did you mean `findAll` ?", options.toMapString())
+        if(! options.isEmpty() &&! ["limit", "sort"].any { options.containsKey(it) }) {
+            Log.e("Incorrect options: (%s) passed to `getAll`, did you mean `findAll` ?", options.toMapString())
             return []
         }
         DB con = connect()
