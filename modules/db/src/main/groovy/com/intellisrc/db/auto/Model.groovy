@@ -19,7 +19,7 @@ abstract class Model {
      * Get ID as Int
      * @return
      */
-    int getId() {
+    int getUniqueId() {
         int i = 0
         //noinspection GroovyFallthrough
         switch (pk?.type) {

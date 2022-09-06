@@ -46,7 +46,12 @@ trait ServiciableWebSocket extends Serviciable {
     // To be assigned by WebSocketService
     WebSocketService.MsgBroadCaster broadCaster
     boolean replaceOnDuplicate = false
-
+    /**
+     * Return the user ID (required). If null or empty is returned, the session will be dropped.
+     * @param params
+     * @param remoteIP
+     * @return
+     */
     abstract String getUserID(Map<String, List<String>> params, InetAddress remoteIP)
     abstract WSMessage onConnect(Session session)
     abstract WSMessage onDisconnect(Session session, int statusCode, String reason)

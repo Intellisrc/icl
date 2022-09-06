@@ -158,7 +158,7 @@ class AutoTest extends Specification {
         then:
             assert users.get(1) == null
             assert users.insert(u) == 1
-            assert u.id == 1
+            assert u.uniqueId == 1
         when:
             Alias alias = new Alias(
                 user : u,
@@ -172,7 +172,7 @@ class AutoTest extends Specification {
         when:
             User u2 = users.find(name : "Benjamin")
         then:
-            assert u2.id == 1
+            assert u2.uniqueId == 1
         when:
             u2.name = "Benji"
             u2.active = false
@@ -187,7 +187,7 @@ class AutoTest extends Specification {
             assert aliases.get(1).name == "Ben"
         when:
             assert users.replace(new User(
-                id  : u3.id,
+                id  : u3.uniqueId,
                 name: "Ben",
                 age : 77
             ))
@@ -236,11 +236,11 @@ class AutoTest extends Specification {
                     user: usr,
                     email: email
                 ))
-                Inbox inbox = inboxes.get([usr.id, email.id]).first()
+                Inbox inbox = inboxes.get([usr.uniqueId, email.uniqueId]).first()
                 assert inbox.enabled
                 inbox.enabled = false
                 assert inboxes.update(inbox)
-                assert ! inboxes.table.field("enabled").get([usr.id, email.id]).toBool()
+                assert ! inboxes.table.field("enabled").get([usr.uniqueId, email.uniqueId]).toBool()
             }
         then:
             assert users.all.size() == rows     : "Number of rows failed"

@@ -265,7 +265,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 List list = (val as List)
                 if(!list.empty && preserve) {
                     if(list.first() instanceof Model) {
-                        list = list.collect {(it as Model).id }
+                        list = list.collect {(it as Model).uniqueId }
                     }
                 }
                 return preserve ? list : YAML.encode(list.empty ? [] : list.collect {
@@ -285,7 +285,7 @@ class Table<M extends Model> implements Instanciable<M> {
             case InetAddress:
                 return (val as InetAddress).hostAddress
             case Model:
-                return (val as Model).id
+                return (val as Model).uniqueId
             case byte[]:
             case int:
             case short:
@@ -524,6 +524,10 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> getAll(Map options = [:]) {
+        if(! ["limit", "sort"].any { options.containsKey(it) }) {
+            Log.w("Incorrect options: (%s) passed to `getAll`, did you mean `findAll` ?", options.toMapString())
+            return []
+        }
         DB con = connect()
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
@@ -579,36 +583,14 @@ class Table<M extends Model> implements Instanciable<M> {
         return model
     }
     /**
-     * Find all of a kind of model
+     * Find all of a kind of model id
      * @param fieldName
      * @param type
      * @param options (limit, sort, etc)
      * @return
      */
     List<M> findAll(String fieldName, Model model, Map options = [:]) {
-        Field f = getFields().find {
-            it.name == fieldName
-        }
-        List<M> list = []
-        DB db = connect()
-        if(f) {
-            Map map = getMap(model)
-            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
-            if(pks) { db.keys(pks) }
-            if(! options.isEmpty()) {
-                if(options.limit) {
-                    db.limit(options.limit as int, (options.offset ?: "0") as int)
-                }
-                if(options.sort) {
-                    db.order(options.sort.toString(), (options.order ?: "ASC") as Query.SortOrder)
-                }
-            }
-            list = db.get(id).toListMap().collect { setMap(it) }
-        } else {
-            Log.w("Unable to find field: %s", fieldName)
-        }
-        close()
-        return list
+        return findAll([(fieldName) : model.uniqueId], options)
     }
     /**
      * Find all using Model and return by chunks
@@ -680,7 +662,7 @@ class Table<M extends Model> implements Instanciable<M> {
         int offset = 0
         int size
         do {
-            List<M> buffer = findAll(criteria + [
+            List<M> buffer = findAll(criteria, [
                 limit : chunkSize,
                 offset: offset
             ])
@@ -787,7 +769,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(M model) {
-        return model.id ? delete(model.id) : delete(getMap(model))
+        return model.uniqueId ? delete(model.uniqueId) : delete(getMap(model))
     }
     /**
      * Delete with ID
@@ -847,7 +829,7 @@ class Table<M extends Model> implements Instanciable<M> {
         DB db = connect()
         boolean ok = criteria.isEmpty() ? (db.truncate() ?: db.clear()) : db.delete(criteria.collectEntries {
             boolean isModel = it.value instanceof Model
-            return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).id : it.value)]
+            return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).uniqueId : it.value)]
         })
         close()
         return ok
