@@ -1,6 +1,7 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
@@ -54,7 +55,7 @@ class DB {
                 Log.w("Connection was previously returned (using db.close()). It might get disconnected unexpectedly.")
                 Log.d("If you use a connection after calling close(), it can lead to a sudden disconnection " +
                     "on timeout (from pool). To prevent that from happening need to call DB.connect() again.")
-                Log.v("Stacktrace is: %n%s", new Exception().stackTrace.collect { it.toString() }.join("\n"))
+                Log.v("Stacktrace is: %n%s", new Exception().stackTrace.collect { it.toString() }.join(SysInfo.newLine))
             }
             Log.v( "Connecting...")
             isopen = dbConnector.open()
