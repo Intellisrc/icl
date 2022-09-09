@@ -192,6 +192,8 @@ try {
     // Exception is passed to Log, so it can print all the detail (red color):
     Log.e("You can't do that", e)
 }
+// by default `Log.e` will print the stack trace, if you want to print it on demand:
+Log.stackTrace("Custom message is optional")
 ```
 
 Strings and SLF4J parameters do automatic conversion from some objects:

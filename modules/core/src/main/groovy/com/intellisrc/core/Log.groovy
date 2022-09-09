@@ -186,20 +186,52 @@ class Log {
     static synchronized void t(String msg, Object... args) {
         v(msg, args)
     }
+    /**
+     * Log verbose messages
+     * @param msg
+     * @param args
+     */
     static synchronized void v(String msg, Object... args) {
         log(Level.TRACE, msg, args)
     }
+    /**
+     * Log Debug messages
+     * @param msg
+     * @param args
+     */
     static synchronized void d(String msg, Object... args) {
         log(Level.DEBUG, msg, args)
     }
+    /**
+     * Log info
+     * @param msg
+     * @param args
+     */
     static synchronized void i(String msg, Object... args) {
         log(Level.INFO, msg, args)
     }
+    /**
+     * Log warnings
+     * @param msg
+     * @param args
+     */
     static synchronized void w(String msg, Object... args) {
         log(Level.WARN, msg, args)
     }
+    /**
+     * Log Errors
+     * @param msg
+     * @param args
+     */
     static synchronized void e(String msg, Object... args) {
         log(Level.ERROR, msg, args)
+    }
+    /**
+     * Log stack trace
+     * @param msg
+     */
+    static synchronized stackTrace(String msg = "Stacktrace is:") {
+        log(Level.TRACE, String.format("%s%n%s", msg, new Exception().stackTrace.collect { it.toString() }.join(SysInfo.newLine)))
     }
 
     /**
