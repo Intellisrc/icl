@@ -52,8 +52,9 @@ class DB {
         if(!isopen) {
             if(returned) {
                 Log.w("Connection was previously returned (using db.close()). It might get disconnected unexpectedly.")
-                Log.i("If you use a connection after calling close(), it can lead to a sudden disconnection " +
+                Log.d("If you use a connection after calling close(), it can lead to a sudden disconnection " +
                     "on timeout (from pool). To prevent that from happening need to call DB.connect() again.")
+                Log.v("Stacktrace is: %n%s", new Exception().stackTrace.collect { it.toString() }.join("\n"))
             }
             Log.v( "Connecting...")
             isopen = dbConnector.open()
