@@ -51,12 +51,9 @@ class DB {
         boolean isopen = opened
         if(!isopen) {
             if(returned) {
-                /*
-                 * If you use a connection after calling close(), it can lead to a sudden disconnection
-                 * on timeout (from pool).
-                 * To prevent that you will need to call connect() again.
-                 */
                 Log.w("Connection was previously returned (using db.close()). It might get disconnected unexpectedly.")
+                Log.i("If you use a connection after calling close(), it can lead to a sudden disconnection " +
+                    "on timeout (from pool). To prevent that from happening need to call DB.connect() again.")
             }
             Log.v( "Connecting...")
             isopen = dbConnector.open()
