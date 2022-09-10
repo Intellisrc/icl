@@ -3,7 +3,7 @@ package com.intellisrc.core
 import groovy.transform.CompileStatic
 
 /**
- * Time conversion to milliseconds
+ * Time conversion to seconds (similar to Millis)
  *
  * NOTE:
  * MONTH is calculated as 30 days (use MONTH_31D if you want to get a 31 days month)
@@ -11,24 +11,17 @@ import groovy.transform.CompileStatic
  * @since 2022/03/04.
  */
 @CompileStatic
-class Millis {
-    static final int MILLIS_10    = 10
-    static final int MILLIS_100   = 100
-    static final int MILLIS_200   = 200
-    static final int MILLIS_300   = 300
-    static final int HALF_SECOND  = 500
-    static final int MILLIS_800   = 800
-    static final int MILLIS_900   = 900
-    static final int SECOND       = 1000
-    static final int SECOND_2     = 2000
-    static final int SECOND_3     = 3000
-    static final int SECOND_4     = 4000
-    static final int SECOND_5     = 5000
-    static final int SECOND_10    = 10000
-    static final int SECOND_15    = 15000
-    static final int SECOND_20    = 20000
-    static final int SECOND_30    = 30000
-    static final int SECOND_45    = 45000
+class Secs {
+    static final int SECOND       = 1
+    static final int SECOND_2     = 2
+    static final int SECOND_3     = 3
+    static final int SECOND_4     = 4
+    static final int SECOND_5     = 5
+    static final int SECOND_10    = 10
+    static final int SECOND_15    = 15
+    static final int SECOND_20    = 20
+    static final int SECOND_30    = 30
+    static final int SECOND_45    = 45
     static final int MINUTE       = 60 * SECOND
     static final int MIN_2        = 2 * MINUTE
     static final int MIN_3        = 3 * MINUTE

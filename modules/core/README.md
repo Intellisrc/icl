@@ -423,6 +423,10 @@ sleep(SECONDS_10)
 int days6 = DAY * 6
 ```
 
+## Secs
+
+Useful constants to use instead of numeric representation of seconds. Similar to Millis
+
 ## SysInfo
 
 Information about the OS
