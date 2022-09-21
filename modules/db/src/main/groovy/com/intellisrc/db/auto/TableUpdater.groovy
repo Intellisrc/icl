@@ -39,7 +39,9 @@ class TableUpdater {
      * @param recordUpdater
      */
     static boolean update(List<Table> tableList) {
-        DB.disableCache = true
+        DB.clearCache()
+        boolean origEnabled = DB.enableCache
+        DB.enableCache = false
 
         boolean ok = false
         List<TableInfo> tables = []
@@ -141,8 +143,8 @@ class TableUpdater {
             }
             db.close()
         }
-
-        DB.disableCache = false
+        // Revert to original value:
+        DB.enableCache = origEnabled
         return ok
     }
 

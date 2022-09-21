@@ -73,6 +73,17 @@ class AutoTest extends Specification {
         boolean enabled = true
     }
 
+    static class Address extends Model {
+        @Column(primary = true)
+        User user
+        @Column(nullable = false)
+        String address
+        @Column(nullable = false)
+        String zip
+        @Column(nullable = false)
+        String city
+    }
+
     static class Aliases extends Table<Alias>{
         Aliases(Database database) { super(database) }
     }
@@ -86,6 +97,9 @@ class AutoTest extends Specification {
     static class Inboxes extends Table<Inbox> {
         Inboxes(Database database) { super(database) }
     }
+    static class Addresses extends Table<Address> {
+        Addresses(Database database) { super(database) }
+    }
 
     static List<JDBC> getTestable() {
         List<JDBC> dbs = []
@@ -98,7 +112,6 @@ class AutoTest extends Specification {
         dbs << new SQLite(
                 dbname: sqliteTmp.absolutePath
         )
-        //now = "DATE('now')"
         if(!ci && LocalHost.hasOpenPort(ports.mariadb)) {
             dbs << new MariaDB(
                 user: "test",
@@ -125,6 +138,7 @@ class AutoTest extends Specification {
         PrintLogger printLogger = CommonLogger.default.printLogger
         printLogger.setLevel(Level.TRACE)
         if(sqliteTmp.exists()) { sqliteTmp.delete() }
+        DB.clearCache()
     }
 
     def cleanup() {
@@ -144,7 +158,6 @@ class AutoTest extends Specification {
     @Unroll
     def "Create table model"() {
         setup:
-            DB.disableCache = true
             Database database = new Database(type)
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
@@ -211,7 +224,6 @@ class AutoTest extends Specification {
     @Unroll
     def "Multi-column Primary Key should work fine"() {
         setup:
-            DB.disableCache = true
             Database database = new Database(type)
             Users users = new Users(database)
             Emails emails = new Emails(database)
@@ -261,10 +273,58 @@ class AutoTest extends Specification {
         where:
             type << testable
     }
+
+    @Unroll
+    def "Primary Key is Model"() {
+        setup:
+            Database database = new Database(type)
+            Users users = new Users(database)
+            Addresses addresses = new Addresses(database)
+            addresses.clear()
+            users.clear()
+            assert ! addresses.pks.empty
+        when:
+            int rows = 3
+            (1..rows).each {
+                User usr = new User(
+                    name: "User${it}",
+                    age: it + 20,
+                    ip4: "10.0.0.${it}".toInet4Address()
+                )
+                assert users.insert(usr)
+                addresses.insert(new Address(
+                    user: usr,
+                    address: "Street $it number ${usr.id}",
+                    zip: "9000${usr.id}",
+                    city: "Gothic City"
+                ))
+            }
+        then:
+            User user = users.get(1)
+            Address address = addresses.find("user", user)
+            assert address.zip == "9000${user.id}"
+        when:
+            address.zip = "444444"
+        then:
+            assert addresses.update(address)
+            assert addresses.find("user", user).zip == "444444"
+        when:
+            assert addresses.delete(address)
+        then:
+            assert addresses.all.size() == 2
+        cleanup:
+            Table.reset()
+            [addresses, users].each {
+                it?.drop()
+                it?.quit()
+            }
+        where:
+            type << testable
+    }
+
     @Unroll
     def "Insert, update and delete in bulk"() {
         setup:
-            DB.disableCache = true
             Database database = new Database(type)
             Emails emails = new Emails(database)
             emails.clear()

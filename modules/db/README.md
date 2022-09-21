@@ -37,6 +37,8 @@ db.type=mysql
 #db.timeout=60
 # Max life of a connection (in sec). Once it expires, a new connection should be created.
 #db.expire=600
+# Disable database cache
+#db.cache=false
 ```
 
 Other than the supported types, you can connect to any JDBC database
@@ -569,6 +571,54 @@ class UserGroup extends Model {
 * `InetAddress`, `Inet4Address`, `Inet6Address`
 
 Any other class, will be converted using `toString()` / `(static) fromString()`.
+
+### Cache
+
+By default, table listings and columns are stored in cache to improve performance. You can disable it from
+configuration:
+
+```properties
+db.cache=false
+```
+
+or programmatically:
+
+```groovy
+DB.enableCache = false
+```
+
+Additionally, you can clear cache at any time:
+
+```groovy
+DB.clearCache()
+```
+
+It is recommended to clear the cache if you add tables or modify their structure on runtime.
+
+Select queries (get actions) are stored in cache if the following configuration is set (by default is disabled):
+```properties
+# Store queries for 1 hour
+db.cache.get=3600
+```
+or programmatically:
+
+```groovy
+DB.cache = 3600
+```
+
+Note: None of the set action (insert, update, etc) are cached.
+
+You can clear cache on any set action (automaticalyl) if you set (default is false):
+
+```properties
+db.cache.clear=true
+```
+or programmatically:
+
+```groovy
+DB.clearCache = true
+```
+
 
 ### Comparison with libraries with similar functionality:
 

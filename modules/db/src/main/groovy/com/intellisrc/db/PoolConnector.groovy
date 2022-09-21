@@ -46,12 +46,12 @@ class PoolConnector implements Connector {
 
 	@Override
 	List<String> getTables() {
-		return currentConnector?.tables
+		return open() ? currentConnector.tables : []
 	}
 
 	@Override
 	List<ColumnInfo> getColumns(String table) {
-		return open() ? currentConnector?.getColumns(table) : []
+		return open() ? currentConnector.getColumns(table) : []
 	}
 
 	@Override
@@ -83,24 +83,30 @@ class PoolConnector implements Connector {
 
 	@Override
 	boolean close() {
-		pool?.returnConnectionToPool(currentConnector)
-		Log.v( "DB returned.")
-		return true
+		boolean returned = false
+		if(currentConnector) {
+			pool?.returnConnectionToPool(currentConnector)
+			Log.v("DB returned.")
+			returned = true
+		}
+		return returned
 	}
 
 	@Override
 	ResultStatement execute(Query query, boolean silent) {
-		return currentConnector?.execute(query, silent)
+		return open() ? currentConnector.execute(query, silent) : null
 	}
 
     @Override
     boolean commit(List<Query> queries) {
-        return currentConnector?.commit(queries)
+        return open() ? currentConnector.commit(queries) : false
     }
 
 	@Override
 	void rollback() {
-		currentConnector?.rollback()
+		if(open()) {
+			currentConnector.rollback()
+		}
 	}
 
 	@Override

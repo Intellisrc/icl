@@ -7,7 +7,7 @@ import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import spock.lang.Unroll
 
-import static com.intellisrc.db.Query.SortOrder.*
+import static com.intellisrc.db.Query.SortOrder.DESC
 
 class UpdateTest extends AutoTest {
 
@@ -43,14 +43,14 @@ class UpdateTest extends AutoTest {
     @Unroll
     def "Simple Update without data"() {
         setup:
-            DB.disableCache = true
+            DB.enableCache = false
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)
         when:
             UsersV2 users2 = new UsersV2(tableName, database)
             users2.updateTable() // Update it manually
-            DB.disableCache = true //updateTable re-enable it (just in case)
+            DB.enableCache = false //updateTable re-enable it (just in case)
             UserV2 u = new UserV2(
                 name : "Benjamin",
                 age : 22,
@@ -80,7 +80,7 @@ class UpdateTest extends AutoTest {
     @Unroll
     def "Update with data"() {
         setup:
-            DB.disableCache = true
+            DB.enableCache = false
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)

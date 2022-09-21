@@ -29,6 +29,7 @@ class Cache<V> {
 	public int gcInterval = defaultGCInterval
     public int timeout = defaultTimeout
     public boolean extend  = false
+    public boolean quiet = false // When true, it won't print read (verbose) log
 
     /**
      * Object used as data structure inside Cache
@@ -117,7 +118,9 @@ class Cache<V> {
         if(key && time) {
             if (contains(key)) {
                 ret = cache.get(key).value
-                Log.v("[$key] read from cache")
+                if(! quiet) {
+                    Log.v("[$key] read from cache")
+                }
             } else {
                 if (notFound) {
                     ret = notFound.call()

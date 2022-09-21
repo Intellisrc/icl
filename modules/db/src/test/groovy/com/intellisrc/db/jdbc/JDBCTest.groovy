@@ -57,6 +57,7 @@ abstract class JDBCTest extends Specification {
     def setup() {
         DB db = getDB().connect()
         db.dropAllTables()
+        db.clearCache()
         db.close()
     }
 

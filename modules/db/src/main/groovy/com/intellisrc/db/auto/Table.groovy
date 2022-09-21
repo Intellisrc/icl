@@ -556,6 +556,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 offset: offset
             ])
             chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
             offset += chunkSize
             size = buffer.size()
         } while(size == chunkSize)
@@ -607,6 +608,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 offset: offset
             ])
             chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
             offset += chunkSize
             size = buffer.size()
         } while(size == chunkSize)
@@ -667,6 +669,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 offset: offset
             ])
             chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
             offset += chunkSize
             size = buffer.size()
         } while(size == chunkSize)
