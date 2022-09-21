@@ -10,7 +10,8 @@ import com.intellisrc.term.TableMaker
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
-import static com.intellisrc.db.Query.SortOrder.*
+import static com.intellisrc.db.Query.SortOrder.ASC
+import static com.intellisrc.db.Query.SortOrder.DESC
 
 /**
  * @since 2022/01/20.
@@ -340,6 +341,7 @@ abstract class JDBCTest extends Specification {
                     return jdbc.supportsDate ? d.toDate() : d
             }
         when: "Create table"
+            println "Creating table: $table ..."
             assert db.setSQL(getTableCreate(table)) ?: db.setSQL(getTableCreateMulti(table))
         then: "Insert values"
             assert db.table(table).insert([
@@ -371,6 +373,7 @@ abstract class JDBCTest extends Specification {
         expect: "No tables"
             assert db.tables.empty
         when: "Create table"
+            println "Creating table: $table ..."
             assert db.setSQL(getTableCreateMultiplePK(table))
         then : "Be sure the table is there"
             assert db.tables.size() == 1

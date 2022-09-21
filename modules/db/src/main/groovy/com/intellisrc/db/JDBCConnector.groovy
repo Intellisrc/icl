@@ -108,7 +108,7 @@ class JDBCConnector implements Connector {
 			}
 			rsCols.close()
 		} catch(Exception e) {
-			Log.w("Unable to get tables via JDBC")
+			Log.w("Unable to get columns of table: [%s] via JDBC", table)
 			onError(e)
 		}
 		return columns
