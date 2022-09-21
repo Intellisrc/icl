@@ -4,6 +4,8 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
+import java.sql.Connection
+
 @CompileStatic
 /**
  * Implements a Connector to be used in DBPool
@@ -70,6 +72,13 @@ class PoolConnector implements Connector {
             }
         }
 		return isopen
+	}
+
+	@Override
+	void clear(Connection connection) {
+		if(open) {
+			currentConnector.clear(connection)
+		}
 	}
 
 	@Override

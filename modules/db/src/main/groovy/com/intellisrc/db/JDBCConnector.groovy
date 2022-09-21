@@ -22,8 +22,8 @@ import static java.sql.Types.NULL
  */
 class JDBCConnector implements Connector {
 	protected static int TIMEOUT = Millis.SECOND
-	protected Connection db
-	protected JDBC type = new Dummy()
+	protected Connection connection
+	protected JDBC jdbc = new Dummy()
 	long lastUsed = 0
 
 	/**
@@ -33,9 +33,9 @@ class JDBCConnector implements Connector {
 	 */
 	JDBCConnector(final JDBC jdbc = null) {
         if(!jdbc) {
-			type = JDBC.fromSettings()
+			this.jdbc = JDBC.fromSettings()
         } else {
-            type = jdbc
+            this.jdbc = jdbc
         }
 	}
 	/**
@@ -54,7 +54,7 @@ class JDBCConnector implements Connector {
 	List<String> getTables() {
 		List<String> list = []
 		try {
-			ResultSet rs = db.metaData.getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", "TABLE", "VIEW")
+			ResultSet rs = connection.metaData.getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", "TABLE", "VIEW")
 			while (rs.next()) {
 				list << (jdbc.convertToLowerCase ? rs.getString("TABLE_NAME")?.toLowerCase() : rs.getString("TABLE_NAME"))
 				/*Log.v("Cat: %s, Sch: %s, Name: %s, Type: %s",
@@ -79,7 +79,7 @@ class JDBCConnector implements Connector {
 	List<ColumnInfo> getColumns(String table) {
 		List<ColumnInfo> columns = []
 		try {
-			DatabaseMetaData meta = db.getMetaData()
+			DatabaseMetaData meta = connection.getMetaData()
 			List<String> pks = []
 			ResultSet rsPk = meta.getPrimaryKeys(jdbc.catalogSearchName,jdbc.schemaSearchName, jdbc.getTableSearchName(table))
 			while (rsPk.next()) {
@@ -120,7 +120,7 @@ class JDBCConnector implements Connector {
 	 */
 	@Override
 	JDBC getJdbc() {
-		return type
+		return jdbc
 	}
 
 	/**
@@ -131,22 +131,27 @@ class JDBCConnector implements Connector {
 	boolean open() {
 		boolean connected = false
 		try {
-			String conn = type.connectionString
+			String conn = jdbc.connectionString
 			if(!conn.toLowerCase().startsWith("jdbc")) {
 				conn = "jdbc:$conn"
 			}
 			// Be sure that the driver is loaded
-			Class.forName(type.driver)
+			Class.forName(jdbc.driver)
 
 			Log.v( "Connecting to DB: %s", conn)
-			db = DriverManager.getConnection(conn, type.user, type.password)
-			Log.d( "Connected to DB: %s", type.dbname ?: type.toString())
+			connection = DriverManager.getConnection(conn, jdbc.user, jdbc.password)
+			Log.d( "Connected to DB: %s", jdbc.dbname ?: jdbc.toString())
 			connected = true
 		} catch (SQLException e) {
 			Log.w( "Connection failed")
 			onError(e)
 		}
 		return connected
+	}
+
+	@Override
+	void clear(Connection conn) {
+		jdbc.clear(conn)
 	}
 
 	/**
@@ -159,8 +164,8 @@ class JDBCConnector implements Connector {
 	boolean isOpen() {
 		boolean open = false
 		try {
-            if(db != null) {
-                open = !db.isClosed()
+            if(connection != null) {
+                open = !connection.isClosed()
             }
 		} catch (Exception e) {
 			Log.w( "DB was closed")
@@ -177,8 +182,8 @@ class JDBCConnector implements Connector {
 	boolean close() {
 		boolean closed = true
 		try {
-			if (db !== null &&! db.isClosed()) {
-				db.close()
+			if (connection !== null &&! connection.isClosed()) {
+				connection.close()
 			}
 		} catch (Exception e) {
 			Log.w("Unable to close")
@@ -232,8 +237,8 @@ class JDBCConnector implements Connector {
 		try {
 			assert query.toString() : "Query can not be empty"
 			final PreparedStatement st = query.isIdentityUpdate ?
-				 db.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS) :
-				 db.prepareStatement(query.toString())
+				 connection.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS) :
+				 connection.prepareStatement(query.toString())
 			st.setQueryTimeout(TIMEOUT)
 			setValues(st, query.args)
 			boolean updaction = query.isSetQuery
@@ -272,36 +277,38 @@ class JDBCConnector implements Connector {
 			Log.w("Unexpected error while processing request")
 			onError(e)
 		}
+		clear(connection)
 		return null
 	}
 
 	@Override
 	boolean commit(List<Query> queries) {
         boolean commited = false
-		db.autoCommit = false
+		connection.autoCommit = false
 		Set<String> uniqueQueries = queries.collect { it.toString() }.toSet()
         Map<String, PreparedStatement> statementList = [:]
 		try {
 			uniqueQueries.each {
-				statementList[it] = db.prepareStatement(it)
+				statementList[it] = connection.prepareStatement(it)
 			}
 			queries.each {
 				PreparedStatement ps = statementList[it.toString()]
 				setValues(ps, it.args) //List must contain Prepared statements
 				ps.executeUpdate()
 			}
-			db.commit()
+			connection.commit()
             commited = true
 		} catch(Exception e) {
 			onError(e)
 		}
-		db.autoCommit = true
-        return commited
+		connection.autoCommit = true
+		clear(connection)
+		return commited
 	}
 
 	@Override
 	void rollback() {
-		db?.rollback()
+		connection?.rollback()
 	}
 
 	/**

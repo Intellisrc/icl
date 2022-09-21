@@ -22,13 +22,17 @@ class SQLServer extends JDBCServer {
     // Most common:
     boolean useWinLogin = false
     boolean trustCert = false
+
+    //encrypt : true // for drivers 10.2 and below
+    //encrypt : "strict" // For drivers 11.2 or above
+    boolean secure = false
+    boolean strict = false // Only if secure = true
     // https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
         return Config.get("db.sqlserver.params", [
-            //encrypt : true // for drivers 10.2 and below
-            //encrypt : "strict" // For drivers 11.2 or above
+            encrypt : secure && strict ? "strict" : secure.toString(),
             integratedSecurity : useWinLogin,
             loginTimeout : 15,
             trustServerCertificate : trustCert,

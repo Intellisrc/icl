@@ -155,27 +155,6 @@ class DB {
         return update(updvals, keyvals as Object)
     }
     /**
-     * Update data like:
-     * update([
-     *    14 : [ name : "Jennifer" ],
-     *    29 : [ name : "Paul" ]
-     * ])
-     * @param updvals
-     * @return
-     **/
-    @Deprecated // It doesn't support multiple columns PK and it might be confusing
-    //TODO: remove in 2.8.8
-    boolean update(Map<Object, Map> updvals) {
-        return updvals.every {
-            boolean ok = false
-            switch(it.key) {
-                case String : ok = update(it.value, it.key.toString()); break
-                case Integer: ok = update(it.value, it.key as int); break
-            }
-            return ok
-        }
-    }
-    /**
      * Update multiple rows
      * @param rows
      * @return
@@ -229,10 +208,7 @@ class DB {
             }
         } else {
             Log.d("Insert received an empty list")
-        }/*
-        ok = insvalsList.every {
-            insert(it)
-        }*/
+        }
         return ok
     }
     /**

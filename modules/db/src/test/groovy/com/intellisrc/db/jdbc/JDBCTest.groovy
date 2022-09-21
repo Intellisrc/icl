@@ -218,10 +218,13 @@ abstract class JDBCTest extends Specification {
             ],[8,9])
         then: "Update with map criteria"
             assert db.table(table).update([ active: false ], [ active: true ])
-        then: "Update with id, multiple"
+        then: "Update multiple"
             assert db.table(table).update([
-                3 : [ version : 3.4f ],
-                4 : [ version : 2.2f ]
+                [ version : 3.4f ],
+                [ version : 2.2f ]
+            ], [
+                [ id: 3 ],
+                [ id: 4 ]
             ])
         then: "Verify update"
             assert db.table(table).field("version").get(3).toFloat() == 3.4f

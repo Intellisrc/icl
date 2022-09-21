@@ -86,6 +86,9 @@ docker run --name sqlserver_test \
   -p 127.0.0.1:31433:1433 \
   -d mcr.microsoft.com/mssql/server:2019-latest
   echo "Waiting to SQL Server to start ...."
-  sleep 60 # Wait until they are up
-  docker exec -it sqlserver_test /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "o2Aksm.A23asl" -Q "CREATE DATABASE test"
+  sleep 30 # Wait until they are up
+  while ! docker exec -it sqlserver_test /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "o2Aksm.A23asl" -Q "CREATE DATABASE test"
+  do
+    sleep 10
+  done
 fi

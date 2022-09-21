@@ -1,7 +1,11 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
+
+import java.lang.reflect.Method
+import java.sql.Connection
 
 /**
  * Firebird SQL Database
@@ -18,7 +22,9 @@ class Firebird extends JDBCServer {
     String password = "masterkey"
     String hostname = "localhost"
     int port = 3050
-    String driver = "org.firebirdsql.jdbc.FBDriver"
+    String packageName = "org.firebirdsql.jdbc"
+    String driver = "${packageName}.FBDriver"
+    String connectionClass = "${packageName}.FBConnection"
     boolean supportsBoolean = true
 
     boolean embedded = Config.get("db.firebird.embedded", false)
@@ -28,7 +34,7 @@ class Firebird extends JDBCServer {
     @Override
     Map getParameters() {
         return Config.get("db.firebird.params", [
-            encoding : "UNICODE_FSS"
+            charSet : 'utf-8'
         ] + params)
     }
 
@@ -47,7 +53,7 @@ class Firebird extends JDBCServer {
             default:
                 conn = "firebirdsql:$hostname/$port:$dbname"
         }
-        return conn
+        return conn + "?" + parameters.toQueryString()
     }
 
     // QUERY BUILDING -------------------------
@@ -79,5 +85,22 @@ class Firebird extends JDBCServer {
     @Override
     String getTruncateQuery(String table) {
         return "DELETE FROM ${table}"
+    }
+
+    /**
+     * After executing queries, Firebird leaves the statements (dirty connection)
+     * Here we call `freeStatements` to be sure they are cleared.
+     * @param connection
+     */
+    @Override
+    void clear(Connection connection) {
+        try {
+            Class<?> clazz = Class.forName(connectionClass)
+            Method free = clazz.getDeclaredMethod("freeStatements")
+            free.setAccessible(true)
+            free.invoke(connection)
+        } catch(Exception e) {
+            Log.w("Unable to free statements: %s", e.message)
+        }
     }
 }

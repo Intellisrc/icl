@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import org.reflections.Reflections
 
 import java.lang.reflect.Field
+import java.sql.Connection
 
 /**
  * Minimum JDBC information to connect to any database
@@ -68,6 +69,9 @@ abstract class JDBC {
 
     Map params = [:] // Store params passed in constructor
     protected Map getParameters() { return params }
+
+    // Clear the connection (used in case something is left in it that may affect reusing it later)
+    void clear(Connection connection) {}
 
     // QUERY BUILDING -------------------------------
     /**

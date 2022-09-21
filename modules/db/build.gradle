@@ -2,14 +2,14 @@ dependencies {
     api project(':etc')
     api "org.reflections:reflections:0.10.2"
 
-    def sqlserver = '11.2.0.jre11'
+    def sqlserver = '11.2.1.jre11'
     def oracle = '21.7.0.0'
     def mysql = '8.0.30'
     def mariadb = '3.0.6'
     def derby= '10.15.2.0'
     def firebird = '4.0.6.java11'
     def postgresql = '42.5.0'
-    def sqlite = '3.39.2.1'
+    def sqlite = '3.39.3.0'
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
@@ -17,7 +17,7 @@ dependencies {
     compileOnly "com.oracle.database.jdbc:ojdbc11:${oracle}"
     compileOnly "mysql:mysql-connector-java:${mysql}"
     compileOnly "org.apache.derby:derby:${derby}" // This one includes also the database engine
-  //compileOnly "org.apache.derby:derbyclient:10.15.2.0" // This one includes only the JDBC driver
+  //compileOnly "org.apache.derby:derbyclient:${derby}" // This one includes only the JDBC client driver
     compileOnly "org.firebirdsql.jdbc:jaybird:${firebird}"
     compileOnly "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
     compileOnly "org.postgresql:postgresql:${postgresql}"
