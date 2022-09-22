@@ -449,12 +449,12 @@ class TableMaker {
         float i = str.length()
         str.toCharArray().each {
             int c = (it as char) as int
-            // Only use metrics when needed:
-            if(c >= CharWidthMetrics.charStart && metrics.isEmpty()) {
-                metrics = CharWidthMetrics.importMetrics(metricsFile)
-            }
-            if(metrics.containsKey(c)) {
-                i += (metrics[c] - 1)
+            // Only apply metrics when needed:
+            if(c >= CharWidthMetrics.charStart) {
+                float ratio = CharWidthMetrics.getRatio(it.toString())
+                if(ratio > 0) {
+                    i += (ratio - 1)
+                }
             }
         }
         return Math.ceil(i) as int

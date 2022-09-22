@@ -17,6 +17,9 @@ class CharWidthMetrics {
     static final File dictionary = Config.getFile("chars.widths.file", File.get("chars.widths.txt"))
     static final int charStart = 1304
     static final int charEnd = 984058
+
+    static protected FontMetrics fm = null
+    static protected int base = 0
     /**
      * Generates metrics file with the width calculations
      * @param dictFile
@@ -25,9 +28,9 @@ class CharWidthMetrics {
         if(dictFile == null) { dictFile = dictionary }
         Font font = new Font("Monospaced", Font.PLAIN, 12)
         dictFile.text = ""
-        FontMetrics fm = new Canvas().getFontMetrics(font)
+        fm = new Canvas().getFontMetrics(font)
         Map<Float, List<String>> buffer = [:]
-        int base = fm.stringWidth("a")
+        base = fm.stringWidth("a")
         (charStart..charEnd).each { // Full is from 0..0x10ffff, but it can be reduced
         int cp ->
             String c = new StringBuilder().appendCodePoint(cp).toString()
@@ -63,5 +66,19 @@ class CharWidthMetrics {
             }
         }
         return metrics
+    }
+    /**
+     * Calculate ratio of character
+     * @param character
+     * @return
+     */
+    static float getRatio(String character) {
+        if(!fm) {
+            Font font = new Font("Monospaced", Font.PLAIN, 12)
+            fm = new Canvas().getFontMetrics(font)
+            base = fm.stringWidth("a")
+        }
+        int w = fm.stringWidth(character)
+        return (Math.round((w / base).toFloat() * 100) / 100f).toFloat()
     }
 }
