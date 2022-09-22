@@ -1,5 +1,7 @@
 package com.intellisrc.term
 
+import com.ibm.icu.lang.UCharacter
+import com.ibm.icu.lang.UProperty
 import com.intellisrc.core.Log
 import com.intellisrc.term.styles.SafeStyle
 import com.intellisrc.term.styles.Stylable
@@ -7,6 +9,7 @@ import groovy.transform.CompileStatic
 
 import java.util.regex.Matcher
 
+import static com.ibm.icu.lang.UCharacter.EastAsianWidth.*
 import static com.intellisrc.core.AnsiColor.*
 import static com.intellisrc.term.TableMaker.Align.*
 
@@ -16,6 +19,7 @@ import static com.intellisrc.term.TableMaker.Align.*
  */
 @CompileStatic
 class TableMaker {
+    static public double wideCharSize = 0.6
     /**
      * It is used to give format to each cell
      */
@@ -66,12 +70,12 @@ class TableMaker {
             String padded = text
             if(len) {
                 switch (align) {
-                    case LEFT:   padded = padded.padRight(len); break
-                    case RIGHT:  padded = padded.padLeft(len); break
+                    case LEFT:   padded = padRight(padded, len); break
+                    case RIGHT:  padded = padLeft(padded, len); break
                     case CENTER:
                         int half = Math.floor((len - getDisplayWidth(text)) / 2d) as int
                         if(half > 0) {
-                            padded = padded.padLeft(getDisplayWidth(text) + half).padRight(len)
+                            padded = padRight(padLeft(padded, getDisplayWidth(text) + half), len)
                         }
                         break
                 }
@@ -83,17 +87,13 @@ class TableMaker {
             if(len && getDisplayWidth(text) > len) {
                 switch (align) {
                     case LEFT:
-                        trimmed = text.substring(0, len - (useEllipsis ? 1 : 0)) + (useEllipsis ? ellipsisChar : "")
+                        trimmed = trimDisplayLeft(text, useEllipsis, ellipsisChar, len)
                         break
                     case RIGHT:
-                        trimmed = (useEllipsis ? ellipsisChar : "") + text.takeRight(len - (useEllipsis ? 1 : 0))
+                        trimmed = trimDisplayRight(text, useEllipsis, ellipsisChar, len)
                         break
                     case CENTER:
-                        int offset = Math.floor((getDisplayWidth(text) - len) / 2d) as int
-                        int diff   = (getDisplayWidth(text) - len) - offset
-                        int left = useEllipsis && diff > 1 ? 1 : 0
-                        int right = useEllipsis && diff > 0 ? 1 : 0
-                        trimmed = (left ? ellipsisChar : "") + text.substring(offset, (getDisplayWidth(text) - diff - (left + right))) + (right ? ellipsisChar : "")
+                        trimmed = trimDisplayBoth(text, useEllipsis, ellipsisChar, len)
                         break
                 }
             }
@@ -137,7 +137,7 @@ class TableMaker {
                             addColor(after.indexOf(original.trim()))
                         } else {
                             String sub = (26 as char).toString()
-                            after = after.padLeft(getDisplayWidth(original), sub)
+                            after = padLeft(after, getDisplayWidth(original), sub)
                             addColor(0)
                             after = after.replace(sub, "")
                         }
@@ -149,8 +149,8 @@ class TableMaker {
                             addColor(after.indexOf(original.trim()))
                         } else { // The string was cut
                             String sub = "*" //(26 as char).toString()
-                            after = after.padRight(getDisplayWidth(original) - half, sub)
-                            after = after.padLeft(getDisplayWidth(original), sub)
+                            after = padRight(after, getDisplayWidth(original) - half, sub)
+                            after = padLeft(after, getDisplayWidth(original), sub)
                             addColor(0)
                             after = after.replace(sub, "")
                         }
@@ -442,13 +442,120 @@ class TableMaker {
     }
     /**
      * Get display width of string
-     * TODO: Ideally it should work for Unicode, but it is not working as expected
      * @param str
      * @return
      */
     static int getDisplayWidth(String str) {
         // Using JLine for calculation is not working:
         // return str != null ? AttributedString.fromAnsi(str).columnLength() : 0
-        return str.codePoints().toArray().length
+        double i = str.codePoints().toArray().length
+        str.each {
+            int c = (it as char) as int
+            //noinspection GroovyFallthrough
+            switch (UCharacter.getIntPropertyValue(c, UProperty.GENERAL_CATEGORY)) {
+                case FULLWIDTH:
+                case WIDE:
+                    i += wideCharSize
+                    break
+            }
+        }
+        return Math.ceil(i) as int
+    }
+    /**
+     * trim from the left (similar to substr but using display width)
+     * @param str
+     * @param ellipsis
+     * @param ellipsisChar
+     * @param maxLen
+     * @return
+     */
+    static String trimDisplayLeft(String str, boolean ellipsis, String ellipsisChar, int maxLen) {
+        String res = ""
+        if(ellipsis) { maxLen-- }
+        str.toCharArray().each {
+            if(getDisplayWidth(res) < maxLen) {
+                res += it
+            }
+        }
+        return res + (ellipsis ? ellipsisChar : "")
+    }
+
+    /**
+     * trim from the right (similar to substr but using display width)
+     * @param str
+     * @param ellipsis
+     * @param ellipsisChar
+     * @param maxLen
+     * @return
+     */
+    static String trimDisplayRight(String str, boolean ellipsis, String ellipsisChar, int maxLen) {
+        String res = ""
+        if(ellipsis) { maxLen-- }
+        str.toCharArray().toList().reverse().each {
+            if(getDisplayWidth(res) < maxLen) {
+                res = "" + it + res
+            }
+        }
+        return (ellipsis ? ellipsisChar : "") + res
+    }
+
+    /**
+     * trim from both sides using display width
+     * @param str
+     * @param ellipsis
+     * @param ellipsisChar
+     * @param maxLen
+     * @return
+     */
+    static String trimDisplayBoth(String str, boolean ellipsis, String ellipsisChar, int maxLen) {
+        List chars = str.toCharArray().toList()
+        char ec = ellipsisChar[0] as char
+        int left = 0
+        int right = 0
+        if(ellipsis) {
+            chars[chars.size() - 1] = ec // Replace last char
+            right++
+        }
+        do {
+            chars.removeAt(chars.size() - right - 1) //Remove last (non-ellipsis) character
+            if (getDisplayWidth(chars.join("")) > maxLen) {
+                if(chars.first() != ec) {
+                    chars[0] = ec //replace first with ellipsis
+                    left++
+                }
+                chars.removeAt(left) // Remove first (non-ellipsis) character
+            }
+        } while(getDisplayWidth(chars.join("")) > maxLen)
+        return chars.join("")
+    }
+
+    /**
+     * Pad to the left using display width
+     * @param str
+     * @param len
+     * @param pad
+     * @return
+     */
+    static String padLeft(String str, int len, String pad = " ") {
+        String res = str
+        while(getDisplayWidth(res) < len) {
+            res = pad + res
+        }
+        return res
+    }
+
+    /**
+     * Pad to the right using display width
+     * @param str
+     * @param len
+     * @param pad
+     * @return
+     */
+    static String padRight(String str, int len, String pad = " ") {
+        String res = str
+        while(getDisplayWidth(res) < len) {
+            res += pad
+        }
+        return res
     }
 }

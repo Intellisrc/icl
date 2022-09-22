@@ -6,7 +6,6 @@ import com.intellisrc.term.styles.SafeStyle
 import com.intellisrc.term.styles.DoubleLineStyle
 import com.intellisrc.term.styles.SemiDoubleStyle
 import com.intellisrc.term.styles.ThinStyle
-import spock.lang.PendingFeature
 import spock.lang.Specification
 
 import static com.intellisrc.core.AnsiColor.*
@@ -203,8 +202,9 @@ class TableMakerTest extends Specification {
             TableMaker tp = new TableMaker(
                 headers: ["Fruit", "QTY", "Price", "Seller"],
                 rows: [
-                    ["Apple", 1000, 10.00, "some@example.com"],
-                    ["Banana", 2002, 15.00, "a@example.com"],
+                    ["Orange", 800, 1.00, "ben@example.com"], // Exact size
+                    ["Apple", 1000, 10.00, "some@example.com"], // 1 more than required
+                    ["Banana", 2002, 15.00, "a@example.com"], // less than required
                     ["Mango", 400, 134.10, "very_long_dummy200@example.com"],
                     ["Kiwi", 900, 2350.40, "example@example.com"]
                 ],
@@ -351,7 +351,6 @@ class TableMakerTest extends Specification {
             30          | CENTER
     }
 
-    @PendingFeature //Not working
     def "Unicode should preserve length"() {
         setup:
             TableMaker tp = new TableMaker(
@@ -370,6 +369,6 @@ class TableMakerTest extends Specification {
         when:
             tp.print()
         then:
-            assert tp.toString().trim() == answer11
+            assert tp.toString().trim() == answer17
     }
 }
