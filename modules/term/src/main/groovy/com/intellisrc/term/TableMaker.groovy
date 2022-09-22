@@ -1,15 +1,13 @@
 package com.intellisrc.term
 
-import com.ibm.icu.lang.UCharacter
-import com.ibm.icu.lang.UProperty
 import com.intellisrc.core.Log
 import com.intellisrc.term.styles.SafeStyle
 import com.intellisrc.term.styles.Stylable
+import com.intellisrc.term.utils.CharWidthMetrics
 import groovy.transform.CompileStatic
 
 import java.util.regex.Matcher
 
-import static com.ibm.icu.lang.UCharacter.EastAsianWidth.*
 import static com.intellisrc.core.AnsiColor.*
 import static com.intellisrc.term.TableMaker.Align.*
 
@@ -19,7 +17,6 @@ import static com.intellisrc.term.TableMaker.Align.*
  */
 @CompileStatic
 class TableMaker {
-    static public double wideCharSize = 0.6
     /**
      * It is used to give format to each cell
      */
@@ -169,12 +166,15 @@ class TableMaker {
         }
     }
 
+    static public File metricsFile = null
+    static protected Map<Integer, Float> metrics = [:] as Map<Integer, Float>
     // Style used to generate table
     Stylable style = new SafeStyle()
     String borderColor = ""
     List<Column> columns = []
     final List<Row> rows = []
     boolean compact = false
+
     /**
      * Default constructor. Data will be passed through methods
      */
@@ -446,17 +446,15 @@ class TableMaker {
      * @return
      */
     static int getDisplayWidth(String str) {
-        // Using JLine for calculation is not working:
-        // return str != null ? AttributedString.fromAnsi(str).columnLength() : 0
-        double i = str.codePoints().toArray().length
-        str.each {
+        float i = str.length()
+        str.toCharArray().each {
             int c = (it as char) as int
-            //noinspection GroovyFallthrough
-            switch (UCharacter.getIntPropertyValue(c, UProperty.GENERAL_CATEGORY)) {
-                case FULLWIDTH:
-                case WIDE:
-                    i += wideCharSize
-                    break
+            // Only use metrics when needed:
+            if(c >= CharWidthMetrics.charStart && metrics.isEmpty()) {
+                metrics = CharWidthMetrics.importMetrics(metricsFile)
+            }
+            if(metrics.containsKey(c)) {
+                i += (metrics[c] - 1)
             }
         }
         return Math.ceil(i) as int
