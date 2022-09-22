@@ -69,9 +69,9 @@ class TableMaker {
                     case LEFT:   padded = padded.padRight(len); break
                     case RIGHT:  padded = padded.padLeft(len); break
                     case CENTER:
-                        int half = Math.floor((len - text.length()) / 2d) as int
+                        int half = Math.floor((len - getDisplayWidth(text)) / 2d) as int
                         if(half > 0) {
-                            padded = padded.padLeft(text.length() + half).padRight(len)
+                            padded = padded.padLeft(getDisplayWidth(text) + half).padRight(len)
                         }
                         break
                 }
@@ -80,7 +80,7 @@ class TableMaker {
         }
         String trim(String text, boolean useEllipsis = ellipsis, int len = getMaxLen()) {
             String trimmed = text
-            if(len && text.length() > len) {
+            if(len && getDisplayWidth(text) > len) {
                 switch (align) {
                     case LEFT:
                         trimmed = text.substring(0, len - (useEllipsis ? 1 : 0)) + (useEllipsis ? ellipsisChar : "")
@@ -89,11 +89,11 @@ class TableMaker {
                         trimmed = (useEllipsis ? ellipsisChar : "") + text.takeRight(len - (useEllipsis ? 1 : 0))
                         break
                     case CENTER:
-                        int offset = Math.floor((text.length() - len) / 2d) as int
-                        int diff   = (text.length() - len) - offset
+                        int offset = Math.floor((getDisplayWidth(text) - len) / 2d) as int
+                        int diff   = (getDisplayWidth(text) - len) - offset
                         int left = useEllipsis && diff > 1 ? 1 : 0
                         int right = useEllipsis && diff > 0 ? 1 : 0
-                        trimmed = (left ? ellipsisChar : "") + text.substring(offset, (text.length() - diff - (left + right))) + (right ? ellipsisChar : "")
+                        trimmed = (left ? ellipsisChar : "") + text.substring(offset, (getDisplayWidth(text) - diff - (left + right))) + (right ? ellipsisChar : "")
                         break
                 }
             }
@@ -133,24 +133,24 @@ class TableMaker {
                         break
                     case RIGHT:
                         // If spaces were added...
-                        if(original.trim().length() == after.trim().length()) {
+                        if(getDisplayWidth(original.trim()) == getDisplayWidth(after.trim())) {
                             addColor(after.indexOf(original.trim()))
                         } else {
                             String sub = (26 as char).toString()
-                            after = after.padLeft(original.length(), sub)
+                            after = after.padLeft(getDisplayWidth(original), sub)
                             addColor(0)
                             after = after.replace(sub, "")
                         }
                         break
                     case CENTER:
-                        int half = (Math.floor((original.length() - after.length()) / 2d) as int) - 1 //TODO: not sure why -1, but it works
+                        int half = (Math.floor((getDisplayWidth(original) - getDisplayWidth(after)) / 2d) as int) - 1 //TODO: not sure why -1, but it works
                         // If spaces were added...
-                        if(original.trim().length() == after.trim().length()) {
+                        if(getDisplayWidth(original.trim()) == getDisplayWidth(after.trim())) {
                             addColor(after.indexOf(original.trim()))
                         } else { // The string was cut
                             String sub = "*" //(26 as char).toString()
-                            after = after.padRight(original.length() - half, sub)
-                            after = after.padLeft(original.length(), sub)
+                            after = after.padRight(getDisplayWidth(original) - half, sub)
+                            after = after.padLeft(getDisplayWidth(original), sub)
                             addColor(0)
                             after = after.replace(sub, "")
                         }
@@ -308,7 +308,7 @@ class TableMaker {
         }
         columns.collect { it.header }.eachWithIndex {
             Object entry, int i ->
-                int cellWidth = decolor(entry.toString()).length()
+                int cellWidth = getDisplayWidth(decolor(entry.toString()))
                 Column col = columns.get(i)
                 col.length = [col.minLen, col.length, cellWidth].max()
                 colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
@@ -316,7 +316,7 @@ class TableMaker {
         rows.each {
             it.cells.eachWithIndex {
                 Object entry, int i ->
-                    int cellWidth = decolor(columns.get(i).format(entry, false)).length()
+                    int cellWidth = getDisplayWidth(decolor(columns.get(i).format(entry, false)))
                     Column col = columns.get(i)
                     col.length = [col.minLen, col.length, cellWidth].max()
                     colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
@@ -329,7 +329,7 @@ class TableMaker {
         if (!columns.first().expandFooter) {
             columns.collect { it.footer }.eachWithIndex {
                 Object entry, int i ->
-                    int cellWidth = decolor(entry.toString()).length()
+                    int cellWidth = getDisplayWidth(decolor(entry.toString()))
                     Column col = columns.get(i)
                     col.length = [col.minLen, col.length, cellWidth].max()
                     colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
@@ -439,5 +439,16 @@ class TableMaker {
             this.style = style
         }
         println this.toString(compacted)
+    }
+    /**
+     * Get display width of string
+     * TODO: Ideally it should work for Unicode, but it is not working as expected
+     * @param str
+     * @return
+     */
+    static int getDisplayWidth(String str) {
+        // Using JLine for calculation is not working:
+        // return str != null ? AttributedString.fromAnsi(str).columnLength() : 0
+        return str.codePoints().toArray().length
     }
 }

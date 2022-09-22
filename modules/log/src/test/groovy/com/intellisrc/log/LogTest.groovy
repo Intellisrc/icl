@@ -4,6 +4,7 @@ import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import org.slf4j.event.Level
+import spock.lang.Retry
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -265,6 +266,7 @@ class LogTest extends Specification {
     }
 
     @Unroll
+    @Retry
     def "Cleaning should remove old logs"() {
         setup:
             File baseDir = File.get(File.tempDir, "test-many-dir")
