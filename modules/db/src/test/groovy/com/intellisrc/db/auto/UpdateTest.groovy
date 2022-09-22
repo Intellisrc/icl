@@ -40,17 +40,19 @@ class UpdateTest extends AutoTest {
         }
     }
 
+    def setup() {
+        DB.clearCache()
+    }
+
     @Unroll
     def "Simple Update without data"() {
         setup:
-            DB.enableCache = false
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)
         when:
             UsersV2 users2 = new UsersV2(tableName, database)
             users2.updateTable() // Update it manually
-            DB.enableCache = false //updateTable re-enable it (just in case)
             UserV2 u = new UserV2(
                 name : "Benjamin",
                 age : 22,
@@ -80,7 +82,6 @@ class UpdateTest extends AutoTest {
     @Unroll
     def "Update with data"() {
         setup:
-            DB.enableCache = false
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)

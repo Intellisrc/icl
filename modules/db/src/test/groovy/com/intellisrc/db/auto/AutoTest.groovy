@@ -342,7 +342,7 @@ class AutoTest extends Specification {
             assert emails.insert(emailList)
             long time = ChronoUnit.MILLIS.between(start, SysClock.now)
             Log.i("%d new records, took: %d ms", rows, time)
-            assert time < 5000
+            assert time < 15000
         then:
             assert emails.count() == rows    : "Number of rows failed"
         then:
