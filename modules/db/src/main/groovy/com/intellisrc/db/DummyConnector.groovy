@@ -5,6 +5,7 @@ import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
+import java.sql.Connection
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -38,6 +39,9 @@ class DummyConnector implements Connector {
         Log.v( "Database opened")
         return opened
     }
+
+    @Override
+    void clear(Connection connection) {}
 
     @Override
     boolean close() {

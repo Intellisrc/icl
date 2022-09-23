@@ -2,15 +2,9 @@ package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
 import com.intellisrc.db.annot.Column
-import com.intellisrc.etc.Instanciable
-import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 
-import java.lang.reflect.Constructor
 import java.lang.reflect.Field
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 @CompileStatic
 abstract class Model {
@@ -19,7 +13,7 @@ abstract class Model {
      * Get ID as Int
      * @return
      */
-    int getId() {
+    int getUniqueId() {
         int i = 0
         //noinspection GroovyFallthrough
         switch (pk?.type) {
@@ -31,9 +25,12 @@ abstract class Model {
             case BigInteger:
                 i = this[pk.name] as int
                 break
+            case Model:
+                i = (this[pk.name] as Model).uniqueId as int
+                break
             default:
                 if(pk?.type) {
-                    Log.w("Primary Key must be of type INTEGER in table: %s, found: %s", tableName, pk.type.name)
+                    Log.w("Primary Key must be of type INTEGER or MODEL in table: %s, found: %s", tableName, pk.type.simpleName)
                 }
         }
         return i

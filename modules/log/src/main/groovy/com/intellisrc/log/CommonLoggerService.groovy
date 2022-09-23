@@ -17,7 +17,7 @@ class CommonLoggerService implements SLF4JServiceProvider {
      * The value of this field is modified with each major release.
      */
     // to avoid constant folding by the compiler, this field must *not* be final
-    public static String REQUESTED_API_VERSION = "1.8.99" // !final
+    public static String REQUESTED_API_VERSION = "2.0.0" // !final
 
     private ILoggerFactory loggerFactory
     private IMarkerFactory markerFactory
@@ -38,11 +38,7 @@ class CommonLoggerService implements SLF4JServiceProvider {
     }
 
     @Override
-    String getRequesteApiVersion() { //FIXME: it should be getRequested... (typo in 2.0.0-alpha)
-        return REQUESTED_API_VERSION
-    }
-
-    String getRequestedApiVersion() { //FIXME: this is the correct method.
+    String getRequestedApiVersion() {
         return REQUESTED_API_VERSION
     }
 

@@ -55,6 +55,7 @@ class DerbyTest extends JDBCTest {
         setup:
             JDBC jdbc = getDB()
             DB db = jdbc.connect()
+            println "Creating table 'login' ..."
             db.setSQL("""CREATE TABLE login (
                 userlogin VARCHAR(10) NOT NULL,
                 pass VARCHAR(64) NOT NULL
@@ -70,6 +71,7 @@ class DerbyTest extends JDBCTest {
         setup:
             JDBC jdbc = getDB()
             DB db = jdbc.connect()
+            println "Creating table 'front' ..."
             db.setSQL("""
             CREATE TABLE front (
                 id INTEGER GENERATED ALWAYS AS IDENTITY CONSTRAINT front_pk PRIMARY KEY,

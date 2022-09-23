@@ -178,7 +178,7 @@ class Derby extends JDBCServer implements AutoJDBC {
             }
             if (!uniqueGroups.keySet().empty) {
                 uniqueGroups.each {
-                    defs << "UNIQUE KEY ${tableName}_${it.key} (${it.value.join(', ')})".toString()
+                    defs << "UNIQUE (${it.value.join(', ')})".toString()
                 }
             }
             String fks = columns.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
@@ -199,10 +199,11 @@ class Derby extends JDBCServer implements AutoJDBC {
     boolean turnFK(final DB db, boolean on) {
         return true //Not supported: https://www.mail-archive.com/derby-user@db.apache.org/msg05345.html
     }
-    @Override
+
+    /*@Override  Deprecated: left for example
     boolean copyTableDesc(final DB db, String from, String to) {
         return set(db, "CREATE TABLE ${to} AS SELECT * FROM ${from} WITH NO DATA")
-    }
+    }*/
     @Override
     boolean copyTableData(DB db, String from, String to, List<ColumnDB> columns) {
         boolean ok = set(db, "INSERT INTO ${to} SELECT * FROM ${from}")

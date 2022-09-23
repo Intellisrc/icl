@@ -1,5 +1,17 @@
 # Main Changes
 
+### 2.8.8
+* Database bulk operations improved and fixed (db)
+* Improved multiple column primary key support (db)
+* Fixed issue with Kotlin and `id` in Model (db)
+* Fixed issues with Derby and Firebird (db)
+* Performance improved using cache for tables and columns (db)
+* Fixed concurrency problem when using `Table` as static
+* Added `Log.stackTrace()` (core)
+* Added `Secs` similar to `Millis` (core)
+* Slf4j updated (log)
+* Better handling of unicode characters in `TableMaker` (term)
+
 ### 2.8.7
 * Moved CV module to its [own project](https://gitlab.com/intellisrc/icv) (cv)
 * Improved Table methods `getAll` (db)

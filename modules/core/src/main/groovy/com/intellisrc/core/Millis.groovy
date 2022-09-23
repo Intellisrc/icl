@@ -25,7 +25,7 @@ class Millis {
     static final int SECOND_4     = 4000
     static final int SECOND_5     = 5000
     static final int SECOND_10    = 10000
-    static final int SECOND_15    = 1500
+    static final int SECOND_15    = 15000
     static final int SECOND_20    = 20000
     static final int SECOND_30    = 30000
     static final int SECOND_45    = 45000

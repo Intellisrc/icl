@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.7"
+    version = "2.8.8"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -152,6 +152,7 @@ subprojects {
            mavenJava(MavenPublication) {
                artifactId project.name
                from components.java
+               group "com.intellisrc"
 
                pom {
                    name = projectName + " : " + project.name.capitalize() + " Module"

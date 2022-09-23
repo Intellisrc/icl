@@ -73,6 +73,17 @@ class AutoTest extends Specification {
         boolean enabled = true
     }
 
+    static class Address extends Model {
+        @Column(primary = true)
+        User user
+        @Column(nullable = false)
+        String address
+        @Column(nullable = false)
+        String zip
+        @Column(nullable = false)
+        String city
+    }
+
     static class Aliases extends Table<Alias>{
         Aliases(Database database) { super(database) }
     }
@@ -86,6 +97,9 @@ class AutoTest extends Specification {
     static class Inboxes extends Table<Inbox> {
         Inboxes(Database database) { super(database) }
     }
+    static class Addresses extends Table<Address> {
+        Addresses(Database database) { super(database) }
+    }
 
     static List<JDBC> getTestable() {
         List<JDBC> dbs = []
@@ -98,7 +112,6 @@ class AutoTest extends Specification {
         dbs << new SQLite(
                 dbname: sqliteTmp.absolutePath
         )
-        //now = "DATE('now')"
         if(!ci && LocalHost.hasOpenPort(ports.mariadb)) {
             dbs << new MariaDB(
                 user: "test",
@@ -125,6 +138,7 @@ class AutoTest extends Specification {
         PrintLogger printLogger = CommonLogger.default.printLogger
         printLogger.setLevel(Level.TRACE)
         if(sqliteTmp.exists()) { sqliteTmp.delete() }
+        DB.clearCache()
     }
 
     def cleanup() {
@@ -144,7 +158,6 @@ class AutoTest extends Specification {
     @Unroll
     def "Create table model"() {
         setup:
-            DB.disableCache = true
             Database database = new Database(type)
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
@@ -158,7 +171,7 @@ class AutoTest extends Specification {
         then:
             assert users.get(1) == null
             assert users.insert(u) == 1
-            assert u.id == 1
+            assert u.uniqueId == 1
         when:
             Alias alias = new Alias(
                 user : u,
@@ -172,7 +185,7 @@ class AutoTest extends Specification {
         when:
             User u2 = users.find(name : "Benjamin")
         then:
-            assert u2.id == 1
+            assert u2.uniqueId == 1
         when:
             u2.name = "Benji"
             u2.active = false
@@ -187,7 +200,7 @@ class AutoTest extends Specification {
             assert aliases.get(1).name == "Ben"
         when:
             assert users.replace(new User(
-                id  : u3.id,
+                id  : u3.uniqueId,
                 name: "Ben",
                 age : 77
             ))
@@ -211,7 +224,6 @@ class AutoTest extends Specification {
     @Unroll
     def "Multi-column Primary Key should work fine"() {
         setup:
-            DB.disableCache = true
             Database database = new Database(type)
             Users users = new Users(database)
             Emails emails = new Emails(database)
@@ -236,11 +248,11 @@ class AutoTest extends Specification {
                     user: usr,
                     email: email
                 ))
-                Inbox inbox = inboxes.get([usr.id, email.id]).first()
+                Inbox inbox = inboxes.get([usr.uniqueId, email.uniqueId]).first()
                 assert inbox.enabled
                 inbox.enabled = false
                 assert inboxes.update(inbox)
-                assert ! inboxes.table.field("enabled").get([usr.id, email.id]).toBool()
+                assert ! inboxes.table.field("enabled").get([usr.uniqueId, email.uniqueId]).toBool()
             }
         then:
             assert users.all.size() == rows     : "Number of rows failed"
@@ -261,10 +273,58 @@ class AutoTest extends Specification {
         where:
             type << testable
     }
+
+    @Unroll
+    def "Primary Key is Model"() {
+        setup:
+            Database database = new Database(type)
+            Users users = new Users(database)
+            Addresses addresses = new Addresses(database)
+            addresses.clear()
+            users.clear()
+            assert ! addresses.pks.empty
+        when:
+            int rows = 3
+            (1..rows).each {
+                User usr = new User(
+                    name: "User${it}",
+                    age: it + 20,
+                    ip4: "10.0.0.${it}".toInet4Address()
+                )
+                assert users.insert(usr)
+                addresses.insert(new Address(
+                    user: usr,
+                    address: "Street $it number ${usr.id}",
+                    zip: "9000${usr.id}",
+                    city: "Gothic City"
+                ))
+            }
+        then:
+            User user = users.get(1)
+            Address address = addresses.find("user", user)
+            assert address.zip == "9000${user.id}"
+        when:
+            address.zip = "444444"
+        then:
+            assert addresses.update(address)
+            assert addresses.find("user", user).zip == "444444"
+        when:
+            assert addresses.delete(address)
+        then:
+            assert addresses.all.size() == 2
+        cleanup:
+            Table.reset()
+            [addresses, users].each {
+                it?.drop()
+                it?.quit()
+            }
+        where:
+            type << testable
+    }
+
     @Unroll
     def "Insert, update and delete in bulk"() {
         setup:
-            DB.disableCache = true
             Database database = new Database(type)
             Emails emails = new Emails(database)
             emails.clear()
@@ -282,7 +342,7 @@ class AutoTest extends Specification {
             assert emails.insert(emailList)
             long time = ChronoUnit.MILLIS.between(start, SysClock.now)
             Log.i("%d new records, took: %d ms", rows, time)
-            assert time < 5000
+            assert time < 15000
         then:
             assert emails.count() == rows    : "Number of rows failed"
         then:
@@ -296,6 +356,7 @@ class AutoTest extends Specification {
                     }
             })
             assert emails.update(newEmailList)
+            assert emails.delete(newEmailList)
         then:
             assert emails.clear()
             assert emails.count() == 0

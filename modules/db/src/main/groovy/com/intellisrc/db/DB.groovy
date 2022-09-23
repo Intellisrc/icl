@@ -1,10 +1,13 @@
 package com.intellisrc.db
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
+
+import java.util.concurrent.ConcurrentLinkedQueue
 
 import static com.intellisrc.db.ColumnType.*
 import static com.intellisrc.db.Query.Action.*
@@ -19,9 +22,11 @@ import static com.intellisrc.db.Query.FieldType.*
  */
 class DB {
     static protected Cache<Data> dataCache = new Cache<Data>(extend: false)
-    static boolean disableCache = false // Disable all cache
-    int cache = 0 // time in seconds to keep cache (for GET)
-    boolean clearCache = false // if true, will clear cache on table update
+    static protected Cache<List<ColumnInfo>> colsInfo = new Cache<List<ColumnInfo>>(extend: false, quiet: true)
+    static protected ConcurrentLinkedQueue<String> tableList = new ConcurrentLinkedQueue<>()
+    static boolean enableCache = Config.get("db.cache", true) // By default, enabled
+    static int cache = Config.get("db.cache.get", 0) // time in seconds to keep cache (for GET)
+    static boolean clearCache = Config.get("db.cache.clear", false) // if true, will clear cache on table update
 
     protected Connector dbConnector
     protected String table = ""
@@ -30,8 +35,6 @@ class DB {
     protected Query queryBuilder = null
     // Flag to mark connections which were returned already
     protected boolean returned = false
-	//Setter / Getters
-	Map<String, List<ColumnInfo>> colsInfo = [:]
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
@@ -51,12 +54,10 @@ class DB {
         boolean isopen = opened
         if(!isopen) {
             if(returned) {
-                /*
-                 * If you use a connection after calling close(), it can lead to a sudden disconnection
-                 * on timeout (from pool).
-                 * To prevent that you will need to call connect() again.
-                 */
                 Log.w("Connection was previously returned (using db.close()). It might get disconnected unexpectedly.")
+                Log.d("If you use a connection after calling close(), it can lead to a sudden disconnection " +
+                    "on timeout (from pool). To prevent that from happening you need to call DB.connect() again.")
+                Log.stackTrace()
             }
             Log.v( "Connecting...")
             isopen = dbConnector.open()
@@ -115,16 +116,24 @@ class DB {
      */
     List<String> getTables() {
         List<String> list = []
-        if(openIfClosed()) {
-            String tablesQuery = jdbc.getTablesQuery()
-            if (!tablesQuery.empty) {
-                list = getSQL(tablesQuery).toList().collect { it.toString() }
-            } else {
-                list = dbConnector.tables
+        if(tableList.empty) {
+            if (openIfClosed()) {
+                String tablesQuery = jdbc.getTablesQuery()
+                if (!tablesQuery.empty) {
+                    list = getSQL(tablesQuery).toList().collect { it.toString() }
+                } else {
+                    list = dbConnector.tables
+                }
             }
+            if(! list.empty && enableCache) {
+                tableList.addAll(list)
+            }
+        } else {
+            list = tableList.toList()
         }
         return list
     }
+
     /**
      * Update data (Map) where ID is the key(s) to use
 	 * @param updvals
@@ -155,27 +164,6 @@ class DB {
      */
     boolean update(Map updvals, Map keyvals) {
         return update(updvals, keyvals as Object)
-    }
-    /**
-     * Update data like:
-     * update([
-     *    14 : [ name : "Jennifer" ],
-     *    29 : [ name : "Paul" ]
-     * ])
-     * @param updvals
-     * @return
-     **/
-    @Deprecated // It doesn't support multiple columns PK and it might be confusing
-    //TODO: remove in 2.8.8
-    boolean update(Map<Object, Map> updvals) {
-        return updvals.every {
-            boolean ok = false
-            switch(it.key) {
-                case String : ok = update(it.value, it.key.toString()); break
-                case Integer: ok = update(it.value, it.key as int); break
-            }
-            return ok
-        }
     }
     /**
      * Update multiple rows
@@ -220,6 +208,7 @@ class DB {
 	 * @return
      **/
     boolean insert(List<Map> insvalsList) {
+        autoSetKeys()
         boolean ok = false
         if(!insvalsList.empty) {
             List<Query> queries = insvalsList.collect({
@@ -231,10 +220,7 @@ class DB {
             }
         } else {
             Log.d("Insert received an empty list")
-        }/*
-        ok = insvalsList.every {
-            insert(it)
-        }*/
+        }
         return ok
     }
     /**
@@ -415,6 +401,7 @@ class DB {
         } else {
             Log.w("Can not drop: No table specified")
         }
+        clearCache()
         return ok
     }
     /**
@@ -425,6 +412,7 @@ class DB {
         boolean ok = tables.every {
             return table(it).drop()
         }
+        clearCache()
         return ok
     }
     /**
@@ -479,7 +467,6 @@ class DB {
     /** Checks if a table exists or not
 	 * @return boolean **/
     boolean exists() {
-		Log.v( "Checking if table exists...")
         boolean exists = false
         if(table) {
             exists = tables.contains(table)
@@ -493,8 +480,8 @@ class DB {
     List<ColumnInfo> info() {
         List<ColumnInfo> columns = []
         if(table) {
-            if (colsInfo.containsKey(table)) {
-                columns = colsInfo.get(table) ?: []
+            if (colsInfo.contains(jdbc.dbname + "." + table)) {
+                columns = colsInfo.get(jdbc.dbname + "." + table) ?: []
             } else {
                 String infoSQL = jdbc.getInfoQuery(table)
                 if (infoSQL) {
@@ -509,10 +496,20 @@ class DB {
                         )
                     }
                 } else {
-                    columns = dbConnector.getColumns(table)
+                    if(! tables.contains(table)) {
+                        tableList.clear()
+                    }
+                    if(tables.contains(table)) {
+                        columns = dbConnector.getColumns(table)
+                        if(columns.empty) {
+                            Log.w("Columns were not found in table: %s", table)
+                        }
+                    } else {
+                        Log.d("Table [%s] didn't exists (yet)", table)
+                    }
                 }
-                if (!columns.empty) {
-                    colsInfo[table] = columns
+                if (!columns.empty && enableCache) {
+                    colsInfo.set(jdbc.dbname + "." + table, columns)
                 }
             }
         } else {
@@ -567,10 +564,10 @@ class DB {
     /**
      * Clear all keys in cache associated with current table
      */
-    void clearCache() {
-        dataCache.keys().findAll { it.startsWith(query.tableStr + ".") }.each {
-            dataCache.del(it)
-        }
+    static void clearCache() {
+        dataCache.clear()
+        colsInfo.clear()
+        tableList.clear()
     }
 
     //------------------- Fluent interfaces ----------------
@@ -878,7 +875,7 @@ class DB {
                     dbConnector.onError(new ConnectException())
                     return null
                 }
-            }, disableCache ? 0 : cache)
+            }, enableCache ? cache : 0)
         } else {
             data = new Data([])
         }
@@ -1027,7 +1024,7 @@ class DB {
      */
     List<String> getPKs(String tbl = table) {
         info()
-        return !colsInfo.isEmpty() ? colsInfo[tbl]?.findAll { it.primaryKey }?.collect { it.name } ?: [] : []
+        return !colsInfo.isEmpty() ? colsInfo.get(jdbc.dbname + "." + tbl)?.findAll { it.primaryKey }?.collect { it.name } ?: [] : []
     }
     /**
      * Removes AutoID from Query (INSERT)

@@ -1,12 +1,7 @@
 package com.intellisrc.term
 
-import com.intellisrc.core.AnsiColor
-import com.intellisrc.term.styles.BoldStyle
-import com.intellisrc.term.styles.ClassicStyle
-import com.intellisrc.term.styles.SafeStyle
-import com.intellisrc.term.styles.DoubleLineStyle
-import com.intellisrc.term.styles.SemiDoubleStyle
-import com.intellisrc.term.styles.ThinStyle
+import com.intellisrc.term.styles.*
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 import static com.intellisrc.core.AnsiColor.*
@@ -203,8 +198,9 @@ class TableMakerTest extends Specification {
             TableMaker tp = new TableMaker(
                 headers: ["Fruit", "QTY", "Price", "Seller"],
                 rows: [
-                    ["Apple", 1000, 10.00, "some@example.com"],
-                    ["Banana", 2002, 15.00, "a@example.com"],
+                    ["Orange", 800, 1.00, "ben@example.com"], // Exact size
+                    ["Apple", 1000, 10.00, "some@example.com"], // 1 more than required
+                    ["Banana", 2002, 15.00, "a@example.com"], // less than required
                     ["Mango", 400, 134.10, "very_long_dummy200@example.com"],
                     ["Kiwi", 900, 2350.40, "example@example.com"]
                 ],
@@ -349,5 +345,31 @@ class TableMakerTest extends Specification {
             20          | CENTER
             25          | CENTER
             30          | CENTER
+    }
+
+    @PendingFeature // It works fine, but it is not consistent, so the test may fail
+    def "Unicode should preserve length"() {
+        setup:
+            TableMaker tp = new TableMaker(
+                headers: ["果物", "QTY", "金額", "メール"],
+                rows: [
+                    ["りんご", 1000, 10.00, "some@example.com"],
+                    ["バナナ", 2002, 15.00, "a@example.com"],
+                    ["マンゴー", 400, 134.10, "very_long_dummy200@example.com"],
+                    ["キウイ", 900, 2350, "example@example.com"],
+                    ["ﾄﾓﾛｺｼ", 100, 1000, "example@example.com"],
+                    ["௵౷ആ", 200, 2000, "example@example.com"],
+                    ["⛰⛱⛲⛳⛴", 300, 3000, "example@example.com"],
+                    ["꧃⃢", 400, 4000, "example@example.com"]
+                ],
+                footer: "合計: 4"
+            )
+            tp.columns[3].with {
+                align = CENTER
+            }
+        when:
+            tp.print()
+        then:
+            assert tp.toString().trim() == answer17
     }
 }

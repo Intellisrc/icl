@@ -7,7 +7,7 @@ import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import spock.lang.Unroll
 
-import static com.intellisrc.db.Query.SortOrder.*
+import static com.intellisrc.db.Query.SortOrder.DESC
 
 class UpdateTest extends AutoTest {
 
@@ -40,17 +40,19 @@ class UpdateTest extends AutoTest {
         }
     }
 
+    def setup() {
+        DB.clearCache()
+    }
+
     @Unroll
     def "Simple Update without data"() {
         setup:
-            DB.disableCache = true
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)
         when:
             UsersV2 users2 = new UsersV2(tableName, database)
             users2.updateTable() // Update it manually
-            DB.disableCache = true //updateTable re-enable it (just in case)
             UserV2 u = new UserV2(
                 name : "Benjamin",
                 age : 22,
@@ -80,7 +82,6 @@ class UpdateTest extends AutoTest {
     @Unroll
     def "Update with data"() {
         setup:
-            DB.disableCache = true
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)
@@ -98,8 +99,8 @@ class UpdateTest extends AutoTest {
         then:
             assert users.count() == rows : "Number of rows failed before updating"
             assert users.getAll(5).size() == 5 : "Limit failed"
-            assert users.getAll("age", DESC).first().id == rows : "Limit failed"
-            assert users.getAll("age", DESC, 5).last().id == rows - 5 + 1 : "Sort with limit failed"
+            assert users.getAll("age", DESC).first().uniqueId == rows : "Limit failed"
+            assert users.getAll("age", DESC, 5).last().uniqueId == rows - 5 + 1 : "Sort with limit failed"
         when:
             int times = 0
             List<Short> ageList = []

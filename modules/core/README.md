@@ -192,6 +192,8 @@ try {
     // Exception is passed to Log, so it can print all the detail (red color):
     Log.e("You can't do that", e)
 }
+// by default `Log.e` will print the stack trace, if you want to print it on demand:
+Log.stackTrace("Custom message is optional")
 ```
 
 Strings and SLF4J parameters do automatic conversion from some objects:
@@ -420,6 +422,10 @@ sleep(SECONDS_10)
 // If one desired time is not available, you can easily use:
 int days6 = DAY * 6
 ```
+
+## Secs
+
+Useful constants to use instead of numeric representation of seconds. Similar to Millis
 
 ## SysInfo
 

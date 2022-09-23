@@ -37,7 +37,6 @@ class Table<M extends Model> implements Instanciable<M> {
     @SuppressWarnings('GrFinalVariableAccess')
     protected final JDBC jdbc
     protected final String name
-    protected DB connection
     protected int cache = 0
     protected boolean clearCache = false
     protected List<String> primaryKey = []
@@ -119,6 +118,7 @@ class Table<M extends Model> implements Instanciable<M> {
                             Log.w("Table [%s] was not created.", tableName)
                         }
                     }
+                    conn.close()
                     break
                 default:
                     Log.w("Create or Update : Database type can not be updated automatically. Please check the documentation to know which databases are supported.")
@@ -126,7 +126,6 @@ class Table<M extends Model> implements Instanciable<M> {
                     break
             }
         }
-        close()
     }
     /**
      * Update database table
@@ -265,7 +264,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 List list = (val as List)
                 if(!list.empty && preserve) {
                     if(list.first() instanceof Model) {
-                        list = list.collect {(it as Model).id }
+                        list = list.collect {(it as Model).uniqueId }
                     }
                 }
                 return preserve ? list : YAML.encode(list.empty ? [] : list.collect {
@@ -285,7 +284,7 @@ class Table<M extends Model> implements Instanciable<M> {
             case InetAddress:
                 return (val as InetAddress).hostAddress
             case Model:
-                return (val as Model).id
+                return (val as Model).uniqueId
             case byte[]:
             case int:
             case short:
@@ -436,7 +435,7 @@ class Table<M extends Model> implements Instanciable<M> {
         if(pk) { db.keys(pks) }
         Map map = db.get(id)?.toMap() ?: [:]
         M model = setMap(map)
-        close()
+        db.close()
         return model
     }
     /**
@@ -452,7 +451,7 @@ class Table<M extends Model> implements Instanciable<M> {
             Map map ->
                 return setMap(map)
         }
-        close()
+        db.close()
         return all
     }
     /**
@@ -524,6 +523,10 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> getAll(Map options = [:]) {
+        if(! options.isEmpty() &&! ["limit", "sort"].any { options.containsKey(it) }) {
+            Log.e("Incorrect options: (%s) passed to `getAll`, did you mean `findAll` ?", options.toMapString())
+            return []
+        }
         DB con = connect()
         if(options.limit) {
             con = con.limit(options.limit as int, (options.offset ?: 0) as int)
@@ -536,7 +539,7 @@ class Table<M extends Model> implements Instanciable<M> {
             Map map ->
                 return setMap(map)
         }
-        close()
+        con.close()
         return all
     }
     /**
@@ -553,6 +556,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 offset: offset
             ])
             chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
             offset += chunkSize
             size = buffer.size()
         } while(size == chunkSize)
@@ -573,42 +577,21 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     M find(Map criteria) {
         criteria = convertToDB(criteria)
-        Map map = connect().get(criteria)?.toMap() ?: [:]
+        DB db = connect()
+        Map map = db.get(criteria)?.toMap() ?: [:]
         M model = setMap(map)
-        close()
+        db.close()
         return model
     }
     /**
-     * Find all of a kind of model
+     * Find all of a kind of model id
      * @param fieldName
      * @param type
      * @param options (limit, sort, etc)
      * @return
      */
     List<M> findAll(String fieldName, Model model, Map options = [:]) {
-        Field f = getFields().find {
-            it.name == fieldName
-        }
-        List<M> list = []
-        DB db = connect()
-        if(f) {
-            Map map = getMap(model)
-            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
-            if(pks) { db.keys(pks) }
-            if(! options.isEmpty()) {
-                if(options.limit) {
-                    db.limit(options.limit as int, (options.offset ?: "0") as int)
-                }
-                if(options.sort) {
-                    db.order(options.sort.toString(), (options.order ?: "ASC") as Query.SortOrder)
-                }
-            }
-            list = db.get(id).toListMap().collect { setMap(it) }
-        } else {
-            Log.w("Unable to find field: %s", fieldName)
-        }
-        close()
-        return list
+        return findAll([(fieldName) : model.uniqueId], options)
     }
     /**
      * Find all using Model and return by chunks
@@ -625,6 +608,7 @@ class Table<M extends Model> implements Instanciable<M> {
                 offset: offset
             ])
             chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
             offset += chunkSize
             size = buffer.size()
         } while(size == chunkSize)
@@ -668,7 +652,7 @@ class Table<M extends Model> implements Instanciable<M> {
             Map map ->
                 return setMap(map)
         }
-        close()
+        db.close()
         return all
     }
     /**
@@ -680,11 +664,12 @@ class Table<M extends Model> implements Instanciable<M> {
         int offset = 0
         int size
         do {
-            List<M> buffer = findAll(criteria + [
+            List<M> buffer = findAll(criteria, [
                 limit : chunkSize,
                 offset: offset
             ])
             chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
             offset += chunkSize
             size = buffer.size()
         } while(size == chunkSize)
@@ -696,7 +681,7 @@ class Table<M extends Model> implements Instanciable<M> {
     int count() {
         DB db = connect()
         int c = db.count().get().toInt()
-        close()
+        db.close()
         return c
     }
     /**
@@ -723,7 +708,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            close()
+            db.close()
         }
         return ok
     }
@@ -747,7 +732,7 @@ class Table<M extends Model> implements Instanciable<M> {
             return singlePk ? [(pk) : it.toMap().get(pk)] :
                 (multiPk ? it.toMap().subMap(pks) : [])
         })
-        close()
+        db.close()
         return ok
     }
     /**
@@ -757,16 +742,17 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean replace(M model, List<String> exclude = []) {
         boolean ok = false
+        DB db = connect()
         try {
             Map<String, Object> map = getMap(model)
             exclude.each {
                 map.remove(it)
             }
-            ok = connect().replace(map)
+            ok = db.replace(map)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            close()
+            db.close()
         }
         return ok
     }
@@ -778,7 +764,7 @@ class Table<M extends Model> implements Instanciable<M> {
     boolean replace(List<M> models) {
         DB db = connect()
         boolean ok = db.replace(models.collect { it.toMap() })
-        close()
+        db.close()
         return ok
     }
     /**
@@ -787,7 +773,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     boolean delete(M model) {
-        return model.id ? delete(model.id) : delete(getMap(model))
+        return model.uniqueId ? delete(model.uniqueId) : delete(getMap(model))
     }
     /**
      * Delete with ID
@@ -798,7 +784,7 @@ class Table<M extends Model> implements Instanciable<M> {
         DB db = connect()
         if(pk) { db.keys(pks) }
         boolean ok = db.delete(id)
-        close()
+        db.close()
         return ok
     }
     /**
@@ -811,7 +797,7 @@ class Table<M extends Model> implements Instanciable<M> {
         if(pk) { db.keys(pks) }
         map = convertToDB(map)
         boolean ok = db.delete(map)
-        close()
+        db.close()
         return ok
     }
     /**
@@ -821,9 +807,19 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     boolean delete(List<M> models) {
         DB db = connect()
-        if(pk) { db.keys(pks) }
-        boolean ok = db.delete(models.collect { getMap(it) })
-        close()
+
+        boolean singlePk = false
+        boolean multiPk = false
+        if(pk) {
+            db.keys(pks)
+            singlePk = pks.size() == 1
+            multiPk = pks.size() > 1
+        }
+        boolean ok = db.delete(models.collect {
+            return singlePk ? it.toMap().get(pk) :
+                (multiPk ? it.toMap().subMap(pks) : [])
+        })
+        db.close()
         return ok
     }
 
@@ -837,9 +833,9 @@ class Table<M extends Model> implements Instanciable<M> {
         DB db = connect()
         boolean ok = criteria.isEmpty() ? (db.truncate() ?: db.clear()) : db.delete(criteria.collectEntries {
             boolean isModel = it.value instanceof Model
-            return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).id : it.value)]
+            return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).uniqueId : it.value)]
         })
-        close()
+        db.close()
         return ok
     }
     /**
@@ -857,13 +853,12 @@ class Table<M extends Model> implements Instanciable<M> {
     int insert(M model) {
         String ai = getAutoIncrement()
         int lastId = 0
-        DB db
+        DB db = connect()
         try {
             Map<String, Object> map = getMap(model)
             if(map.containsKey(ai) && map[ai] == 0) {
                 map.remove(ai)
             }
-            db = connect()
             boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
@@ -877,7 +872,7 @@ class Table<M extends Model> implements Instanciable<M> {
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
         } finally {
-            close()
+            db.close()
         }
         return lastId
     }
@@ -889,7 +884,7 @@ class Table<M extends Model> implements Instanciable<M> {
     boolean insert(List<M> models) {
         DB db = connect()
         boolean ok = db.insert(models.collect { it.toMap() })
-        close()
+        db.close()
         return ok
     }
     /**
@@ -927,19 +922,13 @@ class Table<M extends Model> implements Instanciable<M> {
         return new Query(jdbc).setTable(tableName)
     }
     /**
-     * Get a connection. If its already opened, reuse
+     * Get a new connection and set default settings.
      * @return
      */
     protected synchronized DB connect() {
-        DB db
-        if(connection?.opened) {
-            db = connection
-        } else {
-            db = database.connect().table(tableName)
-            db.cache = cache
-            db.clearCache = clearCache
-            connection = db
-        }
+        DB db = database.connect().table(tableName)
+        db.cache = cache
+        db.clearCache = clearCache
         return db
     }
     /**
@@ -950,15 +939,6 @@ class Table<M extends Model> implements Instanciable<M> {
      */
     synchronized DB getTable() {
         return connect()
-    }
-    /**
-     * Close current connection
-     * @param db
-     */
-    synchronized void close() {
-        if(connection?.opened) {
-            connection.close()
-        }
     }
     /**
      * Close all connections (in all threads) to the database
