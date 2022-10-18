@@ -1,9 +1,6 @@
 package com.intellisrc.etc
 
-import com.intellisrc.core.Config
-import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import com.intellisrc.core.SysClock
+import com.intellisrc.core.*
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime
@@ -21,7 +18,7 @@ import java.util.concurrent.ConcurrentMap
  */
 class Cache<V> {
     static public final int FOREVER = -1
-    static protected int defaultGCInterval = Config.get("cache.gc", 120) //seconds
+    static protected int defaultGCInterval = Config.get("cache.gc", Secs.MIN_2) //seconds
     static protected int defaultTimeout = Config.get("cache.timeout", FOREVER) //seconds
     interface onNotFound {
         V call()
@@ -189,7 +186,7 @@ class Cache<V> {
      * Will remove expired elements
      * It is initialized automatically
      */
-    protected garbageCollect() {
+    void garbageCollect() {
         cache.each {
             String key, CacheItem co ->
                 expired(key)

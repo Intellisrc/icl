@@ -3,7 +3,6 @@ package com.intellisrc.etc
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.SysInfo
 import com.sun.management.OperatingSystemMXBean
 import com.sun.management.UnixOperatingSystemMXBean
 import groovy.transform.CompileStatic
@@ -11,7 +10,7 @@ import groovy.transform.CompileStatic
 import java.lang.management.ManagementFactory
 import java.util.regex.Matcher
 
-import static com.intellisrc.core.SysInfo.*
+import static com.intellisrc.core.SysInfo.isWindows
 
 /**
  * Hardware information
@@ -20,6 +19,7 @@ import static com.intellisrc.core.SysInfo.*
 @CompileStatic
 class Hardware {
     static public boolean debug     = Config.get("hardware.debug", false)
+    static public boolean warn      = Config.get("hardware.warn", true)
     static public boolean gpu       = Config.get("hardware.gpu", true)
     static public boolean monitor   = Config.get("hardware.monitor", true)
 
@@ -167,7 +167,9 @@ class Hardware {
                 callback(temp)
         }, {
             String out, int code ->
-                Log.w("Unable to read CPU temperature")
+                if(warn) {
+                    Log.w("Unable to read CPU temperature")
+                }
         })
     }
     
@@ -197,8 +199,10 @@ class Hardware {
                     callback(temp)
             }, {
                 String out, int code ->
-                    Log.w("GPU info is not available")
-                    Log.v("You can disable last message by setting 'hardware.gpu=false' in config.properties")
+                    if(warn) {
+                        Log.w("GPU info is not available")
+                        Log.v("You can disable last message by setting 'hardware.gpu=false' in config.properties")
+                    }
             })
         }
     }
@@ -243,8 +247,10 @@ class Hardware {
                     callback(pct)
             }, {
                 String out, int code ->
-                    Log.w("GPU info is not available")
-                    Log.v("You can disable last message by setting 'hardware.gpu=false' in config.properties")
+                    if(warn) {
+                        Log.w("GPU info is not available")
+                        Log.v("You can disable last message by setting 'hardware.gpu=false' in config.properties")
+                    }
             })
         }
     }
@@ -260,8 +266,8 @@ class Hardware {
         double pct = 0
         if(total) {
             pct = 100 - ((usable / total) * 100d)
-            if (pct > 90) {
-                Log.w("HDD space is very low. ")
+            if (pct > 90 && warn) {
+                Log.w("HDD free space is low. ")
             }
             if(debug) {
                 Log.d("HDD: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
@@ -305,7 +311,7 @@ class Hardware {
         double pct = 0
         if(total) {
             pct = 100 - ((usable / total) * 100d)
-            if (pct > 90) {
+            if (pct > 90 && warn) {
                 Log.w("Buffer space is very low.")
             }
             if(debug) {
@@ -326,7 +332,7 @@ class Hardware {
         double pct = 0
         if(total) {
             pct = 100 - ((usable / total) * 100d)
-            if (pct > 90) {
+            if (pct > 90 && warn) {
                 Log.w("Temp space is very low.")
             }
             if(debug) {
@@ -373,11 +379,13 @@ class Hardware {
                     on = out.contains("Monitor is On")
             }, {
                 String out, int code ->
-                    if(! customScreenCheck && isWindows()) {
-                        Log.w("Windows is not supported by default. You can implement your own command and" +
-                            "override Hardware.customScreenCheck or set 'hardware.cmd.screen' in config.properties")
-                    } else {
-                        Log.w("Unable to detect monitor status")
+                    if(warn) {
+                        if (!customScreenCheck && isWindows()) {
+                            Log.w("Windows is not supported by default. You can implement your own command and" +
+                                "override Hardware.customScreenCheck or set 'hardware.cmd.screen' in config.properties")
+                        } else {
+                            Log.w("Unable to detect monitor status")
+                        }
                     }
             })
         }
@@ -393,12 +401,14 @@ class Hardware {
             Cmd.exec(on ? (customScreenON ?: screenON) : (customScreenOFF ?: screenOFF), {
                 String out, int code ->
                     String status = on ? "ON" : "OFF"
-                    if(! customScreenON && isWindows()) {
-                        Log.w("Windows is not supported by default. You can implement your own command and" +
-                            "override Hardware.customScreen${status} or set 'hardware.cmd.screen.${status.toLowerCase()}' " +
-                            "in config.properties")
-                    } else {
-                        Log.w("Unable to turn %s screen", status)
+                    if(warn) {
+                        if (!customScreenON && isWindows()) {
+                            Log.w("Windows is not supported by default. You can implement your own command and" +
+                                "override Hardware.customScreen${status} or set 'hardware.cmd.screen.${status.toLowerCase()}' " +
+                                "in config.properties")
+                        } else {
+                            Log.w("Unable to turn %s screen", status)
+                        }
                     }
             })
         }
@@ -463,12 +473,14 @@ class Hardware {
                 }
         }).onFail({
             String out, int code ->
-                if(! customXinputList && isWindows()) {
-                    Log.w("Windows is not supported by default. You can implement your own command and" +
-                        "override Hardware.customXinput and Hardware.customXinputList or " +
-                        "set 'hardware.cmd.xinput' and 'hardware.cmd.xinput.list' in config.properties")
-                } else {
-                    Log.w("Unable to read devices list")
+                if(warn) {
+                    if (!customXinputList && isWindows()) {
+                        Log.w("Windows is not supported by default. You can implement your own command and" +
+                            "override Hardware.customXinput and Hardware.customXinputList or " +
+                            "set 'hardware.cmd.xinput' and 'hardware.cmd.xinput.list' in config.properties")
+                    } else {
+                        Log.w("Unable to read devices list")
+                    }
                 }
         })
     }

@@ -483,7 +483,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param order
      * @param chunkReader
      */
-    void getAll(String sortBy, Query.SortOrder order, ChunkReader chunkReader) {
+    void getAll(String sortBy, Query.SortOrder order, ChunkReader<M> chunkReader) {
         getAll([
             sort: sortBy,
             order: order
@@ -547,7 +547,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param options
      * @param chunkReader
      */
-    void getAll(Map options, ChunkReader chunkReader) {
+    void getAll(Map options, ChunkReader<M> chunkReader) {
         int offset = 0
         int size
         do {
@@ -599,7 +599,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param model
      * @param chunkReader
      */
-    void findAll(String fieldName, Model model, ChunkReader chunkReader) {
+    void findAll(String fieldName, Model model, ChunkReader<M> chunkReader) {
         int offset = 0
         int size
         do {
@@ -628,7 +628,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param value
      * @param chunkReader
      */
-    void findAll(String column, Object value, ChunkReader chunkReader) {
+    void findAll(String column, Object value, ChunkReader<M> chunkReader) {
         findAll([(column): value], chunkReader)
     }
     /**
@@ -660,7 +660,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param criteria
      * @param chunkReader
      */
-    void findAll(Map criteria, ChunkReader chunkReader) {
+    void findAll(Map criteria, ChunkReader<M> chunkReader) {
         int offset = 0
         int size
         do {
