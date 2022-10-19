@@ -38,7 +38,7 @@ class TableUpdater {
      * @param tables
      * @param recordUpdater
      */
-    static boolean update(List<Table> tableList) {
+    static boolean update(Collection<Table> tableList) {
         DB.clearCache()
         boolean origEnabled = DB.enableCache
         DB.enableCache = false

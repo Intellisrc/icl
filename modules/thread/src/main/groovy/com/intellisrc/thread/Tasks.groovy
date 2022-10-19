@@ -2,7 +2,6 @@ package com.intellisrc.thread
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import com.intellisrc.thread.Task.Priority
 import groovy.transform.CompileStatic
@@ -154,7 +153,7 @@ class Tasks {
      * @param tasks
      * @return
      */
-    static boolean add(List<Task> tasks) {
+    static boolean add(Collection<Task> tasks) {
         boolean added = false
         tasks.each {
             added = taskManager.add(it)

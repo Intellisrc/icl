@@ -87,7 +87,7 @@ class TCPClient {
      * @param request
      * @param callback
      */
-    void sendRequest(List<Request> requests) {
+    void sendRequest(Collection<Request> requests) {
         requests.each {
             requestList << it
         }

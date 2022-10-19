@@ -33,7 +33,7 @@ class TableMaker {
      * A row is a list of cells
      */
     static class Row {
-        List cells = []
+        Collection cells = []
     }
     /**
      * Information and format of a column
@@ -166,8 +166,6 @@ class TableMaker {
         }
     }
 
-    static public File metricsFile = null
-    static protected Map<Integer, Float> metrics = [:] as Map<Integer, Float>
     // Style used to generate table
     Stylable style = new SafeStyle()
     String borderColor = ""
@@ -218,7 +216,7 @@ class TableMaker {
      * Set headers of table
      * @param heads
      */
-    void setHeaders(List heads) {
+    void setHeaders(Collection heads) {
         if(columns.empty) {
             columns.addAll(heads.collect { new Column(header: it) })
         } else {
@@ -234,7 +232,7 @@ class TableMaker {
      * Add a single row
      * @param cells
      */
-    void addRow(List cells) {
+    void addRow(Collection cells) {
         if(columns.empty) {
             columns.addAll(cells.collect { new Column() })
         }
@@ -244,7 +242,7 @@ class TableMaker {
      * Add multiple rows at once
      * @param rows
      */
-    void setRows(List<List> rows) {
+    void setRows(Collection<Collection> rows) {
         rows.each {
             addRow(it)
         }
@@ -253,7 +251,7 @@ class TableMaker {
      * Alias of addRow
      * @param cells
      */
-    void leftShift(List cells) {
+    void leftShift(Collection cells) {
         addRow(cells)
     }
     /**
@@ -271,7 +269,7 @@ class TableMaker {
      * Add table footer
      * @param feet
      */
-    void setFooter(List feet) {
+    void setFooter(Collection feet) {
         if(columns.empty) {
             columns.addAll(feet.collect { new Column(header: it, expandFooter: feet.size() == 1) })
         } else {

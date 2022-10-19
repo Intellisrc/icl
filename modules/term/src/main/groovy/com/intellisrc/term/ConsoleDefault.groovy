@@ -10,7 +10,7 @@ import groovy.transform.CompileStatic
 class ConsoleDefault implements Consolable {
 
     @Override
-    void onInit(LinkedList<String> args) {}
+    void onInit(Collection<String> args) {}
 
     /**
      * Basic commands to auto-complete
@@ -27,9 +27,10 @@ class ConsoleDefault implements Consolable {
      * @return true, which means it will continue to next available Console (controlled in 'Console')
      */
     @Override
-    boolean onCommand(final LinkedList<String> commandLine) {
+    boolean onCommand(final Collection<String> commandLine) {
         if(commandLine) {
-            switch (commandLine.poll()) {
+            //noinspection GroovyFallthrough
+            switch ((commandLine as LinkedList).poll()) {
                 case "clear":
                     Console.clearScreen()
                     break

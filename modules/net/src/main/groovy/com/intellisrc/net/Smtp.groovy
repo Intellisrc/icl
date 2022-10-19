@@ -8,11 +8,7 @@ import groovy.transform.CompileStatic
 
 import javax.activation.DataSource
 import javax.mail.*
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeBodyPart
-import javax.mail.internet.MimeMessage
-import javax.mail.internet.MimeMultipart
-import javax.mail.internet.MimeUtility
+import javax.mail.internet.*
 import java.nio.charset.Charset
 
 /**
@@ -233,7 +229,7 @@ class Smtp {
      * @param body
      * @return
      */
-    boolean send(List tos, String subject = "", String body = "", String bodyText = "") {
+    boolean send(Collection tos, String subject = "", String body = "", String bodyText = "") {
         Map<String,Mode> map = [:]
         tos.each {
             map[it.toString()] = Mode.TO

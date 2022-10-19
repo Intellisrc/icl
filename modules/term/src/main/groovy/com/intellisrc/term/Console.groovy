@@ -1,6 +1,5 @@
 package com.intellisrc.term
 
-import com.intellisrc.core.AnsiColor
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
@@ -70,7 +69,7 @@ class Console {
      * @param consolable
      * @return
      */
-    static void add(List<Consolable> consolable) {
+    static void add(Collection<Consolable> consolable) {
         consoles.addAll(consolable)
     }
 
@@ -78,7 +77,7 @@ class Console {
      * Launches the console and loop indefinitely
      * @param line
      */
-    static void start(final LinkedList<String> args = new LinkedList<>()) {
+    static void start(final Collection<String> args = new LinkedList<>()) {
         reader.history = new DefaultHistory()
         // Add the default console if nothing has been specified
         if(addDefault) {
@@ -269,7 +268,7 @@ class Console {
                 print tempPrompt
                 pass = System.console().readPassword()
             }
-        } catch (Exception uie) {
+        } catch (Exception ignore) {
             if(process) {
                 process.cancel(true)
             }
@@ -323,11 +322,11 @@ class Console {
      * Override this method to add more commands
      * @param command
      */
-    static void execCommandList(final LinkedList<String> command) {
+    static void execCommandList(final Collection<String> command) {
         if(!command.empty) {
             consoles.any {
                 Consolable console ->
-                    return !console.onCommand(command) //continue if "true" is returned
+                    return !console.onCommand(command as LinkedList<String>) //continue if "true" is returned
             }
         }
     }

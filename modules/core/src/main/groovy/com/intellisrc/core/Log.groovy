@@ -283,7 +283,7 @@ class Log {
      * @param index : how many steps back in the stack trace we will skip
      * t              to identify the class
      */
-    static Info stack(List<String> ignoreList = []) {
+    static Info stack(Collection<String> ignoreList = []) {
         ignoreList << Log.class.packageName
         ignoreList.addAll(ignoreFromStack)
 

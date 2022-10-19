@@ -1,11 +1,10 @@
 package com.intellisrc.term.console
 
-import com.intellisrc.core.Millis
 import com.intellisrc.term.Consolable
 import com.intellisrc.term.Console
 import groovy.transform.CompileStatic
 
-import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.getMILLIS_100
 
 /**
  * @since 19/02/06.
@@ -14,7 +13,7 @@ import static com.intellisrc.core.Millis.*
 class TestConsole implements Consolable {
 
     @Override
-    void onInit(LinkedList<String> arguments) {
+    void onInit(Collection<String> arguments) {
         Console.prompt = "test \$"
         Console.timeout = 10
     }
@@ -25,7 +24,7 @@ class TestConsole implements Consolable {
     }
 
     @Override
-    boolean onCommand(LinkedList<String> commandList) {
+    boolean onCommand(Collection<String> commandList) {
         if (!commandList.empty && !["quit", "exit"].contains(commandList.first())) {
             if(!commandList.first().empty) {
                 Console.resetPreviousPrompt("ok!")

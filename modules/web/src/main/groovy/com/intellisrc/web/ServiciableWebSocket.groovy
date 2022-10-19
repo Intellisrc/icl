@@ -35,8 +35,8 @@ trait ServiciableWebSocket extends Serviciable {
          * @param toClients
          * @param jsonObj
          */
-        WSMessage(List<String> toClients, Map jsonObj) {
-            to = toClients
+        WSMessage(Collection<String> toClients, Map jsonObj) {
+            to = toClients.toList()
             this.jsonObj = jsonObj
         }
     }

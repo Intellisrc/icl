@@ -55,10 +55,10 @@ class Cmd {
     protected Fail onFail     = { String msg, int code -> Log.w("(Exit code: %d) %s", code, msg) } as Fail
     Process process = null
 
-    Cmd(List cmd) {
+    Cmd(Collection cmd) {
         this.cmd = cmd.collect { it.toString() }
     }
-    Cmd(String cmd, List args = []) {
+    Cmd(String cmd, Collection args = []) {
         this.cmd = cmd.tokenize(" ") + args.collect { it.toString() }
     }
     Cmd(String... cmd) {
@@ -73,7 +73,7 @@ class Cmd {
         this.cmd = this.cmd + args.toList()
         return this
     }
-    Cmd arg(List args) {
+    Cmd arg(Collection args) {
         this.cmd = this.cmd + args.collect { it.toString() }
         return this
     }
@@ -232,7 +232,7 @@ class Cmd {
      * @param args
      * @return
      */
-    static boolean succeed(String cmd, List args = []) {
+    static boolean succeed(String cmd, Collection args = []) {
         return succeed(cmd.tokenize(" ") + args)
     }
     /**
@@ -240,7 +240,7 @@ class Cmd {
      * @param cmd
      * @return
      */
-    static boolean succeed(List cmd) {
+    static boolean succeed(Collection cmd) {
         boolean ok = true
         exec(cmd, {
             String out, int code ->
@@ -263,7 +263,7 @@ class Cmd {
      * @param onFail
      * @return
      */
-    static String exec(String cmd, List args, Fail onFail = null) {
+    static String exec(String cmd, Collection args, Fail onFail = null) {
         return exec(cmd.tokenize(" ") + args, onFail)
     }
     /**
@@ -272,7 +272,7 @@ class Cmd {
      * @param onFail
      * @return
      */
-    static String exec(List cmd, Fail onFail = null) {
+    static String exec(Collection cmd, Fail onFail = null) {
         String out = ""
         new Cmd(cmd).onFail(onFail).getText({
             out = it
@@ -294,7 +294,7 @@ class Cmd {
      * @param onFail
      * @return
      */
-    static void async(String cmd, List args, Output onDone, Fail onFail = null) {
+    static void async(String cmd, Collection args, Output onDone, Fail onFail = null) {
         async(cmd.tokenize(" ") + args, onDone, onFail)
     }
     /**
@@ -303,7 +303,7 @@ class Cmd {
      * @param onFail
      * @return
      */
-    static void async(List cmd, Output onDone, Fail onFail = null) {
+    static void async(Collection cmd, Output onDone, Fail onFail = null) {
         new Cmd(cmd).onFail(onFail).getText({
             onDone.call(it)
         }).exec(true)
