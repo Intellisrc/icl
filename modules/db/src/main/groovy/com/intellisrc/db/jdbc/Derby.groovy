@@ -131,14 +131,14 @@ class Derby extends JDBCServer implements AutoJDBC {
         }
     }
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns) {
         boolean ok = false
         if(! exists(db, tableName)) {
             String createSQL = "CREATE TABLE ${tableName} (\n"
             List<String> defs = []
             List<String> keys = []
             Map<String, List<String>> uniqueGroups = [:]
-            List<ColumnDB> pks = columns.findAll { it.annotation.primary() }
+            List<ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
             if(pks.size() > 1) {
                 pks.each { it.multipleKey = true }
             }

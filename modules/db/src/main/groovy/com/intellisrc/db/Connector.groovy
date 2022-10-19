@@ -16,7 +16,7 @@ interface Connector {
     boolean close()
     boolean isOpen()
     ResultStatement execute(Query query, boolean silent)
-    boolean commit(List<Query> query)
+    boolean commit(Collection<Query> query)
     void rollback()
     void onError(Throwable ex)
 

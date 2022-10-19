@@ -443,7 +443,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param ids
      * @return
      */
-    List<M> get(List<Integer> ids) {
+    List<M> get(Collection<Integer> ids) {
         DB db = connect()
         if(pk) { db.keys(pks) }
         List<Map> list = db.get(ids).toListMap()
@@ -690,7 +690,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param exclude : columns to exclude during update
      * @return
      */
-    boolean update(M model, List<String> exclude = []) {
+    boolean update(M model, Collection<String> exclude = []) {
         boolean ok = false
         DB db = connect()
         if(pk) { db.keys(pks) }
@@ -717,7 +717,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param models
      * @return
      */
-    boolean update(List<M> models) {
+    boolean update(Collection<M> models) {
         DB db = connect()
         boolean singlePk = false
         boolean multiPk = false
@@ -740,7 +740,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param model
      * @return
      */
-    boolean replace(M model, List<String> exclude = []) {
+    boolean replace(M model, Collection<String> exclude = []) {
         boolean ok = false
         DB db = connect()
         try {
@@ -761,7 +761,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param models
      * @return
      */
-    boolean replace(List<M> models) {
+    boolean replace(Collection<M> models) {
         DB db = connect()
         boolean ok = db.replace(models.collect { it.toMap() })
         db.close()
@@ -805,7 +805,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param ids
      * @return
      */
-    boolean delete(List<M> models) {
+    boolean delete(Collection<M> models) {
         DB db = connect()
 
         boolean singlePk = false
@@ -881,7 +881,7 @@ class Table<M extends Model> implements Instanciable<M> {
      * @param models
      * @return
      */
-    boolean insert(List<M> models) {
+    boolean insert(Collection<M> models) {
         DB db = connect()
         boolean ok = db.insert(models.collect { it.toMap() })
         db.close()
@@ -893,8 +893,8 @@ class Table<M extends Model> implements Instanciable<M> {
      * @return
      */
     @SuppressWarnings('GrMethodMayBeStatic')
-    List<Map> onUpdate(List<Map> data) {
-        return data
+    List<Map> onUpdate(Collection<Map> data) {
+        return data.toList()
     }
     /**
      * Decide if manual update is required when version changes

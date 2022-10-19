@@ -50,7 +50,7 @@ trait AutoJDBC {
      * @param fields
      * @return
      */
-    abstract boolean createTable(final DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns)
+    abstract boolean createTable(final DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns)
     /**
      * Get default statement
      * @param val
@@ -143,7 +143,7 @@ trait AutoJDBC {
      * Copy table data
      * @return
      */
-    boolean copyTableData(final DB db, String from, String to, List<ColumnDB> columns) {
+    boolean copyTableData(final DB db, String from, String to, Collection<ColumnDB> columns) {
         return set(db, "INSERT INTO $to SELECT * FROM $from")
     }
     /**

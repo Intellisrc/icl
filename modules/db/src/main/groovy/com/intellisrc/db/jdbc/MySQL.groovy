@@ -94,13 +94,13 @@ class MySQL extends JDBCServer implements AutoJDBC {
 
     /////////////////////////////// AUTO ////////////////////////
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns) {
         boolean ok
         String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
         List<String> defs = []
         List<String> keys = []
         Map<String, List<String>> uniqueGroups = [:]
-        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }
+        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
         if(pks.size() > 1) {
             pks.each { it.multipleKey = true }
         }
@@ -172,7 +172,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
         return set(db, "CREATE TABLE $to LIKE $from")
     }
     @Override
-    boolean copyTableData(DB db, String from, String to, List<ColumnDB> columns) {
+    boolean copyTableData(DB db, String from, String to, Collection<ColumnDB> columns) {
         return set(db, "INSERT IGNORE INTO $to SELECT * FROM $from")
     }
     @Override

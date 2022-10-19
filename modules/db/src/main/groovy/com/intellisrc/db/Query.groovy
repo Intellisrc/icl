@@ -5,7 +5,9 @@ import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 import static com.intellisrc.db.Query.Action.*
 
@@ -83,10 +85,10 @@ class Query {
         actionType = RAW
         setIdentityFlag()
     }
-    Query(final String query, final List args) {
+    Query(final String query, final Collection args) {
         queryStr = query
         actionType = RAW
-        argList = args
+        argList = args.toList()
         setIdentityFlag()
     }
     /**
@@ -140,16 +142,16 @@ class Query {
         return this
     }
 
-    Query setFields(final List<String> fields) {
-        fieldList = fields
+    Query setFields(final Collection<String> fields) {
+        fieldList = fields.toList()
         if(fieldType == FieldType.NOSET) {
             fieldType = FieldType.COLUMN
         }
         return this
     }
 
-    Query setFields(final List<String> fields, final FieldType type) {
-        fieldList = fields
+    Query setFields(final Collection<String> fields, final FieldType type) {
+        fieldList = fields.toList()
         fieldType = type
         return this
     }
@@ -159,8 +161,8 @@ class Query {
         return this
     }
 
-    Query setKeys(final List<String> keys) {
-        keyList = keys
+    Query setKeys(final Collection<String> keys) {
+        keyList = keys.toList()
         return this
     }
 

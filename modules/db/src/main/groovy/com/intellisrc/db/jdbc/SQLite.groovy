@@ -13,7 +13,9 @@ import javassist.Modifier
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 import static com.intellisrc.db.auto.Table.getColumnName
 
@@ -90,13 +92,13 @@ class SQLite extends JDBC implements AutoJDBC {
     }
 
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, List<ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns) {
         boolean ok
         String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
         List<String> defs = []
         List<String> keys = []
         Map<String, List<String>> uniqueGroups = [:]
-        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }
+        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
         if(pks.size() > 1) {
             pks.each { it.multipleKey = true }
         }

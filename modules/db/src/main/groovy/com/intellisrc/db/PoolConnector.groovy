@@ -98,7 +98,7 @@ class PoolConnector implements Connector {
 	}
 
     @Override
-    boolean commit(List<Query> queries) {
+    boolean commit(Collection<Query> queries) {
         return open() ? currentConnector.commit(queries) : false
     }
 

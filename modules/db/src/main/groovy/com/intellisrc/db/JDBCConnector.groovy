@@ -282,7 +282,7 @@ class JDBCConnector implements Connector {
 	}
 
 	@Override
-	boolean commit(List<Query> queries) {
+	boolean commit(Collection<Query> queries) {
         boolean commited = false
 		connection.autoCommit = false
 		Set<String> uniqueQueries = queries.collect { it.toString() }.toSet()

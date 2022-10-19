@@ -89,7 +89,7 @@ class DB {
      * @param args
      * @return
      */
-    Data getSQL(String query, List args = []) {
+    Data getSQL(String query, Collection args = []) {
         queryBuilder = new Query(query, args)
         return execGet()
     }
@@ -98,7 +98,7 @@ class DB {
 	 * @param ids
 	 * @return 
      **/
-    Data get(List ids) {
+    Data get(Collection ids) {
         return get(ids as Object)
     }
     /**
@@ -152,7 +152,7 @@ class DB {
      * @param ids : list of IDs to update
      * @return true on success
      */
-    boolean update(Map updvals, List ids) {
+    boolean update(Map updvals, Collection ids) {
         return update(updvals, ids as Object)
     }
 
@@ -170,7 +170,7 @@ class DB {
      * @param rows
      * @return
      */
-    boolean update(List<Map> rows, List<Object> keyvals) {
+    boolean update(Collection<Map> rows, Collection<Object> keyvals) {
         boolean updated = false
         if(! rows.empty) {
             boolean sameSize = rows.size() == keyvals.size()
@@ -207,7 +207,7 @@ class DB {
 	 * @param insvals
 	 * @return
      **/
-    boolean insert(List<Map> insvalsList) {
+    boolean insert(Collection<Map> insvalsList) {
         autoSetKeys()
         boolean ok = false
         if(!insvalsList.empty) {
@@ -239,7 +239,7 @@ class DB {
      * @param repvals
      * @return
      **/
-    boolean replace(List<Map> repvals) {
+    boolean replace(Collection<Map> repvals) {
         boolean ok = false
         if(!repvals.empty) {
             if (jdbc.supportsReplace) {
@@ -341,7 +341,7 @@ class DB {
      * @param ids
      * @return true on success
      */
-    boolean delete(List ids) {
+    boolean delete(Collection ids) {
         autoSetKeys()
         query.setAction(DELETE).setWhere(ids)
         return execSet()
@@ -436,7 +436,7 @@ class DB {
      * @param query
      * @param args
      * @return true on success **/
-    boolean setSQL(String query, List args = []) {
+    boolean setSQL(String query, Collection args = []) {
         queryBuilder = new Query(query, args)
         return execSet()
     }
@@ -445,7 +445,7 @@ class DB {
      * @param queries
      * @return
      */
-    boolean setSQL(List<String> queries) {
+    boolean setSQL(Collection<String> queries) {
         return queries.every { return setSQL(it)}
     }
     /**
@@ -453,7 +453,7 @@ class DB {
      * @param queriesWithArgs
      * @return
      */
-    boolean setSQL(Map<String, List> queriesWithArgs) {
+    boolean setSQL(Map<String, Collection> queriesWithArgs) {
         return queriesWithArgs.every { return setSQL(it.key, it.value )}
     }
     // -------------------------------- Tools -------------------------------
@@ -609,7 +609,7 @@ class DB {
 	 * @param fields
 	 * @return 
      */
-    DB fields(List<String> fields_arr) {
+    DB fields(Collection<String> fields_arr) {
         query.setFields(fields_arr)
         return this
     }
@@ -632,7 +632,7 @@ class DB {
 	 * @return 
 	 * @example : .where("mydate" > ?, somedate.toString())
 	 */
-	DB where(String queryPart, List<Object> list) {
+	DB where(String queryPart, Collection<Object> list) {
 		query.setWhere(queryPart, list.toArray())
 		return this
 	}
@@ -666,7 +666,7 @@ class DB {
 	 * @param keys
 	 * @return 
      */
-    DB keys(List<String> keys) {
+    DB keys(Collection<String> keys) {
         if(!keys.empty) {
             query.setKeys(keys)
         }

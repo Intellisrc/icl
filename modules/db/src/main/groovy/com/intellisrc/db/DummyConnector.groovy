@@ -58,7 +58,7 @@ class DummyConnector implements Connector {
     }
 
     @Override
-    boolean commit(List<Query> query) {
+    boolean commit(Collection<Query> query) {
         return true
     }
 
