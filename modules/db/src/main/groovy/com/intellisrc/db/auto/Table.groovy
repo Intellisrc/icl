@@ -106,11 +106,11 @@ class Table<M extends Model> implements Instanciable<M> {
                     if (exists) {
                         if(autoUpdate) {
                             int version = TableUpdater.getTableVersion(conn, tableName.toString())
-                            if (definedVersion > version) {
+                            if (definedVersion != version) {
                                 updateTable()
                             } else {
                                 Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
-                                    tableName, version, definedVersion)
+                                    tableName, definedVersion, version)
                             }
                         }
                     } else {
