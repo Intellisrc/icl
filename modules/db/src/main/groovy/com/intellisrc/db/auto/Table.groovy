@@ -685,6 +685,29 @@ class Table<M extends Model> implements Instanciable<M> {
         return c
     }
     /**
+     * Return records count using a criteria:
+     * count(color: 'blue')
+     * @return
+     */
+    int count(Map criteria) {
+        DB db = connect()
+        int c = db.count().get(convertToDB(criteria)).toInt()
+        db.close()
+        return c
+    }
+    /**
+     * Return records count using part of SQL query
+     * WARNING: This method is not cross-database friendly avoid if possible.
+     * count('start_date BETWEEN(? AND ?)', date1, date2)
+     * @return
+     */
+    int count(String where, Object... params) {
+        DB db = connect()
+        int c = db.count().where(where, params).get().toInt()
+        db.close()
+        return c
+    }
+    /**
      * Update a model
      * @param model
      * @param exclude : columns to exclude during update
