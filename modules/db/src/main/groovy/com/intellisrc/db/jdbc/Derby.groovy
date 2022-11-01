@@ -204,8 +204,8 @@ class Derby extends JDBCServer implements AutoJDBC {
     boolean copyTableDesc(final DB db, String from, String to) {
         return set(db, "CREATE TABLE ${to} AS SELECT * FROM ${from} WITH NO DATA")
     }*/
-    //@Override
-    boolean copyTableData(DB db, String from, String to, List<ColumnDB> columns) {
+    @Override
+    boolean copyTableData(DB db, String from, String to, Collection<ColumnDB> columns) {
         boolean ok = set(db, "INSERT INTO ${to} SELECT * FROM ${from}")
         ColumnDB ai = columns.find { it.annotation.autoincrement() }
         if(ai) {

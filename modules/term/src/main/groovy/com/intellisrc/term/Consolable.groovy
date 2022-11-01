@@ -13,7 +13,7 @@ trait Consolable {
      * @param arguments : command line arguments or options
      * @return initial command if any
      */
-    abstract void onInit(final Collection<String> arguments)
+    abstract void onInit(final LinkedList<String> arguments)
     /**
      * Get the list of words to use as auto-complete
      * @return
@@ -44,7 +44,7 @@ trait Consolable {
      * @param commandLine : List of arguments in a single line
      * @return true to continue with next Consolable
      */
-    abstract boolean onCommand(final Collection<String> commandLine)
+    abstract boolean onCommand(final LinkedList<String> commandLine)
     /**
      * Do something on timeout. (optional)
      * console.timeout configuration rule must be set greater than 0 to work

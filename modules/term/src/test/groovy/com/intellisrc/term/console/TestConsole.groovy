@@ -13,7 +13,7 @@ import static com.intellisrc.core.Millis.getMILLIS_100
 class TestConsole implements Consolable {
 
     @Override
-    void onInit(Collection<String> arguments) {
+    void onInit(LinkedList<String> arguments) {
         Console.prompt = "test \$"
         Console.timeout = 10
     }
@@ -24,7 +24,7 @@ class TestConsole implements Consolable {
     }
 
     @Override
-    boolean onCommand(Collection<String> commandList) {
+    boolean onCommand(LinkedList<String> commandList) {
         if (!commandList.empty && !["quit", "exit"].contains(commandList.first())) {
             if(!commandList.first().empty) {
                 Console.resetPreviousPrompt("ok!")
