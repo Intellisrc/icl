@@ -402,7 +402,7 @@ class WebService {
                         break
                     default:
                         output.content = output.content.toString()
-                        output.size = (output.content as String).size()
+                        output.size = (output.content as String).bytes.length //Support Unicode (using bytes instead of String)
                 }
                 break
             case ServiceOutput.Type.JSON:
