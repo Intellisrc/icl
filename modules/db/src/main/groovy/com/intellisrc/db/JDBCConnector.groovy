@@ -130,20 +130,20 @@ class JDBCConnector implements Connector {
 	@Override
 	boolean open() {
 		boolean connected = false
+		String conn = "unset"
 		try {
-			String conn = jdbc.connectionString
+			conn = jdbc.connectionString
 			if(!conn.toLowerCase().startsWith("jdbc")) {
 				conn = "jdbc:$conn"
 			}
 			// Be sure that the driver is loaded
 			Class.forName(jdbc.driver)
 
-			Log.v( "Connecting to DB: %s", conn)
 			connection = DriverManager.getConnection(conn, jdbc.user, jdbc.password)
-			Log.d( "Connected to DB: %s", jdbc.dbname ?: jdbc.toString())
+			Log.v( "Connected to DB: %s (%s)", jdbc.dbname ?: jdbc.toString())
 			connected = true
 		} catch (SQLException e) {
-			Log.w( "Connection failed")
+			Log.w( "Connection failed: %s", conn)
 			onError(e)
 		}
 		return connected
