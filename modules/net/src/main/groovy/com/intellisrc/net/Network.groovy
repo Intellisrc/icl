@@ -43,6 +43,20 @@ class Network {
         return subnet.info.isInRange(ip.hostAddress)
     }
     /**
+     * Return IP address
+     * @return
+     */
+    Inet4Address getAddress() {
+        return subnet.info.address.toInet4Address()
+    }
+    /**
+     * Return network (eg. 192.168.1.0)
+     * @return
+     */
+    Inet4Address getNetwork() {
+        return subnet.info.networkAddress.toInet4Address()
+    }
+    /**
      * Return the first IP in network
      * @param subnet
      * @return
@@ -181,5 +195,22 @@ class Network {
         String addr = inet.hostAddress
         int second = addr.tokenize(".")[1] as int
         return addr.startsWith("10.") || addr.startsWith("192.168") || (addr.startsWith("172.") && (second >= 16 && second <= 31))
+    }
+
+    /**
+     * Static method to convert from string
+     * @param cidr
+     * @return
+     */
+    static Network fromString(String cidr) {
+        return new Network(cidr)
+    }
+
+    /**
+     * Return as String
+     * @return
+     */
+    String toString() {
+        return cidr
     }
 }

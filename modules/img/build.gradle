@@ -1,4 +1,8 @@
 dependencies {
     api project(':core')
-    api 'net.coobird:thumbnailator:0.4.17'
+    api 'net.coobird:thumbnailator:0.4.18'
+}
+
+repositories {
+    mavenCentral()
 }

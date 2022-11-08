@@ -2,10 +2,14 @@ dependencies {
     def jvmbrotli = "0.2.0"
     api project(':core')
     api "org.reflections:reflections:0.10.2" //Same as in DB
-    api 'org.apache.tika:tika-core:2.4.1'
+    api 'org.apache.tika:tika-core:2.5.0'
     // We set Jedis to be optional so it is not always required, only when AutoConfig is being used.
     api "com.sleepycat:je:18.3.12"
-    api 'redis.clients:jedis:4.2.3'
+    api 'redis.clients:jedis:4.3.1'
 
     compileOnly "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
+}
+
+repositories {
+    mavenCentral()
 }
