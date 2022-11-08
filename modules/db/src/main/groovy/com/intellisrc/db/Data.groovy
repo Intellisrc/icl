@@ -12,9 +12,19 @@ import groovy.transform.CompileStatic
  */
 class Data {
     private List<Map> data = []
-
-    Data(List<Map> data) {
-        this.data = data
+    /**
+     * Add data
+     * @param data
+     */
+    Data(Collection<Map> data) {
+        this.data = data.toList()
+    }
+    /**
+     * Alternative as Map
+     * @param data
+     */
+    Data(Map data) {
+        this.data = [data]
     }
     /**
      * Return true if row was not found
