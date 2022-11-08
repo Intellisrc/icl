@@ -7,6 +7,7 @@ import org.apache.commons.net.util.SubnetUtils
 @CompileStatic
 /**
  * Methods related to Networking (not related to NetworkInterface)
+ * It can be used to store IP4 addresses or network in CIDR annotation
  */
 class Network {
     final SubnetUtils subnet
@@ -30,6 +31,9 @@ class Network {
      * @param cidr
      */
     Network(String cidr) {
+        if(!cidr.contains("/")) {
+            cidr = cidr += "/24"
+        }
         this.subnet = new SubnetUtils(cidr)
     }
 
