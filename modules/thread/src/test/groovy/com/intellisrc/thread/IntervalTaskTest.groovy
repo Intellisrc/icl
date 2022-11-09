@@ -1,18 +1,9 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import spock.lang.Specification
 
 import static com.intellisrc.core.Millis.*
-import static com.intellisrc.core.Millis.HALF_SECOND
-import static com.intellisrc.core.Millis.HALF_SECOND
-import static com.intellisrc.core.Millis.HALF_SECOND
-import static com.intellisrc.core.Millis.MILLIS_100
-import static com.intellisrc.core.Millis.MILLIS_100
-import static com.intellisrc.core.Millis.MILLIS_200
-import static com.intellisrc.core.Millis.MILLIS_900
-import static com.intellisrc.core.Millis.SECOND_2
 
 /**
  * @since 2019/09/10.
@@ -73,7 +64,7 @@ class IntervalTaskTest extends Specification {
             Log.i("Time's up!")
         expect:
             assert Tasks.taskManager.pools.findAll { it.name.contains("ProcessTest") }.size() == 1 + (maxExecutionTime > 0 ? 1 : 0)
-            assert Math.abs(pt.callTimes - Math.floor(wait / sleepTimeMilliSecs)) <= 1
+            assert Math.abs(pt.callTimes - (wait / sleepTimeMilliSecs).toFloat().floor()) <= 1
             assert pt.setupCalled
             assert ! pt.resetCalled
             assert Tasks.taskManager.failed == 0
@@ -148,7 +139,7 @@ class IntervalTaskTest extends Specification {
             sleep(waitTime)
         then:
             Log.i("[%s] Status: %s", info.name, info.state)
-            assert ft.frozenId == Math.round(waitTime / maxExec)
+            assert ft.frozenId == (waitTime / maxExec).toFloat().round()
             assert ft.callTimes == 1    //Got Reset and its running
             //Even if there is an exception is accounted inside Executor
             assert Math.abs(Tasks.taskManager.failed - ft.frozenId) <= 1 //The last task might be still running

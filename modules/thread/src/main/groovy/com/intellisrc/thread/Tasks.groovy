@@ -77,7 +77,7 @@ class Tasks {
         }
         
         long getAverage() {
-            return Math.round(avgTime).toLong()
+            return avgTime.round()
         }
         
         long getMax() {

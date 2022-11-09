@@ -29,14 +29,14 @@ class Progress {
      */
     static void bar(int current, int total, String label = "", int size = 100) {
         double pp = (current / total) * 100.0d
-        int p = Math.round(pp) as int
-        int green   = Math.round((p > 50 ? 50 : (p > 0 ? p : 0)) * size / 100d) as int
+        int p = pp.toFloat().round()
+        int green   = ((p > 50 ? 50 : (p > 0 ? p : 0)) * size / 100d).toFloat().round()
         p -= 50
-        int yellow  = Math.round((p > 25 ? 25 : (p > 0 ? p : 0)) * size / 100d) as int
+        int yellow  = ((p > 25 ? 25 : (p > 0 ? p : 0)) * size / 100d).toFloat().round()
         p -= 25
-        int red     = Math.round((p > 0 ? p : 0) * size / 100d) as int
+        int red     = ((p > 0 ? p : 0) * size / 100d).toFloat().round()
         p -= 25
-        int filler  = Math.round(Math.abs(p) * (size / 100d)) as int
+        int filler  = (Math.abs(p) * (size / 100d)).toFloat().round()
         print "\r" + AnsiColor.BLUE + label + AnsiColor.RESET +
                 AnsiColor.BOLD + "[" + AnsiColor.RESET +
                 AnsiColor.GREEN + ("|" * green) +

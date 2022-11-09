@@ -165,8 +165,8 @@ class Metry {
      * @return
      */
     static Rectangle2D resizeRect(final RectangularShape rect, double sizeAdjuster) {
-        int width = Math.round(rect.width * (sizeAdjuster - 1)) as int
-        int height = Math.round(rect.height * (sizeAdjuster - 1)) as int
+        int width = (rect.width * (sizeAdjuster - 1)).toFloat().round()
+        int height = (rect.height * (sizeAdjuster - 1)).toFloat().round()
         return resizeRect(rect, width, height)
     }
     /**
@@ -198,8 +198,8 @@ class Metry {
     static Rectangle2D coordsToTopLeft(Rectangle2D rect) {
         double radiusX = rect.width / 2d
         double radiusY = rect.height / 2d
-        int top  = Math.round(rect.x - radiusX) as int
-        int left = Math.round(rect.y - radiusY) as int
+        int top  = (rect.x - radiusX).toFloat().round()
+        int left = (rect.y - radiusY).toFloat().round()
         return new Rectangle2D.Double(top, left, rect.width, rect.height)
     }
     /**
@@ -210,8 +210,8 @@ class Metry {
     static Rectangle2D coordsToCenter(RectangularShape rect) {
         double radiusX = rect.width / 2d
         double radiusY = rect.height / 2d
-        int centerX = Math.round(rect.x + radiusX) as int
-        int centerY = Math.round(rect.y + radiusY) as int
+        int centerX = (rect.x + radiusX).toFloat().round()
+        int centerY = (rect.y + radiusY).toFloat().round()
         return new Rectangle2D.Double(centerX, centerY, rect.width, rect.height)
     }
     /**
@@ -225,14 +225,14 @@ class Metry {
      */
     static Rectangle2D rotateRect(RectangularShape rect, int angle, Point2D pivot = null) {
         if(!pivot) {
-            pivot = new Point2D.Double(rect.x + Math.round(rect.width / 2d) as int, rect.y + Math.round(rect.height / 2d) as int)
+            pivot = new Point2D.Double(rect.x + (rect.width / 2d).toFloat().round(), rect.y + (rect.height / 2d).toFloat().round())
         }
         double rad = angle * Math.PI/180
         double diffX = rect.x - pivot.x
         double diffY = rect.y - pivot.y
         
-        int x = Math.round(rect.x - diffX + (diffX * Math.cos(rad)) + (diffY * Math.sin(rad))) as int
-        int y = Math.round(rect.y - diffY + (diffY * Math.cos(rad)) - (diffX * Math.sin(rad))) as int
+        int x = (rect.x - diffX + (diffX * Math.cos(rad)) + (diffY * Math.sin(rad))).toFloat().round()
+        int y = (rect.y - diffY + (diffY * Math.cos(rad)) - (diffX * Math.sin(rad))).toFloat().round()
         return new Rectangle2D.Double(x, y, rect.width, rect.height)
     }
     

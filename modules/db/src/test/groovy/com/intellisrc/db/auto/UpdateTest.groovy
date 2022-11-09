@@ -112,7 +112,7 @@ class UpdateTest extends AutoTest {
                 }
             })
         then:
-            assert times == Math.ceil(rows / 3) as int : "Number of chunks were incorrect"
+            assert times == (rows / 3).toFloat().ceil() : "Number of chunks were incorrect"
             assert ageList.size() == rows // Checking for duplicated
             assert ageList.unique().size() == rows // No duplication
         when:

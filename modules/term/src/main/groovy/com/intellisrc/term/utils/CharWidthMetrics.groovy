@@ -5,9 +5,9 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 
-import java.awt.Canvas
-import java.awt.Font
-import java.awt.FontMetrics
+import java.awt.*
+import java.util.List
+
 /**
  * This class generates the dictionary to guess
  * character widths
@@ -37,7 +37,7 @@ class CharWidthMetrics {
             int w = fm.stringWidth(c)
             int diff = w - base
             if(diff != 0 && w > 0) {
-                float ratio = (Math.round((w / base).toFloat() * 100) / 100f).toFloat()
+                float ratio = ((w / base).toFloat()).round(2)
                 if(!buffer.containsKey(ratio)) { buffer[ratio] = [] }
                 buffer[ratio] << Integer.toHexString(cp)
             }
@@ -79,6 +79,6 @@ class CharWidthMetrics {
             base = fm.stringWidth("a")
         }
         int w = fm.stringWidth(character)
-        return (Math.round((w / base).toFloat() * 100) / 100f).toFloat()
+        return ((w / base).toFloat() * 100).round() / 100f
     }
 }

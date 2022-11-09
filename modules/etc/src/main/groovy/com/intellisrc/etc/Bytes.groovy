@@ -70,7 +70,7 @@ class Bytes {
      */
     static byte[] fromHex(String str) {
         int len = str.length()
-        byte[] data = new byte[Math.ceil(len / 2d).toInteger()]
+        byte[] data = new byte[(len / 2f).ceil()]
         for (int i = 0; i < len; i += 2) {
             int di = (i / 2) as int
             data[di] = (byte) ((Character.digit(str.charAt(i), 16) << 4)

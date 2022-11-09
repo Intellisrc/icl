@@ -70,7 +70,7 @@ class TableMaker {
                     case LEFT:   padded = padRight(padded, len); break
                     case RIGHT:  padded = padLeft(padded, len); break
                     case CENTER:
-                        int half = Math.floor((len - getDisplayWidth(text)) / 2d) as int
+                        int half = ((len - getDisplayWidth(text)) / 2d).toFloat().floor()
                         if(half > 0) {
                             padded = padRight(padLeft(padded, getDisplayWidth(text) + half), len)
                         }
@@ -140,7 +140,7 @@ class TableMaker {
                         }
                         break
                     case CENTER:
-                        int half = (Math.floor((getDisplayWidth(original) - getDisplayWidth(after)) / 2d) as int) - 1 //TODO: not sure why -1, but it works
+                        int half = (((getDisplayWidth(original) - getDisplayWidth(after)) / 2d).toFloat().floor()) - 1 //TODO: not sure why -1, but it works
                         // If spaces were added...
                         if(getDisplayWidth(original.trim()) == getDisplayWidth(after.trim())) {
                             addColor(after.indexOf(original.trim()))
@@ -337,7 +337,7 @@ class TableMaker {
         columns.each {
             Column col ->
                 if(col.autoCollapse) {
-                    col.maxLen = [col.minLen, Math.round(colWidthStats[col]) as int].max()
+                    col.maxLen = [col.minLen, colWidthStats[col].toFloat().round()].max()
                 }
                 if(col.hideWhenEmpty && emptyCol.get(col)) {
                     col.length = 0
@@ -455,7 +455,7 @@ class TableMaker {
                 }
             }
         }
-        return Math.ceil(i) as int
+        return i.ceil()
     }
     /**
      * trim from the left (similar to substr but using display width)
