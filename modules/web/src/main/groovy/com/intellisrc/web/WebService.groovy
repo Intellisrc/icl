@@ -528,20 +528,22 @@ class WebService {
                                 if (raw.contentLength > 0) {
                                     raw.parts.each {
                                         Part part ->
-                                            if(part.size) {
-                                                try {
-                                                    InputStream input = part.getInputStream()
-                                                    Path path = Files.createTempFile("upload", ".file")
-                                                    Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
-                                                    UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
-                                                    uploadFiles << file
-                                                } catch (Exception e) {
+                                            if(part.contentType) { //Only process files with content-type (otherwise are non-file fields)
+                                                if (part.size) {
+                                                    try {
+                                                        InputStream input = part.getInputStream()
+                                                        Path path = Files.createTempFile("upload", ".file")
+                                                        Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
+                                                        UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
+                                                        uploadFiles << file
+                                                    } catch (Exception e) {
+                                                        response.status(500)
+                                                        Log.e("Unable to upload file: %s", part.submittedFileName, e)
+                                                    }
+                                                } else {
                                                     response.status(500)
-                                                    Log.e("Unable to upload file: %s", part.submittedFileName, e)
+                                                    Log.w("File: %s was empty", part.submittedFileName)
                                                 }
-                                            } else {
-                                                response.status(500)
-                                                Log.w("File: %s was empty", part.submittedFileName)
                                             }
                                     }
                                     try {

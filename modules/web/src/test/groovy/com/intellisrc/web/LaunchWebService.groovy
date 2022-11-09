@@ -3,6 +3,7 @@ package com.intellisrc.web
 import com.intellisrc.core.Log
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.IDService
+import com.intellisrc.web.samples.UploadService
 import groovy.transform.CompileStatic
 
 /**
@@ -20,6 +21,7 @@ class LaunchWebService {
             cacheTime: 60
         )
         web.addService(new IDService())
+        web.addService(new UploadService(File.tempDir))
         Log.i("Running in port: %d with resources at: %s", port, publicDir)
         web.start()
     }

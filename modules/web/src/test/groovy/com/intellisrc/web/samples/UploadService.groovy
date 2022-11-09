@@ -30,7 +30,7 @@ class UploadService extends Services {
             new Service(
                 path: "/upload",
                 method: POST,
-                contentType: Mime.getType("gif"),
+                contentType: Mime.JPG, //Displaying the file in the browser as JPG
                 action: {
                     UploadFile upFile ->
                         Log.i("File uploaded : %s", upFile.originalName)
@@ -41,6 +41,17 @@ class UploadService extends Services {
                         upFile.moveTo(dstFile)
 
                         return dstFile
+                }
+            ),
+            new Service(
+                path: "/upload/many",
+                method: POST,
+                action: {
+                    List<UploadFile> upFiles ->
+                        upFiles.each {
+                            println it.originalName
+                        }
+                        return [ ok : ! upFiles.empty ]
                 }
             )
         ]
