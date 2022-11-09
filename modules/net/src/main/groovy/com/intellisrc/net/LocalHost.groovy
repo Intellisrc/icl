@@ -183,15 +183,8 @@ class LocalHost {
      * @return
      */
     static Network getLocalNetwork() {
-        return getLocalNetworkForIP(getLocalNetworkIp4())
-    }
-
-    /**
-     * Get Network for IP (automatic mask)
-     * @param ip
-     * @return
-     */
-    static Network getLocalNetworkForIP(Inet4Address ip) {
-        return new Network(ip, getNetworkInterface(ip).get().interfaceAddresses.find { it.address.hostAddress == ip.hostAddress }.networkPrefixLength)
+        Inet4Address ip = getLocalNetworkIp4()
+        Optional<NetworkInterface> iface = getNetworkInterface(ip)
+        return iface.present ? new Network(ip, iface.get().interfaceAddresses.find { it.address.hostAddress == ip.hostAddress }.networkPrefixLength).reset() : new Network(ip)
     }
 }
