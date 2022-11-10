@@ -47,6 +47,7 @@ class Derby extends JDBCServer implements AutoJDBC {
     boolean encrypt = Config.get("db.derby.encrypt", false)
     boolean memory = Config.get("db.derby.memory", false)
     boolean create = memory ?: Config.get("db.derby.create", false) //If in memory it will create automatically
+    boolean useFK = Config.get("db.derby.fk", false)
     String tableMeta = Config.get("db.derby.meta", "sys_meta")
     SubProtocol subProtocol = DIRECTORY
 
@@ -200,10 +201,10 @@ class Derby extends JDBCServer implements AutoJDBC {
         return true //Not supported: https://www.mail-archive.com/derby-user@db.apache.org/msg05345.html
     }
 
-    /*@Override  Deprecated: left for example
-    boolean copyTableDesc(final DB db, String from, String to) {
-        return set(db, "CREATE TABLE ${to} AS SELECT * FROM ${from} WITH NO DATA")
-    }*/
+    @Override
+    boolean copyTable(final DB db, String from, String to) {
+        return false // set(db, "CREATE TABLE ${to} AS SELECT * FROM ${from} WITH NO DATA")
+    }
     @Override
     boolean copyTableData(DB db, String from, String to, Collection<ColumnDB> columns) {
         boolean ok = set(db, "INSERT INTO ${to} SELECT * FROM ${from}")
@@ -321,15 +322,20 @@ class Derby extends JDBCServer implements AutoJDBC {
     @Override
     String getForeignKey(String tableName, ColumnDB column) {
         String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "FOREIGN KEY (${column.name}) " +
-                    "REFERENCES ${joinTable}(${getColumnName(refType.pk)}) ON DELETE ${action}"
-                break
+        if(useFK) {
+            Log.w("BUG: Derby won't update correctly when foreign keys (because they can not be turned off).")
+            switch (column.type) {
+                case Model:
+                    Constructor<?> ctor = column.type.getConstructor()
+                    Model refType = (ctor.newInstance() as Model)
+                    String joinTable = refType.tableName
+                    String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
+                    indices = "FOREIGN KEY (${column.name}) " +
+                        "REFERENCES ${joinTable}(${getColumnName(refType.pk)}) ON DELETE ${action}"
+                    break
+            }
+        } else {
+            Log.w("Foreign keys are OFF. This makes automatic updates possible, but you will need to remove references manually.")
         }
         return indices
     }

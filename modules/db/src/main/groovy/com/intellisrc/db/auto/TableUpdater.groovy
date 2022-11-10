@@ -59,16 +59,38 @@ class TableUpdater {
                         ok = tables.every {
                             // It will stop if some table fails to create
                             TableInfo info ->
+                                boolean ok2 = true
+                                int records = 0
                                 if (db.tables.contains(info.backName)) {
-                                    db.table(info.backName).drop()
+                                    ok2 = db.table(info.backName).drop()
                                 }
-                                if(auto.renameTable(db, info.name, info.backName)) {
-                                    if (!auto.copyTable(db, info.table, info.name)) { //Creating new database
-                                        Log.w("Unable to copy table. Reverting")
+                                if(ok2) {
+                                    records = db.table(info.name).count().get().toInt()
+                                    if (auto.copyTable(db, info.name, info.backName)) {
+                                        ok2 = db.table(info.name).drop()
+                                    } else {
+                                        ok2 = auto.renameTable(db, info.name, info.backName)
+                                    }
+                                } else {
+                                    Log.w("Failed to drop backup table: %s", info.backName)
+                                }
+                                if(ok2) {
+                                    int recordsAfterBackup = db.table(info.backName).count().get().toInt()
+                                    if(recordsAfterBackup != records) {
+                                        Log.w("Data was not successfully backed up (%d vs %d records), aborting", records, recordsAfterBackup)
                                         db.table(info.name).drop()
                                         auto.renameTable(db, info.backName, info.name)
-                                        return false //failed
+                                        return false
+                                    } else {
+                                        if (!auto.createTable(db, info.table, info.name)) { //Creating new database
+                                            Log.w("Unable to copy table. Reverting")
+                                            db.table(info.name).drop()
+                                            auto.renameTable(db, info.backName, info.name)
+                                            return false //failed
+                                        }
                                     }
+                                } else {
+                                    Log.w("Failed to create backup table of: %s", info.name)
                                 }
                                 return db.table(info.backName).exists()
                         }
@@ -81,7 +103,8 @@ class TableUpdater {
                                             List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
                                             ok = db.table(info.name).insert(newData)
                                         } else {
-                                            ok = auto.copyTableData(db, info.backName, info.name, info.table.columns)
+                                            ok = auto.copyTableData(db, info.backName, info.name, info.table.columns) &&
+                                                 db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
                                             if (!ok) {
                                                 // Probably column mismatch (using row by row method):
                                                 List<String> columnsOld = db.table(info.backName).info().collect { it.name }
@@ -103,7 +126,8 @@ class TableUpdater {
                                                         return row
                                                 }
                                                 Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
-                                                ok = newData.empty ?: db.table(info.name).insert(newData)
+                                                ok = newData.empty ?: db.table(info.name).insert(newData) &&
+                                                     db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
                                                 if (ok) {
                                                     Log.i("Data was successfully imported.")
                                                 } else {

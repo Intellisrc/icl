@@ -5,6 +5,7 @@ import com.intellisrc.db.DB
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
+import com.intellisrc.db.annot.TableMeta
 import spock.lang.Unroll
 
 import static com.intellisrc.db.Query.SortOrder.DESC
@@ -39,6 +40,16 @@ class UpdateTest extends AutoTest {
             return false
         }
     }
+    static class UserExtra extends Model {
+        @Column(primary = true)
+        AutoTest.User user
+        @Column
+        String extra
+    }
+    @TableMeta(name = "extra")
+    static class UserExtras extends Table<UserExtra> {
+        UserExtras(Database database) { super(database) }
+    }
 
     def setup() {
         DB.clearCache()
@@ -50,8 +61,10 @@ class UpdateTest extends AutoTest {
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)
+            UserExtras extras = new UserExtras(database)
         when:
             UsersV2 users2 = new UsersV2(tableName, database)
+            assert users2.empty
             users2.updateTable() // Update it manually
             UserV2 u = new UserV2(
                 name : "Benjamin",
@@ -64,6 +77,13 @@ class UpdateTest extends AutoTest {
             Log.i("ID was: %d", uid)
             assert uid == 1
         when:
+            extras.insert(new UserExtra(
+                user: users.get(uid), //As users has no 'webpage', it will throw a warning, but its ok.
+                extra: "Some comment"
+            ))
+        then:
+            assert ! extras.empty
+        when:
             int uid2 = users2.insert(new UserV2(
                 name: "Clara",
                 age: 28,
@@ -73,6 +93,7 @@ class UpdateTest extends AutoTest {
             assert uid2 == 2
         cleanup:
             Log.i("Cleaning database...")
+            extras?.drop()
             users?.drop()
             users?.quit()
         where:

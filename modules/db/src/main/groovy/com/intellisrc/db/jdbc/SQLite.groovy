@@ -161,9 +161,9 @@ class SQLite extends JDBC implements AutoJDBC {
         return set(db, String.format("PRAGMA foreign_keys = %s", on ? "ON" : "OFF"))
     }
     @Override
-    boolean copyTableDesc(final DB db, String from, String to) {
+    boolean copyTable(final DB db, String from, String to) {
         String qry = get(db, "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'").toString()
-        return set(db, qry.replace("CREATE TABLE ${from}", "CREATE TABLE ${to}"))
+        return set(db, qry.replaceAll(/CREATE TABLE `?${from}`?/, "CREATE TABLE `${to}`"))
     }
     @Override
     boolean setVersion(final DB db, String dbname, String table, int version) {

@@ -121,24 +121,24 @@ trait AutoJDBC {
         return dv
     }
     /**
-     * Copy table
+     * Create table
      * @param db
      * @param info
      * @return
      */
-    boolean copyTable(final DB db, Table table, String copyName) {
-        return table.createTable(db, copyName) // && copyTableData(db, table.name, copyName, table.columns)
+    boolean createTable(final DB db, Table table, String copyName) {
+        return table.createTable(db, copyName)
     }
     /**
-     * Copy a table description (most of the time will not include full column definitions)
+     * Copy a table with all constraints
      * @param db
      * @param from
      * @param to
      * @param columns
      * @return
      */
-    @Deprecated // Changed for createTable with a name instead
-    boolean copyTableDesc(final DB db, String from, String to) { true }
+    // Changed for createTable with a name instead
+    boolean copyTable(final DB db, String from, String to) { false }
     /**
      * Copy table data
      * @return
@@ -151,6 +151,8 @@ trait AutoJDBC {
      * @param from
      * @param to
      * @return
+     *
+     * WARNING: renaming a table which is referenced may leave incorrect references
      */
     boolean renameTable(final DB db, String from, String to) {
         return set(db, "ALTER TABLE ${from} RENAME TO ${to}")

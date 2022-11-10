@@ -121,7 +121,7 @@ class Table<M extends Model> implements Instanciable<M> {
                     conn.close()
                     break
                 default:
-                    Log.w("Create or Update : Database type can not be updated automatically. Please check the documentation to know which databases are supported.")
+                    Log.w("Create or Update : Database type (%s) can not be updated automatically. Please check the documentation to know which databases are supported.", jdbc.toString())
                     return
                     break
             }
@@ -683,6 +683,13 @@ class Table<M extends Model> implements Instanciable<M> {
         int c = db.count().get().toInt()
         db.close()
         return c
+    }
+    /**
+     * if table is empty
+     * @return
+     */
+    boolean isEmpty(){
+        return count() == 0
     }
     /**
      * Return records count using a criteria:

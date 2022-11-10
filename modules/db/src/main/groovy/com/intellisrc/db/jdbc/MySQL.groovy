@@ -168,11 +168,12 @@ class MySQL extends JDBCServer implements AutoJDBC {
     boolean turnFK(final DB db, boolean on) {
         return set(db, String.format("SET FOREIGN_KEY_CHECKS=%d", on ? 1 : 0))
     }
-    boolean copyTableDesc(final DB db, String from, String to) {
-        return set(db, "CREATE TABLE $to LIKE $from")
+    @Override
+    boolean copyTable(final DB db, String from, String to) {
+        return set(db, "CREATE TABLE $to LIKE $from") && copyTableData(db, from, to, [])
     }
     @Override
-    boolean copyTableData(DB db, String from, String to, Collection<ColumnDB> columns) {
+    boolean copyTableData(final DB db, String from, String to, Collection<ColumnDB> columns) {
         return set(db, "INSERT IGNORE INTO $to SELECT * FROM $from")
     }
     @Override
