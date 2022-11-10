@@ -106,6 +106,7 @@ class AutoTest extends Specification {
         dbs << new Derby(
             create: true,
             memory: true,
+            useFK : false
             //dbname  : derbyTmp.absolutePath
         )
         //now = "CURRENT DATE"
