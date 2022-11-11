@@ -47,8 +47,8 @@ class LpCodeTest extends Specification {
             char[] toEncode = "HelloWorldThisMustWork".toCharArray()
             long seed = new Random().nextLong()
             println "Using seed: " + seed
-            LpCode lpCode1 = new LpCode(ALPHA, ASCII, seed)
-            LpCode lpCode2 = new LpCode(ALPHA, ASCII, seed)
+            LpCode lpCode1 = new LpCode(ALPHA, LATIN, seed)
+            LpCode lpCode2 = new LpCode(ALPHA, LATIN, seed)
             char[] encoded1 = lpCode1.encode(toEncode)
             char[] encoded2 = lpCode2.encode(toEncode)
         expect:
@@ -85,28 +85,5 @@ class LpCodeTest extends Specification {
                 "acdg".toCharArray(),
                 "WXYZ".toCharArray()
             ) == "WbXYefZ".toCharArray()
-    }
-    def "Test fix"() {
-        setup:
-            char[] s = "H[ell^`\\o".toCharArray()
-            LpCode lp = new LpCode(ALPHA, HASH)
-        when:
-            char[] st1 = lp.fixStr(s, true, true)
-        then:
-            assert st1 == "HAellBCDo".toCharArray()
-            assert lp.fixStr(st1, true, false) == s
-        when:
-            char[] st2 = lp.fixStr(st1, false, true)
-        then:
-            assert st2 == "HAe77BCD8".toCharArray()
-            assert lp.fixStr(st2, false, false) == st1
-    }
-
-    def "Test toStr"() {
-        setup:
-            String s = toStr(12345 as BigInteger, getLM(HIRA))
-        expect:
-            println s
-            assert s == "ぁめぽ"
     }
 }
