@@ -3,8 +3,9 @@ package com.intellisrc.crypt
 import com.intellisrc.crypt.encode.LpCode
 import spock.lang.Specification
 
-import static com.intellisrc.crypt.encode.LpCode.*
 import static com.intellisrc.crypt.encode.LpCode.Charset.*
+import static com.intellisrc.crypt.encode.LpCode.replaceChars
+import static com.intellisrc.crypt.encode.LpCode.toStr
 
 //https://en.wikipedia.org/wiki/Unicode_block
 class LpCodeTest extends Specification {
@@ -12,9 +13,9 @@ class LpCodeTest extends Specification {
         setup:
             char[] toEncode = "HelloWorldThisMustWork".toCharArray()
         expect:
-            LpCode lpCode = new LpCode(ALPHA, LINES)
+            LpCode lpCode = new LpCode(ALPHA, NUM)
             char[] encoded = lpCode.encode(toEncode)
-            println encoded
+            println "ENC = " + encoded
             char[] decoded = lpCode.decode(encoded)
             assert encoded != toEncode
             assert toEncode == decoded

@@ -1,7 +1,9 @@
 package com.intellisrc.crypt.encode
 
 import groovy.transform.CompileStatic
-import static com.intellisrc.crypt.encode.LpCode.Charset.*
+
+import static com.intellisrc.crypt.encode.LpCode.Charset.ANUM
+import static com.intellisrc.crypt.encode.LpCode.Charset.ASCII
 
 /*
  * @author: A.Lepe
@@ -51,21 +53,25 @@ import static com.intellisrc.crypt.encode.LpCode.Charset.*
  */
 @CompileStatic
 class LpCode {
+    static protected final List<Integer> numbers = (0x30..0x39)
+    static protected final List<Integer> lowerCase = (0x61..0x7A)
+    static protected final List<Integer> upperCase = (0x41..0x5A)
+
     static enum Charset {
-        BIT     (0x30, 0x31),               //Binary-like (2 chars: 0,1)
-        NUM     (0x30, 0x39),               //0-9 (10 digits)
+        BIT     (0x30..0x31),                                       //Binary-like (2 chars: 0,1)
+        NUM     (numbers),                                          //0-9 (10 digits)
         // English:
-        LCASE   (0x61, 0x7A),               //a-z (26 chars)
-        UCASE   (0x41, 0x5A),               //A-Z (26 chars)
-        ALPHA   (0x41, 0x7A, 6),   //a-zA-Z (52 chars)
-        ANUM    (0x30, 0x7A, 13),  //0-9a-zA-Z (62 chars)
-        ASCII   (0x20, 0x7F),               //Any English ascii char (95 chars)
-        LATIN   (0x20, 0xFF, 7),   //Ascii Extended (support for accents and other common symbols) (928 chars)
-        UTF8    (0x0,  0xFFFF),             //Any UTF8 char (65,535 chars)
+        LCASE   (lowerCase),                                        //a-z (26 chars)
+        UCASE   (upperCase),                                        //A-Z (26 chars)
+        ALPHA   (lowerCase + upperCase),                            //a-zA-Z (52 chars)
+        ANUM    (numbers + lowerCase + upperCase),                  //0-9a-zA-Z (62 chars)
+        ASCII   (0x20..0x7F),                                       //Any English ascii char (96 chars)
+        LATIN   ((0x20..0x7F) + (0xA1..0x036F)),                    //Ascii Extended (support for accents and other common symbols) (815 chars)
+        UTF8    (0x0..0xFFFF),                                      //Any UTF8 char (65,536 chars) use with caution
         // Encoding
-        HASH    (0x30, 0x3F, 6),   //0-9a-f //similar to md5, sh,a etc (but with variable length) (16 chars)
-        HASHUC  (0x30, 0x3F, 6),   //0-9A-F //same as 'HASH' but uppercase (16 chars)
-        BASE64  (0x30, 0x7A, 4),   //0-9a-zA-Z=+/ (as result of Base64, etc) (65 chars)
+        HASH    (numbers + (0x61..0x66)),                           //0-9a-f //similar to md5, sh,a etc (but with variable length) (16 chars)
+        HASHUC  (numbers + (0x41..0x46)),                           //0-9A-F //same as 'HASH' but uppercase (16 chars)
+        BASE64  (numbers + lowerCase + upperCase + [0x3D, 0x2B]),   //0-9a-zA-Z=+/ (as result of Base64, etc) (64 chars)
         // Non-latin Languages
         /* TODO:
         GREEK   (0x,0x),
@@ -118,10 +124,10 @@ class LpCode {
         GLAGOLITIC(0x,0x),
         TIFINAGH(0x,0x),*/
         //FIXME: confirm numbers:
-        HANZU   (0x4E00, 0x9FAE),           //Chinese (inc. Japanese Kanji, 20,911 symbols)
-        KOR     (0xAC00, 0xD7A2),           //Korean (11,171 symbols)
-        HIRA    (0x3041, 0x3093),           //Hiragana (83 chars)
-        KANA    (0x30A1, 0x30F4),           //Katakana (86 chars)
+        HANZU   (0x4E00..0x9FAE),           //Chinese (inc. Japanese Kanji, 20,911 symbols)
+        KOR     (0xAC00..0xD7A2),           //Korean (11,171 symbols)
+        HIRA    (0x3041..0x3093),           //Hiragana (83 chars)
+        KANA    (0x30A1..0x30F4),           //Katakana (84 chars)
         //KANJI(0x,0x),  //Japanese Kanji (2131 symbols)
         /* TODO:
         VAI(0x,0x),
@@ -137,47 +143,33 @@ class LpCode {
         NUMFORM(0x,0x),
         ARROWS(0x,0x),
         DINGBATS(0x,0x),*/
-        BRAILLE (0x2800, 0x28FE),           //Braille (255 chars)
-        SYMBOLS (0x2010, 0x27FE),           //Symbols (2(0x,0x),031 symbols)
-        LINES   (0x4DC0, 0x4DFE),           //Lines (64 symbols)
+        BRAILLE (0x2800..0x28FE),           //Braille (255 chars)
+        SYMBOLS (0x2010..0x27FE),           //Symbols (2,031 symbols)
+        LINES   (0x4DC0..0x4DFE),           //Lines (63 symbols)
         /* TODO:
         BOX(0x,0x),
         BLOCK(0x,0x),
         SHAPES(0x,0x),
         TECH(0x,0x),*/
-        HIDE   (0xD800, 0xDFFE)             //Non-displayable (use with caution) (2,047 symbols)
+        HIDE   (0xD800..0xDFFE)             //Non-displayable (use with caution) (2,047 symbols)
         //PRIVATE(0x,0x),
 
-        int from
-        int to
-        int max
+        final int[] chars
         /**
          *
          * @param from
          * @param to
          * @param substitute
          */
-        Charset(int from, int to, int substitute = 0) {
-            this.from = from
-            this.to = to - substitute
-            this.max = this.to - this.from
+        Charset(List<Integer> charList) {
+            chars = charList.toArray() as int[]
         }
 
-        // Reduce the range of a method by replacing unused chars
-        char[] fixStr(char[] str, boolean e) {
-            String t = ""
-            String f = ""
-            switch(this) {
-                case ALPHA:   f = "`_^[\\]";          t = "CFBADE";         break
-                case ANUM:    f = "`_^[\\]@?>=";      t = "5409216378";     break
-                case BASE64:  f = "`_^[\\]@?><:;";    t = "47+820/61935";   break
-                case HASH:    f = "homniljpkg";       t = "3810974256";     break
-            }
-            if(f) {
-                str = e ? replaceChars(str,f.toCharArray(),t.toCharArray())
-                    : replaceChars(str,t.toCharArray(),f.toCharArray())
-            }
-            return str
+        int getLow() {
+            return chars[0]
+        }
+        int getMax() {
+            return chars[chars.length - 1]
         }
     }
 
@@ -191,72 +183,42 @@ class LpCode {
         this.seed = seed
     }
     char[] encode(char[] str) {
-        input.max++
         if(seed) {
             str = randomize(str)
         }
-        BigInteger num = toNum(input.fixStr(str,false), limits)
-        input.max--
-        return fixStr(toStr(num, output),true)
+        BigInteger num = toNum(str, input, 1)
+        return toStr(num, output)
     }
     char[] decode(char[] str) {
-        BigInteger num = toNum(output.fixStr(str,false), limits)
-        input.max++
-        str = fixStr(toStr(num, limits),true,true)
+        BigInteger num = toNum(str, output)
+        str = toStr(num, output, 1)
         if(seed) {
             str = randomize(str, true)
         }
         return str
     }
 
-    static BigInteger toNum(char[] str, Limits limits) {
+    static BigInteger toNum(char[] str, Charset charset, int modifier = 0) {
          int len = str.length
          BigInteger n = 0
          str.eachWithIndex {
              char c, int s ->
-                 int r = (c as int) - limits.low
-                 n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * limits.max
+                 int r = (c as int) - charset.low
+                 //noinspection GrReassignedInClosureLocalVar
+                 n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * (charset.max + modifier)
          }
          return n
     }
 
-    static char[] toStr(BigInteger num, Limits limits) {
+    static char[] toStr(BigInteger num, Charset charset, int modifier = 0) {
         LinkedList<Character> anum = new LinkedList<>()
         while(num-- >= 1) {
-            BigInteger c = (num % limits.max) + limits.low
+            BigInteger c = (num % (charset.max + modifier)) + charset.low
             anum.offerFirst(c as char)
-            num = num.divide(limits.max as BigInteger)
+            num = num.divide((charset.max + modifier) as BigInteger)
         }
         return anum.toArray() as char[]
     }
-    /*
-    // lower, length (diff + 1)
-    static Limits getLM(Charset charset) {
-        Limits limits = new Limits()
-        switch(charset) {
-            case ALPHA:   limits.low = 0x47;   limits.max = 0x34;     break
-            case ANUM:    limits.low = 0x3D;   limits.max = 0x3E;     break
-            case ASCII:   limits.low = 0x20;   limits.max = 0x5F;     break
-            case BASE64:  limits.low = 0x3A;   limits.max = 0x41;     break
-            case BIT:     limits.low = 0x30;   limits.max = 0x2;      break
-            case BRAILLE: limits.low = 0x2800; limits.max = 0xFF;     break
-            case HANZU:   limits.low = 0x4E00; limits.max = 0x51AF;   break
-            case HASH:    limits.low = 0x61;   limits.max = 0x10;     break
-            case HIDE:    limits.low = 0xD800; limits.max = 0x7FF;    break
-            case HIRA:    limits.low = 0x3041; limits.max = 0x53;     break
-            case KANA:    limits.low = 0x30A1; limits.max = 0x54;     break
-            case KOR:     limits.low = 0xAC00; limits.max = 0x2BA3;   break
-            case LCASE:   limits.low = 0x61;   limits.max = 0x1A;     break
-            case LINES:   limits.low = 0x4DC0; limits.max = 0x3F;     break
-            case NUM:     limits.low = 0x30;   limits.max = 0xA;      break
-            case SYMBOLS: limits.low = 0x2010; limits.max = 0x7EF;    break
-            case UCASE:   limits.low = 0x41;   limits.max = 0x1A;     break
-            case UTF8:    limits.low = 0x0;    limits.max = 0xFFFF;   break
-            default:
-                Log.w("Not implemented yet: %s", charset.toString())
-        }
-        return limits
-    }*/
 
     /**
      * replace characters one by one
