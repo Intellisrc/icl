@@ -3,20 +3,27 @@ package com.intellisrc.crypt
 import com.intellisrc.crypt.encode.LpCode
 import spock.lang.Specification
 
-import static com.intellisrc.crypt.encode.LpCode.Charset.*
-import static com.intellisrc.crypt.encode.LpCode.replaceChars
-import static com.intellisrc.crypt.encode.LpCode.toStr
+import static com.intellisrc.crypt.encode.LpCode.*
 
 //https://en.wikipedia.org/wiki/Unicode_block
 class LpCodeTest extends Specification {
+
+    def "Print lengths"() {
+        setup:
+            printLengths()
+        expect:
+            assert true
+    }
+
     def "Test encoding/decoding"() {
         setup:
             char[] toEncode = "HelloWorldThisMustWork".toCharArray()
         expect:
-            LpCode lpCode = new LpCode(ALPHA, NUM)
+            LpCode lpCode = new LpCode(ALPHA, LATIN)
             char[] encoded = lpCode.encode(toEncode)
             println "ENC = " + encoded
             char[] decoded = lpCode.decode(encoded)
+            println "DEC = " + decoded
             assert encoded != toEncode
             assert toEncode == decoded
     }
