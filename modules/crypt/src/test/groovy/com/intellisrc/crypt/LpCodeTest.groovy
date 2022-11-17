@@ -18,7 +18,6 @@ class LpCodeTest extends Specification {
                 println it.key + " (" + it.value.length + ") [" + encoded + "] (" + encoded.length() + ")"
                 assert toEncode == lpCode.decode(encoded.toCharArray())
             }
-            assert true
     }
 
     def "Test encoding/decoding"() {
@@ -91,5 +90,17 @@ class LpCodeTest extends Specification {
                 "acdg".toCharArray(),
                 "WXYZ".toCharArray()
             ) == "WbXYefZ".toCharArray()
+    }
+
+    def "SMP Test"() {
+        setup:
+            LpCode lpCode = new LpCode(LOWERCASE, EGYPTIAN)
+            String orig = "helloworldthisisatest"
+            String enc = lpCode.encode(orig.toCharArray())
+            println enc
+            String dec = lpCode.decode(enc.toCharArray())
+            println dec
+        expect :
+            assert orig == dec
     }
 }
