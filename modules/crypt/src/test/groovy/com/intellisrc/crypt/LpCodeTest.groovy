@@ -5,13 +5,19 @@ import spock.lang.Specification
 
 import static com.intellisrc.crypt.encode.LpCode.*
 
-//https://en.wikipedia.org/wiki/Unicode_block
 class LpCodeTest extends Specification {
 
-    def "Print lengths"() {
+    def "Print samples"() {
         setup:
-            printLengths()
+            char[] toEncode = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz".toCharArray()
         expect:
+            println "Original: [$toEncode] (${toEncode.length})"
+            charsets.each {
+                LpCode lpCode = new LpCode(LOWERCASE, it.value, 9999)
+                String encoded = lpCode.encode(toEncode)
+                println it.key + " (" + it.value.length + ") [" + encoded + "] (" + encoded.length() + ")"
+                assert toEncode == lpCode.decode(encoded.toCharArray())
+            }
             assert true
     }
 
@@ -19,7 +25,7 @@ class LpCodeTest extends Specification {
         setup:
             char[] toEncode = "HelloWorldThisMustWork".toCharArray()
         expect:
-            LpCode lpCode = new LpCode(ALPHA, LATIN)
+            LpCode lpCode = new LpCode(ALPHA, VISIBLE)
             char[] encoded = lpCode.encode(toEncode)
             println "ENC = " + encoded
             char[] decoded = lpCode.decode(encoded)
