@@ -309,7 +309,7 @@ class LpCode {
     // Hexagram (64 chars) : ䷀䷎䷷䷎䷸䷜䷙䷉䷵䷪䷙䷹䷺䷹䷦䷂䷼䷄䷃䷡
     static public final List<Integer> HEXAGRAM = (0x4DC0..0x4DFF)
     // Non-displayable (use with caution) (2,048 chars)
-    static public final List<Integer> INVISIBLE = (0xD800..0xDFFF)
+    //static public final List<Integer> INVISIBLE = (0xD800..0xDFFF) //FIXME not working fine
     //Any UTF8 char (65,536 chars) use with caution as many characters can not be rendered
     static public final List<Integer> UTF8 = 0x0..0xFFFF
 
@@ -502,7 +502,11 @@ class LpCode {
     // Hieroglyphics ( chars)
     static public final List<Integer> HIEROGLYPHIC = EGYPTIAN + MEROITIC + ANATOLIAN
 
-    static protected class CharSet {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Wrapper around a list of characters with special properties
+     */
+    static class CharSet {
         final Set<Integer> chars
 
         CharSet(Collection<Integer> chars) {
@@ -521,31 +525,122 @@ class LpCode {
     private CharSet input
     private CharSet output
     private long seed
-
+    /**
+     * Constructor using a CharSet as input and a list as output
+     * @param input
+     * @param output
+     * @param seed
+     */
     LpCode(CharSet input, Collection<Integer> output, long seed = 0) {
         this.input = input
         this.output = new CharSet(output)
         this.seed = seed
     }
-
+    /**
+     * Constructor using a list of characters and a CharSet
+     * @param input
+     * @param output
+     * @param seed
+     */
     LpCode(Collection<Integer> input, CharSet output, long seed = 0) {
         this.input = new CharSet(input)
         this.output = output
         this.seed = seed
     }
-
+    /**
+     * Constructor using input and output as CharSet
+     * @param input
+     * @param output
+     * @param seed
+     */
     LpCode(CharSet input, CharSet output, long seed = 0) {
         this.input = input
         this.output = output
         this.seed = seed
     }
-
+    /**
+     * Constructor using two lists of characters
+     * @param input
+     * @param output
+     * @param seed
+     */
     LpCode(Collection<Integer> input = BASIC, Collection<Integer> output = ANUM, long seed = 0) {
         this.input = new CharSet(input)
         this.output = new CharSet(output)
         this.seed = seed
     }
-
+    /**
+     * Get the BigInteger from an array of characters for a specific CharSet
+     * @param chars
+     * @param charSet
+     * @param seed
+     * @return
+     */
+    static BigInteger toNumber(char[] chars, CharSet charSet, long seed = 0) {
+        LpCode lpCode = new LpCode(charSet, charSet, seed)
+        if(seed) { chars = lpCode.randomize(chars) }
+        return toNum(chars, charSet)
+    }
+    /**
+     * Get the BigInteger from an array of characters for a specific list of characters
+     * @param chars
+     * @param charSet
+     * @param seed
+     * @return
+     */
+    static BigInteger toNumber(char[] chars, Collection<Integer> charSet, long seed = 0) {
+        return toNumber(chars, new CharSet(charSet), seed)
+    }
+    /**
+     * Convert number to char array
+     * @param number
+     * @param charSet
+     * @param seed
+     * @return
+     */
+    static char[] toCharArray(BigInteger number, CharSet charSet, long seed = 0) {
+        LpCode lpCode = new LpCode(charSet, charSet, seed)
+        char[] chars = toStr(number, charSet)
+        if(seed) { chars = lpCode.randomize(chars, true) }
+        return chars
+    }
+    /**
+     * Convert number to char array using a list of characters
+     * @param number
+     * @param charSet
+     * @param seed
+     * @return
+     */
+    static char[] toCharArray(BigInteger number, Collection<Integer> charSet, long seed = 0) {
+        return toCharArray(number, new CharSet(charSet), seed)
+    }
+    /**
+     * Convert number to string
+     * @param number
+     * @param charSet
+     * @param seed
+     * @return
+     */
+    static String toString(BigInteger number, CharSet charSet, long seed = 0) {
+        LpCode lpCode = new LpCode(charSet, charSet, seed)
+        char[] chars = toStr(number, charSet)
+        return (seed ? lpCode.randomize(chars, true) : chars).toString()
+    }
+    /**
+     * Convert number to string
+     * @param number
+     * @param charSet
+     * @param seed
+     * @return
+     */
+    static String toString(BigInteger number, Collection<Integer> charSet, long seed = 0) {
+        return toString(number, new CharSet(charSet), seed)
+    }
+    /**
+     * Encode an array of characters
+     * @param str
+     * @return
+     */
     char[] encode(char[] str) {
         if (seed) {
             str = randomize(str)
@@ -553,7 +648,11 @@ class LpCode {
         BigInteger num = toNum(str, input)
         return toStr(num, output)
     }
-
+    /**
+     * Decode an array of characters
+     * @param str
+     * @return
+     */
     char[] decode(char[] str) {
         BigInteger num = toNum(str, output)
         str = toStr(num, input)
@@ -562,20 +661,45 @@ class LpCode {
         }
         return str
     }
-
+    /**
+     * Converts an array of characters to a number
+     * @param chars
+     * @param charset
+     * @return
+     */
     static protected BigInteger toNum(char[] chars, CharSet charset) {
         String str = chars.toString()
-        int len = str.codePointCount(0, str.length())
+        List<Integer> codePoints = getCodePoints(str)
+        int len = codePoints.size()
         BigInteger n = 0
-        for (int offset = 0, s = 0; offset < str.length(); s++) {
-            int cp = str.codePointAt(offset)
-            int r = charset.getPosition(cp)
-            n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * (charset.length)
-            offset += Character.charCount(cp)
+        codePoints.eachWithIndex {
+            int cp, int s ->
+                int r = charset.getPosition(cp)
+                n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * (charset.length)
         }
         return n
     }
 
+    /**
+     * Get all codePoints in String
+     * @param str
+     * @return
+     */
+    static List<Integer> getCodePoints(String str) {
+        List<Integer> list = []
+        for (int offset = 0, s = 0; offset < str.length(); s++) {
+            int cp = str.codePointAt(offset)
+            list << cp
+            offset += Character.charCount(cp)
+        }
+        return list
+    }
+    /**
+     * Converts a number into an array of characters
+     * @param num
+     * @param charset
+     * @return
+     */
     static protected char[] toStr(BigInteger num, CharSet charset) {
         LinkedList<Character> anum = new LinkedList<>()
         while (num-- >= 1) {
@@ -587,46 +711,33 @@ class LpCode {
         }
         return anum.toArray() as char[]
     }
-
     /**
-     * replace characters one by one
+     * Randomize a char array (keeping each character)
      * @param str
-     * @param from
-     * @param to
+     * @param reverse
      * @return
      */
-    static char[] replaceChars(char[] str, char[] from, char[] to) {
-        char[] out = Arrays.copyOf(str, str.length)
-        str.eachWithIndex {
-            char it, int idx ->
-                int p = from.toList().indexOf(it)
-                if (p >= 0) {
-                    out[idx] = to[p]
-                }
-        }
-        return out
-    }
-    /**
-     * Randomize char array
-     * @param str
-     * @return
-     */
-    char[] randomize(char[] str, boolean reverse = false) {
+    char[] randomize(char[] chars, boolean reverse = false) {
+        String str = chars.toString()
         Random random = new Random(seed)
-        List<Integer> pos = (0..(str.length - 1)).toList()
+        List<Integer> cps = getCodePoints(str)
+        List<Integer> pos = (0..(cps.size() - 1)).toList()
         pos.shuffle(random)
-        char[] shuffled = new char[str.length]
-        pos.eachWithIndex {
+        List<String> out = []
+        pos.withIndex().each {
             int p, int i ->
-                if (reverse) {
-                    shuffled[p] = str[i]
+                if(reverse) {
+                    out[p] = Character.toString(cps[i])
                 } else {
-                    shuffled[i] = str[p]
+                    out[i] = Character.toString(cps[p])
                 }
         }
-        return shuffled
+        return out.join("").toCharArray()
     }
-
+    /**
+     * Get the list of all defined charsets
+     * @return
+     */
     static Map<String, CharSet> getCharsets() {
         Map charsets = [:] as Map<String, CharSet>
         try {

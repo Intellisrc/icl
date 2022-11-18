@@ -2,6 +2,7 @@ package com.intellisrc.crypt
 
 import com.intellisrc.crypt.encode.LpCode
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import static com.intellisrc.crypt.encode.LpCode.*
 
@@ -41,8 +42,9 @@ class LpCodeTest extends Specification {
         expect:
             LpCode lpCode = new LpCode(ALPHA, HANZU, seed)
             char[] encoded = lpCode.encode(toEncode)
-            println encoded
+            println "Encoded: " + encoded
             char[] decoded = lpCode.decode(encoded)
+            println "Decoded: " + decoded.toString()
             assert encoded != toEncode
             assert toEncode == decoded
     }
@@ -76,20 +78,30 @@ class LpCodeTest extends Specification {
             assert (a as char).toString() == "a"
             assert (b as char).toString() == "あ"
     }
-    def "Replace Chars"() {
+    def "Storing and restoring number"() {
         setup:
-            char[] s = "abcdefg".toCharArray()
+            char[] s = "asoasdiasdqwempoiapsoidas".toCharArray()
+            BigInteger num = toNumber(s, LOWERCASE, 999)
+            println "Number: " + num
         expect:
-            assert replaceChars(
-                s,
-                "abc".toCharArray(),
-                "123".toCharArray()
-            ) == "123defg".toCharArray()
-            assert replaceChars(
-                s,
-                "acdg".toCharArray(),
-                "WXYZ".toCharArray()
-            ) == "WbXYefZ".toCharArray()
+            assert toCharArray(num, LOWERCASE, 999) == s
+    }
+
+    @Unroll
+    def "From numbers to string"() {
+        setup:
+            BigInteger num = 128344192321353453454
+            char[] str = toCharArray(num, charset, seed)
+            println "String: " + str.toString()
+        expect:
+            assert toString(num, charset, seed) == str.toString()
+            assert toNumber(str, charset, seed) == num
+        where:
+            charset | seed
+            NUMBERS | 0
+            NUMBERS | 999
+            DIGITS  | 0
+            DIGITS  | 999
     }
 
     def "SMP Test"() {
