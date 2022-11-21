@@ -11,15 +11,29 @@ import java.lang.reflect.Modifier
  *
  * This class provides 2-way string encoding as a way of obfuscation.
  * While it doesn't really provide security, it could be used to
- * create confusion or to reduce the storage size of a string.
+ * create confusion or to reduce the storage size of a string (see notes).
+ * Or... you can use it just for fun! :)
  *
  * Features:
  * - Use of uncommon methods to encode/decode strings
  * - a salt key can be used to change output
- * - All the range of UTF-8 can be used (65k+ chars).
+ * - 2 Planes of UTF-8 can be used (128k+ chars) (see notes).
  * - Depending on the settings, the encoded string may
  *   result smaller than the length of the original string.
  * - Many possible combinations (input, output).
+ * - Translation from one charset to another.
+ * - Get a numeric representation of a string
+ *
+ * NOTES:
+ *  1. If you encode, for example, from HASH (16 chars) to ALPHA (52 chars) the resulting
+ *     string length will be smaller than the original string. The opposite is also true:
+ *     If you encode an alphanumeric string (ALPHA) to NUMBERS (10 chars), the resulting
+ *     string length will be longer than the original string.
+ *  2. If you store data and you use any of the characters inside the SMP (Plane 2), which
+ *     are composed of 4 bytes, you may need prepare your code to handle such strings. For
+ *     example:
+ *     "日本語".toCharArray().length == 3  // Any character inside the BMP (Basic Multilingual Plane) can be stored inside a `char`
+ *     "🕙🫛🎸🛡".toCharArray().length == 8 // Instead of iterating over those characters you will need to use getCodePoints() method.
  *
  * In order to decode/decode a string 2 settings are required:
  *
@@ -49,7 +63,7 @@ import java.lang.reflect.Modifier
  * ALPHA,ANUM,HASH,LCASE,UCASE,NUM are safe to store (as in a DB) without worrying about
  * escaping chars or having problems with language encoding.
  *
- * 3) KEY: used to randomize output (any UTF-8 char is possible). It is optional.
+ * 3) KEY: used to randomize output. It is optional.
  *
  * NOTE: There is no font that will display all characters in this list.
  *       Some fonts of the most complete are:

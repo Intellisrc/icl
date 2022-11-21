@@ -10,13 +10,15 @@ class LpCodeTest extends Specification {
 
     def "Print samples"() {
         setup:
-            char[] toEncode = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz".toCharArray()
+//            char[] toEncode = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz".toCharArray()
+            char[] toEncode = "HelloWorld".toCharArray()
         expect:
             println "Original: [$toEncode] (${toEncode.length})"
             charsets.each {
-                LpCode lpCode = new LpCode(LOWERCASE, it.value, 9999)
+                LpCode lpCode = new LpCode(ALPHA, it.value, 9999)
                 String encoded = lpCode.encode(toEncode)
-                println it.key + " (" + it.value.length + ") [" + encoded + "] (" + encoded.length() + ")"
+                println " | " + it.key + " | " + it.value.length + " | " + encoded + " | " + encoded.length() + " | "
+                //println it.key + " (" + it.value.length + ") [" + encoded + "] (" + encoded.length() + ")"
                 assert toEncode == lpCode.decode(encoded.toCharArray())
             }
     }
@@ -116,35 +118,35 @@ class LpCodeTest extends Specification {
             assert orig == dec
     }
 
-    def "Translate"() {
-        setup:
-            String origNum = "0123456789"
-            String origLow = "something"
-            List<Integer> custom1 = getCodePoints("OlZEASGTBg") //Leet for numbers
-            List<Integer> custom2 = getCodePoints("48©Δ3ғ6ԨїԏϏ1мИ0ϼ9Я57μύώ×Ч2") //Leet for alphabet
+    static final String origNum = "0123456789"
+    static final String origLow = "something"
+    static final List<Integer> custom1 = getCodePoints("OlZEASGTBg") //L33t for numbers
+    static final List<Integer> custom2 = getCodePoints("48©Δ3ғ6ԨїԏϏ1мИ0ϼ9Я57μύώ×Ч2") //L33t for alphabet
+    def "Translate must work"() {
         expect:
-            println "****************** ${origNum} *********************"
-            println translate(origNum, NUMBERS, CIRCLE_NUMS)
-            println translate(origNum, NUMBERS, CIRCLE_NEG_NUMS)
-            println translate(origNum, NUMBERS, COMMA_NUM)
-            println translate(origNum, NUMBERS, DIGITS)
-            println translate(origNum, NUMBERS, PAREN_NUMS)
-            println translate(origNum, NUMBERS, FW_NUM)
-            println translate(origNum, NUMBERS, custom1)
-            println translate(origNum, NUMBERS, LOWERCASE)
-            println "****************** ${origLow} *********************"
-            println translate(origLow, LOWERCASE, UPPERCASE)
-            println translate(origLow, LOWERCASE, CIRCLE_UP)
-            println translate(origLow, LOWERCASE, CIRCLE_LOW)
-            println translate(origLow, LOWERCASE, SQUARE_UP)
-            println translate(origLow, LOWERCASE, SQUARE_UP_NEG)
-            println translate(origLow, LOWERCASE, PAREN_LOW)
-            println translate(origLow, LOWERCASE, PAREN_UP)
-            println translate(origLow, LOWERCASE, FW_LOW)
-            println translate(origLow, LOWERCASE, FW_UP)
-            println translate(origLow, LOWERCASE, custom2)
-            println translate(origLow, LOWERCASE, NUMBERS)
-            println translate(origLow, LOWERCASE, CIRCLE_NUMS)
-            assert true
+            assert translate(value, from, to) == result
+        where:
+            value   | from      | to                | result
+            origNum | NUMBERS   | CIRCLE_NUMS       | "⓪①②③④⑤⑥⑦⑧⑨"
+            origNum | NUMBERS   | CIRCLE_NEG_NUMS   | "⓿❶❷❸❹❺❻❼❽❾"
+            origNum | NUMBERS   | COMMA_NUM         | "🄁🄂🄃🄄🄅🄆🄇🄈🄉🄊"
+            origNum | NUMBERS   | DIGITS            | "🯰🯱🯲🯳🯴🯵🯶🯷🯸🯹"
+            origNum | NUMBERS   | PAREN_NUMS        | "⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽"
+            origNum | NUMBERS   | FW_NUM            | "０１２３４５６７８９"
+            origNum | NUMBERS   | custom1           | "OlZEASGTBg"
+            origNum | NUMBERS   | LOWERCASE         | "abcdefghij"
+            origLow | LOWERCASE | UPPERCASE         | "SOMETHING"
+            origLow | LOWERCASE | CIRCLE_UP         | "ⓈⓄⓂⒺⓉⒽⒾⓃⒼ"
+            origLow | LOWERCASE | CIRCLE_LOW        | "ⓢⓞⓜⓔⓣⓗⓘⓝⓖ"
+            origLow | LOWERCASE | SQUARE_UP         | "🅂🄾🄼🄴🅃🄷🄸🄽🄶"
+            origLow | LOWERCASE | SQUARE_UP_NEG     | "🆂🅾🅼🅴🆃🅷🅸🅽🅶"
+            origLow | LOWERCASE | PAREN_LOW         | "⒮⒪⒨⒠⒯⒣⒤⒩⒢"
+            origLow | LOWERCASE | PAREN_UP          | "🄢🄞🄜🄔🄣🄗🄘🄝🄖"
+            origLow | LOWERCASE | FW_LOW            | "ｓｏｍｅｔｈｉｎｇ"
+            origLow | LOWERCASE | FW_UP             | "ＳＯＭＥＴＨＩＮＧ"
+            origLow | LOWERCASE | custom2           | "50м37ԨїИ6"
+            origLow | LOWERCASE | NUMBERS           | "som4t78n6"
+            origLow | LOWERCASE | CIRCLE_NUMS       | "⑱⑭⑫④⑲⑦⑧⑬⑥"
+
     }
 }
