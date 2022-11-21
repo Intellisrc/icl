@@ -51,11 +51,19 @@ import java.lang.reflect.Modifier
  *
  * 3) KEY: used to randomize output (any UTF-8 char is possible). It is optional.
  *
+ * NOTE: There is no font that will display all characters in this list.
+ *       Some fonts of the most complete are:
+ *
  * Recommended fonts:
- *  - Dejavu
+ *  - Noto - Google (77,000 characters)
+ *  - Unifont (65,000 characters)
+ *  - Dejavu (6,000 characters)
+ *
+ * Fonts marked with [**] may require specific font to display
  *
  * https://www.ssec.wisc.edu/~tomw/java/unicode.html
  * https://en.wikipedia.org/wiki/Unicode_block
+ * http://www.unicode.org/charts/
  */
 
 @CompileStatic
@@ -180,13 +188,13 @@ class LpCode {
     static public final List<Integer> OGHAM = (0x1680..0x169C)
     // Runic (89 chars) : ᚵᛝᛶᛯᛱᚧᚴᛦᚹᛂᛍᛛ᛫ᛯᚮᚼᚤᚶᛅᛪᛈᚹᚮᛘᚡᚰᚠᛚᛄᛘᚠᛔᛩ
     static public final List<Integer> RUNIC = (0x16A0..0x16F8)
-    // Tagalog - Philippines (22 chars)  : Not available in some fonts
+    // Tagalog - Philippines (22 chars) [**] : ᜀᜋᜈᜋᜅᜁᜎᜏᜐᜐ᜔᜶ᜋᜌᜑ᜵ᜈᜄᜓᜑᜁᜋ᜶ᜄᜒᜁᜅᜓᜎᜉᜋ
     static public final List<Integer> TAGALOG = (0x1700..0x1714) + [0x1735, 0x1736] - [0x170D]
     // (23 chars) : ᜦᜬᜪᜨᜦᜤᜠᜭᜦᜠᜧᜮᜬᜦ᜶ᜣᜲᜥᜳᜯᜧ᜴
     static public final List<Integer> HANUNOO = (0x1720..0x1736)
     // (20 chars) : ᝑᝄᝍᝌᝍᝅᝄᝈᝒᝏᝎᝊᝎᝋᝓᝎᝅᝆᝇᝈ
     static public final List<Integer> BUHID = (0x1740..0x1753)
-    // (18 chars) : Not available in some fonts
+    // (18 chars) : [**] ᝪᝩ᝭ᝰᝣᝦᝥᝦᝲᝩᝧᝲᝠᝪᝰᝰᝯᝢᝥᝩᝦᝨᝬᝨᝰ᝭ᝥᝧᝠ᝭ᝯᝪᝲᝤᝠᝣᝤᝢᝬ᝭ᝣᝣᝩᝠᝮ
     static public final List<Integer> TAGBANWA = (0x1760..0x1773) - [0x1773, 0x1771]
     // (144 chars) : ឞញួ᧱᧡᧧ឤ᧽៲ទឨុឬ២᧬ច៤
     static public final List<Integer> KHMER = (0x1780..0x17F9) + (0x19E0..0x19FF) - [0x17B4, 0x17B5, 0x17DE, 0x17DF] - (0x17EA..0x17EF)
@@ -257,7 +265,7 @@ class LpCode {
     static public final List<Integer> VAI = (0xA500..0xA62B)
     // (88 chars) : ꚿꛛꛄ꛷ꛧꛋꛚꛫꛡꛇꛃꚰꛘ꛶ꛈꛬꚧ꛰ꚪ꛱ꚴ
     static public final List<Integer> BAMUM = (0xA6A0..0xA6F7)
-    // (45 chars) : Not available in some fonts
+    // (45 chars) [**] : ꠍꠕꠊꠓ꠆ꠈꠦꠗꠐꠥꠋ꠨ꠎꠇꠙꠧꠖꠡꠢꠊꠟꠃꠒꠒꠑꠈꠕꠡꠘꠗꠥꠉꠔ
     static public final List<Integer> SYLOTI = (0xA800..0xA82C)
     // (56 chars) : ꡟꡑꡛꡤꡍꡧꡐꡐꡗꡠꡦꡩꡁꡫꡉꡫꡐꡇꡢꡫ꡴ꡅꡥꡍꡔꡋꡢꡱ
     static public final List<Integer> PHAGS_PA = (0xA840..0xA877)
@@ -290,12 +298,15 @@ class LpCode {
         (0xFE10..0xFE19) + (0xFE20..0xFE6B) - [0xFE53, 0xFE67] + (0xFFE8..0xFFEF) +
         (0xFFF9..0xFFFD)
     // Circled numbers (71 chars) : ㊱㊳⑭㊺➈㊲㉗➇⑦⓾⑲㉗⑥④⑳⓷
-    static public final List<Integer> CIRCLE_NUMS = (0x2460..0x2473) + [0x24EA] + (0x2780..0x2789) + (0x24F5..0x24FE) +
-        (0x3251..0x325F) + (0x32B1..0x32BF)
+    //                                                  0         1-20
+    static public final List<Integer> CIRCLE_NUMS = [0x24EA] + (0x2460..0x2473) +
+    //       21-35              36-50         1-10 (single line) 1-10 (double line)
+        (0x3251..0x325F) + (0x32B1..0x32BF) + (0x2780..0x2789) + (0x24F5..0x24FE)
     // Negative circled numbers (31 chars) : ❺➓⓱❻⓿➋❷❾⓫❻⓮➒➍⓱⓴
-    static public final List<Integer> CIRCLE_NEG_NUMS = (0x24EB..0x24F4) + [0x24FF] + (0x2776..0x277F) + (0x278A..0x2793)
+    //                                                      0           1-10              11-20              1-10 colored
+    static public final List<Integer> CIRCLE_NEG_NUMS =  [0x24FF] + (0x2776..0x277F) + (0x24EB..0x24F4) + (0x278A..0x2793)
     // Numbers with parenthesis (20 chars) : ⑴⑸⑾⑴⒁⒂⑶⒆⑺⑺⒄⑵⒃⒀⑽⑽
-    static public final List<Integer> PAREN_NUMS = (0x2474..0x2487)
+    static public final List<Integer> PAREN_NUMS = (0x2474..0x2487) // 1-20
     // Lowercase letters with parenthesis (26 chars) : ⒯⒲⒩⒰⒮⒜⒞⒴⒭⒳⒜⒡⒨
     static public final List<Integer> PAREN_LOW = (0x249c..0x24B5)
     // Circled uppercase letters (26 chars) : ⒹⒼⓍⒺⒸⓀⓂⒾⒷⒽⓀⓅⓌⓊ
@@ -317,26 +328,37 @@ class LpCode {
 
     /* ************ COMBOS **************** */
     //0-9a-f //similar to md5, sh,a etc (but with variable length) (16 chars)
+    // Sample: d86987e6f13634f4378325c8deabba
     static public final List<Integer> HASH = NUMBERS + aTof
     //0-9A-F //same as 'HASH' but uppercase (16 chars)
+    // Sample: 56412AD4B5D66855E8779CE9F83AB8
     static public final List<Integer> HASH_UP = NUMBERS + AtoF
     //a-zA-Z (52 chars)
+    // Sample: qzzndkvqmITTiQYYONLnOsY
     static public final List<Integer> ALPHA = LOWERCASE + UPPERCASE
     //0-9a-zA-Z (62 chars)
+    // Sample: u3ngV1s3IpO4iJjkv5LRCpYjb7KV
     static public final List<Integer> ANUM = NUMBERS + LOWERCASE + UPPERCASE
     //0-9a-zA-Z=+/ (as result of Base64, etc) (64 chars)
+    // Sample: +CrCsQN8peNtuta1w32V5gee=
     static public final List<Integer> BASE64 = ANUM + EQUALPLUS
     //Ascii Extended (support for accents and other common symbols) (815 chars)
+    // Sample: ʛòàƃ͏ĔʥĻ̠ņġĥ̫ɕȴǍȫ̹̀ȸGőʕ˩«ačÚǘ̳̏ʠŔ
     static public final List<Integer> ASCII = BASIC + EXTENDED
     // Alphanumeric in a circle (154 chars)
+    // Sample: ⒻⒻ⓮ⓔⓙ㊽ⓓ⓶㉟Ⓒ㊷Ⓥ㊼Ⓡ㉛➍ⓐ
     static public final List<Integer> CIRCLES = CIRCLE_LOW + CIRCLE_UP + CIRCLE_NUMS + CIRCLE_NEG_NUMS
     // Japanese, Korean, Chinese (40861 chars)
+    // Sample: 눹㍔鹼셣怣쭮縑쓂渕緣业뙚湊矊损
     static public final List<Integer> CJK = RADICALS + BOPOMOFO + HANGUL + IDEOGRAPHIC + HANZU + KOREAN + HIRAGANA + KATAKANA
     // Languages from India (705 chars)
+    // Sample: ఎ୧ୟꣾ५ூଌಜ౬৵एથऔા௰ಶ
     static public final List<Integer> INDIAN = DEVANAGARI + BENGALI + GUTMUKHI + GUJARATI + ORIYA + TAMIL + TELEGU + KANNADA
     // South-East Asia (1673 chars)
+    // Sample: ᲔୱญოᲣฅఊනⴁഐ೑ౙव௺ಯ
     static public final List<Integer> SE_ASIA = MALAYAM + SINHALA + THAI + LAO + MYANMAR + TAI_VIET + INDIAN + GEORGIAN + BALINESE
     // Visible characters : safe option instead of UTF8 (48392 chars)
+    // Sample: 蝼ꧽ䅛ෑ桻髂ႅ炙⣾傀㭧瞉䷄쫢뢰䶂㣨
     static public final List<Integer> VISIBLE = ASCII + GREEK + CYRILLIC + ARMENIAN + HEBREW + ARABIC + SYRIAC + THAANA +
         NKO + SAMARITAN + MANDAIC + INDIAN + SE_ASIA + TIBETAN + CJK + BRAILLE + SYMBOLS + HEXAGRAM - SPACE
 
@@ -344,174 +366,174 @@ class LpCode {
         SMP: Supplementary Multilingual Plane
         NOTE: Be aware that the following blocks are formed with more bytes and it might require special handling
      */
-    // (80 chars)
+    // (80 chars) : 𐅬𐅤𐆄𐅇𐅉𐅴𐆌𐆇𐅏𐆄𐆇𐅻𐅃𐅗𐅔𐅸𐅗𐅊𐅟𐅎𐅻𐅜𐅧𐅥𐅝𐆅𐆁𐅜𐅣
     static public final List<Integer> GREEK_SMP = (0x10140..0x1018E) + (0x101A0)
-    // (13 chars)
+    // (13 chars) : 𐆚𐆙𐆘𐆜𐆑𐆒𐆛𐆛𐆑𐆓𐆖𐆐𐆒𐆖𐆕𐆔𐆘𐆜𐆖𐆔𐆐𐆘𐆚𐆐𐆐𐆛𐆓
     static public final List<Integer> ROMAN = (0x10190..0x1019C)
-    // (57 chars)
+    // (57 chars) : 𐄎𐄖𐄱𐄠𐄼𐄲𐄊𐄯𐄊𐄝𐄉𐄔𐄔𐄢𐄕𐄜𐄟𐄤𐄀𐄸𐄍𐄚𐄖
     static public final List<Integer> AEGEAN = (0x10100..0x10102) + (0x10107..0x10133) + (0x10137..0x1013F)
-    // (46 chars)
+    // (46 chars) : 𐇧𐇙𐇝𐇩𐇬𐇱𐇼𐇗𐇯𐇞𐇘𐇞𐇭𐇕𐇠𐇔𐇔𐇮𐇭𐇡𐇝𐇥𐇩𐇠𐇷𐇧𐇱𐇠𐇬𐇽𐇔𐇴𐇳𐇮𐇡𐇚
     static public final List<Integer> PHAISTOS = (0x101D0..0x101FD)
-    // (29 chars)
+    // (29 chars) : 𐊖𐊖𐊒𐊕𐊕𐊌𐊚𐊊𐊔𐊐𐊃𐊓𐊆𐊘𐊏𐊎𐊃𐊄𐊎𐊙𐊎𐊅𐊃𐊕𐊃𐊊𐊍𐊘𐊙
     static public final List<Integer> LYCIAN = (0x10280..0x1029C)
-    // (49 chars)
+    // (49 chars) : 𐊪𐊧𐋅𐊼𐋅𐊸𐋋𐋃𐊿𐊮𐊴𐋂𐋍𐊡𐋎𐊠𐋐𐊫𐊢𐊮𐊾
     static public final List<Integer> CARIAN = (0x102A0..0x102D0)
-    // (36 chars)
+    // (36 chars) : 𐌏𐌓𐌃𐌆𐌄𐌘𐌆𐌑𐌉𐌔𐌛𐌕𐌢𐌅𐌐𐌄𐌃𐌓𐌈𐌂𐌅𐌍𐌗𐌙𐌡
     static public final List<Integer> OLD_ITALIC = (0x10300..0x10323)
-    // (30 chars)
+    // (30 chars) : 𐌳𐌽𐍃𐌲𐍇𐍇𐌽𐌲𐌿𐍅𐍉𐌿𐌻𐌼𐌾𐍈
     static public final List<Integer> GOTHIC = (0x1032D..0x1034A)
-    // (43 chars)
+    // (43 chars) [**] : 𐍢𐍰𐍐𐍭𐍲𐍔𐍦𐍰𐍯𐍟𐍫𐍺𐍟𐍠𐍚𐍰𐍠𐍪𐍨𐍨𐍞𐍷𐍐𐍘𐍥𐍕𐍢𐍰𐍶𐍛𐍡𐍘𐍟𐍚
     static public final List<Integer> OLD_PERMIC = (0x10350..0x1037A)
-    // (31 chars)
+    // (31 chars) : 𐎙𐎈𐎑𐎘𐎜𐎀𐎔𐎝𐎋𐎘𐎌𐎉𐎂𐎑𐎒𐎟𐎛𐎃𐎝𐎁𐎛𐎚𐎑𐎎𐎛𐎅𐎋𐎋𐎍𐎋𐎖𐎐𐎇𐎚𐎈𐎙𐎔
     static public final List<Integer> UGARTIC = (0x10380..0x1039D) + [0x1039F]
-    // (51 chars)
+    // (51 chars) : 𐏓𐎫𐏎𐏕𐏎𐎢𐎹𐎷𐎮𐎪𐎿𐏑𐎼𐎼𐎹𐎹𐏒𐏐𐏔𐎳
     static public final List<Integer> OLD_PERSIAN = (0x1039F..0x103D5) - (0x103C4..0x103C7)
-    // (80 chars)
+    // (80 chars) : 𐐄𐐗𐐙𐑄𐐌𐐇𐐟𐐄𐐇𐑋𐐓𐐧𐐤𐑈𐐧𐐚𐐯𐐞𐑋𐐬𐐷𐐵𐐭𐐅𐐁𐐬𐐳𐐂
     static public final List<Integer> DESERET = (0x10400..0x1044F)
-    // (48 chars)
+    // (48 chars) : 𐑻𐑵𐑪𐑫𐑶𐑝𐑘𐑑𐑧𐑥𐑪𐑸𐑐𐑞𐑡𐑘𐑹𐑓𐑨𐑚𐑡𐑲𐑽𐑗𐑕𐑮
     static public final List<Integer> SHAVIAN = (0x10450..0x1047F)
-    // (40 chars)
+    // (40 chars) : 𐒊𐒆𐒩𐒋𐒥𐒂𐒊𐒘𐒕𐒕𐒖𐒠𐒝𐒣𐒅𐒙𐒙𐒄𐒋𐒘𐒕𐒗𐒁𐒑𐒐𐒋𐒎𐒚𐒨
     static public final List<Integer> OSMANYA = (0x10480..0x104A9) - [0x1049E,0x1049F]
-    // (72 chars)
+    // (72 chars) : 𐒻𐓯𐓬𐓂𐒿𐓟𐓯𐓚𐓯𐓓𐓨𐓜𐓍𐓘𐓚𐓯𐓶𐓬𐓚𐓹𐓂𐓡𐓵𐒴
     static public final List<Integer> OSAGE = (0x104B0..0x104D3) + (0x104D8..0x104FB)
-    // (40 chars)
+    // (40 chars) [**] : 𐔆𐔧𐔋𐔣𐔂𐔊𐔘𐔕𐔕𐔖𐔞𐔝𐔡𐔅𐔙𐔙𐔄𐔋𐔘𐔕𐔗𐔁𐔑𐔐𐔋𐔎𐔚𐔦𐔉𐔦𐔍𐔟𐔕𐔚𐔜𐔘
     static public final List<Integer> ELBASAN = (0x10500..0x10527)
-    // Caucasian Albanian (53 chars)
+    // Caucasian Albanian (53 chars) : 𐕚𐔰𐔷𐔾𐔶𐕢𐕡𐕁𐔼𐕄𐕍𐕈𐕒𐕖𐕏𐕁𐕠𐔺𐕇𐕑𐕀𐕅𐕘𐕓𐔶𐔿𐕞𐕯𐕜𐕁𐕐𐕟𐔻𐕘𐔸𐕡
     static public final List<Integer> ALBANIAN = (0x10530..0x10563) + [0x1056F]
-    // (55 chars)
+    // (55 chars) : 𐠯𐠃𐠮𐠃𐠮𐠕𐠄𐠏𐠑𐠥𐠿𐠍𐠘𐠖𐠂𐠩𐠯𐠱𐠍𐠟𐠨𐠑𐠰𐠟𐠤𐠿𐠟
     static public final List<Integer> CYPRIOT = (0x10800..0x10838) - [0x10806,0x10807,0x10809,0x10836] + [0x1083C, 0x1083F]
-    // Imperial Aramaic (31 chars)
+    // Imperial Aramaic (31 chars) : 𐡔𐡜𐡋𐡛𐡌𐡉𐡂𐡑𐡒𐡞𐡚𐡃𐡜𐡁𐡚𐡝𐡑𐡎𐡚𐡅𐡋𐡋𐡍𐡋𐡙𐡐𐡇𐡝𐡈𐡘𐡔
     static public final List<Integer> ARAMAIC = (0x10840..0x1085F) - [0x10856]
-    // (32 chars)
+    // (32 chars) [**] : 𐡸𐡥𐡭𐡵𐡭𐡵𐡸𐡽𐡼𐡲𐡺𐡧𐡽𐡠𐡱𐡢𐡦𐡯𐡭𐡵𐡸𐡿𐡫𐡥𐡳𐡭𐡶𐡰𐡥𐡥𐡰𐡶𐡳𐡬𐡿𐡹𐡱
     static public final List<Integer> PALMYRENE = (0x10860..0x1087F)
-    // (40 chars)
+    // (40 chars) [**] : 𐢚𐢊𐢆𐢯𐢋𐢫𐢂𐢊𐢘𐢕𐢕𐢖𐢧𐢝𐢩𐢅𐢙𐢙𐢄𐢋𐢘𐢕𐢗𐢁𐢑𐢐𐢋𐢎𐢚𐢮𐢉
     static public final List<Integer> NABATAEAN = (0x10880..0x1089E) + (0x108A7..0x108AF)
-    // (26 chars)
+    // (26 chars) [**] : 𐣫𐣾𐣣𐣩𐣯𐣤𐣽𐣠𐣽𐣦𐣱𐣻𐣵𐣨𐣢𐣵𐣧𐣪𐣮𐣲𐣴𐣼𐣻𐣮𐣨𐣯𐣭𐣫𐣰𐣩𐣬
     static public final List<Integer> HATRAN = (0x108E0..0x108F5) - [0x108F3] + (0x108FB..0x108FF)
-    // (29 chars)
+    // (29 chars) : 𐤆𐤘𐤏𐤎𐤃𐤄𐤎𐤙𐤎𐤅𐤃𐤕𐤃𐤊𐤍𐤘𐤙𐤆𐤁𐤙𐤟𐤃𐤍𐤓𐤋𐤊𐤕𐤈𐤊𐤅𐤀𐤉𐤇𐤐𐤀𐤔𐤉𐤋𐤈𐤖
     static public final List<Integer> PHOENICIAN = (0x10900..0x1091B) + [0x1091F]
-    // (27 chars)
+    // (27 chars) : 𐤵𐤠𐤩𐤷𐤩𐤪𐤦𐤷𐤯𐤰𐤱𐤢𐤿𐤪𐤰𐤶𐤵𐤱𐤵𐤤𐤧𐤿𐤱𐤩𐤵𐤴𐤿𐤳𐤡𐤠𐤦𐤯𐤧𐤱𐤵𐤪𐤫𐤬𐤹
     static public final List<Integer> LYDIAN = (0x10920..0x10939) + [0x1093F]
-    // (242 chars) Hieroglyphic
+    // (242 chars) Hieroglyphic : 𐥦𐧮𐥴𐤬𐤦𐧵𐧍𐧿𐥯𐦡𐤬𐦪𐧉𐦦𐦜𐥃𐧠𐦫𐧓𐧉
     static public final List<Integer> MEROITIC = (0x10908..0x109B7) + (0x109BC..0x109FF) - [0x109D0,0x109D1]
-    // (68 chars)
+    // (68 chars) : 𐨅𐩓𐩄𐨐𐨎𐨣𐨢𐨛𐨁𐨛𐨮𐨢𐨃𐨃𐨢𐨲𐩄𐨌𐨱𐨤𐩀𐩗𐨸𐨏𐨐𐨸𐨟𐩒𐨁𐩄𐨭𐨑𐩔𐨌𐨥𐩈
     static public final List<Integer> KHAROSHTHI = (0x10A00..0x10A03) + [0x10A05,0x10A06] + (0x10A0C..0x10A13) +
                                                    (0x10A15..0x10A17) + (0x10A19..0x10A35) + (0x10A38..0x10A3A) +
                                                    (0x10A3F..0x10A48) + (0x10A50..0x10A58)
-    // (64 chars)
+    // (64 chars) : 𐪁𐪏𐩶𐪏𐩹𐪝𐪘𐪈𐩴𐩫𐪘𐩸𐩻𐩸𐩧𐪃𐩽𐪅𐪂𐩠𐪇
     static public final List<Integer> OLD_ARABIAN = (0x10A60..0x10A9F)
-    // (51 chars)
+    // (51 chars) : 𐫐𐫑𐫳𐫴𐫍𐫄𐫛𐫘𐫮𐫜𐫦𐫇𐫣𐫬𐫵𐫑𐫝𐫉𐫏𐫠𐫝𐫢
     static public final List<Integer> MANICHEAN = (0x10AC0..0x10AE6) + (0x10AEB..0x10AF6)
-    // (61 chars)
+    // (61 chars) : 𐬼𐬒𐬛𐬞𐬍𐬇𐬰𐬁𐬑𐬵𐬘𐬪𐬛𐬞𐬼𐬡𐬪𐬡𐬮
     static public final List<Integer> AVESTAN = (0x10B00..0x10B35) + (0x10B39..0x10B3F)
-    // (30 chars)
+    // (30 chars) [**] : 𐭝𐭐𐭟𐭅𐭉𐭟𐭛𐭜𐭞𐭈𐭊𐭆𐭂𐭁𐭕𐭕𐭟𐭏𐭃𐭀𐭏𐭕𐭏𐭉𐭇𐭞𐭚𐭆𐭑𐭛𐭟𐭎𐭉𐭓𐭘𐭐𐭞𐭑𐭟𐭊
     static public final List<Integer> PARTHIAN = (0x10B40..0x10B55) + (0x10B58..0x10B5F)
-    // (56 chars)
+    // (56 chars) [**] : 𐭲𐮎𐮪𐭩𐭣𐮐𐮯𐭦𐮌𐭫𐮑𐮑𐮫𐭢𐭨𐭭𐮀𐭯𐮈𐭯𐮑𐮆𐭤𐭯𐭽𐮄𐭩𐮌𐮚𐮊𐭤𐭸𐮙𐭮𐭹𐮐𐭡𐮋𐭥
     static public final List<Integer> PAHLAVI = (0x10B60..0x10B72) + (0x10B78..0x10B91) + (0x10B99..0x10B9C) + (0x10BA9..0x10BAF)
-    // (73 chars)
+    // (73 chars) : 𐰉𐱃𐰅𐰶𐰃𐰰𐰬𐰴𐰯𐰑𐰰𐰋𐰩𐰐𐰙𐱆𐰠𐰷𐰟𐰱𐰤𐰤𐱂𐰕𐰢𐰨𐰸𐰔𐰤𐰻𐰷𐰍𐰻𐰾𐰹
     static public final List<Integer> OLD_TURKIC = (0x10C00..0x10C48)
-    // (158 chars)
+    // (158 chars) : 𐲊𐳥𐳚𐴳𐲙𐴸𐲚𐳡𐳻𐲄𐲄𐴱𐲃𐳎𐴅𐳕𐳱𐳨𐳕𐳓𐲇𐳝𐲇
     static public final List<Integer> OLD_HUNGARIAN = (0x10C80..0x10CB2) + (0x10CC0..0x10CF2) + (0x10CFA..0x10D27) + (0x10D30..0x10D39)
-    // (31 chars)
+    // (31 chars) : 𐹺𐹱𐹮𐹻𐹥𐹫𐹫𐹭𐹫𐹶𐹰𐹧𐹺𐹨𐹹𐹴𐹨𐹳𐹩𐹶𐹦𐹹𐹺𐹫𐹢𐹭𐹷
     static public final List<Integer> RUMI = (0x10E60..0x10E7E)
-    // (82 chars)
+    // (82 chars) [**] : 𐼌𐼏𐼏𐼐𐼾𐼝𐼙𐽄𐼧𐼽𐼎𐼳𐼘𐼛𐽐𐼠𐽆𐽏𐼡𐼝𐼃𐼽𐼵𐼖𐽈𐽖𐼇𐼦𐼚𐽑𐼥𐼳𐼓𐼓𐼣
     static public final List<Integer> SOGDIAN = (0x10F00..0x10F27) + (0x10F30..0x10F59)
-    // (109 chars)
+    // (109 chars) : 𑁩𑀿𑁖𑁄𑀜𑀯𑁃𑁖𑁠𑀫𑁉𑀫𑁯𑀲𑀺𑀍𑀊𑀵𑁉𑀔𑁚𑀡𑁅𑁧𑀟𑀬𑁧𑀯𑀅
     static public final List<Integer> BRAHMI = (0x11000..0x1104D) + (0x11052..0x1106F) + [0x1107F]
-    // (66 chars)
+    // (66 chars) : 𑂩𑂥𑂉𑂵𑂧𑂿𑂛𑂸𑂄𑂤𑂏𑂳𑂋𑂄𑂉𑂣𑂆𑂙𑂜𑂔𑂕𑂳𑂱𑂛𑂫𑂸𑂴𑂍𑂴𑂿
     static public final List<Integer> KAITHI = (0x11080..0x110C1)
-    // (36 chars)
+    // (36 chars) [**] : 𑃕𑃨𑃗𑃞𑃖𑃥𑃱𑃢𑃸𑃒𑃡𑃕𑃐𑃠𑃙𑃓𑃒𑃚𑃤𑃦𑃷𑃐𑃤𑃨𑃓𑃍𑃹
     static public final List<Integer> SORA_SOMPENG = [0x110CD] + (0x110D0..0x110E8) + (0x110F0..0x110F9)
-    // (70 chars)
+    // (70 chars) : 𑄩𑄗𑄊𑅆𑄯𑄈𑄉𑄹𑄸𑄔𑄱𑅅𑄉𑄛𑄻𑄚𑄼𑄲𑄡𑄼𑄒𑅂𑅁𑄻𑄊𑄒𑄊𑄊𑄽𑄏𑄷𑄖𑄿𑄱𑄕𑅄𑄴𑄦
     static public final List<Integer> CHAKMA = (0x11100..0x11134) + (0x11136..0x11146)
-    // (39 chars)
+    // (39 chars) [**] : 𑅩𑅤𑅡𑅤𑅩𑅬𑅴𑅠𑅑𑅥𑅶𑅞𑅱𑅨𑅞𑅳𑅮𑅣𑅘𑅖𑅗𑅩𑅩𑅣𑅟
     static public final List<Integer> MAHAJANI = (0x11150..0x11176)
-    // (96 chars)
+    // (96 chars) : 𑇃𑆲𑇝𑆐𑇙𑆰𑇏𑇘𑆻𑆓𑆺𑆢𑆱𑆑𑇓𑇟𑆝𑇒𑆟𑆒𑆍𑇎𑆓𑆧𑆅𑆄𑆼𑆝𑇝𑆔𑇕𑇔𑆿
     static public final List<Integer> SHARADA = (0x11180..0x111DF)
-    // (38 chars)
+    // (38 chars) : 𑇳𑇳𑇤𑇯𑇬𑇯𑇧𑇤𑇨𑇲𑇱𑇮𑇪𑇮𑇭𑇴𑇮𑇧𑇦𑇩𑇨
     static public final List<Integer> SHINHALA = (0x111E1..0x111F4)
-    // (62 chars)
+    // (62 chars) : 𑈢𑈯𑈧𑈆𑈔𑈡𑈼𑈎𑈈𑈥𑈨𑈯𑈂𑈻𑈉𑈕𑈁𑈛𑈨𑈨𑈳𑈷𑈉𑈩
     static public final List<Integer> KHOJKI = (0x11200..0x1123E) - [0x11212]
-    // (38 chars)
+    // (38 chars) [**] : 𑊊𑊣𑊡𑊛𑊧𑊊𑊘𑊝𑊍𑊙𑊐𑊑𑊊𑊧𑊨𑊟𑊦𑊀𑊏𑊖𑊍𑊋𑊖𑊡𑊥𑊆𑊝𑊄𑊢𑊡
     static public final List<Integer> MULTANI = (0x11280..0x112A9) - [0x11287,0x11289,0x1128E,0x1129E]
-    // (69 chars)
+    // (69 chars) : 𑊶𑋥𑊼𑋀𑋖𑋔𑋖𑊶𑋘𑋷𑋄𑊸𑊳𑋓𑋄𑋑𑊺𑋰𑋳𑋰𑋦𑋏𑋈𑋸𑋪𑋑𑋥𑋸
     static public final List<Integer> KHUDAWADI = (0x112B0..0x112EA) + (0x112F0..0x112F9)
-    // (85 chars)
+    // (85 chars) : 𑌖𑌂𑌽𑍰𑌖𑌌𑌆𑍟𑍝𑍰𑌚𑌲𑍢𑌿𑌓𑍞𑌢𑍃𑌌𑍍𑍴𑌞𑍡𑌮𑍧𑍦𑌓𑌧𑌁𑌈
     static public final List<Integer> GRANTHA = (0x11300..0x11303) + (0x11305..0x1130C) + (0x1130F..0x11310) + (0x11313..0x11328) +
                                                 (0x1132A..0x11330) + [0x11332,0x11333] + (0x11335..0x11339) + (0x1133C..0x11344) +
                                                 [0x11347,0x11348,0x1134B,0x1134C,0x1134D,0x11350,0x11357] + (0x1135D..0x11363) +
                                                 (0x11366..0x1136C) + (0x11370..0x11374)
-    // (97 chars)
+    // (97 chars) : 𑐈𑑙𑐿𑐑𑐓𑑗𑐎𑐳𑐭𑐏𑐩𑑏𑐻𑐚𑐬𑐼𑐨𑑘𑑉𑐞𑑐𑑅𑐮𑐢𑐇𑑀𑐁𑐘
     static public final List<Integer> NEWA = (0x11400..0x11461) - [0x1145C]
-    // (82 chars)
+    // (82 chars) : 𑒨𑒧𑒖𑒅𑒿𑒱𑒾𑒌𑒏𑒏𑒐𑒶𑒝𑒙𑒼𑒧𑒵𑒎𑒫𑒘𑒛𑓐𑒠𑒾𑓇𑒡𑒝𑒃
     static public final List<Integer> TIRHUTA = (0x11480..0x114C7) + (0x114D0..0x114D9)
-    // (92 chars)
+    // (92 chars) : 𑗝𑗅𑗓𑖉𑖱𑖣𑖘𑖑𑖖𑖵𑗝𑖨𑖏𑖖𑗆𑗅𑖖𑗇𑖕𑖓𑖴𑗗𑖗𑗖𑖾𑖎𑗑𑗖𑖛
     static public final List<Integer> SIDDHAM = (0x11580..0x115B5) + (0x115B8..0x115DD)
-    // (79 chars)
+    // (79 chars) : 𑘭𑘑𑘑𑙃𑙗𑘗𑘰𑘡𑘬𑘄𑘛𑘺𑘧𑘷𑘲𑘇𑘂𑘭𑙘𑘙𑘫𑘿𑙒𑙓𑘁𑘤𑘕𑘢𑙒𑙁𑙀𑘍
     static public final List<Integer> MODI = (0x11600..0x11644) + (0x11650..0x11659)
-    // (67 chars)
+    // (67 chars) : 𑚌𑚌𑚢𑚤𑚩𑛆𑛅𑚏𑚅𑚵𑚈𑚏𑚃𑛂𑚅𑚲𑚓𑚲𑚷𑚔𑚚𑚋𑚨𑚕𑚸𑚧𑚰
     static public final List<Integer> TAKRI = (0x11680..0x116B8) + (0x116C0..0x116C9)
-    // (58 chars)
+    // (58 chars) : 𑜗𑜏𑜰𑜡𑜐𑜶𑜓𑜎𑜄𑜃𑜢𑜏𑜌𑜕𑜌𑜌𑜺𑜘𑜈𑜳𑜂𑜂𑜼𑜠𑜁𑜰𑜋𑜲
     static public final List<Integer> AHOM = (0x11700..0x1171A) + (0x1171D..0x1172B) + (0x11730..0x1173F)
-    // (84 chars)
+    // (84 chars) : 𑣓𑣿𑣄𑢲𑢨𑣬𑣛𑣇𑢱𑢮𑢲𑢮𑣲𑣑𑢪𑢧𑣔𑣐𑢽𑢢𑢶𑢣𑣨𑣈𑢬𑢫𑣜𑣭𑢠
     static public final List<Integer> WARANG_CITI = (0x118A0..0x118F2) + [0x118FF]
-    // (72 chars)
+    // (72 chars) : 𑨀𑨖𑨥𑨋𑨻𑨸𑨒𑨏𑨫𑨻𑨦𑨻𑨣𑨴𑨨𑨝𑨤𑨦𑨻𑩂𑨸𑨦𑩅𑨒𑨭
     static public final List<Integer> ZANABAZAR = (0x11A00..0x11A47)
-    // (83 chars)
+    // (83 chars) : 𑩗𑩹𑩛𑪍𑩞𑩲𑪖𑪁𑩝𑪃𑩧𑩢𑩯𑩴𑩣𑪀𑩷𑩐𑩐𑪛𑩝𑩜𑪕𑩦𑪍𑩦𑩒
     static public final List<Integer> SOYOMBO = (0x11A50..0x11AA2)
-    // (57 chars)
+    // (57 chars) : 𑫭𑫜𑫷𑫮𑫆𑫫𑫆𑫙𑫅𑫐𑫐𑫞𑫑𑫘𑫛𑫠𑫀𑫳𑫉𑫖𑫒𑫢𑫞𑫞𑫮𑫑
     static public final List<Integer> PAU_CIN_HAU = (0x11AC0..0x11AF8)
-    // (97 chars)
+    // (97 chars) : 𑱡𑱙𑰝𑱞𑰋𑱥𑱁𑰐𑰒𑱣𑰑𑰲𑰬𑰎𑰨𑱛𑰽𑰝𑰯𑰾𑰫𑱤
     static public final List<Integer> BHAIKSUKI = (0x11C00..0x11C45) - [0x11C09,0x11C37] + (0x11C50..0x11C6C)
-    // (68 chars)
+    // (68 chars) : 𑲃𑱴𑲈𑱲𑲦𑱻𑲭𑱺𑲅𑲁𑲖𑲜𑱿𑲦𑱼𑱲𑲅𑱸𑱲𑲊
     static public final List<Integer> MARCHEN = (0x11C70..0x11C8F) + (0x11C92..0x11CB6) - [0x11CA8]
-    // (1235 chars)
+    // (1235 chars) : 𒀩𒓲𒍜𒄅𒊠𒅳𒂝𒃽𒌮𒐣𒁂𒍾
     static public final List<Integer> CUNEIFORM = (0x12000..0x12399) + (0x12400..0x12474) + (0x12480..0x12543)
-    // (1071 chars) Hieroglyphic
+    // (1071 chars) Hieroglyphic : 𓂷𓎁𓋤𓉗𓁾𓂞𓋮𓁢𓆳𓇈𓋶𓏁𓊙𓃨𓊇𓀿𓏌
     static public final List<Integer> EGYPTIAN = (0x13000..0x1342E)
-    // (583 chars) Hieroglyphic
+    // (583 chars) Hieroglyphic : 𔒶𔒋𔔣𔕒𔓟𔔄𔐩𔐭𔒥𔐖𔖥𔓿𔒗𔘵𔕢𔑛𔖂𔐗𔘐𔑷𔙁
     static public final List<Integer> ANATOLIAN = (0x14400..0x14646)
-    // (570 chars)
+    // (570 chars) : 𖦷𖦷𖢍𖢒𖠝𖤅𖦕𖠥𖨩𖡖𖧃𖦍𖢯𖤙𖧫𖦘𖨭𖡷𖧆𖣽𖢏𖣨
     static public final List<Integer> BAMUM_SMP = (0x16800..0x16A39)
-    // (136 chars)
+    // (136 chars) [**] : 𖩖𖩣𖩞𖩏𖩛𖩮𖩏𖩐𖩊𖩣𖩐𖩚𖩘𖩘𖩎𖩦𖩀𖩈𖩕𖩅𖩒𖩣𖩩𖩋𖩑𖩈𖩏𖩊𖩕𖩨𖩚
     static public final List<Integer> MRO = (0x16A40..0x16A69) - [0x16A5F] + [0x16A6E,0x16A6F]
-    // (142 chars)
+    // (142 chars) [**] : 𖫨𖫖𖫡𖫙𖫤𖫫𖫥𖫴𖫕𖫠𖫔𖫓𖫣𖫘𖫒𖫕𖫝𖫧𖫩𖫳𖫓𖫧𖫨𖫒𖫑𖫵𖫴𖫐𖫙𖫚𖫓𖫨𖫜𖫖
     static public final List<Integer> BASSA_VAH = (0x16AD0..0x16AED) + (0x16AF0..0x16AF5)
-    // (127 chars)
+    // (127 chars) : 𖬔𖮋𖬢𖬽𖬘𖭿𖭠𖭜𖭫𖬰𖬠𖭅𖬦𖭝𖭳𖭝𖬀𖭑𖭅𖮃𖭱𖬰𖬘𖬛𖬡𖬷𖬹𖬩𖭃𖭭𖬼𖬴
     static public final List<Integer> PAHAWH_HMONG = (0x16B00..0x16B45) + (0x16B50..0x16B77) - [0x16B5A,0x16B62] + (0x16B7D..0x16B8F)
-    // (149 chars)
+    // (149 chars) : 𖼇𖼜𖽲𖽲𖾜𖽑𖼷𖼹𖽭𖽆𖼱𖼩𖾝𖼷𖽆𖾂𖼦𖼜𖽭𖾙𖽩𖽔𖼱𖼛𖽈𖽕𖽰
     static public final List<Integer> MIAO = (0x16F00..0x16F4A) + (0x16F4F..0x16F87) + (0x16F8F..0x16F9F)
-    // (6892 chars)
+    // (6892 chars) : 𗸓𘏶𗜛𗤭𗷕𗛋𗞆𘋑𘏁𗋩𘪉𗕤𗾤𘗗
     static public final List<Integer> TANGUT = [0x16FE0] + (0x17000..0x187F7) + (0x18800..0x18AF2)
-    // (396 chars)
+    // (396 chars) [**] : 𛉭𛈞𛆤𛊀𛅷𛈠𛋺𛊪𛉸𛉒𛆏𛆹𛉊𛈙𛅼𛈞𛈖𛉢𛇯
     static public final List<Integer> NUSHU = (0x1B170..0x1B2FB)
-    // (144 chars)
+    // (144 chars) : 𛱟𛱼𛰕𛱗𛲒𛱨𛰴𛱋𛰟𛰈𛰺𛲀𛱞𛱱𛰥𛲜𛲃𛰐𛰩𛰸𛰭𛱡𛱶𛰄𛱥
     static public final List<Integer> DUPLOYAN = (0x1BC00..0x1BC6A) + (0x1BC70..0x1BC7C) + (0x1BC80..0x1BC88) + (0x1BC90..0x1BC9F) - [0x1BCAA,0x1BCAB,0x1BC9D]
-    // (549 chars)
+    // (549 chars) : 𝈨𝂬𝆴𝁴𝂯𝀧𝅬𝃍𝈹𝁅𝇖𝈾𝈋𝈽𝆗𝅘𝅥𝅱𝇌𝁢𝇆𝅘𝅥𝅲𝅐𝅘𝀜𝃤𝁺𝅈𝄻𝀯𝅭𝅆𝆢
     static public final List<Integer> MUSICAL = (0x1D000..0x1D0F5) + //Byzantine
                                                 (0x1D100..0x1D1EA) - [0x1D127,0x1D128] + //General
                                                 (0x1D200..0x1D245) //Greek
-    // (20 chars)
+    // (20 chars) : 𝋮𝋯𝋫𝋯𝋪𝋲𝋯𝋤𝋧𝋦𝋩𝋠𝋥𝋲𝋯𝋤𝋰
     static public final List<Integer> MAYAN = (0x1D2E0..0x1D2F3)
-    // (87 chars) * Similar to HEXAGRAMS
+    // (87 chars) * Similar to HEXAGRAMS : 𝌴𝍏𝌻𝍍𝍇𝌙𝌯𝌖𝌳𝌓𝌺𝌎𝌌𝌍𝌔𝍔𝍓𝌐
     static public final List<Integer> TAIXUANJING = (0x1D300..0x1D356)
-    // (25 chars)
+    // (25 chars) : 𝍫𝍵𝍢𝍪𝍬𝍴𝍷𝍧𝍨𝍩𝍰𝍮𝍢𝍤𝍴𝍢𝍸𝍦𝍧𝍢
     static public final List<Integer> COUNTING = (0x1D360..0x1D378)
-    // (1020 chars)
+    // (1020 chars) : 𝟉𝛸𝛞𝛑𝑃𝐲𝛾𝙟𝔶𝛙𝗞𝐎𝔃𝔉𝜭𝗐𝗖
     static public final List<Integer> MATH = (0x1D400..0x1D7FF) - [0x1D6A6,0x1D6A7,0x1D7CD,0x1D7CE]
-    // (38 chars)
+    // (38 chars) [**] : 𞀓𞀕𞀗𞀨𞀧𞀐𞀈𞀠𞀛𞀡𞀄𞀋𞀠𞀞𞀘𞀦𞀋𞀖𞀝𞀊𞀗𞀎𞀏𞀋𞀦𞀪𞀟𞀩𞀀𞀌𞀔𞀊𞀈𞀔𞀞𞀤𞀆𞀝𞀄𞀣𞀞𞀣𞀌𞀖𞀦𞀣𞀤𞀌𞀟𞀔𞀅𞀃𞀉𞀉𞀐𞀛𞀃𞀋𞀣𞀄𞀐𞀩𞀀𞀉𞀘𞀦𞀍𞀧𞀛𞀁
     static public final List<Integer> GLAGOLITIC_SMP = (0x1E000..0x1E02A) - [0x1E007,0x1E019,0x1E01A,0x1E022,0x1E025]
-    // (71 chars)
+    // (71 chars) [**] : 𞄟𞄂𞅁𞄜𞅏𞄉𞄣𞄏𞄻𞄜𞄄𞄅𞅁𞄟𞅆𞄨𞄡𞄔𞄖𞄅𞅅𞄽𞅀𞄕𞄔
     static public final List<Integer> NYIAKENG = (0x1E100..0x1E12C) + (0x1E130..0x1E13D) + (0x1E140..0x1E149) + [0x1E14E,0x1E14F]
-    // (59 chars)
+    // (59 chars) : 𞋪𞋩𞋋𞋿𞋯𞋏𞋩𞋱𞋩𞋒𞋳𞋠𞋌𞋿𞋋𞋊𞋘𞋆𞋭𞋅𞋜𞋩𞋟𞋩𞋭𞋮𞋁𞋂𞋲
     static public final List<Integer> WANCHO = (0x1E2C0..0x1E2F9) + [0x1E2FF]
-    // (213 chars)
+    // (213 chars) : 𞣀𞡵𞡨𞢭𞠂𞡺𞡄𞢟𞢂𞠐𞡵𞡓𞡩𞠨𞡹𞡻𞠑𞠪𞢃𞡥𞢚𞠉
     static public final List<Integer> MENDE_KIKAKUI = (0x1E800..0x1E8D6) - [0x1E8C5,0x1E8C6]
-    // (88 chars)
+    // (88 chars) : 𞥟𞤩𞥑𞤆𞥕𞤋𞥔𞤕𞤢𞥔𞤱𞤓𞤲𞤄𞤆𞤘𞤧𞤩𞤣𞥑𞤴𞥓𞤳𞤲𞤚𞤪𞤀𞥄𞤺𞤱𞤁𞤢𞥟
     static public final List<Integer> ADLAM = (0x1E900..0x1E94B) + (0x1E950..0x1E959) + [0x1E95E,0x1E95F]
-    // (68 chars)
+    // (68 chars) :           𞲮𞲗𞱻𞲁𞱲
     static public final List<Integer> SIYAQ = (0x1EC71..0x1ECB4)
-    // (143 chars)
+    // (143 chars) : 𞸛𞹶𞺘𞺥𞺒𞺯𞺦𞺬𞺴𞺌𞹡𞸮𞹇𞺷𞺖𞹹𞹵
     static public final List<Integer> ARABIC_SMP = (0x1EE00..0x1EEBB) + [0x1EEF0,0x1EEF1] - [0x1EE04,0x1EE20,0x1EE23,0x1EE25,0x1EE26,
                                                                                              0x1EE28,0x1EE33,0x1EE38,0x1EE3A,0x1EE48,
                                                                                              0x1EE4A,0x1EE4C,0x1EE50,0x1EE53,0x1EE55,
@@ -520,55 +542,57 @@ class LpCode {
                                                                                              0x1EE73,0x1EE78,0x1EE7D,0x1EE7F,0x1EE8A,
                                                                                              0x1EEA4,0x1EEAA] -
                                                     (0x1EE3C..0x1EE41) - (0x1EE43..0x1EE46) - (0x1EE9C..0x1EEA0)
-    // (44 chars)
+    // (44 chars) : 🀔🀍🀛🀏🀪🀖🀃🀔🀍🀍🀚🀪🀈🀅🀙🀇
     static public final List<Integer> MAHJONG = (0x1F000..0x1F02B)
-    // (100 chars)
+    // (100 chars) : 🂂🁰🁏🁵🁭🂀🁥🀹🁉🀸🀱🁠🁲🂍🀻🁱🂒🁌🀻🀴🀴🁼🀱🁩🀸🁐🁨🁌🀷
     static public final List<Integer> DOMINO = (0x1F030..0x1F093)
-    // (82 chars)
+    // (82 chars) : 🂿🃅🃓🂹🃠🃍🃈🂸🂥🃣🃕🃢🂬🂮🂮🂲🃚
     static public final List<Integer> CARDS = (0x1F0A0..0x1F0F5) - [0x1F0AF,0x1F0B0,0x1F0C0,0x1F0D0]
-    // (84 chars)
+    // (84 chars) : 🨊🨇🨴🨰🨝🨂🨖🨃🩈🨨🨌🨋🨼🩍🨀🨿🨏🨩🨦
     static public final List<Integer> CHESS = (0x1FA00..0x1FA53)
-    // (14 chars)
+    // (14 chars) : 🩧🩭🩧🩩🩬🩧🩧🩫🩤🩪🩧🩤🩭
     static public final List<Integer> CHESS_CH = (0x1FA60..0x1FA6D)
-    // (10 chars)
+    // (10 chars) : 🄅🄅🄆🄈🄃🄉🄅🄇🄇🄂🄁🄇🄈🄇🄁🄉🄃🄄🄃🄊🄈🄃🄅
     static public final List<Integer> COMMA_NUM = (0x1F101..0x1F10A)
-    // (26 chars)
+    // (26 chars) : 🄖🄡🄤🄢🄘🄒🄢🄗🄚🄞🄣🄥🄦🄤
     static public final List<Integer> PAREN_UP = (0x1F110..0x1F129)
-    // (26 chars)
+    // (26 chars) : 🄺🄸🅈🅂🄸🅇🄰🄴🄹🄻🄼🄺🄴🅈🄵🄳🄱🄶🅉🄲
     static public final List<Integer> SQUARE_UP = (0x1F130..0x1F149)
-    // (26 chars)
+    // (26 chars) : 🅧🅐🅧🅖🅡🅤🅢🅘🅒🅢🅗🅚🅞🅣🅥🅦🅤🅞🅘🅟
     static public final List<Integer> CIRCLE_UP_NEG = (0x1F150..0x1F169)
-    // (26 chars)
+    // (26 chars) : 🅸🆇🅰🅴🅹🅻🅼🅺🅴🆈🅵🅳🅱🅶🆉🅲🅶🅾🅱🆄🆇🆀🆃🆆🆀
     static public final List<Integer> SQUARE_UP_NEG = (0x1F170..0x1F189)
-    // (150 chars)
+    // (150 chars) : 🠘🠊🠝🡙🠝🢫🠇🠴🡫🠼🠤🠧🠗🢗🠩🢀🡖🠽🠋🢟🡴🠿🢝🢔🠓🢑🡡🡿🢅🠶
     static public final List<Integer> ARROWS = (0x1F800..0x1F847) - (0x1F80C..0x1F80F) + (0x1F850..0x1F859) + (0x1F860..0x1F887) + (0x1F890..0x1F8AD) + [0x1F8B0,0x1F8B1]
-    // (654 chars)
+    // (654 chars) : 𐚓🄋🙔𐙵🜶🜩🝤🜎🙶𐛖🄋🟁🙴𐜢🙪𐚼🆍🝝𐜜🙷🅭🟕🆔🜾🜇
     static public final List<Integer> SYMBOLS_SMP = (0x10600..0x10736) + (0x10740..0x10755) + (0x10760..0x10767) +
                                                     (0x1F650..0x1F67F) + // Dingbats
                                                     (0x1F700..0x1F773) + // Alchemical
                                                     (0x1F780..0x1F7D8) + // Geometric
                                                     [0x1F100] + (0x1F10B..0x1F10F) + (0x1F12A..0x1F12F) + (0x1F14A..0x1F14F) + (0x1F16A..0x1F16F) + (0x1F18A..0x1F1AD) // Assorted
-    // (1325 chars)
+    // (1325 chars) : 🥿🩲👙🪞🧄🛡🗦🕙🫛🗐🪵🟨📎🔝🖘🎸🐔🥕🔬🏾🫵🛣
     static public final List<Integer> EMOJI = (0x1F300..0x1F64F) + (0x1F680..0x1F6D7) + (0x1F6E0..0x1F6EC) + (0x1F6F0..0x1F6FC) +
                                               (0x1F90C..0x1F9FF) + (0x1FA70..0x1FA7C) + (0x1FA80..0x1FA88) + (0x1FA90..0x1FABD) +
                                               (0x1FABF..0x1FAC5) + (0x1FACE..0x1FADB) + (0x1FAE0..0x1FAE8) + (0x1FAF0..0x1FAF8) +
                                               (0x1F7E0..0x1F7EB) // Geometric
-    // (269 chars)
-    static public final List<Integer> IDIOGRAMS = (0x10000..0x1005D) - [0x1000C,0x10027,0x1003B,0x1003E,0x1004E,0x1004F] +
+    // (269 chars) : 𐀨𐀤𐃂𐀲𐂇𐃚🈘𐃐𐂬𐀅🈖𐂽𐀈𐃥𐂠𐂭𐂮𐃠🈖𐂻𐂋𐃛𐃥𐁌𐀚𐃄
+    static public final List<Integer> IDEOGRAMS = (0x10000..0x1005D) - [0x1000C,0x10027,0x1003B,0x1003E,0x1004E,0x1004F] +
                                                   (0x10080..0x100FA) + (0x1F200..0x1F202) + (0x1F210..0x1F23B) + (0x1F240..0x1F248) +
                                                   [0x1F250,0x1F251]
-    // (203 chars)
+    // (203 chars) : 🭖🬡🯈🬌🮿🮵🮎🭡🬗🭀🮟
     static public final List<Integer> BLOCK_SMP = (0x1FB00..0x1FBCA)
-    // (10 chars)
+    // (10 chars) : 🯴🯱🯶🯰🯵🯰🯸🯹🯰🯲🯸🯹🯸🯱🯲
     static public final List<Integer> DIGITS = (0x1FBF0..0x1FBF9)
 
 
     /* ************ SMP COMBOS **************** */
-    // Hieroglyphics (1896 chars)
+    // Hieroglyphics (1896 chars) : 𓋢𓁯𓂱𓍞𓌴𔖥𔒺
     static public final List<Integer> HIEROGLYPHIC = EGYPTIAN + MEROITIC + ANATOLIAN
-    // Lines (151 chars)
+    // Lines (151 chars) : 𝌭𝍍𝌴䷏䷋𝌅𝌰𝌛𝌀𝌈䷫𝍖𝌁𝌂䷛䷖
     static public final List<Integer> LINES_SMP = HEXAGRAM + TAIXUANJING
-    // (68,498 chars)
+    // (1317 chars) : 𒀊𒋫𒐭𒔫𒌻𒊊𒉲𒑙𒀂𒉹
+    static public final List<Integer> WEDGE = UGARTIC + OLD_PERSIAN + CUNEIFORM
+    // (68,498 chars) : ㋟讞🬵턇𐊈휹🯈⛷擶
     static public final List<Integer> VISIBLE_SMP = VISIBLE + GREEK_SMP + ROMAN + AEGEAN + PHAISTOS + LYCIAN + CARIAN + OLD_ITALIC +
         GOTHIC + OLD_PERMIC + UGARTIC + OLD_PERSIAN + DESERET + SHAVIAN + OSMANYA + OSAGE + ELBASAN + ALBANIAN + CYPRIOT + ARAMAIC +
         PALMYRENE + NABATAEAN + HATRAN + PHOENICIAN + LYDIAN + MEROITIC + KHAROSHTHI + OLD_ARABIAN + MANICHEAN + AVESTAN + PARTHIAN +
@@ -577,17 +601,17 @@ class LpCode {
         PAU_CIN_HAU + BHAIKSUKI + MARCHEN + CUNEIFORM + EGYPTIAN + ANATOLIAN + BAMUM_SMP + MRO + BASSA_VAH + PAHAWH_HMONG + MIAO +
         TANGUT + DUPLOYAN + MUSICAL + MAYAN + TAIXUANJING + COUNTING + MATH + GLAGOLITIC_SMP + NYIAKENG + WANCHO + MENDE_KIKAKUI +
         ADLAM + SIYAQ + ARABIC_SMP + MAHJONG + DOMINO + CARDS + COMMA_NUM + PAREN_UP + SQUARE_UP + CIRCLE_UP_NEG + SQUARE_UP_NEG +
-        ARROWS + SYMBOLS_SMP + EMOJI + CHESS + CHESS_CH + IDIOGRAMS + BLOCK_SMP + DIGITS
+        ARROWS + SYMBOLS_SMP + EMOJI + CHESS + CHESS_CH + IDEOGRAMS + BLOCK_SMP + DIGITS
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Wrapper around a list of characters with special properties
      */
     static class CharSet {
-        final Set<Integer> chars
+        final List<Integer> chars
 
         CharSet(Collection<Integer> chars) {
-            this.chars = chars.toSet()
+            this.chars = chars.toList().unique()
         }
 
         int getLength() {
@@ -596,6 +620,10 @@ class LpCode {
 
         int getPosition(int chr) {
             return chars.toList().indexOf(chr)
+        }
+
+        int getAt(int index) {
+            return chars[index]
         }
     }
 
@@ -713,6 +741,66 @@ class LpCode {
     static String toString(BigInteger number, Collection<Integer> charSet, long seed = 0) {
         return toString(number, new CharSet(charSet), seed)
     }
+
+    /**
+     * The following methods are static wrappers for `translate`
+     * @param chars : char array or String
+     * @param from  : CharSet or List<Integer>
+     * @param to    : CharSet or List<Integer>
+     * @return char array or String
+     */
+    static char[] translate(char[] chars, CharSet from, CharSet to) {
+        return new LpCode(from, to).translate(chars)
+    }
+    static char[] translate(char[] chars, List<Integer> from, CharSet to) {
+        return new LpCode(from, to).translate(chars)
+    }
+    static char[] translate(char[] chars, CharSet from, List<Integer> to) {
+        return new LpCode(from, to).translate(chars)
+    }
+    static char[] translate(char[] chars, List<Integer> from, List<Integer> to) {
+        return new LpCode(from, to).translate(chars)
+    }
+    static String translate(String str, CharSet from, CharSet to) {
+        return new LpCode(from, to).translate(str.toCharArray()).toString()
+    }
+    static String translate(String str, List<Integer> from, CharSet to) {
+        return new LpCode(from, to).translate(str.toCharArray()).toString()
+    }
+    static String translate(String str, CharSet from, List<Integer> to) {
+        return new LpCode(from, to).translate(str.toCharArray()).toString()
+    }
+    static String translate(String str, List<Integer> from, List<Integer> to) {
+        return new LpCode(from, to).translate(str.toCharArray()).toString()
+    }
+    /**
+     * Translates from one charset to another
+     * `Translate` won't encode, it is just a 1 to 1 conversion.
+     * For example:  A -> 🅰 -> 🅐 -> 🄰 -> a -> 1
+     *
+     * NOTE: In the case the target charset uses a out-of-bounds character,
+     * it will not translate
+     *
+     * @param str
+     * @return
+     */
+    char[] translate(char[] str) {
+        String res = ""
+        List<Integer> cps = getCodePoints(str.toString())
+        cps.each {
+            int idx = input.getPosition(it)
+            if(idx >= 0) {
+                if(idx <= output.length) {
+                    res += Character.toString(output[idx])
+                } else {
+                    res += Character.toString(it)
+                }
+            } else {
+                res += Character.toString(it)
+            }
+        }
+        return res.toCharArray()
+    }
     /**
      * Encode an array of characters
      * @param str
@@ -752,6 +840,7 @@ class LpCode {
         codePoints.eachWithIndex {
             int cp, int s ->
                 int r = charset.getPosition(cp)
+                //noinspection GrReassignedInClosureLocalVar
                 n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * (charset.length)
         }
         return n

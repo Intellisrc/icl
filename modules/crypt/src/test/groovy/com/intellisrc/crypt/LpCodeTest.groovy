@@ -115,4 +115,36 @@ class LpCodeTest extends Specification {
         expect :
             assert orig == dec
     }
+
+    def "Translate"() {
+        setup:
+            String origNum = "0123456789"
+            String origLow = "something"
+            List<Integer> custom1 = getCodePoints("OlZEASGTBg") //Leet for numbers
+            List<Integer> custom2 = getCodePoints("48©Δ3ғ6ԨїԏϏ1мИ0ϼ9Я57μύώ×Ч2") //Leet for alphabet
+        expect:
+            println "****************** ${origNum} *********************"
+            println translate(origNum, NUMBERS, CIRCLE_NUMS)
+            println translate(origNum, NUMBERS, CIRCLE_NEG_NUMS)
+            println translate(origNum, NUMBERS, COMMA_NUM)
+            println translate(origNum, NUMBERS, DIGITS)
+            println translate(origNum, NUMBERS, PAREN_NUMS)
+            println translate(origNum, NUMBERS, FW_NUM)
+            println translate(origNum, NUMBERS, custom1)
+            println translate(origNum, NUMBERS, LOWERCASE)
+            println "****************** ${origLow} *********************"
+            println translate(origLow, LOWERCASE, UPPERCASE)
+            println translate(origLow, LOWERCASE, CIRCLE_UP)
+            println translate(origLow, LOWERCASE, CIRCLE_LOW)
+            println translate(origLow, LOWERCASE, SQUARE_UP)
+            println translate(origLow, LOWERCASE, SQUARE_UP_NEG)
+            println translate(origLow, LOWERCASE, PAREN_LOW)
+            println translate(origLow, LOWERCASE, PAREN_UP)
+            println translate(origLow, LOWERCASE, FW_LOW)
+            println translate(origLow, LOWERCASE, FW_UP)
+            println translate(origLow, LOWERCASE, custom2)
+            println translate(origLow, LOWERCASE, NUMBERS)
+            println translate(origLow, LOWERCASE, CIRCLE_NUMS)
+            assert true
+    }
 }
