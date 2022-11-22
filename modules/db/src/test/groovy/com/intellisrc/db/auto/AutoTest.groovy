@@ -101,12 +101,12 @@ class AutoTest extends Specification {
         Addresses(Database database) { super(database) }
     }
 
-    static List<JDBC> getTestable() {
+    static List<JDBC> getTestable(boolean update = false) {
         List<JDBC> dbs = []
         dbs << new Derby(
             create: true,
             memory: true,
-            useFK : false
+            useFK : !update
             //dbname  : derbyTmp.absolutePath
         )
         //now = "CURRENT DATE"

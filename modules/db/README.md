@@ -94,6 +94,9 @@ String passwordHash = db.table("users").field("password").get(userId).toString()
 db.close() // Return connection to the pool
 ```
 
+> NOTE: You can use `Database.default.waitForConnection()` if the database delays to start (for example, during
+> a server restart).
+
 ### Connecting to a secondary database / Alternative method
 
 You can connect to any supported database using their classes (look inside db/jdbc/) in this way
@@ -290,7 +293,7 @@ example:
 class User extends Model { /* ... */ }
 ```
 
-When declared version is higher than the one stored in the database, 
+When declared version is different from the one stored in the database, 
 the table will be updated automatically (by default). You can turn off
 that behaviour and execute the update on your terms.
 You can read more about it next, as the update process is taken care by the `Table` class.
@@ -424,12 +427,14 @@ assert users.delete(active : false)
 assert users.insert(user)
 assert users.replace(user)
 assert users.update(user)
+assert users.count() > 0
+assert users.count(active : true) > 0
 ```
 
 When the table does not exist, it will be created automatically. If your `Model` version
-changes, it will update the table automatically, but if you want to decide when to do it,
-you can turn it off by setting its `autoUpdate` property to `false` (also available through
-the `@TableMeta` annotation).
+changes (either increases or decreases), it will update the table automatically, but if you 
+want to decide when to do it, you can turn it off by setting its `autoUpdate` property to 
+`false` (also available through the `@TableMeta` annotation).
 
 To update it on command, you can execute:
 

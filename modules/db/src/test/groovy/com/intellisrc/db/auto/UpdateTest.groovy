@@ -97,7 +97,7 @@ class UpdateTest extends AutoTest {
             users?.drop()
             users?.quit()
         where:
-            jdbc << testable
+            jdbc << getTestable(true)
     }
 
     @Unroll
@@ -157,7 +157,7 @@ class UpdateTest extends AutoTest {
             users?.drop()
             users?.quit()
         where:
-            jdbc << testable
+            jdbc << getTestable(true)
     }
 
 }
