@@ -359,8 +359,7 @@ class TableMakerTest extends Specification {
                     ["キウイ", 900, 2350, "example@example.com"],
                     ["ﾄﾓﾛｺｼ", 100, 1000, "example@example.com"],
                     ["௵౷ആ", 200, 2000, "example@example.com"],
-                    ["⛰⛱⛲⛳⛴", 300, 3000, "example@example.com"],
-                    ["꧃⃢", 400, 4000, "example@example.com"]
+                    ["⛰⛱⛲⛳⛴", 300, 3000, "example@example.com"]
                 ],
                 footer: "合計: 4"
             )
