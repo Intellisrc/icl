@@ -10,15 +10,13 @@ class LpCodeTest extends Specification {
 
     def "Print samples"() {
         setup:
-//            char[] toEncode = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz".toCharArray()
-            char[] toEncode = "HelloWorld".toCharArray()
+            char[] toEncode = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz".toCharArray()
         expect:
             println "Original: [$toEncode] (${toEncode.length})"
             charsets.each {
                 LpCode lpCode = new LpCode(ALPHA, it.value, 9999)
                 String encoded = lpCode.encode(toEncode)
-                println " | " + it.key + " | " + it.value.length + " | " + encoded + " | " + encoded.length() + " | "
-                //println it.key + " (" + it.value.length + ") [" + encoded + "] (" + encoded.length() + ")"
+                println it.key + " (" + it.value.length + ") [" + encoded + "] (" + encoded.length() + ")"
                 assert toEncode == lpCode.decode(encoded.toCharArray())
             }
     }
