@@ -181,7 +181,9 @@ class DBPool {
 		if(connection) {
 			currentConnections.remove(connection)
 			if(!availableConnections.contains(connection)) {
-				availableConnections.add(connection)
+				if(connection.open) { // Only keep opened connections
+					availableConnections.add(connection)
+				}
 				Log.v("[DEL] Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
 			}
 		}

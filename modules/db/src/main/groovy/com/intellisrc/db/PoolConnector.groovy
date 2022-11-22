@@ -66,6 +66,7 @@ class PoolConnector implements Connector {
 					isopen = true
 				} else {
 					Log.w("Unable to connect")
+					close() // Return connection if it fails to connect
 				}
             } catch (e) {
                 Log.e( "Unable to get connection :", e)
