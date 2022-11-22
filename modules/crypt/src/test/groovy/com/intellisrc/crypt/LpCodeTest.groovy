@@ -8,13 +8,13 @@ import static com.intellisrc.crypt.encode.LpCode.*
 
 class LpCodeTest extends Specification {
 
-    def "Print samples"() {
+    def "Test all blocks"() {
         setup:
-            char[] toEncode = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz".toCharArray()
+            char[] toEncode = "hello".toCharArray()
         expect:
             println "Original: [$toEncode] (${toEncode.length})"
             charsets.each {
-                LpCode lpCode = new LpCode(ALPHA, it.value, 9999)
+                LpCode lpCode = new LpCode(LOWERCASE, it.value, 9999)
                 String encoded = lpCode.encode(toEncode)
                 println it.key + " (" + it.value.length + ") [" + encoded + "] (" + encoded.length() + ")"
                 assert toEncode == lpCode.decode(encoded.toCharArray())
@@ -62,22 +62,21 @@ class LpCodeTest extends Specification {
             assert encoded1 == encoded2
     }
 
-    def "Test ord"() {
+    def "Encoding with a different seed should return a different value"() {
         setup:
-            char a = "a"
-            char b = "あ"
+            char[] toEncode = "HelloWorldThisMustWork".toCharArray()
+            long seed1 = new Random().nextLong()
+            long seed2 = new Random().nextLong()
+            println "Using seed1: " + seed1
+            println "Using seed2: " + seed2
+            LpCode lpCode1 = new LpCode(ALPHA, LATIN, seed1)
+            LpCode lpCode2 = new LpCode(ALPHA, LATIN, seed2)
+            char[] encoded1 = lpCode1.encode(toEncode)
+            char[] encoded2 = lpCode2.encode(toEncode)
         expect:
-            assert (a as int) == 97
-            assert (b as int) == 12354
+            assert encoded1 != encoded2
     }
-    def "Test chr"() {
-        setup:
-            int a = 97
-            int b = 12354
-        expect:
-            assert (a as char).toString() == "a"
-            assert (b as char).toString() == "あ"
-    }
+
     def "Storing and restoring number"() {
         setup:
             char[] s = "asoasdiasdqwempoiapsoidas".toCharArray()
