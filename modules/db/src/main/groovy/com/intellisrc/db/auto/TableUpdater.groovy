@@ -67,7 +67,10 @@ class TableUpdater {
                                 if(ok2) {
                                     records = db.table(info.name).count().get().toInt()
                                     if (auto.copyTable(db, info.name, info.backName)) {
-                                        ok2 = db.table(info.name).drop()
+                                        ok2 = auto.copyTableData(db, info.name, info.backName, info.table.columns)
+                                        if(ok2) {
+                                            ok2 = db.table(info.name).drop()
+                                        }
                                     } else {
                                         ok2 = auto.renameTable(db, info.name, info.backName)
                                     }
@@ -95,67 +98,65 @@ class TableUpdater {
                                 return db.table(info.backName).exists()
                         }
                         if (ok) {
-                            if (ok) {
-                                tables.each {
-                                    TableInfo info ->
-                                        int version = getTableVersion(db, info.name)
-                                        if (info.table.execOnUpdate(db.table(info.backName), version, info.table.definedVersion)) {
-                                            List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
-                                            ok = db.table(info.name).insert(newData)
-                                        } else {
-                                            ok = auto.copyTableData(db, info.backName, info.name, info.table.columns) &&
+                            tables.each {
+                                TableInfo info ->
+                                    int version = getTableVersion(db, info.name)
+                                    if (info.table.execOnUpdate(db.table(info.backName), version, info.table.definedVersion)) {
+                                        List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
+                                        ok = db.table(info.name).insert(newData)
+                                    } else {
+                                        ok = auto.copyTableData(db, info.backName, info.name, info.table.columns) &&
+                                             db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
+                                        if (!ok) {
+                                            // Probably column mismatch (using row by row method):
+                                            List<String> columnsOld = db.table(info.backName).info().collect { it.name }
+                                            List<String> columnsNew = db.table(info.name).info().collect { it.name }
+                                            List<String> columnsAdded = columnsNew - columnsOld
+                                            List<String> columnsRemoved = columnsOld - columnsNew
+                                            List<Map> newData = db.table(info.backName).get().toListMap().collect {
+                                                Map row ->
+                                                    if (!columnsAdded.empty) {
+                                                        columnsAdded.each {
+                                                            row[it] = null
+                                                        }
+                                                    }
+                                                    if (!columnsRemoved.empty) {
+                                                        columnsRemoved.each {
+                                                            row.remove(it)
+                                                        }
+                                                    }
+                                                    return row
+                                            }
+                                            Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
+                                            ok = newData.empty ?: db.table(info.name).insert(newData) &&
                                                  db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
-                                            if (!ok) {
-                                                // Probably column mismatch (using row by row method):
-                                                List<String> columnsOld = db.table(info.backName).info().collect { it.name }
-                                                List<String> columnsNew = db.table(info.name).info().collect { it.name }
-                                                List<String> columnsAdded = columnsNew - columnsOld
-                                                List<String> columnsRemoved = columnsOld - columnsNew
-                                                List<Map> newData = db.table(info.backName).get().toListMap().collect {
-                                                    Map row ->
-                                                        if (!columnsAdded.empty) {
-                                                            columnsAdded.each {
-                                                                row[it] = null
-                                                            }
-                                                        }
-                                                        if (!columnsRemoved.empty) {
-                                                            columnsRemoved.each {
-                                                                row.remove(it)
-                                                            }
-                                                        }
-                                                        return row
-                                                }
-                                                Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
-                                                ok = newData.empty ?: db.table(info.name).insert(newData) &&
-                                                     db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
-                                                if (ok) {
-                                                    Log.i("Data was successfully imported.")
-                                                } else {
-                                                    Log.w("Unable to import data to the new table structure. Try setting `execOnUpdate()` to true, and handle the data change in `onUpdate()`.")
-                                                }
+                                            if (ok) {
+                                                Log.i("Data was successfully imported.")
+                                            } else {
+                                                Log.w("Unable to import data to the new table structure. Try setting `execOnUpdate()` to true, and handle the data change in `onUpdate()`.")
                                             }
                                         }
-                                }
+                                    }
                             }
-                            if (ok) {
-                                tables.each {
-                                    TableInfo info ->
-                                        db.table(info.backName).drop()
-                                        // Replace the table version:
-                                        auto.setVersion(db, db.jdbc.dbname, info.name, info.table.definedVersion)
-                                }
-                            } else {
-                                Log.w("Update failed!. Rolled back.")
-                                tables.each { 
-                                    TableInfo info ->
-                                        if(db.table(info.backName).exists()) {
-                                            db.table(info.name).drop()
-                                            if (!auto.renameTable(db, info.backName, info.name)) {
-                                                Log.w("Unable to rollback update. Please check table: [%s] manually.", info.name)
-                                                Log.w("    a backup of original table may exists with name: ", info.backName)
-                                            }
+                        }
+                        if (ok) {
+                            tables.each {
+                                TableInfo info ->
+                                    db.table(info.backName).drop()
+                                    // Replace the table version:
+                                    auto.setVersion(db, db.jdbc.dbname, info.name, info.table.definedVersion)
+                            }
+                        } else {
+                            Log.w("Update failed!. Rolled back.")
+                            tables.each {
+                                TableInfo info ->
+                                    if(db.table(info.backName).exists()) {
+                                        db.table(info.name).drop()
+                                        if (!auto.renameTable(db, info.backName, info.name)) {
+                                            Log.w("Unable to rollback update. Please check table: [%s] manually.", info.name)
+                                            Log.w("    a backup of original table may exists with name: ", info.backName)
                                         }
-                                }
+                                    }
                             }
                         }
                         auto.turnFK(db, true)

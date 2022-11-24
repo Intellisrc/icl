@@ -152,7 +152,6 @@ class SQLite extends JDBC implements AutoJDBC {
             Log.v(createSQL)
             Log.e("Unable to create table.")
         }
-
         return ok
     }
 

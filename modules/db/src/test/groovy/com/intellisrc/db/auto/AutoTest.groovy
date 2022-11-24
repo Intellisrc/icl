@@ -103,12 +103,12 @@ class AutoTest extends Specification {
 
     static List<JDBC> getTestable(boolean update = false) {
         List<JDBC> dbs = []
-        dbs << new Derby(
+        /*dbs << new Derby(
             create: true,
             memory: true,
             useFK : !update
             //dbname  : derbyTmp.absolutePath
-        )
+        )*/
         //now = "CURRENT DATE"
         dbs << new SQLite(
                 dbname: sqliteTmp.absolutePath
