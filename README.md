@@ -16,15 +16,15 @@ Provide the best implementation or wrap the best libraries to make it easier to 
 With this library you can:
 
 - Simplify your code by using [GroovyExtend](https://gitlab.com/intellisrc/groovy-extend) library (already included)
-- Use configuration files easily, log and rotate logs, start your application in a more elegant way and more [core module](#core) and [log module](#log)
-- Set up back-end web services (HTTP or WebSockets, using Spark-Java Web Framework) [web module](#web)
-- Create specialized threads, analyze them and manage them easily [thread module](#thread)
-- Manage databases using only Java objects or interact with them using a simple fluid SQL query builder (using JDBC) [db module](#db)
-- Send emails with attachments through SMTP, create FTP, UDP or TCP servers and clients [net module](#net)
-- Encrypt data or hash passwords easily and safely (using BountyCastle library) [crypt module](#crypt)
-- Create a terminal application in which you can interact using commands (using JLine) [term module](#term)
-- Communicate through a serial port (JSSC wrapper) [serial module](#serial)
-- Use cache, monitor your hardware or automate configuration changes (using Jedis or BerkeleyDB) [etc module](#etc)
+- Use configuration files easily, log and rotate logs, start your application in a more elegant way and more ([core module](#core) and [log module](#log))
+- Set up back-end web services (HTTP or WebSockets, using Spark-Java Web Framework) ([web module](#web))
+- Create specialized threads, analyze them and manage them easily ([thread module](#thread))
+- Manage databases using only Java objects or interact with them using a simple fluid SQL query builder (using JDBC) ([db module](#db))
+- Send emails with attachments through SMTP, create FTP, UDP or TCP servers and clients ([net module](#net))
+- Encrypt data or hash passwords easily and safely (using BountyCastle library) ([crypt module](#crypt))
+- Create a terminal application in which you can interact using commands (using JLine) ([term module](#term))
+- Communicate through a serial port (JSSC wrapper) ([serial module](#serial))
+- Use cache, monitor your hardware or automate configuration changes (using Jedis or BerkeleyDB) ([etc module](#etc))
 
 **NOTE** : This library was designed using Groovy, but it can be used in Java and Kotlin (however, all the examples in the
 documentation are in Groovy).
@@ -86,12 +86,13 @@ For more detailed explanation, click on the module title.<br>
 |     | `Cmd`              | Execute system commands                                                          |
 | ★   | `Config`           | Manage configuration files (by default config.properties)                        |
 | ★   | `Log`              | Log messages to `SLF4J`                                                          |
-| @   | `StringProperties` | Base class for properties setters and getters                                    |
+| ★   | `Millis`           | Milliseconds constants to be used instead numeric values.                        |
+| ★   | `Secs`             | Seconds constants to be used instead numeric values.                             |
 | ★   | `SysClock`         | Provides simple methods to interact with LocalDateTime. Useful for Unit Testing. |
-|     | `Millis`           | Milliseconds constants to be used instead numeric values.                        |
 |     | `SysInfo`          | Get information about the system                                                 |
 |     | `SysMain`          | Convert class into runnable class                                                |
 | ★   | `SysService`       | Convert class into service (only one by project)                                 |
+| @   | `StringProperties` | Base class for properties setters and getters                                    |
 |     | `Version`          | Return system/application version and makes it easy to handle versions           |
 
 [Documentation](modules/core/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#core) 
@@ -135,10 +136,10 @@ Includes : core
  |     | `Calc`        | Provide common math calculations                                                                                  |
  | ★   | `Hardware`    | Get information about OS                                                                                          |
  | ★   | `JSON`        | Convert from and to JSON format (Using Groovy JSON)                                                               |
- |     | `Mime`        | Get Mime types from files or streams                                                                              |
  | @   | `JarResource` | Store resources in JAR                                                                                            |
  | @   | `Metric`      | Keep track of changes in values (used by Hardware)                                                                |
- |     | `Pack`        | Methods to convert byte[] to int, long and back again                                                             |
+|     | `Mime`        | Get Mime types from files or streams                                                                              |
+|     | `Pack`        | Methods to convert byte[] to int, long and back again                                                             |
  | ★   | `Redis`       | A wrapper around `Jedis` to make it even easier                                                                   |
  | ★   | `YAML`        | Convert from and to YAML format                                                                                   |
  | ★   | `Zip`         | Compress files                                                                                                    |
@@ -175,7 +176,7 @@ Includes : core, etc
 |     | `MySQL`                    | JDBC implementation for MySQL databases                                            |
 |     | `MariaDB`                  | JDBC implementation for MariaDB databases                                          |
 |     | `Oracle`                   | JDBC implementation for Oracle databases                                           |
-|     | `PostgreSQL`               | JDBC implementation for PostgreSQL databases                                       |
+|     | `PostgreSQL`               | JDBC implementation for PostgresSQL databases                                       |
  |     | `SQLite`                   | JDBC implementation for SQLite databases                                           |
 |     | `SQLServer`                | JDBC implementation for SQL Server databases                                       |
 
@@ -188,18 +189,18 @@ Includes : core, etc, crypt
 > connecting or creating TCP/UDP servers, getting network interfaces and
 > perform netmask calculations, etc. [read more...](modules/net/README.md)
 
-|     | Class         | Usage                                                     |
-|-----|---------------|-----------------------------------------------------------|
- | ★   | `Email`       | Verify email format                                       |
- |     | `MacAddress`  | Convert format from and to MacAddress  XX:XX:XX:XX        |
- |     | `Network`     | Methods related to networking but not to NetworkInterface |
- |     | `NetFace`     | Simple representation of a Network Interface              |
- | ★  | `Smtp`        | Class to send emails using SMTP server                    |
- |     | `FtpClient`   | FTP client                                                |
- |     | `TCPClient`   | TCP client                                                |
- |     | `TCPServer`   | TCP server                                                |
- |     | `UDPClient`   | UDP client                                                |
- |     | `UDPServer`   | UDP server                                                |
+|     | Class        | Usage                                                                      |
+|-----|--------------|----------------------------------------------------------------------------|
+ | ★   | `Email`      | Verify email format                                                        |
+ |     | `MacAddress` | Convert format from and to MacAddress  XX:XX:XX:XX                         |
+ |     | `Network`    | Methods related to networking and ip addresses but not to NetworkInterface |
+ |     | `NetFace`    | Simple representation of a Network Interface                               |
+ | ★   | `Smtp`       | Class to send emails using SMTP server                                     |
+ |     | `FtpClient`  | FTP client                                                                 |
+ |     | `TCPClient`  | TCP client                                                                 |
+ |     | `TCPServer`  | TCP server                                                                 |
+ |     | `UDPClient`  | UDP client                                                                 |
+ |     | `UDPServer`  | UDP server                                                                 |
 
 [Documentation](modules/net/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#net)
 
@@ -226,22 +227,23 @@ Includes : core, etc, net
 > Spark-Java Web Framework, so it is very flexible and powerful, but designed
 > to be elegant and easier to use. [read more...](modules/web/README.md)
 
-|     | Class                    | Usage                                                                                           |
-|-----|--------------------------|-------------------------------------------------------------------------------------------------|
- | ★   | `Service`                | Defines a single service to be used in `WebService`                                             |
-|     | `ServiceOutput`          | Customize output response from a `Service`                                                      |
-| @   | `Serviciable`            | Generic interface for services                                                                  |
- |     | `ServiciableAuth`        | Interface to be used in services which requires sessions                                        |
- |     | `ServiciableHTTPS`       | Interface to be used to support SSL                                                             |
- |     | `ServiciableSingle`      | Defines a web service with a single `Service`                                                   |
- | ★   | `ServiciableMultiple`    | Defines a web service with multiple `Service`                                                   |
- | ★   | `ServiciableWebSocket`   | Defines a web service using websockets                                                          |
- | @   | `Session`                | Represents a user session                                                                       |
- | ★   | `WebService`             | Main class used to create a web server. It wraps Spark                                          |
- | ★   | `WebSocketService`       | Wrapper class to use with websockets                                                            |
- | ★   | `WebSocketServiceClient` | Client for websocket services                                                                   |
- |     | services/`LoginService`  | Implementation for login services                                                               |
- |     | services/`LogService`    | Implementation to browse logs in a browser                                                      |
+|     | Class                    | Usage                                                    |
+|-----|--------------------------|----------------------------------------------------------|
+ | ★   | `Service`                | Defines a single service to be used in `WebService`      |
+|     | `ServiceOutput`          | Customize output response from a `Service`               |
+| @   | `Serviciable`            | Generic interface for services                           |
+ |     | `ServiciableAuth`        | Interface to be used in services which requires sessions |
+ |     | `ServiciableHTTPS`       | Interface to be used to support SSL                      |
+ |     | `ServiciableSingle`      | Defines a web service with a single `Service`            |
+ | ★   | `ServiciableMultiple`    | Defines a web service with multiple `Service`            |
+ | ★   | `ServiciableWebSocket`   | Defines a web service using websockets                   |
+ | @   | `Session`                | Represents a user session                                |
+|     | `UploadFile`             | Represents an uploaded file                              |
+| ★   | `WebService`             | Main class used to create a web server. It wraps Spark   |
+ | ★   | `WebSocketService`       | Wrapper class to use with websockets                     |
+ | ★   | `WebSocketServiceClient` | Client for websocket services                            |
+ |     | services/`LoginService`  | Implementation for login services                        |
+ |     | services/`LogService`    | Implementation to browse logs in a browser               |
 
 [Documentation](modules/web/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#web)
 
@@ -260,7 +262,7 @@ Includes : core, etc
  | ★   | `Hash`         | Provides many simple hash algorithms like MD5, SHA .. SHA512, and others available through BountyCastle (like: TIGER, WHIRLPOOL, etc.) |
  | @   | `Hashable`     | Interface for `Hash` and `PasswordHash`                                                                                                |
  | ★   | `PasswordHash` | Provides strong hashing algorithms for passwords, like: BCRYPT, SCRYPT and PBKDF2                                                      |
-|     | `LpCode`       | Provides String obfuscation                                                                                                            |
+|     | `LpCode`       | Provides String obfuscation, reduction or conversion using UTF-8 character planes                                                      |
 
 [Documentation](modules/crypt/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#crypt)
 
@@ -336,18 +338,18 @@ you to choose your library versions, reduce the compilation time and your projec
 Below each module, I'm including the recommended version (the one used during compilation).
 
 * `core` : Groovy version is now up to you (required by any module). 
-    * `org.codehaus.groovy:groovy-all:3.0.11`
+    * `org.codehaus.groovy:groovy-all:3.0.12`
 * `db`   : Database drivers need to be included (Choose the one(s) which match(es) your database(s)):
     * `com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre11`
-    * `com.oracle.database.jdbc:ojdbc11:21.6.0.0`
+    * `com.oracle.database.jdbc:ojdbc11:21.7.0.0`
     * `mysql:mysql-connector-java:8.0.30`
     * `org.apache.derby:derby:10.15.2.0`
-    * `org.firebirdsql.jdbc:jaybird:4.0.6.java11`
+    * `org.firebirdsql.jdbc:jaybird:4.0.7.java11`
     * `org.mariadb.jdbc:mariadb-java-client:3.0.6`
-    * `org.postgresql:postgresql:42.3.6`
-    * `org.xerial:sqlite-jdbc:3.36.0.3`
+    * `org.postgresql:postgresql:42.5.0`
+    * `org.xerial:sqlite-jdbc:3.39.4.1`
 * `etc`  :
-  * Jedis (`redis.clients:jedis:4.2.3`)
+  * Jedis (`redis.clients:jedis:4.3.1`)
   * BerkeleyDB (`com.sleepycat:je:18.3.12`)
 
 The following modules are already included in the specified modules:
