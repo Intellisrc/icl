@@ -1,6 +1,7 @@
 //file:noinspection unused
 package com.intellisrc.crypt.encode
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Modifier
@@ -82,6 +83,9 @@ import java.lang.reflect.Modifier
 
 @CompileStatic
 class LpCode {
+    //NOTE: The smaller the chunkSize, the larger the output, higher the CPU usage and lower the Memory usage.
+    static int chunkSize = 100      //For large size texts, it is better to use chunks (for very large texts, 1024 might be better)
+    static int glueChar = 0x001E    //Which character to use to glue a chunk (it can be part of the OUTPUT charset)
     /* ************ PARTS ***************** */
     //Binary-like (2 chars: 0,1) : 10111010111011111010100111000011111101000101000100
     static public final List<Integer> BIT = 0x30..0x31
@@ -622,7 +626,7 @@ class LpCode {
      * Wrapper around a list of characters with special properties
      */
     static class CharSet {
-        final List<Integer> chars
+        final private List<Integer> chars
 
         CharSet(Collection<Integer> chars) {
             this.chars = chars.toList().unique()
@@ -638,6 +642,10 @@ class LpCode {
 
         int getAt(int index) {
             return chars[index]
+        }
+
+        List<Integer> getChars() {
+            return chars.collect() // Create a clone of the List so we don't modify it
         }
     }
 
@@ -828,6 +836,31 @@ class LpCode {
         return toStr(num, output)
     }
     /**
+     *
+     * @param str
+     * @param glue
+     * @param chunkSize
+     * @return
+     */
+    String encodeByChunks(char[] str, List<Integer> glue, int chunkSize = chunkSize) {
+        List<String> buff = []
+        glue.each {
+            output.chars.removeElement(it) // Remove it from charset if it is included
+        }
+        (0..str.length - 1).step(chunkSize).each {
+            int next = it + chunkSize
+            if(next > str.length - 1) { next = str.length }
+            buff << encode(str.toList().subList(it, next).toArray() as char[]).toString()
+        }
+        return buff.join(glue.collect { Character.toString(it) }.join(""))
+    }
+    String encodeByChunks(char[] str, int glue = glueChar, int chunkSize = chunkSize) {
+        return encodeByChunks(str, [glue], chunkSize)
+    }
+    String encodeByChunks(char[] str, String glue, int chunkSize = chunkSize) {
+        return encodeByChunks(str, getCodePoints(glue), chunkSize)
+    }
+    /**
      * Decode an array of characters
      * @param str
      * @return
@@ -839,6 +872,29 @@ class LpCode {
             str = randomize(str, true)
         }
         return str
+    }
+    /**
+     *
+     * @param str
+     * @param glue
+     * @return
+     */
+    String decodeByChunks(char[] str, List<Integer> glue) {
+        List<String> buff = []
+        glue.each {
+            output.chars.removeElement(it) // Remove it from charset if it is included
+        }
+        String div = glue.collect { Character.toString(it) }.join("")
+        str.toString().tokenize(div).each {
+            buff << decode(it.toCharArray()).toString()
+        }
+        return buff.join("")
+    }
+    String decodeByChunks(char[] str, int glue = glueChar) {
+        return decodeByChunks(str, [glue])
+    }
+    String decodeByChunks(char[] str, String glue) {
+        return decodeByChunks(str, getCodePoints(glue))
     }
     /**
      * Converts an array of characters to a number
@@ -854,6 +910,10 @@ class LpCode {
         codePoints.eachWithIndex {
             int cp, int s ->
                 int r = charset.getPosition(cp)
+                if(r == -1) { // Not found in charset
+                    Log.w("Character: [%s] not found in charset: [%s ~ %s]", Character.toString(cp), Character.toString(charset.chars.min()), Character.toString(charset.chars.max()))
+                    r = Random.range(0, charset.length - 1) //Replace by a random character
+                }
                 //noinspection GrReassignedInClosureLocalVar
                 n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * (charset.length)
         }

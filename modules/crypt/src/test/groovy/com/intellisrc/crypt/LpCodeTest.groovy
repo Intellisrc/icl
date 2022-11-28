@@ -1,8 +1,12 @@
 package com.intellisrc.crypt
 
+import com.intellisrc.core.SysClock
 import com.intellisrc.crypt.encode.LpCode
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 import static com.intellisrc.crypt.encode.LpCode.*
 
@@ -32,6 +36,19 @@ class LpCodeTest extends Specification {
             println "DEC = " + decoded
             assert encoded != toEncode
             assert toEncode == decoded
+    }
+
+    def "Test encoding/decoding with mistaken input"() {
+        setup:
+            char[] toEncode = "!Hello World This Must NOT Work 1234".toCharArray()
+        expect:
+            LpCode lpCode = new LpCode(ANUM, BRAILLE)
+            char[] encoded = lpCode.encode(toEncode)
+            println "ENC = " + encoded
+            char[] decoded = lpCode.decode(encoded)
+            println "DEC = " + decoded
+            assert encoded != toEncode
+            assert toEncode != decoded
     }
 
     def "Test encoding/decoding with seed"() {
@@ -84,6 +101,33 @@ class LpCodeTest extends Specification {
             println "Number: " + num
         expect:
             assert toCharArray(num, LOWERCASE, 999) == s
+    }
+
+    def "By chunks"() {
+        setup:
+            int glue = getCodePoints("|").first() //BRAILLE.first() //You can use a character included inside the OUTPUT charset
+            char[] s = ("""The Basic Latin or C0 Controls and Basic Latin Unicode block is the first block of the Unicode standard, and the only block which is encoded in one byte in UTF-8. The block contains all the letters and control codes of the ASCII encoding. It ranges from U+0000 to U+007F, contains 128 characters and includes the C0 controls, ASCII punctuation and symbols, ASCII digits, both the uppercase and lowercase of the English alphabet and a control character.""").toCharArray()
+            println String.format("ORIGINAL (len: %d): %s", s.length, s.toString())
+            LpCode lpCode = new LpCode(BASIC, BRAILLE)
+            LocalDateTime start = SysClock.now
+            println "ENCODED ALL: " + lpCode.encode(s).toString()
+            println "LAPSED: " + ChronoUnit.MILLIS.between(start, SysClock.now) //There is an initialization penalty
+        expect:
+            [10, 25, 50, 100, 200, 500].each {
+                start = SysClock.now
+                String chunks = lpCode.encodeByChunks(s, glue, it).toString()
+                println "BY CHUNKS [$it]: " + chunks
+                println "LAPSED: " + ChronoUnit.MILLIS.between(start, SysClock.now)
+                String decoded = lpCode.decodeByChunks(chunks.toCharArray(), glue).toString()
+                println "DECODED: " + decoded
+                assert decoded == s.toString()
+            }
+        when:
+            start = SysClock.now
+            println "ENCODED ALL: " + lpCode.encode(s).toString()
+            println "LAPSED: " + ChronoUnit.MILLIS.between(start, SysClock.now)
+        then:
+            assert true
     }
 
     @Unroll
