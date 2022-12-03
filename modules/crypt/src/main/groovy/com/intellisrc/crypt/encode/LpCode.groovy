@@ -780,25 +780,25 @@ class LpCode {
     static char[] translate(char[] chars, CharSet from, CharSet to) {
         return new LpCode(from, to).translate(chars)
     }
-    static char[] translate(char[] chars, List<Integer> from, CharSet to) {
+    static char[] translate(char[] chars, Collection<Integer> from, CharSet to) {
         return new LpCode(from, to).translate(chars)
     }
-    static char[] translate(char[] chars, CharSet from, List<Integer> to) {
+    static char[] translate(char[] chars, CharSet from, Collection<Integer> to) {
         return new LpCode(from, to).translate(chars)
     }
-    static char[] translate(char[] chars, List<Integer> from, List<Integer> to) {
+    static char[] translate(char[] chars, Collection<Integer> from, Collection<Integer> to) {
         return new LpCode(from, to).translate(chars)
     }
     static String translate(String str, CharSet from, CharSet to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
-    static String translate(String str, List<Integer> from, CharSet to) {
+    static String translate(String str, Collection<Integer> from, CharSet to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
-    static String translate(String str, CharSet from, List<Integer> to) {
+    static String translate(String str, CharSet from, Collection<Integer> to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
-    static String translate(String str, List<Integer> from, List<Integer> to) {
+    static String translate(String str, Collection<Integer> from, Collection<Integer> to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
     /**
@@ -846,7 +846,7 @@ class LpCode {
      * @param inputStream : string to encode
      * @param outputStream
      */
-    void encode(InputStream inputStream, OutputStream outputStream, List<Integer> glue, int chunkCharSize = chunkSize) {
+    void encode(InputStream inputStream, OutputStream outputStream, Collection<Integer> glue, int chunkCharSize = chunkSize) {
         InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)
         BufferedReader br = new BufferedReader(reader)
         OutputStreamWriter writer = new OutputStreamWriter(outputStream)
@@ -876,7 +876,7 @@ class LpCode {
      * @param chunkSize
      * @return
      */
-    String encodeByChunks(char[] str, List<Integer> glue, int chunkCharSize = chunkSize) {
+    String encodeByChunks(char[] str, Collection<Integer> glue, int chunkCharSize = chunkSize) {
         List<String> buff = []
         glue.each {
             output.chars.removeElement(it) // Remove it from charset if it is included
@@ -912,7 +912,7 @@ class LpCode {
      * @param inputStream : encoded string
      * @param outputStream
      */
-    void decode(InputStream inputStream, OutputStream outputStream, List<Integer> glue) {
+    void decode(InputStream inputStream, OutputStream outputStream, Collection<Integer> glue) {
         OutputStreamWriter writer = new OutputStreamWriter(outputStream)
         Scanner scanner = new Scanner(inputStream)
         String div = codePointsToString(glue)
@@ -936,7 +936,7 @@ class LpCode {
      * @param glue
      * @return
      */
-    String decodeByChunks(char[] str, List<Integer> glue) {
+    String decodeByChunks(char[] str, Collection<Integer> glue) {
         List<String> buff = []
         glue.each {
             output.chars.removeElement(it) // Remove it from charset if it is included
@@ -1063,7 +1063,7 @@ class LpCode {
      * @param codes
      * @return
      */
-    static String codePointsToString(List<Integer> codes) {
+    static String codePointsToString(Collection<Integer> codes) {
         return codes.collect { Character.toString(it) }.join("")
     }
 }
