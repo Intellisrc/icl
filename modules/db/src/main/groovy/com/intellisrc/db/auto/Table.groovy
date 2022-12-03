@@ -254,12 +254,6 @@ class Table<M extends Model> implements Instanciable<M> {
     static Object toDBValue(Object val, boolean preserve = false) {
         //noinspection GroovyFallthrough
         switch (val) {
-            case LocalTime:
-                return  (val as LocalTime).HHmmss
-            case LocalDate:
-                return (val as LocalDate).YMD
-            case LocalDateTime:
-                return (val as LocalDateTime).YMDHms
             case Collection:
                 List list = (val as List)
                 if(!list.empty && preserve) {
@@ -288,6 +282,7 @@ class Table<M extends Model> implements Instanciable<M> {
             case byte[]:
             case int:
             case short:
+            case Short:
             case Integer:
             case BigInteger:
             case long:
@@ -299,6 +294,9 @@ class Table<M extends Model> implements Instanciable<M> {
             case BigDecimal:
             case String:
             case char:
+            case LocalTime:
+            case LocalDate:
+            case LocalDateTime:
             case null:
                 return val
             default:
