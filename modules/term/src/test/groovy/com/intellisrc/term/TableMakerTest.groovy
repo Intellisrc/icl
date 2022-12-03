@@ -371,4 +371,25 @@ class TableMakerTest extends Specification {
         then:
             assert tp.toString().trim() == answer17
     }
+
+    def "Map should print nicely"() {
+        setup:
+            Map map = [
+                name        : "Samantha Wigs",
+                age         : 25,
+                country     : "New Zealand",
+                occupation  : "Teacher",
+                email       : "sam25@teachers.nz",
+                phone       : "098-8712-9378"
+            ]
+            TableMaker tm = new TableMaker(map, horizontal)
+        when:
+            tm.print()
+        then:
+            assert tm.toString().trim() == answer
+        where:
+            horizontal | answer
+            false      | answer18
+            true       | answer19
+    }
 }

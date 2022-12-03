@@ -178,18 +178,30 @@ class TableMaker {
      */
     TableMaker() {}
     /**
+     * Use Map to generate table
+     * @param horizontal : when true, it will use keys as headers (otherwise keys are displayed on first column)
+     */
+    TableMaker(Map map, boolean horizontal = false) {
+        if(horizontal) {
+            setHeaders(map.keySet())
+            addRow(map.values())
+        } else {
+            map.each { addRow([it.key, it.value]) }
+        }
+    }
+    /**
      * Import List<Map> into a table
      * @param data
      * @param footer
      */
     TableMaker(List<Map> data, boolean footer = false) {
-        setHeaders(data.first().keySet().toList())
+        setHeaders(data.first().keySet())
         data.each {
             Map entry ->
                 if(footer && entry == data.last()) {
-                    setFooter(entry.values().toList())
+                    setFooter(entry.values())
                 } else {
-                    addRow(entry.values().toList())
+                    addRow(entry.values())
                 }
         }
     }
