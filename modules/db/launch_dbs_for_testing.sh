@@ -23,17 +23,6 @@ docker run --name mariadb_test \
   -e "MYSQL_PASSWORD=test" \
   -p 127.0.0.1:33007:3306 \
   -d mariadb
-
-fi
-# Firebird
-if [[ $1 == "" || $1 == "firebird" ]]; then
-docker run --name firebird_test \
-  -e "ISC_PASSWORD=test" \
-  -e "FIREBIRD_DATABASE=test" \
-  -e "FIREBIRD_USER=test" \
-  -e "FIREBIRD_PASSWORD=test" \
-  -p 127.0.0.1:33050:3050 \
-  -d jacobalberty/firebird:3.0
 fi
 # Oracle
 if [[ $1 == "" || $1 == "oracle" ]]; then
@@ -91,4 +80,44 @@ docker run --name sqlserver_test \
   do
     sleep 10
   done
+fi
+# Firebird
+if [[ $1 == "" || $1 == "firebird" ]]; then
+docker run --name firebird_test \
+  -e "ISC_PASSWORD=test" \
+  -e "FIREBIRD_DATABASE=test" \
+  -e "FIREBIRD_USER=test" \
+  -e "FIREBIRD_PASSWORD=test" \
+  -p 127.0.0.1:33050:3050 \
+  -d jacobalberty/firebird:3.0
+fi
+# H2
+if [[ $1 == "" || $1 == "h2" ]]; then
+docker run --name h2_test \
+  -e "ISC_PASSWORD=test" \
+  -e "FIREBIRD_DATABASE=test" \
+  -e "FIREBIRD_USER=test" \
+  -e "FIREBIRD_PASSWORD=test" \
+  -p 127.0.0.1:33050:3050 \
+  -d jacobalberty/firebird:3.0
+fi
+# HyperSQL
+if [[ $1 == "" || $1 == "hsqldb" ]]; then
+docker run --name firebird_test \
+  -e "ISC_PASSWORD=test" \
+  -e "FIREBIRD_DATABASE=test" \
+  -e "FIREBIRD_USER=test" \
+  -e "FIREBIRD_PASSWORD=test" \
+  -p 127.0.0.1:33050:3050 \
+  -d jacobalberty/firebird:3.0
+fi
+# Informix
+if [[ $1 == "" || $1 == "informix" ]]; then
+docker run --name firebird_test \
+  -e "ISC_PASSWORD=test" \
+  -e "FIREBIRD_DATABASE=test" \
+  -e "FIREBIRD_USER=test" \
+  -e "FIREBIRD_PASSWORD=test" \
+  -p 127.0.0.1:33050:3050 \
+  -d jacobalberty/firebird:3.0
 fi
