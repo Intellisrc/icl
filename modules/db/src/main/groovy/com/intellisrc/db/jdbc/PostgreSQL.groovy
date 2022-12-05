@@ -271,12 +271,17 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
         return set(db, String.format("SET session_replication_role = '%s'", on ? "origin" : "replica"))
     }
     @Override
-    boolean copyTable(final DB db, String from, String to) {
-        return set(db, "CREATE TABLE \"$to\" AS TABLE \"$from\" WITH NO DATA")
+    boolean copyTableStructure(final DB db, String from, String to) {
+        return false //set(db, "CREATE TABLE \"$to\" (LIKE \"$from\" INCLUDING ALL)")
     }
     @Override
     boolean copyTableData(final DB db, String from, String to, Collection<Table.ColumnDB> columns) {
-        return set(db, "INSERT INTO \"$to\" SELECT * FROM \"$from\"")
+        return set(db, "INSERT INTO \"${to}\" (SELECT * FROM ${from})")
+    }
+    @Override
+    boolean resetAutoIncrement(DB db, Table newTable, String name, String backup) {
+        String field = newTable.autoIncrement
+        return field ? get(db, "SELECT setval(pg_get_serial_sequence('${name}','${field}'), nextval(pg_get_serial_sequence('${backup}','${field}')), FALSE)").toInt() > 0 : true
     }
     @Override
     boolean setVersion(final DB db, String dbname, String table, int version) {

@@ -169,7 +169,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
         return set(db, String.format("SET FOREIGN_KEY_CHECKS=%d", on ? 1 : 0))
     }
     @Override
-    boolean copyTable(final DB db, String from, String to) {
+    boolean copyTableStructure(final DB db, String from, String to) {
         return set(db, "CREATE TABLE $to LIKE $from") && copyTableData(db, from, to, [])
     }
     @Override

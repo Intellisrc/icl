@@ -202,7 +202,7 @@ class Derby extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    boolean copyTable(final DB db, String from, String to) {
+    boolean copyTableStructure(final DB db, String from, String to) {
         return false // set(db, "CREATE TABLE ${to} AS SELECT * FROM ${from} WITH NO DATA")
     }
     @Override

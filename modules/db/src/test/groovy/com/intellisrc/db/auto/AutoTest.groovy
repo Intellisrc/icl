@@ -7,8 +7,7 @@ import com.intellisrc.db.DB
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.DeleteActions
-import com.intellisrc.db.jdbc.JDBC
-import com.intellisrc.db.jdbc.PostgreSQL
+import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
 import com.intellisrc.log.PrintLogger
 import com.intellisrc.net.Email
@@ -105,7 +104,7 @@ class AutoTest extends Specification {
 
     static List<JDBC> getTestable(boolean update = false) {
         List<JDBC> dbs = []
-        /*dbs << new Derby(
+        dbs << new Derby(
             create: true,
             memory: true,
             useFK : !update
@@ -132,7 +131,7 @@ class AutoTest extends Specification {
                 dbname: "test",
                 port: ports.mysql
             )
-        }*/
+        }
         if(!ci && LocalHost.hasOpenPort(ports.postgres)) {
             dbs << new PostgreSQL(
                 user: "test",
