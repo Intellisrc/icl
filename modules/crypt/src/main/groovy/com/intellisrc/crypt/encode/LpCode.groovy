@@ -89,6 +89,7 @@ class LpCode {
     //NOTE: The smaller the chunkSize, the larger the output, higher the CPU usage and lower the Memory usage.
     int chunkSize = 100      //For large size texts, it is better to use chunks (for very large texts, 1024 might be better)
     int glueChar = 0x1E      //Which character to use to glue a chunk (it can be part of the OUTPUT charset)
+    static boolean warn = false  //if true, will warn when input includes characters not included in INPUT charset
     /* ************ PARTS ***************** */
     //Binary-like (2 chars: 0,1) : 10111010111011111010100111000011111101000101000100
     static public final List<Integer> BIT = 0x30..0x31
@@ -968,7 +969,9 @@ class LpCode {
             int cp, int s ->
                 int r = charset.getPosition(cp)
                 if(r == -1) { // Not found in charset
-                    Log.w("Character: [%s](0x%d) not found in charset: [%s ~ %s]", Character.toString(cp), cp, Character.toString(charset.chars.min()), Character.toString(charset.chars.max()))
+                    if(warn) {
+                        Log.w("Character: [%s](0x%d) not found in charset: [%s ~ %s]", Character.toString(cp), cp, Character.toString(charset.chars.min()), Character.toString(charset.chars.max()))
+                    }
                     r = Random.range(0, charset.length - 1) //Replace by a random character
                 }
                 //noinspection GrReassignedInClosureLocalVar
