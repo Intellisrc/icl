@@ -17,7 +17,7 @@ class H2 extends JDBCServer {
     String user = ""
     String password = ""
     String hostname = ""
-    int port = 0
+    int port = 1521
     String packageName = "org.h2"
     String driver = "${packageName}.Driver"
     boolean supportsBoolean = true

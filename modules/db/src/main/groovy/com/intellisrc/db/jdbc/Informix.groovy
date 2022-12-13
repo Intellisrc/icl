@@ -14,10 +14,10 @@ import groovy.transform.CompileStatic
 class Informix extends JDBCServer {
     // Absolute path to database
     String dbname = ""
-    String user = ""
-    String password = ""
+    String user = "informix"
+    String password = "in4mix"
     String hostname = "localhost"
-    int port = 0
+    int port = 9088
     String packageName = "com.informix.jdbc"
     String driver = "${packageName}.ifxDriver"
     boolean supportsBoolean = true

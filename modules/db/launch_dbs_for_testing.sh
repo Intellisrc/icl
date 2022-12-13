@@ -103,21 +103,22 @@ docker run --name h2_test \
 fi
 # HyperSQL
 if [[ $1 == "" || $1 == "hsqldb" ]]; then
-docker run --name firebird_test \
-  -e "ISC_PASSWORD=test" \
-  -e "FIREBIRD_DATABASE=test" \
-  -e "FIREBIRD_USER=test" \
-  -e "FIREBIRD_PASSWORD=test" \
-  -p 127.0.0.1:33050:3050 \
-  -d jacobalberty/firebird:3.0
+docker run --name hsqldb_test \
+  -e "HSQLDB_DATABASE_NAME=test" \
+  -e "HSQLDB_USER=test" \
+  -e "HSQLDB_PASSWORD=test" \
+  -e "HSQLDB_TRACE=true" \
+  -e "HSQLDB_REMOTE=true" \
+  -e "HSQLDB_SILENT=false" \
+  -p 127.0.0.1:39001:9001 \
+  -d datagrip/hsqldb  # 3years old
 fi
 # Informix
+#  "USER=informix"
+#  "PASSWORD=in4mix"
 if [[ $1 == "" || $1 == "informix" ]]; then
-docker run --name firebird_test \
-  -e "ISC_PASSWORD=test" \
-  -e "FIREBIRD_DATABASE=test" \
-  -e "FIREBIRD_USER=test" \
-  -e "FIREBIRD_PASSWORD=test" \
-  -p 127.0.0.1:33050:3050 \
-  -d jacobalberty/firebird:3.0
+docker run --name informix_test \
+  -e "LICENSE=accept" \
+  -p 127.0.0.1:39088:9088 \
+  -d ibmcom/informix-developer-database:latest
 fi
