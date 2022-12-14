@@ -486,20 +486,28 @@ class DB {
                 String infoSQL = jdbc.getInfoQuery(table)
                 if (infoSQL) {
                     columns = getSQL(infoSQL).toListMap().collect {
-                        new ColumnInfo(
-                            position: (it.position ?: 0) as int,
-                            name: it.column?.toString() ?: "",
-                            nullable: ((it.nullable ?: 0) as int) == 1,
-                            unique: ((it.unique ?: 0) as int) == 1,
-                            primaryKey: ((it.primary ?: 0) as int) == 1,
-                            autoIncrement: ((it.autoinc ?: 0) as int) == 1
-                        )
+                        // This allows two different names (in case it might conflict with reserved words)
+                        jdbc.fillColumn(new ColumnInfo(
+                            position        : (it.position      ?: it.col_pos       ?: 0) as int,
+                            name            : (it.column        ?: it.col_name      ?: "").toString(),
+                            nullable        : ((it.nullable     ?: it.is_null       ?: 0) as int) == 1,
+                            unique          : ((it.unique       ?: it.is_unique     ?: 0) as int) == 1,
+                            primaryKey      : ((it.primary      ?: it.is_primary    ?: 0) as int) == 1,
+                            autoIncrement   : ((it.autoinc      ?: it.identity      ?: 0) as int) == 1,
+                            generated       : ((it.generated    ?: it.is_generated  ?: 0) as int) == 1,
+                            type            : (it.type          ?: it.col_type      ?: "NULL").toString().toUpperCase() as ColumnType,
+                            length          : (it.length        ?: it.col_length    ?: 0) as int,
+                            charLength      : (it.clength       ?: it.char_length   ?: 0) as int,
+                            bufferLength    : (it.blength       ?: it.buffer_length ?: 0) as int,
+                            decimalDigits   : (it.decimals      ?: it.decimal_digits ?: 0) as int,
+                            defaultValue    : it.default        ?: it.default_value ?: "",
+                        ), it)
                     }
                 } else {
-                    if(! tables.contains(table)) {
+                    if(! tables.collect { it.toLowerCase() }.contains(table.toLowerCase())) {
                         tableList.clear()
                     }
-                    if(tables.contains(table)) {
+                    if(tables.collect { it.toLowerCase() }.contains(table.toLowerCase())) {
                         columns = dbConnector.getColumns(table)
                         if(columns.empty) {
                             Log.w("Columns were not found in table: %s", table)

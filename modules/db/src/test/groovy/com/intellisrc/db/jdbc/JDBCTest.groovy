@@ -56,8 +56,12 @@ abstract class JDBCTest extends Specification {
 
     def setup() {
         DB db = getDB().connect()
-        db.dropAllTables()
-        db.clearCache()
+        if(db.openIfClosed()) {
+            db.dropAllTables()
+            db.clearCache()
+        } else {
+            Log.w("Connection failed")
+        }
         db.close()
     }
 
@@ -84,17 +88,17 @@ abstract class JDBCTest extends Specification {
         then:
             assert getTableCreate(table) || getTableCreateMulti(table) : "Missing table create"
         then: "Create table"
-            assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table))
+            assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table)) : "Unable to create table"
         then: "List tables"
-            assert ! db.tables.empty
+            assert ! db.tables.empty : "Tables not found"
         then: "Must be open"
-            assert db.opened
-            assert ! db.closed
+            assert db.opened : "Database not opened"
+            assert ! db.closed : "Database was closed"
         when: "Table info"
             List<ColumnInfo> info = db.table(table).info()
             new TableMaker(info.collect { it.toMap() }).print()
         then: "Must have information"
-            assert ! info.empty
+            assert ! info.empty : "No information found"
         then: "Must have a primary key"
             assert info.find { it.primaryKey }
         then: "Table must exists"
