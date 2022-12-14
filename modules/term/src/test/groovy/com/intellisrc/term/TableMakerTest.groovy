@@ -1,5 +1,6 @@
 package com.intellisrc.term
 
+import com.intellisrc.core.Log
 import com.intellisrc.term.styles.*
 import spock.lang.PendingFeature
 import spock.lang.Specification
@@ -391,5 +392,19 @@ class TableMakerTest extends Specification {
             horizontal | answer
             false      | answer18
             true       | answer19
+    }
+
+    def "Must handle empty data without errors"() {
+        setup:
+            TableMaker tm = new TableMaker([])
+        expect:
+            try {
+                tm.print()
+                assert true
+            } catch(Exception e) {
+                Log.e("Unable to print", e)
+                assert false : "Error reported"
+            }
+
     }
 }
