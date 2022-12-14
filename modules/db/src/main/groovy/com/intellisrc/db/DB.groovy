@@ -974,10 +974,11 @@ class DB {
                                 }
                                 last_id = 0
                             }
-                            if (!last_id && jdbc.getLastIdQuery(query.table)) {
+                            String lastIdQuery = jdbc.getLastIdQuery(query.table, pks.first())
+                            if (!last_id && lastIdQuery) {
                                 Log.d("Last ID not found. Using fallback method...")
                                 String table = query.table
-                                queryBuilder = new Query(jdbc, LASTID)
+                                queryBuilder = new Query(lastIdQuery)
                                 queryBuilder.table = table
                                 if (queryBuilder) {
                                     last_id = execGet().toInt()

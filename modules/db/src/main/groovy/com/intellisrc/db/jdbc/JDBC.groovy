@@ -98,7 +98,7 @@ abstract class JDBC {
      * @param table
      * @return
      */
-    String getLastIdQuery(String table) { "" }
+    String getLastIdQuery(String table, String pk) { "" }
     /**
      * Return a list of tables
      * Leave empty to use JDBC internal code

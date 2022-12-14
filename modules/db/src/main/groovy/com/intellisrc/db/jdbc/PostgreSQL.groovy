@@ -71,7 +71,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
      * @return
      */
     @Override
-    String getLastIdQuery(String table) {
+    String getLastIdQuery(String table, String pk) {
         return "SELECT lastval()"
     }
     String getTruncateQuery(String table) {

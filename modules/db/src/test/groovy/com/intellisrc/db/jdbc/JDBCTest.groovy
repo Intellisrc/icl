@@ -107,11 +107,15 @@ abstract class JDBCTest extends Specification {
             assert db.table(table).insert(
                 [ name : "Ubuntu",     active: true,    updated: setDate("2022-08-01"),     version: 3.7 ],
             )
+        when:
+            new TableMaker(db.table(table).get().toListMap()).print()
             assert db.lastID == 1
         then: "Insert Second"
             assert db.table(table).insert(
                 [ name : "Debian",     active: true,    updated: setDate("2022-09-01"),     version: 9.1 ],
             )
+        when:
+            new TableMaker(db.table(table).get().toListMap()).print()
             assert db.lastID == 2
         then: "Count all"
             assert db.table(table).count().get().toInt() == 2

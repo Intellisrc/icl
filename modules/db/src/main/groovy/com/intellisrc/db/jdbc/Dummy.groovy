@@ -22,7 +22,7 @@ class Dummy extends JDBC {
     }
 
     @Override
-    String getLastIdQuery(String table) {
+    String getLastIdQuery(String table, String pk) {
         return ""
     }
 

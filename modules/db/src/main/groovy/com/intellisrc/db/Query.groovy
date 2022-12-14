@@ -19,7 +19,7 @@ import static com.intellisrc.db.Query.Action.*
 class Query {
     // Action type (RAW is default)
     static enum Action {
-        RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, TRUNCATE, DROP, LASTID
+        RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, TRUNCATE, DROP
     }
     // Field type (NOSET is default)
     static enum FieldType {
@@ -452,7 +452,6 @@ class Query {
             case DELETE:    squery = dbType.getDeleteQuery(table, where); break
             case TRUNCATE:  squery = dbType.getTruncateQuery(table); break
             case DROP:      squery = dbType.getDropTableQuery(table); break
-            case LASTID:    squery = dbType.getLastIdQuery(table); break
             default :
                 //WARN: unknown action
                 Log.w("Unknown action: %s", actionType)
