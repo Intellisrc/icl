@@ -21,21 +21,13 @@ class HyperSQL extends JDBCServer {
     String user = ""
     String password = ""
     String hostname = "localhost"
-    int port = 0
+    int port = 9001
     String packageName = "org.hsqldb.jdbc"
     String driver = "${packageName}.JDBCDriver"
     boolean supportsBoolean = true
     boolean supportsReplace = false     //TODO: it supports it, but the syntax is more complicated to implement
-
-    @Override
-    String getCatalogSearchName() {
-        return null
-    }
-
-    @Override
-    String getSchemaSearchName() {
-        return null
-    }
+    String catalogSearchName = null
+    String schemaSearchName = null
 
     @Override
     String getTableSearchName(String table) {
