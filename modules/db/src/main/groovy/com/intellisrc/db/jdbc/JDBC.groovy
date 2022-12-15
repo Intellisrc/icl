@@ -3,6 +3,7 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
 import com.intellisrc.db.JDBCConnector
 import com.intellisrc.db.Query
@@ -97,7 +98,7 @@ abstract class JDBC {
      * @param table
      * @return
      */
-    String getLastIdQuery(String table) { "" }
+    String getLastIdQuery(String table, String pk) { "" }
     /**
      * Return a list of tables
      * Leave empty to use JDBC internal code
@@ -192,6 +193,15 @@ abstract class JDBC {
             query += " " + getLimitQuery(limit, offset, !orderBy.keySet().empty)
         }
         return query
+    }
+
+    /**
+     * In case it is needed to complete a column information
+     * @param info
+     * @return
+     */
+    ColumnInfo fillColumn(final ColumnInfo info, Map row) {
+        return info
     }
 
     /**

@@ -88,7 +88,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
      * @return
      */
     @Override
-    String getLastIdQuery(String table) {
+    String getLastIdQuery(String table, String pk) {
         return "SELECT LAST_INSERT_ID() as lastid"
     }
 

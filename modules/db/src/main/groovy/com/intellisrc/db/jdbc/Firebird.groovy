@@ -73,7 +73,7 @@ class Firebird extends JDBCServer {
      * @return
      */
     @Override
-    String getLastIdQuery(String table) {
+    String getLastIdQuery(String table, String pk) {
         return "SELECT gen_id(GENERATOR_NAME, 0) FROM rdb\$database"
     }
 

@@ -53,7 +53,7 @@ Versions:
 
 ## Firebird
 
-Driver: [4.0.6](https://firebirdsql.org/en/jdbc-driver/)
+Driver: [4.0](https://firebirdsql.org/en/jdbc-driver/)
 
 * Jaybird 4
 * Jaybird 3
@@ -61,12 +61,24 @@ Driver: [4.0.6](https://firebirdsql.org/en/jdbc-driver/)
 
 ## SQLite
 
-Driver: [3.39](https://github.com/xerial/sqlite-jdbc)
+Driver: [3.40](https://github.com/xerial/sqlite-jdbc)
 
 * All
 
 ## Derby 
 
 Driver: [10.15](https://db.apache.org/derby/releases/release-10_15_2_0.cgi)
+
+* All
+
+## H2
+
+Driver: [2.1](https://www.h2database.com/html/main.html)
+
+* All
+
+## HSQLDB (HyperSQL)
+
+Driver: [2.7](https://hsqldb.org/)
 
 * All

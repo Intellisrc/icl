@@ -37,10 +37,8 @@ class DerbyTest extends JDBCTest {
     @Override
     JDBC getDB() {
         return new Derby(
-            hostname: "localhost",
             create  : true,
-            memory  : true,
-            port    : 0 //Do not skip test
+            memory  : true
         )
     }
 

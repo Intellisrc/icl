@@ -112,7 +112,7 @@ class Oracle extends JDBCServer {
      * @return
      */
     @Override
-    String getLastIdQuery(String table) {
+    String getLastIdQuery(String table, String pk) {
         table = table.replace(fieldsQuotation, "")
         return "SELECT ${table}_seq.currval lastId FROM dual"
     }
