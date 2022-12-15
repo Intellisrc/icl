@@ -181,7 +181,7 @@ class TableMaker {
      * Use Map to generate table
      * @param horizontal : when true, it will use keys as headers (otherwise keys are displayed on first column)
      */
-    TableMaker(Map map, boolean horizontal = false) {
+    TableMaker(Map map, boolean horizontal) {
         if(horizontal) {
             setHeaders(map.keySet())
             addRow(map.values())

@@ -387,12 +387,14 @@ char[] s512 = Hash.SHA512("hello".toCharArray()).toCharArray()
 LpCode lp = new LpCode(HASH_UP, BRAILLE) // Encode using HASH_UP (Hash as uppercase) as input and BRAILLE as output
 String block = lp.encodeBlock(s512) // Encode it as block
 println block
-/*
+```
+output:
+```
 ⣜⢿⢪⢌⠉⣳⡳⠕⣧⠰⡪⡬⡳⠡⢤⢦
 ⣂⠍⣢⣬⠰⢾⠔⣑⡽⣪⡢⣙⡙⢐⣿⢔
 ⣡⣸⡆⠂⢮⠻⡷⠄⠼⢒⠼⢅⢮⡵⡸⠙
 ⡥⠍⣝⢂⠲⡀⡙⠃⠶⣣⡃⠖⣪⡳⣄⡺
- */
+```
 assert lp.decodeBlock(block.toCharArray()) == s512
 ```
 You can specify the block size (default is 16) with:
@@ -408,14 +410,16 @@ If you want to add some padding to a block, you can use:
 ```groovy
 lp.blockSize = 15
 lp.blockPadding = "-"
+String block = lp.encodeBlock(s512) // Encode it as block
 println block
-/*
+```
+Output:
+```
 ⣜⢿⢪⢌⠉⣳⡳⠕⣧⠰⡪⡬⡳⠡⢤
 ⢦⣂⠍⣢⣬⠰⢾⠔⣑⡽⣪⡢⣙⡙⢐
 ⣿⢔⣡⣸⡆⠂⢮⠻⡷⠄⠼⢒⠼⢅⢮
 ⡵⡸⠙⡥⠍⣝⢂⠲⡀⡙⠃⠶⣣⡃⠖
 ⣪⡳⣄⡺------------
- */
 ```
 
 > NOTE: If something is not working in your code, try setting 'warn' to `true`,
