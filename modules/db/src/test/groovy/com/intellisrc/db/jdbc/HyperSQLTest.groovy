@@ -36,7 +36,6 @@ class HyperSQLTest extends JDBCTest {
     JDBC getDB() {
         return new HyperSQL(
             user    : "test",
-            hostname: "127.0.0.1",
             password: "test",
             dbname  : "test",
             port    : 39001

@@ -91,18 +91,8 @@ docker run --name firebird_test \
   -p 127.0.0.1:33050:3050 \
   -d jacobalberty/firebird:3.0
 fi
-# H2
-if [[ $1 == "" || $1 == "h2" ]]; then
-docker run --name h2_test \
-  -e "ISC_PASSWORD=test" \
-  -e "FIREBIRD_DATABASE=test" \
-  -e "FIREBIRD_USER=test" \
-  -e "FIREBIRD_PASSWORD=test" \
-  -p 127.0.0.1:33050:3050 \
-  -d jacobalberty/firebird:3.0
-fi
-# HyperSQL
-if [[ $1 == "" || $1 == "hsqldb" ]]; then
+# HyperSQL (no needed for testing)
+if [[ $1 == "hsqldb" ]]; then
 docker run --name hsqldb_test \
   -e "HSQLDB_DATABASE_NAME=test" \
   -e "HSQLDB_USER=test" \

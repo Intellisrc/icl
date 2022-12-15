@@ -21,19 +21,28 @@ class H2 extends JDBCServer {
     String packageName = "org.h2"
     String driver = "${packageName}.Driver"
     boolean supportsBoolean = true
+    boolean supportsReplace = false
+    String catalogSearchName = null
+    String schemaSearchName = null
 
+    @Override
+    String getTableSearchName(String table) {
+        return table.toUpperCase()
+    }
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.firebird.params", [
-            charSet : 'utf-8'
-        ] + params)
+        return Config.get("db.h2.params", [:] + params)
+    }
+
+    @Override
+    String getTablesQuery() {
+        return "SELECT LOWER(table_name) FROM information_schema.tables WHERE table_schema = 'PUBLIC'"
     }
 
     @Override
     String getConnectionString() {
-        String conn = "firebirdsql:$hostname/$port:$dbname"
-        return conn + "?" + parameters.toQueryString()
+        return "h2:" + (hostname ? "tcp://$hostname:$port/$dbname" + "?" + parameters.toQueryString() : "h2:$dbname")
     }
 
     // QUERY BUILDING -------------------------

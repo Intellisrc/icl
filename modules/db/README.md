@@ -41,34 +41,6 @@ db.type=mysql
 #db.cache=false
 ```
 
-Other than the supported types, you can connect to any JDBC database
-by providing a connection string (however Fluid SQL may not work as expected):
-
-```groovy
-class SuperSQLServer extends JDBCServer {
-    // The following fields are only default values
-    // Use configuration file to set specific usage
-    String dbname = ""
-    String user = "root"
-    String password = ""
-    String hostname = "localhost"
-    int port = 1111
-    String driver = "com.supersql.server.jdb.connector"
-
-    /**
-     * Get connection string to your database
-     * NOTE: user/password are handled separately on connection
-     *       no need to include them in the Connection String
-     * @return
-     */
-    @Override
-    String getConnectionString() {
-        // return your connection string here
-        return "super://$hostname:$port/$dbname"
-    }
-}
-```
-
 ## Fluid Query Instructions
 
 Features
@@ -83,8 +55,8 @@ Features
   * TRUNCATE
 * Raw SQL execution
 
-**NOTE**: This method (Fluid Query) won't create the table for you.
-If you want this library to create and update your tables for you, use the `Model` approach.
+> NOTE: This method (Fluid Query) won't create the table for you. 
+> If you want this library to create and update your tables for you, use the `Model` approach.
 
 To connect and query a database is easy:
 
@@ -229,7 +201,7 @@ db.getSQL("SHOW TABLES").toList().each { // You can also use: db.get(new Query(.
 }
 ```
 
-**NOTE**: For complex queries, we recommend you to create views or stored procedures (to keep your code simple).
+> NOTE: For complex queries, we recommend you to create views or stored procedures (to keep your code simple).
 
 ## Model Based Operations
 
@@ -246,7 +218,7 @@ Features
 * Foreign keys creation
 * CRUD operations using Java objects
 
-**NOTE**: Databases and permissions are not created automatically.
+> NOTE: Databases and permissions are not created automatically.
 
 ### Example:
 
@@ -328,8 +300,8 @@ class Users extends Table<User> {
 }
 ```
 
-**NOTE**: When implementing your own methods, you can use the [Fluid SQL Instructions](#fluid-query-instructions),
-however, field names should be converted into "database names", for example:
+> NOTE: When implementing your own methods, you can use the [Fluid SQL Instructions](#fluid-query-instructions),
+> however, field names should be converted into "database names", for example:
 
 ```groovy
 class Reservation extends Model {
@@ -358,8 +330,8 @@ In the above example, when the `reservations` table is created, `User` field is 
 In the same way, `dateTime` is translated into `date_time`. Inside `findByDay`, we are using the
 [Fluid SQL Instructions](#fluid-query-instructions) in order to search by day.
 
-** NOTE** : You can always access the [Fluid SQL Instructions](#fluid-query-instructions) 
-using `table` or `getTable()` in your `Table` class, for example:
+> NOTE: You can always access the [Fluid SQL Instructions](#fluid-query-instructions) 
+> using `table` or `getTable()` in your `Table` class, for example:
 
 ```groovy
 // This will get only the reservation time for a given user:
@@ -376,9 +348,9 @@ class Instances {
 }
 ```
 
-**NOTE**: If your `Model` class depends on other `Model` classes (e.g. `Reservation` Model contains a `User` Model field),
-those other classes tables must be initialized first (as it will create the foreign key constraint). 
-In this example, `Users` initialization must be before `Reservations`.
+> NOTE: If your `Model` class depends on other `Model` classes (e.g. `Reservation` Model contains a `User` Model field),
+> those other classes tables must be initialized first (as it will create the foreign key constraint). 
+> In this example, `Users` initialization must be before `Reservations`.
 
 ```groovy
 // In other class:
@@ -624,19 +596,88 @@ or programmatically:
 DB.clearCache = true
 ```
 
+### Adding support to other databases (Advanced)
 
-### Comparison with libraries with similar functionality:
+Other than the [supported types](#comparison-with-libraries-with-similar-functionality), you can connect to any JDBC database
+by providing a connection string (however Fluid SQL may not work as expected). 
 
-| Feature                   | ICL (this library)                                                                                                  | Hibernate                                                                                                          | jOOQ (free)                                                                                                         |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                       | Automatic / Raw Query                                                                                              | Fluid / Raw Query                                                                                                   |
-| Supported Databases       | MySQL / MariaDB / Percona <br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>Firebird SQL | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQL<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
-| Dependencies              | None (simple JDBC)                                                                                                  | Spring Framework                                                                                                   | None (simple JDBC)                                                                                                  |                                                                                                        |  
-| Clean Database identities | Yes                                                                                                                 | No                                                                                                                 | Yes                                                                                                                 |
-| SQL Injection protection  | Yes                                                                                                                 | Yes                                                                                                                | Yes                                                                                                                 |
-| Complexity                | Low                                                                                                                 | High                                                                                                               | Medium                                                                                                              |
+#### Adding Fluid SQL support
 
+In order to make your database to work with `Fluid SQL`, you need to extend `JDBC` (for standalone databases like `SQLite`) 
+or `JDBCServer` (for databases which uses TCP services) classes:
 
+```groovy
+class SuperSQLServer extends JDBCServer {
+    // The following fields are only default values
+    // Use configuration file to set specific usage
+    String dbname = ""
+    String user = "root"
+    String password = ""
+    String hostname = "localhost"
+    int port = 1111
+    String driver = "com.supersql.server.jdb.connector"
+
+    /**
+     * Get connection string to your database
+     * NOTE: user/password are handled separately on connection
+     *       no need to include them in the Connection String
+     * @return
+     */
+    @Override
+    String getConnectionString() {
+        // return your connection string here
+        return "super://$hostname:$port/$dbname"
+    }
+}
+```
+
+Your class may need to override some other methods to work without issues. I recommend you to look at the source code for other 
+classes extending `JDBCServer` for more detailed implementations.
+
+One common method to override is `getTablesQuery` (to get the list of tables for that specific database). 
+
+##### Troubleshooting
+
+* If your class is unable to retrieve table columns, override the methods: `getSchemaSearchName`, `getCatalogSearchName` and `getTableSearchName`.
+* If your database doesn't support `REPLACE`, override the method `getSupportsReplace` to return `false`
+* If the `last inserted id` is not correct, override: `getLastIdQuery`
+
+#### Adding `Model`/`Table` support
+
+In order to use `Model` to interact with your database, your class will need to implement the `AutoJDBC` interface, and implement
+the required code to create tables (with column definitions and version) and other methods. Be sure you execute the unit tests
+to ensure the basic usage compatibility.
+
+### Comparison with libraries with similar functionality
+
+| Feature                   | ICL (this library)                                                                                                                             | Hibernate                                                                                                            | jOOQ (free)                                                                                                         |
+|---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| SQL Mode                  | Automatic / Fluid / Raw Query                                                                                                                  | Automatic / Raw Query                                                                                                | Fluid / Raw Query                                                                                                   |
+| Supported Databases       | MySQL / MariaDB / Percona <br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>HSQLDB (HyperSQL)<br>H2<br>Firebird SQL | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQLDB<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
+| Dependencies              | None (simple JDBC)                                                                                                                             | Spring Framework                                                                                                     | None (simple JDBC)                                                                                                  |                                                                                                        |  
+| Clean Database identities | Yes                                                                                                                                            | No                                                                                                                   | Yes                                                                                                                 |
+| SQL Injection protection  | Yes                                                                                                                                            | Yes                                                                                                                  | Yes                                                                                                                 |
+| Complexity                | Low                                                                                                                                            | High                                                                                                                 | Medium                                                                                                              |
+
+### Database comparison and feature support in this library
+
+| Database        | Model | Fluid <br>SQL | TCP <br/>Server | Standalone | Embedded <br>in JAR | In<br>Memory | Native <br>Encryption | Performance * |
+|-----------------|-------|---------------|-----------------|------------|---------------------|--------------|-----------------------|---------------|
+| MySQL / MariaDB | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Fast          |
+| PostgreSQL      | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Very Fast     |
+| SQLite          | Yes   | Yes           | No              | Yes        | No                  | Yes          | No                    | Fast          |
+| Derby           | Yes * | Yes           | Yes             | Yes        | Yes                 | Yes          | Yes                   | Very Fast     |
+| HSQLDB          | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
+| H2              | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
+| Oracle          | No    | Yes           | Yes             | No         | No                  | No           | No                    | Slow          |
+| SQLServer       | No    | Yes           | Yes             | No         | No                  | No           | No                    | Fast          |
+| Firebird        | No    | Yes           | Yes             | No         | No                  | No           | No                    | Very Slow     |
+
+> NOTE: As Derby doesn't allow to turn off `Foreign keys`, it can not be used together with `AutoUpdate`,
+> which means, you have to decide if you will update manually your tables, or you want to use `Foreign keys`.
+
+> NOTE: Performance was decided based on elapsed time to finish unit tests in the development environment. 
+> It might not reflect the performance in a production environment.
 
 ## Looking for something else ?
 

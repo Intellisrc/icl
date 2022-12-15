@@ -41,11 +41,12 @@ class Derby extends JDBCServer implements AutoJDBC {
     String dbname = ""
     String user = ""
     String password = ""
-    String hostname = "localhost"
+    String hostname = ""
     int port = 1527
     String driver = "org.apache.derby.iapi.jdbc.AutoloadedDriver"
     boolean encrypt = Config.get("db.derby.encrypt", false)
     boolean memory = Config.get("db.derby.memory", false)
+    boolean embedded = Config.get("db.derby.embedded", false)
     boolean create = memory ?: Config.get("db.derby.create", false) //If in memory it will create automatically
     boolean useFK = Config.get("db.derby.fk", false)
     String tableMeta = Config.get("db.derby.meta", "sys_meta")
@@ -86,10 +87,16 @@ class Derby extends JDBCServer implements AutoJDBC {
         }
         if(memory) {
             subProtocol = MEMORY
+        } else if(embedded) {
+            subProtocol = JAR
+        } else if(!hostname) {
+            subProtocol = DIRECTORY
+        } else {
+            subProtocol = SERVER
         }
         //noinspection GroovyFallthrough
         switch (subProtocol) {
-            case SERVER: // Not used
+            case SERVER:
             case DIRECTORY:
                 // empty
                 break

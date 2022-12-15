@@ -24,7 +24,7 @@ abstract class JDBCTest extends Specification {
     boolean shouldSkip() {
         JDBC jdbc = this.getDB()
         boolean skip = jdbc instanceof JDBCServer
-            && (ci || ((jdbc as JDBCServer).port &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)))
+            && (ci || ((jdbc as JDBCServer).hostname &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)))
         if(skip) {
             Log.w("Test skipped for : %s (environment not ready)", jdbc.class.simpleName)
         }

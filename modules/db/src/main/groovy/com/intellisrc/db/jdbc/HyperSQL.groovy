@@ -20,7 +20,7 @@ class HyperSQL extends JDBCServer {
     String dbname = ""
     String user = ""
     String password = ""
-    String hostname = "localhost"
+    String hostname = ""
     int port = 9001
     String packageName = "org.hsqldb.jdbc"
     String driver = "${packageName}.JDBCDriver"
@@ -46,7 +46,7 @@ class HyperSQL extends JDBCServer {
 
     @Override
     String getConnectionString() {
-        String conn = "hsqldb:$hostname/$port:$dbname"
+        String conn = "hsqldb:" + (hostname ? "$hostname/$port:$dbname" : "file:$dbname")
         return conn + "?" + parameters.toQueryString()
     }
 
