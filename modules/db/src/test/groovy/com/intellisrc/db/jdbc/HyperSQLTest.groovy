@@ -37,8 +37,7 @@ class HyperSQLTest extends JDBCTest {
         return new HyperSQL(
             user    : "test",
             password: "test",
-            dbname  : "test",
-            port    : 39001
+            dbname  : File.get(File.tempDir, "hsql").absolutePath
         )
     }
 }
