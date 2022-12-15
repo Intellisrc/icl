@@ -33,9 +33,49 @@ It provides two easy ways to visualize progress on a terminal:
 
 Display data nicely in the terminal by creating tables using box drawing characters:
 
-There are 4 ways to create a table:
+These are some ways to create a table:
 
-### 1. Using List of List
+### 1. Using a Map
+```groovy
+boolean horizontal = true  //there is no default value, it must be specified
+new TableMaker([
+    name        : "Samantha Wigs",
+    age         : 25,
+    country     : "New Zealand",
+    occupation  : "Teacher",
+    email       : "sam25@teachers.nz",
+    phone       : "098-8712-9378"
+], horizontal).print()
+```
+
+When `horizontal` is false:
+
+```
++------------+-------------------+
+| name       | Samantha Wigs     |
+|------------+-------------------|
+| age        | 25                |
+|------------+-------------------|
+| country    | New Zealand       |
+|------------+-------------------|
+| occupation | Teacher           |
+|------------+-------------------|
+| email      | sam25@teachers.nz |
+|------------+-------------------|
+| phone      | 098-8712-9378     |
++------------+-------------------+
+```
+
+When `horizontal` is true:
+```
++---------------+-----+-------------+------------+-------------------+---------------+
+| name          | age | country     | occupation | email             | phone         |
+|---------------+-----+-------------+------------+-------------------+---------------|
+| Samantha Wigs | 25  | New Zealand | Teacher    | sam25@teachers.nz | 098-8712-9378 |
++---------------+-----+-------------+------------+-------------------+---------------+
+```
+
+### 2. Using List of List
 ```groovy
 boolean header = true
 boolean footer = false
@@ -48,7 +88,7 @@ new TableMaker([
 ], header, footer).print()
 ```
 
-### 2. Using List of Map
+### 3. Using List of Map
 ```groovy
 boolean footer = false
 new TableMaker([
@@ -67,7 +107,7 @@ new TableMaker([
 ], footer).print()
 ```
 
-### 3. Specifying parameters (Groovy style)
+### 4. Specifying parameters (Groovy style)
 ```groovy
 TableMaker table = new TableMaker(
     headers : ["Fruit", "QTY", "Price", "Seller"],
@@ -80,7 +120,7 @@ data.each {
 table.print()
 ```
 
-### 4. Using methods
+### 5. Using methods
 
 ```groovy
 TableMaker table = new TableMaker()

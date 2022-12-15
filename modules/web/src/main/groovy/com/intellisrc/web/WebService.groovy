@@ -629,6 +629,13 @@ class WebService {
                                 if (etag) {
                                     output.etag = etag
                                     response.header("ETag", etag)
+                                    String prevTag = request.headers("If-None-Match")
+                                    if(prevTag == output.etag) { // Same content
+                                        response.status(304)
+                                        output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
+                                        response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+                                        output.content = ""
+                                    }
                                 } else {
                                     try {
                                         if (output.type == ServiceOutput.Type.BINARY) {
@@ -643,6 +650,13 @@ class WebService {
                                         if (etag) {
                                             output.etag = etag
                                             response.header("ETag", etag)
+                                            String prevTag = request.headers("If-None-Match")
+                                            if(prevTag == output.etag) { // Same content
+                                                response.status(304)
+                                                output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
+                                                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+                                                output.content = ""
+                                            }
                                         } else {
                                             Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
                                         }

@@ -130,6 +130,14 @@ trait AutoJDBC {
         return table.createTable(db, copyName)
     }
     /**
+     * Copy table structure and data
+     * @param db
+     * @param from
+     * @param to
+     * @return
+     */
+    boolean cloneTable(final DB db, String from, String to, Collection<ColumnDB> columns = []) { copyTableStructure(db, from, to) && copyTableData(db, from, to, columns) }
+    /**
      * Copy a table with all constraints
      * @param db
      * @param from
@@ -138,13 +146,23 @@ trait AutoJDBC {
      * @return
      */
     // Changed for createTable with a name instead
-    boolean copyTable(final DB db, String from, String to) { false }
+    boolean copyTableStructure(final DB db, String from, String to) { false }
     /**
      * Copy table data
      * @return
      */
     boolean copyTableData(final DB db, String from, String to, Collection<ColumnDB> columns) {
         return set(db, "INSERT INTO $to SELECT * FROM $from")
+    }
+    /**
+     * Reset serial / identity / auto-increment if needed
+     * @param db
+     * @param from
+     * @param to
+     * @return
+     */
+    boolean resetAutoIncrement(final DB db, Table newTable, String name, String backup) {
+       return true
     }
     /**
      * Rename table

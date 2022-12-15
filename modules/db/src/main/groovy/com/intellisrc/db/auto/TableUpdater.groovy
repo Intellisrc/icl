@@ -66,11 +66,8 @@ class TableUpdater {
                                 }
                                 if(ok2) {
                                     records = db.table(info.name).count().get().toInt()
-                                    if (auto.copyTable(db, info.name, info.backName)) {
-                                        ok2 = auto.copyTableData(db, info.name, info.backName, info.table.columns)
-                                        if(ok2) {
-                                            ok2 = db.table(info.name).drop()
-                                        }
+                                    if (auto.cloneTable(db, info.name, info.backName, info.table.columns)) {
+                                        ok2 = db.table(info.name).drop()
                                     } else {
                                         ok2 = auto.renameTable(db, info.name, info.backName)
                                     }
@@ -103,10 +100,12 @@ class TableUpdater {
                                     int version = getTableVersion(db, info.name)
                                     if (info.table.execOnUpdate(db.table(info.backName), version, info.table.definedVersion)) {
                                         List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
-                                        ok = db.table(info.name).insert(newData)
+                                        ok = db.table(info.name).insert(newData) && auto.resetAutoIncrement(db, info.table, info.name, info.backName)
                                     } else {
-                                        ok = auto.copyTableData(db, info.backName, info.name, info.table.columns) &&
-                                             db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
+                                        boolean dataCopied = auto.copyTableData(db, info.backName, info.name, info.table.columns)
+                                        boolean resetSequence = dataCopied && auto.resetAutoIncrement(db, info.table, info.name, info.backName)
+                                        boolean countMatch = resetSequence && db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
+                                        ok = countMatch
                                         if (!ok) {
                                             // Probably column mismatch (using row by row method):
                                             List<String> columnsOld = db.table(info.backName).info().collect { it.name }

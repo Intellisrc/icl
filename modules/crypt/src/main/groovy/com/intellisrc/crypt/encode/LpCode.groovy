@@ -1,9 +1,14 @@
 //file:noinspection unused
 package com.intellisrc.crypt.encode
 
+import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Modifier
+import java.nio.CharBuffer
+import java.nio.charset.StandardCharsets
+import java.util.regex.Pattern
 
 /*
  * @author: A.Lepe
@@ -82,11 +87,19 @@ import java.lang.reflect.Modifier
 
 @CompileStatic
 class LpCode {
+    //NOTE: The smaller the chunkSize, the larger the output, higher the CPU usage and lower the Memory usage.
+    int chunkSize = 100      //For large size texts, it is better to use chunks (for very large texts, 1024 might be better)
+    int glueChar = 0x1E      //Which character to use to glue a chunk (it can be part of the OUTPUT charset)
+    static boolean warn = false  //if true, will warn when input includes characters not included in INPUT charset
+    int blockSize = 16      // When using blocks
+    String blockPadding = ""    // Character used to pad block
     /* ************ PARTS ***************** */
     //Binary-like (2 chars: 0,1) : 10111010111011111010100111000011111101000101000100
     static public final List<Integer> BIT = 0x30..0x31
     //Space character (used only to complement any other)
     static public final List<Integer> SPACE = [0x20]
+    //New line characters. Use it when your text might contain new line characters (return character and line feed)
+    static public final List<Integer> NEWLINES = [0x0A,0x0D]
     // = and + symbols (2 chars) : Used to complement others : +===+=+=++=++=+=+=++=
     static public final List<Integer> EQUALPLUS = [0x3D, 0x2B]
     // a to f (6 chars) : ebacedaebfccedafcfaeeeefbacaef
@@ -622,10 +635,11 @@ class LpCode {
      * Wrapper around a list of characters with special properties
      */
     static class CharSet {
-        final List<Integer> chars
+        final private List<Integer> chars
 
         CharSet(Collection<Integer> chars) {
             this.chars = chars.toList().unique()
+            assert length > 1 : "Charset must be at least 1 character"
         }
 
         int getLength() {
@@ -638,6 +652,10 @@ class LpCode {
 
         int getAt(int index) {
             return chars[index]
+        }
+
+        List<Integer> getChars() {
+            return chars.collect() // Create a clone of the List so we don't modify it
         }
     }
 
@@ -766,25 +784,25 @@ class LpCode {
     static char[] translate(char[] chars, CharSet from, CharSet to) {
         return new LpCode(from, to).translate(chars)
     }
-    static char[] translate(char[] chars, List<Integer> from, CharSet to) {
+    static char[] translate(char[] chars, Collection<Integer> from, CharSet to) {
         return new LpCode(from, to).translate(chars)
     }
-    static char[] translate(char[] chars, CharSet from, List<Integer> to) {
+    static char[] translate(char[] chars, CharSet from, Collection<Integer> to) {
         return new LpCode(from, to).translate(chars)
     }
-    static char[] translate(char[] chars, List<Integer> from, List<Integer> to) {
+    static char[] translate(char[] chars, Collection<Integer> from, Collection<Integer> to) {
         return new LpCode(from, to).translate(chars)
     }
     static String translate(String str, CharSet from, CharSet to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
-    static String translate(String str, List<Integer> from, CharSet to) {
+    static String translate(String str, Collection<Integer> from, CharSet to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
-    static String translate(String str, CharSet from, List<Integer> to) {
+    static String translate(String str, CharSet from, Collection<Integer> to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
-    static String translate(String str, List<Integer> from, List<Integer> to) {
+    static String translate(String str, Collection<Integer> from, Collection<Integer> to) {
         return new LpCode(from, to).translate(str.toCharArray()).toString()
     }
     /**
@@ -828,6 +846,65 @@ class LpCode {
         return toStr(num, output)
     }
     /**
+     * Encode and return block of text instead of single line
+     */
+    char[] encodeBlock(char[] str) {
+        return getBlock(encode(str), blockSize, blockPadding)
+    }
+    /**
+     * Encode an input stream and write it into an output stream
+     * @param inputStream : string to encode
+     * @param outputStream
+     */
+    void encode(InputStream inputStream, OutputStream outputStream, Collection<Integer> glue, int chunkCharSize = chunkSize) {
+        InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)
+        BufferedReader br = new BufferedReader(reader)
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream)
+        CharBuffer buff = CharBuffer.allocate(chunkSize)
+        boolean init = false // flag to know if we already started
+        while(br.read(buff) > 0) {
+            buff.flip()
+            String encoded = encode(buff.chars).toString()
+            String sep = init ? glue.collect { Character.toString(it) }.join("") : ""
+            writer.write(sep + encoded)
+            writer.flush()
+            buff.clear()
+            init = true
+        }
+    }
+    void encode(InputStream inputStream, OutputStream outputStream, int glue = glueChar, int chunkCharSize = chunkSize) {
+        encode(inputStream, outputStream, [glue], chunkCharSize)
+    }
+    void encode(InputStream inputStream, OutputStream outputStream, String glue, int chunkCharSize = chunkSize) {
+        encode(inputStream, outputStream, getCodePoints(glue), chunkCharSize)
+    }
+    /**
+     * Encode splitting the input string in chunks and glue them with some separator
+     * This method helps to reduce the memory consumption by trading cpu usage
+     * @param str
+     * @param glue
+     * @param chunkSize
+     * @return
+     */
+    String encodeByChunks(char[] str, Collection<Integer> glue, int chunkCharSize = chunkSize) {
+        List<String> buff = []
+        glue.each {
+            output.chars.removeElement(it) // Remove it from charset if it is included
+        }
+        (0..str.length - 1).step(chunkCharSize).each {
+            int next = it + chunkCharSize
+            if(next > str.length - 1) { next = str.length }
+            buff << encode(str.toList().subList(it, next).toArray() as char[]).toString()
+        }
+        return buff.join(codePointsToString(glue))
+    }
+    String encodeByChunks(char[] str, int glue = glueChar, int chunkCharSize = chunkSize) {
+        return encodeByChunks(str, [glue], chunkCharSize)
+    }
+    String encodeByChunks(char[] str, String glue, int chunkCharSize = chunkSize) {
+        return encodeByChunks(str, getCodePoints(glue), chunkCharSize)
+    }
+    /**
      * Decode an array of characters
      * @param str
      * @return
@@ -839,6 +916,58 @@ class LpCode {
             str = randomize(str, true)
         }
         return str
+    }
+    /**
+     * Decode a block of text created by encodeBlock()
+     */
+    char[] decodeBlock(char[] str) {
+        return decode(unblock(str, blockPadding))
+    }
+    /**
+     * Decode an input stream and write it into an output stream
+     * @param inputStream : encoded string
+     * @param outputStream
+     */
+    void decode(InputStream inputStream, OutputStream outputStream, Collection<Integer> glue) {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream)
+        Scanner scanner = new Scanner(inputStream)
+        String div = codePointsToString(glue)
+        scanner.useDelimiter(Pattern.quote(div))
+        while(scanner.hasNext()) {
+            String part = scanner.next().replaceAll(div, "")
+            String decoded = decode(part.toCharArray()).toString()
+            writer.write(decoded)
+            writer.flush()
+        }
+    }
+    void decode(InputStream inputStream, OutputStream outputStream, int glue = glueChar) {
+        decode(inputStream, outputStream, [glue])
+    }
+    void decode(InputStream inputStream, OutputStream outputStream, String glue) {
+        decode(inputStream, outputStream, getCodePoints(glue))
+    }
+    /**
+     * Decode a string which was previously encoded by "encodeByChunks"
+     * @param str
+     * @param glue
+     * @return
+     */
+    String decodeByChunks(char[] str, Collection<Integer> glue) {
+        List<String> buff = []
+        glue.each {
+            output.chars.removeElement(it) // Remove it from charset if it is included
+        }
+        String div = codePointsToString(glue)
+        str.toString().tokenize(div).each {
+            buff << decode(it.toCharArray()).toString()
+        }
+        return buff.join("")
+    }
+    String decodeByChunks(char[] str, int glue = glueChar) {
+        return decodeByChunks(str, [glue])
+    }
+    String decodeByChunks(char[] str, String glue) {
+        return decodeByChunks(str, getCodePoints(glue))
     }
     /**
      * Converts an array of characters to a number
@@ -854,6 +983,12 @@ class LpCode {
         codePoints.eachWithIndex {
             int cp, int s ->
                 int r = charset.getPosition(cp)
+                if(r == -1) { // Not found in charset
+                    if(warn) {
+                        Log.w("Character: [%s](0x%d) not found in charset: [%s ~ %s]", Character.toString(cp), cp, Character.toString(charset.chars.min()), Character.toString(charset.chars.max()))
+                    }
+                    r = Random.range(0, charset.length - 1) //Replace by a random character
+                }
                 //noinspection GrReassignedInClosureLocalVar
                 n = (s == len - 1) ? n + (r + 1) : (n + (r + 1)) * (charset.length)
         }
@@ -873,6 +1008,14 @@ class LpCode {
             offset += Character.charCount(cp)
         }
         return list
+    }
+    /**
+     * Get the codePoint of a single character
+     * @param str
+     * @return
+     */
+    static Integer getCodePoint(String str) {
+        return getCodePoints(str).first()
     }
     /**
      * Converts a number into an array of characters
@@ -924,7 +1067,7 @@ class LpCode {
             LpCode.declaredFields.each {
                 if (Modifier.isStatic(it.modifiers) && Modifier.isPublic(it.modifiers)) {
                     List<Integer> list = it.get(null) as List<Integer>
-                    if (list.size() > 1) {
+                    if (list.size() > 2 || it.name == "BIN") {
                         charsets[it.name] = new CharSet(list)
                     }
                 }
@@ -932,5 +1075,46 @@ class LpCode {
         } catch (Exception ignore) {
         }
         return charsets
+    }
+    /**
+     * Convert codePoints to String
+     * @param codes
+     * @return
+     */
+    static String codePointsToString(Collection<Integer> codes) {
+        return codes.collect { Character.toString(it) }.join("")
+    }
+
+    /**
+     * Convert a string into a lines
+     * @param input
+     * @param blockSize
+     * @param padding
+     * @return
+     */
+    static List<String> split(char[] input, int blockSize, String padding) {
+        //noinspection RegExpSimplifiable
+        return input.toString().split("(?<=\\G.{${blockSize}})").collect { it.padRight(blockSize, padding)}
+    }
+
+    /**
+     * Split a string (usually the output of 'encode') and return it as block of text
+     * @param input
+     * @param blockSize
+     * @param padding
+     * @return
+     */
+    static char[] getBlock(char[] input, int blockSize, String padding = "") {
+        return split(input, blockSize, padding).join(SysInfo.newLine).toCharArray()
+    }
+
+    /**
+     * Return a block of text as a single line, removing any padding
+     * @param input
+     * @param padding
+     * @return
+     */
+    static char[] unblock(char[] input, String padding = "") {
+        return input.toString().replaceAll(padding, "").replaceAll(SysInfo.newLine, "").toCharArray()
     }
 }

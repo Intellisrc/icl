@@ -378,9 +378,111 @@ println new LpCode(phoneNumber, KOREAN).encode("+55(0)1-800-222-3333".toCharArra
 // 귯좒퀆깋뒜뒧
 ```
 
+#### Exporting and importing as block
+
+You can export the encoded string as a block of text:
+
+```groovy
+char[] s512 = Hash.SHA512("hello".toCharArray()).toCharArray()
+LpCode lp = new LpCode(HASH_UP, BRAILLE) // Encode using HASH_UP (Hash as uppercase) as input and BRAILLE as output
+String block = lp.encodeBlock(s512) // Encode it as block
+println block
+```
+output:
+```
+⣜⢿⢪⢌⠉⣳⡳⠕⣧⠰⡪⡬⡳⠡⢤⢦
+⣂⠍⣢⣬⠰⢾⠔⣑⡽⣪⡢⣙⡙⢐⣿⢔
+⣡⣸⡆⠂⢮⠻⡷⠄⠼⢒⠼⢅⢮⡵⡸⠙
+⡥⠍⣝⢂⠲⡀⡙⠃⠶⣣⡃⠖⣪⡳⣄⡺
+```
+assert lp.decodeBlock(block.toCharArray()) == s512
+```
+You can specify the block size (default is 16) with:
+
+```groovy
+lp.blockSize = 20
+```
+
+If you want to add some padding to a block, you can use:
+
+> NOTE: Be sure you don't use a character included in your INPUT or OUTPUT
+
+```groovy
+lp.blockSize = 15
+lp.blockPadding = "-"
+String block = lp.encodeBlock(s512) // Encode it as block
+println block
+```
+Output:
+```
+⣜⢿⢪⢌⠉⣳⡳⠕⣧⠰⡪⡬⡳⠡⢤
+⢦⣂⠍⣢⣬⠰⢾⠔⣑⡽⣪⡢⣙⡙⢐
+⣿⢔⣡⣸⡆⠂⢮⠻⡷⠄⠼⢒⠼⢅⢮
+⡵⡸⠙⡥⠍⣝⢂⠲⡀⡙⠃⠶⣣⡃⠖
+⣪⡳⣄⡺------------
+```
+
+> NOTE: If something is not working in your code, try setting 'warn' to `true`,
+> which will warn you when some 'external' character is included in your INPUT or OUTPUT
+> (will help you to understand why encoding/decoding is not working properly)
+
+```groovy
+lp.warn = true
+```
+
+#### Performance and encoding with chunks
+
+If the string is too long (e.g. thousands of characters) this code may use a large amount of memory. To reduce the
+memory usage, you can encode a string (or array of chars) using the method `encodeByChunks`:
+
+```groovy
+// LpCode.* is imported statically:
+String text = "...very\r long text\n" * 10000
+def lp = new LpCode(LOWERCASE + NEWLINES, ARABIC, 2222) // You add `NEWLINES` if your input may contain new lines
+String encoded = lp.encodeByChunks(text, ';', 1024) // It will encode every 1024 characters and will use ';' to identify each block
+String decoded = lp.decodeByChunks(encoded, ';') // Same as `text`
+```
+
+By default `encodeByChunks` will chunk every 100 chars and will use `0x1E` (block delimiter character) as separator.
+So you don't need to specify them. For very long texts it is recommended to increase the "chunk" length. The smaller
+that value is (chunk length), less the memory, but more the cpu usage (the output length as well increases).
+
+#### Encoding on the fly (using InputStream/OutputStream)
+
+You can encode as it goes by using `encode(InputStream, OutputStream)` method. This is also recommended if you need to
+encode large amount of text, as it reduces the amount of data stored in memory. For example:
+
+```groovy
+String s = "...very..very..very...long text..."
+
+// Encoding using InputStream:
+InputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8))
+ByteArrayOutputStream baos = new ByteArrayOutputStream()
+
+LpCode lpCode = new LpCode(BASIC + NEWLINES, HEXAGRAM, 1234)
+// you can set `chunkSize` and `glueChar` for your instance:
+lpCode.chunkSize = 20
+lpCode.glueChar = getCodePoint("|")
+lpCode.encode(inputStream, baos)
+// alternatively, you can set those values for the operation:
+// lpCode.encode(inputStream, baos, "|", 20)
+
+String out = new String(baos.toByteArray(), StandardCharsets.UTF_8)
+println out
+
+// Decoding using InputStream:
+InputStream decodeStream = new ByteArrayInputStream(out.getBytes(StandardCharsets.UTF_8))
+ByteArrayOutputStream decodeOut = new ByteArrayOutputStream()
+
+lpCode.decode(decodeStream, decodeOut)
+
+String decodedFinal = new String(decodeOut.toByteArray(), StandardCharsets.UTF_8)
+println decodedFinal
+```
+
 #### To BigInteger
 
-When you encode a String, `LpCode` will convert it first into a numeric representation and
+When you encode a String, `LpCode` will convert it first into a numeric representation, and
 then it will use the output charset to generate the encoded String. 
 
 You can store that intermediary number, which can later be used to decode or continue encoding a string:

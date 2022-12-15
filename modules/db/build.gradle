@@ -2,14 +2,17 @@ dependencies {
     api project(':etc')
     api "org.reflections:reflections:0.10.2"
 
-    def sqlserver = '11.2.1.jre11'
-    def oracle = '21.7.0.0'
-    def mysql = '8.0.30'
-    def mariadb = '3.0.6'
     def derby= '10.15.2.0'
-    def firebird = '4.0.7.java11'
-    def postgresql = '42.5.0'
-    def sqlite = '3.39.4.1'
+    def firebird = '4.0.8.java11'
+    def h2 = '2.1.214'
+    def hypersql = '2.7.1'
+    def informix = '4.50.9'
+    def mariadb = '3.0.6'
+    def mysql = '8.0.30'
+    def oracle = '21.7.0.0'
+    def postgresql = '42.5.1'
+    def sqlite = '3.40.0.0'
+    def sqlserver = '11.2.1.jre11'
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
@@ -22,6 +25,9 @@ dependencies {
     compileOnly "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
     compileOnly "org.postgresql:postgresql:${postgresql}"
     compileOnly "org.xerial:sqlite-jdbc:${sqlite}"
+    compileOnly "com.h2database:h2:${h2}"
+    compileOnly "org.hsqldb:hsqldb:${hypersql}"
+    compileOnly "com.ibm.informix:jdbc:${informix}"
 
     // NOTE: it seems repetitive, but it was done like that, so IntelliJ can identify dependencies versions.
     testImplementation project(':net')
@@ -35,6 +41,9 @@ dependencies {
     testImplementation "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
     testImplementation "org.postgresql:postgresql:${postgresql}"
     testImplementation "org.xerial:sqlite-jdbc:${sqlite}"
+    testImplementation "com.h2database:h2:${h2}"
+    testImplementation "org.hsqldb:hsqldb:${hypersql}"
+    testImplementation "com.ibm.informix:jdbc:${informix}"
 }
 
 repositories {

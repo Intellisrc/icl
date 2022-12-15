@@ -208,6 +208,8 @@ class JDBCConnector implements Connector {
 				st.setFloat(index, (Float) o)
 			} else if (o instanceof Double || o instanceof BigDecimal) {
 				st.setDouble(index, (Double) o)
+			} else if (o instanceof Short) {
+				st.setShort(index, (Short) o)
 			} else if (o instanceof Integer) {
 				st.setInt(index, (Integer) o)
 			} else if (o instanceof Long || o instanceof BigInteger) {

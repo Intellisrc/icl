@@ -30,7 +30,8 @@ class AutoTest extends Specification {
 
     static Map<String, Integer> ports = [
         mysql : 33006,
-        mariadb : 33007
+        mariadb : 33007,
+        postgres : 35432
     ]
 
     static class User extends Model {
@@ -129,6 +130,15 @@ class AutoTest extends Specification {
                 password: "test",
                 dbname: "test",
                 port: ports.mysql
+            )
+        }
+        if(!ci && LocalHost.hasOpenPort(ports.postgres)) {
+            dbs << new PostgreSQL(
+                user: "test",
+                hostname: "127.0.0.1",
+                password: "test",
+                dbname: "test",
+                port: ports.postgres
             )
         }
         return dbs

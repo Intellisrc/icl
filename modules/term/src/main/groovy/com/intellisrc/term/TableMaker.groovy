@@ -178,19 +178,33 @@ class TableMaker {
      */
     TableMaker() {}
     /**
+     * Use Map to generate table
+     * @param horizontal : when true, it will use keys as headers (otherwise keys are displayed on first column)
+     */
+    TableMaker(Map map, boolean horizontal) {
+        if(horizontal) {
+            setHeaders(map.keySet())
+            addRow(map.values())
+        } else {
+            map.each { addRow([it.key, it.value]) }
+        }
+    }
+    /**
      * Import List<Map> into a table
      * @param data
      * @param footer
      */
     TableMaker(List<Map> data, boolean footer = false) {
-        setHeaders(data.first().keySet().toList())
-        data.each {
-            Map entry ->
-                if(footer && entry == data.last()) {
-                    setFooter(entry.values().toList())
-                } else {
-                    addRow(entry.values().toList())
-                }
+        if(!data.empty) {
+            setHeaders(data.first().keySet())
+            data.each {
+                Map entry ->
+                    if (footer && entry == data.last()) {
+                        setFooter(entry.values())
+                    } else {
+                        addRow(entry.values())
+                    }
+            }
         }
     }
     /**
@@ -200,16 +214,18 @@ class TableMaker {
      * @param footer
      */
     TableMaker(List<List> data, boolean headers, boolean footer) {
-        if(headers) {
-            setHeaders(data.pop())
-        }
-        data.each {
-            List entry ->
-                if(footer && entry == data.last()) {
-                    setFooter(entry)
-                } else {
-                    addRow(entry)
-                }
+        if(!data.empty) {
+            if (headers) {
+                setHeaders(data.pop())
+            }
+            data.each {
+                List entry ->
+                    if (footer && entry == data.last()) {
+                        setFooter(entry)
+                    } else {
+                        addRow(entry)
+                    }
+            }
         }
     }
     /**
@@ -323,27 +339,29 @@ class TableMaker {
                     }
             }
         }
-        // Merge footer in several columns if its of length 1
-        if (!columns.first().expandFooter) {
-            columns.collect { it.footer }.eachWithIndex {
-                Object entry, int i ->
-                    int cellWidth = getDisplayWidth(decolor(entry.toString()))
-                    Column col = columns.get(i)
-                    col.length = [col.minLen, col.length, cellWidth].max()
-                    colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
+        if(!columns.empty) {
+            // Merge footer in several columns if its of length 1
+            if (!columns.first().expandFooter) {
+                columns.collect { it.footer }.eachWithIndex {
+                    Object entry, int i ->
+                        int cellWidth = getDisplayWidth(decolor(entry.toString()))
+                        Column col = columns.get(i)
+                        col.length = [col.minLen, col.length, cellWidth].max()
+                        colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
+                }
             }
-        }
 
-        columns.each {
-            Column col ->
-                if(col.autoCollapse) {
-                    col.maxLen = [col.minLen, colWidthStats[col].toFloat().round()].max()
-                }
-                if(col.hideWhenEmpty && emptyCol.get(col)) {
-                    col.length = 0
-                    col.maxLen = 0
-                    col.minLen = 0
-                }
+            columns.each {
+                Column col ->
+                    if (col.autoCollapse) {
+                        col.maxLen = [col.minLen, colWidthStats[col].toFloat().round()].max()
+                    }
+                    if (col.hideWhenEmpty && emptyCol.get(col)) {
+                        col.length = 0
+                        col.maxLen = 0
+                        col.minLen = 0
+                    }
+            }
         }
 
         Closure getHR = {

@@ -1,5 +1,33 @@
 # Main Changes
 
+### 2.8.10
+* Added stream and chunks support in `LpCode` (crypt)
+* Added block export/import in `LpCode` (crypt)
+* Improved ETag headers handling (web)
+* Added support for Map in `TableMaker` (term)
+* Added `Model`/`Table` support for `PostgreSQL` (db)
+* Added `Fluid SQL` support for `H2` and `HSQLDB` (db)
+
+### 2.8.9
+* Added missing type in `Table` methods (db)
+* Fixed output length when unicode characters were used in text responses (web)
+* Fixed upload detection when using custom fields with multipart data (web)
+* Fixed foreign keys references after update (db)
+* Unsuccessful connections were stored in pool (db)
+* Updated groovy-extends which includes new ceil and floor methods for Float, Double and BigDecimal
+* Improved `LpCode` code. Now it supports many blocks and 2nd plane of Unicode (crypt)
+* Allow rollback version in `Model` (db)
+* Added count() and count(condition) in `Table` (db)
+* Added Map constructor to `Data` (db)
+* Derby no longer can automatically update and use foreign keys at the same time (db)
+* Added `Database.waitForConnection` to wait for delayed database startup (db)
+* `Network` class can now be used to store IP addresses (net)
+* Many improvements to `Network` class (net)
+* Removed `LocalHost.getLocalNetworkForIP` as it didn't belong there (net)
+* Exposed `Cache.garbageCollect()` so it can be called on demand (etc)
+* Added config hardware.warn to disable warning coming from `Hardware` (etc)
+* Replaced List for Collection in most all public methods (all modules)
+
 ### 2.8.8
 * Database bulk operations improved and fixed (db)
 * Improved multiple column primary key support (db)

@@ -55,7 +55,7 @@ class SQLServer extends JDBCServer {
     boolean supportsReplace = false
 
     @Override
-    String getLastIdQuery(String table) {
+    String getLastIdQuery(String table, String pk) {
         return "SELECT SCOPE_IDENTITY()"
     }
 
