@@ -2,8 +2,11 @@
 
 ### 2.8.10
 * Added stream and chunks support in `LpCode` (crypt)
+* Added block export/import in `LpCode` (crypt)
 * Improved ETag headers handling (web)
 * Added support for Map in `TableMaker` (term)
+* Added `Model`/`Table` support for `PostgreSQL` (db)
+* Added `Fluid SQL` support for `H2` and `HSQLDB` (db)
 
 ### 2.8.9
 * Added missing type in `Table` methods (db)

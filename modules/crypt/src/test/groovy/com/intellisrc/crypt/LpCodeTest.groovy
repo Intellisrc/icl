@@ -2,6 +2,7 @@ package com.intellisrc.crypt
 
 import com.intellisrc.core.SysClock
 import com.intellisrc.crypt.encode.LpCode
+import com.intellisrc.crypt.hash.Hash
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -223,5 +224,21 @@ block of the Unicode standard, and the only block which is encoded in one byte i
             origLow | LOWERCASE | NUMBERS           | "som4t78n6"
             origLow | LOWERCASE | CIRCLE_NUMS       | "⑱⑭⑫④⑲⑦⑧⑬⑥"
 
+    }
+
+    def "Block and unblock should work"() {
+        setup:
+            char[] s512 = Hash.SHA512("hello".toCharArray()).toCharArray()
+            LpCode lp = new LpCode(HASH_UP, BRAILLE)
+            String block = lp.encodeBlock(s512)
+        expect:
+            println block
+            assert lp.decodeBlock(block.toCharArray()) == s512
+            assert block == """
+⣜⢿⢪⢌⠉⣳⡳⠕⣧⠰⡪⡬⡳⠡⢤⢦
+⣂⠍⣢⣬⠰⢾⠔⣑⡽⣪⡢⣙⡙⢐⣿⢔
+⣡⣸⡆⠂⢮⠻⡷⠄⠼⢒⠼⢅⢮⡵⡸⠙
+⡥⠍⣝⢂⠲⡀⡙⠃⠶⣣⡃⠖⣪⡳⣄⡺
+""".trim()
     }
 }

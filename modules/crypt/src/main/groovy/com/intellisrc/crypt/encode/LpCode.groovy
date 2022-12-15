@@ -2,6 +2,7 @@
 package com.intellisrc.crypt.encode
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Modifier
@@ -90,6 +91,8 @@ class LpCode {
     int chunkSize = 100      //For large size texts, it is better to use chunks (for very large texts, 1024 might be better)
     int glueChar = 0x1E      //Which character to use to glue a chunk (it can be part of the OUTPUT charset)
     static boolean warn = false  //if true, will warn when input includes characters not included in INPUT charset
+    int blockSize = 16      // When using blocks
+    String blockPadding = ""    // Character used to pad block
     /* ************ PARTS ***************** */
     //Binary-like (2 chars: 0,1) : 10111010111011111010100111000011111101000101000100
     static public final List<Integer> BIT = 0x30..0x31
@@ -843,6 +846,12 @@ class LpCode {
         return toStr(num, output)
     }
     /**
+     * Encode and return block of text instead of single line
+     */
+    char[] encodeBlock(char[] str) {
+        return getBlock(encode(str), blockSize, blockPadding)
+    }
+    /**
      * Encode an input stream and write it into an output stream
      * @param inputStream : string to encode
      * @param outputStream
@@ -907,6 +916,12 @@ class LpCode {
             str = randomize(str, true)
         }
         return str
+    }
+    /**
+     * Decode a block of text created by encodeBlock()
+     */
+    char[] decodeBlock(char[] str) {
+        return decode(unblock(str, blockPadding))
     }
     /**
      * Decode an input stream and write it into an output stream
@@ -1068,5 +1083,38 @@ class LpCode {
      */
     static String codePointsToString(Collection<Integer> codes) {
         return codes.collect { Character.toString(it) }.join("")
+    }
+
+    /**
+     * Convert a string into a lines
+     * @param input
+     * @param blockSize
+     * @param padding
+     * @return
+     */
+    static List<String> split(char[] input, int blockSize, String padding) {
+        //noinspection RegExpSimplifiable
+        return input.toString().split("(?<=\\G.{${blockSize}})").collect { it.padRight(blockSize, padding)}
+    }
+
+    /**
+     * Split a string (usually the output of 'encode') and return it as block of text
+     * @param input
+     * @param blockSize
+     * @param padding
+     * @return
+     */
+    static char[] getBlock(char[] input, int blockSize, String padding = "") {
+        return split(input, blockSize, padding).join(SysInfo.newLine).toCharArray()
+    }
+
+    /**
+     * Return a block of text as a single line, removing any padding
+     * @param input
+     * @param padding
+     * @return
+     */
+    static char[] unblock(char[] input, String padding = "") {
+        return input.toString().replaceAll(padding, "").replaceAll(SysInfo.newLine, "").toCharArray()
     }
 }

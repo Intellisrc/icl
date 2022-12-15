@@ -378,6 +378,54 @@ println new LpCode(phoneNumber, KOREAN).encode("+55(0)1-800-222-3333".toCharArra
 // 귯좒퀆깋뒜뒧
 ```
 
+#### Exporting and importing as block
+
+You can export the encoded string as a block of text:
+
+```groovy
+char[] s512 = Hash.SHA512("hello".toCharArray()).toCharArray()
+LpCode lp = new LpCode(HASH_UP, BRAILLE) // Encode using HASH_UP (Hash as uppercase) as input and BRAILLE as output
+String block = lp.encodeBlock(s512) // Encode it as block
+println block
+/*
+⣜⢿⢪⢌⠉⣳⡳⠕⣧⠰⡪⡬⡳⠡⢤⢦
+⣂⠍⣢⣬⠰⢾⠔⣑⡽⣪⡢⣙⡙⢐⣿⢔
+⣡⣸⡆⠂⢮⠻⡷⠄⠼⢒⠼⢅⢮⡵⡸⠙
+⡥⠍⣝⢂⠲⡀⡙⠃⠶⣣⡃⠖⣪⡳⣄⡺
+ */
+assert lp.decodeBlock(block.toCharArray()) == s512
+```
+You can specify the block size (default is 16) with:
+
+```groovy
+lp.blockSize = 20
+```
+
+If you want to add some padding to a block, you can use:
+
+> NOTE: Be sure you don't use a character included in your INPUT or OUTPUT
+
+```groovy
+lp.blockSize = 15
+lp.blockPadding = "-"
+println block
+/*
+⣜⢿⢪⢌⠉⣳⡳⠕⣧⠰⡪⡬⡳⠡⢤
+⢦⣂⠍⣢⣬⠰⢾⠔⣑⡽⣪⡢⣙⡙⢐
+⣿⢔⣡⣸⡆⠂⢮⠻⡷⠄⠼⢒⠼⢅⢮
+⡵⡸⠙⡥⠍⣝⢂⠲⡀⡙⠃⠶⣣⡃⠖
+⣪⡳⣄⡺------------
+ */
+```
+
+> NOTE: If something is not working in your code, try setting 'warn' to `true`,
+> which will warn you when some 'external' character is included in your INPUT or OUTPUT
+> (will help you to understand why encoding/decoding is not working properly)
+
+```groovy
+lp.warn = true
+```
+
 #### Performance and encoding with chunks
 
 If the string is too long (e.g. thousands of characters) this code may use a large amount of memory. To reduce the
