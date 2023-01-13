@@ -1,9 +1,6 @@
 package com.intellisrc.db
 
-import com.intellisrc.core.AnsiColor
-import com.intellisrc.core.Config
-import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
+import com.intellisrc.core.*
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
@@ -26,12 +23,17 @@ class DBPool {
 	// Max life of a connection. Once it expires, a new connection should be created.
 	protected int expireSeconds = Config.get("db.expire", 600)
 	// Turn it true to debug connections
-	protected boolean debugTimeout = Config.get("db.timeout.debug", false)
+	protected String debugTimeoutPackage = Config.get("db.timeout.debug")
 	protected boolean initialized = false
-	Map<Connector, List<StackTraceElement>> connTrace = [:]
 	ConcurrentLinkedQueue<Connector> availableConnections = new ConcurrentLinkedQueue<>()
 	ConcurrentLinkedQueue<Connector> currentConnections = new ConcurrentLinkedQueue<>()
+	List<TimeoutTrace> connTrace = []
 	JDBC jdbc = null
+
+	private static class TimeoutTrace {
+		Connector connector
+		List<StackTraceElement> trace = []
+	}
 
 	/**
 	 * Initialize with JDBC connection
@@ -50,8 +52,11 @@ class DBPool {
 			}
 			// Start with one connector:
 			Thread.startDaemon {
-				int minTime = [expireSeconds, timeoutSeconds].min()
-				long waitTime = (minTime < 60 ? minTime : 60) * Millis.SECOND
+				int waitTime = [expireSeconds, timeoutSeconds].min()
+				if(waitTime > Secs.MINUTE) {
+					Log.v("Connection expiration and timeout values are grater than a minute. Checking time set to 1 minute.")
+					waitTime = Millis.MINUTE
+				}
 				while (initialized) {
 					timeoutPool()
 					sleep waitTime
@@ -90,17 +95,27 @@ class DBPool {
 				connectors.each {
 					it.lastUsed = 0
 					it.close()
-					currentConnections.remove(it)
-					if(debugTimeout) {
-						println "-------------------------------------------------------------------------------------------"
-						connTrace[it].each {
-							StackTraceElement ste ->
-								println AnsiColor.YELLOW + ste.className + AnsiColor.RED + "." + ste.methodName + ":" + AnsiColor.GREEN + ste.lineNumber + AnsiColor.RESET
+					if(debugTimeoutPackage) {
+						TimeoutTrace timeoutTrace = connTrace.find {
+							TimeoutTrace tt ->
+								tt.connector == it
 						}
-						println "-------------------------------------------------------------------------------------------"
+						if(timeoutTrace) {
+							if(timeoutTrace.trace.empty) {
+								Log.d("No trace package found containing: %s (try using '*')", debugTimeoutPackage)
+							} else {
+								println "-------------------------------------------------------------------------------------------"
+								timeoutTrace.trace.each {
+									StackTraceElement ste ->
+										println AnsiColor.YELLOW + ste.className + AnsiColor.RED + "." + ste.methodName + ":" + AnsiColor.GREEN + ste.lineNumber + AnsiColor.RESET
+								}
+								println "-------------------------------------------------------------------------------------------"
+							}
+						}
 					}
+					currentConnections.remove(it)
 				}
-				Log.w("%d Connection(s) timed out after %d seconds. Current connections: %d", closed, timeoutSeconds, currentConnections.size())
+				Log.w("%d Connection(s) timed out after %d seconds. Current connections: %d, Available connections: %d", closed, timeoutSeconds, currentConnections.size(), availableConnections.size())
 			}
 		}
 	}
@@ -168,8 +183,13 @@ class DBPool {
 				currentConnections.add(connection)
 				Log.v( "[ADD] Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
 			}
-			if(debugTimeout) {
-				connTrace[connection] = Thread.currentThread().stackTrace.toList()
+			if(debugTimeoutPackage) {
+				connTrace << new TimeoutTrace(
+					connector: connection,
+					trace: Thread.currentThread().stackTrace.toList().findAll {
+						return debugTimeoutPackage == "*" || it.className.contains(debugTimeoutPackage)
+					}
+				)
 			}
 		} else {
 			Log.e( "Database Pool was not initialized")
@@ -183,6 +203,8 @@ class DBPool {
 			if(!availableConnections.contains(connection)) {
 				if(connection.open) { // Only keep opened connections
 					availableConnections.add(connection)
+				} else {
+					connection.close()
 				}
 				Log.v("[DEL] Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())
 			}
