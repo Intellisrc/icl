@@ -703,6 +703,10 @@ class WebService {
                             if(output.size > 0 && response.compression != AUTO) {
                                 response.header("Content-Length", sprintf("%d", output.size))
                             }
+                            // Add headers
+                            if (output.type == ServiceOutput.Type.BINARY) {
+                                response.header("Accept-Ranges", "bytes")
+                            }
                         } else {
                             response.status(404)
                             output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
