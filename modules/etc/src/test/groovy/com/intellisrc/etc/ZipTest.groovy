@@ -1,6 +1,10 @@
 package com.intellisrc.etc
 
 import spock.lang.Specification
+
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
 /**
  * @since 18/03/09.
  */
@@ -23,5 +27,117 @@ class ZipTest extends Specification {
             def unzipped = Zip.gunzip(zipped.decodeBase64())
         then:
             assert bytes == unzipped
+    }
+
+    def "unzip should correctly decompress data"() {
+        given:
+            Map<String, byte[]> expected = [
+                "file1.txt": "This is the first file".getBytes(),
+                "file2.txt": "This is the second file".getBytes()
+            ]
+            OutputStream outputStream = Zip.zip(expected)
+            ByteArrayOutputStream baos = (ByteArrayOutputStream) outputStream
+            InputStream inputStream = new ByteArrayInputStream(baos.toByteArray())
+
+        when:
+            Map<String, byte[]> namesData = Zip.unzip(inputStream)
+
+        then:
+            namesData == expected
+    }
+
+    void "decompressZip method should unzip a file correctly"() {
+        given:
+            // Create a temporary zip file with a single file
+            File zipFile = File.createTempFile("test", ".zip")
+            ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile))
+            zipOutputStream.putNextEntry(new ZipEntry("test.txt"))
+            zipOutputStream.write("This is a test".getBytes())
+            zipOutputStream.closeEntry()
+            zipOutputStream.close()
+
+            // Create a temporary directory to extract the zip file to
+            File destDir = File.createTempDir()
+
+        when:
+            File result = Zip.decompressZip(zipFile, destDir)
+
+        then:
+            result == destDir
+            new File(result, "test.txt").text == "This is a test"
+
+        cleanup:
+            if(zipFile.exists()) {
+                zipFile.delete()
+            }
+            if(destDir.exists()) {
+                destDir.deleteDir()
+            }
+    }
+
+    def "test compressDir creates a zip file from a directory"() {
+        given:
+            File srcDir = File.createTempDir()
+            File file1 = new File(srcDir, "file1.txt")
+            file1.text = "file1 content"
+            File subDir = new File(srcDir, "subdir")
+            subDir.mkdirs()
+            File file2 = new File(subDir, "file2.txt")
+            file2.text = "file2 content"
+            File zipFile = File.createTempFile("test","zip")
+
+        when:
+            File result = Zip.compressDir(srcDir, zipFile)
+
+        then:
+            result == zipFile
+            result.exists()
+            result.length() > 0
+
+        cleanup:
+            if(srcDir.exists()) {
+                srcDir.deleteDir()
+            }
+            if(zipFile.exists()) {
+                zipFile.delete()
+            }
+    }
+
+    def "test gunzip method"() {
+        given:
+            File file = File.createTempFile("test", ".txt")
+            file.text = "Hello"
+            assert Zip.gzip(file)
+            File zipped = new File(file.absolutePath + ".gz")
+            assert zipped.exists()
+        when:
+            boolean result = Zip.gunzip(zipped)
+        then:
+            assert result : "Unable to gunzip"
+            assert file.exists()
+        cleanup:
+            if(file.exists()) {
+                file.delete()
+            }
+    }
+
+    def "test gunzip method with non-gz file"() {
+        given:
+            File file = File.createTempFile("test", ".txt")
+        when:
+            Zip.gunzip(file)
+        then:
+            thrown Zip.InvalidExtensionException
+        cleanup:
+            file.delete()
+    }
+
+    def "test gunzip method with non-existing file"() {
+        given:
+            File file = new File("non_existing.txt")
+        when:
+            Zip.gunzip(file)
+        then:
+            thrown FileNotFoundException
     }
 }
