@@ -2,6 +2,7 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
+import com.intellisrc.core.SysClock
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
@@ -24,7 +25,8 @@ class JDBCConnector implements Connector {
 	protected static int TIMEOUT = Millis.SECOND
 	protected Connection connection
 	protected JDBC jdbc = new Dummy()
-	long lastUsed = 0
+	LocalDateTime lastUsed
+	LocalDateTime creationTime
 
 	/**
 	 * Constructor with local settings
@@ -37,6 +39,7 @@ class JDBCConnector implements Connector {
         } else {
             this.jdbc = jdbc
         }
+		creationTime = SysClock.now
 	}
 	/**
 	 * Returns database name

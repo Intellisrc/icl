@@ -4,6 +4,7 @@ import com.intellisrc.core.*
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
 
 @CompileStatic
@@ -20,8 +21,10 @@ import java.util.concurrent.ConcurrentLinkedQueue
 class DBPool {
 	// Time before a connection is discarded if it is not returned to the pool (usually it means close() is missing)
     protected int timeoutSeconds = Config.get("db.timeout", 60)
-	// Max life of a connection. Once it expires, a new connection should be created.
+	// Expiration time of a connection without being used. Once it expires, a new connection should be created.
 	protected int expireSeconds = Config.get("db.expire", 600)
+	// Max reuse time of a connection. Even if the connection is being used, we will close connections which were created long ago.
+	protected int maxLifeSeconds = Config.get("db.max.life", 3600)
 	// Turn it true to debug connections
 	protected String debugTimeoutPackage = Config.get("db.timeout.debug")
 	protected boolean initialized = false
@@ -70,30 +73,34 @@ class DBPool {
 	 * Closes connections that are timed out
 	 */
 	synchronized void timeoutPool() {
+		// Expire connections which haven't been used in a while or where created long time ago:
 		if(!availableConnections.isEmpty()) {
 			Set<Connector> connectors = availableConnections.findAll {
                 Connector conn ->
-					return conn.lastUsed > 0 && (System.currentTimeSeconds() - conn.lastUsed > expireSeconds)
+					return (conn.lastUsed && ChronoUnit.SECONDS.between(SysClock.now, conn.lastUsed) > expireSeconds) ||
+	   					   (conn.creationTime && ChronoUnit.SECONDS.between(SysClock.now, conn.creationTime) > maxLifeSeconds)
 			}.toSet()
             if(!connectors.empty) {
 				int closed = connectors.size()
 				connectors.each {
-					it.lastUsed = 0
+					it.lastUsed = null
+					it.creationTime = null
 					it.close()
 					availableConnections.remove(it)
 				}
 				Log.v("%d Connection(s) expired after %d seconds. Available connections: %d", closed, expireSeconds, availableConnections.size())
 			}
 		}
+		// Timeout (return) connections if they have not been returned after some time:
 		if(!currentConnections.empty) {
 			Set<Connector> connectors = currentConnections.findAll {
 				Connector conn ->
-					return conn.lastUsed > 0 && (System.currentTimeSeconds() - conn.lastUsed > timeoutSeconds)
+					return conn.lastUsed && (ChronoUnit.SECONDS.between(SysClock.now, conn.lastUsed) > timeoutSeconds)
 			}.toSet()
 			if(!connectors.empty) {
 				int closed = connectors.size()
 				connectors.each {
-					it.lastUsed = 0
+					it.lastUsed = null
 					it.close()
 					if(debugTimeoutPackage) {
 						TimeoutTrace timeoutTrace = connTrace.find {
@@ -176,9 +183,9 @@ class DBPool {
 	synchronized Connector getConnectionFromPool() {
 		Connector connection = null
 		if(initialized) {
-            increasePoolIfEmpty()
+            increasePoolIfEmpty() // Here we create a new connection if needed and add them to availableConnections
             connection = availableConnections.poll()
-			connection.lastUsed = System.currentTimeSeconds()
+			connection.lastUsed = SysClock.now
 			if(!currentConnections.contains(connection)) {
 				currentConnections.add(connection)
 				Log.v( "[ADD] Current connections: " + currentConnections.size() + " sleeping: " + availableConnections.size())

@@ -5,6 +5,7 @@ import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.sql.Connection
+import java.time.LocalDateTime
 
 @CompileStatic
 /**
@@ -14,7 +15,8 @@ import java.sql.Connection
 class PoolConnector implements Connector {
 	protected Connector currentConnector
 	private final DBPool pool
-	long lastUsed = 0
+	LocalDateTime lastUsed
+	LocalDateTime creationTime
 
 	PoolConnector(DBPool dbPool) {
 		pool = dbPool

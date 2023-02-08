@@ -20,7 +20,8 @@ class DummyConnector implements Connector {
     static String datePattern = "yyyy-MM-dd HH:mm:ss"
     private connected = false
     private opened = false
-    long lastUsed = 0
+    LocalDateTime lastUsed
+    LocalDateTime creationTime
 
     @Override
     boolean isOpen() {
