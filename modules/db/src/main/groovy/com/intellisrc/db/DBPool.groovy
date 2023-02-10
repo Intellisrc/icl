@@ -77,8 +77,8 @@ class DBPool {
 		if(!availableConnections.isEmpty()) {
 			Set<Connector> connectors = availableConnections.findAll {
                 Connector conn ->
-					return (conn.lastUsed && ChronoUnit.SECONDS.between(SysClock.now, conn.lastUsed) > expireSeconds) ||
-	   					   (conn.creationTime && ChronoUnit.SECONDS.between(SysClock.now, conn.creationTime) > maxLifeSeconds)
+					return (conn.lastUsed && ChronoUnit.SECONDS.between(conn.lastUsed, SysClock.now) > expireSeconds) ||
+	   					   (conn.creationTime && ChronoUnit.SECONDS.between(conn.creationTime, SysClock.now) > maxLifeSeconds)
 			}.toSet()
             if(!connectors.empty) {
 				int closed = connectors.size()
@@ -95,7 +95,7 @@ class DBPool {
 		if(!currentConnections.empty) {
 			Set<Connector> connectors = currentConnections.findAll {
 				Connector conn ->
-					return conn.lastUsed && (ChronoUnit.SECONDS.between(SysClock.now, conn.lastUsed) > timeoutSeconds)
+					return conn.lastUsed && (ChronoUnit.SECONDS.between(conn.lastUsed, SysClock.now) > timeoutSeconds)
 			}.toSet()
 			if(!connectors.empty) {
 				int closed = connectors.size()
