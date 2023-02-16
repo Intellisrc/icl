@@ -81,10 +81,8 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
             maxTaskExecTimeMs = Config.get("log.file.max.exec", maxTaskExecTimeMs)
 
             if(! logDir.exists())   { logDir.mkdirs() }
-            output = new Output(logFile)
-
-            // Clean and link logs on init
             cleanLogs()
+            output = new Output(logFile)
             linkLast()
         }
     }
