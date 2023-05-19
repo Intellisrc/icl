@@ -135,6 +135,16 @@ class DummyConnector implements Connector {
             return columns[index]
         }
 
+        @Override //NOTE: does not support multibyte strings
+        char columnChar(int index) {
+            return data[dataIndex].get(columnName(index)).toString().charAt(0)
+        }
+
+        @Override
+        char[] columnChars(int index) {
+            return data[dataIndex].get(columnName(index)).toString().toCharArray()
+        }
+
         @Override
         String columnStr(int index) {
             return data[dataIndex].get(columnName(index)).toString()

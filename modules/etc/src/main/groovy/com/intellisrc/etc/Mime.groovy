@@ -94,7 +94,7 @@ class Mime {
             qt      : "video/quicktime",
             ra      : "audio/x-pn-realaudio",
             ram     : "audio/x-pn-realaudio",
-            rar		: "application/vnd.rar",
+            rar		: "application/x-rar-compressed",
             rdf     : "application/rdf+xml",
             rtf		: "application/rtf",
             sgml    : "text/sgml",

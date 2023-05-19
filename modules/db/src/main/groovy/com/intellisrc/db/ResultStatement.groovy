@@ -16,6 +16,8 @@ interface ResultStatement {
     int updatedCount()
     ColumnType columnType(int index)
     String columnName(int index)
+    char columnChar(int index)
+    char[] columnChars(int index)
     String columnStr(int index)
     boolean columnBool(int index)
     Integer columnInt(int index)

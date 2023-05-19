@@ -293,6 +293,7 @@ class Table<M extends Model> implements Instanciable<M> {
             case Double:
             case BigDecimal:
             case String:
+            case Character:
             case char:
             case LocalTime:
             case LocalDate:

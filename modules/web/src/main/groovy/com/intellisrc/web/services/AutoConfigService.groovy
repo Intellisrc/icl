@@ -3,10 +3,10 @@ package com.intellisrc.web.services
 import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.config.ConfigAuto
+import com.intellisrc.web.Request
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableMultiple
 import groovy.transform.CompileStatic
-import spark.Request
 
 /**
  * @since 2021/03/12.

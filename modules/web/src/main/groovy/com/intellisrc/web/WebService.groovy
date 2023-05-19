@@ -2,29 +2,29 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
-import com.intellisrc.etc.*
+import com.intellisrc.etc.Cache
+import com.intellisrc.etc.JSON
+import com.intellisrc.etc.Mime
+import com.intellisrc.etc.YAML
 import com.intellisrc.net.LocalHost
+import com.intellisrc.web.protocols.Protocol
 import groovy.transform.CompileStatic
+import jakarta.servlet.MultipartConfigElement
+import jakarta.servlet.http.Part
 import org.apache.tools.ant.types.resources.StringResource
-import spark.Request
-import spark.Response
-import spark.Route
-import spark.Service as SparkService
-import spark.utils.CompressUtil
 
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriter
-import javax.servlet.MultipartConfigElement
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.Part
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-import static com.intellisrc.web.Service.Method.*
-import static spark.Response.Compression.*
+import static com.intellisrc.web.Method.GET
+import static com.intellisrc.web.Method.POST
+import static com.intellisrc.web.Response.Compression.AUTO
+import static com.intellisrc.web.Response.Compression.NONE
 
 @CompileStatic
 /**
@@ -44,7 +44,7 @@ import static spark.Response.Compression.*
  *
  */
 class WebService {
-    protected SparkService srv
+    protected Server srv
     protected List<Serviciable> listServices = []
     protected List<String> listPaths = [] //mainly used to prevent collisions
     protected boolean initialized = false
@@ -57,45 +57,40 @@ class WebService {
     public int threads = 20
     public int eTagMaxKB = 1024
     public boolean embedded = false //Turn to true if resources are inside jar
-    public boolean http2 = false //Turn HTTP2 in all services
+    public Protocol protocol = Protocol.HTTP
     public KeyStore ssl = null // Key Store File location and password (For WSS and HTTPS)
     public String allowOrigin = "" //apply by default to all
 
     static interface StartCallback {
-        void call(SparkService srv)
+        void call(Server srv)
     }
     /**
-     * Initialize Spark service
+     * Initialize Server
      */
     protected void init() {
         if(!initialized) {
             initialized = true
             try {
-                if(ssl &&! ssl.valid) {
-                    ssl = null
+                srv = new Server(port, protocol, threads)
+                if(ssl) {
+                    if(ssl.valid) {
+                        srv.setKeyStore(ssl)
+                    } else {
+                        Log.w("KeyStore is invalid. Not using SSL.")
+                    }
                 }
-                switch (true) {
-                    // Enable HTTP2 && HTTPS
-                    case (http2 && ssl?.valid):
-                        srv = SparkService.ignite()
-                            .secure(ssl.file.absolutePath, ssl.password.toString(), null, null)
-                            .http2()
-                        Log.i("HTTP2/HTTPS is enabled")
-                        break
-                    // Enable HTTPS
-                    case (ssl?.valid):
-                        srv = SparkService.ignite()
-                            .secure(ssl.file.absolutePath, ssl.password.toString(), null, null)
-                        Log.i("HTTPS is enabled")
-                        break
-                    // Enable HTTP2
-                    case http2:
-                        Log.w("HTTP2 protocol was enabled but HTTPS was not set. Connection may be downgraded in most browsers.")
-                        srv = SparkService.ignite().http2()
-                        break
-                    default:
-                        srv = SparkService.ignite()
+                if(resources) {
+                    if (!resources.isEmpty()) {
+                        if (embedded) {
+                            srv.setStaticPath(resources, cacheTime)
+                        } else {
+                            File resFile = File.get(resources)
+                            srv.setStaticPath(resFile.absolutePath, cacheTime)
+                        }
+                    }
+                    Log.i("Serving static resources from: %s", resources)
                 }
+                Log.i("Using protocol: %s, %s", protocol, srv.secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
                 Log.e("Unable to initialize web service", e)
             }
@@ -118,16 +113,6 @@ class WebService {
         init()
         try {
             if (LocalHost.isPortAvailable(port)) {
-                srv.staticFiles.expireTime(cacheTime)
-                if (!resources.isEmpty()) {
-                    if (embedded) {
-                        srv.staticFileLocation(resources)
-                    } else {
-                        File resFile = File.get(resources)
-                        srv.externalStaticFileLocation(resFile.absolutePath)
-                    }
-                }
-                srv.port(port).threadPool(threads) //Initialize it right away
                 Log.i("Starting server in port $port with pool size of $threads")
                 // Preparing a service (common between Services and SingleService):
                 listServices.each {
@@ -158,7 +143,7 @@ class WebService {
                         switch (serviciable) {
                             case ServiciableAuth:
                                 ServiciableAuth auth = serviciable as ServiciableAuth
-                                srv.post(auth.path + auth.loginPath, auth.allowType,{
+                                srv.add(new Server.RouteDefinition(POST, auth.path + auth.loginPath, auth.allowType,{
                                     Request request, Response response ->
                                         boolean ok = false
                                         Map<String, Object> sessionMap = auth.onLogin(request, response)
@@ -181,8 +166,8 @@ class WebService {
                                         response.type("application/json")
                                         res.ok = ok
                                         return JSON.encode(res)
-                                })
-                                srv.get(auth.path + auth.logoutPath, auth.allowType,{
+                                }))
+                                srv.add(new Server.RouteDefinition(GET, auth.path + auth.logoutPath, auth.allowType,{
                                     Request request, Response response ->
                                         boolean  ok = auth.onLogout(request, response)
                                         if(ok) {
@@ -192,11 +177,11 @@ class WebService {
                                         return JSON.encode(
                                                 ok : ok
                                         )
-                                })
+                                }))
                                 break
                         }
                 }
-                srv.init()
+                srv.start()
                 running = true
                 if (onStart) {
                     onStart.call(srv)
@@ -282,20 +267,13 @@ class WebService {
     }
 
     /**
-     * Adds some action to the Spark.Service
+     * Adds some action to the Server
      * @param fullPath : path of service
      * @param sp : Service object
      * @param srv : Spark.Service instance
      */
     protected void addAction(final String fullPath, final Service sp) {
-        //srv."$method"(fullPath, onAction(sp)) //Dynamic method invocation: will call srv.get, srv.post, etc (not supported with CompileStatic
-        switch (sp.method) {
-            case GET: srv.get(fullPath, sp.allowType, onAction(sp)); break
-            case POST: srv.post(fullPath, sp.allowType, onAction(sp)); break
-            case PUT: srv.put(fullPath, sp.allowType, onAction(sp)); break
-            case DELETE: srv.delete(fullPath, sp.allowType, onAction(sp)); break
-            case OPTIONS: srv.options(fullPath, sp.allowType, onAction(sp)); break
-        }
+        srv.add(sp, fullPath, onAction(sp))
     }
     /**
      * Get output content type and content
@@ -514,19 +492,18 @@ class WebService {
 
                     // Only Allowed clients:
                     if (sp.allow.check(request)) {
-                        HttpServletRequest raw = request.raw()
                         File tempDir = File.tempDir
                         request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir.absolutePath))
                         boolean hasParts = false
                         try {
-                            hasParts = !raw.parts.empty
+                            hasParts = !request.parts.empty
                         } catch(Exception ignored) {}
                         // If we have uploads:
                         if (hasParts) {
                             if (tempDir.canWrite()) {
                                 List<UploadFile> uploadFiles = []
-                                if (raw.contentLength > 0) {
-                                    raw.parts.each {
+                                if (request.contentLength > 0) {
+                                    request.parts.each {
                                         Part part ->
                                             if(part.contentType) { //Only process files with content-type (otherwise are non-file fields)
                                                 if (part.size) {
@@ -550,7 +527,7 @@ class WebService {
                                         Object res = callAction(sp.action, request, response, uploadFiles)
                                         //noinspection GroovyUnusedAssignment : IDE mistake
                                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
-                                                response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                                                response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                     } catch (Exception e) {
                                         response.status(500)
                                         Log.e("Service.upload closure failed", e)
@@ -575,7 +552,7 @@ class WebService {
                                 try {
                                     Object res = callAction(sp.action, request, response)
                                     toSave = handleContentType(res,  response.type() ?: sp.contentType, sp.charSet,
-                                            response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                                            response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } catch (Exception e) {
                                     response.status(500)
                                     Log.e("Service.action CACHE closure failed", e)
@@ -588,7 +565,7 @@ class WebService {
                                 if(res != null) {
                                     //noinspection GroovyUnusedAssignment : IDE mistake
                                     output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
-                                        response.raw().getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                                        response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } else {
                                     response.status(404)
                                     output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
@@ -668,10 +645,9 @@ class WebService {
                             }
                             // Compress if requested
                             if(sp.compress) {
-                                response.compression = AUTO //By default, we will let Spark to do the compression (Stream)
+                                response.compression = AUTO
                                 if(sp.compressSize) { //Unless we specify to calculate size, we do it here:
-                                    boolean brotliAvailable = CompressUtil.brotliAvailable
-                                    response.compression = brotliAvailable ? BROTLI_COMPRESSED : GZIP_COMPRESSED
+                                    response.compression = AUTO.get() // Get automatically the best option
                                     byte[] bytes = []
                                     switch (output.content) {
                                         case String:
@@ -690,11 +666,11 @@ class WebService {
                                             break
                                         default: // Do not compress here
                                             sp.compressSize = false
-                                            response.compression = AUTO
+                                            response.compression = NONE
                                             break
                                     }
                                     if(bytes.size() > 0) {
-                                        output.content = brotliAvailable ? Zip.brotliCompress(bytes) : Zip.gzip(bytes)
+                                        output.content = response.compression.compress(bytes)
                                         output.size = (output.content as byte[]).size()
                                     }
                                 }

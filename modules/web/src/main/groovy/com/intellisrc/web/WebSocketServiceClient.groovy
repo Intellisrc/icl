@@ -3,7 +3,7 @@ package com.intellisrc.web
 import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import groovy.transform.CompileStatic
-import org.eclipse.jetty.websocket.api.Session as JettySession
+import org.eclipse.jetty.websocket.api.Session as WebsocketSession
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
@@ -22,7 +22,7 @@ import java.util.concurrent.Future
 class WebSocketServiceClient {
     protected Callable onMessageReceived
     protected Callable onErrorReceived
-    protected JettySession clientSession
+    protected WebsocketSession clientSession
     protected WebSocketClient client
     protected URI url
     /**
@@ -31,19 +31,19 @@ class WebSocketServiceClient {
     @WebSocket
     class WSSocket {
         @OnWebSocketConnect
-        void onConnect(JettySession sockSession) throws Exception {
+        void onConnect(WebsocketSession sockSession) throws Exception {
             clientSession = sockSession
         }
 
         @OnWebSocketMessage
-        void onMessage(JettySession sockSession, String message) {
+        void onMessage(WebsocketSession sockSession, String message) {
             if(onMessageReceived != null) {
                 onMessageReceived.call(JSON.decode(message) as Map)
             }
         }
 
         @OnWebSocketError
-        void onWebSocketError(JettySession sockSession, Throwable throwable) {
+        void onWebSocketError(WebsocketSession sockSession, Throwable throwable) {
             if(onErrorReceived != null) {
                 onErrorReceived.call(
                         error: throwable.message,
@@ -79,7 +79,7 @@ class WebSocketServiceClient {
      * Return JettySession (jetty Session) object
      * @return
      */
-    JettySession getSession() {
+    WebsocketSession getSession() {
         return clientSession
     }
 
@@ -100,7 +100,7 @@ class WebSocketServiceClient {
         client = new WebSocketClient()
         client.start()
         ClientUpgradeRequest request = new ClientUpgradeRequest()
-        Future<JettySession> future = client.connect(new WSSocket(), url, request)
+        Future<WebsocketSession> future = client.connect(new WSSocket(), url, request)
         clientSession = future.get()
         onMessageReceived = onMessage
         onErrorReceived = onError

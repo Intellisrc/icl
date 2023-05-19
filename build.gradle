@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.11-DEBUG-SNAPSHOT"
+    version = "2.8.11.2-DEBUG-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -94,12 +94,6 @@ static String getProjectDescription(String name) {
             desc = "Classes for using Images (BufferedImage, File, FrameShot) " +
                     "and non-opencv related code, trying to keep dependencies " +
                     "to a minimum. It also includes common geometric operations."
-            break
-        case "cv":
-            desc = "Classes for Computer Vision (extension to OpenCV). " +
-                    "Convert image formats, crop, rotate images or draw " +
-                    "objects on top of them. It simplifies grabbing images " +
-                    "from any video source."
             break
     }
     return desc

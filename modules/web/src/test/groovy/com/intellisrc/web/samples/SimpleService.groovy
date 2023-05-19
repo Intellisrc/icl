@@ -3,11 +3,7 @@ package com.intellisrc.web.samples
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Mime
 import com.intellisrc.net.LocalHost
-import com.intellisrc.web.KeyStore
-import com.intellisrc.web.Service
-import com.intellisrc.web.WebService
-import spark.Request
-import spark.Response
+import com.intellisrc.web.*
 
 /**
  * Simple class which is used to test features manually

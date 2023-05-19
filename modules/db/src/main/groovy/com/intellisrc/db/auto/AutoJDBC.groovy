@@ -111,6 +111,7 @@ trait AutoJDBC {
                     dv = "0"
                     break
                 case String:
+                case Character:
                 case char:
                     dv = "''"
                     break

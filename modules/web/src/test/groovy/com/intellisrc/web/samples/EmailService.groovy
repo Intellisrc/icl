@@ -1,15 +1,15 @@
 package com.intellisrc.web.samples
 
+import com.intellisrc.web.Request
 import com.intellisrc.web.Service
 import com.intellisrc.web.Service.Action
+import com.intellisrc.web.Services
 
 /**
  * @since 17/04/19.
  */
 
-import com.intellisrc.web.Services
 import groovy.transform.CompileStatic
-import spark.Request
 
 import static com.intellisrc.web.Service.ActionRequest
 import static com.intellisrc.web.Service.Method.POST
@@ -89,7 +89,7 @@ class EmailService extends Services {
                         contentType: "text/plain",
                         action : {
                             Request request ->
-                                def user = request.params("user") //It can be ":user" or "user"
+                                def user = request.getPathParam("user") //It can be ":user" or "user"
                                 def domain = request.splat()[0]
                                 return user + "@" + domain
                         }

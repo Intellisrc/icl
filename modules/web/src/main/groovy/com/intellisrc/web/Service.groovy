@@ -1,8 +1,6 @@
 package com.intellisrc.web
 
 import groovy.transform.CompileStatic
-import spark.Request
-import spark.Response
 
 import java.util.regex.Pattern
 
@@ -61,9 +59,6 @@ class Service implements Serviciable {
      */
     static interface ETag {
         String calc(Object out)
-    }
-    static enum Method {
-        GET, POST, PUT, DELETE, OPTIONS
     }
     boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     boolean isPrivate           = false                 // Browser Rule: These responses are typically intended for a single user

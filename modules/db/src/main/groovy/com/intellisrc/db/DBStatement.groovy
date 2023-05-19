@@ -93,6 +93,28 @@ class DBStatement implements ResultStatement {
         }
     }
 
+    @Override //NOTE: does not support multibyte
+    char columnChar(int index) {
+        try {
+            return resultSet.getString(index).charAt(0)
+        } catch (SQLException ex) {
+            Log.w( "column Char failed for index: %d", index)
+            conn.onError(ex)
+            return 0
+        }
+    }
+
+    @Override
+    char[] columnChars(int index) {
+        try {
+            return resultSet.getString(index).toCharArray()
+        } catch (SQLException ex) {
+            Log.w( "column Char Array failed for index: %d", index)
+            conn.onError(ex)
+            return new char[]{}
+        }
+    }
+
     @Override
     String columnStr(int index) {
         try {

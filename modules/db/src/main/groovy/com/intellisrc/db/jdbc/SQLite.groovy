@@ -183,6 +183,8 @@ class SQLite extends JDBC implements AutoJDBC {
         switch (column.type) {
             case boolean:
             case Boolean:
+            case char:
+            case Character:
             case String:
             case Inet4Address:
             case Inet6Address:

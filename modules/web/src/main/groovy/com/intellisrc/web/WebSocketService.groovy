@@ -10,6 +10,7 @@ import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.websocket.api.WriteCallback
 import org.eclipse.jetty.websocket.api.annotations.*
 
+import java.time.Duration
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -63,46 +64,65 @@ class WebSocketService {
         this.listener = listener
     }
 
+    /**
+     * Get InetAddress from SocketAddress
+     * @param socketAddress
+     * @return
+     */
+    static InetAddress getAddressFromSocket(SocketAddress socketAddress) {
+        return (socketAddress as InetSocketAddress).address
+    }
+    /**
+     * Get the source IP address from session
+     * @param sockSession
+     * @return
+     */
+    static InetAddress getAddressFromSession(JettySession sockSession) {
+        return  sockSession.upgradeRequest.headers.containsKey("X-Forwarded-For")
+            ? sockSession.upgradeRequest.headers["X-Forwarded-For"].first().toInetAddress()
+            : getAddressFromSocket(sockSession.remoteAddress)
+    }
+
     @OnWebSocketConnect
     void onConnect(JettySession sockSession) {
         if(sockSession) {
             // Set limits
-            sockSession.idleTimeout = timeout * Millis.SECOND
+            sockSession.idleTimeout = Duration.ofMillis(timeout * Millis.SECOND)
             sockSession.policy.maxBinaryMessageSize =
-                sockSession.policy.maxBinaryMessageBufferSize =
                     sockSession.policy.maxTextMessageSize =
-                        sockSession.policy.maxTextMessageBufferSize =
                             sockSession.policy.inputBufferSize = maxSize * 1024
 
-            InetAddress address = sockSession.upgradeRequest.headers.containsKey("X-Forwarded-For")
-                                ? sockSession.upgradeRequest.headers["X-Forwarded-For"].first().toInetAddress()
-                                : sockSession.remoteAddress.address
-            String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, address)
-            if(! user) {
-                Log.w("User connected had no userID")
-                sockSession.close()
-            } else {
-                Session session = sessionQueue.find {
-                    Session sess ->
-                        user == sess.userID
-                }
-                if (session) {
-                    if (listener.replaceOnDuplicate) {
-                        Log.v("Client replaced [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
-                        session.websocketSession = sockSession
-                        session.address = sockSession.remoteAddress.address
+            InetAddress address = getAddressFromSession(sockSession)
+            if(address) {
+                String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, address)
+                if (!user) {
+                    Log.w("User connected had no userID")
+                    sockSession.close()
+                } else {
+                    Session session = sessionQueue.find {
+                        Session sess ->
+                            user == sess.userID
+                    }
+                    if (session) {
+                        if (listener.replaceOnDuplicate) {
+                            Log.v("Client replaced [%s] with userID: [%s]", address.hostAddress, user)
+                            session.websocketSession = sockSession
+                            session.address = address
+                            listener.onClientsChange(getConnected())
+                            broadcast(listener.onConnect(session))
+                        } else {
+                            Log.w("Client with userID [%s] already exits.", user)
+                        }
+                    } else {
+                        Log.i("Client connected [%s] with userID: [%s]", address.hostAddress, user)
+                        session = new Session(userID: user, websocketSession: sockSession, address: address)
+                        sessionQueue.add(session)
                         listener.onClientsChange(getConnected())
                         broadcast(listener.onConnect(session))
-                    } else {
-                        Log.w("Client with userID [%s] already exits.", user)
                     }
-                } else {
-                    Log.i("Client connected [%s] with userID: [%s]", sockSession.remoteAddress.address.hostAddress, user)
-                    session = new Session(userID: user, websocketSession: sockSession, address: sockSession.remoteAddress.address)
-                    sessionQueue.add(session)
-                    listener.onClientsChange(getConnected())
-                    broadcast(listener.onConnect(session))
                 }
+            } else {
+                Log.w("Unable to recognize source address")
             }
         }
     }
@@ -110,7 +130,8 @@ class WebSocketService {
     @OnWebSocketClose
     void onClose(JettySession sockSession, int statusCode, String reason) {
         if(sockSession) {
-            Log.i("Client disconnected [%s], reason: [%s]", sockSession.remoteAddress?.address?.hostAddress ?: "unknown", reason)
+            InetAddress address = getAddressFromSession(sockSession)
+            Log.i("Client disconnected [%s], reason: [%s]", address?.hostAddress ?: "unknown", reason)
             Session session = getSession(sockSession)
             sessionQueue.remove(session)
             broadcast(listener.onDisconnect(session, statusCode, reason))
@@ -121,7 +142,8 @@ class WebSocketService {
     @OnWebSocketMessage
     void onMessage(JettySession sockSession, String message) {
         if(sockSession) {
-            Log.v("[%s] sent message: [%s]", sockSession.remoteAddress?.address?.hostAddress ?: "unknown", message)
+            InetAddress address = getAddressFromSession(sockSession)
+            Log.v("[%s] sent message: [%s]", address?.hostAddress ?: "unknown", message)
             broadcast(listener.onMessage(getSession(sockSession), message))
         }
     }
@@ -130,7 +152,8 @@ class WebSocketService {
     void onWebSocketError(JettySession sockSession, Throwable throwable) {
         if(sockSession) {
             listener.onError(getSession(sockSession), throwable.message)
-            String ip = sockSession.remoteAddress?.address?.hostAddress ?: "unknown"
+            InetAddress address = getAddressFromSession(sockSession)
+            String ip = address?.hostAddress ?: "unknown"
             if (throwable.message) {
                 Log.e("[$ip] WebSocketError: ", throwable)
             } else {

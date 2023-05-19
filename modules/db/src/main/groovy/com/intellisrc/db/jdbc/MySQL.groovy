@@ -208,12 +208,17 @@ class MySQL extends JDBCServer implements AutoJDBC {
             case Boolean:
                 type = "ENUM('true','false')"
                 break
-            case Inet4Address:
-                type = "VARCHAR(${column.annotation.length() ?: 15})"
+            case char:
+            case Character:
+                type = "CHAR"
                 break
-            case Inet6Address:
-            case InetAddress:
-                type = "VARCHAR(${column.annotation.length() ?: 45})"
+            case char[]:
+                int len = column.annotation.length()
+                if(!len) {
+                    Log.w("Column: %s is char array but has no length. Setting 2 as length.", column.name)
+                    len = 2
+                }
+                type = "CHAR($len)"
                 break
             case String:
                 type = "VARCHAR(${column.annotation.length() ?: 255})"
@@ -256,6 +261,13 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 break
             case LocalTime:
                 type = "TIME"
+                break
+            case Inet4Address:
+                type = "VARCHAR(${column.annotation.length() ?: 15})"
+                break
+            case Inet6Address:
+            case InetAddress:
+                type = "VARCHAR(${column.annotation.length() ?: 45})"
                 break
             case URL:
             case URI:

@@ -219,6 +219,10 @@ class JDBCConnector implements Connector {
 				st.setLong(index, (Long) o)
 			} else if (o instanceof byte[]) {
 				st.setBytes(index, (byte[]) o)
+			} else if (o instanceof Character) {
+				st.setString(index, o.toString())
+			} else if (o instanceof char[]) {
+				st.setString(index, o.toString())
 			} else if (o instanceof String) {
 				st.setString(index, (String) o)
 			} else if (o instanceof LocalDate) {
