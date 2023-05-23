@@ -7,6 +7,7 @@ import com.intellisrc.web.Request
 import com.intellisrc.web.Service
 import com.intellisrc.web.ServiciableMultiple
 import groovy.transform.CompileStatic
+import org.eclipse.jetty.http.HttpMethod
 
 /**
  * @since 2021/03/12.
@@ -31,7 +32,6 @@ class AutoConfigService implements ServiciableMultiple {
         return [
             // Get all configuration
             new Service(
-                    path: "",
                     action: {
                         Request request ->
                             return configAuto.getCurrentValues(true)
@@ -39,8 +39,7 @@ class AutoConfigService implements ServiciableMultiple {
             ),
             // Update several keys at once
             new Service (
-                    path : "",
-                    method: Service.Method.PUT,
+                    method: HttpMethod.PUT,
                     action: {
                         Request request ->
                             Map val = JSON.decode(request.body()) as Map
@@ -52,7 +51,7 @@ class AutoConfigService implements ServiciableMultiple {
             ),
             // Get all configuration which key is...
             new Service (
-                    path : "/:key",
+                    path : '/:key',
                     action: {
                         Request request ->
                             String key = request.params("key")
@@ -61,7 +60,7 @@ class AutoConfigService implements ServiciableMultiple {
             ),
             // Set value of key
             new Service (
-                    path : "/:key/:val",
+                    path : '/:key/:val',
                     action: {
                         Request request ->
                             String key = request.params("key")
@@ -71,8 +70,8 @@ class AutoConfigService implements ServiciableMultiple {
             ),
             // Update Map value of key
             new Service (
-                    path : "/:type/:key/",
-                    method: Service.Method.PUT,
+                    path : '/:type/:key/',
+                    method: HttpMethod.PUT,
                     action: {
                         Request request ->
                             String key = request.params("key")

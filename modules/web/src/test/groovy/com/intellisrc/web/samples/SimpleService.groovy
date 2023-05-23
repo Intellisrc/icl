@@ -4,6 +4,7 @@ import com.intellisrc.core.Log
 import com.intellisrc.etc.Mime
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.*
+import com.intellisrc.web.protocols.Protocol
 
 /**
  * Simple class which is used to test features manually
@@ -19,7 +20,7 @@ class SimpleService {
 
     static void main(String[] args) {
         WebService ws = new WebService(
-            http2: true,
+            protocol: Protocol.HTTP2,
             port: fixedPort ?: LocalHost.freePort,
             resources: publicDir,
             ssl: new KeyStore(storeFile, pass)

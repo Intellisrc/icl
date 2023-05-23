@@ -1,6 +1,8 @@
 dependencies {
+    def groovyVer = "4.0.12"
     def jvmbrotli = "0.2.0"
     api project(':core')
+    api "org.apache.groovy:groovy-json:${groovyVer}"
     api "org.reflections:reflections:0.10.2" //Same as in DB
     api 'org.apache.tika:tika-core:2.7.0'
     // We set Jedis to be optional so it is not always required, only when AutoConfig is being used.

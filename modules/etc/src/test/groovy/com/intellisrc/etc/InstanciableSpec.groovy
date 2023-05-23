@@ -13,14 +13,6 @@ class InstanciableSpec extends Specification {
             return getParametrizedInstance()
         }
     }
-    class Sample2<T,Z> implements Instanciable<T>, Instanciable<Z> {
-        T getFirst() {
-            return getParametrizedInstance()
-        }
-        Z getSecond() {
-            return getParametrizedInstance(1)
-        }
-    }
     @Ignore
     def "getParametrizedInstance should return new instance of provided class"() {
         given:

@@ -8,6 +8,8 @@ import spock.util.concurrent.AsyncConditions
 
 import javax.net.ssl.*
 
+import static com.intellisrc.web.protocols.Protocol.*
+
 /**
  * This tests HTTP, HTTPS and HTTP2
  *
@@ -24,7 +26,7 @@ class WebServiceHTTPTest extends Specification {
             def conds = new AsyncConditions()
             int port = LocalHost.freePort
             def web = new WebService(
-                http2: http2,
+                protocol: protocol,
                 port: port,
                 resources: publicDir,
                 ssl: https ? new KeyStore(storeFile, pass) : null,
@@ -46,11 +48,13 @@ class WebServiceHTTPTest extends Specification {
         cleanup:
             web.stop()
         where:
-            http2 | https
-            false | false
-            true  | false
-            false | true
-            true  | true
+            protocol | https
+            HTTP  | false
+            HTTP  | false
+            HTTP2 | true
+            HTTP2 | true
+            HTTP3 | true
+            HTTP3 | true
     }
 
     @Unroll
@@ -59,7 +63,7 @@ class WebServiceHTTPTest extends Specification {
             def conds = new AsyncConditions()
             int port = LocalHost.freePort
             def web = new WebService(
-                http2: http2,
+                protocol: protocol,
                 port: port,
                 ssl: https ? new KeyStore(storeFile, pass) : null,
             )
@@ -85,11 +89,13 @@ class WebServiceHTTPTest extends Specification {
             web.stop()
             assert ! web.running
         where:
-            http2 | https
-            false | false
-            true  | false
-            false | true
-            true  | true
+            protocol | https
+            HTTP  | false
+            HTTP  | false
+            HTTP2 | true
+            HTTP2 | true
+            HTTP3 | true
+            HTTP3 | true
     }
 
     void disableSSLChecks() {

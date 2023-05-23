@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.8.11.2-DEBUG-SNAPSHOT"
+    version = "2.9.0-DEBUG-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -109,18 +109,20 @@ subprojects {
     boolean publishDev = ! version.contains("DEBUG")
 
     dependencies {
-        def groovyVer = "3.0.13"
-        def groovyExt = "3.0.13.10"
-        def spock = "2.1-groovy-3.0"
+        def groovyVer = "4.0.12"
+        def groovyExt = "4.0.12.11-DEBUG-SNAPSHOT"
+        def spock = "2.4-M1-groovy-4.0"
         def junit = "4.13.2"
 
         //Link it so we can choose version
-        compileOnly "org.codehaus.groovy:groovy-all:${groovyVer}"
+        compileOnly "org.apache.groovy:groovy:${groovyVer}"
+        compileOnly "org.apache.groovy:groovy-contracts:${groovyVer}"
+        //compileOnly "org.apache.groovy:groovy-typecheckers:${groovyVer}"
 
         // Always include groovy-extend and expose it to consumers:
         api "com.intellisrc:groovy-extend:${groovyExt}"
 
-        testImplementation "org.codehaus.groovy:groovy-all:${groovyVer}"
+        testImplementation "org.apache.groovy:groovy:${groovyVer}"
         testImplementation "org.spockframework:spock-core:${spock}"
         testImplementation "junit:junit:${junit}"
     }

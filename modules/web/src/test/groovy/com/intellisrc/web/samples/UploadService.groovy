@@ -6,7 +6,7 @@ import com.intellisrc.web.Service
 import com.intellisrc.web.Services
 import com.intellisrc.web.UploadFile
 
-import static com.intellisrc.web.Service.Method.POST
+import static org.eclipse.jetty.http.HttpMethod.POST
 
 /**
  * @since 11/30/17.

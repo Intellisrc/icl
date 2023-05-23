@@ -10,8 +10,9 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.protocols.Protocol
 import groovy.transform.CompileStatic
 import jakarta.servlet.MultipartConfigElement
+import jakarta.servlet.http.HttpSession
 import jakarta.servlet.http.Part
-import org.apache.tools.ant.types.resources.StringResource
+import org.eclipse.jetty.http.HttpStatus
 
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriter
@@ -21,10 +22,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-import static com.intellisrc.web.Method.GET
-import static com.intellisrc.web.Method.POST
 import static com.intellisrc.web.Response.Compression.AUTO
 import static com.intellisrc.web.Response.Compression.NONE
+import static org.eclipse.jetty.http.HttpMethod.GET
+import static org.eclipse.jetty.http.HttpMethod.POST
 
 @CompileStatic
 /**
@@ -46,17 +47,23 @@ import static com.intellisrc.web.Response.Compression.NONE
 class WebService {
     protected Server srv
     protected List<Serviciable> listServices = []
-    protected List<String> listPaths = [] //mainly used to prevent collisions
     protected boolean initialized = false
     protected boolean running = false
     protected String resources = ""
     protected Cache<ServiceOutput> cache = new Cache<ServiceOutput>()
     // Options:
+    public Inet4Address address = "0.0.0.0".toInet4Address()
     public int cacheTime = 0
+    public int cacheMaxSizeKB = 256
     public int port = 80
     public int threads = 20
+    public int minThreads = 2
     public int eTagMaxKB = 1024
+    public int idleTimeout = Millis.HOUR
+    public File accessLog = File.get("log", "access.log")
+    public boolean log = true
     public boolean embedded = false //Turn to true if resources are inside jar
+    public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = Protocol.HTTP
     public KeyStore ssl = null // Key Store File location and password (For WSS and HTTPS)
     public String allowOrigin = "" //apply by default to all
@@ -71,21 +78,15 @@ class WebService {
         if(!initialized) {
             initialized = true
             try {
-                srv = new Server(port, protocol, threads)
-                if(ssl) {
-                    if(ssl.valid) {
-                        srv.setKeyStore(ssl)
-                    } else {
-                        Log.w("KeyStore is invalid. Not using SSL.")
-                    }
-                }
+                srv = new Server(address, port, protocol, ssl, threads, minThreads, idleTimeout, log ? accessLog : null)
+                srv.indexFiles.addAll(indexFiles)
                 if(resources) {
                     if (!resources.isEmpty()) {
                         if (embedded) {
-                            srv.setStaticPath(resources, cacheTime)
+                            srv.setStaticPath(resources, cacheTime, cacheMaxSizeKB)
                         } else {
                             File resFile = File.get(resources)
-                            srv.setStaticPath(resFile.absolutePath, cacheTime)
+                            srv.setStaticPath(resFile.absolutePath, cacheTime, cacheMaxSizeKB)
                         }
                     }
                     Log.i("Serving static resources from: %s", resources)
@@ -112,26 +113,28 @@ class WebService {
     WebService start(boolean background = false, StartCallback onStart = null) {
         init()
         try {
-            if (LocalHost.isPortAvailable(port)) {
+            if (LocalHost.isPortAvailable(port)) { //FIXME: should consider bind address
                 Log.i("Starting server in port $port with pool size of $threads")
                 // Preparing a service (common between Services and SingleService):
                 listServices.each {
                     final Serviciable serviciable ->
+                        boolean prepared = false
                         switch (serviciable) {
                             case ServiciableMultiple:
                                 ServiciableMultiple serviciables = serviciable as ServiciableMultiple
-                                serviciables.services.each {
+                                prepared = serviciables.services.every {
                                     Service sp ->
                                         setupService(serviciable, sp)
                                 }
                                 break
                             case ServiciableSingle:
-                                setupService(serviciable, (serviciable as ServiciableSingle).service)
+                                prepared = setupService(serviciable, (serviciable as ServiciableSingle).service)
                                 break
                             case ServiciableWebSocket:
-                                addWebSocketService(serviciable, serviciable.path)
+                                prepared = addWebSocketService(serviciable, serviciable.path)
                                 break
                             case ServiciableAuth:
+                                prepared = true
                                 //do nothing, skip
                                 //TODO: do it for Multiple
                                 /*ServiciableSingle single = serviciable as ServiciableSingle
@@ -139,6 +142,9 @@ class WebService {
                                 break
                             default:
                                 Log.e("Interface not implemented")
+                        }
+                        if(! prepared) {
+                            Log.w("Failed to prepare one or more services")
                         }
                         switch (serviciable) {
                             case ServiciableAuth:
@@ -150,18 +156,18 @@ class WebService {
                                         Map res = [:]
                                         if (!sessionMap.isEmpty()) {
                                             ok = true
-                                            request.session(true)
+                                            HttpSession session = request.getSession(true)
                                             sessionMap.each {
                                                 if(it.key == "response" && it.value instanceof Map) {
                                                     //noinspection GrReassignedInClosureLocalVar
                                                     res += (it.value as Map)
                                                 } else {
-                                                    request.session().attribute(it.key, it.value)
+                                                    session.setAttribute(it.key, it.value)
                                                 }
                                             }
-                                            res.id = request.session().id()
+                                            res.id = session.id
                                         } else {
-                                            response.status(401)
+                                            response.status(HttpStatus.UNAUTHORIZED_401)
                                         }
                                         response.type("application/json")
                                         res.ok = ok
@@ -171,7 +177,7 @@ class WebService {
                                     Request request, Response response ->
                                         boolean  ok = auth.onLogout(request, response)
                                         if(ok) {
-                                            request.session()?.invalidate()
+                                            request.session?.invalidate()
                                         }
                                         response.type("application/json")
                                         return JSON.encode(
@@ -207,17 +213,16 @@ class WebService {
      * @param serviciable
      * @param sp
      */
-    protected void setupService(Serviciable serviciable, Service sp) {
+    protected boolean setupService(Serviciable serviciable, Service sp) {
         // If Serviciable specifies allowOrigin and the Service doesn't, set it.
         if(serviciable.allowOrigin != null && sp.allowOrigin == null) {
             sp.allowOrigin = serviciable.allowOrigin
         }
         sp.allowType = serviciable.allowType
-        if (serviciable instanceof ServiciableWebSocket) {
-            addWebSocketService(serviciable, (serviciable.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/'))
-        } else {
+
+        return (serviciable instanceof ServiciableWebSocket) ?
+            addWebSocketService(serviciable, (serviciable.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/')) :
             addServicePath(sp, serviciable.path)
-        }
     }
 
     /**
@@ -225,10 +230,10 @@ class WebService {
      * @param serviciable
      * @param path
      */
-    protected void addWebSocketService(Serviciable serviciable, String path) {
+    protected boolean addWebSocketService(Serviciable serviciable, String path) {
         ServiciableWebSocket webSocket = serviciable as ServiciableWebSocket
         webSocket.service = new WebSocketService(webSocket)
-        srv.webSocket(path, webSocket.service)
+        return srv.webSocket(path, webSocket.service)
     }
 
     /**
@@ -238,15 +243,10 @@ class WebService {
      * @param rootPath
      * @return
      */
-    protected void addServicePath(Service service, String rootPath) {
+    protected boolean addServicePath(Service service, String rootPath) {
         // Remove double slashes
         String fullPath = (rootPath + service.path).replaceAll(/\/\//,"/")
-        if (listPaths.contains(service.method.toString() + fullPath)) {
-            Log.w("Warning, duplicated path [" + fullPath + "] and method [" + service.method.toString() + "] found.")
-        } else {
-            listPaths << service.method.toString() + fullPath
-            addAction(fullPath, service)
-        }
+        return addAction(fullPath, service)
     }
 
     /**
@@ -272,8 +272,8 @@ class WebService {
      * @param sp : Service object
      * @param srv : Spark.Service instance
      */
-    protected void addAction(final String fullPath, final Service sp) {
-        srv.add(sp, fullPath, onAction(sp))
+    protected boolean addAction(final String fullPath, final Service sp) {
+        return srv.add(sp, fullPath, onAction(sp))
     }
     /**
      * Get output content type and content
@@ -316,7 +316,7 @@ class WebService {
                             output.fileName = "download.svg"
                             break
                         default :
-                            output.contentType = Mime.getType(new StringResource(resStr).inputStream) ?: "text/plain"
+                            output.contentType = Mime.getType(new ByteArrayInputStream(resStr.bytes)) ?: "text/plain"
                             if(output.contentType == "text/plain") {
                                 output.fileName = "download.txt"
                             } else {
@@ -452,7 +452,7 @@ class WebService {
      * @return
      */
     protected static String getCacheKey(Request request) {
-        String query = request.queryString()
+        String query = request.queryString
         return request.uri() + (query ? "?" + query : "")
     }
     /**
@@ -464,8 +464,7 @@ class WebService {
         return {
             Request request, Response response ->
                 try {
-                    //noinspection GrDeprecatedAPIUsage : IDE mistake
-                    Log.v("Requested: %s By: %s", URLDecoder.decode(request.url(), "UTF-8"), request.ip())
+                    Log.v("Requested: %s By: %s", URLDecoder.decode(request.requestURI, "UTF-8"), request.ip())
                     ServiceOutput output
 
                     // Apply headers (initial): -----------------------
@@ -514,11 +513,11 @@ class WebService {
                                                         UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
                                                         uploadFiles << file
                                                     } catch (Exception e) {
-                                                        response.status(500)
+                                                        response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                                         Log.e("Unable to upload file: %s", part.submittedFileName, e)
                                                     }
                                                 } else {
-                                                    response.status(500)
+                                                    response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                                     Log.w("File: %s was empty", part.submittedFileName)
                                                 }
                                             }
@@ -529,7 +528,7 @@ class WebService {
                                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
                                                 response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                     } catch (Exception e) {
-                                        response.status(500)
+                                        response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                         Log.e("Service.upload closure failed", e)
                                     }
                                     uploadFiles.each {
@@ -538,11 +537,11 @@ class WebService {
                                         }
                                     }
                                 } else {
-                                    response.status(411)
+                                    response.status(HttpStatus.LENGTH_REQUIRED_411)
                                     Log.e("Uploaded file is empty")
                                 }
                             } else {
-                                response.status(503)
+                                response.status(HttpStatus.SERVICE_UNAVAILABLE_503)
                                 Log.e("Temporally directory %s is not writable", tempDir)
                             }
                         } else if (sp.cacheTime) { // Check if its in Cache
@@ -554,7 +553,7 @@ class WebService {
                                     toSave = handleContentType(res,  response.type() ?: sp.contentType, sp.charSet,
                                             response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } catch (Exception e) {
-                                    response.status(500)
+                                    response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                     Log.e("Service.action CACHE closure failed", e)
                                 }
                                 return toSave
@@ -567,7 +566,7 @@ class WebService {
                                     output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
                                         response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
                                 } else {
-                                    response.status(404)
+                                    response.status(HttpStatus.NOT_FOUND_404)
                                     output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
                                     response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                                     output.content = "Not Found"
@@ -576,7 +575,7 @@ class WebService {
                                     }
                                 }
                             } catch (Exception e) {
-                                response.status(500)
+                                response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                 Log.e("Service.action closure failed", e)
                             }
                         }
@@ -608,7 +607,7 @@ class WebService {
                                     response.header("ETag", etag)
                                     String prevTag = request.headers("If-None-Match")
                                     if(prevTag == output.etag) { // Same content
-                                        response.status(304)
+                                        response.status(HttpStatus.NOT_MODIFIED_304)
                                         output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
                                         response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                                         output.content = ""
@@ -629,7 +628,7 @@ class WebService {
                                             response.header("ETag", etag)
                                             String prevTag = request.headers("If-None-Match")
                                             if(prevTag == output.etag) { // Same content
-                                                response.status(304)
+                                                response.status(HttpStatus.NOT_MODIFIED_304)
                                                 output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
                                                 response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                                                 output.content = ""
@@ -670,7 +669,7 @@ class WebService {
                                             break
                                     }
                                     if(bytes.size() > 0) {
-                                        output.content = response.compression.compress(bytes)
+                                        output.content = response.compression.compress(bytes, response)
                                         output.size = (output.content as byte[]).size()
                                     }
                                 }
@@ -684,23 +683,23 @@ class WebService {
                                 response.header("Accept-Ranges", "bytes")
                             }
                         } else {
-                            response.status(404)
+                            response.status(HttpStatus.NOT_FOUND_404)
                             output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
                             response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                             output.content = "Not Found"
                         }
                     } else { // Unauthorized
-                        response.status(403)
+                        response.status(HttpStatus.FORBIDDEN_403)
                         if(output == null) {
                             output = new ServiceOutput(contentType: sp.contentType, charSet: sp.charSet, type: ServiceOutput.Type.fromString(sp.contentType))
                             response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
                         }
                         switch (output.type) {
                             case ServiceOutput.Type.JSON:
-                                output.content = JSON.encode(ok : false, error : 403)
+                                output.content = JSON.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
                                 break
                             case ServiceOutput.Type.YAML:
-                                output.content = YAML.encode(ok : false, error : 403)
+                                output.content = YAML.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
                                 break
                             default:
                                 response.type(Mime.getType("txt") + (output.charSet ? "; charset=" + output.charSet : ""))

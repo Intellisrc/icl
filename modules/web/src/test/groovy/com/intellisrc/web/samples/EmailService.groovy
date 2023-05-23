@@ -4,15 +4,14 @@ import com.intellisrc.web.Request
 import com.intellisrc.web.Service
 import com.intellisrc.web.Service.Action
 import com.intellisrc.web.Services
+import groovy.transform.CompileStatic
 
 /**
  * @since 17/04/19.
  */
 
-import groovy.transform.CompileStatic
-
 import static com.intellisrc.web.Service.ActionRequest
-import static com.intellisrc.web.Service.Method.POST
+import static org.eclipse.jetty.http.HttpMethod.POST
 
 @CompileStatic
 /**

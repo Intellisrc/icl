@@ -3,7 +3,6 @@ package com.intellisrc.web
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.server.session.Session as HTTPSession
 import org.eclipse.jetty.websocket.api.Session as WebsocketSession
-
 /**
  * @since 17/04/21.
  */
@@ -14,21 +13,18 @@ class Session {
     InetAddress address
     String userID
     Map data
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
-    String id() {
-        return id
+
+    Session() {
+        //sessionCookieConfig.httpOnly = true //TODO
     }
     String getId() {
-        return httpSession.id //TODO
+        return httpSession?.id //FIXME
     }
     boolean getNew() {
         return httpSession.new
     }
     String attribute(String name) {
-        return "" //TODO
+        return httpSession.getAttribute(name)
     }
     /**
      * Set an attribute value
@@ -36,9 +32,9 @@ class Session {
      * @param value
      */
     void attribute(String name, Object value) {
-        //TODO
+        httpSession.setAttribute(name, value)
     }
-    boolean invalidate() {
-        return true //TODO
+    void invalidate() {
+        httpSession.invalidate()
     }
 }

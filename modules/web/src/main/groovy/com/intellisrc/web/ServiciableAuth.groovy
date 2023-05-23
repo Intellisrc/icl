@@ -1,8 +1,6 @@
 package com.intellisrc.web
 
 import groovy.transform.CompileStatic
-import spark.Request
-import spark.Response
 
 @CompileStatic
 /**

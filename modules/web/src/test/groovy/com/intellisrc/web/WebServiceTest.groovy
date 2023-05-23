@@ -6,7 +6,6 @@ import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
-import spark.Request
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions

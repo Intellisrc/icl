@@ -3,12 +3,12 @@ package com.intellisrc.web.samples
 import com.intellisrc.web.Request
 import com.intellisrc.web.Response
 import com.intellisrc.web.Service.Allow
+import com.intellisrc.web.ServiciableAuth
 
 /**
  * @since 17/04/19.
  */
 
-import com.intellisrc.web.ServiciableAuth
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -22,8 +22,8 @@ class LoginServiceExample implements ServiciableAuth {
     }
     static final Allow canEditEmails = {
         Request request ->
-            if(request.session()) {
-                Level level = request.session().attribute("level").toString().toUpperCase() as Level
+            if(request.session) {
+                Level level = request.session.getAttribute("level").toString().toUpperCase() as Level
                 return level >= Level.EDITOR
             } else {
                 return false
@@ -31,8 +31,8 @@ class LoginServiceExample implements ServiciableAuth {
     } as Allow
     static final Allow isAdmin = {
         Request request ->
-            if(!request.session().new) {
-                Level level = request.session().attribute("level").toString().toUpperCase() as Level
+            if(!request.session.new) {
+                Level level = request.session.getAttribute("level").toString().toUpperCase() as Level
                 return level >= Level.ADMIN
             } else {
                 return false
@@ -76,7 +76,7 @@ class LoginServiceExample implements ServiciableAuth {
 
     @Override
     boolean onLogout(Request request, Response response) {
-        request?.session()?.invalidate()
+        request?.session?.invalidate()
         return true
     }
 

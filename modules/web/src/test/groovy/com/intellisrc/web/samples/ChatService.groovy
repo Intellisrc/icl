@@ -12,11 +12,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class ChatService implements ServiciableWebSocket {
     List<String> currentList = []
-
-    @Override
-    boolean getReplaceOnDuplicate() {
-        return false
-    }
+    boolean replaceOnDuplicate = false
 
     void setBroadCaster(WebSocketService.MsgBroadCaster msgBroadCaster) {}
 

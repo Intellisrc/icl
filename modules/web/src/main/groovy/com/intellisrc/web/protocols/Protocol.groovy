@@ -1,5 +1,6 @@
 package com.intellisrc.web.protocols
 
+import com.intellisrc.web.Server
 import groovy.transform.CompileStatic
 
 /**
@@ -8,19 +9,19 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum Protocol {
     HTTP, HTTP2, HTTP3
-    Protocolable init() {
-        Protocolable protocolable
+    HttpProtocol get(final Server server) {
+        HttpProtocol protocol
         switch (this) {
             case HTTP2:
-                protocolable = new Http2()
+                protocol = new Http2(server)
                 break
             case HTTP3:
-                protocolable = new Http3()
+                protocol = new Http3(server)
                 break
             default:
-                protocolable = new Http()
+                protocol = new Http(server)
                 break
         }
-        return protocolable
+        return protocol
     }
 }

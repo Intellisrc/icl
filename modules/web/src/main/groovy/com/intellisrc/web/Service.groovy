@@ -1,8 +1,7 @@
 package com.intellisrc.web
 
 import groovy.transform.CompileStatic
-
-import java.util.regex.Pattern
+import org.eclipse.jetty.http.HttpMethod
 
 /**
  * @since 17/04/04.
@@ -72,7 +71,7 @@ class Service implements Serviciable {
     String path                 = ""                    // URL path relative to parent
     boolean download            = false                 // Specify if instead of display, show download dialog
     String downloadFileName     = ""                    // Use this name if download is requested
-    Method method               = Method.GET            // HTTP Method to be used
+    HttpMethod method           = HttpMethod.GET        // HTTP Method to be used
     Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
@@ -80,19 +79,19 @@ class Service implements Serviciable {
     Map<String,String> headers  = [:]                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
     /**
+     * Optional method to use Pattern as path
+     * @param pattern
+     */
+    /* FIXME: void setPath(Pattern pattern) {
+        this.path = "~/" + addRoot(pattern.toString()) + "/"
+    }*/
+    /**
      * Default set path (as String)
      * @param path
      */
     void setPath(String path) {
         boolean isRegex = ["\\","(","{","[","^","\$"].any { path.contains(it) }
         this.path = (isRegex ? "~" + (path.startsWith("/") ? "" : "/") : "") + addRoot(path) // Trailing slash is optional
-    }
-    /**
-     * Optional method to use Pattern as path
-     * @param pattern
-     */
-    void setPath(Pattern pattern) {
-        this.path = "~/" + addRoot(pattern.toString()) + "/"
     }
     /**
      * Will modify the regex to add the starting slash if it is not present

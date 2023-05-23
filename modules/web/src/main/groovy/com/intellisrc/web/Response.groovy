@@ -12,6 +12,11 @@ import java.lang.reflect.InvocationTargetException
  * @since 2023/05/19.
  */
 class Response extends JettyResponse {
+    private static final String CONTENT_ENCODING = "Content-Encoding"
+    Compression compression = Compression.AUTO
+    /**
+     * Handles the output compression
+     */
     static enum Compression {
         AUTO, BROTLI_COMPRESSED, GZIP_COMPRESSED, NONE
         boolean isAvailable() {
@@ -30,36 +35,99 @@ class Response extends JettyResponse {
         Compression get() {
             return this == AUTO ? (BROTLI_COMPRESSED.isAvailable() ? BROTLI_COMPRESSED : GZIP_COMPRESSED) : this
         }
-        Object compress(byte[] bytes) {
+        Object compress(byte[] bytes, Response response) {
             Object obj = bytes
             switch(get()) {
                 case BROTLI_COMPRESSED:
-                    bytes = Zip.brotliCompress(bytes)
+                    obj = Zip.brotliCompress(bytes)
+                    response.setHeader(CONTENT_ENCODING, "br")
                     break
                 case GZIP_COMPRESSED:
-                    bytes = Zip.gzip(bytes)
+                    obj = Zip.gzip(bytes)
+                    response.setHeader(CONTENT_ENCODING, "gzip")
+                    break
+                default:
+                    response.setHeader(CONTENT_ENCODING, "")
                     break
             }
             return obj
         }
     }
+    /**
+     * Constructor
+     * @param channel
+     * @param out
+     */
     Response(HttpChannel channel, HttpOutput out) {
         super(channel, out)
     }
-    Compression compression = Compression.AUTO
+    /**
+     * Import a "Response object from Jetty"
+     * @param response
+     * @return
+     */
+    static Response 'import'(JettyResponse response) {
+        Response newResponse = new Response(response.httpChannel, response.httpOutput)
+        JettyResponse.class.declaredFields.each {
+            try {
+                it.setAccessible(true)
+                Object value = it.get(response)
+                it.set(newResponse, value)
+            } catch (IllegalAccessException ignore) {
+                // Handle the exception as needed
+            }
+        }
+        return newResponse
+    }
+    /**
+     * Get length
+     * @return
+     */
+    int getLength() {
+        return (header("Content-Length") ?: "0") as int
+    }
+    /**
+     * Set status
+     * @param code
+     */
     void status(int code) {
-        //TODO
+        setStatus(code)
     }
+    /**
+     * Redirect
+     * @param path
+     */
     void redirect(String path) {
-        //TODO
+        sendRedirect(path)
     }
+    /**
+     * Set content-type
+     * @param type
+     */
     void type(String type) {
-        //TODO
+        setContentType(type)
     }
+    /**
+     * Get content-type
+     * @return
+     */
     String type() {
-        return "" //TODO
+        return getContentType()
     }
+    /**
+     * Set header
+     * @param key
+     * @param value
+     */
     void header(String key, String value) {
-        //TODO
+        setHeader(key, value)
+    }
+    /**
+     * Get header
+     * @param key
+     * @return
+     */
+    String header(String key) {
+        return getHeader(key)
     }
 }

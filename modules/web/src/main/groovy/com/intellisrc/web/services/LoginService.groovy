@@ -1,11 +1,11 @@
 package com.intellisrc.web.services
 
 import com.intellisrc.core.Log
+import com.intellisrc.web.Request
+import com.intellisrc.web.Response
 import com.intellisrc.web.Service.Allow
 import com.intellisrc.web.ServiciableAuth
 import groovy.transform.CompileStatic
-import spark.Request
-import spark.Response
 
 /**
  * Generic class to allow access to private content
@@ -35,12 +35,12 @@ class LoginService implements ServiciableAuth {
     }
 
     static Level getUserLevel(Request request) {
-        return (request?.session()?.attribute("level") ?: "GUEST").toString().toUpperCase() as Level
+        return (request?.session?.getAttribute("level") ?: "GUEST").toString().toUpperCase() as Level
     }
 
     static final Allow User = {
         Request request ->
-            if(request.session()) {
+            if(request?.session?.id) {
                 return getUserLevel(request) >= Level.USER
             } else {
                 return false
@@ -48,7 +48,7 @@ class LoginService implements ServiciableAuth {
     } as Allow
     static final Allow Moderator = {
         Request request ->
-            if(request.session()) {
+            if(request?.session?.id) {
                 return getUserLevel(request) >= Level.MODERATOR
             } else {
                 return false
@@ -56,7 +56,7 @@ class LoginService implements ServiciableAuth {
     } as Allow
     static final Allow Admin = {
         Request request ->
-            if(request.session()) {
+            if(request?.session?.id) {
                 return getUserLevel(request) >= Level.ADMIN
             } else {
                 return false
@@ -129,7 +129,7 @@ class LoginService implements ServiciableAuth {
 
     @Override
     boolean onLogout(final Request request, final Response response) {
-        return request?.session()?.invalidate()
+        return request?.session?.invalidate()
     }
 
 }
