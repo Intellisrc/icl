@@ -23,12 +23,13 @@ class LocalHost {
     /**
      * Retrieves an available port.
      * NOTE: Be aware that it is not protected against race conditions
+     * @param address : If specified will check in specific address
      * @return
      */
-    static int getFreePort() {
+    static int getFreePort(InetAddress address = null) {
         int port = 0
         try {
-            ServerSocket socket = new ServerSocket(0)
+            ServerSocket socket = address ? new ServerSocket(0, 1, address) : new ServerSocket(0)
             port = socket.localPort
             socket.close()
         } catch (Exception ignore) {
@@ -41,13 +42,18 @@ class LocalHost {
      * Checks if a port is free (available)
      * @param self
      * @param port
+     * @param address : If specified will check if port is available in specific address
      * @return
      */
-    static boolean isPortAvailable(int port) {
+    static boolean isPortAvailable(int port, InetAddress address = null) {
         // Test port before initializing
         boolean portAvailable = false
         try {
-            new ServerSocket(port).close()
+            if(address) {
+                new ServerSocket(port, 1, address).close()
+            } else {
+                new ServerSocket(port).close()
+            }
             portAvailable = true
         } catch (IOException ignored) {}
         return portAvailable

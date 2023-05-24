@@ -2,6 +2,9 @@ package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
 
+import static com.intellisrc.web.service.Response.Compression
+import static com.intellisrc.web.service.Response.Compression.AUTO
+
 /**
  * Customized output of a Service.
  * You can use this class when more flexibility is needed
@@ -17,7 +20,7 @@ class ServiceOutput {
     /**
      * Output types used in getOutput
      */
-    public static enum Type {
+    static enum Type {
         JSON, YAML, TEXT, IMAGE, BINARY
         /**
          * From content type, get OutputType
@@ -41,6 +44,8 @@ class ServiceOutput {
     Object content      = null
     String contentType  = ""
     String charSet      = "UTF-8"
+    String downloadName = ""
+    Compression compression = AUTO
 
     // Used by URL
     int responseCode    = 0

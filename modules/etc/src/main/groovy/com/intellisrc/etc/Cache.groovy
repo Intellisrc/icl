@@ -20,8 +20,11 @@ class Cache<V> {
     static public final int FOREVER = -1
     static protected int defaultGCInterval = Config.get("cache.gc", Secs.MIN_2) //seconds
     static protected int defaultTimeout = Config.get("cache.timeout", FOREVER) //seconds
-    interface onNotFound {
+    interface NotFound {
         V call()
+    }
+    static interface CacheAccess {
+        void call(String key)
     }
 	public int gcInterval = defaultGCInterval
     public int timeout = defaultTimeout
@@ -110,7 +113,19 @@ class Cache<V> {
 	 * @param default_val
 	 * @return
 	 */
-    V get(final String key, onNotFound notFound = null, int time = timeout) {
+    V get(final String key, NotFound notFound = null, int time = timeout) {
+        return get(key, notFound, null, null, time)
+    }
+    /**
+     * Returns value if found, or set object if not
+     * @param key
+     * @param notFound
+     * @param onHit : Will be called if cache was hit
+     * @param onStore : Will be called if item was stored in cache
+     * @param time
+     * @return
+     */
+    V get(final String key, NotFound notFound = null, CacheAccess onHit, CacheAccess onStore, int time = timeout) {
         V ret = null
         if(key && time) {
             if (contains(key)) {
@@ -118,16 +133,18 @@ class Cache<V> {
                 if(! quiet) {
                     Log.v("[$key] read from cache")
                 }
+                onHit?.call(key)
             } else {
                 if (notFound) {
                     ret = notFound.call()
                     if (ret != null) {
                         Log.v("[$key] added to cache")
                         set(key, ret, time)
+                        onStore?.call(key)
                     }
                 }
             }
-        } else {
+        } else if(notFound) {
             ret = notFound.call()
         }
         return ret
@@ -180,6 +197,14 @@ class Cache<V> {
      */
     List<String> keys() {
         return cache.keySet().toList()
+    }
+
+    /**
+     * Return values in cache (without modification)
+     * @return
+     */
+    List<V> values() {
+        return Collections.unmodifiableList(cache.values().collect { it.value })
     }
 
     /**

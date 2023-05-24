@@ -62,7 +62,8 @@ import static org.eclipse.jetty.http.HttpMethod.POST
  */
 class WebService extends WebServiceBase implements Handler {
     static final String ACCEPT_TYPE_REQUEST_MIME_HEADER = "Accept"
-    static final String CONTENT_TYPE_HEADER = "Content-Length"
+    static final String CONTENT_LENGTH_HEADER = "Content-Length"
+    static final String SERVER_CACHE_HEADER = "Server-Cache"
 
     public int threads = 20
     public int minThreads = 2
@@ -83,8 +84,7 @@ class WebService extends WebServiceBase implements Handler {
     protected List<Serviciable> services = []
 
     protected final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
-    protected final Cache<byte[]> staticCache = new Cache<>(timeout: Cache.FOREVER)
-    protected final ConcurrentLinkedQueue<RouteDefinition> definitions = new ConcurrentLinkedQueue<>()
+    protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
 
     static interface FilePolicy {
         boolean allow(File file)
@@ -142,12 +142,13 @@ class WebService extends WebServiceBase implements Handler {
     }
     /**
      * start web service
-     * this method is chainable
+     * It will add all specified services into routes
+     * and launch the Jetty Server
      */
     void start(boolean background = false, StartCallback onStart = null) {
         init()
         try {
-            if (LocalHost.isPortAvailable(port)) { //FIXME: should consider bind address
+            if (LocalHost.isPortAvailable(port, address)) {
                 Log.i("Starting server in port $port with pool size of $threads")
                 // Preparing a service (common between Services and SingleService):
                 services.each {
@@ -181,7 +182,7 @@ class WebService extends WebServiceBase implements Handler {
                         switch (serviciable) {
                             case ServiciableAuth:
                                 ServiciableAuth auth = serviciable as ServiciableAuth
-                                add(new RouteDefinition(POST, auth.path + auth.loginPath, auth.allowType,{
+                                add(Service.new(POST, auth.path + auth.loginPath, {
                                     Request request, Response response ->
                                         boolean ok = false
                                         Map<String, Object> sessionMap = auth.onLogin(request, response)
@@ -204,8 +205,8 @@ class WebService extends WebServiceBase implements Handler {
                                         response.type("application/json")
                                         res.ok = ok
                                         return JSON.encode(res)
-                                }))
-                                add(new RouteDefinition(GET, auth.path + auth.logoutPath, auth.allowType,{
+                                }, auth.allowType))
+                                add(Service.new(GET, auth.path + auth.logoutPath, {
                                     Request request, Response response ->
                                         boolean  ok = auth.onLogout(request, response)
                                         if(ok) {
@@ -215,7 +216,7 @@ class WebService extends WebServiceBase implements Handler {
                                         return JSON.encode(
                                                 ok : ok
                                         )
-                                }))
+                                }, auth.allowType))
                                 break
                         }
                 }
@@ -256,7 +257,7 @@ class WebService extends WebServiceBase implements Handler {
         this.staticPath = path
         this.cacheMaxSizeKB = cacheMaxSizeKB
         if(expirationSec) {
-            staticCache.timeout = expirationSec
+            cache.timeout = expirationSec
         }
         return this
     }
@@ -270,8 +271,8 @@ class WebService extends WebServiceBase implements Handler {
         if(serviciable.allowOrigin != null && sp.allowOrigin == null) {
             sp.allowOrigin = serviciable.allowOrigin
         }
-        sp.allowType = serviciable.allowType
-        return addServicePath(sp, serviciable.path)
+        sp.acceptType = serviciable.allowType
+        return addService(sp)
     }
 
     /**
@@ -292,29 +293,8 @@ class WebService extends WebServiceBase implements Handler {
     }
 
     /**
-     * Adds actions into the web service and returns
-     * the corresponding paths
-     * @param service
-     * @param rootPath
-     * @return
-     */
-    protected boolean addServicePath(Service service, String rootPath) {
-        // Remove double slashes
-        String fullPath = (rootPath + service.path).replaceAll(/\/\//,"/")
-        return addAction(fullPath, service)
-    }
-
-    /**
-     * Adds some action to the Server
-     * @param fullPath : path of service
-     * @param sp : Service object
-     * @param srv : Spark.Service instance
-     */
-    protected boolean addAction(final String fullPath, final Service sp) {
-        return add(sp, fullPath, onAction(sp))
-    }
-    /**
      * Get output content type and content
+     * @param service (add link)
      * @param res (response from Service.Action)
      * @param contentType
      */
@@ -493,262 +473,236 @@ class WebService extends WebServiceBase implements Handler {
         String query = request.queryString
         return request.uri() + (query ? "?" + query : "")
     }
+
     /**
-     * Returns the Route to be added into Spark.Service based in Service object
-     * @param sp : Service object
+     * Process Service and return ServiceOutput
+     * @param request
+     * @param response
+     * @param sp
      * @return
      */
-    protected Route onAction(final Service sp) {
-        return {
-            Request request, Response response ->
-                try {
-                    Log.v("Requested: %s By: %s", URLDecoder.decode(request.requestURI, "UTF-8"), request.ip())
-                    ServiceOutput output
+    ServiceOutput processAction(Service sp, Request request, Response response) {
+        ServiceOutput output
 
-                    // Apply headers (initial): -----------------------
-                    sp.headers.each {
-                        String key, String val ->
-                            response.header(key, val)
-                    }
-                    // Apply general allow origin rule:
-                    if (allowOrigin) {
-                        response.header("Access-Control-Allow-Origin", allowOrigin)
-                    }
-                    if (sp.allowOrigin) {
-                        response.header("Access-Control-Allow-Origin", sp.allowOrigin)
-                    }
-                    if (sp.noStore) { //Never store in client
-                        response.header("Cache-Control", "no-store")
-                    } else if (!sp.cacheTime && !sp.maxAge) { //Revalidate each time
-                        response.header("Cache-Control", "no-cache")
-                    } else {
-                        String priv = (sp.isPrivate) ? "private," : "" //User-specific data
-                        response.header("Cache-Control", priv + "max-age=" + sp.maxAge)
-                    }
-                    // ------------------------------------------------
+        // Apply headers (initial): -----------------------
+        sp.headers.each {
+            String key, String val ->
+                response.header(key, val)
+        }
+        // Apply general allow origin rule:
+        if (allowOrigin) {
+            response.header("Access-Control-Allow-Origin", allowOrigin)
+        }
+        if (sp.allowOrigin) {
+            response.header("Access-Control-Allow-Origin", sp.allowOrigin)
+        }
+        if (sp.noStore) { //Never store in client
+            response.header("Cache-Control", "no-store")
+        } else if (!sp.cache || (!sp.cacheTime && !sp.maxAge)) { //Revalidate each time
+            response.header("Cache-Control", "no-cache")
+        } else {
+            String priv = (sp.isPrivate) ? "private," : "" //User-specific data
+            response.header("Cache-Control", priv + "max-age=" + sp.maxAge) //IDEA: when using server cache, synchronize remaining time in cache with this value
+        }
+        // ------------------------------------------------
 
-                    // Only Allowed clients:
-                    if (sp.allow.check(request)) {
-                        File tempDir = File.tempDir
-                        request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir.absolutePath))
-                        boolean hasParts = false
-                        try {
-                            hasParts = !request.parts.empty
-                        } catch(Exception ignored) {}
-                        // If we have uploads:
-                        if (hasParts) {
-                            if (tempDir.canWrite()) {
-                                List<UploadFile> uploadFiles = []
-                                if (request.contentLength > 0) {
-                                    request.parts.each {
-                                        Part part ->
-                                            if(part.contentType) { //Only process files with content-type (otherwise are non-file fields)
-                                                if (part.size) {
-                                                    try {
-                                                        InputStream input = part.getInputStream()
-                                                        Path path = Files.createTempFile("upload", ".file")
-                                                        Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
-                                                        UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
-                                                        uploadFiles << file
-                                                    } catch (Exception e) {
-                                                        response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
-                                                        Log.e("Unable to upload file: %s", part.submittedFileName, e)
-                                                    }
-                                                } else {
-                                                    response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
-                                                    Log.w("File: %s was empty", part.submittedFileName)
-                                                }
-                                            }
-                                    }
-                                    try {
-                                        Object res = callAction(sp.action, request, response, uploadFiles)
-                                        //noinspection GroovyUnusedAssignment : IDE mistake
-                                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
-                                                response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
-                                    } catch (Exception e) {
-                                        response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
-                                        Log.e("Service.upload closure failed", e)
-                                    }
-                                    uploadFiles.each {
-                                        if (it.exists()) {
-                                            it.delete()
+        // Only Allowed clients:
+        if (sp.allow.check(request)) {
+            File tempDir = File.tempDir
+            request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement(tempDir.absolutePath))
+            boolean hasParts = false
+            try {
+                hasParts = !request.parts.empty
+            } catch(Exception ignored) {}
+            // If we have uploads:
+            if (hasParts) {
+                if (tempDir.canWrite()) {
+                    List<UploadFile> uploadFiles = []
+                    if (request.contentLength > 0) {
+                        request.parts.each {
+                            Part part ->
+                                if(part.contentType) { //Only process files with content-type (otherwise are non-file fields)
+                                    if (part.size) {
+                                        try {
+                                            InputStream input = part.getInputStream()
+                                            Path path = Files.createTempFile("upload", ".file")
+                                            Files.copy(input, path, StandardCopyOption.REPLACE_EXISTING)
+                                            UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
+                                            uploadFiles << file
+                                        } catch (Exception e) {
+                                            response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
+                                            Log.e("Unable to upload file: %s", part.submittedFileName, e)
                                         }
+                                    } else {
+                                        response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
+                                        Log.w("File: %s was empty", part.submittedFileName)
                                     }
-                                } else {
-                                    response.status(HttpStatus.LENGTH_REQUIRED_411)
-                                    Log.e("Uploaded file is empty")
                                 }
-                            } else {
-                                response.status(HttpStatus.SERVICE_UNAVAILABLE_503)
-                                Log.e("Temporally directory %s is not writable", tempDir)
-                            }
-                        } else if (sp.cacheTime) { // Check if its in Cache
+                        }
+                        try {
+                            Object res = callAction(sp.action, request, response, uploadFiles)
                             //noinspection GroovyUnusedAssignment : IDE mistake
-                            output = cache.get(getCacheKey(request), {
-                                ServiceOutput toSave = null
-                                try {
-                                    Object res = callAction(sp.action, request, response)
-                                    toSave = handleContentType(res,  response.type() ?: sp.contentType, sp.charSet,
-                                            response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
-                                } catch (Exception e) {
-                                    response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
-                                    Log.e("Service.action CACHE closure failed", e)
-                                }
-                                return toSave
-                            }, sp.cacheTime)
-                        } else { // Normal requests: (no cache, no file upload)
-                            try {
-                                Object res = callAction(sp.action, request, response)
-                                if(res != null) {
-                                    //noinspection GroovyUnusedAssignment : IDE mistake
-                                    output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
-                                        response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
-                                } else {
-                                    response.status(HttpStatus.NOT_FOUND_404)
-                                    output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
-                                    response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-                                    output.content = "Not Found"
-                                    if(sp.download) {
-                                        sp.download = false
-                                    }
-                                }
-                            } catch (Exception e) {
-                                response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
-                                Log.e("Service.action closure failed", e)
+                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
+                                response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                        } catch (Exception e) {
+                            response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
+                            Log.e("Service.upload closure failed", e)
+                        }
+                        uploadFiles.each {
+                            if (it.exists()) {
+                                it.delete()
                             }
                         }
+                    } else {
+                        response.status(HttpStatus.LENGTH_REQUIRED_411)
+                        Log.e("Uploaded file is empty")
+                    }
+                } else {
+                    response.status(HttpStatus.SERVICE_UNAVAILABLE_503)
+                    Log.e("Temporally directory %s is not writable", tempDir)
+                }
+            } else { // Normal requests: (no cache, no file upload)
+                try {
+                    Object res = callAction(sp.action, request, response)
+                    if(res != null) {
+                        //noinspection GroovyUnusedAssignment : IDE mistake
+                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
+                            response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                    } else {
+                        response.status(HttpStatus.NOT_FOUND_404)
+                        output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
+                        response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+                        output.content = "Not Found"
+                        if(sp.download) {
+                            sp.download = false
+                        }
+                    }
+                } catch (Exception e) {
+                    response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
+                    Log.e("Service.action closure failed", e)
+                }
+            }
 
-                        // ------------------- After content is processed ----------------
-                        if(output) {
-                            // Apply content-type:
-                            if(output.contentType) {
-                                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-                            }
-                            // Pass response code from output:
-                            if(output.responseCode) {
-                                response.status(output.responseCode)
-                            }
-
-                            // Set download : if "Content-Disposition" is set on headers this is not required:
-                            if (sp.download || output.contentType == "application/octet-stream") {
-                                String fileName = sp.downloadFileName ?: output.fileName
-                                response.header("Content-Disposition", "attachment; filename=" + fileName)
-                                if (output.type == ServiceOutput.Type.BINARY) {
-                                    response.header("Content-Transfer-Encoding", "binary")
-                                }
-                            }
-                            // Set ETag: (even if we compress it later, we keep the original Etag of content)
-                            if (sp.etag != null) {
-                                String etag = sp.etag.calc(output.content) ?: output.etag
-                                if (etag) {
-                                    output.etag = etag
-                                    response.header("ETag", etag)
-                                    String prevTag = request.headers("If-None-Match")
-                                    if(prevTag == output.etag) { // Same content
-                                        response.status(HttpStatus.NOT_MODIFIED_304)
-                                        output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
-                                        response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-                                        output.content = ""
-                                    }
-                                } else {
-                                    try {
-                                        if (output.type == ServiceOutput.Type.BINARY) {
-                                            if (output.size > 1024 * eTagMaxKB) {
-                                                Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
-                                            } else {
-                                                etag = (output.content as byte[]).md5()
-                                            }
-                                        } else {
-                                            etag = output.content.toString().md5()
-                                        }
-                                        if (etag) {
-                                            output.etag = etag
-                                            response.header("ETag", etag)
-                                            String prevTag = request.headers("If-None-Match")
-                                            if(prevTag == output.etag) { // Same content
-                                                response.status(HttpStatus.NOT_MODIFIED_304)
-                                                output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
-                                                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-                                                output.content = ""
-                                            }
-                                        } else {
-                                            Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
-                                        }
-                                    } catch (Exception e) {
-                                        //Can't be converted to String
-                                        Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e.message)
-                                    }
-                                }
-                            }
-                            // Compress if requested
-                            if(sp.compress) {
-                                response.compression = AUTO
-                                if(sp.compressSize) { //Unless we specify to calculate size, we do it here:
-                                    response.compression = AUTO.get() // Get automatically the best option
-                                    byte[] bytes = []
-                                    switch (output.content) {
-                                        case String:
-                                            bytes = output.content.toString().bytes
-                                            break
-                                        case File:
-                                            bytes = (output.content as File).bytes
-                                            break
-                                        case OutputStream:
-                                            ByteArrayOutputStream baos = new ByteArrayOutputStream()
-                                            baos.writeTo(output.content as OutputStream)
-                                            bytes = baos.toByteArray()
-                                            break
-                                        case byte[]:
-                                            bytes = output.content as byte[]
-                                            break
-                                        default: // Do not compress here
-                                            sp.compressSize = false
-                                            response.compression = NONE
-                                            break
-                                    }
-                                    if(bytes.size() > 0) {
-                                        output.content = response.compression.compress(bytes, response)
-                                        output.size = (output.content as byte[]).size()
-                                    }
-                                }
-                            }
-                            // Set content-length
-                            if(output.size > 0 && response.compression != AUTO) {
-                                response.header("Content-Length", sprintf("%d", output.size))
-                            }
-                            // Add headers
-                            if (output.type == ServiceOutput.Type.BINARY) {
-                                response.header("Accept-Ranges", "bytes")
+            // ------------------- After content is processed ----------------
+            if(output) {
+                // Set download : if "Content-Disposition" is set on headers this is not required:
+                if (sp.download || output.contentType == "application/octet-stream") {
+                    output.downloadName = sp.downloadFileName ?: output.fileName
+                }
+                // Set ETag: (even if we compress it later, we keep the original Etag of content)
+                String etag = output.etag = sp.etag?.calc(output.content) ?: output.etag
+                if (! etag) {
+                    try {
+                        if (output.type == ServiceOutput.Type.BINARY) {
+                            if (output.size > 1024 * eTagMaxKB) {
+                                Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
+                            } else {
+                                etag = (output.content as byte[]).md5()
                             }
                         } else {
-                            response.status(HttpStatus.NOT_FOUND_404)
-                            output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
-                            response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-                            output.content = "Not Found"
+                            etag = output.content.toString().md5()
                         }
-                    } else { // Unauthorized
-                        response.status(HttpStatus.FORBIDDEN_403)
-                        if(output == null) {
-                            output = new ServiceOutput(contentType: sp.contentType, charSet: sp.charSet, type: ServiceOutput.Type.fromString(sp.contentType))
-                            response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+                        if (etag) {
+                            output.etag = etag
+                        } else {
+                            Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
                         }
-                        switch (output.type) {
-                            case ServiceOutput.Type.JSON:
-                                output.content = JSON.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
-                                break
-                            case ServiceOutput.Type.YAML:
-                                output.content = YAML.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
-                                break
-                            default:
-                                response.type(Mime.getType("txt") + (output.charSet ? "; charset=" + output.charSet : ""))
-                                output.content = "Unauthorized"
-                        }
+                    } catch (Exception e) {
+                        //Can't be converted to String
+                        Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e.message)
                     }
-                    return output.content
-                } catch(Throwable e) {
-                    Log.e("Unexpected Exception", e)
                 }
-        } as Route
+                // Compress if requested
+                if(sp.compress) {
+                    response.compression = AUTO.get() // Get automatically the best option
+                    byte[] bytes = []
+                    switch (output.content) {
+                        case String:
+                            bytes = output.content.toString().bytes
+                            break
+                        case File:
+                            bytes = (output.content as File).bytes
+                            break
+                        case OutputStream:
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream()
+                            baos.writeTo(output.content as OutputStream)
+                            bytes = baos.toByteArray()
+                            break
+                        case byte[]:
+                            bytes = output.content as byte[]
+                            break
+                        default: // Do not compress here
+                            response.compression = NONE
+                            break
+                    }
+                    if(bytes.size() > 0) {
+                        output.content = response.compression.compress(bytes)
+                        output.size = (output.content as byte[]).size()
+                    }
+                }
+            } else {
+                response.status(HttpStatus.NOT_FOUND_404)
+                output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
+                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+                output.content = "Not Found"
+            }
+        } else { // Unauthorized
+            response.status(HttpStatus.FORBIDDEN_403)
+            if(output == null) {
+                output = new ServiceOutput(contentType: sp.contentType, charSet: sp.charSet, type: ServiceOutput.Type.fromString(sp.contentType))
+                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+            }
+            switch (output.type) {
+                case ServiceOutput.Type.JSON:
+                    output.content = JSON.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
+                    break
+                case ServiceOutput.Type.YAML:
+                    output.content = YAML.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
+                    break
+                default:
+                    response.type(Mime.getType("txt") + (output.charSet ? "; charset=" + output.charSet : ""))
+                    output.content = "Unauthorized"
+            }
+        }
+        return output
+    }
+    /**
+     * Prepare response headers based on ServiceOutput
+     * @param output
+     * @param response
+     */
+    protected void prepareResponse(ServiceOutput output, Response response) {
+        // Apply content-type:
+        if(output.contentType) {
+            response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
+        }
+        // Pass response code from output:
+        if(output.responseCode) {
+            response.status(output.responseCode)
+        }
+
+        // Set download : if "Content-Disposition" is set on headers this is not required:
+        if (! output.downloadName.empty) {
+            response.header("Content-Disposition", "attachment; filename=" + output.downloadName)
+            if (output.type == ServiceOutput.Type.BINARY) {
+                response.header("Content-Transfer-Encoding", "binary")
+            }
+        }
+        // Set ETag: (even if we compress it later, we keep the original Etag of content)
+        if (output.etag != null) {
+            response.header("ETag", output.etag)
+        }
+        // Set compression header
+        output.compression.setHeader(response)
+
+        // Set content-length
+        if(output.size > 0) {
+            response.header("Content-Length", sprintf("%d", output.size))
+        }
+        // Add headers
+        if (output.type == ServiceOutput.Type.BINARY) {
+            response.header("Accept-Ranges", "bytes")
+        }
     }
 
     /**
@@ -919,13 +873,49 @@ class WebService extends WebServiceBase implements Handler {
     void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
         Request request = servletRequest as Request
         Response response = servletResponse as Response
-        Object out = null
+        ServiceOutput out
+        Cache.CacheAccess onStore = {
+            response.header(SERVER_CACHE_HEADER, cacheSize.toString())
+        }
+        Cache.CacheAccess onHit = {
+            response.header(SERVER_CACHE_HEADER, "true")
+        }
         if(requestPolicy.allow(request)) {
-            MatchFilterResult mfr = matchURI(request.requestURI, HttpMethod.fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT_TYPE_REQUEST_MIME_HEADER))
-            if (mfr.route.present) {
-                request.setPathParameters(mfr.params)   // Inject params to request
-                out = mfr.route.get().action.call(request, response)
-            } else {
+            String cacheKey = getCacheKey(request)
+            // Try first with cache:
+            out = cache.get(cacheKey)
+            if(out) {
+                onHit.call(cacheKey)
+            }
+
+            // Then check services:
+            if(! out) {
+                MatchFilterResult mfr = matchURI(request.requestURI, HttpMethod.fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT_TYPE_REQUEST_MIME_HEADER))
+                if (mfr.route.present) {
+                    request.setPathParameters(mfr.params)   // Inject params to request
+                    Service sp = mfr.route.get()
+                    if (sp.cache && sp.cacheTime) { // Check if its in Cache
+                        //noinspection GroovyUnusedAssignment : IDE mistake
+                        out = cache.get(cacheKey, {
+                            ServiceOutput toSave = null
+                            try {
+                                Object res = callAction(sp.action, request, response)
+                                toSave = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
+                                    response.header("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                            } catch (Exception e) {
+                                response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
+                                Log.e("Service.action CACHE closure failed", e)
+                            }
+                            return toSave
+                        }, onHit, onStore, sp.cacheTime)
+                    } else {
+                        out = processAction(sp, request, response)
+                    }
+                }
+            }
+
+            // No service found, look for static files:
+            if(! out) {
                 // The request is already clean from Jetty and without query string:
                 String uri = request.requestURI
                 if (uri && !uri.empty) {
@@ -933,14 +923,27 @@ class WebService extends WebServiceBase implements Handler {
                         indexFiles.collect { uri + it } : [uri]
                     options.any {
                         File staticFile = File.get(staticPath, it)
-                        if(filePolicy.allow(staticFile)) {
-                            //noinspection GrReassignedInClosureLocalVar
-                            out = staticCache.get(uri, {
-                                staticFile.exists() && (staticFile.size() / 1024 <= cacheMaxSizeKB) ? staticFile.bytes : null
-                            })
-                            if (out == null && staticFile.exists()) {
+                        if (filePolicy.allow(staticFile)) {
+                            if (staticFile.exists()) {
+                                boolean addToCache = cacheTime && (staticFile.size() / 1024 <= cacheMaxSizeKB)
+
+                                Closure<ServiceOutput> noCache = {
+                                    processAction(new Service(
+                                        cache: cacheTime > 0,
+                                        cacheTime: cacheTime,
+                                        maxAge: cacheTime,
+                                        action: { return staticFile }
+                                    ), request, response)
+                                }
                                 //noinspection GrReassignedInClosureLocalVar
-                                out = staticFile.bytes
+                                out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                String prevTag = request.headers("If-None-Match")
+                                if (prevTag == out.etag) { // Same content
+                                    response.status(HttpStatus.NOT_MODIFIED_304)
+                                    response.type(out.contentType + (out.charSet ? "; charset=" + out.charSet : ""))
+                                    //noinspection GrReassignedInClosureLocalVar
+                                    out = null
+                                }
                             }
                         } else {
                             response.status(HttpStatus.UNAUTHORIZED_401)
@@ -952,25 +955,31 @@ class WebService extends WebServiceBase implements Handler {
                     response.status(HttpStatus.BAD_REQUEST_400)
                 }
             }
-            if (out != null) {
+
+            // If we have output:
+            if (out) {
+                // Set headers according to ServiceOutput
+                prepareResponse(out, response)
+
                 if (!response.committed) {
                     OutputStream responseStream = response.outputStream
                     //noinspection GroovyFallthrough
-                    switch (out) {
+                    switch (out.content) {
                         case String:
                             String text = out.toString()
-                            if (!response.getHeader(CONTENT_TYPE_HEADER)) {
-                                response.header(CONTENT_TYPE_HEADER, sprintf("%d", text.length()))
+                            if (!response.getHeader(CONTENT_LENGTH_HEADER)) {
+                                response.header(CONTENT_LENGTH_HEADER, sprintf("%d", text.length()))
                             }
                             responseStream.write(text.getBytes(response.contentType)) //TODO: test
                             break
                         case ByteBuffer:
-                            out = (out as ByteBuffer).array()
                         case byte[]:
-                            if (!response.getHeader(CONTENT_TYPE_HEADER)) {
-                                response.header(CONTENT_TYPE_HEADER, sprintf("%d", (out as byte[]).length))
+                            byte[] content = out.content instanceof ByteBuffer ?
+                                (out.content as ByteBuffer).array() : (out.content as byte[])
+                            if (!response.getHeader(CONTENT_LENGTH_HEADER)) {
+                                response.header(CONTENT_LENGTH_HEADER, sprintf("%d", content.length))
                             }
-                            responseStream.write(out as byte[])
+                            responseStream.write(content)
                             break
                         case InputStream:
                             (out as InputStream).transferTo(responseStream)
@@ -1047,17 +1056,13 @@ class WebService extends WebServiceBase implements Handler {
      * @param route
      * @return
      */
-    boolean add(Service service, String path, Route route) {
-        boolean duplicated = definitions.any { it.path == path || matchURI(path, service.method, service.allowType).route.present }
+    boolean addService(Service service) {
+        boolean duplicated = definitions.any { it.path == service.path || matchURI(service.path, service.method, service.acceptType).route.present }
         if (duplicated) {
-            Log.w("Warning, duplicated path [" + path + "] and method [" + service.method.toString() + "] found.")
+            Log.w("Warning, duplicated path [" + service.path + "] and method [" + service.method.toString() + "] found.")
             return false
         }
-        return definitions.add(new RouteDefinition(service.method, path, service.allowType, route))
-    }
-
-    boolean add(RouteDefinition definition) {
-        return definitions.add(definition)
+        return definitions.add(service)
     }
 
     /**
@@ -1067,28 +1072,28 @@ class WebService extends WebServiceBase implements Handler {
      */
     protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType) {
         Map<String,String> params = [:]
-        RouteDefinition match = definitions.find {
-            RouteDefinition rd ->
+        Service match = definitions.find {
+            Service srv ->
                 boolean found = false
-                if(rd.method == method && (rd.acceptType == "*/*" || acceptType.tokenize(",").collect {
+                if(srv.method == method && (srv.acceptType == "*/*" || acceptType.tokenize(",").collect {
                     it.replaceAll(/;.*$/,"")
-                }.contains(rd.acceptType))) {
+                }.contains(srv.acceptType))) {
                     // Match exact path
                     // Match with regex (e.g. /^path/(admin|control|manager)?$/ )
-                    if (rd.path == path || (rd.path.endsWith("/?") && rd.path.replace(/\/\?$/, '') == path.replace(/\/$/, ''))) {
+                    if (srv.path == path || (srv.path.endsWith("/?") && srv.path.replace(/\/\?$/, '') == path.replace(/\/$/, ''))) {
                         //TODO verify /?
                         found = true
                     } else {
                         // Match with path variables (e.g. /path/:var/)
                         // Match with glob (e.g. /path/*)
                         Pattern pattern = null
-                        if (rd.path.contains("/:") || rd.path.contains("*")) {
+                        if (srv.path.contains("/:") || srv.path.contains("*")) {
                             pattern = Pattern.compile(
-                                rd.path.replaceAll(/\*/, "(?<>.*)")
+                                srv.path.replaceAll(/\*/, "(?<>.*)")
                                     .replaceAll("/:([^/]*)", '/(?<$1>[^/]*)')
                                 , Pattern.CASE_INSENSITIVE)
-                        } else if (rd.path.startsWith("~/")) { //TODO: verify
-                            pattern = Pattern.compile(rd.path, Pattern.CASE_INSENSITIVE)
+                        } else if (srv.path.startsWith("~/")) { //TODO: verify
+                            pattern = Pattern.compile(srv.path, Pattern.CASE_INSENSITIVE)
                         }
                         if (pattern) {
                             Matcher matcher = (path =~ pattern)
@@ -1114,5 +1119,14 @@ class WebService extends WebServiceBase implements Handler {
             Optional.ofNullable(match),
             params
         )
+    }
+    /**
+     * Calculate size of cache
+     * @return
+     */
+    long getCacheSize() {
+        return cache.values().sum {
+            it.size
+        } as Long
     }
 }

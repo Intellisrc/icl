@@ -60,11 +60,11 @@ class Service implements Serviciable {
     static interface ETag {
         String calc(Object out)
     }
-    boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     boolean isPrivate           = false                 // Browser Rule: These responses are typically intended for a single user
     boolean noStore             = false                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
-    boolean compress            = false                 // Whether to compress or not the output
-    boolean compressSize        = false                 // If true, when compressed will buffer the output to report size
+    boolean compress            = true                  // Whether to compress or not the output
+    boolean cache               = false                 // Turn ON/OFF cache (it will force cacheTime to 0 when OFF)
+    boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     int cacheTime               = 0                     // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
     int maxAge                  = 0                     // Seconds to suggest to keep in browser
     String contentType          = ""                    // Content Type, for example: Mime.getType("png") or "image/png". (default : auto)
@@ -76,7 +76,7 @@ class Service implements Serviciable {
     Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
-    String allowType            = ""                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
+    String acceptType           = ""                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
     Map<String,String> headers  = [:]                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
     /**
@@ -104,5 +104,14 @@ class Service implements Serviciable {
             regex = regex.replaceFirst("\\^","^/")
         }
         return regex
+    }
+
+    static Service 'new'(HttpMethod method, String path, Object action, String acceptType = "*/*") {
+        return new Service(
+            method      : method,
+            path        : path,
+            action      : action,
+            acceptType  : acceptType
+        )
     }
 }

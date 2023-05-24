@@ -11,6 +11,6 @@ import groovy.transform.TupleConstructor
 @CompileStatic
 @TupleConstructor
 class MatchFilterResult {
-    Optional<RouteDefinition> route
+    Optional<Service> route
     Map<String, String> params
 }

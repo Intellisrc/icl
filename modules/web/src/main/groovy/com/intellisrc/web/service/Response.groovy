@@ -35,22 +35,32 @@ class Response extends JettyResponse {
         Compression get() {
             return this == AUTO ? (BROTLI_COMPRESSED.isAvailable() ? BROTLI_COMPRESSED : GZIP_COMPRESSED) : this
         }
-        Object compress(byte[] bytes, Response response) {
+        Object compress(byte[] bytes) {
             Object obj = bytes
             switch(get()) {
                 case BROTLI_COMPRESSED:
                     obj = Zip.brotliCompress(bytes)
-                    response.setHeader(CONTENT_ENCODING, "br")
                     break
                 case GZIP_COMPRESSED:
                     obj = Zip.gzip(bytes)
+                    break
+                default:
+                    break
+            }
+            return obj
+        }
+        void setHeader(Response response) {
+            switch(get()) {
+                case BROTLI_COMPRESSED:
+                    response.setHeader(CONTENT_ENCODING, "br")
+                    break
+                case GZIP_COMPRESSED:
                     response.setHeader(CONTENT_ENCODING, "gzip")
                     break
                 default:
                     response.setHeader(CONTENT_ENCODING, "")
                     break
             }
-            return obj
         }
     }
     /**
