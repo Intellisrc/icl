@@ -1,13 +1,14 @@
-package com.intellisrc.web
+package com.intellisrc.web.service
+
 
 import groovy.transform.CompileStatic
 
 /**
- * Alternative to ServiciableMultiple as class
+ * Alternative to ServiciableSingle as class
  * @since 2022/08/02.
  */
 @CompileStatic
-abstract class Services implements ServiciableMultiple {
+abstract class SingleService implements ServiciableSingle {
     String path = ""
     String allowOrigin = null   // Localhost only
     String allowType = "*/*"

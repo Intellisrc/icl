@@ -1,6 +1,7 @@
 package com.intellisrc.web.protocols
 
-import com.intellisrc.web.Server
+
+import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.server.HttpConfiguration
 import org.eclipse.jetty.server.HttpConnectionFactory
@@ -12,10 +13,10 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
  */
 @CompileStatic
 abstract class HttpProtocol {
-    final Server server
+    final WebService server
     boolean trustForwardHeaders = true
 
-    HttpProtocol(Server server) {
+    HttpProtocol(WebService server) {
         this.server = server
     }
 
@@ -25,7 +26,7 @@ abstract class HttpProtocol {
 
     protected ServerConnector setup(ServerConnector connector) {
         connector.setIdleTimeout(server.timeout)
-        connector.setHost(server.bindAddress.hostAddress)
+        connector.setHost(server.address.hostAddress)
         connector.setPort(server.port)
         return connector
     }

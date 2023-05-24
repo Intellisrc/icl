@@ -3,8 +3,12 @@ package com.intellisrc.web.samples
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Mime
 import com.intellisrc.net.LocalHost
-import com.intellisrc.web.*
+import com.intellisrc.web.WebService
 import com.intellisrc.web.protocols.Protocol
+import com.intellisrc.web.service.KeyStore
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Response
+import com.intellisrc.web.service.Service
 
 /**
  * Simple class which is used to test features manually

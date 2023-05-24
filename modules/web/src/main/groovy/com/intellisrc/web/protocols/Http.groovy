@@ -1,6 +1,7 @@
 package com.intellisrc.web.protocols
 
-import com.intellisrc.web.Server
+
+import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.util.ssl.SslContextFactory
@@ -10,7 +11,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
  */
 @CompileStatic
 class Http extends HttpProtocol {
-    Http(Server server) {
+    Http(WebService server) {
         super(server)
     }
 
@@ -29,9 +30,9 @@ class Http extends HttpProtocol {
     SslContextFactory.Server getSSLContextFactory() {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server()
         if(server.secure) {
-            sslContextFactory.setKeyStorePath(server.certificate.file.absolutePath)
-            if (server.certificate.password != null) {
-                sslContextFactory.setKeyStorePassword(server.certificate.password.toString())
+            sslContextFactory.setKeyStorePath(server.ssl.file.absolutePath)
+            if (server.ssl.password != null) {
+                sslContextFactory.setKeyStorePassword(server.ssl.password.toString())
             }
             sslContextFactory.setUseCipherSuitesOrder(true)
         }

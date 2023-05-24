@@ -1,6 +1,8 @@
-package com.intellisrc.web
+package com.intellisrc.web.service
 
+import com.intellisrc.web.WebSocketService
 import groovy.transform.CompileStatic
+import org.eclipse.jetty.websocket.api.Session
 
 /**
  * @since 17/04/19.
@@ -86,7 +88,7 @@ trait ServiciableWebSocket extends Serviciable {
      * Set Timeout in seconds
      * @param timeoutSec
      */
-    void setTimeout(long timeoutSec) {
+    void setTimeout(int timeoutSec) {
         service?.timeout = timeoutSec
     }
 }

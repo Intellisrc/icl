@@ -1,10 +1,10 @@
 package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
-import com.intellisrc.web.ServiciableWebSocket
-import com.intellisrc.web.Session
 import com.intellisrc.web.WebSocketService
+import com.intellisrc.web.service.ServiciableWebSocket
 import groovy.transform.CompileStatic
+import org.eclipse.jetty.websocket.api.Session
 
 /**
  * @since 17/04/19.
@@ -21,7 +21,7 @@ class ChatService implements ServiciableWebSocket {
         if(params != null && params.containsKey("user")) {
             sessionID = params.get("user").first()
         } else {
-            sessionID = "Guest "+(Random.newInstance().nextInt(100) + 1)
+            sessionID = "Guest "+(new Random().nextInt(100) + 1)
         }
         return sessionID
     }
@@ -29,7 +29,7 @@ class ChatService implements ServiciableWebSocket {
     WSMessage onConnect(Session session) {
         return new WSMessage(
                     user : "System",
-                    message : "User : "+session.userID+" connected",
+                    message : "User : ", //FIXME+session.userID+" connected",
                     list : currentList,
                     type : "in"
                 )
@@ -37,14 +37,14 @@ class ChatService implements ServiciableWebSocket {
     WSMessage onDisconnect(Session session, int statusCode, String reason) {
         return new WSMessage(
                     user : "System",
-                    message : "User : "+session.userID+" disconnected",
+                    message : "User : ", //FIXME+session.userID+" disconnected",
                     list : currentList,
                     type : "out"
                 )
     }
     WSMessage onMessage(Session session, String message) {
         return new WSMessage(
-                    user : session.userID,
+                    user : "", //FIXME session.userID,
                     message : message,
                     list : currentList,
                     type : "txt"

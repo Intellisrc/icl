@@ -3,9 +3,9 @@ package com.intellisrc.web.services
 import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.config.ConfigAuto
-import com.intellisrc.web.Request
-import com.intellisrc.web.Service
-import com.intellisrc.web.ServiciableMultiple
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Service
+import com.intellisrc.web.service.ServiciableMultiple
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 

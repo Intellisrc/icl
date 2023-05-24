@@ -1,6 +1,7 @@
 package com.intellisrc.web.protocols
 
-import com.intellisrc.web.Server
+
+import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 
 /**
@@ -9,7 +10,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum Protocol {
     HTTP, HTTP2, HTTP3
-    HttpProtocol get(final Server server) {
+    HttpProtocol get(final WebService server) {
         HttpProtocol protocol
         switch (this) {
             case HTTP2:

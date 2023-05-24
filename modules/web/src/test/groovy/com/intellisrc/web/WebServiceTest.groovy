@@ -6,6 +6,8 @@ import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Service
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
@@ -20,7 +22,7 @@ class WebServiceTest extends Specification {
         setup:
             int port = LocalHost.freePort
             def web = new WebService(
-                port: port
+                    port: port
             )
             Log.i("Running in port: %d", port)
             web.add(new Service(

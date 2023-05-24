@@ -8,27 +8,43 @@ import com.intellisrc.etc.Mime
 import com.intellisrc.etc.YAML
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.protocols.Protocol
+import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
+import jakarta.servlet.FilterChain
 import jakarta.servlet.MultipartConfigElement
-import jakarta.servlet.http.HttpSession
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.Part
+import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.http.HttpStatus
+import org.eclipse.jetty.server.Handler
+import org.eclipse.jetty.server.Request as JettyRequest
+import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriter
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
+import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
-import static com.intellisrc.web.Response.Compression.AUTO
-import static com.intellisrc.web.Response.Compression.NONE
+import static com.intellisrc.web.service.Response.Compression.AUTO
+import static com.intellisrc.web.service.Response.Compression.NONE
 import static org.eclipse.jetty.http.HttpMethod.GET
 import static org.eclipse.jetty.http.HttpMethod.POST
 
 @CompileStatic
 /**
+ * Launch HTTP Service (WebSocket can be added on top of it)
+ *
  * This class offers an easy way to run web services
  * It uses mainly 2 types of Services:
  * - Serviciable     : Common services
@@ -44,79 +60,97 @@ import static org.eclipse.jetty.http.HttpMethod.POST
  * threads   : Maximum Number of clients
  *
  */
-class WebService {
-    protected Server srv
-    protected List<Serviciable> listServices = []
-    protected boolean initialized = false
-    protected boolean running = false
-    protected String resources = ""
-    protected Cache<ServiceOutput> cache = new Cache<ServiceOutput>()
-    // Options:
-    public Inet4Address address = "0.0.0.0".toInet4Address()
-    public int cacheTime = 0
-    public int cacheMaxSizeKB = 256
-    public int port = 80
+class WebService extends WebServiceBase implements Handler {
+    static final String ACCEPT_TYPE_REQUEST_MIME_HEADER = "Accept"
+    static final String CONTENT_TYPE_HEADER = "Content-Length"
+
     public int threads = 20
     public int minThreads = 2
     public int eTagMaxKB = 1024
-    public int idleTimeout = Millis.HOUR
-    public File accessLog = File.get("log", "access.log")
-    public boolean log = true
+    public int cacheTime = 0
+    public int cacheMaxSizeKB = 256
     public boolean embedded = false //Turn to true if resources are inside jar
+    protected String resources = ""
+    public String allowOrigin = "" //apply by default to all
     public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = Protocol.HTTP
-    public KeyStore ssl = null // Key Store File location and password (For WSS and HTTPS)
-    public String allowOrigin = "" //apply by default to all
+    public FilePolicy filePolicy = { File file -> true }
+    public RequestPolicy requestPolicy = { Request request -> true }
 
-    static interface StartCallback {
-        void call(Server srv)
+    protected String staticPath = ""
+    protected Server jettyServer
+    protected boolean multiThread
+    protected List<Serviciable> services = []
+
+    protected final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
+    protected final Cache<byte[]> staticCache = new Cache<>(timeout: Cache.FOREVER)
+    protected final ConcurrentLinkedQueue<RouteDefinition> definitions = new ConcurrentLinkedQueue<>()
+
+    static interface FilePolicy {
+        boolean allow(File file)
     }
+
+    static interface RequestPolicy {
+        boolean allow(Request request)
+    }
+    static interface StartCallback {
+        void call(WebService srv)
+    }
+
     /**
      * Initialize Server
+     * Executed only once even if we restart this service
      */
     protected void init() {
         if(!initialized) {
             initialized = true
             try {
-                srv = new Server(address, port, protocol, ssl, threads, minThreads, idleTimeout, log ? accessLog : null)
-                srv.indexFiles.addAll(indexFiles)
+                if(ssl && !secure) {
+                    Log.w("KeyStore is invalid. Not using SSL.")
+                    ssl = null
+                }
+                if(minThreads > threads) { minThreads = threads }
+                this.multiThread = threads > 0
+                jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
+                jettyServer.addConnector(protocol.get(this).connector)
+                jettyServer.setHandler(this)
+                indexFiles.addAll(indexFiles)
                 if(resources) {
                     if (!resources.isEmpty()) {
                         if (embedded) {
-                            srv.setStaticPath(resources, cacheTime, cacheMaxSizeKB)
+                            setStaticPath(resources, cacheTime, cacheMaxSizeKB)
                         } else {
                             File resFile = File.get(resources)
-                            srv.setStaticPath(resFile.absolutePath, cacheTime, cacheMaxSizeKB)
+                            setStaticPath(resFile.absolutePath, cacheTime, cacheMaxSizeKB)
                         }
                     }
                     Log.i("Serving static resources from: %s", resources)
                 }
-                Log.i("Using protocol: %s, %s", protocol, srv.secure ? "with SSL" : "unencrypted")
+                Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
                 Log.e("Unable to initialize web service", e)
             }
         }
-        ssl = null // Removed from memory for security
     }
     /**
      * start and specify callback "onStart"
      * @param onStart
      * @return
      */
-    WebService start(StartCallback onStart) {
+    void start(StartCallback onStart) {
         start(false, onStart)
     }
     /**
      * start web service
      * this method is chainable
      */
-    WebService start(boolean background = false, StartCallback onStart = null) {
+    void start(boolean background = false, StartCallback onStart = null) {
         init()
         try {
             if (LocalHost.isPortAvailable(port)) { //FIXME: should consider bind address
                 Log.i("Starting server in port $port with pool size of $threads")
                 // Preparing a service (common between Services and SingleService):
-                listServices.each {
+                services.each {
                     final Serviciable serviciable ->
                         boolean prepared = false
                         switch (serviciable) {
@@ -131,14 +165,12 @@ class WebService {
                                 prepared = setupService(serviciable, (serviciable as ServiciableSingle).service)
                                 break
                             case ServiciableWebSocket:
-                                prepared = addWebSocketService(serviciable, serviciable.path)
+                                addWebSocketService(serviciable as ServiciableWebSocket)
+                                prepared = true
                                 break
                             case ServiciableAuth:
                                 prepared = true
                                 //do nothing, skip
-                                //TODO: do it for Multiple
-                                /*ServiciableSingle single = serviciable as ServiciableSingle
-                        srv.before("somePath", new SecurityFilter(single.service.config.build(), "Login"))*/
                                 break
                             default:
                                 Log.e("Interface not implemented")
@@ -149,23 +181,23 @@ class WebService {
                         switch (serviciable) {
                             case ServiciableAuth:
                                 ServiciableAuth auth = serviciable as ServiciableAuth
-                                srv.add(new Server.RouteDefinition(POST, auth.path + auth.loginPath, auth.allowType,{
+                                add(new RouteDefinition(POST, auth.path + auth.loginPath, auth.allowType,{
                                     Request request, Response response ->
                                         boolean ok = false
                                         Map<String, Object> sessionMap = auth.onLogin(request, response)
                                         Map res = [:]
                                         if (!sessionMap.isEmpty()) {
                                             ok = true
-                                            HttpSession session = request.getSession(true)
+                                            //FIXME: Session session = srv.createSession(request.sessionHandler.getSession(request.session.id))
                                             sessionMap.each {
                                                 if(it.key == "response" && it.value instanceof Map) {
                                                     //noinspection GrReassignedInClosureLocalVar
                                                     res += (it.value as Map)
                                                 } else {
-                                                    session.setAttribute(it.key, it.value)
+                                                    //FIXME session.attribute(it.key, it.value)
                                                 }
                                             }
-                                            res.id = session.id
+                                            //FIXME res.id = session.id
                                         } else {
                                             response.status(HttpStatus.UNAUTHORIZED_401)
                                         }
@@ -173,7 +205,7 @@ class WebService {
                                         res.ok = ok
                                         return JSON.encode(res)
                                 }))
-                                srv.add(new Server.RouteDefinition(GET, auth.path + auth.logoutPath, auth.allowType,{
+                                add(new RouteDefinition(GET, auth.path + auth.logoutPath, auth.allowType,{
                                     Request request, Response response ->
                                         boolean  ok = auth.onLogout(request, response)
                                         if(ok) {
@@ -187,27 +219,47 @@ class WebService {
                                 break
                         }
                 }
-                srv.start()
                 running = true
+                jettyServer.start()
+                ssl = null // Removed from memory for security
                 if (onStart) {
-                    onStart.call(srv)
+                    onStart.call(this)
                 }
-                if (!background) {
-                    while (running) {
-                        sleep (Millis.SECOND)
+                if (background) {
+                    //Wait until the server is Up
+                    sleep (Millis.SECOND)
+                } else {
+                    if(multiThread) {
+                        jettyServer.join() //TODO: check
+                    } else {
+                        while (running) {
+                            sleep (Millis.SECOND)
+                        }
                     }
                 }
-                //Wait until the server is Up
-                sleep (Millis.SECOND)
             } else {
                 Log.w("Port %d is already in use", port)
             }
         } catch(Throwable e) {
             Log.e("Unable to start WebService", e)
         }
-        return this
     }
 
+    /**
+     * Specify static path and cache rules
+     * @param path
+     * @param expirationSec
+     * @param cacheMaxSizeKB
+     * @return
+     */
+    WebService setStaticPath(String path, int expirationSec, int cacheMaxSizeKB) {
+        this.staticPath = path
+        this.cacheMaxSizeKB = cacheMaxSizeKB
+        if(expirationSec) {
+            staticCache.timeout = expirationSec
+        }
+        return this
+    }
     /**
      * Common code for ServiciableSingle and ServiciableMultiple
      * @param serviciable
@@ -219,21 +271,24 @@ class WebService {
             sp.allowOrigin = serviciable.allowOrigin
         }
         sp.allowType = serviciable.allowType
-
-        return (serviciable instanceof ServiciableWebSocket) ?
-            addWebSocketService(serviciable, (serviciable.path + '/' + sp.path).replaceAll(/\/(\/+)?/, '/')) :
-            addServicePath(sp, serviciable.path)
+        return addServicePath(sp, serviciable.path)
     }
 
     /**
-     * Sets WebSocketService
-     * @param serviciable
-     * @param path
+     * Sets WebSocketService and copy properties from this class
+     * @param webSocket
      */
-    protected boolean addWebSocketService(Serviciable serviciable, String path) {
-        ServiciableWebSocket webSocket = serviciable as ServiciableWebSocket
-        webSocket.service = new WebSocketService(webSocket)
-        return srv.webSocket(path, webSocket.service)
+    WebService addWebSocketService(ServiciableWebSocket webSocket) {
+        WebSocketService wss = new WebSocketService(webSocket)
+        webSocket.service = wss // Mutual Link
+        wss.port = port
+        wss.address = address
+        wss.timeout = timeout
+        wss.initialized = true
+        wss.ssl = ssl
+        wss.log = log
+        wss.accessLog = accessLog
+        return this
     }
 
     /**
@@ -250,30 +305,13 @@ class WebService {
     }
 
     /**
-     * stop web service
-     */
-    void stop() {
-        Log.i("Stopping server running at port: $port")
-        srv.stop()
-        running = false
-    }
-
-    /**
-     * Check if server is running (in daemon mode)
-     * @return
-     */
-    boolean isRunning() {
-        return running
-    }
-
-    /**
      * Adds some action to the Server
      * @param fullPath : path of service
      * @param sp : Service object
      * @param srv : Spark.Service instance
      */
     protected boolean addAction(final String fullPath, final Service sp) {
-        return srv.add(sp, fullPath, onAction(sp))
+        return add(sp, fullPath, onAction(sp))
     }
     /**
      * Get output content type and content
@@ -841,9 +879,9 @@ class WebService {
         init()
         if (!running) {
             if (srv instanceof ServiciableWebSocket) {
-                listServices.add(0, srv)
+                services.add(0, srv)
             } else if(srv) {
-                listServices << srv
+                services << srv
             } else {
                 Log.e("Invalid instance added as service: %s", srv)
             }
@@ -868,5 +906,213 @@ class WebService {
         } else {
             Log.w("WebService is already running. You can not change the resource path")
         }
+    }
+    /**
+     * Process the path filter. Here we decide what to serve.
+     * If we match a Service, we execute its action, otherwise we
+     * locate a static file or return 404
+     *
+     * @param servletRequest
+     * @param servletResponse
+     * @param filterChain
+     */
+    void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
+        Request request = servletRequest as Request
+        Response response = servletResponse as Response
+        Object out = null
+        if(requestPolicy.allow(request)) {
+            MatchFilterResult mfr = matchURI(request.requestURI, HttpMethod.fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT_TYPE_REQUEST_MIME_HEADER))
+            if (mfr.route.present) {
+                request.setPathParameters(mfr.params)   // Inject params to request
+                out = mfr.route.get().action.call(request, response)
+            } else {
+                // The request is already clean from Jetty and without query string:
+                String uri = request.requestURI
+                if (uri && !uri.empty) {
+                    List<String> options = uri.endsWith("/") ?
+                        indexFiles.collect { uri + it } : [uri]
+                    options.any {
+                        File staticFile = File.get(staticPath, it)
+                        if(filePolicy.allow(staticFile)) {
+                            //noinspection GrReassignedInClosureLocalVar
+                            out = staticCache.get(uri, {
+                                staticFile.exists() && (staticFile.size() / 1024 <= cacheMaxSizeKB) ? staticFile.bytes : null
+                            })
+                            if (out == null && staticFile.exists()) {
+                                //noinspection GrReassignedInClosureLocalVar
+                                out = staticFile.bytes
+                            }
+                        } else {
+                            response.status(HttpStatus.UNAUTHORIZED_401)
+                        }
+                        return out != null
+                    }
+                } else { // Very unlikely that will end up here:
+                    Log.w("Invalid request (empty)")
+                    response.status(HttpStatus.BAD_REQUEST_400)
+                }
+            }
+            if (out != null) {
+                if (!response.committed) {
+                    OutputStream responseStream = response.outputStream
+                    //noinspection GroovyFallthrough
+                    switch (out) {
+                        case String:
+                            String text = out.toString()
+                            if (!response.getHeader(CONTENT_TYPE_HEADER)) {
+                                response.header(CONTENT_TYPE_HEADER, sprintf("%d", text.length()))
+                            }
+                            responseStream.write(text.getBytes(response.contentType)) //TODO: test
+                            break
+                        case ByteBuffer:
+                            out = (out as ByteBuffer).array()
+                        case byte[]:
+                            if (!response.getHeader(CONTENT_TYPE_HEADER)) {
+                                response.header(CONTENT_TYPE_HEADER, sprintf("%d", (out as byte[]).length))
+                            }
+                            responseStream.write(out as byte[])
+                            break
+                        case InputStream:
+                            (out as InputStream).transferTo(responseStream)
+                            break
+                    }
+                    responseStream.flush()
+                    responseStream.close()
+                    if (!response.status) {
+                        response.status(HttpStatus.OK_200)
+                    }
+                }
+            } else if (filterChain) {
+                filterChain.doFilter(request, response)
+            } else {
+                Log.d("The requested path was not found: %s", request.uri())
+                response.status(HttpStatus.NOT_FOUND_404)
+            }
+        } else {
+            response.status(HttpStatus.UNAUTHORIZED_401)
+        }
+        log(request, response)
+    }
+
+    @Override
+    void handle(String target, JettyRequest jettyRequest, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        Request request = Request.import(jettyRequest)
+        Response response = Response.import(jettyRequest.response)
+        HttpMethod method = HttpMethod.fromString(request.method.trim().toUpperCase())
+        if(method == null) {
+            response.sendError(HttpStatus.METHOD_NOT_ALLOWED_405)
+            return
+        }
+        doFilter(request, response, null)
+        request.setHandled(response.status > 0)
+    }
+
+    @Override
+    void setServer(Server server) {
+        jettyServer = server
+    }
+
+    @Override
+    Server getServer() {
+        return jettyServer
+    }
+
+    @Override
+    void destroy() {
+        stop()
+    }
+
+    /**
+     * stop web service
+     */
+    void stop() {
+        Log.i("Stopping server running at port: $port")
+        jettyServer.stop()
+        running = false
+    }
+
+    @Override
+    boolean addEventListener(EventListener listener) {
+        return false
+    }
+
+    @Override
+    boolean removeEventListener(EventListener listener) {
+        return false
+    }
+    /**
+     * Add a new route into the server
+     * @param service
+     * @param path
+     * @param route
+     * @return
+     */
+    boolean add(Service service, String path, Route route) {
+        boolean duplicated = definitions.any { it.path == path || matchURI(path, service.method, service.allowType).route.present }
+        if (duplicated) {
+            Log.w("Warning, duplicated path [" + path + "] and method [" + service.method.toString() + "] found.")
+            return false
+        }
+        return definitions.add(new RouteDefinition(service.method, path, service.allowType, route))
+    }
+
+    boolean add(RouteDefinition definition) {
+        return definitions.add(definition)
+    }
+
+    /**
+     * Find the route according to request
+     * @param request
+     * @return
+     */
+    protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType) {
+        Map<String,String> params = [:]
+        RouteDefinition match = definitions.find {
+            RouteDefinition rd ->
+                boolean found = false
+                if(rd.method == method && (rd.acceptType == "*/*" || acceptType.tokenize(",").collect {
+                    it.replaceAll(/;.*$/,"")
+                }.contains(rd.acceptType))) {
+                    // Match exact path
+                    // Match with regex (e.g. /^path/(admin|control|manager)?$/ )
+                    if (rd.path == path || (rd.path.endsWith("/?") && rd.path.replace(/\/\?$/, '') == path.replace(/\/$/, ''))) {
+                        //TODO verify /?
+                        found = true
+                    } else {
+                        // Match with path variables (e.g. /path/:var/)
+                        // Match with glob (e.g. /path/*)
+                        Pattern pattern = null
+                        if (rd.path.contains("/:") || rd.path.contains("*")) {
+                            pattern = Pattern.compile(
+                                rd.path.replaceAll(/\*/, "(?<>.*)")
+                                    .replaceAll("/:([^/]*)", '/(?<$1>[^/]*)')
+                                , Pattern.CASE_INSENSITIVE)
+                        } else if (rd.path.startsWith("~/")) { //TODO: verify
+                            pattern = Pattern.compile(rd.path, Pattern.CASE_INSENSITIVE)
+                        }
+                        if (pattern) {
+                            Matcher matcher = (path =~ pattern)
+                            if (matcher.find()) {
+                                found = true
+                                if (matcher.hasGroup()) {
+                                    Matcher groupMatcher = Pattern.compile("\\(\\?<(\\w+)>").matcher(pattern.toString())
+                                    //TODO: verify named groups
+                                    while (groupMatcher.find()) {
+                                        String groupName = groupMatcher.group(1)
+                                        if (groupName) {
+                                            params[groupName] = matcher.group(groupName).toString()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return found
+        }
+        return new MatchFilterResult(
+            Optional.ofNullable(match),
+            params
+        )
     }
 }

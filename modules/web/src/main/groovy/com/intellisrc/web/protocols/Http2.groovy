@@ -1,6 +1,6 @@
 package com.intellisrc.web.protocols
 
-import com.intellisrc.web.Server
+import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
 import org.eclipse.jetty.http2.HTTP2Cipher
@@ -16,7 +16,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
  */
 @CompileStatic
 class Http2 extends Http {
-    Http2(Server server) {
+    Http2(WebService server) {
         super(server)
     }
 

@@ -1,4 +1,4 @@
-package com.intellisrc.web
+package com.intellisrc.web.service
 
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic

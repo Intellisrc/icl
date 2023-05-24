@@ -1,10 +1,10 @@
 package com.intellisrc.web.services
 
 import com.intellisrc.core.Config
-import com.intellisrc.web.Request
-import com.intellisrc.web.Response
-import com.intellisrc.web.Service
-import com.intellisrc.web.ServiciableSingle
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Response
+import com.intellisrc.web.service.Service
+import com.intellisrc.web.service.ServiciableSingle
 import groovy.transform.CompileStatic
 
 import java.time.LocalDateTime

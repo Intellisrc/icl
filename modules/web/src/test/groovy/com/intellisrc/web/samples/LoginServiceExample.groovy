@@ -1,16 +1,14 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.web.Request
-import com.intellisrc.web.Response
-import com.intellisrc.web.Service.Allow
-import com.intellisrc.web.ServiciableAuth
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Response
+import com.intellisrc.web.service.Service.Allow
+import com.intellisrc.web.service.ServiciableAuth
+import groovy.transform.CompileStatic
 
 /**
  * @since 17/04/19.
  */
-
-import groovy.transform.CompileStatic
-
 @CompileStatic
 /**
  * @since 17/04/03.

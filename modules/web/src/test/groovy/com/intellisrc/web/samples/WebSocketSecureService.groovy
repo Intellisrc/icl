@@ -2,8 +2,8 @@ package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
 import com.intellisrc.net.LocalHost
-import com.intellisrc.web.KeyStore
 import com.intellisrc.web.WebService
+import com.intellisrc.web.service.KeyStore
 
 /**
  * Example on how to enable WebSocket over SSL

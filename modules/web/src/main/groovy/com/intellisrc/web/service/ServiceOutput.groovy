@@ -1,7 +1,6 @@
-package com.intellisrc.web
+package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
-import groovy.transform.Immutable
 
 /**
  * Customized output of a Service.

@@ -1,6 +1,6 @@
 package com.intellisrc.web.protocols
 
-import com.intellisrc.web.Server
+import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
 import org.eclipse.jetty.http3.server.HTTP3ServerConnectionFactory
@@ -14,7 +14,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
  */
 @CompileStatic
 class Http3 extends Http {
-    Http3(Server server) {
+    Http3(WebService server) {
         super(server)
     }
 

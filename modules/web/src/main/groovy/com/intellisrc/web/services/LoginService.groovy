@@ -1,10 +1,10 @@
 package com.intellisrc.web.services
 
 import com.intellisrc.core.Log
-import com.intellisrc.web.Request
-import com.intellisrc.web.Response
-import com.intellisrc.web.Service.Allow
-import com.intellisrc.web.ServiciableAuth
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Response
+import com.intellisrc.web.service.Service.Allow
+import com.intellisrc.web.service.ServiciableAuth
 import groovy.transform.CompileStatic
 
 /**

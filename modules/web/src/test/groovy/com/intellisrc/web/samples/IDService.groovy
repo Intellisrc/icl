@@ -2,10 +2,10 @@ package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
-import com.intellisrc.web.Request
-import com.intellisrc.web.Response
-import com.intellisrc.web.Service
-import com.intellisrc.web.SingleService
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Response
+import com.intellisrc.web.service.Service
+import com.intellisrc.web.service.SingleService
 
 /**
  * @since 17/04/19.

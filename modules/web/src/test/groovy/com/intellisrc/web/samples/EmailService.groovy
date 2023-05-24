@@ -1,16 +1,17 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.web.Request
-import com.intellisrc.web.Service
-import com.intellisrc.web.Service.Action
-import com.intellisrc.web.Services
+import com.intellisrc.web.service.Request
+import com.intellisrc.web.service.Service
+import com.intellisrc.web.service.Service.Action
+import com.intellisrc.web.service.Services
 import groovy.transform.CompileStatic
+
+import static com.intellisrc.web.service.Service.ActionRequest
 
 /**
  * @since 17/04/19.
  */
 
-import static com.intellisrc.web.Service.ActionRequest
 import static org.eclipse.jetty.http.HttpMethod.POST
 
 @CompileStatic

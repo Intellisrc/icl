@@ -1,4 +1,4 @@
-package com.intellisrc.web
+package com.intellisrc.web.service
 
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Bytes
@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @CompileStatic
 class Request extends JettyRequest {
+    static final String X_FORWARDED_FOR = "X-Forwarded-For"
     //protected final Session requestSession = new Session()
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
     Request(HttpChannel channel, HttpInput input) {
@@ -43,7 +44,10 @@ class Request extends JettyRequest {
      * @return
      */
     String ip() {
-        return remoteAddr
+        return ip
+    }
+    String getIp() {
+        return headerNames.toList().contains(X_FORWARDED_FOR) ? headers(X_FORWARDED_FOR) : remoteAddr
     }
     /**
      * Backward compatibility with Spark
@@ -63,7 +67,7 @@ class Request extends JettyRequest {
         setAttribute(key, value)
     }
     //------------- PATH PARAMS ---------------
-    protected void setPathParameters(Map<String, String> params) {
+    void setPathParameters(Map<String, String> params) {
         params.keySet().each {
             this.pathParameters[it] = params[it]
         }

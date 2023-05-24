@@ -2,9 +2,9 @@ package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Mime
-import com.intellisrc.web.Service
-import com.intellisrc.web.Services
-import com.intellisrc.web.UploadFile
+import com.intellisrc.web.service.Service
+import com.intellisrc.web.service.Services
+import com.intellisrc.web.service.UploadFile
 
 import static org.eclipse.jetty.http.HttpMethod.POST
 

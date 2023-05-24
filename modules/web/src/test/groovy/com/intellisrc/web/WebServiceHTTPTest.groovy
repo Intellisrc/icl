@@ -2,6 +2,8 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Log
 import com.intellisrc.net.LocalHost
+import com.intellisrc.web.service.KeyStore
+import com.intellisrc.web.service.Service
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.AsyncConditions

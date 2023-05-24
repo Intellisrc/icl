@@ -3,31 +3,24 @@ package com.intellisrc.web
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
-import com.intellisrc.etc.JSON
-import com.intellisrc.web.ServiciableWebSocket.WSMessage
+import com.intellisrc.web.service.ServiciableWebSocket
+import com.intellisrc.web.service.ServiciableWebSocket.WSMessage
 import groovy.transform.CompileStatic
-import org.eclipse.jetty.websocket.api.Session as JettySession
-import org.eclipse.jetty.websocket.api.WriteCallback
+import org.eclipse.jetty.websocket.api.Session as WebSocketSession
 import org.eclipse.jetty.websocket.api.annotations.*
 
 import java.time.Duration
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * This class is a wrapper for @WebSocket
- * All attempts to implement it programmatically failed. Tried:
- *  ServiciableWebSocket with @WebSocket : doesn't work (jetty complains) as interface, or as a extended class
- *  ServiciableWebSocket implements WebSocketListener : Fails to identify unique sessions
- *  ServiciableWebSocket extends WebSocketAdapter : same as above
  *
  * @since 17/04/21.
  */
 @CompileStatic
 @WebSocket
-class WebSocketService {
+class WebSocketService extends WebServiceBase {
     int maxSize = Config.get("websocket.max.size", 64)
-    long timeout = Config.get("websocket.timeout", 300)
-    private ServiciableWebSocket listener
+    protected ServiciableWebSocket listener
     /**
      * Interface used to send a message directly from client to server
      * Normally onMessage will return a WSMessage object which will
@@ -77,14 +70,14 @@ class WebSocketService {
      * @param sockSession
      * @return
      */
-    static InetAddress getAddressFromSession(JettySession sockSession) {
+    static InetAddress getAddressFromSession(WebSocketSession sockSession) {
         return  sockSession.upgradeRequest.headers.containsKey("X-Forwarded-For")
             ? sockSession.upgradeRequest.headers["X-Forwarded-For"].first().toInetAddress()
             : getAddressFromSocket(sockSession.remoteAddress)
     }
 
     @OnWebSocketConnect
-    void onConnect(JettySession sockSession) {
+    void onConnect(WebSocketSession sockSession) {
         if(sockSession) {
             // Set limits
             sockSession.idleTimeout = Duration.ofMillis(timeout * Millis.SECOND)
@@ -99,10 +92,8 @@ class WebSocketService {
                     Log.w("User connected had no userID")
                     sockSession.close()
                 } else {
-                    Session session = sessionQueue.find {
-                        Session sess ->
-                            user == sess.userID
-                    }
+                    //FIXME Session session = sessionCtrl.find(sockSession)
+                    /* FIXME:
                     if (session) {
                         if (listener.replaceOnDuplicate) {
                             Log.v("Client replaced [%s] with userID: [%s]", address.hostAddress, user)
@@ -115,11 +106,10 @@ class WebSocketService {
                         }
                     } else {
                         Log.i("Client connected [%s] with userID: [%s]", address.hostAddress, user)
-                        session = new Session(userID: user, websocketSession: sockSession, address: address)
-                        sessionQueue.add(session)
+                        session = sessionCtrl.create(sockSession)
                         listener.onClientsChange(getConnected())
                         broadcast(listener.onConnect(session))
-                    }
+                    }*/
                 }
             } else {
                 Log.w("Unable to recognize source address")
@@ -128,30 +118,30 @@ class WebSocketService {
     }
 
     @OnWebSocketClose
-    void onClose(JettySession sockSession, int statusCode, String reason) {
+    void onClose(WebSocketSession sockSession, int statusCode, String reason) {
         if(sockSession) {
             InetAddress address = getAddressFromSession(sockSession)
             Log.i("Client disconnected [%s], reason: [%s]", address?.hostAddress ?: "unknown", reason)
-            Session session = getSession(sockSession)
-            sessionQueue.remove(session)
-            broadcast(listener.onDisconnect(session, statusCode, reason))
+            /*FIXME Session session = sessionCtrl.find(sockSession)
+            session?.invalidate()
+            broadcast(listener.onDisconnect(session, statusCode, reason))*/
         }
         listener.onClientsChange(getConnected())
     }
 
     @OnWebSocketMessage
-    void onMessage(JettySession sockSession, String message) {
+    void onMessage(WebSocketSession sockSession, String message) {
         if(sockSession) {
             InetAddress address = getAddressFromSession(sockSession)
             Log.v("[%s] sent message: [%s]", address?.hostAddress ?: "unknown", message)
-            broadcast(listener.onMessage(getSession(sockSession), message))
+            //FIXME broadcast(listener.onMessage(getSession(sockSession), message))
         }
     }
 
     @OnWebSocketError
-    void onWebSocketError(JettySession sockSession, Throwable throwable) {
+    void onWebSocketError(WebSocketSession sockSession, Throwable throwable) {
         if(sockSession) {
-            listener.onError(getSession(sockSession), throwable.message)
+            //FIXME listener.onError(sessionCtrl.find(sockSession), throwable.message)
             InetAddress address = getAddressFromSession(sockSession)
             String ip = address?.hostAddress ?: "unknown"
             if (throwable.message) {
@@ -162,38 +152,20 @@ class WebSocketService {
         }
     }
     //------------- Implementation ---------------
-    private Queue<Session> sessionQueue = new ConcurrentLinkedQueue()
     /**
      * Return list of peers
      * @return
      */
     private List<String> getConnected() {
         List<String> clients = []
+        /* FIXME
         sessionQueue.each {
             Session sess ->
                 if(sess.websocketSession.isOpen()) {
                     clients << sess.userID
                 }
-        }
+        }*/
         return clients
-    }
-    /**
-     * Search for the Session using WebSocketSession
-     */
-    private Session getSession(JettySession sockSession) {
-        return sessionQueue.find {
-            Session sess ->
-                return sess.websocketSession == sockSession
-        }
-    }
-    /**
-     * Search for the Session using UserID
-     */
-    private Session getSession(String userID) {
-        return sessionQueue.find {
-            Session sess ->
-                sess.userID == userID
-        }
     }
 
     /**
@@ -208,6 +180,7 @@ class WebSocketService {
             }
             wsMessage.to.each {
                 String id ->
+                    /* FIXME
                     Session session = getSession(id)
                     if (session != null) {
                         try {
@@ -235,7 +208,7 @@ class WebSocketService {
                         } catch (Exception e) {
                             listener.onError(session, e.message)
                         }
-                    }
+                    } */
             }
         }
     }
