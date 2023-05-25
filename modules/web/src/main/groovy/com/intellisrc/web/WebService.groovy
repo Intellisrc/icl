@@ -174,10 +174,13 @@ class WebService extends WebServiceBase implements Handler {
                                 }
                                 break
                             case ServiciableSingle:
-                                prepared = setupService(serviciable, (serviciable as ServiciableSingle).service)
+                                Service sp = (serviciable as ServiciableSingle).service
+                                prepared = setupService(serviciable, sp)
                                 break
                             case ServiciableWebSocket:
-                                addWebSocketService(serviciable as ServiciableWebSocket)
+                                ServiciableWebSocket websocket = serviciable as ServiciableWebSocket
+                                Log.v("Adding WebSocket Service at path: [%s]", websocket.path)
+                                addWebSocketService(websocket)
                                 prepared = true
                                 break
                             case ServiciableAuth:
@@ -193,14 +196,14 @@ class WebService extends WebServiceBase implements Handler {
                         switch (serviciable) {
                             case ServiciableAuth:
                                 ServiciableAuth auth = serviciable as ServiciableAuth
-                                add(Service.new(POST, auth.path + auth.loginPath, {
+                                setupService(serviciable, Service.new(POST, auth.path + auth.loginPath, {
                                     Request request, Response response ->
                                         boolean ok = false
                                         Map<String, Object> sessionMap = auth.onLogin(request, response)
                                         Map res = [:]
                                         if (!sessionMap.isEmpty()) {
                                             ok = true
-                                            HttpSession session = request.session()
+                                            HttpSession session = request.session
                                             //noinspection GroovyMissingReturnStatement
                                             sessionMap.each {
                                                 if(it.key == "response" && it.value instanceof Map) {
@@ -218,7 +221,7 @@ class WebService extends WebServiceBase implements Handler {
                                         res.ok = ok
                                         return JSON.encode(res)
                                 }, auth.allowType))
-                                add(Service.new(GET, auth.path + auth.logoutPath, {
+                                setupService(serviciable, Service.new(GET, auth.path + auth.logoutPath, {
                                     Request request, Response response ->
                                         boolean  ok = auth.onLogout(request, response)
                                         if(ok) {
@@ -284,6 +287,9 @@ class WebService extends WebServiceBase implements Handler {
             sp.allowOrigin = serviciable.allowOrigin
         }
         sp.acceptType = serviciable.allowType
+        // Fix path:
+        sp.path = addRoot(serviciable.path, sp.path)
+        Log.v("Adding Service: [%s] with method %s", sp.path, sp.method.toString())
         return addService(sp)
     }
 
@@ -1073,14 +1079,32 @@ class WebService extends WebServiceBase implements Handler {
      * @return
      */
     boolean addService(Service service) {
-        boolean duplicated = definitions.any { it.path == service.path || matchURI(service.path, service.method, service.acceptType).route.present }
+        boolean duplicated = definitions.any {
+            (it.path == service.path && it.method == service.method && it.acceptType == service.acceptType) ||
+            matchURI(service.path, service.method, service.acceptType).route.present }
         if (duplicated) {
-            Log.w("Warning, duplicated path [" + service.path + "] and method [" + service.method.toString() + "] found.")
+            Log.w("Warning, duplicated path [%s] and method [%s] and acceptType [%s] found.",
+                service.path, service.method.toString(), service.acceptType)
             return false
         }
         return definitions.add(service)
     }
-
+    /**
+     * Returns the full path including the root path
+     * @param rootPath
+     * @param servicePath
+     * @return
+     */
+    protected static String addRoot(String rootPath, String servicePath) {
+        String fullPath
+        if(servicePath.startsWith("~/")) {
+            fullPath = "~/" + rootPath.replaceAll(/^\//, '').replaceAll(/\/$/,'') +
+                servicePath.replaceAll(/^~\//, '')
+        } else {
+            fullPath = rootPath.replaceAll(/\/$/,'') + "/" + servicePath.replaceAll(/^\//, '')
+        }
+        return fullPath
+    }
     /**
      * Find the route according to request
      * @param request
@@ -1096,20 +1120,22 @@ class WebService extends WebServiceBase implements Handler {
                 }.contains(srv.acceptType))) {
                     // Match exact path
                     // Match with regex (e.g. /^path/(admin|control|manager)?$/ )
-                    if (srv.path == path || (srv.path.endsWith("/?") && srv.path.replace(/\/\?$/, '') == path.replace(/\/$/, ''))) {
+                    String fullPath = srv.path
+                    if (fullPath == path ||
+                        (fullPath.endsWith("/?") && fullPath.replace(/\/\?$/, '') == path.replace(/\/$/, ''))) {
                         //TODO verify /?
                         found = true
                     } else {
                         // Match with path variables (e.g. /path/:var/)
                         // Match with glob (e.g. /path/*)
                         Pattern pattern = null
-                        if (srv.path.contains("/:") || srv.path.contains("*")) {
+                        if (fullPath.contains("/:") || fullPath.contains("*")) {
                             pattern = Pattern.compile(
-                                srv.path.replaceAll(/\*/, "(?<_splat>.*)")
-                                    .replaceAll("/:([^/]*)", '/(?<$1>[^/]*)')
+                                fullPath.replaceAll(/\*/, "(?<splat>.*)")
+                                    .replaceAll("/:([^/]*)", '/(?<$1>[^/]*)').replaceAll(/\$$/,'') + '$'
                                 , Pattern.CASE_INSENSITIVE)
-                        } else if (srv.path.startsWith("~/")) { //TODO: verify
-                            pattern = Pattern.compile(srv.path, Pattern.CASE_INSENSITIVE)
+                        } else if (fullPath.startsWith("~/")) { //TODO: verify
+                            pattern = Pattern.compile(fullPath, Pattern.CASE_INSENSITIVE)
                         }
                         if (pattern) {
                             Matcher matcher = (path =~ pattern)

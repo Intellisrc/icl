@@ -3,7 +3,6 @@ package com.intellisrc.web.service
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
-import jakarta.servlet.http.HttpSession
 import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.server.HttpChannel
 import org.eclipse.jetty.server.HttpInput
@@ -58,6 +57,29 @@ class Request extends JettyRequest {
     String uri() {
         return httpURI.toString()
     }
+    /**
+     * Backward compatibility with Spark
+     * Get request host name
+     * @return
+     */
+    String host() {
+        return host
+    }
+    /**
+     * Get request host
+     * @return
+     */
+    String getHost() {
+        return getHeader("host") ?: "localhost"
+    }
+    /**
+     * Backward compatibility with Spark
+     * Return scheme
+     * @return
+     */
+    String scheme() {
+        return getScheme()
+    }
     //------------- HEADERS / ATTRIBUTES --------------
     String headers(String key) {
         return getHeader(key)
@@ -71,7 +93,7 @@ class Request extends JettyRequest {
     //------------- PATH PARAMS ---------------
     void setPathParameters(Map<String, String> params) {
         params.keySet().each {
-            if(it == "_splat") {
+            if(it == "splat") {
                 this.splat = params[it]
             } else {
                 this.pathParameters[it] = params[it]
@@ -161,11 +183,11 @@ class Request extends JettyRequest {
     }
     //------------ SESSION ------------
     /**
-     * Backward compatibility with Spark
+     * Return HTTPSession wrapper
      * @return
      */
-    HttpSession session() {
-        return getSession()
+    Session session() {
+        return new Session(getSession())
     }
     //------------ OTHER --------------
     /**
