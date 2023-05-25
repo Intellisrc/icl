@@ -63,7 +63,6 @@ class Service implements Serviciable {
     boolean isPrivate           = false                 // Browser Rule: These responses are typically intended for a single user
     boolean noStore             = false                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
     boolean compress            = true                  // Whether to compress or not the output
-    boolean cache               = false                 // Turn ON/OFF cache (it will force cacheTime to 0 when OFF)
     boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     int cacheTime               = 0                     // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
     int maxAge                  = 0                     // Seconds to suggest to keep in browser

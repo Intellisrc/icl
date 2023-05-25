@@ -70,6 +70,7 @@ class WebService extends WebServiceBase implements Handler {
     public int eTagMaxKB = 1024
     public int cacheTime = 0
     public int cacheMaxSizeKB = 256
+    public int cacheTotalMaxSizeMB = 0 // 0 = Unlimited
     public boolean embedded = false //Turn to true if resources are inside jar
     protected String resources = ""
     public String allowOrigin = "" //apply by default to all
@@ -498,7 +499,7 @@ class WebService extends WebServiceBase implements Handler {
         }
         if (sp.noStore) { //Never store in client
             response.header("Cache-Control", "no-store")
-        } else if (!sp.cache || (!sp.cacheTime && !sp.maxAge)) { //Revalidate each time
+        } else if (!sp.cacheTime && !sp.maxAge) { //Revalidate each time
             response.header("Cache-Control", "no-cache")
         } else {
             String priv = (sp.isPrivate) ? "private," : "" //User-specific data
@@ -894,9 +895,9 @@ class WebService extends WebServiceBase implements Handler {
                 if (mfr.route.present) {
                     request.setPathParameters(mfr.params)   // Inject params to request
                     Service sp = mfr.route.get()
-                    if (sp.cache && sp.cacheTime) { // Check if its in Cache
-                        //noinspection GroovyUnusedAssignment : IDE mistake
-                        out = cache.get(cacheKey, {
+                    if (sp.cacheTime) { // Check if its in Cache
+                        boolean addToCache = sp.cacheTime &&! cacheFull
+                        Closure noCache = {
                             ServiceOutput toSave = null
                             try {
                                 Object res = callAction(sp.action, request, response)
@@ -907,7 +908,9 @@ class WebService extends WebServiceBase implements Handler {
                                 Log.e("Service.action CACHE closure failed", e)
                             }
                             return toSave
-                        }, onHit, onStore, sp.cacheTime)
+                        }
+                        //noinspection GroovyUnusedAssignment : IDE mistake
+                        out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore, sp.cacheTime) : noCache()
                     } else {
                         out = processAction(sp, request, response)
                     }
@@ -925,11 +928,10 @@ class WebService extends WebServiceBase implements Handler {
                         File staticFile = File.get(staticPath, it)
                         if (filePolicy.allow(staticFile)) {
                             if (staticFile.exists()) {
-                                boolean addToCache = cacheTime && (staticFile.size() / 1024 <= cacheMaxSizeKB)
+                                boolean addToCache = cacheTime && (staticFile.size() / 1024 <= cacheMaxSizeKB) &&! cacheFull
 
                                 Closure<ServiceOutput> noCache = {
                                     processAction(new Service(
-                                        cache: cacheTime > 0,
                                         cacheTime: cacheTime,
                                         maxAge: cacheTime,
                                         action: { return staticFile }
@@ -1128,5 +1130,12 @@ class WebService extends WebServiceBase implements Handler {
         return cache.values().sum {
             it.size
         } as Long
+    }
+    /**
+     * True when cache is above limits
+     * @return
+     */
+    boolean isCacheFull() {
+        return cacheTotalMaxSizeMB > 0 && cacheSize > cacheTotalMaxSizeMB * 1024
     }
 }
