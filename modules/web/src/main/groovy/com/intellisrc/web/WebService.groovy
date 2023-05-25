@@ -11,18 +11,13 @@ import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
-import jakarta.servlet.FilterChain
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import jakarta.servlet.http.HttpSession
 import jakarta.servlet.http.Part
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.http.HttpStatus
-import org.eclipse.jetty.server.Handler
-import org.eclipse.jetty.server.Request as JettyRequest
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
@@ -63,7 +58,7 @@ import static org.eclipse.jetty.http.HttpMethod.POST
  * threads   : Maximum Number of clients
  *
  */
-class WebService extends WebServiceBase implements Handler {
+class WebService extends WebServiceBase {
     static final String ACCEPT_TYPE_REQUEST_MIME_HEADER = "Accept"
     static final String CONTENT_LENGTH_HEADER = "Content-Length"
     static final String SERVER_CACHE_HEADER = "Server-Cache"
@@ -124,7 +119,7 @@ class WebService extends WebServiceBase implements Handler {
                 this.multiThread = threads > 0
                 jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
                 jettyServer.addConnector(protocol.get(this).connector)
-                jettyServer.setHandler(this)
+                jettyServer.setHandler(new RequestHandle(this))
                 indexFiles.addAll(indexFiles)
                 if(resources) {
                     if (!resources.isEmpty()) {
@@ -879,6 +874,7 @@ class WebService extends WebServiceBase implements Handler {
             Log.w("WebService is already running. You can not change the resource path")
         }
     }
+
     /**
      * Process the path filter. Here we decide what to serve.
      * If we match a Service, we execute its action, otherwise we
@@ -888,7 +884,7 @@ class WebService extends WebServiceBase implements Handler {
      * @param servletResponse
      * @param filterChain
      */
-    void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
+    void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) {
         Request request = servletRequest as Request
         Response response = servletResponse as Response
         ServiceOutput out
@@ -898,22 +894,22 @@ class WebService extends WebServiceBase implements Handler {
         Cache.CacheAccess onHit = {
             response.header(SERVER_CACHE_HEADER, "true")
         }
-        if(requestPolicy.allow(request)) {
+        if (requestPolicy.allow(request)) {
             String cacheKey = getCacheKey(request)
             // Try first with cache:
             out = cache.get(cacheKey)
-            if(out) {
+            if (out) {
                 onHit.call(cacheKey)
             }
 
             // Then check services:
-            if(! out) {
+            if (!out) {
                 MatchFilterResult mfr = matchURI(request.requestURI, HttpMethod.fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT_TYPE_REQUEST_MIME_HEADER))
                 if (mfr.route.present) {
                     request.setPathParameters(mfr.params)   // Inject params to request
                     Service sp = mfr.route.get()
                     if (sp.cacheTime) { // Check if its in Cache
-                        boolean addToCache = sp.cacheTime &&! cacheFull
+                        boolean addToCache = sp.cacheTime && !cacheFull
                         Closure noCache = {
                             ServiceOutput toSave = null
                             try {
@@ -935,7 +931,7 @@ class WebService extends WebServiceBase implements Handler {
             }
 
             // No service found, look for static files:
-            if(! out) {
+            if (!out) {
                 // The request is already clean from Jetty and without query string:
                 String uri = request.requestURI
                 if (uri && !uri.empty) {
@@ -945,7 +941,7 @@ class WebService extends WebServiceBase implements Handler {
                         File staticFile = File.get(staticPath, it)
                         if (filePolicy.allow(staticFile)) {
                             if (staticFile.exists()) {
-                                boolean addToCache = cacheTime && (staticFile.size() / 1024 <= cacheMaxSizeKB) &&! cacheFull
+                                boolean addToCache = cacheTime && (staticFile.size() / 1024 <= cacheMaxSizeKB) && !cacheFull
 
                                 Closure<ServiceOutput> noCache = {
                                     processAction(new Service(
@@ -1011,8 +1007,6 @@ class WebService extends WebServiceBase implements Handler {
                         response.status(HttpStatus.OK_200)
                     }
                 }
-            } else if (filterChain) {
-                filterChain.doFilter(request, response)
             } else {
                 Log.d("The requested path was not found: %s", request.uri())
                 response.status(HttpStatus.NOT_FOUND_404)
@@ -1020,35 +1014,10 @@ class WebService extends WebServiceBase implements Handler {
         } else {
             response.status(HttpStatus.UNAUTHORIZED_401)
         }
-        log(request, response)
     }
 
-    @Override
-    void handle(String target, JettyRequest jettyRequest, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        Request request = Request.import(jettyRequest)
-        Response response = Response.import(jettyRequest.response)
-        HttpMethod method = HttpMethod.fromString(request.method.trim().toUpperCase())
-        if(method == null) {
-            response.sendError(HttpStatus.METHOD_NOT_ALLOWED_405)
-            return
-        }
-        doFilter(request, response, null)
-        request.setHandled(response.status > 0)
-    }
-
-    @Override
-    void setServer(Server server) {
-        jettyServer = server
-    }
-
-    @Override
     Server getServer() {
         return jettyServer
-    }
-
-    @Override
-    void destroy() {
-        stop()
     }
 
     /**
@@ -1062,15 +1031,6 @@ class WebService extends WebServiceBase implements Handler {
         running = false
     }
 
-    @Override
-    boolean addEventListener(EventListener listener) {
-        return false
-    }
-
-    @Override
-    boolean removeEventListener(EventListener listener) {
-        return false
-    }
     /**
      * Add a new route into the server
      * @param service

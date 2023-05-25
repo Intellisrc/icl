@@ -15,23 +15,43 @@ class Session {
         this.session = session
     }
 
+    String getId() {
+        return session.id
+    }
+
     Object attribute(String key) {
         return session.getAttribute(key)
     }
 
     void attribute(String key, Object val) {
-        session.setAttribute(key, val)
+        if(val == null) {
+            removeAttribute(key)
+        } else {
+            session.setAttribute(key, val)
+        }
     }
 
-    List<String> getAttributes() {
-        return session.attributeNames.toList()
+    boolean hasAttribute(String key) {
+        return attributes.contains(key)
     }
 
-    Map<String, Object> getAttributesMap() {
+    void removeAttribute(String key) {
+        session.removeAttribute(key)
+    }
+
+    Set<String> getAttributes() {
+        return session.attributeNames.toSet()
+    }
+
+    Map<String, Object> getMap() {
         return attributes.collectEntries { [(it) : attribute(it) ]}
     }
 
     void invalidate() {
         session.invalidate()
+    }
+
+    boolean isNew() {
+        return session.new
     }
 }
