@@ -16,6 +16,7 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpSession
 import jakarta.servlet.http.Part
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.http.HttpStatus
@@ -71,6 +72,7 @@ class WebService extends WebServiceBase implements Handler {
     public int cacheTime = 0
     public int cacheMaxSizeKB = 256
     public int cacheTotalMaxSizeMB = 0 // 0 = Unlimited
+    public boolean compress = true  //Compress output when possible
     public boolean embedded = false //Turn to true if resources are inside jar
     protected String resources = ""
     public String allowOrigin = "" //apply by default to all
@@ -190,16 +192,16 @@ class WebService extends WebServiceBase implements Handler {
                                         Map res = [:]
                                         if (!sessionMap.isEmpty()) {
                                             ok = true
-                                            //FIXME: Session session = srv.createSession(request.sessionHandler.getSession(request.session.id))
+                                            HttpSession session = request.session()
                                             sessionMap.each {
                                                 if(it.key == "response" && it.value instanceof Map) {
                                                     //noinspection GrReassignedInClosureLocalVar
                                                     res += (it.value as Map)
                                                 } else {
-                                                    //FIXME session.attribute(it.key, it.value)
+                                                    session.setAttribute(it.key, it.value)
                                                 }
                                             }
-                                            //FIXME res.id = session.id
+                                            res.id = session.id
                                         } else {
                                             response.status(HttpStatus.UNAUTHORIZED_401)
                                         }
@@ -932,6 +934,7 @@ class WebService extends WebServiceBase implements Handler {
 
                                 Closure<ServiceOutput> noCache = {
                                     processAction(new Service(
+                                        compress: compress,
                                         cacheTime: cacheTime,
                                         maxAge: cacheTime,
                                         action: { return staticFile }
@@ -1091,7 +1094,7 @@ class WebService extends WebServiceBase implements Handler {
                         Pattern pattern = null
                         if (srv.path.contains("/:") || srv.path.contains("*")) {
                             pattern = Pattern.compile(
-                                srv.path.replaceAll(/\*/, "(?<>.*)")
+                                srv.path.replaceAll(/\*/, "(?<_splat>.*)")
                                     .replaceAll("/:([^/]*)", '/(?<$1>[^/]*)')
                                 , Pattern.CASE_INSENSITIVE)
                         } else if (srv.path.startsWith("~/")) { //TODO: verify

@@ -28,6 +28,7 @@ class WebServiceHTTPTest extends Specification {
             def conds = new AsyncConditions()
             int port = LocalHost.freePort
             def web = new WebService(
+                compress: false,
                 protocol: protocol,
                 port: port,
                 resources: publicDir,

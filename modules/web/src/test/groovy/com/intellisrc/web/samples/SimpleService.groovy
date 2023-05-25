@@ -34,7 +34,6 @@ class SimpleService {
             path: ~/^jquery-(?<name>[^.]+)\.js/,
             contentType: Mime.JS,
             compress: true,
-            compressSize: true,
             action: {
                 Request request, Response response ->
                     return File.get(publicDir, "jquery.js")

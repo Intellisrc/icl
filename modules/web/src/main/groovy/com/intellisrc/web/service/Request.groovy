@@ -19,6 +19,8 @@ class Request extends JettyRequest {
     static final String X_FORWARDED_FOR = "X-Forwarded-For"
     //protected final Session requestSession = new Session()
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
+    protected String splat = ""
+
     Request(HttpChannel channel, HttpInput input) {
         super(channel, input)
     }
@@ -69,7 +71,11 @@ class Request extends JettyRequest {
     //------------- PATH PARAMS ---------------
     void setPathParameters(Map<String, String> params) {
         params.keySet().each {
-            this.pathParameters[it] = params[it]
+            if(it == "_splat") {
+                this.splat = params[it]
+            } else {
+                this.pathParameters[it] = params[it]
+            }
         }
     }
     /**
@@ -111,10 +117,10 @@ class Request extends JettyRequest {
     /**
      * Backward compatibility with Spark
      * Get all covered by "*"
-     * @return
+     * @return list of strings of each part of the path
      */
     List<String> splat() {
-        return [] //TODO
+        return splat.tokenize("/")
     }
     //------------- QUERY PARAMS ---------------
     /**
