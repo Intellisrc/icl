@@ -23,6 +23,7 @@ enum Protocol {
                 protocol = new Http(server)
                 break
         }
+        protocol.init()
         return protocol
     }
 }

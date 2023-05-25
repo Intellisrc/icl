@@ -14,6 +14,7 @@ dependencies {
     api "org.eclipse.jetty.http2:http2-server:${jetty}"
     api "org.eclipse.jetty.http3:http3-server:${jetty}"
     api "org.eclipse.jetty:jetty-alpn-server:${jetty}"
+    api "org.eclipse.jetty:jetty-alpn-conscrypt-server:${jetty}"
     api "org.eclipse.jetty.websocket:websocket-jetty-server:${jetty}"
     api "org.eclipse.jetty.websocket:websocket-jetty-client:${jetty}"
     api "org.eclipse.jetty.websocket:websocket-servlet:${jetty}"

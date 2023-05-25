@@ -7,6 +7,7 @@ import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
 import com.intellisrc.etc.YAML
 import com.intellisrc.net.LocalHost
+import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
@@ -37,6 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import static com.intellisrc.web.protocols.Protocol.HTTP
 import static com.intellisrc.web.service.Response.Compression.AUTO
 import static com.intellisrc.web.service.Response.Compression.NONE
 import static org.eclipse.jetty.http.HttpMethod.GET
@@ -74,10 +76,12 @@ class WebService extends WebServiceBase implements Handler {
     public int cacheTotalMaxSizeMB = 0 // 0 = Unlimited
     public boolean compress = true  //Compress output when possible
     public boolean embedded = false //Turn to true if resources are inside jar
+    boolean trustForwardHeaders = true
+    boolean checkSNIHostname = true
     protected String resources = ""
     public String allowOrigin = "" //apply by default to all
     public List<String> indexFiles = ["index.html", "index.htm"]
-    public Protocol protocol = Protocol.HTTP
+    public Protocol protocol = HTTP
     public FilePolicy filePolicy = { File file -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
 
@@ -112,6 +116,10 @@ class WebService extends WebServiceBase implements Handler {
                     Log.w("KeyStore is invalid. Not using SSL.")
                     ssl = null
                 }
+                HttpProtocol httpProtocol = protocol.get(this)
+                httpProtocol.checkSNIHostname = checkSNIHostname
+                httpProtocol.trustForwardHeaders = trustForwardHeaders
+
                 if(minThreads > threads) { minThreads = threads }
                 this.multiThread = threads > 0
                 jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
@@ -193,6 +201,7 @@ class WebService extends WebServiceBase implements Handler {
                                         if (!sessionMap.isEmpty()) {
                                             ok = true
                                             HttpSession session = request.session()
+                                            //noinspection GroovyMissingReturnStatement
                                             sessionMap.each {
                                                 if(it.key == "response" && it.value instanceof Map) {
                                                     //noinspection GrReassignedInClosureLocalVar
@@ -1041,7 +1050,9 @@ class WebService extends WebServiceBase implements Handler {
      */
     void stop() {
         Log.i("Stopping server running at port: $port")
-        jettyServer.stop()
+        if(jettyServer.started && jettyServer.running) {
+            jettyServer.stop()
+        }
         running = false
     }
 
@@ -1140,5 +1151,35 @@ class WebService extends WebServiceBase implements Handler {
      */
     boolean isCacheFull() {
         return cacheTotalMaxSizeMB > 0 && cacheSize > cacheTotalMaxSizeMB * 1024
+    }
+
+    @Override
+    boolean isRunning() {
+        return super.running && jettyServer.running
+    }
+
+    @Override
+    boolean isStarted() {
+        return super.running && jettyServer.started
+    }
+
+    @Override
+    boolean isStarting() {
+        return super.initialized && jettyServer.starting
+    }
+
+    @Override
+    boolean isStopping() {
+        return ! super.running && jettyServer.stopping
+    }
+
+    @Override
+    boolean isStopped() {
+        return ! super.running &&! jettyServer.running
+    }
+
+    @Override
+    boolean isFailed() {
+        return (initialized &&! super.running) || jettyServer.failed
     }
 }

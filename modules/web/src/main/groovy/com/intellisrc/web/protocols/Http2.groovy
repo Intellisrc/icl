@@ -6,9 +6,7 @@ import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
 import org.eclipse.jetty.http2.HTTP2Cipher
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory
-import org.eclipse.jetty.server.HttpConnectionFactory
-import org.eclipse.jetty.server.ServerConnector
-import org.eclipse.jetty.server.SslConnectionFactory
+import org.eclipse.jetty.server.*
 import org.eclipse.jetty.util.ssl.SslContextFactory
 
 /**
@@ -21,7 +19,7 @@ class Http2 extends Http {
     }
 
     @Override
-    ServerConnector prepareConnector() {
+    AbstractNetworkConnector prepareConnector() {
         assert server : "No server specified"
         // HTTP(S) Configuration
         HttpConnectionFactory h1 = getConnectionFactory(createHttpConfiguration())
@@ -32,14 +30,14 @@ class Http2 extends Http {
 
             // HTTP2 factory
             HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(h1.httpConfiguration)
-            ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory()
+            NegotiatingServerConnectionFactory alpn = new ALPNServerConnectionFactory()
             alpn.setDefaultProtocol(h2.getProtocol())
-            SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, alpn.getProtocol())
+            SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, alpn.protocol)
             // HTTP2 Connector
             connector = new ServerConnector(server.server, ssl, alpn, h2, h1)
         } else {
             HTTP2CServerConnectionFactory h2 = new HTTP2CServerConnectionFactory(h1.httpConfiguration)
-            connector = new ServerConnector(server.server, h2, h1)
+            connector = new ServerConnector(server.server, h1, h2)
         }
         return connector
     }

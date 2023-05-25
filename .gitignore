@@ -7,3 +7,4 @@ modules/*/build/
 out/
 gradle-local.properties
 gradle.log
+/modules/web/log/
