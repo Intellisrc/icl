@@ -14,6 +14,7 @@ abstract class HttpProtocol {
     final WebService server
     boolean trustForwardHeaders = true
     boolean checkSNIHostname = true
+    boolean sniRequired = false
 
     static class ErrorListener implements HttpChannel.Listener {
         /**

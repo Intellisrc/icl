@@ -73,6 +73,7 @@ class WebService extends WebServiceBase {
     public boolean embedded = false //Turn to true if resources are inside jar
     boolean trustForwardHeaders = true
     boolean checkSNIHostname = true
+    boolean sniRequired = false
     protected String resources = ""
     public String allowOrigin = "" //apply by default to all
     public List<String> indexFiles = ["index.html", "index.htm"]
@@ -114,11 +115,12 @@ class WebService extends WebServiceBase {
                 HttpProtocol httpProtocol = protocol.get(this)
                 httpProtocol.checkSNIHostname = checkSNIHostname
                 httpProtocol.trustForwardHeaders = trustForwardHeaders
+                httpProtocol.sniRequired = sniRequired
 
                 if(minThreads > threads) { minThreads = threads }
                 this.multiThread = threads > 0
                 jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
-                jettyServer.addConnector(protocol.get(this).connector)
+                jettyServer.addConnector(httpProtocol.connector)
                 jettyServer.setHandler(new RequestHandle(this))
                 indexFiles.addAll(indexFiles)
                 if(resources) {
@@ -143,7 +145,7 @@ class WebService extends WebServiceBase {
      * @param onStart
      * @return
      */
-    void start(StartCallback onStart) {
+    WebService start(StartCallback onStart) {
         start(false, onStart)
     }
     /**
@@ -151,7 +153,7 @@ class WebService extends WebServiceBase {
      * It will add all specified services into routes
      * and launch the Jetty Server
      */
-    void start(boolean background = false, StartCallback onStart = null) {
+    WebService start(boolean background = false, StartCallback onStart = null) {
         init()
         try {
             if (LocalHost.isPortAvailable(port, address)) {
@@ -254,6 +256,7 @@ class WebService extends WebServiceBase {
         } catch(Throwable e) {
             Log.e("Unable to start WebService", e)
         }
+        return this
     }
 
     /**
@@ -311,12 +314,12 @@ class WebService extends WebServiceBase {
      * @param res (response from Service.Action)
      * @param contentType
      */
-    protected static ServiceOutput handleContentType(Object res, String contentType, String charSet = "UTF-8", boolean forceBinary = false) {
+    protected static ServiceOutput handleContentType(Object res, String contentType, String charSet, boolean forceBinary, boolean compress) {
         // Skip this if the object is ServiceOutput
         if(res instanceof ServiceOutput) {
             return res
         }
-        ServiceOutput output = new ServiceOutput(contentType: contentType.toLowerCase(), charSet : charSet, content: res)
+        ServiceOutput output = new ServiceOutput(contentType: contentType.toLowerCase(), charSet : charSet, content: res, compression: compress ? AUTO : NONE)
         // All Collection objects convert them to List so they are cleanly converted
         if(res instanceof Collection) {
             output.content = res.toList()
@@ -555,8 +558,8 @@ class WebService extends WebServiceBase {
                         try {
                             Object res = callAction(sp.action, request, response, uploadFiles)
                             //noinspection GroovyUnusedAssignment : IDE mistake
-                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
-                                response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                            boolean forceBinary = response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary"
+                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                         } catch (Exception e) {
                             response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                             Log.e("Service.upload closure failed", e)
@@ -579,8 +582,8 @@ class WebService extends WebServiceBase {
                     Object res = callAction(sp.action, request, response)
                     if(res != null) {
                         //noinspection GroovyUnusedAssignment : IDE mistake
-                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
-                            response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                        boolean forceBinary = response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary"
+                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                     } else {
                         response.status(HttpStatus.NOT_FOUND_404)
                         output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
@@ -914,8 +917,8 @@ class WebService extends WebServiceBase {
                             ServiceOutput toSave = null
                             try {
                                 Object res = callAction(sp.action, request, response)
-                                toSave = handleContentType(res, response.type() ?: sp.contentType, sp.charSet,
-                                    response.header("Content-Transfer-Encoding")?.toLowerCase() == "binary")
+                                boolean forceBinary = response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary"
+                                toSave = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                             } catch (Exception e) {
                                 response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                 Log.e("Service.action CACHE closure failed", e)

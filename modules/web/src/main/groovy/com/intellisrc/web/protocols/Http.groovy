@@ -20,7 +20,8 @@ class Http extends HttpProtocol {
     @Override
     void init() {
         if(server.secure) {
-           Security.insertProviderAt(new OpenSSLProvider(), 1)
+            Security.insertProviderAt(new OpenSSLProvider(), 1)
+            //Security.insertProviderAt(Conscrypt.newProviderBuilder().provideTrustManager(false).build(), 1)
         }
     }
 
@@ -35,6 +36,7 @@ class Http extends HttpProtocol {
         SslContextFactory.Server sslContextFactory = null
         if(server.secure) {
             sslContextFactory = new SslContextFactory.Server()
+            sslContextFactory.setEndpointIdentificationAlgorithm("https")
             sslContextFactory.setKeyStorePath(server.ssl.file.absolutePath)
             if (server.ssl.password != null) {
                 sslContextFactory.setKeyStorePassword(server.ssl.password.toString())
@@ -49,6 +51,7 @@ class Http extends HttpProtocol {
         if(server.secure) {
             SecureRequestCustomizer src = new SecureRequestCustomizer()
             src.setSniHostCheck(checkSNIHostname)
+            src.setSniRequired(sniRequired)
             httpConfiguration.addCustomizer(src)
             httpConfiguration.setSecurePort(server.port)
         }

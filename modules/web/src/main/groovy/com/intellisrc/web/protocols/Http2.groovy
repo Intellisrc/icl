@@ -1,5 +1,6 @@
 package com.intellisrc.web.protocols
 
+import com.intellisrc.core.Log
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
@@ -36,6 +37,7 @@ class Http2 extends Http {
             // HTTP2 Connector
             connector = new ServerConnector(server.server, ssl, alpn, h2, h1)
         } else {
+            Log.w("Unsecure HTTP/2 will not work in most browsers. Enable HTTPS to fix it. See: https://http2.github.io/faq/#does-http2-require-encryption")
             HTTP2CServerConnectionFactory h2 = new HTTP2CServerConnectionFactory(h1.httpConfiguration)
             connector = new ServerConnector(server.server, h1, h2)
         }

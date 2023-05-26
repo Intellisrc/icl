@@ -2,6 +2,7 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Log
 import com.intellisrc.net.LocalHost
+import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.KeyStore
 import com.intellisrc.web.service.Service
 import spock.lang.Specification
@@ -12,10 +13,11 @@ import javax.net.ssl.*
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.time.Duration
 
 import static com.intellisrc.web.protocols.Protocol.HTTP
 import static com.intellisrc.web.protocols.Protocol.HTTP2
+import static java.net.http.HttpClient.Version.HTTP_1_1
+import static java.net.http.HttpClient.Version.HTTP_2
 
 /**
  * This tests HTTP, HTTPS and HTTP2
@@ -26,12 +28,43 @@ class WebServiceHTTPTest extends Specification {
     File publicDir = File.get(File.userDir, "res", "public")
     File storeFile = File.get(File.userDir, "res", "private", "keystore.jks")
     String pass = "password"
+    Map<HttpClient.Version, Protocol> versions = [
+        (HTTP_1_1) : HTTP,
+        (HTTP_2) : HTTP2
+        // HTTP_3 doesn't exists yet
+    ] as Map<HttpClient.Version, Protocol>
 
-    String getContent(URI url) {
-        HttpClient client = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(5))
-            .build()
-        HttpResponse<String> response = client.send(HttpRequest.newBuilder(url).GET().build(), HttpResponse.BodyHandlers.ofString())
+    /**
+     * Get the content from an URL and verify that the protocol matches
+     * @param url
+     * @param protocol
+     * @return
+     */
+    String getContent(URI url, Protocol protocol) {
+        HttpClient client
+        if(url.scheme == "https") {
+            def nullTrustManager = [
+                checkClientTrusted: { chain, authType -> },
+                checkServerTrusted: { chain, authType -> },
+                getAcceptedIssuers: { null }
+            ]
+            def nullHostnameVerifier = [
+                verify: { hostname, session -> true }
+            ]
+            SSLContext sc = SSLContext.getInstance("SSL")
+            sc.init(null, [nullTrustManager as X509TrustManager] as TrustManager[], null)
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory())
+            HttpsURLConnection.setDefaultHostnameVerifier(nullHostnameVerifier as HostnameVerifier)
+            client = HttpClient.newBuilder().sslContext(sc).build()
+        } else {
+            client = HttpClient.newHttpClient()
+        }
+        HttpRequest request = HttpRequest.newBuilder(url).GET().build()
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        HttpClient.Version ver = response.version()
+        if(versions.containsKey(ver)) {
+            assert versions[ver] == protocol : String.format("Protocol doesn't match: %s (%s)", protocol.toString(), url.scheme)
+        }
         Log.i("Status code: %d", response.statusCode())
         return response.body()
     }
@@ -42,7 +75,7 @@ class WebServiceHTTPTest extends Specification {
             def conds = new AsyncConditions()
             int port = LocalHost.freePort
             def web = new WebService(
-                compress: false, //TODO: in the browser is not working (always expects compression)
+                compress: false,
                 protocol: protocol,
                 checkSNIHostname: false,
                 port: port,
@@ -50,9 +83,6 @@ class WebServiceHTTPTest extends Specification {
                 ssl: https ? new KeyStore(storeFile, pass) : null,
             )
             Log.i("Running in port: %d", port)
-            if(https) {
-                disableSSLChecks()
-            }
         when:
             web.start(true, {
                 conds.evaluate {
@@ -62,17 +92,16 @@ class WebServiceHTTPTest extends Specification {
             conds.await()
         then:
             assert web.isRunning()
-            assert getContent("http${https ? 's' : ''}://localhost:${port}/".toURI()).contains("Hello")
+            assert getContent("http${https ? 's' : ''}://localhost:${port}/".toURI(), protocol).contains("Hello")
         cleanup:
             web.stop()
         where:
             protocol | https
             HTTP  | false
-            //HTTP  | true <--- They are fine, but here it is complaining
+            HTTP  | true
             HTTP2 | false
-            //HTTP2 | true <--- They are fine, but here it is complaining
-            //HTTP3 | false ---- TODO : NOT READY YET ---
-            //HTTP3 | true
+            HTTP2 | true
+            //HTTP3 | true //<--- not working
     }
 
     @Unroll
@@ -81,7 +110,9 @@ class WebServiceHTTPTest extends Specification {
             def conds = new AsyncConditions()
             int port = LocalHost.freePort
             def web = new WebService(
+                compress: false,
                 protocol: protocol,
+                checkSNIHostname: false,
                 port: port,
                 ssl: https ? new KeyStore(storeFile, pass) : null,
             )
@@ -96,38 +127,19 @@ class WebServiceHTTPTest extends Specification {
                     assert true
                 }
             })
-            if(https) {
-                disableSSLChecks()
-            }
             conds.await()
         then:
             assert web.isRunning()
-            assert ("http${https ? 's' : ''}://localhost:${port}/test").toURL().text.contains("ok")
+            assert getContent("http${https ? 's' : ''}://localhost:${port}/test".toURI(), protocol).contains("ok")
         cleanup:
             web.stop()
             assert ! web.running
         where:
             protocol | https
-            HTTP  | false
-            //HTTP  | false
-            HTTP2 | false
-            //HTTP2 | true
-            //HTTP3 | false
+            HTTP     | false
+            HTTP     | true
+            HTTP2    | false
+            HTTP2    | true
             //HTTP3 | true
-    }
-
-    void disableSSLChecks() {
-        def nullTrustManager = [
-            checkClientTrusted: { chain, authType ->  },
-            checkServerTrusted: { chain, authType ->  },
-            getAcceptedIssuers: { null }
-        ]
-        def nullHostnameVerifier = [
-            verify: { hostname, session -> true }
-        ]
-        SSLContext sc = SSLContext.getInstance("SSL")
-        sc.init(null, [nullTrustManager as X509TrustManager] as TrustManager[], null)
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory())
-        HttpsURLConnection.setDefaultHostnameVerifier(nullHostnameVerifier as HostnameVerifier)
     }
 }
