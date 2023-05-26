@@ -94,9 +94,9 @@ class Request extends JettyRequest {
     void setPathParameters(Map<String, String> params) {
         params.keySet().each {
             if(it == "splat") {
-                this.splat = params[it]
+                splat = params[it]
             } else {
-                this.pathParameters[it] = params[it]
+                pathParameters.put(it, params[it])
             }
         }
     }

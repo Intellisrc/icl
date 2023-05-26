@@ -21,7 +21,6 @@ class Http extends HttpProtocol {
     void init() {
         if(server.secure) {
             Security.insertProviderAt(new OpenSSLProvider(), 1)
-            //Security.insertProviderAt(Conscrypt.newProviderBuilder().provideTrustManager(false).build(), 1)
         }
     }
 

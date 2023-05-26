@@ -116,7 +116,7 @@ subprojects {
 
         //Link it so we can choose version
         compileOnly "org.apache.groovy:groovy:${groovyVer}"
-        compileOnly "org.apache.groovy:groovy-contracts:${groovyVer}"
+        //compileOnly "org.apache.groovy:groovy-contracts:${groovyVer}"
         //compileOnly "org.apache.groovy:groovy-typecheckers:${groovyVer}"
 
         // Always include groovy-extend and expose it to consumers:
