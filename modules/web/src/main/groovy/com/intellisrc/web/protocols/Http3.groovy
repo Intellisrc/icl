@@ -1,5 +1,6 @@
 package com.intellisrc.web.protocols
 
+import com.intellisrc.core.Log
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http3.api.Session
@@ -8,6 +9,9 @@ import org.eclipse.jetty.http3.server.RawHTTP3ServerConnectionFactory
 import org.eclipse.jetty.server.AbstractNetworkConnector
 
 /**
+ * FIXME: Currently it is not possible to launch a HTTP/3 enabled server as explained here:
+ * https://stackoverflow.com/questions/76337210/http-3-server-using-jetty-11-not-responding/76348759
+ * 
  * @since 2023/05/19.
  */
 @CompileStatic
@@ -20,6 +24,7 @@ class Http3 extends Http {
     AbstractNetworkConnector prepareConnector() {
         assert server : "No server specified"
         assert server.secure : "HTTPS is required in order to use HTTP/3"
+        Log.w("HTTP/3 is experimental and will most probably fail to work.")
         // HTTP(S) Configuration
         /*
         HttpConnectionFactory h1 = getConnectionFactory(createHttpConfiguration())
