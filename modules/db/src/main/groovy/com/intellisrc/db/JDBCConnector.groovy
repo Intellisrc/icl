@@ -200,7 +200,7 @@ class JDBCConnector implements Connector {
 	 * @param st
 	 * @param values
 	 */
-	protected static void setValues(PreparedStatement st, List<Object> values) {
+	protected void setValues(PreparedStatement st, List<Object> values) {
 		for (int index = 1; index <= values.size(); index++) {
 			Object o = values[index - 1]
 			if (o == null) {
@@ -226,10 +226,18 @@ class JDBCConnector implements Connector {
 			} else if (o instanceof String) {
 				st.setString(index, (String) o)
 			} else if (o instanceof LocalDate) {
-				st.setDate(index, Date.valueOf(o.toString()))
+				if(jdbc.supportsDate) {
+					st.setDate(index, Date.valueOf(o.toString()))
+				} else {
+					st.setString(index, (o as LocalDate).YMD)
+				}
 			} else if (o instanceof LocalDateTime) {
-				long millis = o.toMillis()
-				st.setTimestamp(index, new Timestamp(millis))
+				if(jdbc.supportsDate) {
+					long millis = o.toMillis()
+					st.setTimestamp(index, new Timestamp(millis))
+				} else {
+					st.setString(index, (o as LocalDateTime).YMDHmsS)
+				}
 			} else {
 				st.setNull(index, NULL)
 				Log.e( "Wrong data type: " + o)

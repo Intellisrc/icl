@@ -1,6 +1,5 @@
 package com.intellisrc.db.annot
 
-import groovy.transform.AnnotationCollector
 import groovy.transform.CompileStatic
 
 import java.lang.annotation.Retention
@@ -10,10 +9,11 @@ import static java.lang.annotation.ElementType.TYPE
 import static java.lang.annotation.RetentionPolicy.RUNTIME
 
 /**
- * Annotation for Table classes
+ * Annotation for Table classes (auxiliary class to reduce code)
  */
 @Target([TYPE])
 @Retention(RUNTIME)
 @CompileStatic
-@AnnotationCollector([ViewMeta, UpdaterMeta])
-@interface TableMeta {}
+@interface UpdaterMeta {
+    boolean autoUpdate() default true // turn off to prevent updating table
+}

@@ -5,7 +5,7 @@ import com.intellisrc.db.Data
 import com.intellisrc.db.Query
 import groovy.transform.CompileStatic
 
-import static com.intellisrc.db.auto.Table.ColumnDB
+import static com.intellisrc.db.auto.Relational.ColumnDB
 
 /**
  * @since 2022/07/05.

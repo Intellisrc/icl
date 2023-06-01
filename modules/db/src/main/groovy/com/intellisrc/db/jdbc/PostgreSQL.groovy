@@ -7,6 +7,7 @@ import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
+import com.intellisrc.db.auto.Relational
 import com.intellisrc.db.auto.Table
 import groovy.transform.CompileStatic
 import javassist.Modifier
@@ -18,7 +19,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.regex.Matcher
 
-import static com.intellisrc.db.auto.Table.getColumnName
+import static com.intellisrc.db.auto.Relational.getColumnName
 
 /**
  * PostgreSQL Database
@@ -82,18 +83,18 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<Table.ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<Relational.ColumnDB> columns) {
         boolean ok
         String createSQL = "CREATE TABLE IF NOT EXISTS \"${tableName}\" (\n"
         List<String> defs = []
         List<String> keys = []
         Map<String, List<String>> uniqueGroups = [:]
-        List<Table.ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
+        List<Relational.ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
         if(pks.size() > 1) {
             pks.each { it.multipleKey = true }
         }
         columns.each {
-            Table.ColumnDB column ->
+            Relational.ColumnDB column ->
                 List<String> parts = ["\"${column.name}\"".toString()]
                 if (column.annotation.columnDefinition()) {
                     parts << column.annotation.columnDefinition()
@@ -152,7 +153,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getColumnDefinition(Table.ColumnDB column) {
+    String getColumnDefinition(Relational.ColumnDB column) {
         String type = ""
         boolean serial = column.annotation.autoincrement()
         //noinspection GroovyFallthrough
@@ -263,7 +264,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getForeignKey(String tableName, Table.ColumnDB column) {
+    String getForeignKey(String tableName, Relational.ColumnDB column) {
         String indices = ""
         switch (column.type) {
             case Model:
@@ -287,7 +288,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
         return false //set(db, "CREATE TABLE \"$to\" (LIKE \"$from\" INCLUDING ALL)")
     }
     @Override
-    boolean copyTableData(final DB db, String from, String to, Collection<Table.ColumnDB> columns) {
+    boolean copyTableData(final DB db, String from, String to, Collection<Relational.ColumnDB> columns) {
         return set(db, "INSERT INTO \"${to}\" (SELECT * FROM ${from})")
     }
     @Override

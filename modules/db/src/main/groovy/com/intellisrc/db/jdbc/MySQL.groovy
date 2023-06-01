@@ -17,8 +17,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.regex.Matcher
 
-import static com.intellisrc.db.auto.Table.ColumnDB
-import static com.intellisrc.db.auto.Table.getColumnName
+import static com.intellisrc.db.auto.Relational.ColumnDB
+import static com.intellisrc.db.auto.Relational.getColumnName
 
 /**
  * MySQL Database

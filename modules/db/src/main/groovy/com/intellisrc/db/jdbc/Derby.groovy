@@ -16,8 +16,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.auto.Table.ColumnDB
-import static com.intellisrc.db.auto.Table.getColumnName
+import static com.intellisrc.db.auto.Relational.ColumnDB
+import static com.intellisrc.db.auto.Relational.getColumnName
 import static com.intellisrc.db.jdbc.Derby.SubProtocol.*
 
 /**
