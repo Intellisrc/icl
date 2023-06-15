@@ -59,8 +59,14 @@ import static org.eclipse.jetty.http.HttpMethod.POST
  *
  */
 class WebService extends WebServiceBase {
+    static final String ACCEPT_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin"
+    static final String ACCEPT_RANGES_HEADER = "Accept-Ranges"
     static final String ACCEPT_TYPE_REQUEST_MIME_HEADER = "Accept"
+    static final String CACHE_CONTROL_HEADER = "Cache-Control"
+    static final String CONTENT_DISPOSITION = "Content-Disposition"
     static final String CONTENT_LENGTH_HEADER = "Content-Length"
+    static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding"
+    static final String ETAG_HEADER = "ETag"
     static final String SERVER_CACHE_HEADER = "Server-Cache"
 
     public int threads = 20
@@ -507,18 +513,18 @@ class WebService extends WebServiceBase {
         }
         // Apply general allow origin rule:
         if (allowOrigin) {
-            response.header("Access-Control-Allow-Origin", allowOrigin)
+            response.header(ACCEPT_CONTROL_ALLOW_ORIGIN, allowOrigin)
         }
         if (sp.allowOrigin) {
-            response.header("Access-Control-Allow-Origin", sp.allowOrigin)
+            response.header(ACCEPT_CONTROL_ALLOW_ORIGIN, sp.allowOrigin)
         }
         if (sp.noStore) { //Never store in client
-            response.header("Cache-Control", "no-store")
+            response.header(CACHE_CONTROL_HEADER, "no-store")
         } else if (!sp.cacheTime && !sp.maxAge) { //Revalidate each time
-            response.header("Cache-Control", "no-cache")
+            response.header(CACHE_CONTROL_HEADER, "no-cache")
         } else {
             String priv = (sp.isPrivate) ? "private," : "" //User-specific data
-            response.header("Cache-Control", priv + "max-age=" + sp.maxAge) //IDEA: when using server cache, synchronize remaining time in cache with this value
+            response.header(CACHE_CONTROL_HEADER, priv + "max-age=" + sp.maxAge) //IDEA: when using server cache, synchronize remaining time in cache with this value
         }
         // ------------------------------------------------
 
@@ -558,7 +564,7 @@ class WebService extends WebServiceBase {
                         try {
                             Object res = callAction(sp.action, request, response, uploadFiles)
                             //noinspection GroovyUnusedAssignment : IDE mistake
-                            boolean forceBinary = response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary"
+                            boolean forceBinary = response.getHeader(CONTENT_TRANSFER_ENCODING)?.toLowerCase() == "binary"
                             output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                         } catch (Exception e) {
                             response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
@@ -582,7 +588,7 @@ class WebService extends WebServiceBase {
                     Object res = callAction(sp.action, request, response)
                     if(res != null) {
                         //noinspection GroovyUnusedAssignment : IDE mistake
-                        boolean forceBinary = response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary"
+                        boolean forceBinary = response.getHeader(CONTENT_TRANSFER_ENCODING)?.toLowerCase() == "binary"
                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                     } else {
                         response.status(HttpStatus.NOT_FOUND_404)
@@ -628,8 +634,19 @@ class WebService extends WebServiceBase {
                         Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e.message)
                     }
                 }
+                // Do not compress or return anything if we have the same etag
+                String prevTag = request.headers("If-None-Match")
+                if (prevTag == etag) { // Same content
+                    response.status(HttpStatus.NOT_MODIFIED_304)
+                    response.header(CONTENT_LENGTH_HEADER, "0")
+                    request.response.contentLength = 0
+                    request.response.contentType = null
+                    request.response.status = HttpStatus.NOT_MODIFIED_304
+                    //noinspection GrReassignedInClosureLocalVar
+                    output = null
+                }
                 // Compress if requested
-                if(sp.compress) {
+                if(output && sp.compress) {
                     response.compression = AUTO.get() // Get automatically the best option
                     byte[] bytes = []
                     switch (output.content) {
@@ -699,25 +716,27 @@ class WebService extends WebServiceBase {
 
         // Set download : if "Content-Disposition" is set on headers this is not required:
         if (! output.downloadName.empty) {
-            response.header("Content-Disposition", "attachment; filename=" + output.downloadName)
+            response.header(CONTENT_DISPOSITION, "attachment; filename=" + output.downloadName)
             if (output.type == ServiceOutput.Type.BINARY) {
-                response.header("Content-Transfer-Encoding", "binary")
+                response.header(CONTENT_TRANSFER_ENCODING, "binary")
             }
         }
         // Set ETag: (even if we compress it later, we keep the original Etag of content)
         if (output.etag != null) {
-            response.header("ETag", output.etag)
+            response.header(ETAG_HEADER, output.etag)
         }
         // Set compression header
         output.compression.setHeader(response)
 
         // Set content-length
         if(output.size > 0) {
-            response.header("Content-Length", sprintf("%d", output.size))
+            response.header(CONTENT_LENGTH_HEADER, sprintf("%d", output.size))
+        } else {
+            response.status(HttpStatus.NO_CONTENT_204)
         }
         // Add headers
         if (output.type == ServiceOutput.Type.BINARY) {
-            response.header("Accept-Ranges", "bytes")
+            response.header(ACCEPT_RANGES_HEADER, "bytes")
         }
     }
 
@@ -888,6 +907,7 @@ class WebService extends WebServiceBase {
      * @param filterChain
      */
     void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) {
+        boolean commited = false
         Request request = servletRequest as Request
         Response response = servletResponse as Response
         ServiceOutput out
@@ -917,7 +937,7 @@ class WebService extends WebServiceBase {
                             ServiceOutput toSave = null
                             try {
                                 Object res = callAction(sp.action, request, response)
-                                boolean forceBinary = response.getHeader("Content-Transfer-Encoding")?.toLowerCase() == "binary"
+                                boolean forceBinary = response.getHeader(CONTENT_TRANSFER_ENCODING)?.toLowerCase() == "binary"
                                 toSave = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                             } catch (Exception e) {
                                 response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
@@ -956,13 +976,6 @@ class WebService extends WebServiceBase {
                                 }
                                 //noinspection GrReassignedInClosureLocalVar
                                 out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
-                                String prevTag = request.headers("If-None-Match")
-                                if (prevTag == out.etag) { // Same content
-                                    response.status(HttpStatus.NOT_MODIFIED_304)
-                                    response.type(out.contentType + (out.charSet ? "; charset=" + out.charSet : ""))
-                                    //noinspection GrReassignedInClosureLocalVar
-                                    out = null
-                                }
                             }
                         } else {
                             response.status(HttpStatus.UNAUTHORIZED_401)
@@ -981,7 +994,6 @@ class WebService extends WebServiceBase {
                 prepareResponse(out, response)
 
                 if (!response.committed) {
-                    OutputStream responseStream = response.outputStream
                     //noinspection GroovyFallthrough
                     switch (out.content) {
                         case String:
@@ -989,33 +1001,48 @@ class WebService extends WebServiceBase {
                             if (!response.getHeader(CONTENT_LENGTH_HEADER)) {
                                 response.header(CONTENT_LENGTH_HEADER, sprintf("%d", text.length()))
                             }
-                            responseStream.write(text.getBytes(response.contentType)) //TODO: test
+                            if (!text.empty) {
+                                response.writer.write(text)
+                                response.writer.flush()
+                                response.writer.close()
+                                commited = true
+                            }
                             break
                         case ByteBuffer:
                         case byte[]:
                             byte[] content = out.content instanceof ByteBuffer ?
-                                (out.content as ByteBuffer).array() : (out.content as byte[])
+                                    (out.content as ByteBuffer).array() : (out.content as byte[])
                             if (!response.getHeader(CONTENT_LENGTH_HEADER)) {
                                 response.header(CONTENT_LENGTH_HEADER, sprintf("%d", content.length))
                             }
-                            responseStream.write(content)
+                            if (content.length) {
+                                response.outputStream.write(content)
+                                response.outputStream.flush()
+                                response.outputStream.close()
+                                commited = true
+                            }
                             break
                         case InputStream:
-                            (out as InputStream).transferTo(responseStream)
+                            (out as InputStream).transferTo(response.outputStream)
+                            response.outputStream.flush()
+                            response.outputStream.close()
+                            commited = true
                             break
                     }
-                    responseStream.flush()
-                    responseStream.close()
                     if (!response.status) {
                         response.status(HttpStatus.OK_200)
                     }
                 }
-            } else {
+            } else if(response.status == HttpStatus.OK_200) {
                 Log.d("The requested path was not found: %s", request.uri())
                 response.status(HttpStatus.NOT_FOUND_404)
             }
         } else {
             response.status(HttpStatus.UNAUTHORIZED_401)
+        }
+        // Close the response if it is not closed
+        if (!commited) {
+            response.writer.close()
         }
     }
 

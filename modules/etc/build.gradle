@@ -7,7 +7,7 @@ dependencies {
     api 'org.apache.tika:tika-core:2.7.0'
     // We set Jedis to be optional so it is not always required, only when AutoConfig is being used.
     api "com.sleepycat:je:18.3.12"
-    api 'redis.clients:jedis:4.4.0-m2'
+    api 'redis.clients:jedis:5.0.0-alpha2'
 
     compileOnly "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
 }

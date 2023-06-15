@@ -1,5 +1,6 @@
 package com.intellisrc.web.service
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.web.service.Response.Compression
@@ -55,4 +56,12 @@ class ServiceOutput {
     long size           = 0
     // Store eTag in some cases
     String etag         = ""
+
+    @Override
+    String toString() {
+        if(type == Type.BINARY) {
+            Log.w("Content Type is BINARY but 'toString()' was requested")
+        }
+        return content.toString()
+    }
 }

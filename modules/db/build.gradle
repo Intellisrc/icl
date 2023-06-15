@@ -8,7 +8,7 @@ dependencies {
     def hypersql = '2.7.1'
     def informix = '4.50.9'
     def mariadb = '3.1.2'
-    def mysql = '8.0.32'
+    def mysql = '8.0.33'
     def oracle = '21.9.0.0'
     def postgresql = '42.5.4'
     def sqlite = '3.40.1.0'
