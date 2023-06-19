@@ -18,6 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME
     boolean unique() default false              // Unique (when using with uniqueGroup will set a constraint)
     boolean nullable() default true             // Nullable otherwise will set default value
     boolean unsigned() default true             // Unsigned number
+    boolean unlimited() default false           // Unlimited string == TEXT
     boolean key() default false                 // Add KEY INDEX
     String type() default ""                    // Override field type, for example: DECIMAL(5,2)
     String uniqueGroup() default ""             // Used together with "unique" to add multi-column constraints by name

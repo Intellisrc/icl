@@ -221,7 +221,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 type = "CHAR($len)"
                 break
             case String:
-                type = "VARCHAR(${column.annotation.length() ?: 255})"
+                type = column.annotation.unlimited() ? "TEXT" : "VARCHAR(${column.annotation.length() ?: 255})"
                 break
             // All numeric values share unsigned/autoincrement and primary instructions:
             case byte:
