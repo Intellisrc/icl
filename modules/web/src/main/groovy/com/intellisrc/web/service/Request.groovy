@@ -120,14 +120,14 @@ class Request extends JettyRequest {
      * @return
      */
     Set<String> params() {
-        return getPathParams()
+        return pathParameters.keys().toSet()
     }
     /**
      * Get the list of path parameters
      * @return
      */
-    Set<String> getPathParams() {
-        pathParameters.keySet()
+    Map<String, String> getPathParams() {
+        return Collections.unmodifiableMap(pathParameters)
     }
     /**
      * True if it has path parameters
