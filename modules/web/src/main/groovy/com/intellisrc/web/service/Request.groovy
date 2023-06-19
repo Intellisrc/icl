@@ -161,18 +161,28 @@ class Request extends JettyRequest {
         return getParameter(key)
     }
     /**
+     * Get a query parameter that contains a list
+     * @param key
+     * @return
+     */
+    List<String> getQueryParamAsList(String key) {
+        return queryParameters.get(key)
+    }
+    /**
      * Backward compatibility with Spark
      * @return
      */
     List<String> queryParams() {
-        return getQueryParams()
+        return getQueryParams().keySet().toList()
     }
     /**
      * Get the list of query parameters
      * @return
      */
-    List<String> getQueryParams() {
-        return getParameterNames().toList()
+    Map<String, String> getQueryParams() {
+        return Collections.unmodifiableMap(queryParameters.collectEntries {
+            [(it.key) : it.value.join(",")]
+        })
     }
     /**
      * True if it has query params
