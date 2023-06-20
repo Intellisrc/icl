@@ -17,6 +17,7 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpSession
 import jakarta.servlet.http.Part
+import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.jetty.server.Server
@@ -85,6 +86,7 @@ class WebService extends WebServiceBase {
     public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = HTTP
     public FilePolicy filePolicy = { File file -> true }
+    public PathPolicy pathPolicy = { String path -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
 
     protected List<StaticPath> staticPaths = []
@@ -99,6 +101,10 @@ class WebService extends WebServiceBase {
         boolean allow(File file)
     }
 
+    static interface PathPolicy {
+        boolean allow(String path)
+    }
+
     static interface RequestPolicy {
         boolean allow(Request request)
     }
@@ -108,7 +114,8 @@ class WebService extends WebServiceBase {
 
     @TupleConstructor
     static class StaticPath {
-        File path = null
+        String path = null
+        boolean embedded = false
         int expireSeconds = 0
         int cacheMaxSizeKB = 0
     }
@@ -136,18 +143,6 @@ class WebService extends WebServiceBase {
                 jettyServer.addConnector(httpProtocol.connector)
                 jettyServer.setHandler(new RequestHandle(this))
                 indexFiles.addAll(indexFiles)
-                /*
-                if(resources) {
-                    if (!resources.isEmpty()) {
-                        if (embedded) {
-                            setStaticPath(resources, cacheTime, cacheMaxSizeKB)
-                        } else {
-                            File resFile = File.get(resources)
-                            setStaticPath(resFile.absolutePath, cacheTime, cacheMaxSizeKB)
-                        }
-                    }
-                    Log.i("Serving static resources from: %s", resources)
-                }*/
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
                 Log.e("Unable to initialize web service", e)
@@ -280,8 +275,8 @@ class WebService extends WebServiceBase {
      * @param cacheMaxSizeKB
      * @return
      */
-    WebService setStaticPath(String path, int expirationSec, int cacheMaxSizeKB) {
-        return setStaticPath(new StaticPath(File.get(path), expirationSec, cacheMaxSizeKB))
+    WebService setStaticPath(String path, int expirationSec, int cacheMaxSizeKB, boolean embedded) {
+        return setStaticPath(new StaticPath(path, embedded, expirationSec, cacheMaxSizeKB))
     }
     /**
      * Add a StaticPath
@@ -900,12 +895,12 @@ class WebService extends WebServiceBase {
     void setResources(Object path) {
         if (!running) {
             if (path instanceof File) {
-                setStaticPath(path.absolutePath, cacheTime, cacheMaxSizeKB)
+                setStaticPath(path.absolutePath, cacheTime, cacheMaxSizeKB, false)
             } else if (path instanceof String) {
-                setStaticPath(path, cacheTime, cacheMaxSizeKB)
+                setStaticPath(path, cacheTime, cacheMaxSizeKB, embedded)
             } else if (path instanceof Collection) {
                 path.each {
-                    setStaticPath(it.toString(), cacheTime, cacheMaxSizeKB)
+                    setStaticPath(it.toString(), cacheTime, cacheMaxSizeKB, embedded)
                 }
             } else {
                 Log.w("Value passed to resources is not a File, String or List: %s", path.toString())
@@ -981,25 +976,50 @@ class WebService extends WebServiceBase {
                     options.any {
                         staticPaths.any {
                             StaticPath staticPath ->
-                                File staticFile = staticPath.path
-                                if (filePolicy.allow(staticFile)) {
-                                    if (staticFile.exists()) {
-                                        boolean addToCache = staticPath.expireSeconds &&
-                                            (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
-
-                                        Closure<ServiceOutput> noCache = {
-                                            processAction(new Service(
-                                                compress: compress,
-                                                cacheTime: cacheTime,
-                                                maxAge: cacheTime,
-                                                action: { return staticFile }
-                                            ), request, response)
+                                if(staticPath.embedded) {
+                                    if(pathPolicy.allow(staticPath.path)) {
+                                        try {
+                                            InputStream inst = this.class.getResourceAsStream(staticPath.path)
+                                            byte[] bytes = IOUtils.toByteArray(inst)
+                                            boolean addToCache = staticPath.expireSeconds &&
+                                                (bytes.length / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
+                                            Closure<ServiceOutput> noCache = {
+                                                processAction(new Service(
+                                                    compress: compress,
+                                                    cacheTime: cacheTime,
+                                                    maxAge: cacheTime,
+                                                    action: { return bytes }
+                                                ), request, response)
+                                            }
+                                            //noinspection GrReassignedInClosureLocalVar
+                                            out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                        } catch (Exception e) {
+                                            Log.w("Unable to read resource from jar: %s (%s)", staticPath.path, e.message ?: e.cause)
                                         }
-                                        //noinspection GrReassignedInClosureLocalVar
-                                        out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                    } else {
+                                        response.status(HttpStatus.UNAUTHORIZED_401)
                                     }
                                 } else {
-                                    response.status(HttpStatus.UNAUTHORIZED_401)
+                                    File staticFile = File.get(staticPath.path)
+                                    if (filePolicy.allow(staticFile) && pathPolicy.allow(staticFile.absolutePath)) {
+                                        if (staticFile.exists()) {
+                                            boolean addToCache = staticPath.expireSeconds &&
+                                                (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
+
+                                            Closure<ServiceOutput> noCache = {
+                                                processAction(new Service(
+                                                    compress: compress,
+                                                    cacheTime: cacheTime,
+                                                    maxAge: cacheTime,
+                                                    action: { return staticFile }
+                                                ), request, response)
+                                            }
+                                            //noinspection GrReassignedInClosureLocalVar
+                                            out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                        }
+                                    } else {
+                                        response.status(HttpStatus.UNAUTHORIZED_401)
+                                    }
                                 }
                                 return out != null
                         }
