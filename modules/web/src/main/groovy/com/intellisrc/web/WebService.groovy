@@ -11,6 +11,7 @@ import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -80,14 +81,13 @@ class WebService extends WebServiceBase {
     boolean trustForwardHeaders = true
     boolean checkSNIHostname = true
     boolean sniRequired = false
-    protected String resources = ""
     public String allowOrigin = "" //apply by default to all
     public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = HTTP
     public FilePolicy filePolicy = { File file -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
 
-    protected String staticPath = ""
+    protected List<StaticPath> staticPaths = []
     protected Server jettyServer
     protected boolean multiThread
     protected List<Serviciable> services = []
@@ -104,6 +104,13 @@ class WebService extends WebServiceBase {
     }
     static interface StartCallback {
         void call(WebService srv)
+    }
+
+    @TupleConstructor
+    static class StaticPath {
+        File path = null
+        int expireSeconds = 0
+        int cacheMaxSizeKB = 0
     }
 
     /**
@@ -129,6 +136,7 @@ class WebService extends WebServiceBase {
                 jettyServer.addConnector(httpProtocol.connector)
                 jettyServer.setHandler(new RequestHandle(this))
                 indexFiles.addAll(indexFiles)
+                /*
                 if(resources) {
                     if (!resources.isEmpty()) {
                         if (embedded) {
@@ -139,7 +147,7 @@ class WebService extends WebServiceBase {
                         }
                     }
                     Log.i("Serving static resources from: %s", resources)
-                }
+                }*/
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
                 Log.e("Unable to initialize web service", e)
@@ -273,11 +281,17 @@ class WebService extends WebServiceBase {
      * @return
      */
     WebService setStaticPath(String path, int expirationSec, int cacheMaxSizeKB) {
-        this.staticPath = path
-        this.cacheMaxSizeKB = cacheMaxSizeKB
-        if(expirationSec) {
-            cache.timeout = expirationSec
-        }
+        return setStaticPath(new StaticPath(File.get(path), expirationSec, cacheMaxSizeKB))
+    }
+    /**
+     * Add a StaticPath
+     * @param path
+     * @param expirationSec
+     * @param cacheMaxSizeKB
+     * @return
+     */
+    WebService setStaticPath(StaticPath path) {
+        this.staticPaths << path
         return this
     }
     /**
@@ -563,8 +577,8 @@ class WebService extends WebServiceBase {
                         }
                         try {
                             Object res = callAction(sp.action, request, response, uploadFiles)
-                            //noinspection GroovyUnusedAssignment : IDE mistake
                             boolean forceBinary = response.getHeader(CONTENT_TRANSFER_ENCODING)?.toLowerCase() == "binary"
+                            //noinspection GroovyUnusedAssignment : IDE mistake
                             output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                         } catch (Exception e) {
                             response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
@@ -587,8 +601,8 @@ class WebService extends WebServiceBase {
                 try {
                     Object res = callAction(sp.action, request, response)
                     if(res != null) {
-                        //noinspection GroovyUnusedAssignment : IDE mistake
                         boolean forceBinary = response.getHeader(CONTENT_TRANSFER_ENCODING)?.toLowerCase() == "binary"
+                        //noinspection GroovyUnusedAssignment : IDE mistake
                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                     } else {
                         response.status(HttpStatus.NOT_FOUND_404)
@@ -642,7 +656,7 @@ class WebService extends WebServiceBase {
                     request.response.contentLength = 0
                     request.response.contentType = null
                     request.response.status = HttpStatus.NOT_MODIFIED_304
-                    //noinspection GrReassignedInClosureLocalVar
+                    //noinspection GroovyUnusedAssignment
                     output = null
                 }
                 // Compress if requested
@@ -886,11 +900,15 @@ class WebService extends WebServiceBase {
     void setResources(Object path) {
         if (!running) {
             if (path instanceof File) {
-                resources = path.absolutePath
+                setStaticPath(path.absolutePath, cacheTime, cacheMaxSizeKB)
             } else if (path instanceof String) {
-                resources = path
+                setStaticPath(path, cacheTime, cacheMaxSizeKB)
+            } else if (path instanceof Collection) {
+                path.each {
+                    setStaticPath(it.toString(), cacheTime, cacheMaxSizeKB)
+                }
             } else {
-                Log.w("Value passed to resources is not a File or String: %s", path.toString())
+                Log.w("Value passed to resources is not a File, String or List: %s", path.toString())
             }
         } else {
             Log.w("WebService is already running. You can not change the resource path")
@@ -961,24 +979,29 @@ class WebService extends WebServiceBase {
                     List<String> options = uri.endsWith("/") ?
                         indexFiles.collect { uri + it } : [uri]
                     options.any {
-                        File staticFile = File.get(staticPath, it)
-                        if (filePolicy.allow(staticFile)) {
-                            if (staticFile.exists()) {
-                                boolean addToCache = cacheTime && (staticFile.size() / 1024 <= cacheMaxSizeKB) && !cacheFull
+                        staticPaths.any {
+                            StaticPath staticPath ->
+                                File staticFile = staticPath.path
+                                if (filePolicy.allow(staticFile)) {
+                                    if (staticFile.exists()) {
+                                        boolean addToCache = staticPath.expireSeconds &&
+                                            (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
 
-                                Closure<ServiceOutput> noCache = {
-                                    processAction(new Service(
-                                        compress: compress,
-                                        cacheTime: cacheTime,
-                                        maxAge: cacheTime,
-                                        action: { return staticFile }
-                                    ), request, response)
+                                        Closure<ServiceOutput> noCache = {
+                                            processAction(new Service(
+                                                compress: compress,
+                                                cacheTime: cacheTime,
+                                                maxAge: cacheTime,
+                                                action: { return staticFile }
+                                            ), request, response)
+                                        }
+                                        //noinspection GrReassignedInClosureLocalVar
+                                        out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                    }
+                                } else {
+                                    response.status(HttpStatus.UNAUTHORIZED_401)
                                 }
-                                //noinspection GrReassignedInClosureLocalVar
-                                out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
-                            }
-                        } else {
-                            response.status(HttpStatus.UNAUTHORIZED_401)
+                                return out != null
                         }
                         return out != null
                     }
