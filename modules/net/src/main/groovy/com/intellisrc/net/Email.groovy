@@ -13,7 +13,7 @@ class Email {
     final String domain
 
     Email(String email) throws EmailMalformedException {
-        if(email.matches(/(?!.*\.\.)(^[^.@][\w_.+-]+@[\w_.+-]+\.[^@\s.]+$)/)) {
+        if(isValid(email)) {
             def parts = email.split("@")
             user = parts[0]
             domain = parts[1]
@@ -33,5 +33,13 @@ class Email {
      */
     boolean toBoolean() {
         return !(user.isEmpty() || user.isEmpty())
+    }
+    /**
+     * Returns true if its a valid email address
+     * @param email
+     * @return
+     */
+    static boolean isValid(String email) {
+        return email.matches(/(?!.*\.\.)(^[^.@][\w_.+-]+@[\w_.+-]+\.[^@\s.]+$)/)
     }
 }
