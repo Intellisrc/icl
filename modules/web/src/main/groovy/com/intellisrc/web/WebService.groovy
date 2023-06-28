@@ -142,7 +142,6 @@ class WebService extends WebServiceBase {
                 jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
                 jettyServer.addConnector(httpProtocol.connector)
                 jettyServer.setHandler(new RequestHandle(this))
-                indexFiles.addAll(indexFiles)
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
                 Log.e("Unable to initialize web service", e)
@@ -971,59 +970,60 @@ class WebService extends WebServiceBase {
                 // The request is already clean from Jetty and without query string:
                 String uri = request.requestURI
                 if (uri && !uri.empty) {
-                    List<String> options = uri.endsWith("/") ?
-                        indexFiles.collect { uri + it } : [uri]
-                    options.any {
-                        staticPaths.any {
-                            StaticPath staticPath ->
-                                if(staticPath.embedded) {
-                                    if(pathPolicy.allow(staticPath.path)) {
-                                        try {
-                                            InputStream inst = this.class.getResourceAsStream(staticPath.path)
-                                            byte[] bytes = IOUtils.toByteArray(inst)
-                                            boolean addToCache = staticPath.expireSeconds &&
-                                                (bytes.length / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
-                                            Closure<ServiceOutput> noCache = {
-                                                processAction(new Service(
-                                                    compress: compress,
-                                                    cacheTime: cacheTime,
-                                                    maxAge: cacheTime,
-                                                    action: { return bytes }
-                                                ), request, response)
+                    staticPaths.any {
+                        StaticPath staticPath ->
+                            (uri.endsWith("/") ? indexFiles.collect { uri + it } : [uri]).each {
+                                String uriPath ->
+                                    String fullPath = staticPath.path + "/" + uriPath
+                                    if (staticPath.embedded) {
+                                        if (pathPolicy.allow(fullPath)) {
+                                            try {
+                                                InputStream inst = this.class.getResourceAsStream(fullPath)
+                                                byte[] bytes = IOUtils.toByteArray(inst)
+                                                boolean addToCache = staticPath.expireSeconds &&
+                                                    (bytes.length / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
+                                                Closure<ServiceOutput> noCache = {
+                                                    processAction(new Service(
+                                                        compress: compress,
+                                                        cacheTime: cacheTime,
+                                                        maxAge: cacheTime,
+                                                        action: { return bytes }
+                                                    ), request, response)
+                                                }
+                                                //noinspection GrReassignedInClosureLocalVar
+                                                out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                            } catch (Exception e) {
+                                                Log.w("Unable to read resource from jar: %s (%s)", fullPath, e.message ?: e.cause)
                                             }
-                                            //noinspection GrReassignedInClosureLocalVar
-                                            out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
-                                        } catch (Exception e) {
-                                            Log.w("Unable to read resource from jar: %s (%s)", staticPath.path, e.message ?: e.cause)
+                                        } else {
+                                            response.status(HttpStatus.UNAUTHORIZED_401)
+                                            return true // exit
                                         }
                                     } else {
-                                        response.status(HttpStatus.UNAUTHORIZED_401)
-                                    }
-                                } else {
-                                    File staticFile = File.get(staticPath.path)
-                                    if (filePolicy.allow(staticFile) && pathPolicy.allow(staticFile.absolutePath)) {
-                                        if (staticFile.exists()) {
-                                            boolean addToCache = staticPath.expireSeconds &&
-                                                (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
+                                        File staticFile = File.get(fullPath)
+                                        if (filePolicy.allow(staticFile) && pathPolicy.allow(staticFile.absolutePath)) {
+                                            if (staticFile.exists()) {
+                                                boolean addToCache = staticPath.expireSeconds &&
+                                                    (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
 
-                                            Closure<ServiceOutput> noCache = {
-                                                processAction(new Service(
-                                                    compress: compress,
-                                                    cacheTime: cacheTime,
-                                                    maxAge: cacheTime,
-                                                    action: { return staticFile }
-                                                ), request, response)
+                                                Closure<ServiceOutput> noCache = {
+                                                    processAction(new Service(
+                                                        compress: compress,
+                                                        cacheTime: cacheTime,
+                                                        maxAge: cacheTime,
+                                                        action: { return staticFile }
+                                                    ), request, response)
+                                                }
+                                                //noinspection GrReassignedInClosureLocalVar
+                                                out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
                                             }
-                                            //noinspection GrReassignedInClosureLocalVar
-                                            out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                        } else {
+                                            response.status(HttpStatus.UNAUTHORIZED_401)
+                                            return true // exit
                                         }
-                                    } else {
-                                        response.status(HttpStatus.UNAUTHORIZED_401)
                                     }
-                                }
-                                return out != null
-                        }
-                        return out != null
+                            }
+                            return out != null
                     }
                 } else { // Very unlikely that will end up here:
                     Log.w("Invalid request (empty)")
