@@ -202,18 +202,23 @@ class Mime {
      * @return
      */
     static String getType(final File file) {
-        String type = getTypeFromConfig(file.name)
-        if(!type) {
-            type = (file.exists() ? tika.detect(file) : "")
-        }
-        if(!type || type == "text/plain" || type == "application/octet-stream") {
-            String guessType = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
-            if(guessType) {
-                type = guessType
+        String type = ""
+        if(! file.isDirectory()) {
+            type = getTypeFromConfig(file.name)
+            if (!type) {
+                type = (file.exists() ? tika.detect(file) : "")
             }
-        }
-        if(!type) {
-            Log.w("Unknown mime type for file: %s", file.name)
+            if (!type || type == "text/plain" || type == "application/octet-stream") {
+                String guessType = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
+                if (guessType) {
+                    type = guessType
+                }
+            }
+            if (!type) {
+                Log.w("Unknown mime type for file: %s", file.name)
+            }
+        } else {
+            Log.w("Requested Mime type for directory: %s", file.absolutePath)
         }
         return type ?: "" //Prevent NULL value
     }
