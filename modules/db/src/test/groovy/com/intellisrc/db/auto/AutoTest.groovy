@@ -163,7 +163,6 @@ class AutoTest extends Specification {
         if(derbyLog.exists()) {
             derbyLog.delete()
         }
-        Table.reset()
     }
 
     @Unroll
@@ -223,7 +222,8 @@ class AutoTest extends Specification {
             assert users.delete(u)
             assert aliases.all.empty
         cleanup:
-            Table.reset()
+            aliases.reset()
+            users.reset()
             aliases.drop()
             users.drop()
             aliases.quit()
@@ -276,8 +276,8 @@ class AutoTest extends Specification {
                     assert t.all.size() == 0
             }
         cleanup:
-            Table.reset()
             [inboxes, users, emails].each {
+                it?.reset()
                 it?.drop()
                 it?.quit()
             }
@@ -324,7 +324,7 @@ class AutoTest extends Specification {
         then:
             assert addresses.all.size() == 2
         cleanup:
-            Table.reset()
+            addresses.reset()
             [addresses, users].each {
                 it?.drop()
                 it?.quit()
@@ -372,7 +372,7 @@ class AutoTest extends Specification {
             assert emails.clear()
             assert emails.count() == 0
         cleanup:
-            Table.reset()
+            emails.reset()
             [emails].each {
                 it?.drop()
                 it?.quit()

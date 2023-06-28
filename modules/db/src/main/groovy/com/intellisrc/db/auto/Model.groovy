@@ -41,8 +41,8 @@ abstract class Model {
      */
     String getTableName() {
         String name
-        if(Table.relation.containsKey(this.class.name)) {
-            name = Table.relation[this.class.name].tableName
+        if(Relational.tableModelRel.containsValue(this.class)) {
+            name = Relational.getTableOrView(this).tableName
         } else {
             Log.w("Unable to find table for Model. Be sure that Table class has the generic Model type specified: 'extends Table<%s>'", this.class.simpleName)
             name = (this.class.simpleName + "s").toSnakeCase()
