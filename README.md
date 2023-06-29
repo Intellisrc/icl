@@ -70,16 +70,16 @@ If you want the `edge` version, take a look into the [next](../../tree/next/) br
 
 Gradle:
 ```groovy
-    repositories {
-		mavenLocal()
-		mavenCentral()
-		maven { // Sonatype Snapshots
-			url = "https://oss.sonatype.org/content/repositories/snapshots"
-		}
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven { // Sonatype Snapshots
+		url = "https://oss.sonatype.org/content/repositories/snapshots"
 	}
-	dependencies {
-		implementation 'com.intellisrc:web:2.8.11-SNAPSHOT'
-	}
+}
+dependencies {
+	implementation 'com.intellisrc:web:2.8.11-SNAPSHOT'
+}
 ```
 
 ## Modules 
