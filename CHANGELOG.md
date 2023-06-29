@@ -1,5 +1,22 @@
 # Main Changes
 
+### 2.9.0 (jetty branch)
+* Web module no longer uses [Spark](https://sparkjava.com/). Now it uses [Jetty](https://www.eclipse.org/jetty/) directly (web)
+* Updated Jetty to version 11 (web)
+* Accept multiple resource directories (web)
+* Added path policy (web)
+
+### 2.8.11 (next branch)
+* Updated Jetty to version 11. Implemented in Spark (web)
+* Accept multiple resource directories. Implemented in Spark (web)
+* Added `unlimited` to `@Column` (db)
+* Added support for `View` (db)
+* Keep old log upon restart (log)
+* Fixed issue #52 "The last packet successully received..." (db)
+* Added "Accept-Ranges" header (web)
+* Fixed connections no properly closed (db)
+* Added Email.isValid (net)
+
 ### 2.8.10
 * Added stream and chunks support in `LpCode` (crypt)
 * Added block export/import in `LpCode` (crypt)
