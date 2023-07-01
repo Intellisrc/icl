@@ -801,7 +801,13 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                     case Model:
                         Constructor<?> c = field.type.getConstructor()
                         Model refType = (c.newInstance() as Model)
-                        retVal = get(value as int)
+                        Relational owner = tableModelRel.find {
+                            Relational table, Class modelClass ->
+                                table instanceof Table && refType.class == modelClass
+                        }?.key
+                        if(owner) {
+                            retVal = owner.get(value as int)
+                        }
                         break
                     default:
                         try {
