@@ -8,11 +8,13 @@ import org.eclipse.jetty.server.Response as JettyResponse
 
 import java.lang.reflect.InvocationTargetException
 
+import static com.intellisrc.web.WebService.ErrorTemplate
+
 /**
  * @since 2023/05/19.
  */
 class Response extends JettyResponse {
-    private static final String CONTENT_ENCODING = "Content-Encoding"
+    ErrorTemplate errorTemplate = null
     Compression compression = Compression.AUTO
     /**
      * Handles the output compression
@@ -49,18 +51,18 @@ class Response extends JettyResponse {
             }
             return obj
         }
-        void setHeader(Response response) {
+        @Override
+        String toString() {
+            String res = ""
             switch(get()) {
                 case BROTLI_COMPRESSED:
-                    response.setHeader(CONTENT_ENCODING, "br")
+                    res = "br"
                     break
                 case GZIP_COMPRESSED:
-                    response.setHeader(CONTENT_ENCODING, "gzip")
-                    break
-                default:
-                    response.setHeader(CONTENT_ENCODING, "")
+                    res = "gzip"
                     break
             }
+            return res
         }
     }
     /**
@@ -72,7 +74,7 @@ class Response extends JettyResponse {
         super(channel, out)
     }
     /**
-     * Import a "Response object from Jetty"
+     * Import a Response object from Jetty
      * @param response
      * @return
      */
@@ -88,6 +90,22 @@ class Response extends JettyResponse {
             }
         }
         return newResponse
+    }
+    /**
+     * Export a Response into Jetty
+     * @param reponse
+     * @return
+     */
+    void export(JettyResponse jetty) {
+        Response.class.declaredFields.each {
+            try {
+                it.setAccessible(true)
+                Object value = it.get(this)
+                it.set(jetty, value)
+            } catch (IllegalAccessException ignore) {
+                // Handle the exception as needed
+            }
+        }
     }
     /**
      * Get length

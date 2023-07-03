@@ -187,6 +187,8 @@ class Mime {
     static final String TAR     = types["tar"]
     static final String ZIP     = types["zip"]
     static final String ZIP7    = types["7z"]
+    // ServerSentEvents
+    static final String SSE     = "text/event-stream"
 
     static Tika tikaInstance
 

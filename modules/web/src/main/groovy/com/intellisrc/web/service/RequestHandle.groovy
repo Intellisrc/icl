@@ -1,11 +1,10 @@
 package com.intellisrc.web.service
 
 import com.intellisrc.web.WebService
+import com.intellisrc.web.WebService.WebException
 import groovy.transform.CompileStatic
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.eclipse.jetty.http.HttpMethod
-import org.eclipse.jetty.http.HttpStatus
 import org.eclipse.jetty.server.Request as JettyRequest
 import org.eclipse.jetty.server.session.SessionHandler
 
@@ -22,16 +21,30 @@ class RequestHandle extends SessionHandler {
         setServer(service.server)
     }
 
+    /**
+     * Handle the request and convert Jetty objects to ICL objects
+     *
+     * @param target The target of the request - either a URI or a name.
+     * @param jettyRequest The original unwrapped request object.
+     * @param httpRequest The request either as the {@link org.eclipse.jetty.server.Request} object or a wrapper of that request.
+     * @param httpResponse The response as the {@link org.eclipse.jetty.server.Response} object or a wrapper of that request.
+     */
     @Override
     void doHandle(String target,  JettyRequest jettyRequest, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         Request request = Request.import(jettyRequest)
         Response response = Response.import(jettyRequest.response)
-        HttpMethod method = HttpMethod.fromString(request.method.trim().toUpperCase())
-        if(method == null) {
-            response.sendError(HttpStatus.METHOD_NOT_ALLOWED_405)
-            return
+        try {
+            // Copy the template so we can keep it as instance (as WebException can only access Response object):
+            response.errorTemplate = service.errorTemplate
+            // Execute the filter
+            service.doFilter(request, response)
+        } catch(WebException ignore) {
+            // Ignore as it will just set the response to return error page
         }
-        service.doFilter(request, response)
+        // As response changes, update jetty response:
+        // NOTE: jettyRequest.response is the same instance as httpResponse but with the Jetty class (httpResponse is an interface).
+        //       So, updating jettyRequest.response here, will update httpResponse object as well
+        response.export(jettyRequest.response)
         request.setHandled(response.status > 0)
     }
 }

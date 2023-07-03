@@ -1,5 +1,6 @@
 package com.intellisrc.web
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import com.intellisrc.etc.Cache
@@ -38,6 +39,7 @@ import java.util.regex.Pattern
 import static com.intellisrc.web.protocols.Protocol.HTTP
 import static com.intellisrc.web.service.Response.Compression.AUTO
 import static com.intellisrc.web.service.Response.Compression.NONE
+import static com.intellisrc.web.service.ServiceOutput.Type
 import static org.eclipse.jetty.http.HttpMethod.GET
 import static org.eclipse.jetty.http.HttpMethod.POST
 
@@ -70,6 +72,10 @@ class WebService extends WebServiceBase {
     static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding"
     static final String ETAG_HEADER = "ETag"
     static final String SERVER_CACHE_HEADER = "Server-Cache"
+    static final String CONTENT_ENCODING = "Content-Encoding"
+    static final String CONNECTION = "Connection"
+
+    static String defaultCharset = Config.get("web.charset", "UTF-8") //TODO: document
 
     public int threads = 20
     public int minThreads = 2
@@ -84,10 +90,19 @@ class WebService extends WebServiceBase {
     boolean sniRequired = false
     public String allowOrigin = "" //apply by default to all
     public List<String> indexFiles = ["index.html", "index.htm"]
-    public Protocol protocol = HTTP
-    public FilePolicy filePolicy = { File file -> true }
-    public PathPolicy pathPolicy = { String path -> true }
-    public RequestPolicy requestPolicy = { Request request -> true }
+    public Protocol protocol = HTTP //TODO: update documentation
+    public FilePolicy filePolicy = { File file -> true } //TODO: document
+    public PathPolicy pathPolicy = { String path -> true } //TODO: document
+    public RequestPolicy requestPolicy = { Request request -> true } //TODO: document
+    public ErrorTemplate errorTemplate = {  //TODO: document
+        int code, String msg, String contentType ->
+            return switch (contentType) {
+                case Mime.JSON  -> new WebError(JSON.encode([ok: false, error: code, msg: msg]), contentType, defaultCharset)
+                case Mime.YAML  -> new WebError(YAML.encode([ok: false, error: code, msg: msg]), contentType, defaultCharset)
+                case Mime.HTML  -> new WebError(String.format("<html><head><title>Error %d</title></head><body><h1>Error %d</h1><hr><p>%s</p></body></html>", code, code, msg), contentType, defaultCharset)
+                default         -> new WebError(String.format("Error %d : %s", code, msg), Mime.TXT, defaultCharset)
+            }
+    }
 
     protected List<StaticPath> staticPaths = []
     protected Server jettyServer
@@ -96,6 +111,26 @@ class WebService extends WebServiceBase {
 
     protected final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
+
+    static class WebException extends Exception {
+        WebException(Response response, int code, String text = "") {
+            super({
+                if(! text) { text = HttpStatus.getCode(code).message } // Automatic
+                WebError webError = response.errorTemplate.call(code, text, response.type())
+                response.type(webError.contentType + (webError.charSet ? "; charset=" + webError.charSet : ""))
+                response.status(code)
+                response.writer.close() //TODO: not sure if required here
+                return webError.content
+            }.call())
+        }
+    }
+
+    @TupleConstructor
+    static class WebError {
+        String content = ""
+        String contentType = ""
+        String charSet = ""
+    }
 
     static interface FilePolicy {
         boolean allow(File file)
@@ -108,8 +143,13 @@ class WebService extends WebServiceBase {
     static interface RequestPolicy {
         boolean allow(Request request)
     }
+
     static interface StartCallback {
         void call(WebService srv)
+    }
+
+    static interface ErrorTemplate {
+        WebError call(int code, String msg, String contentType)
     }
 
     @TupleConstructor
@@ -193,9 +233,9 @@ class WebService extends WebServiceBase {
                                 //do nothing, skip
                                 break
                             default:
-                                Log.e("Interface not implemented")
+                                throw new Exception("Interface not implemented: ${serviciable.class.simpleName}")
                         }
-                        if(! prepared) {
+                        if (!prepared) {
                             Log.w("Failed to prepare one or more services")
                         }
                         switch (serviciable) {
@@ -211,7 +251,7 @@ class WebService extends WebServiceBase {
                                             HttpSession session = request.session
                                             //noinspection GroovyMissingReturnStatement
                                             sessionMap.each {
-                                                if(it.key == "response" && it.value instanceof Map) {
+                                                if (it.key == "response" && it.value instanceof Map) {
                                                     //noinspection GrReassignedInClosureLocalVar
                                                     res += (it.value as Map)
                                                 } else {
@@ -220,7 +260,7 @@ class WebService extends WebServiceBase {
                                             }
                                             res.id = session.id
                                         } else {
-                                            response.status(HttpStatus.UNAUTHORIZED_401)
+                                            throw new WebException(response, HttpStatus.UNAUTHORIZED_401)
                                         }
                                         response.type("application/json")
                                         res.ok = ok
@@ -228,13 +268,13 @@ class WebService extends WebServiceBase {
                                 }, auth.allowType))
                                 setupService(serviciable, Service.new(GET, auth.path + auth.logoutPath, {
                                     Request request, Response response ->
-                                        boolean  ok = auth.onLogout(request, response)
-                                        if(ok) {
+                                        boolean ok = auth.onLogout(request, response)
+                                        if (ok) {
                                             request.session?.invalidate()
                                         }
                                         response.type("application/json")
                                         return JSON.encode(
-                                                ok : ok
+                                            ok: ok
                                         )
                                 }, auth.allowType))
                                 break
@@ -248,19 +288,22 @@ class WebService extends WebServiceBase {
                 }
                 if (background) {
                     //Wait until the server is Up
-                    sleep (Millis.SECOND)
+                    sleep(Millis.SECOND)
                 } else {
-                    if(multiThread) {
+                    if (multiThread) {
                         jettyServer.join() //TODO: check
                     } else {
                         while (running) {
-                            sleep (Millis.SECOND)
+                            sleep(Millis.SECOND)
                         }
                     }
                 }
             } else {
                 Log.w("Port %d is already in use", port)
             }
+        } catch(WebException we) {
+            // It should have been handled before here
+            Log.w("Not handled: Web service error: %s", we.message)
         } catch(Throwable e) {
             Log.e("Unable to start WebService", e)
         }
@@ -342,25 +385,25 @@ class WebService extends WebServiceBase {
             output.content = res.toString()
         }
         if(output.contentType) {
-            output.type = ServiceOutput.Type.fromString(output.contentType)
+            output.type = Type.fromString(output.contentType)
             output.fileName = "download." + output.contentType.tokenize("/").last()
         } else { // Auto detect contentType:
             //noinspection GroovyFallthrough
             switch (output.content) {
                 case String:
                     String resStr = output.type.toString()
-                    output.type = ServiceOutput.Type.TEXT
+                    output.type = Type.TEXT
                     switch (true) {
                         case resStr.contains("<html") :
-                            output.contentType = Mime.getType("html")
+                            output.contentType = Mime.HTML
                             output.fileName = "download.html"
                             break
                         case resStr.contains("<?xml") :
-                            output.contentType = Mime.getType("xml")
+                            output.contentType = Mime.XML
                             output.fileName = "download.xml"
                             break
                         case resStr.contains("<svg") :
-                            output.contentType = Mime.getType("svg")
+                            output.contentType = Mime.SVG
                             output.fileName = "download.svg"
                             break
                         default :
@@ -375,20 +418,20 @@ class WebService extends WebServiceBase {
                 case File:
                     File file = output.content as File
                     output.contentType = Mime.getType(file)
-                    output.type = ServiceOutput.Type.fromString(output.contentType)
+                    output.type = Type.fromString(output.contentType)
                     output.fileName = file.name
                     break
                 case BufferedImage:
                     BufferedImage img = output.content as BufferedImage
                     boolean hasAlpha = img.colorModel.hasAlpha()
                     String ext = hasAlpha ? "png" : "jpg"
-                    output.type = ServiceOutput.Type.IMAGE
+                    output.type = Type.IMAGE
                     output.contentType = Mime.getType(ext)
                     output.fileName = "download.${ext}"
                     break
                 case List:
                 case Map:
-                    output.type = ServiceOutput.Type.JSON
+                    output.type = Type.JSON
                     output.contentType = Mime.getType("json")
                     output.fileName = "download.json"
                     break
@@ -400,22 +443,22 @@ class WebService extends WebServiceBase {
                     output.contentType = conn.contentType ?: Mime.getType(url)
                     output.content = conn.content
                     output.responseCode = conn.responseCode
-                    output.type = ServiceOutput.Type.fromString(output.contentType)
+                    output.type = Type.fromString(output.contentType)
                     output.fileName = url.file
                     return output // Do not proceed to prevent changing content
                     break
                 default:
-                    output.type = ServiceOutput.Type.BINARY
+                    output.type = Type.BINARY
                     output.contentType = "" //Unknown type
                     output.fileName = "download.bin"
             }
         }
         if(forceBinary) {
-            output.type = ServiceOutput.Type.BINARY
+            output.type = Type.BINARY
         }
         // Set content
         switch (output.type) {
-            case ServiceOutput.Type.TEXT:
+            case Type.TEXT:
                 switch (output.content) {
                     case File :
                         File file = output.content as File
@@ -431,7 +474,7 @@ class WebService extends WebServiceBase {
                         output.size = (output.content as String).bytes.length //Support Unicode (using bytes instead of String)
                 }
                 break
-            case ServiceOutput.Type.JSON:
+            case Type.JSON:
                 //noinspection GroovyFallthrough
                 switch (output.content) {
                     case Collection:
@@ -441,7 +484,7 @@ class WebService extends WebServiceBase {
                         break
                 }
                 break
-            case ServiceOutput.Type.YAML:
+            case Type.YAML:
                 //noinspection GroovyFallthrough
                 switch (output.content) {
                     case Collection:
@@ -451,7 +494,7 @@ class WebService extends WebServiceBase {
                         break
                 }
                 break
-            case ServiceOutput.Type.IMAGE:
+            case Type.IMAGE:
                 output.charSet = ""
                 switch (output.content) {
                     case File:
@@ -470,10 +513,10 @@ class WebService extends WebServiceBase {
                         break
                 }
                 // Replace it with "Binary"
-                output.type = ServiceOutput.Type.BINARY
+                output.type = Type.BINARY
                 output.size = (output.content as byte[]).length
                 break
-            case ServiceOutput.Type.BINARY:
+            case Type.BINARY:
                 output.charSet = ""
                 switch (output.content) {
                     case String:
@@ -506,12 +549,15 @@ class WebService extends WebServiceBase {
 
     /**
      * Process Service and return ServiceOutput
+     * In this step, we first set all response headers based on the Service
+     * options. Some headers may be override by prepareResponse()
+     *
      * @param request
      * @param response
      * @param sp
      * @return
      */
-    ServiceOutput processAction(Service sp, Request request, Response response) {
+    ServiceOutput processService(Service sp, Request request, Response response) {
         ServiceOutput output
 
         // Apply headers (initial): -----------------------
@@ -560,12 +606,12 @@ class WebService extends WebServiceBase {
                                             UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
                                             uploadFiles << file
                                         } catch (Exception e) {
-                                            response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                             Log.e("Unable to upload file: %s", part.submittedFileName, e)
+                                            throw new WebException(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "Unable to upload file")
                                         }
                                     } else {
-                                        response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                         Log.w("File: %s was empty", part.submittedFileName)
+                                        throw new WebException(response, HttpStatus.LENGTH_REQUIRED_411, "File was empty")
                                     }
                                 }
                         }
@@ -575,8 +621,8 @@ class WebService extends WebServiceBase {
                             //noinspection GroovyUnusedAssignment : IDE mistake
                             output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                         } catch (Exception e) {
-                            response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                             Log.e("Service.upload closure failed", e)
+                            throw new WebException(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "Upload failed")
                         }
                         uploadFiles.each {
                             if (it.exists()) {
@@ -584,12 +630,12 @@ class WebService extends WebServiceBase {
                             }
                         }
                     } else {
-                        response.status(HttpStatus.LENGTH_REQUIRED_411)
                         Log.e("Uploaded file is empty")
+                        throw new WebException(response, HttpStatus.LENGTH_REQUIRED_411, "Upload file was empty")
                     }
                 } else {
-                    response.status(HttpStatus.SERVICE_UNAVAILABLE_503)
                     Log.e("Temporally directory %s is not writable", tempDir)
+                    throw new WebException(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "Temporally directory is not writable")
                 }
             } else { // Normal requests: (no cache, no file upload)
                 try {
@@ -599,59 +645,62 @@ class WebService extends WebServiceBase {
                         //noinspection GroovyUnusedAssignment : IDE mistake
                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                     } else {
-                        response.status(HttpStatus.NOT_FOUND_404)
-                        output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
-                        response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-                        output.content = "Not Found"
-                        if(sp.download) {
-                            sp.download = false
+                        if(sp.contentType == Mime.SSE) {
+                            response.status(HttpStatus.OK_200)
+                            output = new ServiceOutput(contentType: sp.contentType, type: Type.STREAM)
+                        } else {
+                            if(sp.download) {
+                                sp.download = false
+                            }
+                            throw new WebException(response, HttpStatus.NOT_FOUND_404)
                         }
                     }
                 } catch (Exception e) {
-                    response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                     Log.e("Service.action closure failed", e)
+                    throw new WebException(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "Service action failed")
                 }
             }
 
             // ------------------- After content is processed ----------------
             if(output) {
-                // Set download : if "Content-Disposition" is set on headers this is not required:
-                if (sp.download || output.contentType == "application/octet-stream") {
-                    output.downloadName = sp.downloadFileName ?: output.fileName
-                }
-                // Set ETag: (even if we compress it later, we keep the original Etag of content)
-                String etag = output.etag = sp.etag?.calc(output.content) ?: output.etag
-                if (! etag) {
-                    try {
-                        if (output.type == ServiceOutput.Type.BINARY) {
-                            if (output.size > 1024 * eTagMaxKB) {
-                                Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
-                            } else {
-                                etag = (output.content as byte[]).md5()
-                            }
-                        } else {
-                            etag = output.content.toString().md5()
-                        }
-                        if (etag) {
-                            output.etag = etag
-                        } else {
-                            Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
-                        }
-                    } catch (Exception e) {
-                        //Can't be converted to String
-                        Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e.message)
+                if(output.type != Type.STREAM) {
+                    // Set download : if "Content-Disposition" is set on headers this is not required:
+                    if (sp.download || output.contentType == "application/octet-stream") {
+                        output.downloadName = sp.downloadFileName ?: output.fileName
                     }
-                }
-                // Do not compress or return anything if we have the same etag
-                String prevTag = request.headers("If-None-Match")
-                if (prevTag == etag) { // Same content
-                    response.status(HttpStatus.NOT_MODIFIED_304)
-                    response.header(CONTENT_LENGTH_HEADER, "0")
-                    request.response.contentLength = 0
-                    request.response.contentType = null
-                    request.response.status = HttpStatus.NOT_MODIFIED_304
-                    //noinspection GroovyUnusedAssignment
-                    output = null
+                    // Set ETag: (even if we compress it later, we keep the original Etag of content)
+                    String etag = output.etag = sp.etag?.calc(output.content) ?: output.etag
+                    if (!etag) {
+                        try {
+                            if (output.type == Type.BINARY) {
+                                if (output.size > 1024 * eTagMaxKB) {
+                                    Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
+                                } else {
+                                    etag = (output.content as byte[]).md5()
+                                }
+                            } else {
+                                etag = output.content.toString().md5()
+                            }
+                            if (etag) {
+                                output.etag = etag
+                            } else {
+                                Log.v("Unable to generate ETag for: %s, unknown reason", request.uri())
+                            }
+                        } catch (Exception e) {
+                            //Can't be converted to String
+                            Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e.message)
+                        }
+                    }
+                    // Do not compress or return anything if we have the same etag
+                    String prevTag = request.headers("If-None-Match")
+                    if (prevTag == etag) { // Same content
+                        response.status(HttpStatus.NOT_MODIFIED_304)
+                        response.header(CONTENT_LENGTH_HEADER, "0")
+                        request.response.contentLength = 0
+                        request.response.contentType = null
+                        //noinspection GroovyUnusedAssignment
+                        output = null
+                    }
                 }
                 // Compress if requested
                 if(output && sp.compress) {
@@ -682,33 +731,18 @@ class WebService extends WebServiceBase {
                     }
                 }
             } else {
-                response.status(HttpStatus.NOT_FOUND_404)
-                output = new ServiceOutput(contentType: Mime.TXT, type : ServiceOutput.Type.TEXT)
-                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-                output.content = "Not Found"
+                throw new WebException(response, HttpStatus.NOT_FOUND_404)
             }
         } else { // Unauthorized
-            response.status(HttpStatus.FORBIDDEN_403)
-            if(output == null) {
-                output = new ServiceOutput(contentType: sp.contentType, charSet: sp.charSet, type: ServiceOutput.Type.fromString(sp.contentType))
-                response.type(output.contentType + (output.charSet ? "; charset=" + output.charSet : ""))
-            }
-            switch (output.type) {
-                case ServiceOutput.Type.JSON:
-                    output.content = JSON.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
-                    break
-                case ServiceOutput.Type.YAML:
-                    output.content = YAML.encode(ok : false, error : HttpStatus.FORBIDDEN_403)
-                    break
-                default:
-                    response.type(Mime.getType("txt") + (output.charSet ? "; charset=" + output.charSet : ""))
-                    output.content = "Unauthorized"
-            }
+            throw new WebException(response, HttpStatus.FORBIDDEN_403)
         }
         return output
     }
     /**
      * Prepare response headers based on ServiceOutput
+     * In this step, we set headers based on the ServiceOutput (which may override
+     * those set by the Service in processService)
+     *
      * @param output
      * @param response
      */
@@ -725,26 +759,31 @@ class WebService extends WebServiceBase {
         // Set download : if "Content-Disposition" is set on headers this is not required:
         if (! output.downloadName.empty) {
             response.header(CONTENT_DISPOSITION, "attachment; filename=" + output.downloadName)
-            if (output.type == ServiceOutput.Type.BINARY) {
+            if (output.type == Type.BINARY) {
                 response.header(CONTENT_TRANSFER_ENCODING, "binary")
             }
         }
         // Set ETag: (even if we compress it later, we keep the original Etag of content)
-        if (output.etag != null) {
+        if (output.etag) {
             response.header(ETAG_HEADER, output.etag)
         }
-        // Set compression header
-        output.compression.setHeader(response)
 
-        // Set content-length
-        if(output.size > 0) {
-            response.header(CONTENT_LENGTH_HEADER, sprintf("%d", output.size))
+        // Set compression header
+        response.header(CONTENT_ENCODING, output.compression.toString())
+
+        if(output.type == Type.STREAM) {
+            response.header(CONNECTION, "keep-alive")
         } else {
-            response.status(HttpStatus.NO_CONTENT_204)
-        }
-        // Add headers
-        if (output.type == ServiceOutput.Type.BINARY) {
-            response.header(ACCEPT_RANGES_HEADER, "bytes")
+            // Set content-length
+            if (output.size > 0) {
+                response.header(CONTENT_LENGTH_HEADER, sprintf("%d", output.size))
+                // Add headers
+                if (output.type == Type.BINARY) {
+                    response.header(ACCEPT_RANGES_HEADER, "bytes")
+                }
+            } else {
+                response.status(HttpStatus.NO_CONTENT_204)
+            }
         }
     }
 
@@ -923,6 +962,9 @@ class WebService extends WebServiceBase {
         Request request = servletRequest as Request
         Response response = servletResponse as Response
         ServiceOutput out
+        if(! request.method || HttpMethod.fromString(request.method.trim().toUpperCase()) == null) {
+            throw new WebException(response, HttpStatus.METHOD_NOT_ALLOWED_405)
+        }
         Cache.CacheAccess onStore = {
             response.header(SERVER_CACHE_HEADER, cacheSize.toString())
         }
@@ -952,15 +994,15 @@ class WebService extends WebServiceBase {
                                 boolean forceBinary = response.getHeader(CONTENT_TRANSFER_ENCODING)?.toLowerCase() == "binary"
                                 toSave = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                             } catch (Exception e) {
-                                response.status(HttpStatus.INTERNAL_SERVER_ERROR_500)
                                 Log.e("Service.action CACHE closure failed", e)
+                                throw new WebException(response, HttpStatus.INTERNAL_SERVER_ERROR_500, "Cache failure")
                             }
                             return toSave
                         }
                         //noinspection GroovyUnusedAssignment : IDE mistake
                         out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore, sp.cacheTime) : noCache()
                     } else {
-                        out = processAction(sp, request, response)
+                        out = processService(sp, request, response)
                     }
                 }
             }
@@ -983,7 +1025,7 @@ class WebService extends WebServiceBase {
                                                 boolean addToCache = staticPath.expireSeconds &&
                                                     (bytes.length / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
                                                 Closure<ServiceOutput> noCache = {
-                                                    processAction(new Service(
+                                                    processService(new Service(
                                                         compress: compress,
                                                         cacheTime: cacheTime,
                                                         maxAge: cacheTime,
@@ -996,8 +1038,7 @@ class WebService extends WebServiceBase {
                                                 Log.w("Unable to read resource from jar: %s (%s)", fullPath, e.message ?: e.cause)
                                             }
                                         } else {
-                                            response.status(HttpStatus.UNAUTHORIZED_401)
-                                            return true // exit
+                                            throw new WebException(response, HttpStatus.UNAUTHORIZED_401)
                                         }
                                     } else {
                                         File staticFile = File.get(fullPath)
@@ -1007,7 +1048,7 @@ class WebService extends WebServiceBase {
                                                     (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
 
                                                 Closure<ServiceOutput> noCache = {
-                                                    processAction(new Service(
+                                                    processService(new Service(
                                                         compress: compress,
                                                         cacheTime: cacheTime,
                                                         maxAge: cacheTime,
@@ -1018,8 +1059,7 @@ class WebService extends WebServiceBase {
                                                 out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
                                             }
                                         } else {
-                                            response.status(HttpStatus.UNAUTHORIZED_401)
-                                            return true // exit
+                                            throw new WebException(response, HttpStatus.UNAUTHORIZED_401)
                                         }
                                     }
                             }
@@ -1027,7 +1067,7 @@ class WebService extends WebServiceBase {
                     }
                 } else { // Very unlikely that will end up here:
                     Log.w("Invalid request (empty)")
-                    response.status(HttpStatus.BAD_REQUEST_400)
+                    throw new WebException(response, HttpStatus.BAD_REQUEST_400)
                 }
             }
 
@@ -1078,10 +1118,14 @@ class WebService extends WebServiceBase {
                 }
             } else if(response.status == HttpStatus.OK_200) {
                 Log.d("The requested path was not found: %s", request.uri())
-                response.status(HttpStatus.NOT_FOUND_404)
+                throw new WebException(response, HttpStatus.NOT_FOUND_404)
             }
         } else {
-            response.status(HttpStatus.UNAUTHORIZED_401)
+            throw new WebException(response, HttpStatus.UNAUTHORIZED_401)
+        }
+        // Handle the rest of the errors:
+        if(response.status >= 400) {
+            throw new WebException(response, response.status, HttpStatus.getCode(response.status).message)
         }
         // Close the response if it is not closed
         if (!commited) {
@@ -1089,6 +1133,10 @@ class WebService extends WebServiceBase {
         }
     }
 
+    /**
+     * Return Jetty Server (raw)
+     * @return
+     */
     Server getServer() {
         return jettyServer
     }

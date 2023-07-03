@@ -3,6 +3,7 @@ package com.intellisrc.web.service
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
+import static com.intellisrc.web.WebService.getDefaultCharset
 import static com.intellisrc.web.service.Response.Compression
 import static com.intellisrc.web.service.Response.Compression.AUTO
 
@@ -22,7 +23,7 @@ class ServiceOutput {
      * Output types used in getOutput
      */
     static enum Type {
-        JSON, YAML, TEXT, IMAGE, BINARY
+        JSON, YAML, TEXT, IMAGE, BINARY, STREAM
         /**
          * From content type, get OutputType
          * @param contentType
@@ -35,6 +36,7 @@ class ServiceOutput {
                 case ~/.*yaml.*/  : type = YAML; break
                 case ~/.*text.*/  : type = TEXT; break
                 case ~/.*image.*/ : type = IMAGE; break
+                case ~/.*stream.*/ : type = STREAM; break
                 default:
                     type = BINARY
             }
@@ -44,7 +46,7 @@ class ServiceOutput {
     Type type           = Type.BINARY
     Object content      = null
     String contentType  = ""
-    String charSet      = "UTF-8"
+    String charSet      = defaultCharset
     String downloadName = ""
     Compression compression = AUTO
 
@@ -56,6 +58,8 @@ class ServiceOutput {
     long size           = 0
     // Store eTag in some cases
     String etag         = ""
+    // Headers (extra headers, they may get override by other)
+    final Map<String, String> headers = [:]
 
     @Override
     String toString() {
@@ -63,5 +67,13 @@ class ServiceOutput {
             Log.w("Content Type is BINARY but 'toString()' was requested")
         }
         return content.toString()
+    }
+
+    /**
+     * Import headers (e.g. from Services)
+     * @param outHeaders
+     */
+    void importHeaders(Map<String, String> outHeaders) {
+        headers.putAll(outHeaders)
     }
 }
