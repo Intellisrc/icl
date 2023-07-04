@@ -31,8 +31,8 @@ class RequestHandle extends SessionHandler {
      */
     @Override
     void doHandle(String target,  JettyRequest jettyRequest, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        Request request = Request.import(jettyRequest)
-        Response response = Response.import(jettyRequest.response)
+        Request request = new Request(jettyRequest)
+        Response response = new Response(jettyRequest.response)
         try {
             // Copy the template so we can keep it as instance (as WebException can only access Response object):
             response.errorTemplate = service.errorTemplate
@@ -44,7 +44,7 @@ class RequestHandle extends SessionHandler {
         // As response changes, update jetty response:
         // NOTE: jettyRequest.response is the same instance as httpResponse but with the Jetty class (httpResponse is an interface).
         //       So, updating jettyRequest.response here, will update httpResponse object as well
-        response.export(jettyRequest.response)
+        response.update()
         request.setHandled(response.status > 0)
     }
 }

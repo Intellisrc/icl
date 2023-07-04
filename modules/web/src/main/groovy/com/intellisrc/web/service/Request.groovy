@@ -4,8 +4,6 @@ import com.intellisrc.core.Log
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 import org.apache.commons.io.IOUtils
-import org.eclipse.jetty.server.HttpChannel
-import org.eclipse.jetty.server.HttpInput
 import org.eclipse.jetty.server.Request as JettyRequest
 
 import java.util.concurrent.ConcurrentHashMap
@@ -20,25 +18,17 @@ class Request extends JettyRequest {
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
     protected String splat = ""
 
-    Request(HttpChannel channel, HttpInput input) {
-        super(channel, input)
-    }
-    /**
-     * Import a "Request object from Jetty"
-     * @param request
-     */
-    static Request 'import'(JettyRequest request) {
-        Request newRequest = new Request(request.httpChannel, request.httpInput)
+    Request(JettyRequest request) {
+        super(request.httpChannel, request.httpInput)
         JettyRequest.class.declaredFields.each {
             try {
                 it.setAccessible(true)
                 Object value = it.get(request)
-                it.set(newRequest, value)
+                it.set(this, value)
             } catch (IllegalAccessException ignore) {
                 // Handle the exception as needed
             }
         }
-        return newRequest
     }
     /**
      * Backward compatibility with Spark

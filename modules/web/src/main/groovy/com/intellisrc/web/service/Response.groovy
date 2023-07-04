@@ -2,10 +2,10 @@ package com.intellisrc.web.service
 
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Zip
-import org.eclipse.jetty.server.HttpChannel
-import org.eclipse.jetty.server.HttpOutput
+import jakarta.servlet.ServletOutputStream
 import org.eclipse.jetty.server.Response as JettyResponse
 
+import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
 
 import static com.intellisrc.web.WebService.ErrorTemplate
@@ -14,6 +14,7 @@ import static com.intellisrc.web.WebService.ErrorTemplate
  * @since 2023/05/19.
  */
 class Response extends JettyResponse {
+    protected final JettyResponse original
     ErrorTemplate errorTemplate = null
     Compression compression = Compression.AUTO
     /**
@@ -70,42 +71,49 @@ class Response extends JettyResponse {
      * @param channel
      * @param out
      */
-    Response(HttpChannel channel, HttpOutput out) {
-        super(channel, out)
-    }
-    /**
-     * Import a Response object from Jetty
-     * @param response
-     * @return
-     */
-    static Response 'import'(JettyResponse response) {
-        Response newResponse = new Response(response.httpChannel, response.httpOutput)
+    Response(JettyResponse response) {
+        super(response.httpChannel, response.httpOutput)
+        original = response
         JettyResponse.class.declaredFields.each {
-            try {
-                it.setAccessible(true)
-                Object value = it.get(response)
-                it.set(newResponse, value)
-            } catch (IllegalAccessException ignore) {
-                // Handle the exception as needed
-            }
+            Field field ->
+                try {
+                    field.setAccessible(true)
+                    Object value = field.get(response)
+                    field.set(this, value)
+                } catch (Exception ignore) {
+                    // Handle the exception as needed
+                }
         }
-        return newResponse
     }
+
     /**
      * Export a Response into Jetty
-     * @param reponse
      * @return
      */
-    void export(JettyResponse jetty) {
-        Response.class.declaredFields.each {
-            try {
-                it.setAccessible(true)
-                Object value = it.get(this)
-                it.set(jetty, value)
-            } catch (IllegalAccessException ignore) {
-                // Handle the exception as needed
-            }
+    void update() {
+        JettyResponse.class.declaredFields.each {
+            Field field ->
+                try {
+                    field.setAccessible(true)
+                    Object value = field.get(this)
+                    field.set(original, value)
+                } catch (Exception ignore) {
+                    // Handle the exception as needed
+                }
         }
+        // Copy headers
+        headers.each {
+            original.setHeader(it.key, it.value)
+        }
+    }
+
+    @Override
+    PrintWriter getWriter() {
+        return original.writer
+    }
+    @Override
+    ServletOutputStream getOutputStream() {
+        return original.outputStream
     }
     /**
      * Get length
@@ -119,6 +127,7 @@ class Response extends JettyResponse {
      * @param code
      */
     void status(int code) {
+        original.status = code
         setStatus(code)
     }
     /**
@@ -126,6 +135,7 @@ class Response extends JettyResponse {
      * @param path
      */
     void redirect(String path) {
+        original.sendRedirect(path)
         sendRedirect(path)
     }
     /**
@@ -133,6 +143,7 @@ class Response extends JettyResponse {
      * @param type
      */
     void type(String type) {
+        original.setContentType(type)
         setContentType(type)
     }
     /**
@@ -148,6 +159,10 @@ class Response extends JettyResponse {
      * @param value
      */
     void header(String key, String value) {
+        if(headerNames.contains(key) && value != header(key)) {
+            Log.d("HTTP Header: %s already existed. Replaced: %s -> %s", key, header(key), value)
+        }
+        original.setHeader(key, value)
         setHeader(key, value)
     }
     /**
@@ -157,5 +172,16 @@ class Response extends JettyResponse {
      */
     String header(String key) {
         return getHeader(key)
+    }
+    /**
+     * Get a copy of all headers
+     * @return
+     */
+    Map<String, String> getHeaders() {
+        Map<String, String> insensitiveMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+        insensitiveMap.putAll(headerNames.findAll {
+            header(it) != null && header(it) != ""
+        }.collectEntries {[ (it): header(it) ] })
+        return Collections.unmodifiableMap(insensitiveMap)
     }
 }

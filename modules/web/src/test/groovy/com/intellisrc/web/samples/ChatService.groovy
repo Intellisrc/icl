@@ -1,10 +1,12 @@
 package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
-import com.intellisrc.web.WebSocketService
 import com.intellisrc.web.service.ServiciableWebSocket
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.Session
+
+import static com.intellisrc.web.service.BroadcastService.MsgBroadCaster
+import static com.intellisrc.web.service.BroadcastService.WebMessage
 
 /**
  * @since 17/04/19.
@@ -14,7 +16,7 @@ class ChatService implements ServiciableWebSocket {
     List<String> currentList = []
     boolean replaceOnDuplicate = false
 
-    void setBroadCaster(WebSocketService.MsgBroadCaster msgBroadCaster) {}
+    void setBroadCaster(MsgBroadCaster msgBroadCaster) {}
 
     String getUserID(Map<String, List<String>> params, InetAddress source) {
         String sessionID
@@ -26,24 +28,24 @@ class ChatService implements ServiciableWebSocket {
         return sessionID
     }
 
-    WSMessage onConnect(Session session) {
-        return new WSMessage(
+    WebMessage onConnect(Session session) {
+        return new WebMessage(
                     user : "System",
                     message : "User : ", //FIXME+session.userID+" connected",
                     list : currentList,
                     type : "in"
                 )
     }
-    WSMessage onDisconnect(Session session, int statusCode, String reason) {
-        return new WSMessage(
+    WebMessage onDisconnect(Session session, int statusCode, String reason) {
+        return new WebMessage(
                     user : "System",
                     message : "User : ", //FIXME+session.userID+" disconnected",
                     list : currentList,
                     type : "out"
                 )
     }
-    WSMessage onMessage(Session session, String message) {
-        return new WSMessage(
+    WebMessage onMessage(Session session, String message) {
+        return new WebMessage(
                     user : "", //FIXME session.userID,
                     message : message,
                     list : currentList,

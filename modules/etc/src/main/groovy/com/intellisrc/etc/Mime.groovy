@@ -132,6 +132,8 @@ class Mime {
     /**
      * Common Mime Types
      */
+    // Binary
+    static final String BIN     = types["bin"]
     // Images
     static final String GIF     = types["gif"]
     static final String JPG     = types["jpg"]

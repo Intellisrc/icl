@@ -59,7 +59,7 @@ class ServiceOutput {
     // Store eTag in some cases
     String etag         = ""
     // Headers (extra headers, they may get override by other)
-    final Map<String, String> headers = [:]
+    final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
 
     @Override
     String toString() {
@@ -71,9 +71,12 @@ class ServiceOutput {
 
     /**
      * Import headers (e.g. from Services)
+     * only if it is not set already
      * @param outHeaders
      */
     void importHeaders(Map<String, String> outHeaders) {
-        headers.putAll(outHeaders)
+        outHeaders.each {
+            headers.putIfAbsent(it.key, it.value)
+        }
     }
 }

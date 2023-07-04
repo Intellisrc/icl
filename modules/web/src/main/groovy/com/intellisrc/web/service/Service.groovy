@@ -1,10 +1,11 @@
 package com.intellisrc.web.service
 
-
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 
 import static com.intellisrc.web.WebService.getDefaultCharset
+import static com.intellisrc.web.service.HttpHeader.ACCEPT_CONTROL_ALLOW_ORIGIN
+import static com.intellisrc.web.service.HttpHeader.CACHE_CONTROL
 
 /**
  * @since 17/04/04.
@@ -78,7 +79,7 @@ class Service implements Serviciable {
     Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
     String acceptType           = ""                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
-    Map<String,String> headers  = [:]                   // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
+    Map<String,String> headers  = new TreeMap<>(String.CASE_INSENSITIVE_ORDER) // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
     /**
      * Optional method to use Pattern as path
@@ -101,8 +102,20 @@ class Service implements Serviciable {
      * @return
      */
     Map<String, String> getHeaders() {
-
-        return headers
+        Map<String, String> autoHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+        if (allowOrigin) {
+            autoHeaders.put(ACCEPT_CONTROL_ALLOW_ORIGIN, allowOrigin)
+        }
+        if (noStore) { //Never store in client
+            autoHeaders.put(CACHE_CONTROL, "no-store")
+        } else if (!cacheTime && !maxAge) { //Revalidate each time
+            autoHeaders.put(CACHE_CONTROL, "no-cache")
+        } else {
+            String priv = (isPrivate) ? "private," : "" //User-specific data
+            autoHeaders.put(CACHE_CONTROL, priv + "max-age=" + maxAge) //IDEA: when using server cache, synchronize remaining time in cache with this value
+        }
+        autoHeaders.putAll(headers)
+        return autoHeaders
     }
 
     /**

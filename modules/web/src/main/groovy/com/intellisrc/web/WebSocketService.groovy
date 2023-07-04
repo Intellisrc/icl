@@ -4,12 +4,13 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import com.intellisrc.web.service.ServiciableWebSocket
-import com.intellisrc.web.service.ServiciableWebSocket.WSMessage
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.websocket.api.Session as WebSocketSession
 import org.eclipse.jetty.websocket.api.annotations.*
 
 import java.time.Duration
+
+import static com.intellisrc.web.service.BroadcastService.*
 
 /**
  * This class is a wrapper for @WebSocket
@@ -22,27 +23,11 @@ class WebSocketService extends WebServiceBase {
     int maxSize = Config.get("websocket.max.size", 64)
     protected ServiciableWebSocket listener
     /**
-     * Interface used to send a message directly from client to server
-     * Normally onMessage will return a WSMessage object which will
-     * be sent back to clients. However in the case onMessage (client side)
-     * contains Async operations, clients will need this interface
-     * to send their messages in another thread.
-     */
-    static interface MsgBroadCaster {
-        void call(WSMessage message, SuccessCallback onSuccess, FailCallback onFail)
-    }
-    static interface FailCallback {
-        void call(Throwable e)
-    }
-    static interface SuccessCallback {
-        void call()
-    }
-    /**
      * Object which will be assigned to listener to be able to
      * broadcast outside the main thread
      */
-    private final MsgBroadCaster broadCaster = {
-        WSMessage wsMessage, SuccessCallback onSuccess, FailCallback onFail ->
+    final MsgBroadCaster broadCaster = {
+        WebMessage wsMessage, SuccessCallback onSuccess, FailCallback onFail ->
             broadcast(wsMessage, onSuccess, onFail)
     } as MsgBroadCaster
 
@@ -53,27 +38,8 @@ class WebSocketService extends WebServiceBase {
      * @param listener
      */
     WebSocketService(ServiciableWebSocket listener) {
-        listener.broadCaster = broadCaster
+        //FIXME listener.broadCaster = broadCaster
         this.listener = listener
-    }
-
-    /**
-     * Get InetAddress from SocketAddress
-     * @param socketAddress
-     * @return
-     */
-    static InetAddress getAddressFromSocket(SocketAddress socketAddress) {
-        return (socketAddress as InetSocketAddress).address
-    }
-    /**
-     * Get the source IP address from session
-     * @param sockSession
-     * @return
-     */
-    static InetAddress getAddressFromSession(WebSocketSession sockSession) {
-        return  sockSession.upgradeRequest.headers.containsKey("X-Forwarded-For")
-            ? sockSession.upgradeRequest.headers["X-Forwarded-For"].first().toInetAddress()
-            : getAddressFromSocket(sockSession.remoteAddress)
     }
 
     @OnWebSocketConnect
@@ -87,7 +53,7 @@ class WebSocketService extends WebServiceBase {
 
             InetAddress address = getAddressFromSession(sockSession)
             if(address) {
-                String user = listener.getUserID(sockSession.upgradeRequest.parameterMap, address)
+                String user = "" //FIXME listener.getUserID(sockSession.upgradeRequest.parameterMap, address)
                 if (!user) {
                     Log.w("User connected had no userID")
                     sockSession.close()
@@ -126,7 +92,7 @@ class WebSocketService extends WebServiceBase {
             session?.invalidate()
             broadcast(listener.onDisconnect(session, statusCode, reason))*/
         }
-        listener.onClientsChange(getConnected())
+        //FIXME listener.onClientsChange(getConnected())
     }
 
     @OnWebSocketMessage
@@ -173,7 +139,7 @@ class WebSocketService extends WebServiceBase {
      * if 'to' is set in WSMessage, it will send to specific recipients
      * @param message
      */
-    private void broadcast(WSMessage wsMessage, SuccessCallback onSuccess = null, FailCallback onFail = null) {
+    protected void broadcast(WebMessage wsMessage, SuccessCallback onSuccess = null, FailCallback onFail = null) {
         if(wsMessage != null) {
             if (wsMessage.to.isEmpty()) {
                 wsMessage.to = getConnected()
