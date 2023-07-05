@@ -72,7 +72,7 @@ class WebSocketServiceClient {
         if(!map.hostname)   { map.hostname = "localhost" }
         if(!map.port)       { map.port = 8000 }
         if(!map.path)       { map.path = "/" }
-        this.url = new URI(map.protocol.toString() + "//" + map.hostname.toString() + ":" + map.port.toString() + map.path.toString() )
+        this.url = new URI(map.protocol.toString() + "://" + map.hostname.toString() + ":" + map.port.toString() + map.path.toString() )
     }
 
     /**

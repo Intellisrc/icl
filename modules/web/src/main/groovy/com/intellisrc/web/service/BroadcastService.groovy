@@ -1,14 +1,8 @@
 package com.intellisrc.web.service
 
-import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.etc.JSON
 import groovy.transform.CompileStatic
-import jakarta.servlet.AsyncContext
-import jakarta.servlet.ServletException
-import jakarta.servlet.http.HttpServlet
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
+import org.eclipse.jetty.websocket.api.Session as JettySession
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -20,7 +14,7 @@ import static com.intellisrc.web.service.HttpHeader.X_FORWARDED_FOR
  * @since 2023/06/30.
  */
 @CompileStatic
-abstract class BroadcastService extends HttpServlet {
+trait BroadcastService {
     /**
      * Return the user ID (required). If null or empty is returned, the session will be dropped.
      * @param params
@@ -28,7 +22,7 @@ abstract class BroadcastService extends HttpServlet {
      * @return
      */
     static interface SessionIdentifier {
-        String call(HttpServletRequest request)
+        String call(Request request)
     }
     /**
      * Interface used to send a message directly from client to server
@@ -46,46 +40,17 @@ abstract class BroadcastService extends HttpServlet {
     static interface SuccessCallback {
         void call()
     }
+    static interface ClientConnected {
+        void call(EventClient client)
+    }
+    static interface ClientDisconnected {
+        void call(EventClient client)
+    }
+    static interface MessageReceived {
+        void call(EventClient client, WebMessage message)
+    }
     static interface ClientListUpdated {
-        void call(List<Client> list)
-    }
-
-    /**
-     * Client to broadcast to
-     */
-    static class Client {
-        protected final AsyncContext context
-        final InetAddress ip
-        final String id
-        protected final int maxSize
-        Client(HttpServletRequest request, String id, long timeout, int maxSize) {
-            ip = request.remoteAddr.toInetAddress()
-            this.id = id
-            this.maxSize = maxSize
-            context = request.startAsync()
-            context.setTimeout(timeout)
-        }
-    }
-    /**
-     * Simple class to convert data to String
-     */
-    static class WebMessage {
-        protected final Map data
-        WebMessage(Map data) {
-            this.data = data
-        }
-        WebMessage(Collection data) {
-            this.data = [ _data_ : data ]
-        }
-        WebMessage(String data) {
-            this.data = [ _data_ : data ]
-        }
-        String toString() {
-            return JSON.encode(data.containsKey("_data_") ? data._data_ : data)
-        }
-        Map getData() {
-            return data.containsKey("_data_") ? [ data : data._data_ ] : data
-        }
+        void call(List<EventClient> list)
     }
 
     /**
@@ -93,7 +58,7 @@ abstract class BroadcastService extends HttpServlet {
      * @param socketAddress
      * @return
      */
-    static InetAddress getAddressFromSocket(SocketAddress socketAddress) {
+    InetAddress getAddressFromSocket(SocketAddress socketAddress) {
         return (socketAddress as InetSocketAddress).address
     }
     /**
@@ -101,77 +66,70 @@ abstract class BroadcastService extends HttpServlet {
      * @param sockSession
      * @return
      */
-    static InetAddress getAddressFromSession(org.eclipse.jetty.websocket.api.Session sockSession) {
+    InetAddress getAddressFromSession(JettySession sockSession) {
         return  sockSession.upgradeRequest.headers.containsKey(X_FORWARDED_FOR)
             ? sockSession.upgradeRequest.headers[X_FORWARDED_FOR].first().toInetAddress()
             : getAddressFromSocket(sockSession.remoteAddress)
     }
 
     //-------------------- INSTANCE ------------------------
-    int maxSize = Config.get("web.event.max.size", 64) // KB
-    protected final ConcurrentLinkedQueue<Client> clientList = new ConcurrentLinkedQueue<>()
+    final ConcurrentLinkedQueue<EventClient> clientList = new ConcurrentLinkedQueue<>()
 
     //TODO: document
-    protected ClientListUpdated onClientListUpdated = {
-        List<String> list ->
+    ClientListUpdated onClientListUpdated = {
+        List<EventClient> list ->
             Log.d("Number of clients connected: %d", list.size())
     }
-    //TODO: document
-    protected SessionIdentifier identifier = {
-        HttpServletRequest request ->
-            return request.requestedSessionId
+
+    ClientConnected onClientConnect = {
+        EventClient client ->
+            Log.v("Client connected: %s", client.id)
     }
 
-    protected long timeout = 0
-    /**
-     * Constructor
-     * @param identifier
-     * @param timeout
-     */
-    BroadcastService(SessionIdentifier identifier = null, long timeout = 0) {
-        if(identifier) {
-            this.identifier = identifier
-        }
-        this.timeout = timeout
+    ClientDisconnected onClientDisconnect = {
+        EventClient client ->
+            Log.v("Client disconnected: %s", client.id)
     }
+
+    MessageReceived onMessageReceived = {
+        EventClient client, WebMessage msg ->
+            Log.v("Client [%s] sent message: [%s]", client.id, msg.toString())
+    }
+
+    //TODO: document
+    SessionIdentifier identifier = {
+        Request request ->
+            return request.requestedSessionId ?: request.remoteUser ?: request.remoteAddr
+    }
+
+    long timeout = 0
     /**
      * Send data to client
      * @param client
      * @param data
      * @return
      */
-    abstract void sendTo(Client client, WebMessage message, SuccessCallback onSuccess, FailCallback onFail)
+    abstract void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess, FailCallback onFail)
 
     /**
      * Disconnect or remove client
      * @param client
      * @return
      */
-    boolean disconnectClient(Client client) {
+    boolean disconnectClient(EventClient client) {
+        onClientDisconnect.call(client)
         client.context?.complete()
         return clientList.remove(client)
-    }
-    /**
-     * Perform GET action
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
-     */
-    @Override
-    void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        clientList << new Client(req, identifier.call(req), timeout, maxSize)
-        onClientListUpdated.call(clientList.toList())
     }
     /**
      * Send to all connected clients
      * @param data
      */
-    void broadcast(Map data, SuccessCallback onSuccess = {}, FailCallback onFail = { Throwable e -> }) {
+    void broadcast(WebMessage wm, SuccessCallback onSuccess = {}, FailCallback onFail = { Throwable e -> }) {
         if(! connected.empty) {
             connected.each {
-                Client client ->
-                    sendTo(client, new WebMessage(data), onSuccess, onFail)
+                EventClient client ->
+                    sendTo(client, wm, onSuccess, onFail)
             }
         }
     }
@@ -180,14 +138,14 @@ abstract class BroadcastService extends HttpServlet {
      * @param id
      * @return
      */
-    Optional<Client> get(String id) {
+    Optional<EventClient> get(String id) {
         return Optional.ofNullable(clientList.find { it.id == id })
     }
     /**
      * Get all clients
      * @return
      */
-    List<Client> getConnected() {
+    List<EventClient> getConnected() {
         return clientList.toList()
     }
 }

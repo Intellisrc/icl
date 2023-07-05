@@ -14,7 +14,7 @@
 <script>
     $(function() {
         var $ws = $.WS({ 
-            url : location.hostname + ":" + location.port + "/chat",
+            url : location.hostname + ":" + location.port + "/ws/chat",
             debug : false,
             auto_start : false,
             on_open : function() {
@@ -50,7 +50,7 @@
         $("#msg").focus();
         $("button.join").click(function(){
             if($("#msg").val() != "")  {
-              $ws.options.url += "?user=" + $("#msg").val()
+              //$ws.options.url += "?user=" + $("#msg").val()
               $("#msg").val("")
             }
             $ws.start();

@@ -1,67 +1,49 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.core.Log
-import com.intellisrc.web.service.ServiciableWebSocket
+import com.intellisrc.core.Millis
+import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
-import org.eclipse.jetty.websocket.api.Session
-
-import static com.intellisrc.web.service.BroadcastService.MsgBroadCaster
-import static com.intellisrc.web.service.BroadcastService.WebMessage
 
 /**
  * @since 17/04/19.
  */
 @CompileStatic
 class ChatService implements ServiciableWebSocket {
-    List<String> currentList = []
-    boolean replaceOnDuplicate = false
+    Map<String, String> usersList = [:]
 
-    void setBroadCaster(MsgBroadCaster msgBroadCaster) {}
-
-    String getUserID(Map<String, List<String>> params, InetAddress source) {
-        String sessionID
-        if(params != null && params.containsKey("user")) {
-            sessionID = params.get("user").first()
-        } else {
-            sessionID = "Guest "+(new Random().nextInt(100) + 1)
+    ChatService() {
+        ws.onClientConnect = {
+            EventClient client ->
+                usersList[client.id] = client.ip.hostAddress
         }
-        return sessionID
+        ws.onClientDisconnect = {
+            EventClient client ->
+                usersList.remove(client.id)
+        }
+        ws.timeout = Millis.HOUR
+        ws.identifier = {
+            Request request ->
+                return request.queryParams("user") ?: randomName
+        }
     }
 
-    WebMessage onConnect(Session session) {
-        return new WebMessage(
-                    user : "System",
-                    message : "User : ", //FIXME+session.userID+" connected",
-                    list : currentList,
-                    type : "in"
-                )
+    static String getRandomName() {
+        return "Guest "+(new Random().nextInt(100) + 1)
     }
-    WebMessage onDisconnect(Session session, int statusCode, String reason) {
-        return new WebMessage(
-                    user : "System",
-                    message : "User : ", //FIXME+session.userID+" disconnected",
-                    list : currentList,
-                    type : "out"
-                )
-    }
-    WebMessage onMessage(Session session, String message) {
-        return new WebMessage(
-                    user : "", //FIXME session.userID,
-                    message : message,
-                    list : currentList,
+
+    @Override
+    MessageHandler getMessageHandler() {
+        return {
+            WebMessage msg ->
+                return new WebMessage(
+                    message : "Received",
+                    list : usersList.keySet(),
                     type : "txt"
                 )
-    }
-
-    void onClientsChange(List<String> list) {
-        currentList = list
-    }
-
-    void onError(Session session, String message) {
-        Log.e( message)
+        }
     }
 
     String getPath() {
-        "/chat"
+        "/ws/chat"
     }
 }

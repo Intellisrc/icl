@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse
 import org.eclipse.jetty.server.Request as JettyRequest
 import org.eclipse.jetty.server.session.SessionHandler
 
+import static com.intellisrc.web.service.HttpHeader.UPGRADE
+
 /**
  * Handle the request from Jetty, including sessions
  * @since 2023/05/25.
@@ -15,6 +17,7 @@ import org.eclipse.jetty.server.session.SessionHandler
 @CompileStatic
 class RequestHandle extends SessionHandler {
     final protected WebService service
+    final List<String> ignoreURIs = []
 
     RequestHandle(WebService service) {
         this.service = service
@@ -33,18 +36,24 @@ class RequestHandle extends SessionHandler {
     void doHandle(String target,  JettyRequest jettyRequest, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         Request request = new Request(jettyRequest)
         Response response = new Response(jettyRequest.response)
-        try {
-            // Copy the template so we can keep it as instance (as WebException can only access Response object):
-            response.errorTemplate = service.errorTemplate
-            // Execute the filter
-            service.doFilter(request, response)
-        } catch(WebException ignore) {
-            // Ignore as it will just set the response to return error page
+        boolean handled = false
+        if(request.headers(UPGRADE) != "websocket") {
+            if(ignoreURIs.empty || !(ignoreURIs.any { request.uri().matches(it) || target == it })) {
+                try {
+                    // Copy the template so we can keep it as instance (as WebException can only access Response object):
+                    response.errorTemplate = service.errorTemplate
+                    // Execute the filter
+                    handled = service.doFilter(request, response)
+                } catch (WebException ignore) {
+                    // Ignore as it will just set the response to return error page
+                    handled = true
+                }
+            }
+            // As response changes, update jetty response:
+            // NOTE: jettyRequest.response is the same instance as httpResponse but with the Jetty class (httpResponse is an interface).
+            //       So, updating jettyRequest.response here, will update httpResponse object as well
+            response.update()
         }
-        // As response changes, update jetty response:
-        // NOTE: jettyRequest.response is the same instance as httpResponse but with the Jetty class (httpResponse is an interface).
-        //       So, updating jettyRequest.response here, will update httpResponse object as well
-        response.update()
-        request.setHandled(response.status > 0)
+        jettyRequest.setHandled(handled)
     }
 }

@@ -24,9 +24,9 @@ class ChatClient
         String uname = "RoboCUP"
         int timeout = QUIT_TIMEOUT
         WebSocketServiceClient wssc = new WebSocketServiceClient(
-                //hostname: "localhost",
-                //port : 8000,
-                path : "chat?user=$uname"
+                hostname: "localhost",
+                port : 3456,
+                path : "/ws/chat?user=$uname"
         )
         def last_responses = []
         wssc.connect({

@@ -45,7 +45,10 @@ $(function() {
             catch(ex){ options.log("Error: "+ex); }
         },
         quit: function() {
-            this.socket.close();
+            this.socket.send("quit");
+            try {
+                this.socket.close();
+            } catch(ignore) {}
             this.socket=null;
         }
     }

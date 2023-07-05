@@ -3,8 +3,10 @@ package com.intellisrc.web.service
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.server.Request as JettyRequest
+import org.eclipse.jetty.websocket.core.server.internal.UpgradeHttpServletRequest
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -18,6 +20,12 @@ class Request extends JettyRequest {
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
     protected String splat = ""
 
+    Request(HttpServletRequest request) {
+        this(getBaseRequest(request))
+    }
+    Request(UpgradeHttpServletRequest request) {
+        this(getBaseRequest(request.httpServletRequest))
+    }
     Request(JettyRequest request) {
         super(request.httpChannel, request.httpInput)
         JettyRequest.class.declaredFields.each {
@@ -45,7 +53,7 @@ class Request extends JettyRequest {
      * @return
      */
     String uri() {
-        return httpURI.toString()
+        return requestURI
     }
     /**
      * Backward compatibility with Spark
@@ -156,7 +164,7 @@ class Request extends JettyRequest {
      * @return
      */
     List<String> getQueryParamAsList(String key) {
-        return queryParameters.get(key)
+        return parameterMap.get(key).toList()
     }
     /**
      * Backward compatibility with Spark
@@ -170,8 +178,8 @@ class Request extends JettyRequest {
      * @return
      */
     Map<String, String> getQueryParams() {
-        return Collections.unmodifiableMap(queryParameters.collectEntries {
-            [(it.key) : it.value.join(",")]
+        return Collections.unmodifiableMap(parameterMap.collectEntries {
+            [(it.key): it.value.join(",")]
         })
     }
     /**

@@ -1,52 +1,60 @@
 package com.intellisrc.web.service
 
-import com.intellisrc.web.WebSocketService
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
-
-import static com.intellisrc.web.service.BroadcastService.MsgBroadCaster
-import static com.intellisrc.web.service.BroadcastService.WebMessage
 
 /**
  * @since 17/04/19.
  */
 @CompileStatic
 trait ServiciableWebSocket extends Serviciable {
+    WebSocketBroadcastService ws = new WebSocketBroadcastService(messageHandler, getPath())
 
-    // To be assigned by WebService
-    WebSocketService service
-    // To be assigned by WebSocketService
-    MsgBroadCaster broadCaster
-    // Set to true if same ID should replace previous session
-    boolean replaceOnDuplicate = false
     /**
-     * Sends a Message to specific client (using broadcaster)
-     * @param session
-     * @param response
+     * MessageHandler takes care of incoming messages and replies
+     * @return
+     */
+    abstract MessageHandler getMessageHandler()
+
+    /**
+     * Set WebSocket path
+     * @return
+     */
+    abstract String getPath()
+
+    /**
+     * Send Message to client
+     * @param userID
      * @param data
+     * @return
      */
     boolean sendMessageTo(String userID, final Map data) {
+        Optional<EventClient> clientOpt = ws.get(userID)
         boolean sent = false
-        broadCaster.call(new WebMessage(userID, data), {
-            // On success
-            sent = true
-        }, {
-            // On failure
-            sent = false
-        })
+        if(clientOpt.present) {
+            EventClient client = clientOpt.get()
+            ws.sendTo(clientOpt.get(), new WebMessage(data), {
+                sent = true
+            } ,{
+                Throwable t ->
+                    Log.d("Unable to send message to: %s", client.id)
+            })
+        }
         return sent
     }
+
     /**
-     * Set Max Size for messages (binary or text) in KB
-     * @param maxSizeKB
+     * Shortcut to broadcast to all clients
+     * @param data
+     * @return
      */
-    void setMaxSize(int maxSizeKB) {
-        service?.maxSize = maxSizeKB
-    }
-    /**
-     * Set Timeout in seconds
-     * @param timeoutSec
-     */
-    void setTimeout(int timeoutSec) {
-        service?.timeout = timeoutSec
+    boolean broadcast(Map data) {
+        boolean sent = false
+        ws.broadcast(new WebMessage(data), {
+            sent = true
+        }, { Throwable it ->
+            Log.w("Unable to send broadcast message: %s", it.message)
+        })
+        return sent
     }
 }

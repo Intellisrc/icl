@@ -20,8 +20,13 @@ import jakarta.servlet.http.HttpSession
 import jakarta.servlet.http.Part
 import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.http.HttpMethod
+import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.handler.HandlerList
+import org.eclipse.jetty.servlet.ServletContextHandler
+import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.util.thread.QueuedThreadPool
+import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer
 
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriter
@@ -95,6 +100,8 @@ class WebService extends WebServiceBase {
 
     protected List<StaticPath> staticPaths = []
     protected Server jettyServer
+    protected ServletContextHandler contextHandler
+    protected RequestHandle requestHandle
     protected boolean multiThread
     protected List<Serviciable> services = []
 
@@ -172,7 +179,11 @@ class WebService extends WebServiceBase {
                 this.multiThread = threads > 0
                 jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
                 jettyServer.addConnector(httpProtocol.connector)
-                jettyServer.setHandler(new RequestHandle(this))
+                requestHandle = new RequestHandle(this)
+                contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS)
+                HandlerList handlers = new HandlerList()
+                handlers.setHandlers([requestHandle, contextHandler].toArray() as Handler[])
+                jettyServer.setHandler(handlers)
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
                 Log.e("Unable to initialize web service", e)
@@ -216,7 +227,10 @@ class WebService extends WebServiceBase {
                             case ServiciableWebSocket:
                                 ServiciableWebSocket websocket = serviciable as ServiciableWebSocket
                                 Log.v("Adding WebSocket Service at path: [%s]", websocket.path)
-                                addWebSocketService(websocket)
+                                ServletHolder holder = new ServletHolder(websocket.ws)
+                                holder.initOrder = 0
+                                contextHandler.addServlet(holder, websocket.path)
+                                JettyWebSocketServletContainerInitializer.configure(contextHandler, null)
                                 prepared = true
                                 break
                             case ServiciableAuth:
@@ -338,23 +352,6 @@ class WebService extends WebServiceBase {
         sp.path = addRoot(serviciable.path, sp.path)
         Log.v("Adding Service: [%s] with method %s", sp.path, sp.method.toString())
         return addService(sp)
-    }
-
-    /**
-     * Sets WebSocketService and copy properties from this class
-     * @param webSocket
-     */
-    WebService addWebSocketService(ServiciableWebSocket webSocket) {
-        WebSocketService wss = new WebSocketService(webSocket)
-        webSocket.service = wss // Mutual Link
-        wss.port = port
-        wss.address = address
-        wss.timeout = timeout
-        wss.initialized = true
-        wss.ssl = ssl
-        wss.log = log
-        wss.accessLog = accessLog
-        return this
     }
 
     /**
@@ -679,8 +676,8 @@ class WebService extends WebServiceBase {
                     if (prevTag == etag) { // Same content
                         response.status(NOT_MODIFIED_304)
                         output.headers.put(CONTENT_LENGTH, "0")
-                        request.response.contentLength = 0
-                        request.response.contentType = null
+                        response.contentLength = 0
+                        response.contentType = null
                         //noinspection GroovyUnusedAssignment
                         output = null
                     }
@@ -953,7 +950,7 @@ class WebService extends WebServiceBase {
      * @param servletResponse
      * @param filterChain
      */
-    void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) {
+    boolean doFilter(ServletRequest servletRequest, ServletResponse servletResponse) {
         boolean commited = false
         Request request = servletRequest as Request
         Response response = servletResponse as Response
@@ -1163,14 +1160,16 @@ class WebService extends WebServiceBase {
             Log.d("Server status code was: %d : %s", response.status, request.uri())
             throw new WebException(response, response.status, getCode(response.status).message)
         }
-        // Close the response if it is not closed
+        // For streams do not close them unless instructed to do so
         if(out.type == Type.STREAM) {//FIXME: stream
             while(true) {
                 sleep(Millis.SECOND)
             }
+        // Close the response if it is not closed
         } else if (!commited &&! response.committed) {
             response.writer.close()
         }
+        return commited || response.committed
     }
 
     /**

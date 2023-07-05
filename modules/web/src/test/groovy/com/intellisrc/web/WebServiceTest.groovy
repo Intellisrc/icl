@@ -228,14 +228,16 @@ class WebServiceTest extends Specification {
 
     def "Websocket Test"() {
         setup:
-            def keepalive = false // change to 'true' to test manually WebSocket Clients
+            // change to 'true' to test manually WebSocket Clients
+            // and open the browser in /chat.html
+            def keepalive = true
             def web = new WebService(
-                port: LocalHost.freePort,
+                port: 3456, //LocalHost.freePort,
                 // Resources set as full path because code is executed under /tst/
                 resources: System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
             )
-            web.addService(new ChatService(timeout: 60))
+            web.addService(new ChatService())
             web.start(!keepalive)
         expect:
             assert web.isRunning()
@@ -245,7 +247,7 @@ class WebServiceTest extends Specification {
 
     /* Comment next line to test and set "keepalive = true" in the server test */
 
-    @PendingFeature
+    //@PendingFeature
     def "WebSocket Client"() {
         setup:
             ChatClient cc = new ChatClient()

@@ -12,7 +12,6 @@ dependencies {
     //api 'com.intellisrc:spark-core:2.9.4-unofficial-4'
     api "org.eclipse.jetty:jetty-server:${jetty}"
     api "org.eclipse.jetty.http2:http2-server:${jetty}"
-    api "org.eclipse.jetty.http3:http3-server:${jetty}"
     api "org.eclipse.jetty:jetty-alpn-server:${jetty}"
     api "org.eclipse.jetty:jetty-alpn-conscrypt-server:${jetty}"
     api "org.eclipse.jetty.websocket:websocket-jetty-server:${jetty}"

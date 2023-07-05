@@ -1,16 +1,15 @@
-package com.intellisrc.web
 
-import com.intellisrc.core.Config
-import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import com.intellisrc.web.service.ServiciableWebSocket
-import groovy.transform.CompileStatic
-import org.eclipse.jetty.websocket.api.Session as WebSocketSession
+import Config
+import Log
+import Millis
+import ServiciableWebSocket
+import CompileStatic
+import Session as WebSocketSession
 import org.eclipse.jetty.websocket.api.annotations.*
 
 import java.time.Duration
 
-import static com.intellisrc.web.service.BroadcastService.*
+import static BroadcastService.*
 
 /**
  * This class is a wrapper for @WebSocket
@@ -19,6 +18,7 @@ import static com.intellisrc.web.service.BroadcastService.*
  */
 @CompileStatic
 @WebSocket
+@Deprecated
 class WebSocketService extends WebServiceBase {
     int maxSize = Config.get("websocket.max.size", 64)
     protected ServiciableWebSocket listener
@@ -43,7 +43,7 @@ class WebSocketService extends WebServiceBase {
     }
 
     @OnWebSocketConnect
-    void onConnect(WebSocketSession sockSession) {
+    void onConnect(Session sockSession) {
         if(sockSession) {
             // Set limits
             sockSession.idleTimeout = Duration.ofMillis(timeout * Millis.SECOND)
@@ -84,7 +84,7 @@ class WebSocketService extends WebServiceBase {
     }
 
     @OnWebSocketClose
-    void onClose(WebSocketSession sockSession, int statusCode, String reason) {
+    void onClose(Session sockSession, int statusCode, String reason) {
         if(sockSession) {
             InetAddress address = getAddressFromSession(sockSession)
             Log.i("Client disconnected [%s], reason: [%s]", address?.hostAddress ?: "unknown", reason)
@@ -96,7 +96,7 @@ class WebSocketService extends WebServiceBase {
     }
 
     @OnWebSocketMessage
-    void onMessage(WebSocketSession sockSession, String message) {
+    void onMessage(Session sockSession, String message) {
         if(sockSession) {
             InetAddress address = getAddressFromSession(sockSession)
             Log.v("[%s] sent message: [%s]", address?.hostAddress ?: "unknown", message)
@@ -105,7 +105,7 @@ class WebSocketService extends WebServiceBase {
     }
 
     @OnWebSocketError
-    void onWebSocketError(WebSocketSession sockSession, Throwable throwable) {
+    void onWebSocketError(Session sockSession, Throwable throwable) {
         if(sockSession) {
             //FIXME listener.onError(sessionCtrl.find(sockSession), throwable.message)
             InetAddress address = getAddressFromSession(sockSession)

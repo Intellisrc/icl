@@ -55,7 +55,7 @@ class SSEService {
 
         SSETester() {
             Tasks.add(IntervalTask.create({
-                sse.sendAll(i++, [
+                broadcast(i++, [
                     service: "Power",
                     action: "ON"
                 ])
