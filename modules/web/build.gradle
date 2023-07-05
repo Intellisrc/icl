@@ -20,10 +20,6 @@ dependencies {
     api "org.eclipse.jetty:jetty-webapp:${jetty}"
     api "org.eclipse.jetty:jetty-servlets:${jetty}"
 
-    //TODO: reimplement security (LoginService) :
-    //implementation 'org.pac4j:spark-pac4j:2.1.0'
-    //implementation 'org.pac4j:pac4j-http:2.1.0'
-
     // NOTE: To enable Brotli compression, you may need to add this to your project:
     // implementation "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
     // And depending on your platform:

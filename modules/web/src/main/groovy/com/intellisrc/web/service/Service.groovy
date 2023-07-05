@@ -84,8 +84,8 @@ class Service implements Serviciable {
     /**
      * Optional method to use Pattern as path
      * @param pattern
-     */
-    /* FIXME: void setPath(Pattern pattern) {
+     */ //FIXME
+    /*void setPath(Pattern pattern) {
         this.path = "~/" + addRoot(pattern.toString()) + "/"
     }*/
     /**

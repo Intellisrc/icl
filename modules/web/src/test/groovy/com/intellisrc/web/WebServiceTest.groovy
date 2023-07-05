@@ -230,9 +230,9 @@ class WebServiceTest extends Specification {
         setup:
             // change to 'true' to test manually WebSocket Clients
             // and open the browser in /chat.html
-            def keepalive = true
+            def keepalive = false
             def web = new WebService(
-                port: 3456, //LocalHost.freePort,
+                port: LocalHost.freePort,
                 // Resources set as full path because code is executed under /tst/
                 resources: System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
