@@ -801,7 +801,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                     case Model:
                         Constructor<?> c = field.type.getConstructor()
                         Model refType = (c.newInstance() as Model)
-                        retVal = get(value as int)
+                        Relational relational = getTableOrView(refType)
+                        retVal = relational.get(value as int)
                         break
                     default:
                         try {
@@ -864,5 +865,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     static Relational getTableOrView(Class model) {
         List<Relational> list = tableModelRel.findAll { it.value == model }.collect { it.key }
         return list.find { it instanceof Table } ?: list.first()
+    }
+    /**
+     * This is needed if Database is changed
+     */
+    static void resetModelRelation() {
+        tableModelRel.clear()
     }
 }
