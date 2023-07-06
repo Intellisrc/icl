@@ -20,7 +20,8 @@ class DummyConnector implements Connector {
     static String datePattern = "yyyy-MM-dd HH:mm:ss"
     private connected = false
     private opened = false
-    long lastUsed = 0
+    LocalDateTime lastUsed
+    LocalDateTime creationTime
 
     @Override
     boolean isOpen() {
@@ -132,6 +133,16 @@ class DummyConnector implements Connector {
         String columnName(int index) {
             Set<String> columns = data.first().keySet()
             return columns[index]
+        }
+
+        @Override //NOTE: does not support multibyte strings
+        char columnChar(int index) {
+            return data[dataIndex].get(columnName(index)).toString().charAt(0)
+        }
+
+        @Override
+        char[] columnChars(int index) {
+            return data[dataIndex].get(columnName(index)).toString().toCharArray()
         }
 
         @Override

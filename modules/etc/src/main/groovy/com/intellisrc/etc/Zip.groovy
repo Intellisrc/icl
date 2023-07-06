@@ -66,7 +66,7 @@ class Zip {
         if (file.exists()) {
             if (file.name.endsWith(".gz")) {
                 file.bytes = gunzip(file.bytes)
-                ok = file.renameTo(file.name.replace(/\.gz$/, ''))
+                ok = file.renameTo(file.path.replaceAll(/\.gz$/, ''))
             } else {
                 throw new InvalidExtensionException()
             }

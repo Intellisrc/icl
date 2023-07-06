@@ -94,7 +94,7 @@ class Mime {
             qt      : "video/quicktime",
             ra      : "audio/x-pn-realaudio",
             ram     : "audio/x-pn-realaudio",
-            rar		: "application/vnd.rar",
+            rar		: "application/x-rar-compressed",
             rdf     : "application/rdf+xml",
             rtf		: "application/rtf",
             sgml    : "text/sgml",
@@ -188,24 +188,37 @@ class Mime {
     static final String ZIP     = types["zip"]
     static final String ZIP7    = types["7z"]
 
+    static Tika tikaInstance
+
+    static protected Tika getTika() {
+        if(!tikaInstance) {
+            tikaInstance = new Tika()
+        }
+        return tikaInstance
+    }
     /**
      * Return the mime type of a file
      * @param file
      * @return
      */
     static String getType(final File file) {
-        String type = getTypeFromConfig(file.name)
-        if(!type) {
-            type = (file.exists() ? new Tika().detect(file) : "")
-        }
-        if(!type || type == "text/plain" || type == "application/octet-stream") {
-            String guessType = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
-            if(guessType) {
-                type = guessType
+        String type = ""
+        if(! file.isDirectory()) {
+            type = getTypeFromConfig(file.name)
+            if (!type) {
+                type = (file.exists() ? tika.detect(file) : "")
             }
-        }
-        if(!type) {
-            Log.w("Unknown mime type for file: %s", file.name)
+            if (!type || type == "text/plain" || type == "application/octet-stream") {
+                String guessType = types.get(file.name.tokenize(".")?.last()) ?: URLConnection.guessContentTypeFromName(file.name)
+                if (guessType) {
+                    type = guessType
+                }
+            }
+            if (!type) {
+                Log.w("Unknown mime type for file: %s", file.name)
+            }
+        } else {
+            Log.w("Requested Mime type for directory: %s", file.absolutePath)
         }
         return type ?: "" //Prevent NULL value
     }
@@ -215,7 +228,7 @@ class Mime {
      * @return
      */
     static String getType(URL url) {
-        return new Tika().detect(url) ?: getType(new File(url.getFile()))
+        return tika.detect(url) ?: getType(new File(url.getFile()))
     }
     /**
      * Return the mime type of a file or extension type:
@@ -239,7 +252,7 @@ class Mime {
      * @return
      */
     static String getType(InputStream stream) {
-        return new Tika().detect(stream) ?: URLConnection.guessContentTypeFromStream(stream)
+        return tika.detect(stream) ?: URLConnection.guessContentTypeFromStream(stream)
     }
     /**
      * Look for mime type in config, for example:

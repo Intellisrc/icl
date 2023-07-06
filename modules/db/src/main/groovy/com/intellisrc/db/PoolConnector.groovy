@@ -5,6 +5,7 @@ import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.sql.Connection
+import java.time.LocalDateTime
 
 @CompileStatic
 /**
@@ -14,7 +15,8 @@ import java.sql.Connection
 class PoolConnector implements Connector {
 	protected Connector currentConnector
 	private final DBPool pool
-	long lastUsed = 0
+	LocalDateTime lastUsed
+	LocalDateTime creationTime
 
 	PoolConnector(DBPool dbPool) {
 		pool = dbPool
@@ -61,12 +63,15 @@ class PoolConnector implements Connector {
             currentConnector = pool?.getConnectionFromPool()
 			Log.v( "DB got from Pool")
             try {
-				if(currentConnector.open()) {
-					Log.v("DB was opened")
-					isopen = true
-				} else {
-					Log.w("Unable to connect")
-					close() // Return connection if it fails to connect
+				isopen = isOpen() //Test again as currentConnector changed
+				if(! isopen) {
+					if (currentConnector.open()) {
+						Log.v("DB was opened")
+						isopen = true
+					} else {
+						Log.w("Unable to connect")
+						close() // Return connection if it fails to connect
+					}
 				}
             } catch (e) {
                 Log.e( "Unable to get connection :", e)
@@ -77,7 +82,7 @@ class PoolConnector implements Connector {
 
 	@Override
 	void clear(Connection connection) {
-		if(open) {
+		if(isOpen()) {
 			currentConnector.clear(connection)
 		}
 	}

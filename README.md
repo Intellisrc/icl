@@ -173,28 +173,30 @@ Includes : core, etc
 
 **NOTE** : You may need to include your database driver as dependency in order to use this module.
 
-|     | Class                      | Usage                                                                              |
-|-----|----------------------------|------------------------------------------------------------------------------------|
- | ★   | `Database`                 | Main class which will handle connections to SQL databases                          |
- | ★   | `DB`                       | Object to interact with the databases (Fluid SQL query builder)                    |
- |     | `Query`                    | Handles SQL queries                                                                |
- | ★   | `Table`, `Model`           | Automatic table creation/update and CRUD data manipulations                        |
+|     | Class                     | Usage                                                                              |
+|-----|---------------------------|------------------------------------------------------------------------------------|
+ | ★   | `Database`                | Main class which will handle connections to SQL databases                          |
+ | ★   | `DB`                      | Object to interact with the databases (Fluid SQL query builder)                    |
+ |     | `Query`                   | Handles SQL queries                                                                |
+ | ★   | `Table`, `View`, `Model`  | Automatic table creation/update and CRUD data manipulations                        |
  |     | `@TableMeta`, `@ModelMeta` | Additional options to the above classes                                            |
- | @   | `Data`                     | Object returned by SQL databases and which can be converted into different classes |
- | @   | `DBPool`                   | Keep connections in a pool to increase performance                                 |
- | @   | `Dummy`                    | Dummy database (used for unit testing)                                             |
- | @   | `DummyConnector`           | Simulate and log DB connections (used for unite testing)                           |
- | @   | `JDBCConnector`            | A single JDBC connection                                                           |
- | @   | `PoolConnector`            | Implements a connector to be used in `DBPool`                                      |
- | @   | `JDBC`                     | Extend this class to create your own JDBC connection                               |
-|     | `Derby`                    | JDBC implementation for Derby databases                                            |
-|     | `Firebird`                 | JDBC implementation for Firebird databases                                         |
-|     | `MySQL`                    | JDBC implementation for MySQL databases                                            |
-|     | `MariaDB`                  | JDBC implementation for MariaDB databases                                          |
-|     | `Oracle`                   | JDBC implementation for Oracle databases                                           |
-|     | `PostgreSQL`               | JDBC implementation for PostgresSQL databases                                       |
- |     | `SQLite`                   | JDBC implementation for SQLite databases                                           |
-|     | `SQLServer`                | JDBC implementation for SQL Server databases                                       |
+ | @   | `Data`                    | Object returned by SQL databases and which can be converted into different classes |
+ | @   | `DBPool`                  | Keep connections in a pool to increase performance                                 |
+ | @   | `Dummy`                   | Dummy database (used for unit testing)                                             |
+ | @   | `DummyConnector`          | Simulate and log DB connections (used for unite testing)                           |
+ | @   | `JDBCConnector`           | A single JDBC connection                                                           |
+ | @   | `PoolConnector`           | Implements a connector to be used in `DBPool`                                      |
+ | @   | `JDBC`                    | Extend this class to create your own JDBC connection                               |
+|     | `Derby`                   | JDBC implementation for Derby databases                                            |
+|     | `Firebird`                | JDBC implementation for Firebird databases                                         |
+|     | `H2`                      | JDBC implementation for H2 databases                                               |
+|     | `HyperSQL`                | JDBC implementation for HyperSQL databases                                         |
+|     | `MySQL`                   | JDBC implementation for MySQL databases                                            |
+|     | `MariaDB`                 | JDBC implementation for MariaDB databases                                          |
+|     | `Oracle`                  | JDBC implementation for Oracle databases                                           |
+|     | `PostgreSQL`              | JDBC implementation for PostgresSQL databases                                      |
+ |     | `SQLite`                  | JDBC implementation for SQLite databases                                           |
+|     | `SQLServer`               | JDBC implementation for SQL Server databases                                       |
 
 [Documentation](modules/db/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#db)
 
@@ -212,6 +214,8 @@ Includes : core, etc, crypt
  |     | `Network`    | Methods related to networking and ip addresses but not to NetworkInterface |
  |     | `NetFace`    | Simple representation of a Network Interface                               |
  | ★   | `Smtp`       | Class to send emails using SMTP server                                     |
+ |     | `Host`       | A Host in a network (can be used for pinging it, etc)                      |
+ |     | `LocalHost`  | Network of local server. Useful to get interfaces, IP addresses, etc       |
  |     | `FtpClient`  | FTP client                                                                 |
  |     | `TCPClient`  | TCP client                                                                 |
  |     | `TCPServer`  | TCP server                                                                 |

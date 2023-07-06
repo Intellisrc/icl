@@ -3,16 +3,16 @@ dependencies {
     api "org.reflections:reflections:0.10.2"
 
     def derby= '10.15.2.0'
-    def firebird = '4.0.8.java11'
+    def firebird = '5.0.1.java11'
     def h2 = '2.1.214'
     def hypersql = '2.7.1'
     def informix = '4.50.9'
-    def mariadb = '3.0.6'
-    def mysql = '8.0.30'
-    def oracle = '21.7.0.0'
-    def postgresql = '42.5.1'
-    def sqlite = '3.40.0.0'
-    def sqlserver = '11.2.1.jre11'
+    def mariadb = '3.1.2'
+    def mysql = '8.0.33'
+    def oracle = '21.9.0.0'
+    def postgresql = '42.5.4'
+    def sqlite = '3.40.1.0'
+    def sqlserver = '12.2.0.jre11'
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.

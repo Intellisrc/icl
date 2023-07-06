@@ -66,6 +66,11 @@ class Log {
             if (logger?.name && logger.name != "NOP") {
                 printers << (Printer) {
                     Level level, Info stack, String msg, List<Object> args, Throwable throwable ->
+                        // If we haven't specified any special logger, format strings here:
+                        if(logger.name == "app" && args) {
+                            msg = formatString(msg, args)
+                            args.clear()
+                        }
                         switch (level) {
                             case Level.TRACE:
                                 if(args.size()) {

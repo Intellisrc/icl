@@ -150,6 +150,7 @@ class AutoTest extends Specification {
         printLogger.setLevel(Level.TRACE)
         if(sqliteTmp.exists()) { sqliteTmp.delete() }
         DB.clearCache()
+        Relational.resetModelRelation()
     }
 
     def cleanup() {
@@ -163,13 +164,16 @@ class AutoTest extends Specification {
         if(derbyLog.exists()) {
             derbyLog.delete()
         }
-        Table.reset()
     }
 
     @Unroll
     def "Create table model"() {
         setup:
             Database database = new Database(type)
+            database.connect().with {
+                assert it.openIfClosed()
+                assert it.close()
+            }
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
             aliases.clear()
@@ -223,7 +227,8 @@ class AutoTest extends Specification {
             assert users.delete(u)
             assert aliases.all.empty
         cleanup:
-            Table.reset()
+            aliases.reset()
+            users.reset()
             aliases.drop()
             users.drop()
             aliases.quit()
@@ -236,6 +241,10 @@ class AutoTest extends Specification {
     def "Multi-column Primary Key should work fine"() {
         setup:
             Database database = new Database(type)
+            database.connect().with {
+                assert it.openIfClosed()
+                assert it.close()
+            }
             Users users = new Users(database)
             Emails emails = new Emails(database)
             Inboxes inboxes = new Inboxes(database)
@@ -253,17 +262,23 @@ class AutoTest extends Specification {
                 UserEmail email = new UserEmail(
                     email: new Email("user${it}@example.com")
                 )
+                assert usr
                 assert users.insert(usr)
                 assert emails.insert(email)
+                assert usr.id
+                assert email.id
                 inboxes.insert(new Inbox(
                     user: usr,
                     email: email
                 ))
-                Inbox inbox = inboxes.get([usr.uniqueId, email.uniqueId]).first()
+                Inbox inbox = inboxes.get([usr.id, email.id]).first()
+                assert inbox.user && inbox.user.id
+                assert inbox.email && inbox.email.id
                 assert inbox.enabled
                 inbox.enabled = false
                 assert inboxes.update(inbox)
-                assert ! inboxes.table.field("enabled").get([usr.uniqueId, email.uniqueId]).toBool()
+                boolean enabled = inboxes.table.field("enabled").get([usr.id, email.id]).toBool()
+                assert ! enabled
             }
         then:
             assert users.all.size() == rows     : "Number of rows failed"
@@ -276,8 +291,8 @@ class AutoTest extends Specification {
                     assert t.all.size() == 0
             }
         cleanup:
-            Table.reset()
             [inboxes, users, emails].each {
+                it?.reset()
                 it?.drop()
                 it?.quit()
             }
@@ -289,6 +304,10 @@ class AutoTest extends Specification {
     def "Primary Key is Model"() {
         setup:
             Database database = new Database(type)
+            database.connect().with {
+                assert it.openIfClosed()
+                assert it.close()
+            }
             Users users = new Users(database)
             Addresses addresses = new Addresses(database)
             addresses.clear()
@@ -324,7 +343,7 @@ class AutoTest extends Specification {
         then:
             assert addresses.all.size() == 2
         cleanup:
-            Table.reset()
+            addresses.reset()
             [addresses, users].each {
                 it?.drop()
                 it?.quit()
@@ -337,6 +356,10 @@ class AutoTest extends Specification {
     def "Insert, update and delete in bulk"() {
         setup:
             Database database = new Database(type)
+            database.connect().with {
+                assert it.openIfClosed()
+                assert it.close()
+            }
             Emails emails = new Emails(database)
             emails.clear()
             assert ! emails.pks.empty
@@ -372,7 +395,7 @@ class AutoTest extends Specification {
             assert emails.clear()
             assert emails.count() == 0
         cleanup:
-            Table.reset()
+            emails.reset()
             [emails].each {
                 it?.drop()
                 it?.quit()

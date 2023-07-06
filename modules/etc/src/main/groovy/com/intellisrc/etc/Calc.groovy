@@ -10,8 +10,8 @@ class Calc {
     /**
      * Calculate STD deviation
      */
-    static double stdDeviation(final List values, double average = 0) {
-        if (!average) {
+    static double stdDeviation(final Collection values, double average = 0) {
+        if (average == 0 &&! values.empty) {
             average = (values.sum() as double) / values.size()
         }
         return Math.sqrt((((double) values.collect {

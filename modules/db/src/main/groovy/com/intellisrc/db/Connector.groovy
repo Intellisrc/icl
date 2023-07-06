@@ -4,6 +4,7 @@ import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.sql.Connection
+import java.time.LocalDateTime
 
 /**
  * @since 2022/08/09.
@@ -21,8 +22,11 @@ interface Connector {
     void onError(Throwable ex)
 
     JDBC getJdbc()
-    long getLastUsed()
-    void setLastUsed(long milliseconds)
+    LocalDateTime getLastUsed()
+    void setLastUsed(LocalDateTime time)
+
+    LocalDateTime getCreationTime()
+    void setCreationTime(LocalDateTime time)
     List<String> getTables()
     List<ColumnInfo> getColumns(String table)
 }

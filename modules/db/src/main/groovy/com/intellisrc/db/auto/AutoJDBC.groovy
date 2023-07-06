@@ -5,7 +5,7 @@ import com.intellisrc.db.Data
 import com.intellisrc.db.Query
 import groovy.transform.CompileStatic
 
-import static com.intellisrc.db.auto.Table.ColumnDB
+import static com.intellisrc.db.auto.Relational.ColumnDB
 
 /**
  * @since 2022/07/05.
@@ -111,6 +111,7 @@ trait AutoJDBC {
                     dv = "0"
                     break
                 case String:
+                case Character:
                 case char:
                     dv = "''"
                     break

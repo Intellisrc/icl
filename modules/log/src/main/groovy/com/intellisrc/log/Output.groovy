@@ -3,6 +3,7 @@ package com.intellisrc.log
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import org.slf4j.event.Level
+
 import java.time.LocalDateTime
 
 import static com.intellisrc.log.Output.OutputType.FILE
@@ -27,6 +28,7 @@ class Output {
     enum OutputType {
         SYS_OUT, CACHED_SYS_OUT, SYS_ERR, CACHED_SYS_ERR, FILE
         PrintStream getPrintStream() {
+            //noinspection GroovyFallthrough
             switch (this) {
                 case SYS_OUT:
                 case CACHED_SYS_OUT:
@@ -59,7 +61,7 @@ class Output {
     }
 
     Output(File file, OnPrint onPrint = null) {
-        this(new PrintStream(file.absolutePath), onPrint)
+        this(new PrintStream(new FileOutputStream(file.absolutePath, true)), onPrint)
     }
 
     PrintStream getTargetPrintStream() {

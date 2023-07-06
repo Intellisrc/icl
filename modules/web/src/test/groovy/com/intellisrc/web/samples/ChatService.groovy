@@ -25,7 +25,7 @@ class ChatService implements ServiciableWebSocket {
         if(params != null && params.containsKey("user")) {
             sessionID = params.get("user").first()
         } else {
-            sessionID = "Guest "+(Random.newInstance().nextInt(100) + 1)
+            sessionID = "Guest "+(new Random().nextInt(100) + 1)
         }
         return sessionID
     }

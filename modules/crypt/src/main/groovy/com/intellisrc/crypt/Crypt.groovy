@@ -57,7 +57,7 @@ class Crypt {
         char[] charPool = chars.toCharArray()
         char[] randAlpha = (1..len).collect {
             charPool[random.nextInt(charPool.length)]
-        }
+        }.join("").toCharArray()
         Arrays.fill(charPool, (char)0)
         return Bytes.fromChars(randAlpha)
     }

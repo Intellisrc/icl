@@ -7,7 +7,7 @@ import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
-import com.intellisrc.db.auto.Table.ColumnDB
+import com.intellisrc.db.auto.Relational.ColumnDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
@@ -183,6 +183,8 @@ class SQLite extends JDBC implements AutoJDBC {
         switch (column.type) {
             case boolean:
             case Boolean:
+            case char:
+            case Character:
             case String:
             case Inet4Address:
             case Inet6Address:

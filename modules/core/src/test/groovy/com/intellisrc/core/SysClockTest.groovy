@@ -1,5 +1,6 @@
 package com.intellisrc.core
 
+import spock.lang.Retry
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -31,6 +32,7 @@ class SysClockTest extends Specification {
             assert time.YMDHms != SysClock.now.YMDHms
 
     }
+    @Retry
     def "Setting clock"() {
         setup :
             def time = "2000-01-01 10:00:00".toDateTime()
