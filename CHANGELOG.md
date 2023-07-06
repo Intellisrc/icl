@@ -1,14 +1,26 @@
 # Main Changes
 
-### 2.9.0 (jetty branch)
-* Web module no longer uses [Spark](https://sparkjava.com/). Now it uses [Jetty](https://www.eclipse.org/jetty/) directly (web)
+## 2.9 Branch
+
+### 2.9.0 (jetty branch, status : Experimental)
+* Web module no longer uses [Spark](https://sparkjava.com/). Now it uses [Jetty](https://www.eclipse.org/jetty/) directly (web) ** Breaking change **
 * Updated Jetty to version 11 (web)
 * Accept multiple resource directories (web)
 * Added path policy (web)
+* Added SSE (Server Send Events) (web)
 
-### 2.8.11 (next branch)
-* Updated Jetty to version 11. Implemented in Spark (web)
+ **Update Notes**: Changes in the `web` module may need to be manually fixed (like websockets usage, etc).
+
+## 2.8 Branch
+
+### 2.8.12 (next branch, status : Experimental)
+* Updated Jetty to version 11. Implemented in Spark (web) ** Breaking change **
 * Accept multiple resource directories. Implemented in Spark (web)
+
+**Update Notes**: Most of the Jetty classes changed to jakarta package, you may need to modify their `import` statement.
+
+### 2.8.11 (main branch, status : Stable)
+* DB module package changed (db) ** Breaking change **
 * Added `unlimited` to `@Column` (db)
 * Added support for `View` (db)
 * Keep old log upon restart (log)
@@ -16,6 +28,8 @@
 * Added "Accept-Ranges" header (web)
 * Fixed connections no properly closed (db)
 * Added Email.isValid (net)
+
+**Update Notes**: Remove missing `import` packages (related to db module) and reimport them again to update their `import` statement. 
 
 ### 2.8.10
 * Added stream and chunks support in `LpCode` (crypt)
