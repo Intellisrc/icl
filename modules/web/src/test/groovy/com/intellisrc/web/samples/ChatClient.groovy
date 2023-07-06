@@ -14,7 +14,6 @@ import com.intellisrc.web.WebSocketServiceClient
  * https://docs.api.ai/
  * https://developer.pandorabots.com/ (https://github.com/pandorabots/pb-java)
  * http://www.botmill.io/
- * IDEA: get Q/A from http://www.fanpop.com/clubs/random/answers/date and stackoverflow
  */
 class ChatClient
 {
