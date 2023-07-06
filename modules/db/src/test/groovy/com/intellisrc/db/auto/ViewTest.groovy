@@ -1,6 +1,7 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.SysClock
+import com.intellisrc.db.DB
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.jdbc.*
@@ -29,6 +30,11 @@ class ViewTest extends AutoTest {
     def "Should create view"() {
         setup:
             Database database = new Database(jdbc)
+            database.connect().with {
+                assert it.openIfClosed()
+                assert !it.table("test_view").exists()
+                assert it.close()
+            }
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
             aliases.clear()
@@ -63,11 +69,18 @@ class ViewTest extends AutoTest {
         then:
             assert aliases.insert(alias)
         then:
+            DB db = database.connect()
+            assert db.table("test_view").exists()
             assert view.fields.any { it.name == "name" }
             assert view.fields.any { it.name == "added" }
             assert view.getAll().first().age == u.age
             assert view.getAll().first().added == alias.added
+        cleanup:
+            view.drop()
+            assert ! db.table("text_view").exists()
+            assert db.close()
         where:
             jdbc << getTestable()
+
     }
 }
