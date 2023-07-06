@@ -95,12 +95,6 @@ static String getProjectDescription(String name) {
                     "and non-opencv related code, trying to keep dependencies " +
                     "to a minimum. It also includes common geometric operations."
             break
-        case "cv":
-            desc = "Classes for Computer Vision (extension to OpenCV). " +
-                    "Convert image formats, crop, rotate images or draw " +
-                    "objects on top of them. It simplifies grabbing images " +
-                    "from any video source."
-            break
     }
     return desc
 }
