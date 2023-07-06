@@ -64,7 +64,23 @@ In which `VERSION` is for example: `2.8.x`, and MODULE any of these:
 * [thread](#thread)
 * [web](#web)
 
-You can find some examples for each module here: https://gitlab.com/intellisrc/common_examples/
+## Development version
+
+If you want the `edge` version, take a look into the [next](../../tree/next/) branch. Also you may be able to use the '-SNAPSHOT' version in your dependencies, for example:
+
+Gradle:
+```groovy
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven { // Sonatype Snapshots
+		url = "https://oss.sonatype.org/content/repositories/snapshots"
+	}
+}
+dependencies {
+	implementation 'com.intellisrc:web:2.8.11-SNAPSHOT'
+}
+```
 
 ## Modules 
 
