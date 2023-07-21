@@ -1,9 +1,7 @@
 # WEB Module (ICL.web)
 
-Create restful HTTP (GET, POST, PUT, DELETE, etc) or WebSocket application services.
-Manage JSON data from and to the server easily. It is build on top of [Spark-Java Web Framework](https://github.com/perwendel/spark) (with
-[few extra modifications](https://github.com/intellisrc/spark)),
-so it is very flexible, well tested and powerful, but designed in a way which is easier to organize and reuse your code (like plug-and-play).
+Create restful HTTP (GET, POST, PUT, DELETE, etc), WebSocket or Server-Sent Event application services.
+Manage JSON data from and to the server easily. It is build on top of [Jetty](https://github.com/eclipse/jetty.project) 
 
 [JavaDoc](https://intellisrc.gitlab.io/common/#web)
 
@@ -41,7 +39,7 @@ new WebService(
 
 ### Service
 
-One advantage of using this library instead of using Spark-Java Web Framework, is that you can 
+One advantage of using this library instead of using Jetty directly, is that you can 
 easily create services and make them totally reusable among your projects. 
 For example, to create one service:
 
@@ -151,7 +149,7 @@ new Service(
 
 `Action` is a group of interfaces with optional return arguments, for example:
 
- * (empty) // The most simple `Action` with no `Request` or `Response` (which are `Spark` classes)
+ * (empty) // The most simple `Action` with no `Request` or `Response` 
  * `Request` request ->
  * `Response` response ->
  * `Request` request, `Response` response ->
@@ -246,8 +244,8 @@ new Service(
 ### Path
 
 `path` can be either a string or a `Pattern` object (RegExp). Paths don't need to start with a slash (is automatically added).
-You can use everything that is supported in [Spark](http://sparkjava.com/documentation#routes) and
-the [experimental features](https://github.com/Intellisrc/spark/blob/next-3/DIFFERENCES.md). For example:
+
+For example:
 
 You can use params:
 ```groovy
