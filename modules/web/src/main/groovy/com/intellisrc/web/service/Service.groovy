@@ -3,6 +3,8 @@ package com.intellisrc.web.service
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 
+import java.util.regex.Pattern
+
 import static com.intellisrc.web.WebService.getDefaultCharset
 import static com.intellisrc.web.service.HttpHeader.ACCEPT_CONTROL_ALLOW_ORIGIN
 import static com.intellisrc.web.service.HttpHeader.CACHE_CONTROL
@@ -82,19 +84,19 @@ class Service implements Serviciable {
     Map<String,String> headers  = new TreeMap<>(String.CASE_INSENSITIVE_ORDER) // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
     /**
-     * Optional method to use Pattern as path
-     * @param pattern
-     */ //FIXME
-    /*void setPath(Pattern pattern) {
-        this.path = "~/" + addRoot(pattern.toString()) + "/"
-    }*/
-    /**
      * Default set path (as String)
      * @param path
      */
     void setPath(String path) {
         boolean isRegex = ["\\","(","{","[","^","\$"].any { path.contains(it) }
         this.path = (isRegex ? "~" + (path.startsWith("/") ? "" : "/") : "") + addRoot(path) // Trailing slash is optional
+    }
+    /**
+     * Optional method to use Pattern as path
+     * @param pattern
+     */
+    void setPath(Pattern pattern) {
+        this.path = "~/" + addRoot(pattern.toString()) + "/"
     }
 
     /**
