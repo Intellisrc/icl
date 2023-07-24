@@ -627,7 +627,7 @@ class WebService extends WebServiceBase {
                         //noinspection GroovyUnusedAssignment : IDE mistake
                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
                     } else {
-                        Log.i("Service returned null: %s", request.uri())
+                        Log.v("Service returned null: %s", request.uri())
                         throw new WebException(response, NOT_FOUND_404)
                     }
                 } catch (Exception e) {
@@ -711,7 +711,7 @@ class WebService extends WebServiceBase {
                     }
                 }
             } else {
-                Log.i("Service returned null: %s", request.uri())
+                Log.v("Service returned null: %s", request.uri())
                 throw new WebException(response, NOT_FOUND_404)
             }
         } else { // Unauthorized
@@ -1012,7 +1012,7 @@ class WebService extends WebServiceBase {
                         if(uri =~ /\.\w+$/) { // If has extension
                             response.type(Mime.getType(uri))
                         }
-                        Log.d("Resource or Service not found: %s", request.uri())
+                        Log.v("Resource or Service not found: %s", request.uri())
                         throw new WebException(response, NOT_FOUND_404)
                     } else {
                         staticPaths.any {
@@ -1140,7 +1140,7 @@ class WebService extends WebServiceBase {
                     }
                 }
             } else {
-                Log.d("No output found: %s", request.uri())
+                Log.v("No output found: %s", request.uri())
                 throw new WebException(response, NOT_FOUND_404)
             }
         } else {
@@ -1148,7 +1148,7 @@ class WebService extends WebServiceBase {
             throw new WebException(response, UNAUTHORIZED_401)
         }
         if(! response.status) {
-            Log.d("The requested path was not found: %s", request.uri())
+            Log.v("The requested path was not found: %s", request.uri())
             throw new WebException(response, NOT_FOUND_404)
         }
         if(! response.type()) {
@@ -1157,7 +1157,7 @@ class WebService extends WebServiceBase {
         }
         // Handle the rest of the errors:
         if(response.status >= 400) {
-            Log.d("Server status code was: %d : %s", response.status, request.uri())
+            Log.v("Server status code was: %d : %s", response.status, request.uri())
             throw new WebException(response, response.status, getCode(response.status).message)
         }
         // For streams do not close them unless instructed to do so
@@ -1233,7 +1233,8 @@ class WebService extends WebServiceBase {
             fullPath = "~/" + rootPath.replaceAll(/^\//, '').replaceAll(/\/$/,'') +
                 servicePath.replaceAll(/^~\//, '')
         } else {
-            fullPath = rootPath.replaceAll(/\/$/,'') + "/" + servicePath.replaceAll(/^\//, '')
+            String split = [':','*'].contains(servicePath[0]) ? '/' : ''
+            fullPath = rootPath.replaceAll(/\/$/,'') + split + servicePath
         }
         return fullPath
     }
