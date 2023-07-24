@@ -74,6 +74,7 @@ class Query {
     protected FieldType fieldType = FieldType.NOSET
     protected boolean isSetQuery        = false // True when we issue a set command in exec_set
     protected boolean isIdentityUpdate  = false
+    protected boolean valid             = true // False if there was an invalid request
 
     Query(final JDBC dbtype, final Action action = RAW) {
         dbType = dbtype
@@ -191,15 +192,23 @@ class Query {
             case Collection:
                 if(! keys.empty) {
                     if(keys.size() == 1) {
-                        if((where as List).size() == 1) {
+                        if ((where as List).size() == 1) {
                             wherePart.append(fieldName(key) + " = ?", (where as List))
                         } else {
-                            String marks = where.collect { '?' }.join(",")
-                            wherePart.append(fieldName(key) + " IN (" + marks + ")", (where as List))
+                            if((where as List).empty) {
+                                Log.w("Passed an empty collection as argument.")
+                                valid = false
+                                wherePart.append("IN (<< HERE >>)")
+                            } else {
+                                String marks = where.collect { '?' }.join(",")
+                                wherePart.append(fieldName(key) + " IN (" + marks + ")", (where as List))
+                            }
                         }
                     } else {
                         if((where as List).empty) {
                             Log.w("Values used as parameter were not found for key(s): %s in table %s", keys.join(","), table)
+                            valid = false
+                            wherePart.append("(<< HERE >>)")
                         }  else {
                             if((where as List).first() instanceof Collection) {
                                 wherePart.append(
@@ -443,22 +452,25 @@ class Query {
     String toString() {
         String squery = ""
         boolean unknown = false
-        switch(actionType) {
-            case RAW:       squery = queryStr; break
-            case SELECT:    squery = dbType.getSelectQuery(fields, table, where, groupBy, sort, offsetInt, limitInt); break
-            case INSERT:    squery = dbType.getInsertQuery(table, insertFieldsPart.toString() + " " + insertPart.toString()); break
-            case REPLACE:   squery = dbType.getReplaceQuery(table, insertFieldsPart.toString() + " " + insertPart.toString()); break
-            case UPDATE:    squery = dbType.getUpdateQuery(table, updatePart.toString(), where); break
-            case DELETE:    squery = dbType.getDeleteQuery(table, where); break
-            case TRUNCATE:  squery = dbType.getTruncateQuery(table); break
-            case DROP:      squery = dbType.getDropTableQuery(table); break
-            default :
+        switch (actionType) {
+            case RAW: squery = queryStr; break
+            case SELECT: squery = dbType.getSelectQuery(fields, table, where, groupBy, sort, offsetInt, limitInt); break
+            case INSERT: squery = dbType.getInsertQuery(table, insertFieldsPart.toString() + " " + insertPart.toString()); break
+            case REPLACE: squery = dbType.getReplaceQuery(table, insertFieldsPart.toString() + " " + insertPart.toString()); break
+            case UPDATE: squery = dbType.getUpdateQuery(table, updatePart.toString(), where); break
+            case DELETE: squery = dbType.getDeleteQuery(table, where); break
+            case TRUNCATE: squery = dbType.getTruncateQuery(table); break
+            case DROP: squery = dbType.getDropTableQuery(table); break
+            default:
                 //WARN: unknown action
                 Log.w("Unknown action: %s", actionType)
                 unknown = true
                 break
         }
-        if(!unknown && squery.empty) {
+        if (!valid) {
+            Log.w("Query: [%s] was invalid, not executed.", squery)
+            squery = ""
+        } else if(!unknown && squery.empty) {
             Log.w("Query was empty for action: %s. Perhaps the implementation doesn't support that action yet?", actionType)
         }
         return squery
