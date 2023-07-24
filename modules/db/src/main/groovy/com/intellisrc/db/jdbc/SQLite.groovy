@@ -239,7 +239,7 @@ class SQLite extends JDBC implements AutoJDBC {
                     type = "TEXT"
                 } else {
                     Log.w("Unknown field type: %s", column.type.simpleName)
-                    Log.d("If you want to able to use '%s' type in the database, either set `fromString` " +
+                    Log.v("If you want to able to use '%s' type in the database, either set `fromString` " +
                         "as static method or set a constructor which accepts `String`", column.type.simpleName)
                 }
         }

@@ -109,7 +109,7 @@ class DBPool {
 						}
 						if(timeoutTrace) {
 							if(timeoutTrace.trace.empty) {
-								Log.d("No trace package found containing: %s (try using '*')", debugTimeoutPackage)
+								Log.v("No trace package found containing: %s (try using '*')", debugTimeoutPackage)
 							} else {
 								println "-------------------------------------------------------------------------------------------"
 								timeoutTrace.trace.each {

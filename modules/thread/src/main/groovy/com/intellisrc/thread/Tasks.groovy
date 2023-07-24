@@ -45,7 +45,7 @@ class Tasks {
             resetTask()
         }
         if(!printOnScreen &&! logToFile) {
-            Log.d("Task report is not enabled. You can enable it by setting 'tasks.print' and/or 'tasks.log' in your config.properties.")
+            Log.v("Task report is not enabled. You can enable it by setting 'tasks.print' and/or 'tasks.log' in your config.properties.")
         } else if(logToFile) {
             if(!logDir.exists()) {
                 logDir.mkdirs()

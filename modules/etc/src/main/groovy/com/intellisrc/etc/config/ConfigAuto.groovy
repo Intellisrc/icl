@@ -2,10 +2,10 @@ package com.intellisrc.etc.config
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import com.intellisrc.core.props.PropertiesGet
 import com.intellisrc.core.props.StringProperties
 import com.intellisrc.core.props.StringPropertiesYaml
-import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.BerkeleyDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
@@ -154,7 +154,7 @@ class ConfigAuto {
             boolean updated = true
             if (changed) {
                 updated = props.set(key, field)
-                Log.d("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
+                Log.v("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
                 resetChange()
                 if(exportOnSave) {
                     exportValues()

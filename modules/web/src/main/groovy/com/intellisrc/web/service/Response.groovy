@@ -29,7 +29,7 @@ class Response extends JettyResponse {
                     Class<?> brotli = Class.forName("com.nixxcode.jvmbrotli.common.BrotliLoader")
                     available = (Boolean) brotli.getMethod("isBrotliAvailable").invoke(null)
                 } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    Log.d("Brotli was not found: {} Cause: {}", e.getMessage(), e.getCause());
+                    Log.v("Brotli was not found: {} Cause: {}", e.getMessage(), e.getCause());
                     available = false
                 }
             }
@@ -160,7 +160,7 @@ class Response extends JettyResponse {
      */
     void header(String key, String value) {
         if(headerNames.contains(key) && value != header(key)) {
-            Log.d("HTTP Header: %s already existed. Replaced: %s -> %s", key, header(key), value)
+            Log.v("HTTP Header: %s already existed. Replaced: %s -> %s", key, header(key), value)
         }
         original.setHeader(key, value)
         setHeader(key, value)

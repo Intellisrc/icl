@@ -418,7 +418,7 @@ class Smtp {
                 Log.v("##### HEADERS #####")
                 message.getAllHeaders().each {
                     Header h ->
-                        Log.d(h.name+" : "+h.value)
+                        Log.v(h.name+" : "+h.value)
                 }
                 Log.v("###################")
                 Log.v(bodyText)

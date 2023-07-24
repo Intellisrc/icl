@@ -77,7 +77,7 @@ class Hardware {
             // returns a percentage value with 1 decimal point precision
             currentCpuUsage = (value * 1000) / 10d
             if(debug) {
-                Log.d("CPU (pct %.2f)", currentCpuUsage)
+                Log.v("CPU (pct %.2f)", currentCpuUsage)
             }
         }
         callback(currentCpuUsage)
@@ -118,7 +118,7 @@ class Hardware {
         if(memorySize) {
             pct = 100 - ((totalFree / memorySize) * 100d)
             if(debug) {
-                Log.d("Memory: %.2f GB free / %.2f GB total (%.2f ‰)", bytesToGB(totalFree), bytesToGB(memorySize), pct)
+                Log.v("Memory: %.2f GB free / %.2f GB total (%.2f ‰)", bytesToGB(totalFree), bytesToGB(memorySize), pct)
             }
         }
         callback(pct)
@@ -136,7 +136,7 @@ class Hardware {
         if(memorySize) {
             pct = 100 - ((totalFree / memorySize) * 100d)
             if(debug) {
-                Log.d("Runtime Mem: %.2f GB free / %.2f GB total (%.2f ‰)", bytesToGB(totalFree), bytesToGB(memorySize), pct)
+                Log.v("Runtime Mem: %.2f GB free / %.2f GB total (%.2f ‰)", bytesToGB(totalFree), bytesToGB(memorySize), pct)
             }
         }
         callback(pct)
@@ -161,7 +161,7 @@ class Hardware {
                 if(!temps.empty) {
                     temp = temps.max()
                     if(debug) {
-                        Log.d("CPU TEMP: %d", temp)
+                        Log.v("CPU TEMP: %d", temp)
                     }
                 }
                 callback(temp)
@@ -193,7 +193,7 @@ class Hardware {
                     }
                     if (temp) {
                         if (debug) {
-                            Log.d("GPU TEMP: %d", temp)
+                            Log.v("GPU TEMP: %d", temp)
                         }
                     }
                     callback(temp)
@@ -241,7 +241,7 @@ class Hardware {
                     if (total) {
                         pct = 100 - ((usable / total).toDouble() * 100d)
                         if (debug) {
-                            Log.d("GPU MEM: %.2f GB usable / %.2f GB total (%.2f ‰)", mbToGB(usable), mbToGB(total), pct)
+                            Log.v("GPU MEM: %.2f GB usable / %.2f GB total (%.2f ‰)", mbToGB(usable), mbToGB(total), pct)
                         }
                     }
                     callback(pct)
@@ -270,7 +270,7 @@ class Hardware {
                 Log.w("HDD free space is low. ")
             }
             if(debug) {
-                Log.d("HDD: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
+                Log.v("HDD: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
             }
         }
         callback(pct)
@@ -315,7 +315,7 @@ class Hardware {
                 Log.w("Buffer space is very low.")
             }
             if(debug) {
-                Log.d("Buffer: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
+                Log.v("Buffer: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
             }
         }
         callback(pct)
@@ -336,7 +336,7 @@ class Hardware {
                 Log.w("Temp space is very low.")
             }
             if(debug) {
-                Log.d("TMP: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
+                Log.v("TMP: %.2f GB usable / %.2f GB total (%d ‰)", bytesToGB(usable), bytesToGB(total), pct)
             }
         }
         callback(pct)
@@ -363,7 +363,7 @@ class Hardware {
             long current = unix.getOpenFileDescriptorCount()
             callback(absolute ? current : (current / max) as double)
         } else {
-            Log.d("Unsupported OS")
+            Log.v("Unsupported OS")
         }
     }
     

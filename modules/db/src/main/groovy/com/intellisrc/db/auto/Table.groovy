@@ -60,7 +60,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                             if (definedVersion != version) {
                                 updateTable()
                             } else {
-                                Log.d("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                                Log.v("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
                                     tableName, definedVersion, version)
                             }
                         }

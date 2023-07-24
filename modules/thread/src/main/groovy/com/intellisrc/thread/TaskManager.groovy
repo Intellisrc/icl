@@ -113,7 +113,7 @@ class TaskManager {
                     IntervalTask intervalTask = (taskInfo.task as IntervalTask)
                     future = scheduledExecutorService.scheduleAtFixedRate({
                         if(intervalTask.cancelled) {
-                            Log.d("Task %s was cancelled", task.taskName)
+                            Log.v("Task %s was cancelled", task.taskName)
                             future.cancel(true)
                             taskInfo.state = TaskInfo.State.CANCELLED
                             task.reset()

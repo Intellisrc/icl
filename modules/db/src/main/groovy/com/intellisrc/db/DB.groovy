@@ -55,7 +55,7 @@ class DB {
         if(!isopen) {
             if(returned) {
                 Log.w("Connection was previously returned (using db.close()). It might get disconnected unexpectedly.")
-                Log.d("If you use a connection after calling close(), it can lead to a sudden disconnection " +
+                Log.v("If you use a connection after calling close(), it can lead to a sudden disconnection " +
                     "on timeout (from pool). To prevent that from happening you need to call DB.connect() again.")
                 Log.stackTrace()
             }
@@ -187,7 +187,7 @@ class DB {
                 Log.w("Trying to update data with unequal number of rows and keys")
             }
         } else {
-            Log.d("Update received an empty list")
+            Log.v("Update received an empty list")
         }
         return updated
     }
@@ -219,7 +219,7 @@ class DB {
                 dbConnector.rollback()
             }
         } else {
-            Log.d("Insert received an empty list")
+            Log.v("Insert received an empty list")
         }
         return ok
     }
@@ -259,7 +259,7 @@ class DB {
                 }
             }
         } else {
-            Log.d("Replace received empty list")
+            Log.v("Replace received empty list")
         }
         return ok
     }
@@ -513,7 +513,7 @@ class DB {
                             Log.w("Columns were not found in table: %s", table)
                         }
                     } else {
-                        Log.d("Table [%s] didn't exists (yet)", table)
+                        Log.v("Table [%s] didn't exists (yet)", table)
                     }
                 }
                 if (!columns.empty && enableCache) {
@@ -521,7 +521,7 @@ class DB {
                 }
             }
         } else {
-            Log.d("Table name was not specified")
+            Log.v("Table name was not specified")
         }
         return columns
     }
@@ -970,23 +970,23 @@ class DB {
                                 last_id = st.columnInt(1)
                             } else {
                                 if(! st.isColumnNull(1)) {
-                                    Log.d("Received last id: %s", id)
+                                    Log.v("Received last id: %s", id)
                                 }
                                 last_id = 0
                             }
                             String lastIdQuery = jdbc.getLastIdQuery(query.table, pks.first())
                             if (!last_id && lastIdQuery) {
-                                Log.d("Last ID not found. Using fallback method...")
+                                Log.v("Last ID not found. Using fallback method...")
                                 String table = query.table
                                 queryBuilder = new Query(lastIdQuery)
                                 queryBuilder.table = table
                                 if (queryBuilder) {
                                     last_id = execGet().toInt()
-                                    Log.d("Fallback method returned [%d] as last id", last_id)
+                                    Log.v("Fallback method returned [%d] as last id", last_id)
                                 }
                             }
                             if (!last_id) {
-                                Log.d("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
+                                Log.v("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
                             }
                         }
                         ok = true

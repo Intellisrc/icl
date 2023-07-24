@@ -49,7 +49,7 @@ class Cmd {
             Log.v(line)
         }
     } as Output
-    protected Output stdErr  = { String line -> if(!secret) { Log.d(line) } } as Output
+    protected Output stdErr  = { String line -> if(!secret) { Log.v(line) } } as Output
     protected Lines onDone    = null // Optional
     protected Output onText   = null // Optional
     protected Fail onFail     = { String msg, int code -> Log.w("(Exit code: %d) %s", code, msg) } as Fail
@@ -129,7 +129,7 @@ class Cmd {
      */
     Cmd exec(int timeout = 0, boolean background = false) {
         if(!secret) {
-            Log.d("> " + cmd.join(" "))
+            Log.v("> " + cmd.join(" "))
         }
         // If the command ends in '&' its a background process
         if(cmd.last() == "&") {
@@ -181,7 +181,7 @@ class Cmd {
                     process.in.eachLine { stdOut.call(it) }
                     process.err.eachLine { stdErr.call(it) }
                 } catch(Exception e) {
-                    Log.d("Process ended before expected: %s", e.message)
+                    Log.v("Process ended before expected: %s", e.message)
                 } finally {
                     done = true
                 }

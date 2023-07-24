@@ -120,7 +120,7 @@ class WebSocketServiceClient {
         if(message &&! message.isEmpty()) {
             sendMessage(JSON.encode(message))
         } else {
-            Log.d("Trying to send an empty message")
+            Log.v("Trying to send an empty message")
         }
     }
     /**
@@ -131,7 +131,7 @@ class WebSocketServiceClient {
         if(message) {
             clientSession.getRemote().sendString(message)
         } else {
-            Log.d("Trying to send an empty message")
+            Log.v("Trying to send an empty message")
         }
     }
     /**

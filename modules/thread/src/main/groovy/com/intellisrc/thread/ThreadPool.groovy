@@ -1,14 +1,14 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.*
 
-import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.getMILLIS_10
+import static com.intellisrc.core.Millis.getSECOND
 
 /**
  * A ThreadPoolExecutor which interact with TaskInfo objects
@@ -229,7 +229,7 @@ class ThreadPool extends ThreadPoolExecutor {
             }
             if(cancelled) {
                 if (Tasks.debug) {
-                    Log.d("Task: %s was cancelled, so it was not executed", item.info.task.taskName)
+                    Log.v("Task: %s was cancelled, so it was not executed", item.info.task.taskName)
                 }
             } else {
                 item.finished = false

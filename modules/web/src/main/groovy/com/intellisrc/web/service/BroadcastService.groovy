@@ -78,7 +78,7 @@ trait BroadcastService {
     //TODO: document
     ClientListUpdated onClientListUpdated = {
         List<EventClient> list ->
-            Log.d("Number of clients connected: %d", list.size())
+            Log.v("Number of clients connected: %d", list.size())
     }
 
     ClientConnected onClientConnect = {

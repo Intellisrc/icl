@@ -44,7 +44,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
         @Override
         void onWebSocketConnect(JettySession sess) {
             super.onWebSocketConnect(sess)
-            Log.d("[%s] Client connected: %s", request.remoteAddr, id)
+            Log.i("[%s] Client connected: %s", request.remoteAddr, id)
             EventClient client = new EventClient(request, id, timeout, maxSize)
             clientList << client
             onClientConnect.call(client)
@@ -63,7 +63,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
                 }
                 getSession().close(StatusCode.NORMAL, "client request")
             } else {
-                Log.d("Received TEXT message: %s", message)
+                Log.v("Received TEXT message: %s", message)
                 Optional<EventClient> clientOpt = get(id)
                 WebMessage msg = new WebMessage(message)
                 if(clientOpt.present) {
@@ -73,7 +73,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
                 if(reply) {
                     if(clientOpt.present) {
                         sendTo(clientOpt.get(), reply, {
-                            Log.d("[%s] Sent reply: ", id, reply.toString())
+                            Log.v("[%s] Sent reply: ", id, reply.toString())
                         }, {
                             Throwable t ->
                                 Log.w("Unable to send reply to: %s", id)
@@ -92,7 +92,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
                 }
             }
             super.onWebSocketClose(statusCode, reason)
-            Log.d("Socket Closed: [%d] %s", statusCode, reason)
+            Log.v("Socket Closed: [%d] %s", statusCode, reason)
         }
 
         @Override
@@ -106,7 +106,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
     void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess, FailCallback onFail) {
         if(client) {
             sendTo(client, message, {
-                Log.d("[%s] Sent message: ", client.id, message.toString())
+                Log.v("[%s] Sent message: ", client.id, message.toString())
             }, {
                 Throwable t ->
                     Log.w("Unable to send reply to: %s", client.id)

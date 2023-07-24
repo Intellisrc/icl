@@ -31,7 +31,7 @@ class SysInfo {
             case ~/.*(?i)(nix|nux|aix).*/ : osType = OSType.LINUX; break
             case ~/(?i).*mac.*/ : osType = OSType.IOS; break
             default:
-                //We can't use Log.d() here as that function call this one
+                //We can't use Log.v() here as that function call this one
                 // and enter in an infinite loop
                 println "> Not Found: $osStr"
         }

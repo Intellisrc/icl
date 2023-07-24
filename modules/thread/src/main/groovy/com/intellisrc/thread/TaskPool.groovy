@@ -1,7 +1,6 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import com.intellisrc.thread.ThreadPool.ErrorCallback
 import groovy.transform.CompileStatic
@@ -10,7 +9,8 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.getMILLIS_10
+import static com.intellisrc.core.Millis.getSECOND
 
 /**
  * Pool controller for tasks
@@ -100,7 +100,7 @@ class TaskPool implements TaskLoggable {
         prevStatus = currStatus
         currStatus = info.state
         if(Tasks.debug) {
-            Log.d("[%s] changed to status: %s -> %s", info.fullName, prevStatus, currStatus)
+            Log.v("[%s] changed to status: %s -> %s", info.fullName, prevStatus, currStatus)
         }
         switch(currStatus) {
             case TaskInfo.State.SETUP:

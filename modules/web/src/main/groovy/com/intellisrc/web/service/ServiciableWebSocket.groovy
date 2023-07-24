@@ -37,7 +37,7 @@ trait ServiciableWebSocket extends Serviciable {
                 sent = true
             } ,{
                 Throwable t ->
-                    Log.d("Unable to send message to: %s", client.id)
+                    Log.v("Unable to send message to: %s", client.id)
             })
         }
         return sent
