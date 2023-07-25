@@ -11,14 +11,17 @@ import jakarta.servlet.http.HttpServletRequest
 @CompileStatic
 class EventClient {
     protected final AsyncContext context
+    protected final int maxSize
+
     final InetAddress ip
     final String id
-    protected final int maxSize
+    final Request request
 
     EventClient(HttpServletRequest request, String id, long timeout, int maxSize) {
         ip = request.remoteAddr.toInetAddress()
         this.id = id
         this.maxSize = maxSize
+        this.request = new Request(request)
         if(request.asyncSupported &&! request.asyncStarted) {
             try {
                 context = request.startAsync()
@@ -27,5 +30,12 @@ class EventClient {
                 // Async failed
             }
         }
+    }
+    /**
+     * Get Session from request
+     * @return
+     */
+    Session getSession() {
+        return request?.session()
     }
 }

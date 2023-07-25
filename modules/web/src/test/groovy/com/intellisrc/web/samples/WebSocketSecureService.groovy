@@ -24,7 +24,7 @@ class WebSocketSecureService {
             ssl: new KeyStore(storeFile, pass)
         )
         Log.i("Web Service available at port: %d", ws.port)
-        ws.add(new ChatService()).start()
+        ws.add(new ChatWebSocketService()).start()
         ws.start()
     }
 }

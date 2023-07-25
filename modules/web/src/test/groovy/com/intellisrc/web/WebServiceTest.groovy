@@ -237,7 +237,7 @@ class WebServiceTest extends Specification {
                 resources: System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
             )
-            web.addService(new ChatService())
+            web.addService(new ChatWebSocketService())
             web.start(!keepalive)
         expect:
             assert web.isRunning()
@@ -250,7 +250,7 @@ class WebServiceTest extends Specification {
     //@PendingFeature
     def "WebSocket Client"() {
         setup:
-            ChatClient cc = new ChatClient()
+            ChatWebSocketClient cc = new ChatWebSocketClient()
             cc.Connect()
     }
 

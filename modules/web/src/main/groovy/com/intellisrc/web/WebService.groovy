@@ -227,7 +227,7 @@ class WebService extends WebServiceBase {
                             case ServiciableWebSocket:
                                 ServiciableWebSocket websocket = serviciable as ServiciableWebSocket
                                 Log.v("Adding WebSocket Service at path: [%s]", websocket.path)
-                                ServletHolder holder = new ServletHolder(websocket.ws)
+                                ServletHolder holder = new ServletHolder(websocket.webSocketService)
                                 holder.initOrder = 0
                                 contextHandler.addServlet(holder, websocket.path)
                                 JettyWebSocketServletContainerInitializer.configure(contextHandler, null)

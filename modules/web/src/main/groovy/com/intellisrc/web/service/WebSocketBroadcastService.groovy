@@ -16,18 +16,13 @@ import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory
 import java.time.Duration
 
 /**
+ * Extension of JettyWebSocketServlet.
  * @since 2023/07/04.
  */
 @CompileStatic
 class WebSocketBroadcastService extends JettyWebSocketServlet implements BroadcastService {
     int maxSize = Config.get("web.ws.max.size", 64) // KB
     String path = "/"
-    final MessageHandler handler
-
-    WebSocketBroadcastService(MessageHandler handler, String path) {
-        this.handler = handler
-        this.path = path
-    }
 
     /**
      * This class is applied to a single client
@@ -69,17 +64,6 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
                 if(clientOpt.present) {
                     onMessageReceived.call(clientOpt.get(), msg)
                 }
-                WebMessage reply = handler.call(msg)
-                if(reply) {
-                    if(clientOpt.present) {
-                        sendTo(clientOpt.get(), reply, {
-                            Log.v("[%s] Sent reply: ", id, reply.toString())
-                        }, {
-                            Throwable t ->
-                                Log.w("Unable to send reply to: %s", id)
-                        })
-                    }
-                }
             }
         }
 
@@ -102,6 +86,33 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
         }
     }
 
+    /**
+     * Use this method when you don't care about success or failure status
+     * @param client
+     * @param message
+     */
+    void sendTo(EventClient client, WebMessage message) {
+        sendTo(client, message, {}, {
+            Throwable t ->
+                Log.v("Unable to send message to: %s", client.id)
+        })
+    }
+    /**
+     * Use this method if you want to handle only the success case (failure will be ignored)
+     * @param client
+     * @param message
+     * @param onSuccess
+     */
+    void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess) {
+        sendTo(client, message, onSuccess, { Throwable t -> })
+    }
+    /**
+     * Send Message to client
+     * @param client
+     * @param message
+     * @param onSuccess
+     * @param onFail
+     */
     @Override
     void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess, FailCallback onFail) {
         if(client) {

@@ -16,7 +16,7 @@ import com.intellisrc.web.WebSocketServiceClient
  * http://www.botmill.io/
  * IDEA: get Q/A from http://www.fanpop.com/clubs/random/answers/date and stackoverflow
  */
-class ChatClient
+class ChatWebSocketClient
 {
     static void Connect() {
         final int QUIT_TIMEOUT = 600
