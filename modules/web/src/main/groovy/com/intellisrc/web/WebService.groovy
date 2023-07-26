@@ -1040,8 +1040,17 @@ class WebService extends WebServiceBase {
                                                             action: { return bytes }
                                                         ), request, response)
                                                     }
-                                                    //noinspection GrReassignedInClosureLocalVar
-                                                    out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                                    if(addToCache) {
+                                                        out = cache.get(cacheKey, null, onHit)
+                                                        if(out != null) {
+                                                            out = noCache()
+                                                            if(out.size) {
+                                                                cache.set(cacheKey, out, onStore)
+                                                            }
+                                                        }
+                                                    } else {
+                                                        out = noCache()
+                                                    }
                                                 } catch (Exception e) {
                                                     Log.w("Unable to read resource from jar: %s (%s)", fullPath, e)
                                                     throw new WebException(response, NOT_FOUND_404)
@@ -1066,7 +1075,7 @@ class WebService extends WebServiceBase {
                                                         ), request, response)
                                                     }
                                                     if(addToCache) {
-                                                        out = cache.get(cacheKey, onHit)
+                                                        out = cache.get(cacheKey, null, onHit)
                                                         if(out != null) {
                                                             out = noCache()
                                                             if(out.size) {

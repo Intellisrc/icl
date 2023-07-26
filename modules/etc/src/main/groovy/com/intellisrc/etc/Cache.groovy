@@ -107,16 +107,6 @@ class Cache<V> {
         }
         return expired
     }
-    /**
-     * Returns value if found and calls onHit if found
-     * @param key
-     * @param onHit
-     * @param time
-     * @return
-     */
-    V get(final String key, CacheAccess onHit, int time = timeout) {
-        return get(key, null, onHit, null, time)
-    }
 	/**
 	 * Returns value if found, or set object if not
 	 * @param key
@@ -135,7 +125,7 @@ class Cache<V> {
      * @param time
      * @return
      */
-    V get(final String key, NotFound notFound = null, CacheAccess onHit, CacheAccess onStore, int time = timeout) {
+    V get(final String key, NotFound notFound = null, CacheAccess onHit, CacheAccess onStore = null, int time = timeout) {
         V ret = null
         if(key && time) {
             if (contains(key)) {
