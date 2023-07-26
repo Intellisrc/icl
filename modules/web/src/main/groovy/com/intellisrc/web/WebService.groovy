@@ -1170,7 +1170,7 @@ class WebService extends WebServiceBase {
             Log.v("The requested path was not found: %s", request.uri())
             throw new WebException(response, NOT_FOUND_404)
         }
-        if(! response.type()) {
+        if(response.status != NOT_MODIFIED_304 &&! response.type()) {
             Log.w("Response without content type: %s", request.uri())
             throw new WebException(response, INTERNAL_SERVER_ERROR_500)
         }
