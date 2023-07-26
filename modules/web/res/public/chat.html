@@ -15,6 +15,7 @@
     $(function() {
         var $ws = $.WS({ 
             url : location.hostname + ":" + location.port + "/ws/chat",
+            secure : location.protocol == "https:",
             debug : false,
             auto_start : false,
             on_open : function() {

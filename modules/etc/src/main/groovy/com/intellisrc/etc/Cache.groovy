@@ -107,6 +107,16 @@ class Cache<V> {
         }
         return expired
     }
+    /**
+     * Returns value if found and calls onHit if found
+     * @param key
+     * @param onHit
+     * @param time
+     * @return
+     */
+    V get(final String key, CacheAccess onHit, int time = timeout) {
+        return get(key, null, onHit, null, time)
+    }
 	/**
 	 * Returns value if found, or set object if not
 	 * @param key
@@ -139,8 +149,7 @@ class Cache<V> {
                     ret = notFound.call()
                     if (ret != null) {
                         Log.v("[$key] added to cache")
-                        set(key, ret, time)
-                        onStore?.call(key)
+                        set(key, ret, onStore, time)
                     }
                 }
             }
@@ -155,15 +164,16 @@ class Cache<V> {
 	 * @param key
 	 * @param value 
 	 */
-    void set(final String key, final V value, int time = timeout) {
+    void set(final String key, final V value, CacheAccess onStore = null, int time = timeout) {
 		if(value == null) {
 			del(key)
 		} else {
 	        cache.put(key, new CacheItem(value, time))
-		}
-	}
+            onStore?.call(key)
+        }
+    }
 
-	/**
+    /**
 	 * Removes a key from the cache
 	 * @param key
 	 * @return 

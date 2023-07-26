@@ -6,6 +6,8 @@ import groovy.transform.CompileStatic
 import static com.intellisrc.web.WebService.getDefaultCharset
 import static com.intellisrc.web.service.Response.Compression
 import static com.intellisrc.web.service.Response.Compression.AUTO
+import static com.intellisrc.web.service.Response.Compression.NONE
+import static org.eclipse.jetty.http.HttpStatus.NOT_MODIFIED_304
 
 /**
  * Customized output of a Service.
@@ -78,5 +80,16 @@ class ServiceOutput {
         outHeaders.each {
             headers.putIfAbsent(it.key, it.value)
         }
+    }
+    /**
+     * If output was not modified, reset
+     */
+    void setNotModified() {
+        headers.clear()
+        responseCode = NOT_MODIFIED_304
+        compression = NONE
+        size = 0
+        content = null
+        contentType = null
     }
 }

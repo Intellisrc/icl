@@ -20,18 +20,28 @@ class ChatWebSocketServiceIface implements ServiciableWebSocket {
             onClientConnect : {
                 EventClient client ->
                     usersList[client.id] = client.ip.hostAddress
+                    webSocketService.sendTo(client, new WebMessage(
+                        message : "Connected",
+                        list : usersList.keySet(),
+                        type : "txt"
+                    ))
             },
             onClientDisconnect : {
                 EventClient client ->
                     usersList.remove(client.id)
-            },
-            onMessageReceived : {
-                WebMessage msg ->
-                    return new WebMessage(
-                        message : "Received",
+                    webSocketService.sendTo(client, new WebMessage(
+                        message : "Disconnected",
                         list : usersList.keySet(),
                         type : "txt"
-                    )
+                    ))
+            },
+            onMessageReceived : {
+                EventClient client, WebMessage msg ->
+                    webSocketService.sendTo(client, new WebMessage(
+                        message : "Received : ${msg.toString()}",
+                        list : usersList.keySet(),
+                        type : "txt"
+                    ))
             },
             timeout : Millis.HOUR,
             identifier : {

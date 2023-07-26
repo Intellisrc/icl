@@ -162,6 +162,24 @@ Provides a simpler interface to `SLF4J`. If no SLF4J logger is present, it provi
 printer to stdout. We recommend you to use the `log` package, which provides many options, colorful
 outputs (optional) and log file management (rotation, compression, etc)
 
+### Example:
+
+```groovy
+Log.v("This is %d verbose", 2)
+Log.d("Debugging some{} and some{}", "thing", "where")
+Log.i("This is some information about: %s", "Some Topic")
+try { 
+  // Something here
+} catch (NullPointerException npe) {
+    Log.w("Must pay attention to this: %s !!!", npe)
+} catch (Exception e) {
+    Log.e("Unknown reason", e)
+}
+```
+The main difference in output between a "warning" and an "error" is that `Log.e` will output the 
+stacktrace with full messages, while `Log.w` will try to extract the message from the `Exception`
+and place it in the `String` placeholder.
+
 ### Settings:
 
 Without any `SLF4J` logger, only stdout will be used. For extended options,

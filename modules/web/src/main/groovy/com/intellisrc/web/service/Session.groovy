@@ -2,45 +2,50 @@ package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
 import jakarta.servlet.http.HttpSession
+import org.eclipse.jetty.websocket.api.Session as JettySession
 
 /**
- * HTTPSession wrapper
+ * HTTPSession/WebSocket Session wrapper
  * @since 2023/05/25.
  */
 @CompileStatic
 class Session {
-    final HttpSession session
+    final String id
+    protected HttpSession httpSession = null
+    protected JettySession websocketSession = null //This will be set by the WebSocket Server
 
-    Session(HttpSession session) {
-        this.session = session
+    Session(String id, HttpSession session) {
+        this.id = id
+        this.httpSession = session
     }
 
-    String getId() {
-        return session.id
+    Session(String id, JettySession session) {
+        this.id = id
+        this.websocketSession = session
     }
 
     Object attribute(String key) {
-        return session.getAttribute(key)
+        return httpSession ? httpSession.getAttribute(key) : ""
     }
 
     void attribute(String key, Object val) {
         if(val == null) {
             removeAttribute(key)
-        } else {
-            session.setAttribute(key, val)
+        } else if(httpSession) {
+            httpSession.setAttribute(key, val)
         }
     }
 
     boolean hasAttribute(String key) {
-        return attributes.contains(key)
+        return httpSession ? attributes.contains(key) : false
     }
 
     void removeAttribute(String key) {
-        session.removeAttribute(key)
+        httpSession?.removeAttribute(key)
     }
 
     Set<String> getAttributes() {
-        return session.attributeNames.toSet()
+        return httpSession ? httpSession.attributeNames.toSet() : [] as Set<String>
     }
 
     Map<String, Object> getMap() {
@@ -48,10 +53,27 @@ class Session {
     }
 
     void invalidate() {
-        session.invalidate()
+        if(httpSession) {
+            httpSession.invalidate()
+        }
+        if(websocketSession) {
+            websocketSession.close()
+        }
     }
 
     boolean isNew() {
-        return session.new
+        return httpSession ? httpSession.new : false
+    }
+
+    boolean isOpen() {
+        return websocketSession ? websocketSession.open : false
+    }
+
+    HttpSession getHttpSession() {
+        return httpSession
+    }
+
+    JettySession getWebsocketSession() {
+        return websocketSession
     }
 }

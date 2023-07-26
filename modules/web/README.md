@@ -140,6 +140,7 @@ new Service(
     isPrivate           : false,                 // Browser Rule: These responses are typically intended for a single user
     maxAge              : 0,                     // Seconds to suggest to keep in browser
     method              : Method.GET,            // HTTP Method to be used
+    minCompressBytes    : 256,                   // Below this length, do not compress (most probably there won't be any gain)
     noStore             : false,                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
     path                : "",                    // URL path relative to parent
 )

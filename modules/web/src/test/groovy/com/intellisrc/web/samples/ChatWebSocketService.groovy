@@ -1,7 +1,7 @@
 package com.intellisrc.web.samples
 
 
-import com.intellisrc.web.service.EventClient
+import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.WebMessage
 import com.intellisrc.web.service.WebSocketService
 import groovy.transform.CompileStatic
@@ -14,8 +14,8 @@ import groovy.transform.CompileStatic
 class ChatWebSocketService extends WebSocketService {
 
     @Override
-    String getIdentifier(EventClient client) {
-        return client.request.queryParams("user") ?: randomName
+    String getIdentifier(Request request) {
+        return request.queryParams("user") ?: randomName
     }
 
     static String getRandomName() {

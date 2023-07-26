@@ -32,7 +32,7 @@ abstract class WebSocketService implements ServiciableWebSocket {
                     }
                 }
                 clients << client
-                Log.i("Client connected: " + getIdentifier(client) + " (active: %d)", clients.size())
+                Log.i("Client connected: " + client.id + " (active: %d)", clients.size())
                 WebMessage msg = onClientConnect(client)
                 if(msg) {
                     ws.sendTo(client, msg)
@@ -46,11 +46,11 @@ abstract class WebSocketService implements ServiciableWebSocket {
                     if(reply) {
                         ws.sendTo(client, reply, {
                             Throwable t ->
-                                Log.w("Unable to reply to client: %s", getIdentifier(client))
+                                Log.w("Unable to reply to client: %s", client.id)
                         })
                     }
                 } else {
-                    Log.w("Message received from nonexistent client: %s", getIdentifier(client))
+                    Log.w("Message received from nonexistent client: %s", client.id)
                 }
         },
         onClientDisconnect : {
@@ -101,8 +101,8 @@ abstract class WebSocketService implements ServiciableWebSocket {
      * @param client
      * @return
      */
-    String getIdentifier(EventClient client) {
-        return client.id
+    String getIdentifier(Request request) {
+        return request.session()?.id
     }
     /**
      * You may override this method to perform some action each time a client connects
@@ -147,7 +147,7 @@ abstract class WebSocketService implements ServiciableWebSocket {
         ws.broadcast(new WebMessage(data), {
             sent = true
         }, { Throwable it ->
-            Log.w("Unable to send broadcast message: %s", it.message)
+            Log.w("Unable to send broadcast message: %s", it)
         })
         return sent
     }

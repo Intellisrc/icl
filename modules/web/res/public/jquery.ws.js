@@ -12,6 +12,7 @@ $(function() {
         } else {
             this.options = $.extend({ //DEFAULT
             url    : "localhost:8888", //URL to get the info from
+            secure : false,
 		    format : "json", //or json 
             log    : function(msg, status) {},
             on_open : function() {},
@@ -28,7 +29,7 @@ $(function() {
         start : function() {
             var options = this.options;
             try{
-                this.socket = new WebSocket("ws://"+options.url);
+                this.socket = new WebSocket((options.secure ? "wss" : "ws")+"://"+options.url);
                 this.socket.onopen    = function(msg){ options.log("Connected",this.readyState); options.on_open(); };
                 this.socket.onmessage = function(msg){ options.msg(msg.data); options.log("< "+msg.data);  };
                 this.socket.onclose   = function(msg){ options.log("Disconnected",this.readyState); options.on_close(); };

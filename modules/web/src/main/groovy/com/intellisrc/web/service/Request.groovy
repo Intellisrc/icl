@@ -3,10 +3,9 @@ package com.intellisrc.web.service
 import com.intellisrc.core.Log
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
-import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.ServletRequest
 import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.server.Request as JettyRequest
-import org.eclipse.jetty.websocket.core.server.internal.UpgradeHttpServletRequest
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -16,19 +15,24 @@ import java.util.concurrent.ConcurrentHashMap
 @CompileStatic
 class Request extends JettyRequest {
     static final String X_FORWARDED_FOR = "X-Forwarded-For"
+    static String SESSION_ID = "JSESSIONID"
     //protected final Session requestSession = new Session()
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
     protected String splat = ""
 
-    Request(HttpServletRequest request) {
+    Request(ServletRequest request) {
         this(getBaseRequest(request))
-    }
-    Request(UpgradeHttpServletRequest request) {
-        this(getBaseRequest(request.httpServletRequest))
     }
     Request(JettyRequest request) {
         super(request.httpChannel, request.httpInput)
-        JettyRequest.class.declaredFields.each {
+        importFrom(request, JettyRequest)
+    }
+    /**
+     * Improve properties from another class
+     * @param fromClass
+     */
+    void importFrom(Object request, Class fromClass) {
+        fromClass.declaredFields.each {
             try {
                 it.setAccessible(true)
                 Object value = it.get(request)
@@ -195,7 +199,8 @@ class Request extends JettyRequest {
      * @return
      */
     Session session() {
-        return new Session(getSession())
+        String id = cookies.toList().find { it.name == SESSION_ID }?.value ?: UUID.randomUUID().toString()
+        return new Session(id, session)
     }
     //------------ OTHER --------------
     /**

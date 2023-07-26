@@ -211,7 +211,7 @@ class WebService extends WebServiceBase {
                 // Preparing a service (common between Services and SingleService):
                 services.each {
                     final Serviciable serviciable ->
-                        boolean prepared = false
+                        boolean prepared
                         switch (serviciable) {
                             case ServiciableMultiple:
                                 ServiciableMultiple serviciables = serviciable as ServiciableMultiple
@@ -309,7 +309,7 @@ class WebService extends WebServiceBase {
             }
         } catch(WebException we) {
             // It should have been handled before here
-            Log.w("Not handled: Web service error: %s", we.message)
+            Log.w("Not handled: Web service error: %s", we)
         } catch(Throwable e) {
             Log.e("Unable to start WebService", e)
         }
@@ -640,6 +640,7 @@ class WebService extends WebServiceBase {
             if(output != null) {
                 // Import global and service headers:
                 output.importHeaders(outHeaders)
+                //noinspection GroovyUnusedAssignment
                 outHeaders = null // Do not use it anymore (we modify output.headers directly)
 
                 // If it is not a stream, check download and etag
@@ -668,46 +669,46 @@ class WebService extends WebServiceBase {
                             }
                         } catch (Exception e) {
                             //Can't be converted to String
-                            Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e.message)
+                            Log.v("Unable to set ETag for: %s, failed : %s", request.uri(), e)
                         }
                     }
                     // Do not compress or return anything if we have the same etag
                     String prevTag = request.headers(IF_NONE_MATCH)
                     if (prevTag == etag) { // Same content
-                        response.status(NOT_MODIFIED_304)
-                        output.headers.put(CONTENT_LENGTH, "0")
-                        response.contentLength = 0
-                        response.contentType = null
-                        //noinspection GroovyUnusedAssignment
-                        output = null
+                        output.setNotModified()
                     }
                 }
                 // Compress if requested
                 if(output && sp.compress) {
-                    response.compression = AUTO.get() // Get automatically the best option
-                    byte[] bytes = []
-                    switch (output.content) {
-                        case String:
-                            bytes = output.content.toString().bytes
-                            break
-                        case File:
-                            bytes = (output.content as File).bytes
-                            break
-                        case OutputStream:
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream()
-                            baos.writeTo(output.content as OutputStream)
-                            bytes = baos.toByteArray()
-                            break
-                        case byte[]:
-                            bytes = output.content as byte[]
-                            break
-                        default: // Do not compress here
-                            response.compression = NONE
-                            break
-                    }
-                    if(bytes.size() > 0) {
-                        output.content = response.compression.compress(bytes)
-                        output.size = (output.content as byte[]).size()
+                    if(output.size > sp.minCompressBytes) {
+                        response.compression = AUTO.get() // Get automatically the best option
+                        byte[] bytes = []
+                        switch (output.content) {
+                            case String:
+                                bytes = output.content.toString().bytes
+                                break
+                            case File:
+                                bytes = (output.content as File).bytes
+                                break
+                            case OutputStream:
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream()
+                                baos.writeTo(output.content as OutputStream)
+                                bytes = baos.toByteArray()
+                                break
+                            case byte[]:
+                                bytes = output.content as byte[]
+                                break
+                            default: // Do not compress here
+                                output.compression = NONE
+                                break
+                        }
+                        if (bytes.size() > 0 && output.compression != NONE) {
+                            output.content = response.compression.compress(bytes)
+                            output.size = (output.content as byte[]).size()
+                        }
+                    } else if(output.size) {
+                        output.compression = NONE
+                        Log.v("Content was not compressed as it is smaller than 'minCompressBytes': %d < %d", output.size, sp.minCompressBytes)
                     }
                 }
             } else {
@@ -771,7 +772,7 @@ class WebService extends WebServiceBase {
                 if (output.type == Type.BINARY) {
                     response.header(ACCEPT_RANGES, "bytes")
                 }
-            } else {
+            } else if(output.responseCode != NOT_MODIFIED_304) {
                 response.status(NO_CONTENT_204)
             }
         }
@@ -1042,7 +1043,7 @@ class WebService extends WebServiceBase {
                                                     //noinspection GrReassignedInClosureLocalVar
                                                     out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
                                                 } catch (Exception e) {
-                                                    Log.w("Unable to read resource from jar: %s (%s)", fullPath, e.message ?: e.cause)
+                                                    Log.w("Unable to read resource from jar: %s (%s)", fullPath, e)
                                                     throw new WebException(response, NOT_FOUND_404)
                                                 }
                                             } else {
@@ -1064,8 +1065,17 @@ class WebService extends WebServiceBase {
                                                             action: { return staticFile }
                                                         ), request, response)
                                                     }
-                                                    //noinspection GrReassignedInClosureLocalVar
-                                                    out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore) : noCache()
+                                                    if(addToCache) {
+                                                        out = cache.get(cacheKey, onHit)
+                                                        if(out != null) {
+                                                            out = noCache()
+                                                            if(out.size) {
+                                                                cache.set(cacheKey, out, onStore)
+                                                            }
+                                                        }
+                                                    } else {
+                                                        out = noCache()
+                                                    }
                                                 }
                                             } else {
                                                 Log.w("Unauthorized: %s", request.uri())
@@ -1162,6 +1172,7 @@ class WebService extends WebServiceBase {
         }
         // For streams do not close them unless instructed to do so
         if(out.type == Type.STREAM) {//FIXME: stream
+            //noinspection GroovyInfiniteLoopStatement
             while(true) {
                 sleep(Millis.SECOND)
             }

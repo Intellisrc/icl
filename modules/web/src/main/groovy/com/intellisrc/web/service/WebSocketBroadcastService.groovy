@@ -40,7 +40,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
         void onWebSocketConnect(JettySession sess) {
             super.onWebSocketConnect(sess)
             Log.i("[%s] Client connected: %s", request.remoteAddr, id)
-            EventClient client = new EventClient(request, id, timeout, maxSize)
+            EventClient client = new EventClient(request, id, timeout, maxSize, sess)
             clientList << client
             onClientConnect.call(client)
             onClientListUpdated.call(clientList.toList())
@@ -82,7 +82,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
         @Override
         void onWebSocketError(Throwable cause) {
             super.onWebSocketError(cause)
-            Log.w("WebSocket error: %s", cause.message ?: cause.cause)
+            Log.w("WebSocket error: %s", cause)
         }
     }
 
@@ -115,13 +115,11 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
      */
     @Override
     void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess, FailCallback onFail) {
-        if(client) {
-            sendTo(client, message, {
-                Log.v("[%s] Sent message: ", client.id, message.toString())
-            }, {
-                Throwable t ->
-                    Log.w("Unable to send reply to: %s", client.id)
-            })
+        if(client.session) {
+            client.session.websocketSession.remote.sendString(message.toString())
+        } else {
+            Log.w("Session was empty")
+            onFail?.call(new Exception("Session was empty"))
         }
     }
 
