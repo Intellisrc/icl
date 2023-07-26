@@ -48,7 +48,7 @@ class Serial extends Seriable {
                     })
                 }
             } catch(Exception e) {
-                Log.w("Unable to open port [%s] : %s", serialPort, e.message)
+                Log.w("Unable to open port [%s] : %s", serialPort, e)
                 sleep(Millis.SECOND)
             }
         }

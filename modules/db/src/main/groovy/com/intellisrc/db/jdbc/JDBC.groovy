@@ -55,7 +55,7 @@ abstract class JDBC {
 
     ErrorHandler onError = {
         Throwable e ->
-            Log.w("Database exception: %s", e.message)
+            Log.w("Database exception: %s", e)
     } as ErrorHandler
 
     // Aliases
@@ -259,6 +259,7 @@ abstract class JDBC {
             }
         } else {
             // Allow different aliases for keys
+            //noinspection GroovyMissingReturnStatement
             [
                 database : "dbname",
                 name     : "dbname",

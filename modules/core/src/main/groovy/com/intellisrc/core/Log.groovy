@@ -68,7 +68,7 @@ class Log {
                     Level level, Info stack, String msg, List<Object> args, Throwable throwable ->
                         // If we haven't specified any special logger, format strings here:
                         if(logger.name == "app" && args) {
-                            msg = formatString(msg, args)
+                            msg = formatString(msg, args, throwable)
                             args.clear()
                         }
                         switch (level) {
@@ -137,7 +137,7 @@ class Log {
                 println "---------------------------------------------------------------------------------------------"
                 printers << (Printer) {
                     Level level, Info stack, String msg, List<Object> args, Throwable throwable ->
-                        println getLogLine(level, stack, formatString(msg, args))
+                        println getLogLine(level, stack, formatString(msg, args, throwable))
                         if (level == Level.ERROR) {
                             if (throwable) {
                                 if (throwable.message) {
@@ -334,14 +334,34 @@ class Log {
         }
         return stack
     }
-
+    /**
+     * Convert Throwable to String
+     * @param throwable
+     * @return
+     */
+    static String getExceptionMessage(Throwable throwable) {
+        String msg = throwable.localizedMessage ?: throwable.message
+        if(msg) {
+            if(throwable.cause) {
+                msg += " (${throwable.cause})"
+            }
+        } else if(throwable.cause) {
+            msg = throwable.cause
+        } else {
+            msg = throwable.toString()
+        }
+        return msg
+    }
     /**
      * Format with %
      * @param msg
      * @param args
      * @return
      */
-    static String formatString(String msg, List<Object> args) {
+    static String formatString(String msg, List<Object> args, Throwable throwable = null) {
+        if(throwable) {
+            args << getExceptionMessage(throwable)
+        }
         if(!args.empty) {
             LinkedList params = args as LinkedList
             List convParams = []
@@ -374,6 +394,9 @@ class Log {
                                 break
                             case byte[]:
                                 converted = (val as byte[]).encodeHex()
+                                break
+                            case Throwable:
+                                converted = getExceptionMessage(val as Throwable)
                                 break
                             default:
                                 converted = val.toString()

@@ -59,7 +59,7 @@ class ServerSendBroadcastService extends HttpServlet implements BroadcastService
                 onFail?.call(new Exception("Message was too long"))
             }
         } catch(Exception e) {
-            Log.w("Unable to send to client: %s : %s", e.message, e.cause)
+            Log.w("Unable to send to client: %s", e)
             onFail?.call(e)
         }
     }

@@ -66,9 +66,9 @@ class FtpClient {
                 Log.w("Unable to connect to server [ %s ] : Received error code: %d", ip.hostAddress, client.replyCode)
             }
         } catch(FTPConnectionClosedException e) {
-            Log.w("Server [ %s ] closed connection : ", ip.hostAddress, e.message)
+            Log.w("Server [ %s ] closed connection : ", ip.hostAddress, e)
         } catch(IOException e) {
-            Log.w("Unable to connect to server [ %s ] : ", ip.hostAddress, e.message)
+            Log.w("Unable to connect to server [ %s ] : ", ip.hostAddress, e)
         }
         return connected
     }
@@ -187,7 +187,7 @@ class FtpClient {
             client.storeFile(file.name, input)
             uploaded = true
         } catch(Exception e) {
-            Log.w("Unable to upload file [%s] : %s", file.name, e.message)
+            Log.w("Unable to upload file [%s] : %s", file.name, e)
         }
         return uploaded
     }

@@ -100,7 +100,7 @@ class Firebird extends JDBCServer {
             free.setAccessible(true)
             free.invoke(connection)
         } catch(Exception e) {
-            Log.w("Unable to free statements: %s", e.message)
+            Log.w("Unable to free statements: %s", e)
         }
     }
 }

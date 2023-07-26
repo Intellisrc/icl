@@ -181,7 +181,7 @@ class Cmd {
                     process.in.eachLine { stdOut.call(it) }
                     process.err.eachLine { stdErr.call(it) }
                 } catch(Exception e) {
-                    Log.v("Process ended before expected: %s", e.message)
+                    Log.v("Process ended before expected: %s", e)
                 } finally {
                     done = true
                 }

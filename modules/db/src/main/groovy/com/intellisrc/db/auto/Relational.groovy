@@ -750,7 +750,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                                 }
                             }
                         } catch (Exception e) {
-                            Log.w("Unable to parse list value in field %s: %s", field.name, e.message)
+                            Log.w("Unable to parse list value in field %s: %s", field.name, e)
                             retVal = []
                         }
                         break
@@ -758,7 +758,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         try {
                             retVal = YAML.decode((value ?: "").toString()) as Map
                         } catch (Exception e) {
-                            Log.w("Unable to parse map value in field %s: %s", field.name, e.message)
+                            Log.w("Unable to parse map value in field %s: %s", field.name, e)
                             retVal = [:]
                         }
                         break
@@ -816,13 +816,13 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                                 try {
                                     retVal = value
                                 } catch (Exception e) {
-                                    Log.w("Unable to set Model field: %s with value: %s (%s)", field.name, value, e.message)
+                                    Log.w("Unable to set Model field: %s with value: %s (%s)", field.name, value, e)
                                 }
                             }
                         }
                 }
             } catch(Exception ex) {
-                Log.w("Unable to set value: %s in field: %s (%s)", value, field.name, ex.message)
+                Log.w("Unable to set value: %s in field: %s (%s)", value, field.name, ex)
             }
         }
         return retVal

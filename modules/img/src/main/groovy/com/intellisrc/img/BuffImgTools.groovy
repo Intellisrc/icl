@@ -136,7 +136,7 @@ class BuffImgTools {
         try {
             cropped = image.getSubimage(x, y, width, height)
         } catch(RasterFormatException e) {
-            Log.w("Cropping Image (%d x %d) to: [ %d x %d | x:%d, y:%d ] failed. %s", image.width, image.height, width, height, x, y, e.message)
+            Log.w("Cropping Image (%d x %d) to: [ %d x %d | x:%d, y:%d ] failed. %s", image.width, image.height, width, height, x, y, e)
         }
         return cropped
     }

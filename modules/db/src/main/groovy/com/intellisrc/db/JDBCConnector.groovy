@@ -269,13 +269,13 @@ class JDBCConnector implements Connector {
 					}
 				} catch(SQLException syntaxError) {
 					if(!silent) {
-						Log.w("Query was mistaken: %s", syntaxError.message)
+						Log.w("Query was mistaken: %s", syntaxError)
 					}
 					onError(syntaxError)
 					return null
 				} catch(Exception e) {
 					if(!silent) {
-						Log.w("Unable to set statement for query [%s]: %s", query.toString(), e.message)
+						Log.w("Unable to set statement for query [%s]: %s", query.toString(), e)
 					}
 					onError(e)
 					return null

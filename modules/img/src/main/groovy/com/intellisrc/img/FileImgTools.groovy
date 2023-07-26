@@ -161,7 +161,7 @@ class FileImgTools {
                 }
             }
         } catch (Exception e) {
-            Log.w("File: ${file.name} thrown an error: %s", e.message)
+            Log.w("File: ${file.name} thrown an error: %s", e)
         } finally {
             digestInputStream.close()
         }
