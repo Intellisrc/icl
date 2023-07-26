@@ -317,7 +317,7 @@ class CommonLogger extends MarkerIgnoringBase {
             }
         }
         if(format) {
-            formatted = Log.formatString(format, args)
+            formatted = level == Level.ERROR ? Log.formatString(format, args) : Log.formatString(format, args, t)
         }
         log(level, formatted, t)
     }
@@ -468,7 +468,7 @@ class CommonLogger extends MarkerIgnoringBase {
                                 exception   : t
                             ))
                         }
-                        if(printer.showStackTrace) {
+                        if(printer.showStackTrace && level == Level.ERROR) {
                             writeThrowable(printer, t, targetStream)
                         }
                         targetStream.flush()

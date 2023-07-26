@@ -73,24 +73,48 @@ class Log {
                         }
                         switch (level) {
                             case Level.TRACE:
-                                if(args.size()) {
-                                    logger.trace(msg, args.size() == 1 ? args.first() : args.toArray())
+                                if(throwable) {
+                                    if(args.size()) {
+                                        logger.trace(msg, args.size() == 1 ? args.first() : args.toArray(), throwable)
+                                    } else {
+                                        logger.trace(msg, throwable)
+                                    }
                                 } else {
-                                    logger.trace(msg)
+                                    if (args.size()) {
+                                        logger.trace(msg, args.size() == 1 ? args.first() : args.toArray())
+                                    } else {
+                                        logger.trace(msg)
+                                    }
                                 }
                                 break
                             case Level.DEBUG:
-                                if(args.size()) {
-                                    logger.debug(msg, args.size() == 1 ? args.first() : args.toArray())
+                                if(throwable) {
+                                    if(args.size()) {
+                                        logger.debug(msg, args.size() == 1 ? args.first() : args.toArray(), throwable)
+                                    } else {
+                                        logger.debug(msg, throwable)
+                                    }
                                 } else {
-                                    logger.debug(msg)
+                                    if (args.size()) {
+                                        logger.debug(msg, args.size() == 1 ? args.first() : args.toArray())
+                                    } else {
+                                        logger.debug(msg)
+                                    }
                                 }
                                 break
                             case Level.INFO:
-                                if(args.size()) {
-                                    logger.info(msg, args.size() == 1 ? args.first() : args.toArray(Object.class))
+                                if(throwable) {
+                                    if(args.size()) {
+                                        logger.info(msg, args.size() == 1 ? args.first() : args.toArray(), throwable)
+                                    } else {
+                                        logger.info(msg, throwable)
+                                    }
                                 } else {
-                                    logger.info(msg)
+                                    if(args.size()) {
+                                        logger.info(msg, args.size() == 1 ? args.first() : args.toArray(Object.class))
+                                    } else {
+                                        logger.info(msg)
+                                    }
                                 }
                                 break
                             case Level.WARN:
@@ -343,12 +367,13 @@ class Log {
         String msg = throwable.localizedMessage ?: throwable.message
         if(msg) {
             if(throwable.cause) {
-                msg += " (${throwable.cause})"
+                msg += " : " + throwable.cause.message
             }
+            msg += " (${throwable.class.simpleName})"
         } else if(throwable.cause) {
-            msg = throwable.cause
+            msg = throwable.cause.message + " (${throwable.cause.class.simpleName})"
         } else {
-            msg = throwable.toString()
+            msg = throwable.class.simpleName
         }
         return msg
     }
