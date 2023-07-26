@@ -17,6 +17,7 @@ class Response extends JettyResponse {
     protected final JettyResponse original
     ErrorTemplate errorTemplate = null
     Compression compression = Compression.AUTO
+    protected static Map<Compression, Boolean> availability = [:]
     /**
      * Handles the output compression
      */
@@ -25,18 +26,23 @@ class Response extends JettyResponse {
         boolean isAvailable() {
             boolean available = true
             if(this == BROTLI_COMPRESSED) {
-                try {
-                    Class<?> brotli = Class.forName("com.nixxcode.jvmbrotli.common.BrotliLoader")
-                    available = (Boolean) brotli.getMethod("isBrotliAvailable").invoke(null)
-                } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    Log.v("Brotli was not found: {} Cause: {}", e.getMessage(), e.getCause());
-                    available = false
+                if(availability.containsKey(this)) {
+                    available = availability[this]
+                } else {
+                    try {
+                        Class<?> brotli = Class.forName("com.nixxcode.jvmbrotli.common.BrotliLoader")
+                        available = (Boolean) brotli.getMethod("isBrotliAvailable").invoke(null)
+                    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                        Log.v("Brotli was not found: %s", e)
+                        available = false
+                    }
+                    availability[this] = available
                 }
             }
             return available
         }
         Compression get() {
-            return this == AUTO ? (BROTLI_COMPRESSED.isAvailable() ? BROTLI_COMPRESSED : GZIP_COMPRESSED) : this
+            return this == AUTO ? (BROTLI_COMPRESSED.available ? BROTLI_COMPRESSED : GZIP_COMPRESSED) : this
         }
         Object compress(byte[] bytes) {
             Object obj = bytes
