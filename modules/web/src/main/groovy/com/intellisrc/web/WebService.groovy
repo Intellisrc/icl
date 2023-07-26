@@ -270,7 +270,7 @@ class WebService extends WebServiceBase {
                                         }
                                         response.type(Mime.JSON)
                                         res.ok = ok
-                                        return JSON.encode(res)
+                                        return res
                                 }, auth.allowType))
                                 setupService(serviciable, Service.new(GET, auth.path + auth.logoutPath, {
                                     Request request, Response response ->
@@ -279,9 +279,9 @@ class WebService extends WebServiceBase {
                                             request.session?.invalidate()
                                         }
                                         response.type(Mime.JSON)
-                                        return JSON.encode(
+                                        return [
                                             ok: ok
-                                        )
+                                        ]
                                 }, auth.allowType))
                                 break
                         }
@@ -454,22 +454,28 @@ class WebService extends WebServiceBase {
         if(forceBinary) {
             output.type = Type.BINARY
         }
-        // Set content
+        // Set Size
+        switch (output.content) {
+            case String:
+                output.content = output.content.toString()
+                output.size = (output.content as String).bytes.length //Support Unicode (using bytes instead of String)
+                break
+            case File :
+                File file = output.content as File
+                output.content = file.bytes
+                output.size = file.size()
+                output.etag = file.lastModified().toString()
+                break
+            case byte[]:
+                output.size = (output.content as byte[]).length
+                break
+        }
+        // Set encoded content
         switch (output.type) {
             case Type.TEXT:
-                switch (output.content) {
-                    case File :
-                        File file = output.content as File
-                        output.content = file.bytes
-                        output.size = file.size()
-                        output.etag = file.lastModified().toString()
-                        break
-                    case byte[]:
-                        output.size = (output.content as byte[]).length
-                        break
-                    default:
-                        output.content = output.content.toString()
-                        output.size = (output.content as String).bytes.length //Support Unicode (using bytes instead of String)
+                if(! output.size) {
+                    output.content = output.content.toString()
+                    output.size = (output.content as String).bytes.length //Support Unicode (using bytes instead of String)
                 }
                 break
             case Type.JSON:
@@ -495,9 +501,6 @@ class WebService extends WebServiceBase {
             case Type.IMAGE:
                 output.charSet = ""
                 switch (output.content) {
-                    case File:
-                        output.content = (output.content as File).bytes
-                        break
                     case BufferedImage:
                         BufferedImage img = output.content as BufferedImage
                         ByteArrayOutputStream os = new ByteArrayOutputStream()
@@ -519,9 +522,6 @@ class WebService extends WebServiceBase {
                 switch (output.content) {
                     case String:
                         output.content = output.content.toString().bytes
-                        break
-                    case File:
-                        output.content = (output.content as File).bytes
                         break
                     case BufferedImage: // Output raw bytes:
                         BufferedImage img = output.content as BufferedImage
