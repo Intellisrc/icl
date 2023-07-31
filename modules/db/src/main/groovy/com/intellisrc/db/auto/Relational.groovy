@@ -730,7 +730,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                                 if (!(retVal as List).empty && convertModels) {
                                     if (retVal.first() instanceof Integer && genericIsModel(field)) {
                                         Column annotation = field.getAnnotation(Column)
-                                        retVal = get(retVal)
+                                        Relational rel = getTableOrView(getParameterizedClass(field) as Model)
+                                        retVal = rel.get(retVal)
                                         switch (annotation.ondelete()) {
                                             case DeleteActions.NULL:
                                                 // Do nothing (must be null already)
@@ -799,9 +800,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         }
                         break
                     case Model:
-                        Constructor<?> c = field.type.getConstructor()
-                        Model refType = (c.newInstance() as Model)
-                        Relational rel = getTableOrView(refType)
+                        Relational rel = getTableOrView(field)
                         retVal = rel.get(value as int)
                         break
                     default:
@@ -848,6 +847,22 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     }
 
     /**
+     * Return a Model instance from a Field type
+     * @param field
+     * @return
+     */
+    static Model getModel(Field field) {
+        Model model = null
+        try {
+            Constructor<?> c = (field.type.getConstructor())
+            model = (c.newInstance() as Model)
+        } catch(Exception e) {
+            Log.e("Trying to get a Model from another object type: %s", field?.type?.simpleName, e)
+        }
+        return model
+    }
+
+    /**
      * Based on a model class, get the table or view
      * @param model
      * @return
@@ -855,6 +870,15 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     static Relational getTableOrView(Model model) {
         return getTableOrView(model.class)
     }
+    /**
+     * Based on a field type (of Model), get table or view
+     * @param field
+     * @return
+     */
+    static Relational getTableOrView(Field field) {
+                        return getTableOrView(getModel(field))
+        }
+
     /**
      * Based on a Class, get the table or view
      * If a model has multiple definitions, it will choose the Table class
