@@ -1253,7 +1253,7 @@ class WebService extends WebServiceBase {
             fullPath = "~/" + rootPath.replaceAll(/^\//, '').replaceAll(/\/$/,'') +
                 servicePath.replaceAll(/^~\//, '')
         } else {
-            String split = [':','*'].contains(servicePath[0]) ? '/' : ''
+            String split = ! servicePath.empty   && [':','*'].contains(servicePath[0]) ? '/' : ''
             fullPath = rootPath.replaceAll(/\/$/,'') + split + servicePath
         }
         return fullPath
