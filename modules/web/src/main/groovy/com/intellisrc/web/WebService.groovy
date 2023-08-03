@@ -1274,6 +1274,10 @@ class WebService extends WebServiceBase {
                     // Match exact path
                     // Match with regex (e.g. /^path/(admin|control|manager)?$/ )
                     String fullPath = srv.path
+                    // Append root slash if needed:
+                    if(!  (fullPath.startsWith("/") || fullPath.startsWith("~"))) {
+                        fullPath = "/" + fullPath;
+                    }
                     if (fullPath == path ||
                         (fullPath.endsWith("/?") && fullPath.replaceAll(/\/\?$/, '') == path.replaceAll(/\/$/, ''))) {
                         //TODO verify /?
