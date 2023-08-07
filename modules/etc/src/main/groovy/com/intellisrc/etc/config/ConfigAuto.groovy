@@ -2,10 +2,10 @@ package com.intellisrc.etc.config
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysInfo
 import com.intellisrc.core.props.PropertiesGet
 import com.intellisrc.core.props.StringProperties
 import com.intellisrc.core.props.StringPropertiesYaml
-import com.intellisrc.core.SysInfo
 import com.intellisrc.etc.BerkeleyDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
@@ -154,7 +154,7 @@ class ConfigAuto {
             boolean updated = true
             if (changed) {
                 updated = props.set(key, field)
-                Log.d("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
+                Log.v("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
                 resetChange()
                 if(exportOnSave) {
                     exportValues()
@@ -357,7 +357,7 @@ class ConfigAuto {
             //noinspection GroovyFallthrough
             switch (field.type) {
                 case boolean: case Boolean:
-                    field.setBoolean(null, getter ? getter.getBool(key) : obj as boolean)
+                    field.setBoolean(null, getter ? getter.getBool(key) : getBoolean(obj))
                     break
                 case short: case Short:
                     field.setShort(null, getter ? getter.getShort(key) : obj as short)
@@ -625,6 +625,7 @@ class ConfigAuto {
                 return [(storage.key) : storage.current.toString() ]
         }
     }
+
     /**
      * Drop storage
      */
@@ -639,5 +640,18 @@ class ConfigAuto {
         if(onClose) {
             onClose.call()
         }
+    }
+    /**
+     * Convert object to boolean
+     * @param obj
+     * @return
+     */
+    static boolean getBoolean(Object obj) {
+        boolean res
+        switch (obj) {
+            case String: res = Boolean.parseBoolean(obj.toString()); break
+            default: res = obj as boolean
+        }
+        return res
     }
 }
