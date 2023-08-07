@@ -357,7 +357,7 @@ class ConfigAuto {
             //noinspection GroovyFallthrough
             switch (field.type) {
                 case boolean: case Boolean:
-                    field.setBoolean(null, getter ? getter.getBool(key) : obj as boolean)
+                    field.setBoolean(null, getter ? getter.getBool(key) : getBoolean(obj))
                     break
                 case short: case Short:
                     field.setShort(null, getter ? getter.getShort(key) : obj as short)
@@ -625,6 +625,7 @@ class ConfigAuto {
                 return [(storage.key) : storage.current.toString() ]
         }
     }
+
     /**
      * Drop storage
      */
@@ -638,6 +639,17 @@ class ConfigAuto {
         exportValues()
         if(onClose) {
             onClose.call()
+        }
+    }
+    /**
+     * Convert object to boolean
+     * @param obj
+     * @return
+     */
+    static boolean getBoolean(Object obj) {
+        return switch (obj) {
+            case String -> Boolean.parseBoolean(obj.toString())
+            default -> obj as boolean
         }
     }
 }
