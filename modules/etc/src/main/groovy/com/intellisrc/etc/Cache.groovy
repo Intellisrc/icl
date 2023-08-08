@@ -6,6 +6,7 @@ import groovy.transform.CompileStatic
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+import java.util.regex.Pattern
 
 @CompileStatic
 /**
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentMap
  * extend       : if true, it will extend time upon access. If false, it will expire when the time is due (without changing expire value).
  */
 class Cache<V> {
+    static public final int DISABLED = 0
     static public final int FOREVER = -1
     static protected int defaultGCInterval = Config.get("cache.gc", Secs.MIN_2) //seconds
     static protected int defaultTimeout = Config.get("cache.timeout", FOREVER) //seconds
@@ -175,12 +177,34 @@ class Cache<V> {
 		}
 		return false
 	}
+
+    /**
+     * Remove all keys matching pattern
+     * @param match
+     * @return
+     */
+    boolean clear(final String match) {
+        return cache.removeAll {
+            it.key.contains(match)
+        }
+    }
+    /**
+     * Remove all keys matching pattern
+     * @param match
+     * @return
+     */
+    boolean clear(final Pattern match) {
+        return cache.removeAll {
+            it.key.matches(match)
+        }
+    }
 	
 	/**
 	 * Clear all values
 	 */
-	void clear() {
+	boolean clear() {
 		cache.clear()
+        return cache.isEmpty()
 	}
 
 	/**
