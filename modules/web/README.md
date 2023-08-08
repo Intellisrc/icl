@@ -128,7 +128,7 @@ new Service(
     allowOrigin         : null,                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
     allowType           : "",                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
     cacheExtend         : false,                 // Extend time upon read (similar as sessions)
-    cacheTime           : 0,                     // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER : forever
+    cacheTime           : Cache.DISABLED,        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER : forever
     charSet             : "UTF-8",               // Output charset (default: UTF-8)
     compress            : false,                 // Whether to compress or not the output
     compressSize        : false,                 // If true, when compressed will buffer the output to report size
@@ -406,6 +406,55 @@ in your project (Gradle, Maven, etc).
 **NOTE**: If you are using Gradle, you may need to also include the native library according to your
 system architecture.
 
+### Cache
+
+Cache can be enabled globally in your `WebService` (it will be used as default by all static and dynamic content):
+
+```groovy
+new WebService(
+    port        : 80,  
+    resources   : "static/",
+    cacheTime   : Secs.HOUR, //Seconds to keep cache (default value is: `Cache.DISABLED` == 0),
+    cacheTotalMaxSizeMB : 100, //Do not store more than 100MB of cache (default: unlimited == 0),
+    cacheMaxSizeKB : 1024 // If content is above this value, do not store in cache (default: 256KB)
+)
+```
+If you want to keep some content for as long as possible, use `Cache.FOREVER` (or -1).
+
+You can also enable cache for your services, for example:
+
+```groovy
+class ExampleServices implements ServiciableSingle {
+    Service getService() {
+        new Service(
+            path : "cached/",
+            cacheExtend         : false,  // Extend time upon read
+            cacheTime           : Cache.FOREVER, // Seconds to store action
+            maxAge              : Secs.HOUR, //Suggest the browser to keep file for some time before checking again
+            action : {
+                Request request ->
+                    return [ok : true]
+            }
+        )
+    }
+}
+```
+If you need to clear all the cache, you can use your `WebService` instance or manually clearing using
+a key (keys are based on URL path):
+
+```groovy
+WebService ws = new WebService()
+//...
+// Clearing all the cache:
+ws.clearCache()
+// Clearing some keys:
+ws.clearCache(/\.css$/)
+// or (any match):
+ws.clearCache("updated.grv")
+```
+
+**NOTE**: If the `WebService` is serving some content from the cache, it will add the header: `Server-Cache: true` to the response.
+
 ### Authentication (ServiciableAuth)
 
 This interface is used to create and manage sessions in order to enable authentication.
@@ -606,6 +655,31 @@ new WebService(
 ```
 
 **NOTE** : Must browsers require HTTPS to be enabled in order to use HTTP/2. 
+
+## Server-Sent Events (SSE) Server
+
+If you need to notify your clients of updates in the server, you may want to
+use [SSE](https://www.w3schools.com/html/html5_serversentevents.asp).
+
+To implement it, you need to implement the interface: `ServiciableSentEvents`:
+
+```groovy
+static class MySSE implements ServiciableSentEvents {
+    String path = "/events"
+    int i = 0   // Message number
+
+    void notifyChange(boolean online) {
+        broadcast(i++, [
+            online : online,
+        ])
+    }
+}
+```
+and add it to your `WebService`:
+
+```groovy
+new WebService().add(new MySSE()).start()
+```
 
 ## WebSocket Server
 

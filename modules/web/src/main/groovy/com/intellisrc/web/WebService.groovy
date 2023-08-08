@@ -63,7 +63,7 @@ import static org.eclipse.jetty.http.HttpStatus.*
  *
  * Options:
  * resources : Path to serve static content
- * cacheTime : time to store static content in cache (0 = disabled <default>)
+ * cacheTime : time to store static content in cache in seconds (0 = disabled <default>)
  * port      : Port to be used by the WebService (default: 80)
  * threads   : Maximum Number of clients
  *
@@ -74,7 +74,7 @@ class WebService extends WebServiceBase {
     public int threads = 20
     public int minThreads = 2
     public int eTagMaxKB = 1024
-    public int cacheTime = 0
+    public int cacheTime = Cache.DISABLED
     public int cacheMaxSizeKB = 256
     public int cacheTotalMaxSizeMB = 0 // 0 = Unlimited
     public boolean compress = true  //Compress output when possible
@@ -97,6 +97,7 @@ class WebService extends WebServiceBase {
                 default         -> new WebError(String.format("Error %d : %s", code, msg), Mime.TXT, defaultCharset)
             }
     }
+    public final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
 
     protected List<StaticPath> staticPaths = []
     protected Server jettyServer
@@ -104,8 +105,6 @@ class WebService extends WebServiceBase {
     protected RequestHandle requestHandle
     protected boolean multiThread
     protected List<Serviciable> services = []
-
-    protected final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
 
     static class WebException extends Exception {
@@ -540,7 +539,7 @@ class WebService extends WebServiceBase {
      * @param request
      * @return
      */
-    protected static String getCacheKey(Request request) {
+    static String getCacheKey(Request request) {
         String query = request.queryString
         return request.uri() + (query ? "?" + query : "")
     }
@@ -986,9 +985,7 @@ class WebService extends WebServiceBase {
                             //noinspection GroovyUnusedAssignment : IDE mistake
                             ServiceOutput toSave = null
                             try {
-                                Object res = callAction(sp.action, request, response)
-                                boolean forceBinary = response.header(CONTENT_TRANSFER_ENCODING)?.toLowerCase() == "binary"
-                                toSave = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
+                                toSave = processService(sp, request, response)
                             } catch (Exception e) {
                                 Log.e("Service.action CACHE closure failed", e)
                                 throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Cache failure")
@@ -1211,7 +1208,25 @@ class WebService extends WebServiceBase {
     Server getServer() {
         return jettyServer
     }
-
+    /**
+     * Clear cache using match
+     */
+    boolean clearCache(String match) {
+        return cache.clear(match)
+    }
+    /**
+     * Clear cache using match
+     */
+    boolean clearCache(Pattern match) {
+        return cache.clear(match)
+    }
+    /**
+     * Clear all cache
+     */
+    boolean clearCache() {
+        Log.v("All cache cleared")
+        return cache.clear()
+    }
     /**
      * stop web service
      */
