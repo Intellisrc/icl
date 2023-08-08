@@ -1,5 +1,6 @@
 package com.intellisrc.web.service
 
+import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 
@@ -68,7 +69,7 @@ class Service implements Serviciable {
     boolean compress            = true                  // Whether to compress or not the output
     boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     int minCompressBytes        = 256                   // Below this length, do not compress (most probably there won't be any gain)
-    int cacheTime               = 0                     // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
+    int cacheTime               = Cache.DISABLED        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
     int maxAge                  = 0                     // Seconds to suggest to keep in browser
     String contentType          = ""                    // Content Type, for example: Mime.getType("png") or "image/png". (default : auto)
     String charSet              = defaultCharset        // Output charset (default: UTF-8)
