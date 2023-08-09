@@ -64,6 +64,7 @@ class Mime {
             js		: "text/javascript",
             json	: "application/json",
             jsonld	: "application/ld+json",
+            map     : "application/json", // .map files for js and css are json format
             mid	    : "audio/midi",
             midi	: "audio/midi",
             mjpeg   : "video/x-motion-jpeg",
