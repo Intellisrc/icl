@@ -38,7 +38,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
     Table(String name = "", Database database = null) {
         super(name, database)
         TableMeta meta = this.class.getAnnotation(TableMeta)
-        this.autoUpdate = (meta && meta.hasProperty("autoUpdate") ? meta.properties.autoUpdate : false) as boolean
+        this.autoUpdate = (meta && meta.hasProperty("autoUpdate") ? meta.properties.autoUpdate : this.autoUpdate) as boolean
         updateOrCreate()
     }
     /**
