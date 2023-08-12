@@ -66,7 +66,7 @@ class Service implements Serviciable {
     }
     boolean isPrivate           = false                 // Browser Rule: These responses are typically intended for a single user
     boolean noStore             = false                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
-    boolean compress            = true                  // Whether to compress or not the output
+    boolean compress            = false                 // Whether to compress or not the output (defaults to WebService value, which is true by default)
     boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     int minCompressBytes        = 256                   // Below this length, do not compress (most probably there won't be any gain)
     int cacheTime               = Cache.DISABLED        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
@@ -83,6 +83,16 @@ class Service implements Serviciable {
     String acceptType           = ""                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
     Map<String,String> headers  = new TreeMap<>(String.CASE_INSENSITIVE_ORDER) // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
+
+    // The following are used by WebService to set correctly the users intention with compression:
+    protected boolean compressIsExplicit = false
+    void setCompress(boolean val) {
+        compressIsExplicit = true
+        compress = val
+    }
+    boolean getCompress(boolean generalValue) {
+        return compressIsExplicit ? compress : generalValue
+    }
     /**
      * Default set path (as String)
      * @param path

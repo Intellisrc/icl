@@ -421,7 +421,7 @@ class WebService extends WebServiceBase {
                 case BufferedImage:
                     BufferedImage img = output.content as BufferedImage
                     boolean hasAlpha = img.colorModel.hasAlpha()
-                    String ext = hasAlpha ? "png" : "jpg"
+                    String ext = hasAlpha ? "png" : "jpg" //TODO: support other?
                     output.type = Type.IMAGE
                     output.contentType = Mime.getType(ext)
                     output.fileName = "download.${ext}"
@@ -462,7 +462,7 @@ class WebService extends WebServiceBase {
             case File :
                 File file = output.content as File
                 output.content = file.bytes
-                output.size = file.size()
+                output.size = file.size() as int
                 output.etag = file.lastModified().toString()
                 break
             case byte[]:
@@ -600,7 +600,7 @@ class WebService extends WebServiceBase {
                             Object res = callAction(sp.action, request, response, uploadFiles)
                             boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                             //noinspection GroovyUnusedAssignment : IDE mistake
-                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
+                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.getCompress(compress))
                         } catch (Exception e) {
                             Log.e("Service.upload closure failed", e)
                             throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Upload failed")
@@ -624,7 +624,7 @@ class WebService extends WebServiceBase {
                     if(res != null) {
                         boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                         //noinspection GroovyUnusedAssignment : IDE mistake
-                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.compress)
+                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.getCompress(compress))
                     } else {
                         Log.v("Service returned null: %s", request.uri())
                         throw new WebException(response, NOT_FOUND_404)
@@ -678,7 +678,7 @@ class WebService extends WebServiceBase {
                     }
                 }
                 // Compress if requested
-                if(output && sp.compress) {
+                if(output && sp.getCompress(compress)) {
                     if(output.size > sp.minCompressBytes) {
                         response.compression = AUTO.get() // Get automatically the best option
                         byte[] bytes = []
@@ -1114,7 +1114,7 @@ class WebService extends WebServiceBase {
                             break
                         case byte[]: // With compression
                             byte[] content = (out.content as byte[])
-                            response.contentLength = content.length
+                            response.contentLength = out.size ?: content.length
                             response.outputStream.write(content)
                             response.outputStream.flush()
                             break
@@ -1140,7 +1140,7 @@ class WebService extends WebServiceBase {
                             byte[] content = out.content instanceof ByteBuffer ?
                                     (out.content as ByteBuffer).array() : (out.content as byte[])
                             if (content.length) {
-                                response.contentLength = content.length
+                                response.contentLength = out.size ?: content.length
                                 response.outputStream.write(content)
                                 response.outputStream.flush()
                                 response.outputStream.close()

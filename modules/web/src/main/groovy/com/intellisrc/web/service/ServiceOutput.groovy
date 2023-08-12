@@ -33,6 +33,7 @@ class ServiceOutput {
          */
         static Type fromString(String contentType) {
             Type type
+            //noinspection GroovyFallthrough
             switch (contentType) {
                 case ~/.*json.*/  : type = JSON; break
                 case ~/.*yaml.*/  : type = YAML; break
@@ -57,7 +58,7 @@ class ServiceOutput {
     // Name used to download
     String fileName     = ""
     // Size of content
-    long size           = 0
+    int size           = 0
     // Store eTag in some cases
     String etag         = ""
     // Headers (extra headers, they may get override by other)
