@@ -414,9 +414,13 @@ class WebService extends WebServiceBase {
                     break
                 case File:
                     File file = output.content as File
-                    output.contentType = Mime.getType(file)
-                    output.type = Type.fromString(output.contentType)
-                    output.fileName = file.name
+                    if(file.exists()) {
+                        output.contentType = Mime.getType(file)
+                        output.type = Type.fromString(output.contentType)
+                        output.fileName = file.name
+                    } else {
+                        output.responseCode = NOT_FOUND_404
+                    }
                     break
                 case BufferedImage:
                     BufferedImage img = output.content as BufferedImage
@@ -450,86 +454,93 @@ class WebService extends WebServiceBase {
                     output.fileName = "download.bin"
             }
         }
-        if(forceBinary) {
-            output.type = Type.BINARY
-        }
-        // Set Size
-        switch (output.content) {
-            case String:
-                output.content = output.content.toString()
-                output.size = (output.content as String).bytes.length //Support Unicode (using bytes instead of String)
-                break
-            case File :
-                File file = output.content as File
-                output.content = file.bytes
-                output.size = file.size() as int
-                output.etag = file.lastModified().toString()
-                break
-            case byte[]:
-                output.size = (output.content as byte[]).length
-                break
-        }
-        // Set encoded content
-        switch (output.type) {
-            case Type.TEXT:
-                if(! output.size) {
+        if(output.responseCode && output.responseCode >= BAD_REQUEST_400) {
+            output.content = null
+            output.size = 0
+            output.compression = NONE
+        } else {
+            if (forceBinary) {
+                output.type = Type.BINARY
+            }
+            // Set Size
+            switch (output.content) {
+                case String:
                     output.content = output.content.toString()
                     output.size = (output.content as String).bytes.length //Support Unicode (using bytes instead of String)
-                }
-                break
-            case Type.JSON:
-                //noinspection GroovyFallthrough
-                switch (output.content) {
-                    case Collection:
-                    case Map:
-                        output.content = JSON.encode(output.content)
-                        output.size = (output.content as String).size()
-                        break
-                }
-                break
-            case Type.YAML:
-                //noinspection GroovyFallthrough
-                switch (output.content) {
-                    case Collection:
-                    case Map:
-                        output.content = YAML.encode(output.content)
-                        output.size = (output.content as String).size()
-                        break
-                }
-                break
-            case Type.IMAGE:
-                output.charSet = ""
-                switch (output.content) {
-                    case BufferedImage:
-                        BufferedImage img = output.content as BufferedImage
-                        ByteArrayOutputStream os = new ByteArrayOutputStream()
-                        ImageWriter iw = ImageIO.getImageWritersByMIMEType(output.contentType).next()
-                        if(iw) {
-                            iw.setOutput(ImageIO.createImageOutputStream(os))
-                            iw.write(img)
-                            output.content = os.toByteArray()
-                        }
-                        os.close()
-                        break
-                }
-                // Replace it with "Binary"
-                output.type = Type.BINARY
-                output.size = (output.content as byte[]).length
-                break
-            case Type.BINARY:
-                output.charSet = ""
-                switch (output.content) {
-                    case String:
-                        output.content = output.content.toString().bytes
-                        break
-                    case BufferedImage: // Output raw bytes:
-                        BufferedImage img = output.content as BufferedImage
-                        output.content = ((DataBufferByte) img.raster.dataBuffer).data
-                        break
-                    default:
-                        output.content = output.content as byte[]
-                }
-                output.size = (output.content as byte[]).length
+                    break
+                case File:
+                    File file = output.content as File
+                    output.content = file.bytes
+                    output.size = file.size() as int
+                    output.etag = file.lastModified().toString()
+                    break
+                case byte[]:
+                    output.size = (output.content as byte[]).length
+                    break
+            }
+            // Set encoded content
+            switch (output.type) {
+                case Type.TEXT:
+                    if (!output.size) {
+                        output.content = output.content.toString()
+                        output.size = (output.content as String).bytes.length
+                        //Support Unicode (using bytes instead of String)
+                    }
+                    break
+                case Type.JSON:
+                    //noinspection GroovyFallthrough
+                    switch (output.content) {
+                        case Collection:
+                        case Map:
+                            output.content = JSON.encode(output.content)
+                            output.size = (output.content as String).size()
+                            break
+                    }
+                    break
+                case Type.YAML:
+                    //noinspection GroovyFallthrough
+                    switch (output.content) {
+                        case Collection:
+                        case Map:
+                            output.content = YAML.encode(output.content)
+                            output.size = (output.content as String).size()
+                            break
+                    }
+                    break
+                case Type.IMAGE:
+                    output.charSet = ""
+                    switch (output.content) {
+                        case BufferedImage:
+                            BufferedImage img = output.content as BufferedImage
+                            ByteArrayOutputStream os = new ByteArrayOutputStream()
+                            ImageWriter iw = ImageIO.getImageWritersByMIMEType(output.contentType).next()
+                            if (iw) {
+                                iw.setOutput(ImageIO.createImageOutputStream(os))
+                                iw.write(img)
+                                output.content = os.toByteArray()
+                            }
+                            os.close()
+                            break
+                    }
+                    // Replace it with "Binary"
+                    output.type = Type.BINARY
+                    output.size = (output.content as byte[]).length
+                    break
+                case Type.BINARY:
+                    output.charSet = ""
+                    switch (output.content) {
+                        case String:
+                            output.content = output.content.toString().bytes
+                            break
+                        case BufferedImage: // Output raw bytes:
+                            BufferedImage img = output.content as BufferedImage
+                            output.content = ((DataBufferByte) img.raster.dataBuffer).data
+                            break
+                        default:
+                            output.content = output.content as byte[]
+                    }
+                    output.size = (output.content as byte[]).length
+            }
         }
         return output
     }
@@ -601,6 +612,12 @@ class WebService extends WebServiceBase {
                             boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                             //noinspection GroovyUnusedAssignment : IDE mistake
                             output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.getCompress(compress))
+                            if (output.responseCode && output.responseCode >= BAD_REQUEST_400) {
+                                Log.v("Service returned %d code", output.responseCode)
+                                throw new WebException(response, output.responseCode)
+                            }
+                        } catch (WebException ignore) {
+                            // Do nothing
                         } catch (Exception e) {
                             Log.e("Service.upload closure failed", e)
                             throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Upload failed")
@@ -625,10 +642,16 @@ class WebService extends WebServiceBase {
                         boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                         //noinspection GroovyUnusedAssignment : IDE mistake
                         output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.getCompress(compress))
+                        if(output.responseCode && output.responseCode >= BAD_REQUEST_400) {
+                            Log.v("Service returned %d code", output.responseCode)
+                            throw new WebException(response, output.responseCode)
+                        }
                     } else {
                         Log.v("Service returned null: %s", request.uri())
                         throw new WebException(response, NOT_FOUND_404)
                     }
+                } catch (WebException ignore) {
+                    // Do nothing
                 } catch (Exception e) {
                     Log.e("Service.action closure failed", e)
                     throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Service action failed")
@@ -650,7 +673,7 @@ class WebService extends WebServiceBase {
                     }
                     // Set ETag: (even if we compress it later, we keep the original Etag of content)
                     String etag = output.etag = sp.etag?.calc(output.content) ?: output.etag
-                    if (!etag) {
+                    if (!etag && output.size) {
                         try {
                             if (output.type == Type.BINARY) {
                                 if (output.size > 1024 * eTagMaxKB) {
@@ -678,7 +701,7 @@ class WebService extends WebServiceBase {
                     }
                 }
                 // Compress if requested
-                if(output && sp.getCompress(compress)) {
+                if(output && output.size && sp.getCompress(compress)) {
                     if(output.size > sp.minCompressBytes) {
                         response.compression = AUTO.get() // Get automatically the best option
                         byte[] bytes = []
@@ -771,7 +794,7 @@ class WebService extends WebServiceBase {
                 if (output.type == Type.BINARY) {
                     response.header(ACCEPT_RANGES, "bytes")
                 }
-            } else if(output.responseCode != NOT_MODIFIED_304) {
+            } else if(output.responseCode != NOT_MODIFIED_304 && output.responseCode != NOT_FOUND_404) {
                 response.status(NO_CONTENT_204)
             }
         }
@@ -986,6 +1009,8 @@ class WebService extends WebServiceBase {
                             ServiceOutput toSave = null
                             try {
                                 toSave = processService(sp, request, response)
+                            } catch (WebException ignore) {
+                                // Do nothing
                             } catch (Exception e) {
                                 Log.e("Service.action CACHE closure failed", e)
                                 throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Cache failure")
@@ -1163,7 +1188,7 @@ class WebService extends WebServiceBase {
             Log.w("Unauthorized: %s", request.uri())
             throw new WebException(response, UNAUTHORIZED_401)
         }
-        if(! response.status) {
+        if(! response.status || response.status == NOT_FOUND_404) {
             Log.v("The requested path was not found: %s", request.uri())
             throw new WebException(response, NOT_FOUND_404)
         }
