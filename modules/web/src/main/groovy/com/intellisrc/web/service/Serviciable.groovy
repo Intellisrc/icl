@@ -2,6 +2,9 @@ package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
 
+import static com.intellisrc.web.service.Service.BeforeRequest
+import static com.intellisrc.web.service.Service.BeforeResponse
+
 /**
  * This is the common interface to define Services.
  * By itself is useless. Please extend it and implement
@@ -25,6 +28,6 @@ trait Serviciable {
     String getPath() { return "" }
     String getAllowOrigin() { return null }
     String getAllowType() { return "*/*" }
-    void beforeRequest(Request request) {}
-    void beforeResponse(Response response) {}
+    BeforeRequest getBeforeRequest() { return null }
+    BeforeResponse getBeforeResponse() { return null }
 }

@@ -120,7 +120,9 @@ class CRUDService extends Services {
 }
 ```
 
-You can override methods `beforeRequest` and `beforeResponse` if you want to execute some code for all services.
+You can override methods `getBeforeRequest` or `getBeforeResponse` if you want to execute some code for all services
+(if you want to set for each `Service`, see below). These methods will only be called when the service is called
+(they won't be called if output is read from cache).
 
 `Service` can also take several others properties:
 ```groovy
@@ -145,6 +147,8 @@ new Service(
     minCompressBytes    : 256,                   // Below this length, do not compress (most probably there won't be any gain)
     noStore             : false,                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
     path                : "",                    // URL path relative to parent
+    beforeRequest       : { Request r -> },      // Hook executed before Request is passed to action
+    beforeResponse      : { Response r -> }      // Hook executed before Response is passed to the WebService
 )
 ```
 

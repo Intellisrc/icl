@@ -349,6 +349,13 @@ class WebService extends WebServiceBase {
         sp.acceptType = serviciable.allowType
         // Fix path:
         sp.path = addRoot(serviciable.path, sp.path)
+        // Copy hooks:
+        if(! sp.beforeRequest && serviciable.beforeRequest) {
+            sp.beforeRequest = serviciable.beforeRequest
+        }
+        if(! sp.beforeResponse && serviciable.beforeResponse) {
+            sp.beforeResponse = serviciable.beforeResponse
+        }
         Log.v("Adding Service: [%s] with method %s", sp.path, sp.method.toString())
         return addService(sp)
     }
@@ -1003,7 +1010,9 @@ class WebService extends WebServiceBase {
                     request.setPathParameters(mfr.params)   // Inject params to request
                     Service sp = mfr.route.get()
                     // Call hook:
-                    sp.beforeRequest(request)
+                    if(sp.beforeRequest) {
+                        sp.beforeRequest.run(request)
+                    }
                     if (sp.cacheTime) { // Check if its in Cache
                         boolean addToCache = sp.cacheTime && !cacheFull
                         Closure noCache = {
@@ -1026,7 +1035,9 @@ class WebService extends WebServiceBase {
                         out = processService(sp, request, response)
                     }
                     //Call hook:
-                    sp.beforeResponse(response)
+                    if(sp.beforeResponse) {
+                        sp.beforeResponse.run(response)
+                    }
                 }
             }
 
