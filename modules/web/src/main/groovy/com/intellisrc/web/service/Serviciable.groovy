@@ -25,4 +25,6 @@ trait Serviciable {
     String getPath() { return "" }
     String getAllowOrigin() { return null }
     String getAllowType() { return "*/*" }
+    void beforeRequest(Request request) {}
+    void beforeResponse(Response response) {}
 }

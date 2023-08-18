@@ -1002,6 +1002,8 @@ class WebService extends WebServiceBase {
                 if (mfr.route.present) {
                     request.setPathParameters(mfr.params)   // Inject params to request
                     Service sp = mfr.route.get()
+                    // Call hook:
+                    sp.beforeRequest(request)
                     if (sp.cacheTime) { // Check if its in Cache
                         boolean addToCache = sp.cacheTime && !cacheFull
                         Closure noCache = {
@@ -1017,11 +1019,14 @@ class WebService extends WebServiceBase {
                             }
                             return toSave
                         }
+
                         //noinspection GroovyUnusedAssignment : IDE mistake
                         out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore, sp.cacheTime) : noCache()
                     } else {
                         out = processService(sp, request, response)
                     }
+                    //Call hook:
+                    sp.beforeResponse(response)
                 }
             }
 

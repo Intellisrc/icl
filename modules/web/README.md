@@ -120,6 +120,8 @@ class CRUDService extends Services {
 }
 ```
 
+You can override methods `beforeRequest` and `beforeResponse` if you want to execute some code for all services.
+
 `Service` can also take several others properties:
 ```groovy
 new Service(
