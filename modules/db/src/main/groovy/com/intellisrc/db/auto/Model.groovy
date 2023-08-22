@@ -72,14 +72,33 @@ abstract class Model {
         return this.class.declaredFields.findAll {!it.synthetic }.toList()
     }
     /**
-     * Convert Type to Map
+     * Convert Type to Map suitable for database operations
+     * Some data types may be replaced (e.g. Map, List, File, etc)
+     *
+     * NOTE: before it was using toMap(), but as it is commonly overrode it can interfere
+     * with the automatic conversion of data. If it is not correctly done, you can
+     * always override this method.
+     * @return
+     */
+    Map<String, Object> toDB() {
+        return Table.convertToDB(asMap()) // We don't use toMap() here as it may be override
+    }
+    /**
+     * General conversion to Map (may be overrode)
      * @return
      */
     Map<String, Object> toMap() {
+        return asMap()
+    }
+    /**
+     * Convert Model fields to Map preserving types
+     * @return
+     */
+    protected Map<String, Object> asMap() {
         Map<String, Object> map = fields.collectEntries {
             Field field ->
                 [(Table.getColumnName(field)) : this[field.name]]
         }
-        return Table.convertToDB(map, true)
+        return map
     }
 }

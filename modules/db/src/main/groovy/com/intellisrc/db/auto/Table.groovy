@@ -185,10 +185,10 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             multiPk = pks.size() > 1
         }
         boolean ok = db.update(models.collect {
-            it.toMap()
+            it.toDB()
         }, models.collect {
-            return singlePk ? [(pk) : it.toMap().get(pk)] :
-                (multiPk ? it.toMap().subMap(pks) : [])
+            return singlePk ? [(pk) : it.toDB().get(pk)] :
+                (multiPk ? it.toDB().subMap(pks) : [])
         })
         db.close()
         return ok
@@ -221,7 +221,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     boolean replace(Collection<M> models) {
         DB db = connect()
-        boolean ok = db.replace(models.collect { it.toMap() })
+        boolean ok = db.replace(models.collect { it.toDB() })
         db.close()
         return ok
     }
@@ -274,8 +274,8 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             multiPk = pks.size() > 1
         }
         boolean ok = db.delete(models.collect {
-            return singlePk ? it.toMap().get(pk) :
-                (multiPk ? it.toMap().subMap(pks) : [])
+            return singlePk ? it.toDB().get(pk) :
+                (multiPk ? it.toDB().subMap(pks) : [])
         })
         db.close()
         return ok
@@ -341,7 +341,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     boolean insert(Collection<M> models) {
         DB db = connect()
-        boolean ok = db.insert(models.collect { it.toMap() })
+        boolean ok = db.insert(models.collect { it.toDB() })
         db.close()
         return ok
     }
