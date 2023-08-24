@@ -127,7 +127,7 @@ class Cache<V> {
      * @param time
      * @return
      */
-    V get(final String key, NotFound notFound = null, CacheAccess onHit, CacheAccess onStore = null, int time = timeout) {
+    V get(final String key, NotFound notFound, CacheAccess onHit, CacheAccess onStore = null, int time = timeout) {
         V ret = null
         if(key && time) {
             if (contains(key)) {
