@@ -1003,45 +1003,7 @@ class WebService extends WebServiceBase {
                 onHit.call(cacheKey)
             }
 
-            // Then check services:
-            if (!out) {
-                MatchFilterResult mfr = matchURI(request.requestURI, HttpMethod.fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT))
-                if (mfr.route.present) {
-                    request.setPathParameters(mfr.params)   // Inject params to request
-                    Service sp = mfr.route.get()
-                    // Call hook:
-                    if(sp.beforeRequest) {
-                        sp.beforeRequest.run(request)
-                    }
-                    if (sp.cacheTime) { // Check if its in Cache
-                        boolean addToCache = sp.cacheTime && !cacheFull
-                        Closure noCache = {
-                            //noinspection GroovyUnusedAssignment : IDE mistake
-                            ServiceOutput toSave = null
-                            try {
-                                toSave = processService(sp, request, response)
-                            } catch (WebException ignore) {
-                                // Do nothing
-                            } catch (Exception e) {
-                                Log.e("Service.action CACHE closure failed", e)
-                                throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Cache failure")
-                            }
-                            return toSave
-                        }
-
-                        //noinspection GroovyUnusedAssignment : IDE mistake
-                        out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore, sp.cacheTime) : noCache()
-                    } else {
-                        out = processService(sp, request, response)
-                    }
-                    //Call hook:
-                    if(sp.beforeResponse) {
-                        sp.beforeResponse.run(response)
-                    }
-                }
-            }
-
-            // No service found, look for static files:
+            // Lok for static files:
             if (!out) {
                 // The request is already clean from Jetty and without query string:
                 String uri = request.requestURI
@@ -1138,6 +1100,45 @@ class WebService extends WebServiceBase {
                     throw new WebException(response, BAD_REQUEST_400)
                 }
             }
+
+            // Then check services:
+            if (!out) {
+                MatchFilterResult mfr = matchURI(request.requestURI, HttpMethod.fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT))
+                if (mfr.route.present) {
+                    request.setPathParameters(mfr.params)   // Inject params to request
+                    Service sp = mfr.route.get()
+                    // Call hook:
+                    if(sp.beforeRequest) {
+                        sp.beforeRequest.run(request)
+                    }
+                    if (sp.cacheTime) { // Check if its in Cache
+                        boolean addToCache = sp.cacheTime && !cacheFull
+                        Closure noCache = {
+                            //noinspection GroovyUnusedAssignment : IDE mistake
+                            ServiceOutput toSave = null
+                            try {
+                                toSave = processService(sp, request, response)
+                            } catch (WebException ignore) {
+                                // Do nothing
+                            } catch (Exception e) {
+                                Log.e("Service.action CACHE closure failed", e)
+                                throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Cache failure")
+                            }
+                            return toSave
+                        }
+
+                        //noinspection GroovyUnusedAssignment : IDE mistake
+                        out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore, sp.cacheTime) : noCache()
+                    } else {
+                        out = processService(sp, request, response)
+                    }
+                    //Call hook:
+                    if(sp.beforeResponse) {
+                        sp.beforeResponse.run(response)
+                    }
+                }
+            }
+
 
             // If we have output:
             if (out) {
