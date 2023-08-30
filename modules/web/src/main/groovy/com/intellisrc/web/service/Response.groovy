@@ -165,11 +165,13 @@ class Response extends JettyResponse {
      * @param value
      */
     void header(String key, String value) {
-        if(headerNames.contains(key) && value != header(key)) {
-            Log.v("HTTP Header: %s already existed. Replaced: %s -> %s", key, header(key), value)
+        if(key != "Date") {
+            if (headerNames.contains(key) && value != header(key)) {
+                Log.v("HTTP Header: '%s' already existed. Replaced: %s -> %s", key, header(key), value)
+            }
+            original.setHeader(key, value)
+            setHeader(key, value)
         }
-        original.setHeader(key, value)
-        setHeader(key, value)
     }
     /**
      * Get header

@@ -139,6 +139,24 @@ class WebServiceTest extends Specification {
             assert !web.isRunning()
     }
 
+    def "Add root should work fine"() {
+        expect:
+            assert WebService.addRoot(root, service) == expected
+        where:
+            root        | service           | expected
+            ""          | "/hello"          | "/hello"
+            "/"         | "/hello"          | "/hello"
+            "/hello"    | ""                | "/hello"
+            "/hello/"   | "world/"          | "/hello/world/"
+            "/hello/"   | ":name/"          | "/hello/:name/"
+            "/my"       | ".do"             | "/my.do"
+            ""          | "hello"           | "/hello"
+            "/my"       | "~/\\d+/"        | "~/my\\d+/"
+            "/my"       | ":path"           | "/my/:path"
+            "/my"       | "*"               | "/my/*"
+            "/my"       | "/some/:path"     | "/my/some/:path"
+    }
+
     def "Test Regex paths"() {
         setup:
             def conds = new AsyncConditions()

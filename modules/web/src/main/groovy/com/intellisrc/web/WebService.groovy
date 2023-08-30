@@ -1310,8 +1310,19 @@ class WebService extends WebServiceBase {
             fullPath = "~/" + rootPath.replaceAll(/^\//, '').replaceAll(/\/$/,'') +
                 servicePath.replaceAll(/^~\//, '')
         } else {
-            String split = ! servicePath.empty   && [':','*'].contains(servicePath[0]) ? '/' : ''
-            fullPath = rootPath.replaceAll(/\/$/,'') + split + servicePath
+            boolean startsWithParam = ! servicePath.empty && [':','*'].contains(servicePath[0])
+            boolean rootEndsWithSlash = rootPath.endsWith("/")
+            boolean serviceStartsWithSlash = servicePath.startsWith("/")
+            if(rootEndsWithSlash && serviceStartsWithSlash) { // Remove slash from service
+                servicePath = servicePath.replaceAll(/^\//, '')
+            }
+            if(startsWithParam &&! rootEndsWithSlash) { // Add Slash to root
+                rootPath = "${rootPath}/"
+            }
+            fullPath = rootPath + servicePath
+        }
+        if(! fullPath.startsWith("/") &&! fullPath.startsWith("~/")) {
+            fullPath = "/${fullPath}"
         }
         return fullPath
     }
