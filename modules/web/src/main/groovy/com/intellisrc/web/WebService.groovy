@@ -19,6 +19,7 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpSession
 import jakarta.servlet.http.Part
 import org.apache.commons.io.IOUtils
+import org.codehaus.groovy.runtime.metaclass.MissingMethodExceptionNoStack
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server
@@ -883,23 +884,34 @@ class WebService extends WebServiceBase {
      * @param params
      */
     protected static boolean tryCall(Closure action, Closure returnValue, Object... params) {
-        boolean called = false
+        boolean called = true
+        int np = action.maximumNumberOfParameters
+        int ap = params.size()
         try {
-            switch (params.size()) {
-                case 3:
+            //noinspection GroovyFallthrough
+            switch (true) {
+                case np == 3 && ap == 3:
                     returnValue(action.call(params[0], params[1], params[2]))
                     break
-                case 2:
+                case np == 2 && ap == 2:
                     returnValue(action.call(params[0], params[1]))
                     break
-                case 1:
+                case np == 1 && ap == 1:
                     returnValue(action.call(params[0]))
                     break
-                case 0:
+                case np == 0 && ap == 0:
                     returnValue(action.call())
+                    break
+                case np > 3:
+                    Log.w("Action has more than 3 parameters")
+                default:
+                    called = false
             }
-            called = true
-        } catch (MissingMethodException ignore) {
+        } catch (MissingMethodException e) {
+            if(e instanceof MissingMethodExceptionNoStack) {
+                Log.e("MissingMethodException inside action. ", e)
+            }
+            called = false
         }
         return called
     }
