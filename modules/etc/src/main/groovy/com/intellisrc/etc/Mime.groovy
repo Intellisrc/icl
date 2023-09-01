@@ -271,4 +271,19 @@ class Mime {
     static String getTypeFromConfig(String filename) {
         return Config.get("mime." + (filename.tokenize('.').last()), "")
     }
+    /**
+     * Check if file extension is usually compressed
+     * @param ext
+     * @return
+     */
+    static boolean isCompressed(String mimeType) {
+        return switch (mimeType) {
+            case ~/^text.*$/ -> false
+            case ~/^image\/(bmp|tiff|svg|x-icon|vnd.microsoft.icon).*$/ -> false
+            case ~/^font\/(ttf|otf).*$/ -> false
+            case ~/^application\/(vnd.ms-fontobject|xml-dtd|x-font-|(x-)?javascript).*$/ -> false
+            case ~/^application\/.*(xml|json)$/ -> false
+            default -> true
+        }
+    }
 }

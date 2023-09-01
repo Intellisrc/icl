@@ -550,6 +550,10 @@ class WebService extends WebServiceBase {
                     output.size = (output.content as byte[]).length
             }
         }
+        // If file type is compressed by default, do not compress
+        if(output.compression == AUTO && Mime.isCompressed(output.contentType)) {
+            output.compression = NONE
+        }
         return output
     }
 
