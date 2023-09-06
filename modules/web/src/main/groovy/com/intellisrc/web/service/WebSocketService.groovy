@@ -44,7 +44,7 @@ abstract class WebSocketService implements ServiciableWebSocket {
                 if(existent) {
                     WebMessage reply = onMessage(msg)
                     if(reply) {
-                        ws.sendTo(client, reply, {
+                        ws.sendTo(client, reply, {}, {
                             Throwable t ->
                                 Log.w("Unable to reply to client: %s", client.id)
                         })
@@ -127,12 +127,16 @@ abstract class WebSocketService implements ServiciableWebSocket {
         boolean sent = false
         if(clientOpt.present) {
             EventClient client = clientOpt.get()
-            ws.sendTo(clientOpt.get(), new WebMessage(data), {
-                sent = true
-            } ,{
-                Throwable t ->
-                    Log.v("Unable to send message to: %s", client.id)
-            })
+            if(data &&! data.isEmpty()) {
+                ws.sendTo(clientOpt.get(), new WebMessage(data), {
+                    sent = true
+                }, {
+                    Throwable t ->
+                        Log.v("Unable to send message to: %s", client.id)
+                })
+            } else {
+                Log.w("Trying to send empty data to user: %s", userID)
+            }
         }
         return sent
     }
@@ -144,11 +148,15 @@ abstract class WebSocketService implements ServiciableWebSocket {
      */
     boolean broadcast(Map data) {
         boolean sent = false
-        ws.broadcast(new WebMessage(data), {
-            sent = true
-        }, { Throwable it ->
-            Log.w("Unable to send broadcast message: %s", it)
-        })
+        if(data &&! data.isEmpty()) {
+            ws.broadcast(new WebMessage(data), {
+                sent = true
+            }, { Throwable it ->
+                Log.w("Unable to send broadcast message: %s", it)
+            })
+        } else {
+            Log.w("Trying to broadcast empty message")
+        }
         return sent
     }
 }

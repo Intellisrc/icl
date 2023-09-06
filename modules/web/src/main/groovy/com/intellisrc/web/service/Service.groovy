@@ -4,6 +4,8 @@ import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 
+import java.util.regex.Pattern
+
 import static com.intellisrc.web.WebService.getDefaultCharset
 import static com.intellisrc.web.service.HttpHeader.ACCEPT_CONTROL_ALLOW_ORIGIN
 import static com.intellisrc.web.service.HttpHeader.CACHE_CONTROL
@@ -121,9 +123,9 @@ class Service implements Serviciable {
      * Optional method to use Pattern as path
      * @param pattern
      */
-    /*void setPath(Pattern pattern) {
+    void setPath(Pattern pattern) {
         this.path = "~/" + addRoot(pattern.toString()) + "/"
-    }*/
+    }
 
     /**
      * Generate headers according to restraints
