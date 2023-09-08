@@ -248,6 +248,7 @@ class WebService extends WebServiceBase {
                                 ServiciableAuth auth = serviciable as ServiciableAuth
                                 setupService(serviciable, Service.new(POST, auth.path + auth.loginPath, {
                                     Request request, Response response ->
+                                        //noinspection GroovyUnusedAssignment
                                         boolean ok = false
                                         Map<String, Object> sessionMap = auth.onLogin(request, response)
                                         Map res = [:]
@@ -1024,14 +1025,7 @@ class WebService extends WebServiceBase {
                 // The request is already clean from Jetty and without query string:
                 String uri = request.requestURI
                 if (uri && !uri.empty) {
-                    if(staticPaths.empty) {
-                        // Set default content-type based on URL
-                        if(uri =~ /\.\w+$/) { // If has extension
-                            response.type(Mime.getType(uri))
-                        }
-                        Log.v("Resource or Service not found: %s", request.uri())
-                        throw new WebException(response, NOT_FOUND_404)
-                    } else {
+                    if(! staticPaths.empty) {
                         staticPaths.any {
                             StaticPath staticPath ->
                                 (uri.endsWith("/") ? indexFiles.collect { uri + it } : [uri]).each {
@@ -1360,7 +1354,7 @@ class WebService extends WebServiceBase {
                     String fullPath = srv.path
                     // Append root slash if needed:
                     if(!  (fullPath.startsWith("/") || fullPath.startsWith("~"))) {
-                        fullPath = "/" + fullPath;
+                        fullPath = "/" + fullPath
                     }
                     if (fullPath == path ||
                         (fullPath.endsWith("/?") && fullPath.replaceAll(/\/\?$/, '') == path.replaceAll(/\/$/, ''))) {
