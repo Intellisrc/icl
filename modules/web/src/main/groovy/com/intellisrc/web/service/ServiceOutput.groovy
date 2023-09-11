@@ -64,7 +64,7 @@ class ServiceOutput {
     @Override
     String toString() {
         if(type == Type.BINARY) {
-            Log.w("Content Type is BINARY but 'toString()' was requested")
+            Log.w("Content Type is BINARY but 'toString()' was requested with content-type: %s", contentType)
         }
         return content.toString()
     }

@@ -624,7 +624,7 @@ class WebService extends WebServiceBase {
                             Object res = callAction(sp.action, request, response, uploadFiles)
                             boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                             //noinspection GroovyUnusedAssignment : IDE mistake
-                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
+                            output = handleContentType(res, sp.contentType ?: response.type(), sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                             if (output.responseCode && output.responseCode >= BAD_REQUEST_400) {
                                 Log.v("Service returned %d code", output.responseCode)
                                 throw new WebException(response, output.responseCode)
@@ -654,7 +654,7 @@ class WebService extends WebServiceBase {
                     if(res != null) {
                         boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                         //noinspection GroovyUnusedAssignment : IDE mistake
-                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary,  getCompression(clientSupportedEncodings, sp.getCompress(compress)))
+                        output = handleContentType(res, sp.contentType ?: response.type(), sp.charSet, forceBinary,  getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                         if(output.responseCode && output.responseCode >= BAD_REQUEST_400) {
                             Log.v("Service returned %d code", output.responseCode)
                             throw new WebException(response, output.responseCode)
