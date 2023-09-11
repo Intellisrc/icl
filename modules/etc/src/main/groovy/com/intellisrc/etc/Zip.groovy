@@ -1,5 +1,6 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Log
 import com.nixxcode.jvmbrotli.common.BrotliLoader
 import com.nixxcode.jvmbrotli.dec.Decoder
 import com.nixxcode.jvmbrotli.enc.Encoder
@@ -232,5 +233,63 @@ class Zip {
         zis.closeEntry()
         zis.close()
         return namesData
+    }
+    /**
+     * Compress bytes using Deflate
+     * @param input
+     * @return
+     */
+    static byte[] deflate(byte[] input) {
+        byte[] result = []
+        ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        Deflater deflater = new Deflater(Deflater.DEFAULT_COMPRESSION, true)
+        DeflaterOutputStream output = new DeflaterOutputStream(baos, deflater)
+        try {
+            output.with {
+                write(input)
+                finish()
+                close()
+            }
+            result = baos.toByteArray()
+        } catch (Exception e) {
+            Log.e("Unable to compress", e)
+        } finally {
+            try {
+                baos.close()
+            } catch(Exception ignore) {}
+        }
+        deflater.end()
+        return result
+    }
+    /**
+     * Decompress bytes using Inflate
+     * @param input
+     * @return
+     */
+    static byte[] inflate(byte[] input) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(input)
+        Inflater inflater = new Inflater(true)
+        InflaterInputStream iis = new InflaterInputStream(bais, inflater)
+        ByteArrayOutputStream baos = new ByteArrayOutputStream()
+
+        byte[] result = []
+        byte[] buffer = new byte[1024]
+        int bytesRead
+        try {
+            while ((bytesRead = iis.read(buffer)) != -1) {
+                baos.write(buffer, 0, bytesRead)
+            }
+            result = baos.toByteArray()
+        } catch (Exception e) {
+            Log.e("Unable to decompress", e)
+        } finally {
+            try {
+                baos.close()
+                bais.close()
+                iis.close()
+            } catch (Exception ignore) {}
+        }
+        inflater.end()
+        return result
     }
 }

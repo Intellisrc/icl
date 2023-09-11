@@ -42,9 +42,8 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 import static com.intellisrc.web.protocols.Protocol.HTTP
+import static com.intellisrc.web.service.Compression.NONE
 import static com.intellisrc.web.service.HttpHeader.*
-import static com.intellisrc.web.service.Response.Compression.AUTO
-import static com.intellisrc.web.service.Response.Compression.NONE
 import static com.intellisrc.web.service.ServiceOutput.Type
 import static org.eclipse.jetty.http.HttpMethod.GET
 import static org.eclipse.jetty.http.HttpMethod.POST
@@ -368,7 +367,7 @@ class WebService extends WebServiceBase {
      * @param res (response from Service.Action)
      * @param contentType
      */
-    protected static ServiceOutput handleContentType(Object res, String contentType, String charSet, boolean forceBinary, boolean compress) {
+    protected static ServiceOutput handleContentType(Object res, String contentType, String charSet, boolean forceBinary, Compression compress) {
         // Skip this if the object is ServiceOutput
         if(res instanceof ServiceOutput) {
             return res
@@ -377,7 +376,7 @@ class WebService extends WebServiceBase {
             contentType: contentType.toLowerCase(),
             charSet : charSet,
             content: res,
-            compression: compress ? AUTO : NONE
+            compression: compress
         )
         // All Collection objects convert them to List so they are cleanly converted
         if(res instanceof Collection) {
@@ -552,7 +551,7 @@ class WebService extends WebServiceBase {
             }
         }
         // If file type is compressed by default, do not compress
-        if(output.compression == AUTO && Mime.isCompressed(output.contentType)) {
+        if(output.compression != NONE && Mime.isCompressed(output.contentType)) {
             output.compression = NONE
         }
         return output
@@ -587,6 +586,7 @@ class WebService extends WebServiceBase {
         // Then, we add or override with service headers
         outHeaders.putAll(sp.headers) // Manually specified headers have higher priority than automatic generated headers
         // --------------------------------------------------------------------------------------------------------------
+        List<Compression> clientSupportedEncodings = request.acceptedEncodings
 
         // Only Allowed clients:
         if (sp.allow.check(request)) {
@@ -624,7 +624,7 @@ class WebService extends WebServiceBase {
                             Object res = callAction(sp.action, request, response, uploadFiles)
                             boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                             //noinspection GroovyUnusedAssignment : IDE mistake
-                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.getCompress(compress))
+                            output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                             if (output.responseCode && output.responseCode >= BAD_REQUEST_400) {
                                 Log.v("Service returned %d code", output.responseCode)
                                 throw new WebException(response, output.responseCode)
@@ -654,7 +654,7 @@ class WebService extends WebServiceBase {
                     if(res != null) {
                         boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                         //noinspection GroovyUnusedAssignment : IDE mistake
-                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary, sp.getCompress(compress))
+                        output = handleContentType(res, response.type() ?: sp.contentType, sp.charSet, forceBinary,  getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                         if(output.responseCode && output.responseCode >= BAD_REQUEST_400) {
                             Log.v("Service returned %d code", output.responseCode)
                             throw new WebException(response, output.responseCode)
@@ -716,7 +716,7 @@ class WebService extends WebServiceBase {
                 // Compress if requested
                 if(output && output.size && sp.getCompress(compress)) {
                     if(output.size > sp.minCompressBytes) {
-                        response.compression = AUTO.get() // Get automatically the best option
+                        response.compression = getCompression(clientSupportedEncodings, true) // Get automatically the best option
                         byte[] bytes = []
                         switch (output.content) {
                             case String:
@@ -814,6 +814,16 @@ class WebService extends WebServiceBase {
         if (!response.status) {
             response.status(OK_200)
         }
+    }
+
+    /**
+     * Decide which compression method to use depending on client and server availability
+     * @param client
+     * @param server
+     * @return
+     */
+    protected static Compression getCompression(Collection<Compression> client, boolean compress) {
+        return compress ? (client.find { Compression.available.contains(it) } ?: NONE) : NONE
     }
 
     /**

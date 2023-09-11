@@ -99,6 +99,10 @@ class Request extends JettyRequest {
     void attribute(String key, Object value) {
         setAttribute(key, value)
     }
+    List<Compression> getAcceptedEncodings() {
+        String encodings = headers(HttpHeader.ACCEPT_ENCODING)
+        return encodings ? encodings.tokenize(",").collect { Compression.fromString(it.trim()) }.sort { it.ordinal() } : []
+    }
     //------------- PATH PARAMS ---------------
     void setPathParameters(Map<String, String> params) {
         params.keySet().each {

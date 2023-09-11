@@ -4,9 +4,6 @@ import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.web.WebService.getDefaultCharset
-import static com.intellisrc.web.service.Response.Compression
-import static com.intellisrc.web.service.Response.Compression.AUTO
-import static com.intellisrc.web.service.Response.Compression.NONE
 import static org.eclipse.jetty.http.HttpStatus.NOT_MODIFIED_304
 
 /**
@@ -51,7 +48,7 @@ class ServiceOutput {
     String contentType  = ""
     String charSet      = defaultCharset
     String downloadName = ""
-    Compression compression = AUTO
+    Compression compression = Compression.available.first()
 
     // Used by URL
     int responseCode    = 0
@@ -88,7 +85,7 @@ class ServiceOutput {
     void setNotModified() {
         headers.clear()
         responseCode = NOT_MODIFIED_304
-        compression = NONE
+        compression = Compression.NONE
         size = 0
         content = null
         contentType = null

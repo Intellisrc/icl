@@ -1,12 +1,10 @@
 package com.intellisrc.web.service
 
 import com.intellisrc.core.Log
-import com.intellisrc.etc.Zip
 import jakarta.servlet.ServletOutputStream
 import org.eclipse.jetty.server.Response as JettyResponse
 
 import java.lang.reflect.Field
-import java.lang.reflect.InvocationTargetException
 
 import static com.intellisrc.web.WebService.ErrorTemplate
 
@@ -16,62 +14,7 @@ import static com.intellisrc.web.WebService.ErrorTemplate
 class Response extends JettyResponse {
     protected final JettyResponse original
     ErrorTemplate errorTemplate = null
-    Compression compression = Compression.AUTO
-    protected static Map<Compression, Boolean> availability = [:]
-    /**
-     * Handles the output compression
-     */
-    static enum Compression {
-        AUTO, BROTLI_COMPRESSED, GZIP_COMPRESSED, NONE
-        boolean isAvailable() {
-            boolean available = true
-            if(this == BROTLI_COMPRESSED) {
-                if(availability.containsKey(this)) {
-                    available = availability[this]
-                } else {
-                    try {
-                        Class<?> brotli = Class.forName("com.nixxcode.jvmbrotli.common.BrotliLoader")
-                        available = (Boolean) brotli.getMethod("isBrotliAvailable").invoke(null)
-                    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                        Log.v("Brotli was not found: %s", e)
-                        available = false
-                    }
-                    availability[this] = available
-                }
-            }
-            return available
-        }
-        Compression get() {
-            return this == AUTO ? (BROTLI_COMPRESSED.available ? BROTLI_COMPRESSED : GZIP_COMPRESSED) : this
-        }
-        Object compress(byte[] bytes) {
-            Object obj = bytes
-            switch(get()) {
-                case BROTLI_COMPRESSED:
-                    obj = Zip.brotliCompress(bytes)
-                    break
-                case GZIP_COMPRESSED:
-                    obj = Zip.gzip(bytes)
-                    break
-                default:
-                    break
-            }
-            return obj
-        }
-        @Override
-        String toString() {
-            String res = ""
-            switch(get()) {
-                case BROTLI_COMPRESSED:
-                    res = "br"
-                    break
-                case GZIP_COMPRESSED:
-                    res = "gzip"
-                    break
-            }
-            return res
-        }
-    }
+    Compression compression = Compression.NONE
     /**
      * Constructor
      * @param channel
