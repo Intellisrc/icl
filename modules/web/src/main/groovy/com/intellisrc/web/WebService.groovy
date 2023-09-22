@@ -373,7 +373,7 @@ class WebService extends WebServiceBase {
             return res
         }
         ServiceOutput output = new ServiceOutput(
-            contentType: contentType.toLowerCase(),
+            contentType: contentType?.toLowerCase() ?: "",
             charSet : charSet,
             content: res,
             compression: compress

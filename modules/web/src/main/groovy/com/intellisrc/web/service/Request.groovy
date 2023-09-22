@@ -222,7 +222,7 @@ class Request extends JettyRequest {
         return getBody()
     }
     String getBody() {
-        return Bytes.toString(bodyAsBytes, getCharacterEncoding())
+        return Bytes.toString(bodyAsBytes, getCharacterEncoding() ?: "UTF-8")
     }
     byte[] getBodyAsBytes() {
         byte[] bodyAsBytes = null
