@@ -1,3 +1,4 @@
+//file:noinspection GrFinalVariableAccess
 package com.intellisrc.net
 
 import com.intellisrc.core.Config
@@ -5,6 +6,7 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 import org.apache.commons.net.ftp.*
+import org.apache.commons.net.util.TrustManagerUtils
 
 import javax.imageio.ImageIO
 import java.awt.image.BufferedImage
@@ -17,22 +19,47 @@ import java.nio.file.Files
 @CompileStatic
 class FtpClient {
     static boolean active = Config.getBool("ftp.active") //By default will be "passive"
-    Inet4Address ip
-    int port
-    String user
-    String pass
+    final String hostname
+    final InetAddress ip
+    final int port
+    final String user
+    final String pass
     String path
     String cwd = "/"
+    final boolean encrypted
+    boolean verifyHost = false // Only if encrypted is true, will check certificate against host name
     protected final FTPClient client
-
-    FtpClient(Inet4Address ip, int port = 21, String user, String pass, String path) {
+    /**
+     * Constructor
+     * @param ip    : Server IP address
+     * @param port  : Server port
+     * @param user  : username
+     * @param pass  : password
+     * @param path  : path to change upon connection
+     * @param encrypted : Use FTPS
+     */
+    FtpClient(InetAddress ip, int port = 21, String user, String pass, String path, boolean encrypted = false) {
         this.ip = ip
         this.port = port
         this.user = user
         this.pass = pass
         this.path = path.replaceAll(/\/$/, '') // Remove trailing slash if present
-        client = new FTPClient()
+        this.encrypted = encrypted
+        if(!this.hostname) {
+            this.hostname = ip.hostName
+        }
+        client = encrypted ? new FTPSClient() : new FTPClient()
     }
+    /**
+     * Constructor using hostname instead of IP
+     * @param hostname
+     * ...
+     */
+    FtpClient(String hostname, int port = 21, String user, String pass, String path, boolean encrypted = false) {
+        this.hostname = hostname
+        FtpClient(InetAddress.getByName(hostname), port, user, pass, path, encrypted)
+    }
+
     /**
      * Connect to FTP Server
      * @return
@@ -45,6 +72,22 @@ class FtpClient {
             if(port) {
                 Log.i("Setting port: %d", port)
                 client.setDefaultPort(port)
+            }
+            if(encrypted) {
+                FTPSClient ftps = (client as FTPSClient)
+                Log.v("Enabled cipher-suites: ")
+                ftps.enabledCipherSuites.each {
+                    Log.v("cipher-suite: %s", it)
+                }
+                Log.v("Enabled protocols: ")
+                ftps.enabledProtocols.each {
+                    Log.v("protocol: %s", it)
+                }
+                ftps.endpointCheckingEnabled = verifyHost
+                ftps.trustManager = verifyHost ? TrustManagerUtils.validateServerCertificateTrustManager : TrustManagerUtils.acceptAllTrustManager
+                Log.i("Connecting using secure socket (host verification: %s)", verifyHost ? "Yes [${hostname}]".toString() : "No")
+            } else {
+                Log.i("Using non-encrypted communication")
             }
             client.connect(ip)
             if (FTPReply.isPositiveCompletion(client.replyCode)) {
