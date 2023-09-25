@@ -26,7 +26,7 @@ class FtpClient {
     final String pass
     String path
     String cwd = "/"
-    final boolean encrypted
+    final boolean secure
     boolean verifyHost = false // Only if encrypted is true, will check certificate against host name
     protected final FTPClient client
     /**
@@ -36,28 +36,28 @@ class FtpClient {
      * @param user  : username
      * @param pass  : password
      * @param path  : path to change upon connection
-     * @param encrypted : Use FTPS
+     * @param secure : Use FTPS
+     * @param hostToVerify : Hostname to verify (it is not needed if encrypted is false)
      */
-    FtpClient(InetAddress ip, int port = 21, String user, String pass, String path, boolean encrypted = false) {
+    FtpClient(InetAddress ip, int port = 21, String user, String pass, String path, boolean secure = false, String hostToVerify = "") {
         this.ip = ip
         this.port = port
         this.user = user
         this.pass = pass
         this.path = path.replaceAll(/\/$/, '') // Remove trailing slash if present
-        this.encrypted = encrypted
-        if(!this.hostname) {
-            this.hostname = ip.hostName
-        }
-        client = encrypted ? new FTPSClient() : new FTPClient()
+        this.secure = secure
+        this.hostname = hostToVerify
+        this.verifyHost = ! hostToVerify.empty
+        client = secure ? new FTPSClient() : new FTPClient()
     }
     /**
      * Constructor using hostname instead of IP
-     * @param hostname
+     * @param hostname  : Server hostname
      * ...
+     * @param verifyHost : Verify hostname (boolean) against certificate
      */
-    FtpClient(String hostname, int port = 21, String user, String pass, String path, boolean encrypted = false) {
-        this.hostname = hostname
-        FtpClient(InetAddress.getByName(hostname), port, user, pass, path, encrypted)
+    FtpClient(String hostname, int port = 21, String user, String pass, String path, boolean secure = false, boolean verifyHost = false) {
+        this(InetAddress.getByName(hostname), port, user, pass, path, secure, verifyHost ? hostname : "")
     }
 
     /**
@@ -73,7 +73,7 @@ class FtpClient {
                 Log.i("Setting port: %d", port)
                 client.setDefaultPort(port)
             }
-            if(encrypted) {
+            if(secure) {
                 FTPSClient ftps = (client as FTPSClient)
                 Log.v("Enabled cipher-suites: ")
                 ftps.enabledCipherSuites.each {
