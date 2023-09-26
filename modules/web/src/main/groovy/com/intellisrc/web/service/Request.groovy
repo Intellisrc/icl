@@ -210,7 +210,7 @@ class Request extends JettyRequest {
      * @return
      */
     Session session() {
-        String id = cookies.toList().find { it.name == SESSION_ID }?.value ?: UUID.randomUUID().toString()
+        String id = (cookies?.toList() ?: []).find { it.name == SESSION_ID }?.value ?: UUID.randomUUID().toString()
         return new Session(id, session)
     }
     //------------ OTHER --------------
