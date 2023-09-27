@@ -1,6 +1,7 @@
 package com.intellisrc.net
 
-import com.intellisrc.core.SysInfo
+import com.intellisrc.etc.Mime
+import org.apache.commons.io.IOUtils
 import spock.lang.Specification
 
 /**
@@ -65,6 +66,23 @@ class SmtpTest extends Specification {
             assert smtp.send(recipient1,"Testing SMTP with Attachment", "This is the body")
         cleanup:
             file.delete()
+    }
+    def "Clear attachment"() {
+        when:
+            smtp.clearAttachments()
+        then:
+            assert smtp.attachments == 0
+        when: // Adding attachment as String:
+            smtp.addAttachment(attachFile.absolutePath)
+            smtp.addAttachment(new Smtp.InputStreamDataSource(IOUtils.toInputStream("Hello", "UTF-8"), "Title", Mime.TXT))
+        then:
+            assert smtp.attachments == 1
+            assert smtp.attachDataSources == 1
+        when:
+            smtp.clearAttachments()
+        then:
+            assert smtp.attachments == 0
+            assert smtp.attachDataSources == 0
     }
     def "Two recipients"() {
         setup:

@@ -4,10 +4,13 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.etc.Mime
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 
 import javax.activation.DataSource
 import javax.mail.*
+import javax.mail.event.TransportEvent
+import javax.mail.event.TransportListener
 import javax.mail.internet.*
 import java.nio.charset.Charset
 
@@ -33,6 +36,9 @@ class Smtp {
     public boolean simulate    = false //If true, it won't send any email
     public int port            = 25
     public Map<String,String> headers = [:] //custom headers
+    public EventResult onDelivered = { TransportEvent e, boolean partial -> }
+    public EventResult onNotDelivered = { TransportEvent e, boolean partial -> }
+    public ConnectionFailure onConnectionFailed = {}
 
     static enum Mode {
         TO, CC, BCC
@@ -45,7 +51,44 @@ class Smtp {
             }
         }
     }
+    /**
+     * Interface used to call events on connection failure
+     */
+    static interface ConnectionFailure {
+        void call()
+    }
 
+    /**
+     * Interface used to call events on delivered/not-delivered
+     */
+    static interface EventResult {
+        void call(TransportEvent e, boolean partial)
+    }
+
+    /**
+     * Listener for events when messages are sent
+     */
+    @Canonical
+    static class SendListener implements TransportListener {
+        final EventResult success
+        final EventResult failure
+
+        @Override
+        void messageDelivered(TransportEvent e) {
+            success.call(e, false)
+        }
+
+        @Override
+        void messageNotDelivered(TransportEvent e) {
+            failure.call(e, false)
+        }
+
+        @Override
+        void messagePartiallyDelivered(TransportEvent e) {
+            success.call(e, true)
+            failure.call(e, true)
+        }
+    }
     /**
      * Class to be used when attachments are not File objects
      */
@@ -151,7 +194,7 @@ class Smtp {
      * @return
      */
     boolean addAttachment(String filename) {
-        def file = new File(filename)
+        def file = File.get(filename)
         return addAttachment(file)
     }
     /**
@@ -185,6 +228,20 @@ class Smtp {
     void clearAttachments() {
         attachments.clear()
         attachmentsDS.clear()
+    }
+    /**
+     * Get number of attachments
+     * @return
+     */
+    int getAttachments() {
+        return attachments.size()
+    }
+    /**
+     * Get number of data sources attached
+     * @return
+     */
+    int getAttachDataSources() {
+        return attachmentsDS.size()
     }
 
     /**
@@ -302,6 +359,7 @@ class Smtp {
         if(replyTo) {
             message.setReplyTo([ new InternetAddress(replyTo) ] as Address[])
         }
+        //noinspection GroovyMissingReturnStatement
         recipients.each {
             String to, Mode mode ->
                 Email emailTo
@@ -314,7 +372,7 @@ class Smtp {
                 try {
                     message.addRecipient(mode.toRecipientType(), new InternetAddress(emailTo.toString()))
                 } catch (MessagingException e) {
-                    Log.e("Failed to set TO: $to, error was: ", e)
+                    Log.w("Failed to set TO: $to, error was: ", e)
                     return false
                 }
         }
@@ -425,18 +483,26 @@ class Smtp {
                 Log.v("###################")
             } else {
                 Transport transport = session.getTransport(transportType.toString().toLowerCase())
-                transport.connect(host, username, password)
-                transport.sendMessage(message, message.getAllRecipients())
-                transport.close()
+                try {
+                    transport.connect(host, username, password)
+                } catch (MessagingException e) {
+                    Log.w("Unable to connect to server", e)
+                    onConnectionFailed.call()
+                    transport.addTransportListener(new SendListener(onDelivered, onNotDelivered))
+                    try {
+                        transport.sendMessage(message, message.getAllRecipients())
+                    } catch (MessagingException me) {
+                        Log.w("Unable to send message", me)
+                    }
+                    try {
+                        transport.close()
+                    } catch (MessagingException me) {
+                        Log.w("Unable to close connection", me)
+                    }
+                }
             }
-        } catch(MessagingException e) {
+        } catch(Exception e) {
             Log.e("Mail was not sent. Error was: ", e)
-            Exception ne
-            String last = e.message
-            while ((ne = e.nextException) && (last != ne.message)) {
-                Log.e("... ", ne)
-                last = ne.message
-            }
             return false
         }
         return true
