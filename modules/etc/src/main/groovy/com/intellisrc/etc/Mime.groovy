@@ -286,4 +286,57 @@ class Mime {
             default -> true
         }
     }
+    /**
+     * Return true if mime is of an image
+     * @param mimeType
+     * @return
+     */
+    static boolean isImage(String mimeType) {
+        return mimeType =~ /^image\//
+    }
+    /**
+     * Return true if mime is of a video
+     * @param mimeType
+     * @return
+     */
+    static boolean isVideo(String mimeType) {
+        return mimeType =~ /^video\//
+    }
+    /**
+     * Return true if mime is of an audio
+     * @param mimeType
+     * @return
+     */
+    static boolean isAudio(String mimeType) {
+        return mimeType =~ /^audio\//
+    }
+    /**
+     * Return true if mime is of a font
+     * @param mimeType
+     * @return
+     */
+    static boolean isFont(String mimeType) {
+        return mimeType =~ /^font\//
+    }
+    /**
+     * Return true if mime is usually Text
+     * @param mimeType
+     * @return
+     */
+    static boolean isText(String mimeType) {
+        return switch (mimeType) {
+            case ~/^text.*$/ -> true
+            case "image/svg" -> true
+            case ~/^application\/.*(xml|json)$/ -> true
+            default -> false
+        }
+    }
+    /**
+     * Return true if mime is usually Binary
+     * @param mimeType
+     * @return
+     */
+    static boolean isBinary(String mimeType) {
+        return ! isText(mimeType)
+    }
 }
