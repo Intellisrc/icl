@@ -42,7 +42,7 @@ abstract class WebSocketService implements ServiciableWebSocket {
             EventClient client, WebMessage msg ->
                 EventClient existent = getClient(client)
                 if(existent) {
-                    WebMessage reply = onMessage(msg)
+                    WebMessage reply = onMessage(existent, msg)
                     if(reply) {
                         ws.sendTo(client, reply, {}, {
                             Throwable t ->
@@ -91,11 +91,18 @@ abstract class WebSocketService implements ServiciableWebSocket {
         return clients.find { it.id == client.id }
     }
     /**
-     * MessageHandler takes care of incoming messages and replies
+     * takes care of incoming messages and replies
      * to the same client
      * @return
      */
     WebMessage onMessage(WebMessage msg) { null }
+    /**
+     * takes care of incoming messages and replies (includes client information)
+     * @param client
+     * @param msg
+     * @return
+     */
+    WebMessage onMessage(EventClient client, WebMessage msg) { onMessage(msg) }
     /**
      * Get Unique identifier. You can override this method.
      * @param client
