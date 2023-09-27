@@ -129,21 +129,31 @@ abstract class WebSocketService implements ServiciableWebSocket {
      * @param data
      * @return
      */
+    boolean sendTo(EventClient client, final Map data) {
+        boolean sent = false
+        if(data &&! data.isEmpty()) {
+            ws.sendTo(client, new WebMessage(data), {
+                sent = true
+            }, {
+                Throwable t ->
+                    Log.v("Unable to send message to: %s", client.id)
+            })
+        } else {
+            Log.w("Trying to send empty data to user: %s", client.id)
+        }
+        return sent
+    }
+    /**
+     * Sent message using only ID
+     * @param userID
+     * @param data
+     * @return
+     */
     boolean sendTo(String userID, final Map data) {
         Optional<EventClient> clientOpt = ws.get(userID)
         boolean sent = false
         if(clientOpt.present) {
-            EventClient client = clientOpt.get()
-            if(data &&! data.isEmpty()) {
-                ws.sendTo(clientOpt.get(), new WebMessage(data), {
-                    sent = true
-                }, {
-                    Throwable t ->
-                        Log.v("Unable to send message to: %s", client.id)
-                })
-            } else {
-                Log.w("Trying to send empty data to user: %s", userID)
-            }
+            sent = sendTo(clientOpt.get(), data)
         }
         return sent
     }
