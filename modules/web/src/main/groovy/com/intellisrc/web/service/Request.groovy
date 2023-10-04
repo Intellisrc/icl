@@ -72,14 +72,21 @@ class Request extends JettyRequest {
      * @return
      */
     String getHost() {
-        return (getHeader("host") ?: "localhost").tokenize(":").first()
+        return hostHeader.tokenize(":").first()
+    }
+    /**
+     * Return the host header which may include port
+     * @return
+     */
+    String getHostHeader() {
+        return getHeader("host") ?: "localhost"
     }
     /**
      * Returns the port
      * @return
      */
     String getPort() {
-        return host.contains(":") ? host.tokenize(":").last() : scheme.toLowerCase().endsWith("s") ? 443 : 80
+        return hostHeader.contains(":") ? hostHeader.tokenize(":").last() : scheme.toLowerCase().endsWith("s") ? 443 : 80
     }
     /**
      * Backward compatibility with Spark
