@@ -64,9 +64,8 @@ static String getProjectDescription(String name) {
             desc = "Create restful HTTP (GET, POST, PUT, DELETE, etc) " +
                     "or WebSocket application services. Manage JSON " +
                     "data from and to the server easily. It is build " +
-                    "on top of Spark-Java Web Framework, so it is " +
-                    "very flexible and powerful, but designed to be " +
-                    "elegant and easier to use."
+                    "on top of Jetty library, so it is very powerful " +
+                    "but designed to be elegant and easy to use."
             break
         case "crypt":
             desc = "Offers methods to encode, decode, hash and encrypt " +
