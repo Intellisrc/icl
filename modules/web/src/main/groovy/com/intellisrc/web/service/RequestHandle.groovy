@@ -1,5 +1,6 @@
 package com.intellisrc.web.service
 
+import com.intellisrc.core.Log
 import com.intellisrc.web.WebService
 import com.intellisrc.web.WebService.WebException
 import groovy.transform.CompileStatic
@@ -44,7 +45,8 @@ class RequestHandle extends SessionHandler {
                     response.errorTemplate = service.errorTemplate
                     // Execute the filter
                     handled = service.doFilter(request, response)
-                } catch (WebException ignore) {
+                } catch (WebException we) {
+                    Log.w("Exception in web response: ", we)
                     // Ignore as it will just set the response to return error page
                     handled = true
                 }

@@ -1190,7 +1190,7 @@ class WebService extends WebServiceBase {
                         case String:
                             String text = out.toString()
                             if (!text.empty) {
-                                response.contentLength = text.length()
+                                response.contentLength = out.size
                                 response.writer.write(text)
                                 response.writer.flush()
                                 response.writer.close()
