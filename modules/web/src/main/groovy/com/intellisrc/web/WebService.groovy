@@ -70,6 +70,7 @@ import static org.eclipse.jetty.http.HttpStatus.*
  */
 class WebService extends WebServiceBase {
     static String defaultCharset = Config.get("web.charset", "UTF-8") //TODO: document
+    static boolean forceFile = Config.get("web.upload.force", false) // Throw exception when file is expected and it is empty
 
     public int threads = 20
     public int minThreads = 2
@@ -616,12 +617,14 @@ class WebService extends WebServiceBase {
                                         }
                                     } else {
                                         Log.w("File: %s was empty", part.submittedFileName)
-                                        throw new WebException(response, LENGTH_REQUIRED_411, "File was empty")
+                                        if(forceFile) {
+                                            throw new WebException(response, LENGTH_REQUIRED_411, "File was empty")
+                                        }
                                     }
                                 }
                         }
                         try {
-                            Object res = callAction(sp.action, request, response, uploadFiles)
+                            Object res = callAction(sp.action, request, response, uploadFiles, true)
                             boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                             //noinspection GroovyUnusedAssignment : IDE mistake
                             output = handleContentType(res, sp.contentType ?: response.type(), sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
@@ -838,7 +841,7 @@ class WebService extends WebServiceBase {
      * @param response
      * @return
      */
-    protected static Object callAction(final Object action, final Request request, final Response response, final List<UploadFile> upload = null) {
+    protected static Object callAction(final Object action, final Request request, final Response response, final List<UploadFile> upload = null, boolean forceUpload = false) {
         Object returned = null
         if (action instanceof Service.Action) {
             returned = action.run()
