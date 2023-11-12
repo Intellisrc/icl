@@ -12,6 +12,9 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { // Sonatype Snapshots
+            url = "https://oss.sonatype.org/content/repositories/snapshots"
+        }
     }
 }
 
@@ -109,7 +112,7 @@ subprojects {
 
     dependencies {
         def groovyVer = "4.0.14"
-        def groovyExt = "4.0.14.12.1-SNAPSHOT"
+        def groovyExt = "4.0.14.12-SNAPSHOT"
         def spock = "2.4-M1-groovy-4.0"
         def junit = "4.13.2"
 

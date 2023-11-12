@@ -862,7 +862,7 @@ class WebService extends WebServiceBase {
         } else if (action instanceof Service.UploadsResponse) {
             returned = action.run(upload, request, response)
         } else if (action instanceof Closure) {
-            if (upload) {
+            if (upload || forceUpload) {
                 switch (true) {
                     case tryCall(action, { returned = it }, upload, request, response): break
                     case tryCall(action, { returned = it }, upload.first(), request, response): break
