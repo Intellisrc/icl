@@ -488,17 +488,18 @@ class Smtp {
                 } catch (MessagingException e) {
                     Log.w("Unable to connect to server", e)
                     onConnectionFailed.call()
-                    transport.addTransportListener(new SendListener(onDelivered, onNotDelivered))
-                    try {
-                        transport.sendMessage(message, message.getAllRecipients())
-                    } catch (MessagingException me) {
-                        Log.w("Unable to send message", me)
-                    }
-                    try {
-                        transport.close()
-                    } catch (MessagingException me) {
-                        Log.w("Unable to close connection", me)
-                    }
+                    return false
+                }
+                transport.addTransportListener(new SendListener(onDelivered, onNotDelivered))
+                try {
+                    transport.sendMessage(message, message.getAllRecipients())
+                } catch (MessagingException me) {
+                    Log.w("Unable to send message", me)
+                }
+                try {
+                    transport.close()
+                } catch (MessagingException me) {
+                    Log.w("Unable to close connection", me)
                 }
             }
         } catch(Exception e) {
