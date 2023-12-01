@@ -2,48 +2,49 @@ dependencies {
     api project(':etc')
     api "org.reflections:reflections:0.10.2"
 
-    def derby= '10.15.2.0'
-    def firebird = '5.0.1.java11'
-    def h2 = '2.1.214'
-    def hypersql = '2.7.1'
-    def informix = '4.50.9'
-    def mariadb = '3.1.2'
-    def mysql = '8.0.33'
-    def oracle = '21.9.0.0'
-    def postgresql = '42.5.4'
-    def sqlite = '3.40.1.0'
+    def derby= '10.15.2.0' // After 10.16.1.1 it is compiled with Java 17
+    def firebird = '5.0.3.java11'
+    def h2 = '2.1.214' // ''2.2.224' is failing tests
+    def hypersql = '2.7.2'
+    def informix = '4.50.10'
+    def mariadb = '3.3.0'
+    def mysql = '8.2.0'
+    def oracle = '21.9.0.0'    // '23.3.0.23.09' test container is 21
+    def postgresql = '42.7.0'
+    def sqlite = '3.40.1.0'   // '3.44.1.0' is failing tests
     def sqlserver = '12.2.0.jre11'
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
-    compileOnly "com.microsoft.sqlserver:mssql-jdbc:${sqlserver}"
-    compileOnly "com.oracle.database.jdbc:ojdbc11:${oracle}"
-    compileOnly "mysql:mysql-connector-java:${mysql}"
+
+    //compileOnly "org.apache.derby:derbyclient:${derby}" // This one includes only the JDBC client driver
     compileOnly "org.apache.derby:derby:${derby}" // This one includes also the database engine
-  //compileOnly "org.apache.derby:derbyclient:${derby}" // This one includes only the JDBC client driver
     compileOnly "org.firebirdsql.jdbc:jaybird:${firebird}"
-    compileOnly "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
-    compileOnly "org.postgresql:postgresql:${postgresql}"
-    compileOnly "org.xerial:sqlite-jdbc:${sqlite}"
     compileOnly "com.h2database:h2:${h2}"
     compileOnly "org.hsqldb:hsqldb:${hypersql}"
     compileOnly "com.ibm.informix:jdbc:${informix}"
+    compileOnly "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
+    compileOnly "com.mysql:mysql-connector-j:${mysql}"
+    compileOnly "com.oracle.database.jdbc:ojdbc11:${oracle}"
+    compileOnly "org.postgresql:postgresql:${postgresql}"
+    compileOnly "org.xerial:sqlite-jdbc:${sqlite}"
+    compileOnly "com.microsoft.sqlserver:mssql-jdbc:${sqlserver}"
 
     // NOTE: it seems repetitive, but it was done like that, so IntelliJ can identify dependencies versions.
     testImplementation project(':net')
     testImplementation project(':term')
     testImplementation project(':log')
-    testImplementation "com.microsoft.sqlserver:mssql-jdbc:${sqlserver}"
-    testImplementation "com.oracle.database.jdbc:ojdbc11:${oracle}"
-    testImplementation "mysql:mysql-connector-java:${mysql}"
     testImplementation "org.apache.derby:derby:${derby}" // This one includes also the database engine
     testImplementation "org.firebirdsql.jdbc:jaybird:${firebird}"
-    testImplementation "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
-    testImplementation "org.postgresql:postgresql:${postgresql}"
-    testImplementation "org.xerial:sqlite-jdbc:${sqlite}"
     testImplementation "com.h2database:h2:${h2}"
     testImplementation "org.hsqldb:hsqldb:${hypersql}"
     testImplementation "com.ibm.informix:jdbc:${informix}"
+    testImplementation "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
+    testImplementation "com.mysql:mysql-connector-j:${mysql}"
+    testImplementation "com.oracle.database.jdbc:ojdbc11:${oracle}"
+    testImplementation "org.postgresql:postgresql:${postgresql}"
+    testImplementation "org.xerial:sqlite-jdbc:${sqlite}"
+    testImplementation "com.microsoft.sqlserver:mssql-jdbc:${sqlserver}"
 }
 
 repositories {

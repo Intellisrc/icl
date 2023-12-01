@@ -83,6 +83,7 @@ class Service implements Serviciable {
     boolean noStore             = false                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
     boolean compress            = false                 // Whether to compress or not the output (defaults to WebService value, which is true by default)
     boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
+    boolean strictPath = false                 // If true, regex should also match starting '/' character. For example: ~/^\/hello.html?/ instead of: ~/hello.html?/
     int minCompressBytes        = 256                   // Below this length, do not compress (most probably there won't be any gain)
     int cacheTime               = Cache.DISABLED        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
     int maxAge                  = 0                     // Seconds to suggest to keep in browser
@@ -117,14 +118,19 @@ class Service implements Serviciable {
      */
     void setPath(String path) {
         boolean isRegex = ["\\","(","{","[","^","\$"].any { path.contains(it) }
-        this.path = (isRegex ? "~" + (path.startsWith("/") ? "" : "/") : "") + addRoot(path) // Trailing slash is optional
+        if(isRegex) {
+            setPath(toPattern(path))
+        } else {
+            this.path = path // Trailing slash is optional
+        }
     }
+
     /**
      * Optional method to use Pattern as path
      * @param pattern
      */
     void setPath(Pattern pattern) {
-        this.path = "~/" + addRoot(pattern.toString()) + "/"
+        this.path = "~/" + pattern.toString() + "/"
     }
 
     /**
@@ -148,18 +154,6 @@ class Service implements Serviciable {
         return autoHeaders
     }
 
-    /**
-     * Will modify the regex to add the starting slash if it is not present
-     * @param regex
-     * @return
-     */
-    private static String addRoot(String regex) {
-        if(regex.startsWith("^") &&! regex.startsWith("^/")) {
-            regex = regex.replaceFirst("\\^","^/")
-        }
-        return regex
-    }
-
     static Service 'new'(HttpMethod method, String path, Object action, String acceptType = "*/*") {
         return new Service(
             method      : method,
@@ -167,5 +161,9 @@ class Service implements Serviciable {
             action      : action,
             acceptType  : acceptType
         )
+    }
+
+    static Pattern toPattern(String path) {
+        return Pattern.compile(path.replaceFirst(/^~/, '').replaceFirst(/^\//, '').replaceFirst(/\/$/,''), Pattern.CASE_INSENSITIVE)
     }
 }

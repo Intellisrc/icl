@@ -39,8 +39,14 @@ class CacheTest extends Specification {
             def oc = new Cache<Integer>()
             def key = "Wow"
          //   oc.set("Hello","World") <--must be marked by IDE as wrong
-            oc.set(key,1, 3)
+            def stored = false
+            oc.set(key,1, {
+                stored = true
+                assert it
+            }, 3)
         expect:
+            assert stored : "Value was not stored"
+
             sleep(Millis.SECOND_2)
             assert oc.contains(key) : "Must exists in this point"
 
@@ -54,7 +60,7 @@ class CacheTest extends Specification {
         setup:
             def oc = new Cache<Integer>(extend: true)
             def key = "Wow"
-            oc.set(key,1, 3)
+            oc.set(key,1, {},3)
         expect:
             sleep(Millis.SECOND_2)
             assert oc.contains(key) : "After 2 seconds it should be there"

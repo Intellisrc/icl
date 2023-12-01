@@ -665,10 +665,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     /**
      * Drops the table
      */
-    void drop() {
+    boolean drop(boolean view = false) {
         DB db = connect()
-        db.drop()
+        boolean dropped = view ? db.dropView() : db.drop()
         db.close()
+        return dropped
     }
     /**
      * Reset

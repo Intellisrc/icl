@@ -1,6 +1,6 @@
 dependencies {
     api project(':core')
-    api 'net.coobird:thumbnailator:0.4.19'
+    api 'net.coobird:thumbnailator:0.4.20'
 }
 
 repositories {

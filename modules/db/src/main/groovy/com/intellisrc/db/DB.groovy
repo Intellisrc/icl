@@ -396,7 +396,21 @@ class DB {
         boolean ok = false
         if(table) {
             Log.i("Dropping table: %s", table)
-            query.setAction(DROP)
+            query.setAction(DROP_TABLE)
+            ok = execSet()
+        } else {
+            Log.w("Can not drop: No table specified")
+        }
+        clearCache()
+        return ok
+    }
+    /** Drops a view
+     * @return true on success **/
+    boolean dropView() {
+        boolean ok = false
+        if(table) {
+            Log.i("Dropping view : %s", table)
+            query.setAction(DROP_VIEW)
             ok = execSet()
         } else {
             Log.w("Can not drop: No table specified")

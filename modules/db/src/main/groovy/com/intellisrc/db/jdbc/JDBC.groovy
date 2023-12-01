@@ -150,6 +150,9 @@ abstract class JDBC {
     String getDropTableQuery(String table) {
         return "DROP TABLE $table"
     }
+    String getDropViewQuery(String view) {
+        return "DROP VIEW $view"
+    }
     String getInsertQuery(String table, String values) {
         return "INSERT INTO $table $values"
     }

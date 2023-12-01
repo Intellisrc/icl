@@ -6,12 +6,12 @@ import com.intellisrc.core.SysClock
 import com.intellisrc.etc.Mime
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import jakarta.activation.DataSource
+import jakarta.mail.*
+import jakarta.mail.event.TransportEvent
+import jakarta.mail.event.TransportListener
+import jakarta.mail.internet.*
 
-import javax.activation.DataSource
-import javax.mail.*
-import javax.mail.event.TransportEvent
-import javax.mail.event.TransportListener
-import javax.mail.internet.*
 import java.nio.charset.Charset
 
 /**

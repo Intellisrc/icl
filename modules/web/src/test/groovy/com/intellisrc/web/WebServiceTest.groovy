@@ -8,9 +8,10 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Service
-import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
+
+import static com.intellisrc.web.samples.ChatWebSocketService.getRandomName
 
 /**
  * @since 17/04/19.
@@ -246,38 +247,34 @@ class WebServiceTest extends Specification {
 
     def "Websocket Test"() {
         setup:
+            def conds = new AsyncConditions()
             // change to 'true' to test manually WebSocket Clients
             // and open the browser in /chat.html
             def keepalive = false
+            def chatPort = LocalHost.freePort
             def web = new WebService(
-                port: LocalHost.freePort,
+                port: chatPort,
                 // Resources set as full path because code is executed under /tst/
                 resources: System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
             )
             web.addService(new ChatWebSocketService())
             web.start(!keepalive)
-        expect:
+        when:
+            ChatWebSocketClient cc = new ChatWebSocketClient(chatPort, randomName)
+            cc.handler = {
+                Map msg ->
+                    conds.evaluate {
+                        assert msg.type == "txt" && msg.message.toString() == "Received" && (msg.list as List).size() == 1
+                    }
+            }
+        then:
             assert web.isRunning()
+            assert cc.connect()
+            assert cc.sendLoginMessage()
+            conds.await()
+            assert cc.disconnect()
             web.stop()
             assert !web.isRunning()
-    }
-
-    /* Comment next line to test and set "keepalive = true" in the server test */
-
-    //@PendingFeature
-    def "WebSocket Client"() {
-        setup:
-            ChatWebSocketClient cc = new ChatWebSocketClient()
-            cc.Connect()
-    }
-
-    /* Comment next line to test and set "keepalive = true" in the server test */
-
-    @PendingFeature
-    def "WebSocket StackOverflow Client"() {
-        setup:
-            StackOverflowChatClient cc = new StackOverflowChatClient()
-            cc.Connect()
     }
 }

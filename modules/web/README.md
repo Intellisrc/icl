@@ -148,7 +148,8 @@ new Service(
     noStore             : false,                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
     path                : "",                    // URL path relative to parent
     beforeRequest       : { Request r -> },      // Hook executed before Request is passed to action
-    beforeResponse      : { Response r -> }      // Hook executed before Response is passed to the WebService
+    beforeResponse      : { Response r -> },     // Hook executed before Response is passed to the WebService
+    strictPath          : false                  // If you specify the path as RegExp and this flag is true, you need to also include the starting slash (/)
 )
 ```
 

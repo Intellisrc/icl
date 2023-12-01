@@ -2,7 +2,7 @@ package com.intellisrc.term
 
 import com.intellisrc.core.Log
 import com.intellisrc.term.styles.*
-import spock.lang.PendingFeature
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static com.intellisrc.core.AnsiColor.*
@@ -348,7 +348,7 @@ class TableMakerTest extends Specification {
             30          | CENTER
     }
 
-    @PendingFeature // It works fine, but it is not consistent, so the test may fail
+    @Ignore // It works fine, but it is not consistent, so the test may fail
     def "Unicode should preserve length"() {
         setup:
             TableMaker tp = new TableMaker(

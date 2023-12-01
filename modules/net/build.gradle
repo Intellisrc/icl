@@ -1,7 +1,7 @@
 dependencies {
     api project(':crypt')
-    api 'commons-net:commons-net:3.9.0'
-    api 'com.sun.mail:javax.mail:1.6.2'
+    api 'commons-net:commons-net:3.10.0'
+    api 'com.sun.mail:jakarta.mail:2.0.1'
     // Not exposed to customer:
-    api 'javax.activation:activation:1.1.1'
+    api 'jakarta.activation:jakarta.activation-api:2.1.2'
 }

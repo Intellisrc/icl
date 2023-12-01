@@ -19,7 +19,7 @@ class ChatWebSocketService extends WebSocketService {
     }
 
     static String getRandomName() {
-        return "Guest "+(new Random().nextInt(100) + 1)
+        return "guest_"+(new Random().nextInt(100) + 1)
     }
     /* You can override this method if you need the client info:
     WebMessage onMessage(EventClient client, WebMessage msg) {}

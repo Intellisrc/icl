@@ -15,6 +15,7 @@ class SysServiceTest extends Specification {
     }
     def "Create service"() {
         setup:
+            Config.system.set("main.class", this.class.packageName + ".dummy.SysServiceDummy")
             Thread.start {
                 SysServiceDummy.main("start")
             }

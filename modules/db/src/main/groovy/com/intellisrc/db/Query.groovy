@@ -19,7 +19,7 @@ import static com.intellisrc.db.Query.Action.*
 class Query {
     // Action type (RAW is default)
     static enum Action {
-        RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, TRUNCATE, DROP
+        RAW, SELECT, UPDATE, INSERT, REPLACE, DELETE, TRUNCATE, DROP_TABLE, DROP_VIEW
     }
     // Field type (NOSET is default)
     static enum FieldType {
@@ -460,7 +460,8 @@ class Query {
             case UPDATE: squery = dbType.getUpdateQuery(table, updatePart.toString(), where); break
             case DELETE: squery = dbType.getDeleteQuery(table, where); break
             case TRUNCATE: squery = dbType.getTruncateQuery(table); break
-            case DROP: squery = dbType.getDropTableQuery(table); break
+            case DROP_TABLE: squery = dbType.getDropTableQuery(table); break
+            case DROP_VIEW: squery = dbType.getDropViewQuery(table); break
             default:
                 //WARN: unknown action
                 Log.w("Unknown action: %s", actionType)

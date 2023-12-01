@@ -1371,7 +1371,6 @@ class WebService extends WebServiceBase {
                     }
                     if (fullPath == path ||
                         (fullPath.endsWith("/?") && fullPath.replaceAll(/\/\?$/, '') == path.replaceAll(/\/$/, ''))) {
-                        //TODO verify /?
                         found = true
                     } else {
                         // Match with path variables (e.g. /path/:var/)
@@ -1382,16 +1381,17 @@ class WebService extends WebServiceBase {
                                 fullPath.replaceAll(/\*/, "(?<splat>.*)")
                                     .replaceAll("/:([^/]*)", '/(?<$1>[^/]*)').replaceAll(/\$$/,'') + '$'
                                 , Pattern.CASE_INSENSITIVE)
-                        } else if (fullPath.startsWith("~/")) { //TODO: verify
-                            pattern = Pattern.compile(fullPath, Pattern.CASE_INSENSITIVE)
+                        } else if (fullPath.startsWith("~/")) {
+                            pattern = Service.toPattern(fullPath)
                         }
                         if (pattern) {
-                            Matcher matcher = (path =~ pattern)
+                            // Strict regex should also match the starting '/', otherwise we remove it from the request:
+                            String toMatch = srv.strictPath ? path : (pattern.toString().startsWith("/") ? path : path.replaceFirst(/^\//,''))
+                            Matcher matcher = (toMatch =~ pattern)
                             if (matcher.find()) {
                                 found = true
                                 if (matcher.hasGroup()) {
                                     Matcher groupMatcher = Pattern.compile("\\(\\?<(\\w+)>").matcher(pattern.toString())
-                                    //TODO: verify named groups
                                     while (groupMatcher.find()) {
                                         String groupName = groupMatcher.group(1)
                                         if (groupName) {

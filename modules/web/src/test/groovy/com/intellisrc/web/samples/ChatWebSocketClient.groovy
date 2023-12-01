@@ -1,8 +1,9 @@
 package com.intellisrc.web.samples
 
-import com.intellisrc.core.Millis
+
 import com.intellisrc.etc.JSON
 import com.intellisrc.web.WebSocketServiceClient
+import com.intellisrc.web.WebSocketServiceClient.Callable
 
 /**
  * Example of a simple Echo Client.
@@ -16,76 +17,94 @@ import com.intellisrc.web.WebSocketServiceClient
  * http://www.botmill.io/
  * IDEA: get Q/A from http://www.fanpop.com/clubs/random/answers/date and stackoverflow
  */
-class ChatWebSocketClient
-{
-    static void Connect() {
-        final int QUIT_TIMEOUT = 600
-        final int MAX_REPEAT = 30 //Prevent repeating itself
-        String uname = "RoboCUP"
-        int timeout = QUIT_TIMEOUT
-        WebSocketServiceClient wssc = new WebSocketServiceClient(
-                hostname: "localhost",
-                port : 3456,
-                path : "/ws/chat?user=$uname"
-        )
-        def last_responses = []
-        wssc.connect({
-            Map msg ->
-                if(msg.type == "txt" && msg.user != uname) {
-                    String botsay = ""
-                    if(new Random().nextInt(5) < 2) {
-                        if (msg.message.toLowerCase().contains("hi") || msg.message.toLowerCase().contains("hello")) {
-                            botsay = "Do you really think I care about you?"
-                        } else if (msg.message.contains(":)") || msg.message.contains(":D")) {
-                            botsay = "Please don't smile here, nobody is watching!"
-                        } else if (msg.message.contains(":(")) {
-                            botsay = "Poor little thing!"
-                        } else if (msg.message.contains(":|")) {
-                            botsay = "No comments..."
-                        } else if (msg.message.contains(":/")) {
-                            botsay = "So?"
-                        } else if (msg.message.contains(":P")) {
-                            botsay = "Your tongue is dirty, can't you see?"
-                        }
+class ChatWebSocketClient {
+    final int QUIT_TIMEOUT = 600
+    final int MAX_REPEAT = 30 //Prevent repeating itself
+    final String uname
+    final WebSocketServiceClient wssc
+    def last_responses = []
+
+    Callable handler = {
+        Map msg ->
+            String message = msg.message.toString()
+            if(msg.type == "txt" && msg.user != uname) {
+                String botsay = ""
+                if(new Random().nextInt(5) < 2) {
+                    if (message.toLowerCase().contains("hi") || message.toLowerCase().contains("hello")) {
+                        botsay = "Do you really think I care about you?"
+                    } else if (message.contains(":)") || message.contains(":D")) {
+                        botsay = "Please don't smile here, nobody is watching!"
+                    } else if (message.contains(":(")) {
+                        botsay = "Poor little thing!"
+                    } else if (message.contains(":|")) {
+                        botsay = "No comments..."
+                    } else if (message.contains(":/")) {
+                        botsay = "So?"
+                    } else if (message.contains(":P")) {
+                        botsay = "Your tongue is dirty, can't you see?"
                     }
-                    if(botsay.isEmpty() || last_responses.contains(botsay)) {
-                        String toSend = URLEncoder.encode(msg.message.toString(), "UTF-8")
-                        def response = JSON.decode("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text) as Map
-                        botsay = response.botsay
-                    }
-                    if (botsay.isEmpty() || last_responses.contains(botsay)) {
-                        if(msg.message.toString().contains("?")) {
-                            botsay = getAnswer()
-                        } else {
-                            botsay = getStatement()
-                        }
-                        //Last resource to prevent repetition:
-                        if(last_responses.contains(botsay)) {
-                            def response = JSON.decode("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text) as List
-                            Map res = (Map) response.first()
-                            botsay = res.content
-                            if(botsay.isEmpty()) {
-                                botsay = getStatement()
-                            } else {
-                                botsay = botsay.replaceAll(/<.*?>/, '')
-                            }
-                        }
-                    }
-                    last_responses << botsay //Keep track of what was replied before
-                    if(last_responses.size() > MAX_REPEAT) {
-                        last_responses.remove(0)
-                    }
-                    wssc.sendMessage(botsay)
-                    timeout = QUIT_TIMEOUT
                 }
+                if(botsay.isEmpty() || last_responses.contains(botsay)) {
+                    String toSend = URLEncoder.encode(message.toString(), "UTF-8")
+                    def response = JSON.decode("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text) as Map
+                    botsay = response.botsay
+                }
+                if (botsay.isEmpty() || last_responses.contains(botsay)) {
+                    if(message.toString().contains("?")) {
+                        botsay = getAnswer()
+                    } else {
+                        botsay = getStatement()
+                    }
+                    //Last resource to prevent repetition:
+                    if(last_responses.contains(botsay)) {
+                        def response = JSON.decode("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text) as List
+                        Map res = (Map) response.first()
+                        botsay = res.content
+                        if(botsay.isEmpty()) {
+                            botsay = getStatement()
+                        } else {
+                            botsay = botsay.replaceAll(/<.*?>/, '')
+                        }
+                    }
+                }
+                last_responses << botsay //Keep track of what was replied before
+                if(last_responses.size() > MAX_REPEAT) {
+                    last_responses.remove(0)
+                }
+                wssc.sendMessage(botsay)
+            }
+    }
+
+    ChatWebSocketClient(int port, String userName) {
+        this.uname = userName
+        wssc = new WebSocketServiceClient(
+            hostname: "localhost",
+            port : port,
+            path : "/ws/chat?user=$uname"
+        )
+    }
+
+    boolean connect() {
+        boolean connected = true
+        wssc.connect(handler, {
+            Map it -> connected = false
         })
+        return connected
+    }
+
+    boolean sendLoginMessage() {
         wssc.sendMessage("Yoo Humans!")
-        while(timeout > 0) {
-            Thread.sleep(Millis.SECOND)
-            timeout--
-        }
+        return true
+    }
+
+    boolean sendLogoutMessage() {
         wssc.sendMessage("Hmm.. Boring you are. Quiting I am.")
+        return true
+    }
+
+    boolean disconnect() {
         wssc.disconnect()
+        return true
     }
 
     private static String getStatement() {

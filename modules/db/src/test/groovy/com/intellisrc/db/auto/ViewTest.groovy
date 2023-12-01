@@ -67,7 +67,9 @@ class ViewTest extends AutoTest {
             assert view.fields.any { it.name == "added" }
             assert view.getAll().first().age == u.age
             assert view.getAll().first().added == alias.added
+        cleanup:
+             view.drop()
         where:
-            jdbc << getTestable()
+            jdbc << testable
     }
 }

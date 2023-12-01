@@ -4,12 +4,9 @@ dependencies {
     def os = DefaultNativePlatform.currentOperatingSystem
     def arch = DefaultNativePlatform.currentArchitecture
 
-    def jetty = "11.0.15"
+    def jetty = "11.0.18"
     api project(':etc')
     api project(':net')
-    //https://github.com/intellisrc/spark
-    // We use Response, Request... so we use 'api' here:
-    //api 'com.intellisrc:spark-core:2.9.4-unofficial-4'
     api "org.eclipse.jetty:jetty-server:${jetty}"
     api "org.eclipse.jetty.http2:http2-server:${jetty}"
     api "org.eclipse.jetty:jetty-alpn-server:${jetty}"
@@ -29,7 +26,7 @@ dependencies {
     def jvmbrotli = "0.2.0"
     def jvmBrotliMain = "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
     def jvmBrotliLib = ""
-    def sse_client = "4.0.2"
+    def sse_client = "4.0.3"
     switch (true) {
         case os.windows && arch.i386:
             jvmBrotliLib = "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86:$jvmbrotli"

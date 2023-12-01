@@ -342,7 +342,7 @@ class Derby extends JDBCServer implements AutoJDBC {
     String getForeignKey(String tableName, ColumnDB column) {
         String indices = ""
         if(useFK) {
-            Log.w("BUG: Derby won't update correctly when foreign keys (because they can not be turned off).")
+            Log.w("Warning: Derby won't update correctly when using foreign keys (because they can not be turned off).")
             switch (column.type) {
                 case Model:
                     Constructor<?> ctor = column.type.getConstructor()

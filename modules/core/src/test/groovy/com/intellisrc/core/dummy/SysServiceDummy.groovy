@@ -24,6 +24,7 @@ class SysServiceDummy extends SysService {
         println "Started"
     }
 
+    @SuppressWarnings('GrMethodMayBeStatic')
     void onCustom() {
         println "Custom"
         customCalled = true

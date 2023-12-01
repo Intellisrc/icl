@@ -81,11 +81,32 @@ class View<M extends Model> extends Relational<M> implements Instanciable<M> {
                     conn.close()
                     break
                 default:
-                    Log.w("Create view can not be used with specified database. Please check the documentation to know which databases are supported.", jdbc.toString())
+                    Log.w("CREATE VIEW can not be used with specified database. Please check the documentation to know which databases are supported.", jdbc.toString())
                     ok = false
                     break
             }
         }
         return ok
+    }
+
+    @Override
+    boolean drop() {
+        boolean dropped = false
+        switch (jdbc) {
+            case AutoJDBC:
+                // Initialize Auto
+                DB conn = connect()
+                (jdbc as AutoJDBC).autoInit(conn)
+                boolean exists = conn.exists()
+                if (exists) {
+                    dropped = drop(true)
+                }
+                conn.close()
+                break
+            default:
+                Log.w("DROP VIEW can not be used with specified database. Please check the documentation to know which databases are supported.", jdbc.toString())
+                break
+        }
+        return dropped
     }
 }
