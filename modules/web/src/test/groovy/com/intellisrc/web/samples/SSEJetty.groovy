@@ -8,9 +8,12 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.handler.*
 
 /**
+ * This is a simple implementation of SSE Server using Jetty library only
  * @since 2023/07/04.
  */
 class SSEJetty extends AbstractHandler {
+    static int port = 9999
+
     @Override
     void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) {
         response.contentType = 'text/event-stream'
@@ -36,7 +39,7 @@ class SSEJetty extends AbstractHandler {
         response.writer.close()
     }
     static void main(String[] args) {
-        def server = new Server(9999)
+        def server = new Server(port)
         // Configure resource handler for serving static files
         def resourceHandler = new ResourceHandler()
         resourceHandler.setDirectoriesListed(false)
@@ -53,6 +56,7 @@ class SSEJetty extends AbstractHandler {
         // Set the handlers for the server
         server.handler = new HandlerList(contextHandler, sseContext, new DefaultHandler())
 
+        println "Starting Jetty SSE Server in port $port"
         server.start()
         server.join()
     }

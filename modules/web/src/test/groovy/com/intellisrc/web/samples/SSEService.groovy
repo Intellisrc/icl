@@ -10,10 +10,17 @@ import com.intellisrc.web.service.ServiciableSentEvents
 import com.intellisrc.web.service.ServiciableSingle
 
 /**
+ * This class include the SSE client and the SSE server to be tested
+ * on the browser.
+ *
  * @since 2023/06/30.
  */
 class SSEService {
-    static class SSEMain implements ServiciableSingle {
+    static int port = 9999
+    /**
+     * This class will launch an html+javascript client
+     */
+    static class SSETestClient implements ServiciableSingle {
         @Override
         Service getService() {
             return new Service(
@@ -49,11 +56,14 @@ class SSEService {
             )
         }
     }
-    static class SSETester implements ServiciableSentEvents {
-        String path = "/sse"
+    /**
+     * This class is a simple implementation of a SSE server using this library
+     */
+    static class SSETestServer implements ServiciableSentEvents {
+        String path = "/sse/"
         int i = 0
 
-        SSETester() {
+        SSETestServer() {
             Tasks.add(IntervalTask.create({
                 broadcast(i++, [
                     service: "Power",
@@ -63,9 +73,9 @@ class SSEService {
         }
     }
     static void main(String[] args) {
-        new WebService(port: 9999)
-            .add(new SSEMain())
-            .add(new SSETester())
+        new WebService(port: port)
+            .add(new SSETestClient())
+            .add(new SSETestServer())
             .start()
     }
 }

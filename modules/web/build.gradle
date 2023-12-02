@@ -50,6 +50,5 @@ dependencies {
         compileOnly jvmBrotliLib
         testImplementation jvmBrotliLib
     }
-    testImplementation "org.apache.cxf:cxf-rt-rs-client:${sse_client}"
     testImplementation project(':thread')
 }
