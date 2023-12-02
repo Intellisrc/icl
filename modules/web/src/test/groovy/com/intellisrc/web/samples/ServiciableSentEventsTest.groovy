@@ -32,7 +32,7 @@ class ServiciableSentEventsTest extends Specification {
                 conds.evaluate {
                     // we can loop indefinitely as far as the server send messages
                     // if we use reader.eachLine { ... }
-                    // but for this test, we just one to confirm one complete response
+                    // but for this test, we just need to confirm one complete response
 
                     // First line should be the header:
                     assert reader.readLine().startsWith("event:")
