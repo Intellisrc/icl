@@ -10,7 +10,6 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 /**
  * @since 17/10/23.
@@ -283,7 +282,7 @@ class LogTest extends Specification {
             // The last log will be today (without date)
             SysClock.setClockAt(now.minusDays(logsToCreate + 1))
             (1..logsToCreate).each {
-                SysClock.setClockAt(LocalDateTime.of(SysClock.now.plusDays(1).toLocalDate(), LocalTime.MIDNIGHT))
+                SysClock.setClockAt(SysClock.now.plusDays(1).clearTime())
                 Log.i("[%d] This log is for day: %s", it, SysClock.now.toLocalDate().YMD)
                 fileLogger.logFile.setLastModified(SysClock.now.toMillis())
             }
