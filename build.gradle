@@ -110,6 +110,9 @@ subprojects {
     boolean isDev = version.contains("SNAPSHOT")
     boolean publishDev = ! version.contains("DEBUG")
 
+	configurations {
+		documentation
+	}
     dependencies {
         def groovyVer = "4.0.15" // Also in module etc
         def groovyExt = "4.0.15.12"
@@ -127,7 +130,12 @@ subprojects {
         testImplementation "org.apache.groovy:groovy:${groovyVer}"
         testImplementation "org.spockframework:spock-core:${spock}"
         testImplementation "junit:junit:${junit}"
+
+		documentation "com.github.javaparser:javaparser-core:3.15.14"
     }
+	groovydoc {
+		classpath += project.configurations.documentation
+	}
     java {
         if(!isDev || publishDev) {
             withSourcesJar()

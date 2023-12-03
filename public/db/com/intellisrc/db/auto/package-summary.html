@@ -22,7 +22,7 @@
 <html>
 <head>
 
-<title>com.intellisrc.db.auto (db 2.8.10 API)</title>
+<title>com.intellisrc.db.auto (db 2.9.0 API)</title>
 <meta name="keywords" content="com.intellisrc.db.auto package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" title="Style">
@@ -31,7 +31,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.intellisrc.db.auto (db 2.8.10 API)";
+    parent.document.title="com.intellisrc.db.auto (db 2.9.0 API)";
 }
 </script>
 <noscript>
@@ -88,8 +88,8 @@ function windowTitle()
                     </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="Table.ChunkReader.html" title="class in com/intellisrc/db/auto">
-                                    Table.ChunkReader
+                                <strong><a href="Relational.ChunkReader.html" title="class in com/intellisrc/db/auto">
+                                    Relational.ChunkReader
                                 </a></strong>
                             </td>
                             <td>When using `getAllByChunks` it will use this interface to return as it goes</td>
@@ -151,19 +151,27 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="Relational.html" title="class in com/intellisrc/db/auto">
+                                    Relational
+                                </a></strong>
+                            </td>
+                            <td> <DL><DT><B>Since:</B></DT><DD>2023/05/30.</DD></DL></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="Relational.ColumnDB.html" title="class in com/intellisrc/db/auto">
+                                    Relational.ColumnDB
+                                </a></strong>
+                            </td>
+                            <td>Information about a Field that will be used as column in a DB</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="Table.html" title="class in com/intellisrc/db/auto">
                                     Table
                                 </a></strong>
                             </td>
                             <td></td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="Table.ColumnDB.html" title="class in com/intellisrc/db/auto">
-                                    Table.ColumnDB
-                                </a></strong>
-                            </td>
-                            <td>Information about a Field that will be used as column in a DB</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -183,6 +191,17 @@ function windowTitle()
                                 </a></strong>
                             </td>
                             <td></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="View.html" title="class in com/intellisrc/db/auto">
+                                    View
+                                </a></strong>
+                            </td>
+                            <td>A read-only Table or View
+ If the table or view exists (and createSQL is specified) it won't
+ recreate the table or view unless 'recreate' is true (you can additionally
+ specify 'DROP' statements inside the createSQL.</td>
                         </tr>
 
                     </tbody>
