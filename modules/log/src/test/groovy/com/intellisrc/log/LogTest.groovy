@@ -9,6 +9,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.nio.file.Files
 import java.time.LocalDateTime
 
 /**
@@ -344,7 +345,8 @@ class LogTest extends Specification {
     @Unroll
     def "When rotateOtherLogs is false it should not remove other logs, when its true, it should remove them"() {
         setup:
-            fileLogger.logDir = File.get(File.tempDir, "test-log-" + dir)
+            File tempDir = Files.createTempDirectory("test-log").toFile()
+            fileLogger.logDir = tempDir
             fileLogger.logDays = keep
             fileLogger.rotateOtherLogs = rotateOthers
             LocalDateTime now = SysClock.now
@@ -356,29 +358,30 @@ class LogTest extends Specification {
             SysClock.setClockAt(now.minusDays(logsToCreate + 1))
             (1..logsToCreate).each {
                 SysClock.setClockAt(SysClock.now.plusDays(1).clearTime())
-                Log.i("[%d] This log is for day: %s", it, SysClock.now.toLocalDate().YMD)
+                Log.i("[%d] This log line will be saved for day: %s in %s", it, SysClock.now.toLocalDate().YMD, fileLogger.logFile.name)
                 fileLogger.logFile.setLastModified(SysClock.now.toMillis())
-                File otherFile = File.get(fileLogger.logDir, SysClock.now.toLocalDate().YMD + "-other.log")
+                File otherFile = File.get(tempDir, SysClock.now.toLocalDate().YMD + "-other.log")
                 otherFile.text = "Whatever"
                 otherFile.setLastModified(SysClock.now.toMillis())
             }
             SysClock.setClockAt(now) //Reset time back to today
-            File otherFile = File.get(fileLogger.logDir, "other.log")
-            otherFile.text = "Whatever"
-            Log.w("This is for today")
+            File otherTodayFile = File.get(tempDir, "other.log")
+            otherTodayFile.text = "Whatever"
+            Log.i("This log line is for today (%s): %s", SysClock.now.toLocalDate().YMD, fileLogger.logFile.name)
 
-            println "------- Before cleaning [OTHER: ${rotateOthers ? "YES" : "NO"}] -----------"
-            fileLogger.logDir.eachFile {
-                println " > " + it.name + "\t" + LocalDateTime.fromMillis(it.lastModified()).YMDHmsS
+            println "------- Before cleaning:  Must have ${logsToCreate + 1} test.log (plus last-test.log) files and ${logsToCreate + 1} other files -----------"
+            tempDir.eachFile {
+                println " > " + it.name.padRight(30) + "\t" + LocalDateTime.fromMillis(it.lastModified()).YMDHms
             }
         then:
             // total = create + other (same as create) + link
-            assert fileLogger.logDir.listFiles().findAll { it.name.contains("other") }.size() == create + 1
-            assert fileLogger.logDir.listFiles().findAll { it.name.contains("test") }.size() == create + 2
+            assert tempDir.listFiles().findAll { it.name.contains("other") }.size() == create + 1
+            assert tempDir.listFiles().findAll { it.name.contains("test") }.size() == create + 2
         when:
+            int otherLeft = rotateOthers ? keep : logsToCreate + 1
             fileLogger.onCleanDone = {
-                println "------- After cleaning -----------"
-                fileLogger.logDir.eachFile {
+                println "------- After cleaning [Rotate other: ${rotateOthers ? "YES" : "NO"}] : must have a maximum of $keep 'test' files + last-test.log and maximum ${otherLeft} other files --------"
+                tempDir.eachFile {
                     println " > " + it.name
                 }
                 done = true
@@ -388,16 +391,18 @@ class LogTest extends Specification {
                 sleep(50)
             }
         then:
-            assert fileLogger.logDir.listFiles().find { it.name == "last-" + fileLogger.logFileName }
-            assert fileLogger.logDir.listFiles().findAll { it.name.contains("other") }.size() == (rotateOthers ? [keep, create + 1].min() : create + 1)
-            assert fileLogger.logDir.listFiles().findAll { it.name.contains("test") }.size() == [keep, create + 1].min() + 1
+            assert tempDir.listFiles().find { it.name == "last-" + fileLogger.logFileName }
+            assert tempDir.listFiles().findAll { it.name.contains("other") }.size() == (rotateOthers ? [keep, create + 1].min() : create + 1)
+            assert tempDir.listFiles().findAll { it.name.contains("test") }.size() == [keep, create + 1].min() + 1
             noExceptionThrown()
+        cleanup:
+            assert tempDir.deleteDir()
         where:
-            dir | keep | create | expected | rotateOthers
-            1   | 2    | 7      | 9        | false
-            2   | 7    | 2      | 4        | false
-            3   | 2    | 7      | 4        | true
-            4   | 7    | 2      | 4        | true
+            dir | keep | create | rotateOthers
+            1   | 2    | 7      | false
+            2   | 7    | 2      | false
+            3   | 2    | 7      | true
+            4   | 7    | 2      | true
     }
 
     //---------------- ETC : ZIP --------------
