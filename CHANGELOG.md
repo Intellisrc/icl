@@ -1,5 +1,40 @@
 # Main Changes
 
+## 2.9 Main
+
+### 2.9.0 (status : Stable)
+* Web module no longer uses [Spark](https://sparkjava.com/). Now it uses [Jetty](https://www.eclipse.org/jetty/) directly (web) ** Breaking change **
+* Updated Jetty to version 11 (web)
+* Accept multiple resource directories (web)
+* Added path policy (web)
+* Added SSE (Server Send Events) (web)
+* Added better error handling to SMTP (net)
+* Added Triplet (core)
+* Added FTPS support in FtpClient
+* Replaced toMap() for toDB() (db)
+* Improved Cache usability (etc)
+* Improved output of Throwable (log)
+
+ **Update Notes**: Changes in the `web` module may need to be manually fixed (like websockets usage, etc).
+
+### 2.8.12 (branch, status : Stable)
+* Updated Jetty to version 11. Implemented in Spark (web) ** Breaking change **
+* Accept multiple resource directories. Implemented in Spark (web)
+
+**Update Notes**: Most of the Jetty classes changed to jakarta package, you may need to modify their `import` statement.
+
+### 2.8.11 (branch, status : Stable)
+* DB module package changed (db) ** Breaking change **
+* Added `unlimited` to `@Column` (db)
+* Added support for `View` (db)
+* Keep old log upon restart (log)
+* Fixed issue #52 "The last packet successully received..." (db)
+* Added "Accept-Ranges" header (web)
+* Fixed connections no properly closed (db)
+* Added Email.isValid (net)
+
+**Update Notes**: Remove missing `import` packages (related to db module) and reimport them again to update their `import` statement. 
+
 ### 2.8.10
 * Added stream and chunks support in `LpCode` (crypt)
 * Added block export/import in `LpCode` (crypt)
