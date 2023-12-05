@@ -14,6 +14,10 @@ import jssc.SerialPortList
 @CompileStatic
 class Serial extends Seriable {
     final private SerialPort portComm
+    int timeout = 0 // 0 = no timeout
+    int waitOnFailure = Millis.SECOND
+    int dataBits = SerialPort.DATABITS_8
+    int stopBits = SerialPort.STOPBITS_1
     Serial(String port, SerialPort comm = null) {
         serialPort = port
         portComm = comm ?: findPort()
@@ -37,8 +41,8 @@ class Serial extends Seriable {
             try {
                 portComm.openPort()
                 portComm.setParams(baudRate,
-                        SerialPort.DATABITS_8,
-                        SerialPort.STOPBITS_1,
+                        dataBits,
+                        stopBits,
                         parity)
                 connected = true
                 if (event) {
@@ -49,7 +53,7 @@ class Serial extends Seriable {
                 }
             } catch(Exception e) {
                 Log.w("Unable to open port [%s] : %s", serialPort, e)
-                sleep(Millis.SECOND)
+                sleep(waitOnFailure)
             }
         }
     }
@@ -73,7 +77,7 @@ class Serial extends Seriable {
     void read(int byteCount, SerialReader onResponse) {
         if(connected) {
             try {
-                onResponse.call(portComm.readBytes(byteCount))
+                onResponse.call(timeout ? portComm.readBytes(byteCount, timeout) : portComm.readBytes(byteCount))
             } catch(Exception e) {
                 Log.e("unable to read from device: %s", serialPort, e)
             }
@@ -88,7 +92,7 @@ class Serial extends Seriable {
      */
     @Override
     void readLine(SerialReaderStr onResponse) {
-        String str = portComm.readString()
+        String str = timeout ? portComm.readString(timeout) : portComm.readString()
         onResponse.call(str)
     }
 
@@ -98,7 +102,7 @@ class Serial extends Seriable {
      */
     @Override
     void readNum(SerialReaderInt onResponse) {
-        String buff = portComm.readString()
+        String buff = timeout ? portComm.readString(timeout) : portComm.readString()
         if(buff != null) {
             onResponse.call(Integer.parseInt(buff[0]))
         }
