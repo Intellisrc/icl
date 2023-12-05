@@ -1,12 +1,12 @@
 package com.intellisrc.serial
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 import jssc.SerialPort
 import jssc.SerialPortEvent
 import jssc.SerialPortList
+import jssc.SerialPortTimeoutException
 
 /**
  * @since 19/02/20.
@@ -14,8 +14,6 @@ import jssc.SerialPortList
 @CompileStatic
 class Serial extends Seriable {
     final private SerialPort portComm
-    int timeout = 0 // 0 = no timeout
-    int waitOnFailure = Millis.SECOND
     int dataBits = SerialPort.DATABITS_8
     int stopBits = SerialPort.STOPBITS_1
     Serial(String port, SerialPort comm = null) {
@@ -78,11 +76,13 @@ class Serial extends Seriable {
         if(connected) {
             try {
                 onResponse.call(timeout ? portComm.readBytes(byteCount, timeout) : portComm.readBytes(byteCount))
+            } catch(SerialPortTimeoutException te) {
+                throw te
             } catch(Exception e) {
                 Log.e("unable to read from device: %s", serialPort, e)
             }
         } else {
-            Log.w("Port: $serialPort not found.")
+            Log.w("Port: $serialPort not connected.")
         }
     }
 
@@ -92,8 +92,18 @@ class Serial extends Seriable {
      */
     @Override
     void readLine(SerialReaderStr onResponse) {
-        String str = timeout ? portComm.readString(timeout) : portComm.readString()
-        onResponse.call(str)
+        if(connected) {
+            try {
+                String str = timeout ? portComm.readString(timeout) : portComm.readString()
+                onResponse.call(str)
+            } catch(SerialPortTimeoutException te) {
+                throw te
+            } catch(Exception e) {
+                Log.e("unable to read from device: %s", serialPort, e)
+            }
+        } else {
+            Log.w("Port: $serialPort not connected.")
+        }
     }
 
     /**
@@ -102,9 +112,11 @@ class Serial extends Seriable {
      */
     @Override
     void readNum(SerialReaderInt onResponse) {
-        String buff = timeout ? portComm.readString(timeout) : portComm.readString()
-        if(buff != null) {
-            onResponse.call(Integer.parseInt(buff[0]))
+        readLine {
+            String buff ->
+                if(buff != null) {
+                    onResponse.call(Integer.parseInt(buff[0]))
+                }
         }
     }
 
