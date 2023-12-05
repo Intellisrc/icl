@@ -1,5 +1,6 @@
 package com.intellisrc.serial
 
+import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 import jssc.SerialPort
 import jssc.SerialPortEvent
@@ -13,6 +14,8 @@ abstract class Seriable {
     public boolean connected = false
     public int parity = SerialPort.PARITY_NONE
     public int baudRate = 9600
+    public int timeout = 0  // 0 = no timeout
+    int waitOnFailure = Millis.SECOND
     public String serialPort
 
     static interface SerialReader {

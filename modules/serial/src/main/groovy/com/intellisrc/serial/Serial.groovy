@@ -1,7 +1,6 @@
 package com.intellisrc.serial
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 import jssc.SerialPort
@@ -14,8 +13,6 @@ import jssc.SerialPortList
 @CompileStatic
 class Serial extends Seriable {
     final private SerialPort portComm
-    int timeout = 0 // 0 = no timeout
-    int waitOnFailure = Millis.SECOND
     int dataBits = SerialPort.DATABITS_8
     int stopBits = SerialPort.STOPBITS_1
     Serial(String port, SerialPort comm = null) {
