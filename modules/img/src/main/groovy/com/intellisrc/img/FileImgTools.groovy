@@ -1,6 +1,7 @@
 package com.intellisrc.img
 
 import com.intellisrc.core.Log
+import com.intellisrc.etc.Mime
 import groovy.transform.CompileStatic
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.geometry.Positions
@@ -20,13 +21,36 @@ class FileImgTools {
         int height
     }
     /**
-     * Return size of an image
+     * Return size of an image based only in image headers (much faster than using ImageIO.read)
      * @param image
      * @return
      */
-    static Size getSize(File imageFile) {
-        def image = ImageIO.read(imageFile)
-        return new Size(width: image?.width, height: image?.height)
+    static Size getSize(File image) {
+        int width = 0
+        int height = 0
+        String mime = Mime.getType(image)
+        if(Mime.isImage(mime)) {
+            InputStream is = new FileInputStream(image)
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(is)
+            try {
+                ImageReader reader = ImageIO.getImageReadersByMIMEType(mime).next()
+                reader.setInput(imageInputStream, true)
+                width = reader.getWidth(0)
+                height = reader.getHeight(0)
+                reader.dispose()
+            } catch (Exception e) {
+                Log.w("Unable to get image size: ", e)
+            } finally {
+                imageInputStream.close()
+                is.close()
+            }
+        } else {
+            Log.w("File [%s] doesn't seems to be an image (based on mime type)", image)
+        }
+        return new Size(
+            width: width,
+            height: height
+        )
     }
 
     /**

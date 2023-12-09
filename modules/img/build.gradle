@@ -1,5 +1,5 @@
 dependencies {
-    api project(':core')
+    api project(':etc')
     api 'net.coobird:thumbnailator:0.4.20'
 }
 
