@@ -269,7 +269,7 @@ class Mime {
      * @return
      */
     static String getTypeFromConfig(String filename) {
-        return Config.get("mime." + (filename.tokenize('.').last()), "")
+        return Config.any.get("mime." + (filename.tokenize('.').last()), "")
     }
     /**
      * Check if file extension is usually compressed

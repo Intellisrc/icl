@@ -31,7 +31,7 @@ class Smtp {
     public String fromName     = ""
     public String defaultTo    = ""
     public String replyTo      = ""
-    public String mailer       = Config.get("mail.smtp.mailer","Groovy-ICL-Library")
+    public String mailer       = Config.any.get("mail.smtp.mailer","Groovy-ICL-Library")
     public boolean startTLS    = false
     public boolean simulate    = false //If true, it won't send any email
     public int port            = 25
@@ -70,7 +70,9 @@ class Smtp {
      */
     @Canonical
     static class SendListener implements TransportListener {
+        @SuppressWarnings('GrFinalVariableAccess')
         final EventResult success
+        @SuppressWarnings('GrFinalVariableAccess')
         final EventResult failure
 
         @Override
@@ -166,23 +168,23 @@ class Smtp {
                 switch (rule) {
                     case "simulate":
                         if(fileSettings && Config.exists("${cfgKey}.$rule")) {
-                            this.setProperty(key, Config.getBool("${cfgKey}.$rule"))
+                            this.setProperty(key, Config.any.getBool("${cfgKey}.$rule"))
                         } else if(fileSettingsDefault && Config.exists("${defaultKey}.$rule")) {
-                            this.setProperty(key, Config.getBool("${defaultKey}.$rule"))
+                            this.setProperty(key, Config.any.getBool("${defaultKey}.$rule"))
                         }
                         break
                     case "port":
                         if(fileSettings && Config.exists("${cfgKey}.$rule")) {
-                            this.setProperty(key, Config.getInt("${cfgKey}.$rule"))
+                            this.setProperty(key, Config.any.getInt("${cfgKey}.$rule"))
                         } else if(fileSettingsDefault && Config.exists("${defaultKey}.$rule")) {
-                            this.setProperty(key, Config.getInt("${defaultKey}.$rule"))
+                            this.setProperty(key, Config.any.getInt("${defaultKey}.$rule"))
                         }
                         break
                     default:
                         if(fileSettings && Config.exists("${cfgKey}.$rule")) {
-                            this.setProperty(key, Config.get("${cfgKey}.$rule"))
+                            this.setProperty(key, Config.any.get("${cfgKey}.$rule"))
                         } else if(fileSettingsDefault && Config.exists("${defaultKey}.$rule")) {
-                            this.setProperty(key, Config.get("${defaultKey}.$rule"))
+                            this.setProperty(key, Config.any.get("${defaultKey}.$rule"))
                         }
                 }
         }

@@ -41,7 +41,7 @@ class HyperSQL extends JDBCServer {
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.hsqldb.params", [:] + params)
+        return Config.any.get("db.hsqldb.params", [:] + params)
     }
 
     @Override

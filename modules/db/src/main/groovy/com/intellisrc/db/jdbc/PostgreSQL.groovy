@@ -45,7 +45,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.postgresql.params", [
+        return Config.any.get("db.postgresql.params", [
             binaryTransfer      : true,
             cleanupSavepoints   : false,
             connectTimeout      : 0,

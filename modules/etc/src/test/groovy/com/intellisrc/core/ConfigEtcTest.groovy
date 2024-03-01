@@ -11,7 +11,7 @@ class ConfigEtcTest extends Specification {
         when:
             List descs = []
             (0..1000). each {
-                descs << Config.get("log.level", "verbose")
+                descs << Config.any.get("log.level", "verbose")
                 Hardware.getOpenFiles({
                     double total ->
                         if(!initial) {

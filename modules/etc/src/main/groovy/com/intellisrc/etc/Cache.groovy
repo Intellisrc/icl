@@ -20,8 +20,8 @@ import java.util.regex.Pattern
 class Cache<V> {
     static public final int DISABLED = 0
     static public final int FOREVER = -1
-    static protected int defaultGCInterval = Config.get("cache.gc", Secs.MIN_2) //seconds
-    static protected int defaultTimeout = Config.get("cache.timeout", FOREVER) //seconds
+    static protected int defaultGCInterval = Config.any.get("cache.gc", Secs.MIN_2) //seconds
+    static protected int defaultTimeout = Config.any.get("cache.timeout", FOREVER) //seconds
     interface NotFound {
         V call()
     }

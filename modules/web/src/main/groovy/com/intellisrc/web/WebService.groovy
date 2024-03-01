@@ -69,8 +69,8 @@ import static org.eclipse.jetty.http.HttpStatus.*
  *
  */
 class WebService extends WebServiceBase {
-    static String defaultCharset = Config.get("web.charset", "UTF-8") //TODO: document
-    static boolean forceFile = Config.get("web.upload.force", false) // Throw exception when file is expected and it is empty
+    static String defaultCharset = Config.any.get("web.charset", "UTF-8") //TODO: document
+    static boolean forceFile = Config.any.get("web.upload.force", false) // Throw exception when file is expected and it is empty
 
     public int threads = 20
     public int minThreads = 2

@@ -19,8 +19,8 @@ import static com.intellisrc.core.AnsiColor.*
  *
  */
 class Log {
-    static public final int MAX_LOG_LINE_LENGTH = Config.get("log.wrap.length", 500)
-    static public List<String> ignoreFromStack = Config.get("log.stack.ignore", [
+    static public final int MAX_LOG_LINE_LENGTH = Config.any.get("log.wrap.length", 500)
+    static public List<String> ignoreFromStack = Config.any.get("log.stack.ignore", [
         "slf4j",
         "java.lang",
         "java.util",
@@ -60,9 +60,9 @@ class Log {
      * will use a simple one.
      */
     static {
-        boolean enabled = Config.get("log.enable", ! Config.get("log.disable", false))
+        boolean enabled = Config.any.get("log.enable", ! Config.any.get("log.disable", false))
         if(enabled) {
-            logger = LoggerFactory.getLogger(Config.get("log.name", "app"))
+            logger = LoggerFactory.getLogger(Config.any.get("log.name", "app"))
             if (logger?.name && logger.name != "NOP") {
                 printers << (Printer) {
                     Level level, Info stack, String msg, List<Object> args, Throwable throwable ->

@@ -18,7 +18,7 @@ class MariaDB extends MySQL {
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.mariadb.params", [
+        return Config.any.get("db.mariadb.params", [
             allowMultiQueries       : false,
             connectTimeout          : 0,
             socketTimeout           : 0,

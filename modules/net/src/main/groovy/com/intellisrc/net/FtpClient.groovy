@@ -18,7 +18,7 @@ import java.nio.file.Files
  */
 @CompileStatic
 class FtpClient {
-    static boolean active = Config.getBool("ftp.active") //By default will be "passive"
+    static boolean active = Config.any.getBool("ftp.active") //By default will be "passive"
     final String hostname
     final InetAddress ip
     final int port

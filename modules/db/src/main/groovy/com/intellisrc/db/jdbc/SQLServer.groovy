@@ -31,7 +31,7 @@ class SQLServer extends JDBCServer {
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.sqlserver.params", [
+        return Config.any.get("db.sqlserver.params", [
             encrypt : secure && strict ? "strict" : secure.toString(),
             integratedSecurity : useWinLogin,
             loginTimeout : 15,

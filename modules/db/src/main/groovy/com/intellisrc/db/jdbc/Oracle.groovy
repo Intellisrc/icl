@@ -29,7 +29,7 @@ class Oracle extends JDBCServer {
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.oracle.params", [
+        return Config.any.get("db.oracle.params", [
             BatchPerformanceWorkaround : false,
             LoginTimeout : 0,
             ConnectionRetryCount : 0,

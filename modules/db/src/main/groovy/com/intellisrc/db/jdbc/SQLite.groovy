@@ -32,11 +32,11 @@ class SQLite extends JDBC implements AutoJDBC {
     String user = ""
     String password = ""
     String driver = "org.sqlite.JDBC"
-    String tableMeta = Config.get("db.sqlite.meta", "_meta")
-    boolean fkEnabled = Config.get("db.sqlite.fk", true) // ON By default
+    String tableMeta = Config.any.get("db.sqlite.meta", "_meta")
+    boolean fkEnabled = Config.any.get("db.sqlite.fk", true) // ON By default
 
     // SQLite specific parameters:
-    boolean memory = Config.get("db.sqlite.memory", false)
+    boolean memory = Config.any.get("db.sqlite.memory", false)
     @Override
     String getConnectionString() {
         return (memory ? "sqlite::memory:" : "sqlite:$dbname") + (parameters.isEmpty() ? "" : "?" + parameters.toQueryString())
@@ -44,7 +44,7 @@ class SQLite extends JDBC implements AutoJDBC {
 
     @Override
     protected Map getParameters() {
-        return Config.get("db.sqlite.params", [
+        return Config.any.get("db.sqlite.params", [
             foreign_keys : fkEnabled
         ])
     }

@@ -27,13 +27,13 @@ class Firebird extends JDBCServer {
     String connectionClass = "${packageName}.FBConnection"
     boolean supportsBoolean = true
 
-    boolean embedded = Config.get("db.firebird.embedded", false)
-    boolean local = Config.get("db.firebird.local", false)
+    boolean embedded = Config.any.get("db.firebird.embedded", false)
+    boolean local = Config.any.get("db.firebird.local", false)
     // Firebird specific parameters:
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.firebird.params", [
+        return Config.any.get("db.firebird.params", [
             charSet : 'utf-8'
         ] + params)
     }

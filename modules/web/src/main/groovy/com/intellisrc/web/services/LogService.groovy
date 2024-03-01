@@ -14,8 +14,8 @@ import java.time.LocalDateTime
  */
 @CompileStatic
 class LogService implements ServiciableSingle {
-    final File logDir = Config.getFile("log.dir", "log")
-    final String logFileName = Config.get("log.file.name", "system.log")
+    final File logDir = Config.any.getFile("log.dir", "log")
+    final String logFileName = Config.any.get("log.file.name", "system.log")
 
     @Override
     String getPath() {

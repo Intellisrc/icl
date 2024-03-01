@@ -34,19 +34,22 @@ import java.time.LocalTime
  */
 @CompileStatic
 class ConfigAuto {
-    static int columnDocWrap = Config.get("config.auto.width", 75)
+    static int columnDocWrap = Config.any.get("config.auto.width", 75)
     // If true, it will remove missing keys
-    static boolean removeMissing = Config.get("config.auto.remove", true)
-    static List<String> removeIgnore = Config.getList("config.auto.ignore")
+    static boolean removeMissing = Config.any.get("config.auto.remove", true)
+    static List<String> removeIgnore = Config.any.getList("config.auto.ignore")
     // Where to export configuration:
-    static File defaultCfgFile = Config.getFile("config.auto.file", "system.properties")
+    static File defaultCfgFile = Config.any.getFile("config.auto.file", "system.properties")
+    static boolean defaultImportOnStart = Config.any.get("config.auto.import", true)
+    // If `exportOnSave` is true, each time a value is updated in the db, it will also update the config file
+    static boolean defaultExportOnSave = Config.any.get("config.auto.update", false)
+    static boolean defaultExportOnExit = Config.any.get("config.auto.export", false)
 
     final File cfgFile
     final StringProperties props
-    boolean importOnStart = Config.get("config.auto.import", true)
-    // If `exportOnSave` is true, each time a value is updated in the db, it will also update
-    // the config file (by default will save on exit)
-    boolean exportOnSave = Config.get("config.auto.export", false)
+    boolean importOnStart = false
+    boolean exportOnSave = false
+    boolean exportOnExit = false
     protected Set<Storage> storedValues = []
     protected String basePkg
     Closer onClose = null
@@ -192,6 +195,31 @@ class ConfigAuto {
      * @param storage : Storage used to save properties (Berkeley by default)
      */
     ConfigAuto(String basePackage, File configFile, StringProperties storage = new BerkeleyDB("main", "config")) {
+        this(basePackage, configFile, defaultImportOnStart, defaultExportOnSave, defaultExportOnExit, storage)
+    }
+    /**
+     * Constructor
+     *
+     * @param basePackage : package name in which we will search for annotations (e.g: com.example.project)
+     * @param storage : Storage used to save properties (Berkeley by default)
+     */
+    ConfigAuto(String basePackage, StringProperties storage = new BerkeleyDB("main", "config")) {
+        this(basePackage, defaultCfgFile, storage)
+    }
+    /**
+     * Constructor
+     *
+     * @param basePackage : package name in which we will search for annotations (e.g: com.example.project)
+     * @param configFile : where to store the configuration
+     * @param importOnStart : It will try to import settings from file on start
+     * @param exportOnSave : It will export automatically to file everytime settings change
+     * @param exportOnExit : It will export to file on exit
+     * @param storage : Storage used to save properties (Berkeley by default)
+     */
+    ConfigAuto(String basePackage, File configFile, boolean importOnStart, boolean exportOnSave, boolean exportOnExit, StringProperties storage = new BerkeleyDB("main", "config")) {
+        this.importOnStart = importOnStart
+        this.exportOnSave = exportOnSave
+        this.exportOnExit = exportOnExit
         props = storage
         cfgFile = configFile
         try {
@@ -212,9 +240,6 @@ class ConfigAuto {
         } catch (Exception e) {
             Log.e("Unable to start AutoConfig", e)
         }
-    }
-    ConfigAuto(String basePackage, StringProperties storage = new BerkeleyDB("main", "config")) {
-        this(basePackage, defaultCfgFile, storage)
     }
 
     /**
@@ -636,7 +661,9 @@ class ConfigAuto {
      * Call closing interface
      */
     void close() {
-        exportValues()
+        if(exportOnExit) {
+            exportValues()
+        }
         if(onClose) {
             onClose.call()
         }

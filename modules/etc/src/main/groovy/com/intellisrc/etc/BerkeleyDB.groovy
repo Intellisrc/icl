@@ -12,8 +12,8 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class BerkeleyDB extends StringPropertiesYaml {
-    static File databaseDir = Config.getFile("berkeley.dir", File.get(".berkeley"))
-    boolean deferredWrite = Config.get("berkeley.deferred", true)
+    static File databaseDir = Config.any.getFile("berkeley.dir", File.get(".berkeley"))
+    boolean deferredWrite = Config.any.get("berkeley.deferred", true)
     String encoding = "UTF-8"
     final String keyPrefix
     String prefixSeparator = "."
@@ -43,7 +43,7 @@ class BerkeleyDB extends StringPropertiesYaml {
         if(!databaseDir.exists()) {
             databaseDir.mkdirs()
         }
-        databaseName = Config.get("berkeley.db", dbName)
+        databaseName = Config.any.get("berkeley.db", dbName)
         this.keyPrefix = keyPrefix
         setupEnvironment()
     }

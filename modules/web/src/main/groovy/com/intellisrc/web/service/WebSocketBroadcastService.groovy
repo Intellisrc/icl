@@ -21,7 +21,7 @@ import java.time.Duration
  */
 @CompileStatic
 class WebSocketBroadcastService extends JettyWebSocketServlet implements BroadcastService {
-    int maxSize = Config.get("web.ws.max.size", 64) // KB
+    int maxSize = Config.any.get("web.ws.max.size", 64) // KB
     String path = "/"
 
     /**
@@ -35,7 +35,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
             Request req = new Request(request)
             id = identifier.call(req)
         }
-        List<String> closeMessages = Config.get("websocket.close.list", ["quit","exit","close","bye"]) //TODO: document
+        List<String> closeMessages = Config.any.get("websocket.close.list", ["quit","exit","close","bye"]) //TODO: document
         @Override
         void onWebSocketConnect(JettySession sess) {
             super.onWebSocketConnect(sess)

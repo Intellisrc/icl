@@ -14,7 +14,7 @@ import java.util.List
  */
 @CompileStatic
 class CharWidthMetrics {
-    static final File dictionary = Config.getFile("chars.widths.file", File.get("chars.widths.txt"))
+    static final File dictionary = Config.any.getFile("chars.widths.file", File.get("chars.widths.txt"))
     static final int charStart = 1304
     static final int charEnd = 984058
 

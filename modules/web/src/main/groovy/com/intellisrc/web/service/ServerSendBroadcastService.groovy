@@ -18,7 +18,7 @@ import org.eclipse.jetty.server.Response as JettyResponse
 @CompileStatic
 class ServerSendBroadcastService extends HttpServlet implements BroadcastService {
     static final String newLine = "\n"
-    int maxSize = Config.get("web.sse.max.size", 64) // KB
+    int maxSize = Config.any.get("web.sse.max.size", 64) // KB
 
     /**
      * Perform GET action

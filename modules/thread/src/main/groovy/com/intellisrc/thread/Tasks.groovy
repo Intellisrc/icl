@@ -20,17 +20,17 @@ import static com.intellisrc.core.Millis.*
  */
 @CompileStatic
 class Tasks {
-    static File logDir        = Config.getFile("tasks.log.dir", Config.getFile("log.dir", "log"))
-    static String logFileName = Config.get("tasks.log.file", "status.log")
-    static int minPoolSize = Config.get("tasks.pool.min", 1)
-    static int maxPoolSize = Config.get("tasks.pool.max", 30)
-    static int bufferMillis = Config.get("tasks.buffer", SECOND)
-    static int timeout = Config.getInt("tasks.timeout")
-    static boolean printOnScreen = Config.getBool("tasks.print")
-    static boolean logToFile = Config.getBool("tasks.log")
-    static boolean debug = Config.getBool("tasks.debug")
-    static boolean resetTasks = Config.getBool("tasks.reset")
-    static boolean printChildren = Config.getBool("tasks.children")
+    static File logDir        = Config.any.getFile("tasks.log.dir", Config.any.getFile("log.dir", "log"))
+    static String logFileName = Config.any.get("tasks.log.file", "status.log")
+    static int minPoolSize = Config.any.get("tasks.pool.min", 1)
+    static int maxPoolSize = Config.any.get("tasks.pool.max", 30)
+    static int bufferMillis = Config.any.get("tasks.buffer", SECOND)
+    static int timeout = Config.any.getInt("tasks.timeout")
+    static boolean printOnScreen = Config.any.getBool("tasks.print")
+    static boolean logToFile = Config.any.getBool("tasks.log")
+    static boolean debug = Config.any.getBool("tasks.debug")
+    static boolean resetTasks = Config.any.getBool("tasks.reset")
+    static boolean printChildren = Config.any.getBool("tasks.children")
     static boolean printOnChange = false    //Using in UnitTests to debug
     protected static TaskManager taskManager = new TaskManager()
     private static LocalDateTime logLastUpdated = SysClock.dateTime

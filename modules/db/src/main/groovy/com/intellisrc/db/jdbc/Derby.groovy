@@ -44,12 +44,12 @@ class Derby extends JDBCServer implements AutoJDBC {
     String hostname = ""
     int port = 1527
     String driver = "org.apache.derby.iapi.jdbc.AutoloadedDriver"
-    boolean encrypt = Config.get("db.derby.encrypt", false)
-    boolean memory = Config.get("db.derby.memory", false)
-    boolean embedded = Config.get("db.derby.embedded", false)
-    boolean create = memory ?: Config.get("db.derby.create", false) //If in memory it will create automatically
-    boolean useFK = Config.get("db.derby.fk", false)
-    String tableMeta = Config.get("db.derby.meta", "sys_meta")
+    boolean encrypt = Config.any.get("db.derby.encrypt", false)
+    boolean memory = Config.any.get("db.derby.memory", false)
+    boolean embedded = Config.any.get("db.derby.embedded", false)
+    boolean create = memory ?: Config.any.get("db.derby.create", false) //If in memory it will create automatically
+    boolean useFK = Config.any.get("db.derby.fk", false)
+    String tableMeta = Config.any.get("db.derby.meta", "sys_meta")
     SubProtocol subProtocol = DIRECTORY
 
     // QUERY BUILDING -------------------------
@@ -67,7 +67,7 @@ class Derby extends JDBCServer implements AutoJDBC {
         if(create) {
             params.create = create
         }
-        return Config.get("db.derby.params", [ :
+        return Config.any.get("db.derby.params", [ :
             // encryptionProvider :
             // encryptionAlgorithm :
             // logDevice :

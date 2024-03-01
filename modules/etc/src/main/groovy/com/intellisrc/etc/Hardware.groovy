@@ -18,10 +18,10 @@ import static com.intellisrc.core.SysInfo.isWindows
  */
 @CompileStatic
 class Hardware {
-    static public boolean debug     = Config.get("hardware.debug", false)
-    static public boolean warn      = Config.get("hardware.warn", true)
-    static public boolean gpu       = Config.get("hardware.gpu", true)
-    static public boolean monitor   = Config.get("hardware.monitor", true)
+    static public boolean debug     = Config.any.get("hardware.debug", false)
+    static public boolean warn      = Config.any.get("hardware.warn", true)
+    static public boolean gpu       = Config.any.get("hardware.gpu", true)
+    static public boolean monitor   = Config.any.get("hardware.monitor", true)
 
     /**
      * Default commands
@@ -37,13 +37,13 @@ class Hardware {
     /**
      * Custom commands (override)
      */
-    static public String customSensorsCmd  = Config.get("hardware.cmd.sensors")
-    static public String customNvidiaSMI   = Config.get("hardware.cmd.nvidia.smi")
-    static public String customScreenCheck = Config.get("hardware.cmd.screen")
-    static public String customScreenON    = Config.get("hardware.cmd.screen.on")
-    static public String customScreenOFF   = Config.get("hardware.cmd.screen.off")
-    static public String customXinput      = Config.get("hardware.cmd.xinput")
-    static public String customXinputList  = Config.get("hardware.cmd.xinput.list")
+    static public String customSensorsCmd  = Config.any.get("hardware.cmd.sensors")
+    static public String customNvidiaSMI   = Config.any.get("hardware.cmd.nvidia.smi")
+    static public String customScreenCheck = Config.any.get("hardware.cmd.screen")
+    static public String customScreenON    = Config.any.get("hardware.cmd.screen.on")
+    static public String customScreenOFF   = Config.any.get("hardware.cmd.screen.off")
+    static public String customXinput      = Config.any.get("hardware.cmd.xinput")
+    static public String customXinputList  = Config.any.get("hardware.cmd.xinput.list")
 
     static private OperatingSystemMXBean os
     

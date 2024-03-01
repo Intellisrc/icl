@@ -24,9 +24,9 @@ class DB {
     static protected Cache<Data> dataCache = new Cache<Data>(extend: false)
     static protected Cache<List<ColumnInfo>> colsInfo = new Cache<List<ColumnInfo>>(extend: false, quiet: true)
     static protected ConcurrentLinkedQueue<String> tableList = new ConcurrentLinkedQueue<>()
-    static boolean enableCache = Config.get("db.cache", true) // By default, enabled
-    static int cache = Config.get("db.cache.get", 0) // time in seconds to keep cache (for GET)
-    static boolean clearCache = Config.get("db.cache.clear", false) // if true, will clear cache on table update
+    static boolean enableCache = Config.any.get("db.cache", true) // By default, enabled
+    static int cache = Config.any.get("db.cache.get", 0) // time in seconds to keep cache (for GET)
+    static boolean clearCache = Config.any.get("db.cache.clear", false) // if true, will clear cache on table update
 
     protected Connector dbConnector
     protected String table = ""
@@ -966,6 +966,7 @@ class DB {
                                 Log.v(" --> " + it)
                             }
                             st?.close() // Close previous
+                            //noinspection GroovyUnusedAssignment
                             st = dbConnector.execute(insert, false)
                         } catch (Exception e2) {
                             Log.e("Query Syntax error: ", e2)

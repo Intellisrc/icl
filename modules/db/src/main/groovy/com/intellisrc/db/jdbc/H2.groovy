@@ -32,7 +32,7 @@ class H2 extends JDBCServer {
     // You may add more parameters as needed (values shown below are default values)
     @Override
     Map getParameters() {
-        return Config.get("db.h2.params", [:] + params)
+        return Config.any.get("db.h2.params", [:] + params)
     }
 
     @Override

@@ -33,11 +33,11 @@ import static com.intellisrc.core.AnsiColor.*
  */
 @CompileStatic
 class Console {
-    static public String prompt = Config.get("console.prompt") ?: "> "
-    static public Character mask = (Config.get("console.mask") ?: "*")[0] as Character
+    static public String prompt = Config.any.get("console.prompt") ?: "> "
+    static public Character mask = (Config.any.get("console.mask") ?: "*")[0] as Character
     static public LineReaderImpl reader = new LineReaderImpl(TerminalBuilder.terminal())
-    static public int timeout = Config.getInt("console.timeout") ?: 0
-    static public final boolean addDefault = Config.getBool("console.default") ?: true
+    static public int timeout = Config.any.getInt("console.timeout") ?: 0
+    static public final boolean addDefault = Config.any.getBool("console.default") ?: true
     static public final String ANSI_BACKLINE = '\033[1A'
     static public final LinkedList<String> commandBuffer = new LinkedList<>()
 
@@ -217,6 +217,7 @@ class Console {
         String line
         ScheduledFuture process
         if(backProcess) {
+            //noinspection GroovyUnusedAssignment
             process = readBackProcess(backProcess)
         }
         try {
@@ -256,6 +257,7 @@ class Console {
         char[] pass = null
         ScheduledFuture process
         if(backProcess) {
+            //noinspection GroovyUnusedAssignment
             process = readBackProcess(backProcess)
         }
         try {
@@ -345,7 +347,7 @@ class Console {
             }
             reader.callWidget(LineReader.REDISPLAY)
             reader.terminal.flush()
-        } catch (Exception e) {}
+        } catch (Exception ignore) {}
     }
 
     /**
@@ -373,7 +375,7 @@ class Console {
             reader.callWidget(LineReader.REDRAW_LINE)       //Seems it has no effect
             reader.callWidget(LineReader.REDISPLAY)         //show "old" prompt
             reader.terminal.writer().flush()
-        } catch (Exception e) { // In case we can't call Widgets, clear it normally
+        } catch (Exception ignore) { // In case we can't call Widgets, clear it normally
             reader.terminal.puts(InfoCmp.Capability.clear_screen)
             if(message) {
                 println message

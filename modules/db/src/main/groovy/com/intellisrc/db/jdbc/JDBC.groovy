@@ -235,30 +235,30 @@ abstract class JDBC {
      */
     static JDBC fromSettings(Map settings = [:]) {
         JDBC jdbc = null
-        String cfgType = settings.type ?: Config.get("db.type", "dummy")
+        String cfgType = settings.type ?: Config.any.get("db.type", "dummy")
         if(settings.keySet().empty) {
             // Only set if exists:
             //noinspection GroovyMissingReturnStatement
             if (Config.exists("db.name")) {
-                settings.dbname = Config.get("db.name")
+                settings.dbname = Config.any.get("db.name")
             }
             if (Config.exists("db.host")) {
-                settings.hostname = Config.get("db.host")
+                settings.hostname = Config.any.get("db.host")
             }
             if (Config.exists("db.port")) {
-                settings.port = Config.getInt("db.port")
+                settings.port = Config.any.getInt("db.port")
             }
             if (Config.exists("db.user")) {
-                settings.user = Config.get("db.user")
+                settings.user = Config.any.get("db.user")
             }
             if (Config.exists("db.pass")) {
-                settings.password = Config.get("db.pass")
+                settings.password = Config.any.get("db.pass")
             }
             if (Config.exists("db.driver")) {
-                settings.driver = Config.get("db.driver")
+                settings.driver = Config.any.get("db.driver")
             }
             if (Config.exists("db.params")) {
-                settings.params = Config.getMap("db.params")
+                settings.params = Config.any.getMap("db.params")
             }
         } else {
             // Allow different aliases for keys
