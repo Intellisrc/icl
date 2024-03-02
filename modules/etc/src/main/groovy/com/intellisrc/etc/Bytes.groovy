@@ -31,6 +31,7 @@ class Bytes {
      */
     static byte[] fromChars(char[] chars, String encoding = "UTF8") {
         if(encoding == "UTF8") { encoding = "UTF-8" } //Fix encoding string
+        //noinspection GroovyUnusedAssignment
         CharBuffer charBuffer = null
         ByteBuffer byteBuffer = null
         byte[] bytes = new byte[0]

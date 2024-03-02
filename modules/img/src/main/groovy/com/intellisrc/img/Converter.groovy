@@ -27,7 +27,7 @@ class Converter {
         if(file.exists() && file.size() > 0) {
             try {
                 img = ImageIO.read(file)
-            } catch(IOException e) {
+            } catch(IOException ignore) {
                 Log.w("Image was broken: %s", file.absolutePath)
             }
         } else {

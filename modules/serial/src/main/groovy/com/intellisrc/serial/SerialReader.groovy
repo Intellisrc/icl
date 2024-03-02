@@ -8,15 +8,19 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class SerialReader {
     public final Serial reader
+    protected boolean running = true
     SerialReader(String serialPort) {
         reader = new Serial(serialPort)
     }
     void read() {
-        while(true) {
+        while(running) {
             println "Waiting for command:"
             reader.readLine({
                 println "> [" + it + "]"
             })
         }
+    }
+    void stop() {
+        running = false
     }
 }

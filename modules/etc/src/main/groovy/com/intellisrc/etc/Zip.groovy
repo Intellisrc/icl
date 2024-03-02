@@ -19,7 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8
  */
 @CompileStatic
 class Zip {
-    static public class InvalidExtensionException extends Exception {}
+    static class InvalidExtensionException extends Exception {}
     /**
      * override if differs
      */

@@ -1,3 +1,4 @@
+//file:noinspection GrFinalVariableAccess
 package com.intellisrc.core
 
 import groovy.transform.Canonical

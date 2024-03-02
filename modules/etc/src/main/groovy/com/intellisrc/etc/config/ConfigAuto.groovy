@@ -159,6 +159,11 @@ class ConfigAuto {
                 updated = props.set(key, field)
                 Log.v("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
                 resetChange()
+                switch (props) {
+                    case BerkeleyDB:
+                        (props as BerkeleyDB).sync() // Force sync on save
+                        break
+                }
                 if(exportOnSave) {
                     exportValues()
                 }
@@ -661,6 +666,11 @@ class ConfigAuto {
      * Call closing interface
      */
     void close() {
+        switch (props) {
+            case BerkeleyDB:
+                (props as BerkeleyDB).close()
+                break
+        }
         if(exportOnExit) {
             exportValues()
         }

@@ -1,3 +1,4 @@
+//file:noinspection GrFinalVariableAccess
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log

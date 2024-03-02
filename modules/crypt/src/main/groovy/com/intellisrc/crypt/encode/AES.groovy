@@ -53,6 +53,7 @@ class AES extends Crypt implements Encodable {
      * @return
      */
     private byte[] cipherData(byte[] data, boolean encode = true) throws EncodingException, DecodingException {
+        //noinspection GroovyUnusedAssignment
         byte[] result = new byte[0]
         // Fix keylen if mistaken
         if(![16,24,32].contains(keylen)) {

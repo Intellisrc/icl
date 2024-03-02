@@ -53,7 +53,7 @@ abstract class SysMain {
                 } catch (Exception e) {
                     Log.e("Exception in method: on${action.capitalize()}", e)
                 }
-            } catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException ignore) {
                 main.onStart()
             }
         }

@@ -3,5 +3,5 @@ dependencies {
     api 'commons-net:commons-net:3.10.0'
     api 'com.sun.mail:jakarta.mail:2.0.1'
     // Not exposed to customer:
-    api 'jakarta.activation:jakarta.activation-api:2.1.2'
+    api 'jakarta.activation:jakarta.activation-api:2.1.3'
 }

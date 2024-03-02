@@ -194,6 +194,7 @@ class Hash extends Crypt implements Hashable {
      */
     byte[] sign(final String text, BasicAlgo algorithm) {
         Digest digest
+        //noinspection GroovyFallthrough
         switch (algorithm) {
             case BasicAlgo.SHA      : digest = new SHA1Digest(); break
             case BasicAlgo.SHA224   : digest = new SHA224Digest(); break
