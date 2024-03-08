@@ -69,10 +69,20 @@ class Request extends JettyRequest {
     }
     /**
      * Get request host
+     * NOTE: Sometimes Jetty hostHeader may not return the expected host
+     * in such cases is better to use getLocalName(), however sometimes
+     * that may return an IP address.
      * @return
      */
     String getHost() {
-        return getLocalName()
+        String local = getLocalName()
+        if(!(local =~ /[a-zA-Z]+/)) {
+            try {
+                local.toInetAddress() // If it doesn't fail, it is an IP address
+                local = hostHeader.tokenize(":").first()
+            } catch(Exception ignore) {}
+        }
+        return local
     }
     /**
      * Get local address
