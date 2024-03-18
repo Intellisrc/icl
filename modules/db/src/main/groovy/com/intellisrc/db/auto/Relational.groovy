@@ -187,6 +187,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         Map<String, Object> res = [:]
         map.each {
             key, val ->
+                key = key.toSnakeCase()
                 if(val instanceof Model &&! key.endsWith("_id")) {
                     res[key + "_id"] = toDBValue(val, preserve)
                 } else {

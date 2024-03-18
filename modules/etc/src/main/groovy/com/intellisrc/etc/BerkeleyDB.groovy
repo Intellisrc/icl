@@ -45,13 +45,14 @@ class BerkeleyDB extends StringPropertiesYaml {
         }
         databaseName = Config.any.get("berkeley.db", dbName)
         this.keyPrefix = keyPrefix
-        setupEnvironment()
+        assert setupEnvironment() : "Failed to start database."
     }
     /**
      * Setup database environment
      * @return
      */
-    private void setupEnvironment() {
+    private boolean setupEnvironment() {
+        boolean ok = false
         try {
             // create a configuration for DB environment
             EnvironmentConfig envConf = new EnvironmentConfig()
@@ -61,9 +62,13 @@ class BerkeleyDB extends StringPropertiesYaml {
             dbConfig.transactional = !deferredWrite
             dbConfig.deferredWrite = deferredWrite
             dbB = dbEnv.openDatabase(null, databaseName, dbConfig)
+            ok = dbB != null
+        } catch (EnvironmentLockedException ignore) {
+            Log.w("Database is locked.")
         } catch (DatabaseException dbe) {
             Log.e("Error while creating database :", dbe)
         }
+        return ok
     }
     /**
      * Return key with prefix if set
@@ -138,14 +143,18 @@ class BerkeleyDB extends StringPropertiesYaml {
             DatabaseEntry value = new DatabaseEntry()
             value.partial = true
             value.partialLength = 0
-            while (cursor.getNext(foundKey, value, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-                keys << foundKey.data
+            if(cursor) {
+                while (cursor.getNext(foundKey, value, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+                    keys << foundKey.data
+                }
             }
         } catch (DatabaseException de) {
-            Log.e("Error reading from database: ", de)
+            Log.w("Error reading from database: ", de)
+        } catch (Exception e) {
+            Log.e("Error reading from database: ", e)
         } finally {
             try {
-                cursor.close()
+                cursor?.close()
             } catch(DatabaseException dbe) {
                 Log.e("Error closing cursor: ", dbe)
             }
@@ -164,16 +173,20 @@ class BerkeleyDB extends StringPropertiesYaml {
             cursor = dbB.openCursor(null, null)
             DatabaseEntry foundKey = new DatabaseEntry()
             DatabaseEntry value = new DatabaseEntry()
-            while (cursor.getNext(foundKey, value, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-                data[foundKey.data] = value.data
+            if(cursor) {
+                while (cursor.getNext(foundKey, value, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+                    data[foundKey.data] = value.data
+                }
             }
         } catch (DatabaseException de) {
-            Log.e("Error reading from database: ", de)
+            Log.w("Error reading from database: ", de)
+        } catch (Exception e) {
+            Log.e("Error reading from database: ", e)
         } finally {
             try {
-                cursor.close()
+                cursor?.close()
             } catch(DatabaseException dbe) {
-                Log.e("Error closing cursor: ", dbe)
+                Log.w("Error closing cursor: ", dbe)
             }
         }
         return data
@@ -306,10 +319,10 @@ class BerkeleyDB extends StringPropertiesYaml {
      */
     void destroy() {
         try {
-            dbB.close()
+            dbB?.close()
         } catch (Exception ignore){}
-        dbEnv.removeDatabase(null, databaseName)
-        dbEnv.close()
+        dbEnv?.removeDatabase(null, databaseName)
+        dbEnv?.close()
     }
 
     /**
@@ -325,9 +338,9 @@ class BerkeleyDB extends StringPropertiesYaml {
      * Close link
      */
     void close() {
-        if(!dbEnv.closed) {
-            dbB.close()
-            dbEnv.close()
+        if(!dbEnv?.closed) {
+            dbB?.close()
+            dbEnv?.close()
         }
     }
 }
