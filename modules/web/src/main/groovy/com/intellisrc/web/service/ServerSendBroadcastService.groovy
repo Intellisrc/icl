@@ -8,7 +8,6 @@ import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServlet
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.eclipse.jetty.server.Response as JettyResponse
 
 /**
  * This class simplifies sending messages to clients by implementing the
@@ -29,14 +28,18 @@ class ServerSendBroadcastService extends HttpServlet implements BroadcastService
      */
     @Override
     void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Log.i("Client connected: %s", req.remoteUser) //TODO: check
-        EventClient client = new EventClient(req, identifier.call(new Request(req)), timeout, maxSize)
-        clientList << client
-        onClientConnect.call(client)
-        onClientListUpdated.call(clientList.toList())
+        Request request = new Request(req)
+        EventClient client = new EventClient(req, identifier.call(request), timeout, maxSize)
+        if(! clientList.find { it.id == client.id }) {
+            Log.i("Client connected: %s", request.remoteAddr)
+            clientList << client
+            onClientConnect.call(client)
+            onClientListUpdated.call(clientList.toList())
+        }
     }
     @Override
     void sendTo(EventClient client, WebMessage wm, SuccessCallback onSuccess, FailCallback onFail) {
+        /*
         try {
             String content = wm.data.collect {
                 it.key.toString() + ":" + it.value.toString()
@@ -61,7 +64,8 @@ class ServerSendBroadcastService extends HttpServlet implements BroadcastService
         } catch(Exception e) {
             Log.w("Unable to send to client: %s", e)
             onFail?.call(e)
-        }
+        }*/
+        onSuccess?.call()
     }
     protected boolean sendTo(EventClient client, int id, Object msg, String event) {
         boolean sent = false

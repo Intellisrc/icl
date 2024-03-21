@@ -103,6 +103,8 @@ class Service implements Serviciable {
     BeforeRequest beforeRequest     = null
     BeforeResponse beforeResponse   = null
 
+    // Used to skip the service from being processed but reserving the path to prevent collision (e.g. WebSocket)
+    boolean reserved = false
     // The following are used by WebService to set correctly the users intention with compression:
     protected boolean compressIsExplicit = false
     void setCompress(boolean val) {

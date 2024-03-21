@@ -45,8 +45,7 @@ import static com.intellisrc.web.protocols.Protocol.HTTP
 import static com.intellisrc.web.service.Compression.NONE
 import static com.intellisrc.web.service.HttpHeader.*
 import static com.intellisrc.web.service.ServiceOutput.Type
-import static org.eclipse.jetty.http.HttpMethod.GET
-import static org.eclipse.jetty.http.HttpMethod.POST
+import static org.eclipse.jetty.http.HttpMethod.*
 import static org.eclipse.jetty.http.HttpStatus.*
 
 @CompileStatic
@@ -220,7 +219,7 @@ class WebService extends WebServiceBase {
                                         setupService(serviciable, sp)
                                 }
                                 break
-                            case ServiciableSingle:
+                            case ServiciableSingle: // This includes ServiciableSentEvents
                                 Service sp = (serviciable as ServiciableSingle).service
                                 prepared = setupService(serviciable, sp)
                                 break
@@ -231,7 +230,14 @@ class WebService extends WebServiceBase {
                                 holder.initOrder = 0
                                 contextHandler.addServlet(holder, websocket.path)
                                 JettyWebSocketServletContainerInitializer.configure(contextHandler, null)
-                                prepared = true
+                                // We set reserved services to prevent other services to use the same path:
+                                prepared = setupService(serviciable, new Service(
+                                    method: CONNECT,
+                                    reserved : true
+                                )) && setupService(serviciable, new Service(
+                                    method: GET,
+                                    reserved : true
+                                ))
                                 break
                             case ServiciableAuth:
                                 prepared = true
@@ -1012,10 +1018,11 @@ class WebService extends WebServiceBase {
      */
     boolean doFilter(ServletRequest servletRequest, ServletResponse servletResponse) {
         boolean commited = false
+        boolean reserved = false
         Request request = servletRequest as Request
         Response response = servletResponse as Response
         ServiceOutput out
-        if(! request.method || HttpMethod.fromString(request.method.trim().toUpperCase()) == null) {
+        if(! request.method || fromString(request.method.trim().toUpperCase()) == null) {
             Log.w("Method not allowed: %s", request.method)
             throw new WebException(response, METHOD_NOT_ALLOWED_405)
         }
@@ -1126,7 +1133,7 @@ class WebService extends WebServiceBase {
 
             // Then check services:
             if (!out) {
-                MatchFilterResult mfr = matchURI(request.requestURI, HttpMethod.fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT))
+                MatchFilterResult mfr = matchURI(request.requestURI, fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT))
                 if (mfr.route.present) {
                     request.setPathParameters(mfr.params)   // Inject params to request
                     Service sp = mfr.route.get()
@@ -1134,26 +1141,30 @@ class WebService extends WebServiceBase {
                     if(sp.beforeRequest) {
                         sp.beforeRequest.run(request)
                     }
-                    if (sp.cacheTime) { // Check if its in Cache
-                        boolean addToCache = sp.cacheTime && !cacheFull
-                        Closure noCache = {
-                            //noinspection GroovyUnusedAssignment : IDE mistake
-                            ServiceOutput toSave = null
-                            try {
-                                toSave = processService(sp, request, response)
-                            } catch (WebException ignore) {
-                                // Do nothing
-                            } catch (Exception e) {
-                                Log.e("Service.action CACHE closure failed", e)
-                                throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Cache failure")
-                            }
-                            return toSave
-                        }
-
-                        //noinspection GroovyUnusedAssignment : IDE mistake
-                        out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore, sp.cacheTime) : noCache()
+                    if(sp.reserved) { // Skip reserved
+                        reserved = true
                     } else {
-                        out = processService(sp, request, response)
+                        if (sp.cacheTime) { // Check if its in Cache
+                            boolean addToCache = sp.cacheTime && !cacheFull
+                            Closure noCache = {
+                                //noinspection GroovyUnusedAssignment : IDE mistake
+                                ServiceOutput toSave = null
+                                try {
+                                    toSave = processService(sp, request, response)
+                                } catch (WebException ignore) {
+                                    // Do nothing
+                                } catch (Exception e) {
+                                    Log.e("Service.action CACHE closure failed", e)
+                                    throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Cache failure")
+                                }
+                                return toSave
+                            }
+
+                            //noinspection GroovyUnusedAssignment : IDE mistake
+                            out = addToCache ? cache.get(cacheKey, { noCache() }, onHit, onStore, sp.cacheTime) : noCache()
+                        } else {
+                            out = processService(sp, request, response)
+                        }
                     }
                     //Call hook:
                     if(sp.beforeResponse) {
@@ -1220,7 +1231,7 @@ class WebService extends WebServiceBase {
                             break
                     }
                 }
-            } else {
+            } else if(! reserved) {
                 Log.v("No output found: %s", request.uri())
                 throw new WebException(response, NOT_FOUND_404)
             }
@@ -1228,28 +1239,30 @@ class WebService extends WebServiceBase {
             Log.w("Unauthorized: %s", request.uri())
             throw new WebException(response, UNAUTHORIZED_401)
         }
-        if(! response.status || response.status == NOT_FOUND_404) {
-            Log.v("The requested path was not found: %s", request.uri())
-            throw new WebException(response, NOT_FOUND_404)
-        }
-        if(response.status != NOT_MODIFIED_304 &&! response.type()) {
-            Log.w("Response without content type: %s", request.uri())
-            throw new WebException(response, INTERNAL_SERVER_ERROR_500)
-        }
-        // Handle the rest of the errors:
-        if(response.status >= 400) {
-            Log.v("Server status code was: %d : %s", response.status, request.uri())
-            throw new WebException(response, response.status, getCode(response.status).message)
-        }
-        // For streams do not close them unless instructed to do so
-        if(out.type == Type.STREAM) {//FIXME: stream
-            //noinspection GroovyInfiniteLoopStatement
-            while(true) {
-                sleep(Millis.SECOND)
+        if(! reserved) {
+            if (!response.status || response.status == NOT_FOUND_404) {
+                Log.v("The requested path was not found: %s", request.uri())
+                throw new WebException(response, NOT_FOUND_404)
             }
-        // Close the response if it is not closed
-        } else if (!commited &&! response.committed) {
-            response.writer.close()
+            if (response.status != NOT_MODIFIED_304 && !response.type()) {
+                Log.w("Response without content type: %s", request.uri())
+                throw new WebException(response, INTERNAL_SERVER_ERROR_500)
+            }
+            // Handle the rest of the errors:
+            if (response.status >= 400) {
+                Log.v("Server status code was: %d : %s", response.status, request.uri())
+                throw new WebException(response, response.status, getCode(response.status).message)
+            }
+            // For streams do not close them unless instructed to do so
+            if (out.type == Type.STREAM) {//FIXME: stream
+                //noinspection GroovyInfiniteLoopStatement
+                while (true) {
+                    sleep(Millis.SECOND)
+                }
+                // Close the response if it is not closed
+            } else if (!commited && !response.committed) {
+                response.writer.close()
+            }
         }
         return commited || response.committed
     }
