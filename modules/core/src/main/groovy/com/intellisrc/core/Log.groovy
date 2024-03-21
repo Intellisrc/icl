@@ -391,7 +391,13 @@ class Log {
             LinkedList params = args as LinkedList
             List convParams = []
             String newMsg = msg
-            msg.findAll(/(\{}|%[$0-9.(a-zA-Z+-])/).each {
+            List<String> placeholders = msg.findAll(/(\{}|%[$0-9.(a-zA-Z+-])/)
+            // Add {} if we are missing it in the message
+            while(placeholders.size() < params.size()) {
+                newMsg += " {} "
+                placeholders << "{}"
+            }
+            placeholders.each {
                 String found ->
                     if (found == "{}" || found == "%s") {
                         newMsg = newMsg.replaceFirst(/\{}/, "%s")

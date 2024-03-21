@@ -317,7 +317,7 @@ class CommonLogger extends MarkerIgnoringBase {
             }
         }
         if(format) {
-            formatted = level == Level.ERROR ? Log.formatString(format, args) : Log.formatString(format, args, t)
+            formatted = Log.formatString(format, args, t)
         }
         log(level, formatted, t)
     }
