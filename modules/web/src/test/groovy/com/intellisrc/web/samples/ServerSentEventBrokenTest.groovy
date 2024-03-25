@@ -10,7 +10,7 @@ import static com.intellisrc.web.samples.SSEService.SSETestServer
 /**
  * @since 2023/06/30.
  */
-class ServiciableSentEventsTest extends Specification {
+class ServerSentEventBrokenTest extends Specification {
 
     def "It should connect and receive messages"() {
         setup:

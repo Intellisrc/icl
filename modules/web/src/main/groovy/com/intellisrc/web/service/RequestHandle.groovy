@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.eclipse.jetty.server.Request as JettyRequest
 import org.eclipse.jetty.server.session.SessionHandler
 
+import static com.intellisrc.web.service.HttpHeader.ACCEPT
 import static com.intellisrc.web.service.HttpHeader.UPGRADE
 
 /**
@@ -38,7 +39,7 @@ class RequestHandle extends SessionHandler {
         Request request = new Request(jettyRequest)
         Response response = new Response(jettyRequest.response)
         boolean handled = false
-        if(request.headers(UPGRADE) != "websocket") {
+        if(request.headers(UPGRADE) != "websocket" && request.headers(ACCEPT) != "text/event-stream") {
             if(ignoreURIs.empty || !(ignoreURIs.any { request.uri().matches(it) || target == it })) {
                 try {
                     // Copy the template so we can keep it as instance (as WebException can only access Response object):
@@ -46,7 +47,7 @@ class RequestHandle extends SessionHandler {
                     // Execute the filter
                     handled = service.doFilter(request, response)
                 } catch (WebException we) {
-                    Log.w("Exception in web response: ", we)
+                    Log.w("Request: [%s %s]. Exception in web response: ", request.method, request.uri(), we)
                     // Ignore as it will just set the response to return error page
                     handled = true
                 }

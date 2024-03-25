@@ -668,17 +668,18 @@ new WebService(
 If you need to notify your clients of updates in the server, you may want to
 use [SSE](https://www.w3schools.com/html/html5_serversentevents.asp).
 
-To implement it, you need to implement the interface: `ServiciableSentEvents`:
+To implement it, you need to extend the abstract class: `SeverSentEvent`:
 
 ```groovy
-static class MySSE implements ServiciableSentEvents {
+static class MySSE extends ServerSentEvent {
     String path = "/events"
-    int i = 0   // Message number
 
     void notifyChange(boolean online) {
-        broadcast(i++, [
+        broadcast([
             online : online,
         ])
+        // Or custom event: (you can send String, List, or Map)
+        broadcast("connected", "status")
     }
 }
 ```

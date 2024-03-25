@@ -5,9 +5,10 @@ import com.intellisrc.etc.Mime
 import com.intellisrc.thread.IntervalTask
 import com.intellisrc.thread.Tasks
 import com.intellisrc.web.WebService
+import com.intellisrc.web.service.ServerSentEvent
 import com.intellisrc.web.service.Service
-import com.intellisrc.web.service.ServiciableSentEvents
 import com.intellisrc.web.service.ServiciableSingle
+import com.intellisrc.web.service.WebMessage
 
 /**
  * This class include the SSE client and the SSE server to be tested
@@ -17,6 +18,7 @@ import com.intellisrc.web.service.ServiciableSingle
  */
 class SSEService {
     static int port = 9999
+    static String ssePath = "/sse"
     /**
      * This class will launch an html+javascript client
      */
@@ -30,10 +32,9 @@ class SSEService {
 <html>
     <body>
         <h1>SSE Test</h1>
-        <ol id="list">
-        </ol>
+        <ol id="list"></ol>
         <script>
-            const evtSource = new EventSource("/sse/");
+            const evtSource = new EventSource("${ssePath}");
             evtSource.onopen = (ev) => {
                 console.log("Opened")
                 console.log(ev)
@@ -59,17 +60,18 @@ class SSEService {
     /**
      * This class is a simple implementation of a SSE server using this library
      */
-    static class SSETestServer implements ServiciableSentEvents {
-        String path = "/sse/"
+    static class SSETestServer extends ServerSentEvent {
+        String path = ssePath
         int i = 0
 
         SSETestServer() {
             Tasks.add(IntervalTask.create({
-                broadcast(i++, [
+                broadcast(new WebMessage([
                     service: "Power",
-                    action: "ON"
-                ])
-            }, "Sender", Millis.SECOND_10, Millis.SECOND_5))
+                    action: "ON",
+                    count: (i++).toString()
+                ]))
+            }, "Sender", Millis.MIN_10, Millis.SECOND))
         }
     }
     static void main(String[] args) {

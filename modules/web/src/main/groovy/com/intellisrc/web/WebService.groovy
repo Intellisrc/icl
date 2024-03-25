@@ -219,9 +219,26 @@ class WebService extends WebServiceBase {
                                         setupService(serviciable, sp)
                                 }
                                 break
-                            case ServiciableSingle: // This includes ServiciableSentEvents
+                            case ServiciableSingle:
                                 Service sp = (serviciable as ServiciableSingle).service
                                 prepared = setupService(serviciable, sp)
+                                break
+                            case ServerSentEvent:
+                                ServerSentEvent sse = serviciable as ServerSentEvent
+                                Log.v("Adding SSE Service at path: [%s]", sse.path)
+
+                                ServletContextHandler sseContext = new ServletContextHandler(ServletContextHandler.SESSIONS)
+                                sseContext.setContextPath("/")
+                                ServletHolder holder = new ServletHolder(sse.servlet)
+                                holder.initOrder = 0
+                                sseContext.addServlet(holder, sse.path)
+
+                                jettyServer.handler = new HandlerList(requestHandle, sseContext, contextHandler)
+                                // We set reserved services to prevent other services to use the same path:
+                                prepared = setupService(serviciable, new Service(
+                                    method: GET,
+                                    reserved : true
+                                ))
                                 break
                             case ServiciableWebSocket:
                                 ServiciableWebSocket websocket = serviciable as ServiciableWebSocket
