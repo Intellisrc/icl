@@ -65,7 +65,7 @@ static String getProjectDescription(String name) {
             break
         case "web":
             desc = "Create restful HTTP (GET, POST, PUT, DELETE, etc) " +
-                    "or WebSocket application services. Manage JSON " +
+                    "or SSE / WebSocket application services. Manage JSON " +
                     "data from and to the server easily. It is build " +
                     "on top of Jetty library, so it is very powerful " +
                     "but designed to be elegant and easy to use."
