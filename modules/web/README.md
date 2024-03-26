@@ -674,6 +674,8 @@ To implement it, you need to extend the abstract class: `SeverSentEvent`:
 static class MySSE extends ServerSentEvent {
     String path = "/events"
 
+    // This method name can be anything you want
+    // 'ServerSentEvent' contains 'broadcast' methods.
     void notifyChange(boolean online) {
         broadcast("connected") // It will send it with event type: 'message'
         
