@@ -675,11 +675,12 @@ static class MySSE extends ServerSentEvent {
     String path = "/events"
 
     void notifyChange(boolean online) {
-        broadcast([
-            online : online,
-        ])
+        broadcast("connected") // It will send it with event type: 'message'
+        
         // Or custom event: (you can send String, List, or Map)
-        broadcast("connected", "status")
+        broadcast([
+            online: online
+        ], "status")
     }
 }
 ```
