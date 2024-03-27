@@ -54,14 +54,25 @@ class FileImgTools {
     }
 
     /**
+     * Get Format to convert to
+     * @param imgOut
+     * @return
+     */
+    protected static String getFormat(File imgOut) {
+        String mime = Mime.getType(imgOut)
+        return Mime.isImage(mime) ? mime.replaceAll('image/', "") : 'jpg'
+    }
+
+    /**
      * Resize images without cropping
      * @param imgIn
      * @param imgOut
      * @param size
      * @return
      */
-    static boolean resize(File imgIn, File imgOut, int size) {
-        Thumbnails.of(imgIn).size(size, size).outputFormat('jpg').toFile(imgOut)
+    static boolean resize(File imgIn, File imgOut, int size, format = 'auto') {
+        String outFormat = format == "auto" ? getFormat(imgOut) : format
+        Thumbnails.of(imgIn).size(size, size).outputFormat(outFormat).toFile(imgOut)
         return imgOut.exists()
     }
     /**
@@ -71,8 +82,9 @@ class FileImgTools {
      * @param size
      * @return
      */
-    static boolean resizeCentered(File imgIn, File imgOut, int size) {
-        Thumbnails.of(imgIn).size(size, size).crop(Positions.CENTER).outputFormat('jpg').toFile(imgOut)
+    static boolean resizeCentered(File imgIn, File imgOut, int size, format = 'auto') {
+        String outFormat = format == "auto" ? getFormat(imgOut) : format
+        Thumbnails.of(imgIn).size(size, size).crop(Positions.CENTER).outputFormat(outFormat).toFile(imgOut)
         return imgOut.exists()
     }
     /**
@@ -82,8 +94,9 @@ class FileImgTools {
      * @param size
      * @return
      */
-    static boolean resizeTopLeft(File imgIn, File imgOut, int size) {
-        Thumbnails.of(imgIn).size(size, size).crop(Positions.TOP_LEFT).outputFormat('jpg').toFile(imgOut)
+    static boolean resizeTopLeft(File imgIn, File imgOut, int size, format = 'auto') {
+        String outFormat = format == "auto" ? getFormat(imgOut) : format
+        Thumbnails.of(imgIn).size(size, size).crop(Positions.TOP_LEFT).outputFormat(outFormat).toFile(imgOut)
         return imgOut.exists()
     }
     /**
@@ -93,8 +106,9 @@ class FileImgTools {
      * @param size
      * @return
      */
-    static boolean resizeWidth(File imgIn, File imgOut, int size) {
-        Thumbnails.of(imgIn).width(size).outputFormat('jpg').toFile(imgOut)
+    static boolean resizeWidth(File imgIn, File imgOut, int size, format = 'auto') {
+        String outFormat = format == "auto" ? getFormat(imgOut) : format
+        Thumbnails.of(imgIn).width(size).outputFormat(outFormat).toFile(imgOut)
         return imgOut.exists()
     }
     /**
@@ -104,8 +118,9 @@ class FileImgTools {
      * @param size
      * @return
      */
-    static boolean resizeHeight(File imgIn, File imgOut, int size) {
-        Thumbnails.of(imgIn).height(size).outputFormat('jpg').toFile(imgOut)
+    static boolean resizeHeight(File imgIn, File imgOut, int size, format = 'auto') {
+        String outFormat = format == "auto" ? getFormat(imgOut) : format
+        Thumbnails.of(imgIn).height(size).outputFormat(outFormat).toFile(imgOut)
         return imgOut.exists()
     }
 
