@@ -10,5 +10,6 @@ import groovy.transform.CompileStatic
 abstract class Services implements ServiciableMultiple {
     String path = ""
     String allowOrigin = null   // Localhost only
-    String allowType = "*/*"
+    String acceptType = "*/*"
+    String acceptCharset = ""
 }

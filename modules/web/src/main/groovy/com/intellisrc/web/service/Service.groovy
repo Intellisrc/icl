@@ -1,6 +1,7 @@
 package com.intellisrc.web.service
 
 import com.intellisrc.etc.Cache
+import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 
@@ -55,6 +56,12 @@ class Service implements Serviciable {
         Object run(List<UploadFile> tmpFiles, Request request, Response response)
     }
     /**
+     * Used to pass errors to client
+     */
+    static interface ServiceError {
+        boolean call(int code, Exception e)
+    }
+    /**
      * Check if client is allowed or not
      */
     static interface Allow {
@@ -79,11 +86,11 @@ class Service implements Serviciable {
         void run(Response response)
     }
 
-    boolean isPrivate           = false                 // Browser Rule: These responses are typically intended for a single user
-    boolean noStore             = false                 // Browser Rule: If true, response will never cached (as it may contain sensitive information)
+    boolean isPrivate           = false                 // Server Rule: These responses are typically intended for a single user
+    boolean noStore             = false                 // Server Rule: If true, response will never cached (as it may contain sensitive information)
     boolean compress            = false                 // Whether to compress or not the output (defaults to WebService value, which is true by default)
     boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
-    boolean strictPath = false                 // If true, regex should also match starting '/' character. For example: ~/^\/hello.html?/ instead of: ~/hello.html?/
+    boolean strictPath          = false                 // If true, regex should also match starting '/' character. For example: ~/^\/hello.html?/ instead of: ~/hello.html?/
     int minCompressBytes        = 256                   // Below this length, do not compress (most probably there won't be any gain)
     int cacheTime               = Cache.DISABLED        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
     int maxAge                  = 0                     // Seconds to suggest to keep in browser
@@ -94,14 +101,16 @@ class Service implements Serviciable {
     String downloadFileName     = ""                    // Use this name if download is requested
     HttpMethod method           = HttpMethod.GET        // HTTP Method to be used
     Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
-    Allow allow                 = { true } as Allow     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
+    Allow allow                 = null                  // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
     String acceptType           = ""                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
+    String acceptCharset        = ""                    // By default it accepts all charsets
     Map<String,String> headers  = new TreeMap<>(String.CASE_INSENSITIVE_ORDER) // Extra headers to the response. e.g. : "Access-Control-Allow-Origin" : "*"
     ETag etag                   = { "" } as ETag        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
     // Hooks:
     BeforeRequest beforeRequest     = null
     BeforeResponse beforeResponse   = null
+    ServiceError onError = null                         // { int code, Exception original -> } : Used to pass errors on actions
 
     // Used to skip the service from being processed but reserving the path to prevent collision (e.g. WebSocket)
     boolean reserved = false

@@ -37,6 +37,33 @@ new WebService(
 
 `WebService` manages the server, which handles one or more `Service`(s). A `Service` executes an `Action`.
 
+#### Advanced Options
+
+There are a few more options that you can use in a `WebService` to set more specific case uses:
+
+```groovy
+new WebService(
+    // FilePolicy is an interface that you can use to set rules
+    //   on stored files when accessing from any service.
+    filePolicy : { File file -> allowAccessToFile(file) },
+    // As FilePolicy, you can restrict access to specific URI paths:
+    pathPolicy : { String path -> allowAccessToPath(path) },
+    // Similarly, you can deny or allow access based on the request:
+    requestPolicy : { Request request -> allowAccessToRequest(request) },
+    // By default errors will be automatically handled depending on content-type
+    //   but you can override this functionality with your own custom error
+    //   template (see `web.service.WebError` class for default implementation)
+    errorTemplate : {
+        int code, String msg, String contentType ->
+            return new WebError(
+                "Error $code : $msg",
+                Mime.TXT,
+                "UTF-8"
+            )
+    }
+)
+```
+
 ### Service
 
 One advantage of using this library instead of using Jetty directly, is that you can 
@@ -130,7 +157,8 @@ new Service(
     action              : { },                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     allow               : { true } as Allow,     // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     allowOrigin         : null,                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
-    allowType           : "",                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
+    acceptType          : "",                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
+    acceptCharset       : "",                    // By default it accepts all charsets
     cacheExtend         : false,                 // Extend time upon read (similar as sessions)
     cacheTime           : Cache.DISABLED,        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER : forever
     charSet             : "UTF-8",               // Output charset (default: UTF-8)
@@ -149,6 +177,7 @@ new Service(
     path                : "",                    // URL path relative to parent
     beforeRequest       : { Request r -> },      // Hook executed before Request is passed to action
     beforeResponse      : { Response r -> },     // Hook executed before Response is passed to the WebService
+    onError             : { int code, Exception e -> return true }, // Handle any error inside the Service. Return 'true' if error was handled inside the callback
     strictPath          : false                  // If you specify the path as RegExp and this flag is true, you need to also include the starting slash (/)
 )
 ```
@@ -238,6 +267,17 @@ new Service(
 // Upload multiple files at once:
 new Service(
     path : "/upload/many",
+    // Handle errors after 'action' has returned value to the WebServer:
+    onError : {
+        int code, Exception ex ->
+            if(code >= HttpStatus.INTERNAL_SERVER_ERROR_500) {
+                if(smtp.send(new Email("admin@example.com"), "Service Exception ${code}", ex.message)) {
+                    Log.w("[Error %d] Admin was notified: %s", code, ex)
+                } else {
+                    Log.w("[Error %d] Please notify the administrator: %s", code, ex)
+                }
+            }
+    },
     action: {
         List<UploadFile> files ->
             files.each {

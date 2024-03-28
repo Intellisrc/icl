@@ -2,8 +2,7 @@ package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
 
-import static com.intellisrc.web.service.Service.BeforeRequest
-import static com.intellisrc.web.service.Service.BeforeResponse
+import static com.intellisrc.web.service.Service.*
 
 /**
  * This is the common interface to define Services.
@@ -27,7 +26,11 @@ import static com.intellisrc.web.service.Service.BeforeResponse
 trait Serviciable {
     String getPath() { return "" }
     String getAllowOrigin() { return null }
-    String getAllowType() { return "*/*" }
+    String getAcceptType() { return "" }
+    String getAcceptCharset() { return "" }
+    Allow getAllow() { return null }
+
     BeforeRequest getBeforeRequest() { return null }
     BeforeResponse getBeforeResponse() { return null }
+    ServiceError getOnError() { return null }
 }

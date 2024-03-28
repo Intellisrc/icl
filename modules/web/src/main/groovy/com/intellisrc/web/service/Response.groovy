@@ -6,14 +6,14 @@ import org.eclipse.jetty.server.Response as JettyResponse
 
 import java.lang.reflect.Field
 
-import static com.intellisrc.web.WebService.ErrorTemplate
+import static com.intellisrc.web.service.WebError.*
 
 /**
  * @since 2023/05/19.
  */
 class Response extends JettyResponse {
     protected final JettyResponse original
-    ErrorTemplate errorTemplate = null
+    WebErrorTemplate errorTemplate = null
     Compression compression = Compression.NONE
     /**
      * Constructor

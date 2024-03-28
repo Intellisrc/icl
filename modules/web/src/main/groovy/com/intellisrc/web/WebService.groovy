@@ -45,6 +45,7 @@ import static com.intellisrc.web.protocols.Protocol.HTTP
 import static com.intellisrc.web.service.Compression.NONE
 import static com.intellisrc.web.service.HttpHeader.*
 import static com.intellisrc.web.service.ServiceOutput.Type
+import static com.intellisrc.web.service.WebError.*
 import static org.eclipse.jetty.http.HttpMethod.*
 import static org.eclipse.jetty.http.HttpStatus.*
 
@@ -68,7 +69,7 @@ import static org.eclipse.jetty.http.HttpStatus.*
  *
  */
 class WebService extends WebServiceBase {
-    static String defaultCharset = Config.any.get("web.charset", "UTF-8") //TODO: document
+    static String defaultCharset = Config.any.get("web.charset", "UTF-8")
     static boolean forceFile = Config.any.get("web.upload.force", false) // Throw exception when file is expected and it is empty
 
     public int threads = 20
@@ -84,19 +85,11 @@ class WebService extends WebServiceBase {
     boolean sniRequired = false
     public String allowOrigin = "" // disabled by default
     public List<String> indexFiles = ["index.html", "index.htm"]
-    public Protocol protocol = HTTP //TODO: update documentation
-    public FilePolicy filePolicy = { File file -> true } //TODO: document
-    public PathPolicy pathPolicy = { String path -> true } //TODO: document
-    public RequestPolicy requestPolicy = { Request request -> true } //TODO: document
-    public ErrorTemplate errorTemplate = {  //TODO: document
-        int code, String msg, String contentType ->
-            return switch (contentType) {
-                case Mime.JSON  -> new WebError(JSON.encode([ok: false, error: code, msg: msg]), contentType, defaultCharset)
-                case Mime.YAML  -> new WebError(YAML.encode([ok: false, error: code, msg: msg]), contentType, defaultCharset)
-                case Mime.HTML  -> new WebError(String.format("<html><head><title>Error %d</title></head><body><h1>Error %d</h1><hr><p>%s</p></body></html>", code, code, msg), contentType, defaultCharset)
-                default         -> new WebError(String.format("Error %d : %s", code, msg), Mime.TXT, defaultCharset)
-            }
-    }
+    public Protocol protocol = HTTP
+    public FilePolicy filePolicy = { File file -> true }
+    public PathPolicy pathPolicy = { String path -> true }
+    public RequestPolicy requestPolicy = { Request request -> true }
+    public WebErrorTemplate errorTemplate = defaultErrorTemplate
     public final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
 
     protected List<StaticPath> staticPaths = []
@@ -106,28 +99,6 @@ class WebService extends WebServiceBase {
     protected boolean multiThread
     protected List<Serviciable> services = []
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
-
-    static class WebException extends Exception {
-        WebException(Response response, int code, String text = "") {
-            super({
-                if(! text) { text = getCode(code).message } // Automatic
-                WebError webError = response.errorTemplate.call(code, text, response.type())
-                response.type(webError.contentType + (webError.charSet ? "; charset=" + webError.charSet : ""))
-                response.status(code)
-                response.writer.print(webError.content)
-                response.writer.flush()
-                response.writer.close()
-                return webError.content // This is for the Exception
-            }.call())
-        }
-    }
-
-    @TupleConstructor
-    static class WebError {
-        String content = ""
-        String contentType = ""
-        String charSet = ""
-    }
 
     static interface FilePolicy {
         boolean allow(File file)
@@ -143,10 +114,6 @@ class WebService extends WebServiceBase {
 
     static interface StartCallback {
         void call(WebService srv)
-    }
-
-    static interface ErrorTemplate {
-        WebError call(int code, String msg, String contentType)
     }
 
     @TupleConstructor
@@ -290,12 +257,12 @@ class WebService extends WebServiceBase {
                                             res.id = session.id
                                         } else {
                                             Log.w("Unauthorized: %s", request.uri())
-                                            throw new WebException(response, UNAUTHORIZED_401)
+                                            throw new WebException(UNAUTHORIZED_401)
                                         }
                                         response.type(Mime.JSON)
                                         res.ok = ok
                                         return res
-                                }, auth.allowType))
+                                }, auth.acceptType))
                                 setupService(serviciable, Service.new(GET, auth.path + auth.logoutPath, {
                                     Request request, Response response ->
                                         boolean ok = auth.onLogout(request, response)
@@ -306,7 +273,7 @@ class WebService extends WebServiceBase {
                                         return [
                                             ok: ok
                                         ]
-                                }, auth.allowType))
+                                }, auth.acceptType))
                                 break
                         }
                 }
@@ -371,15 +338,29 @@ class WebService extends WebServiceBase {
         if(serviciable.allowOrigin != null && sp.allowOrigin == null) {
             sp.allowOrigin = serviciable.allowOrigin
         }
-        sp.acceptType = serviciable.allowType
+        sp.acceptType = serviciable.acceptType
+        if(! sp.acceptType) {
+            sp.acceptType = "*/*"
+        }
+        sp.acceptCharset = serviciable.acceptCharset
         // Fix path:
         sp.path = addRoot(serviciable.path, sp.path)
-        // Copy hooks:
+        // Copy from Serviciable (General) to Service (Particular):
+        if(! sp.allow && serviciable.allow ) {
+            sp.allow = serviciable.allow
+        }
+        // If allow is not set in any level, set default:
+        if(! sp.allow) {
+            sp.allow = { true } as Service.Allow
+        }
         if(! sp.beforeRequest && serviciable.beforeRequest) {
             sp.beforeRequest = serviciable.beforeRequest
         }
         if(! sp.beforeResponse && serviciable.beforeResponse) {
             sp.beforeResponse = serviciable.beforeResponse
+        }
+        if(! sp.onError && serviciable.onError) {
+            sp.onError = serviciable.onError
         }
         Log.v("Adding Service: [%s] with method %s", sp.path, sp.method.toString())
         return addService(sp)
@@ -635,13 +616,11 @@ class WebService extends WebServiceBase {
                                             UploadFile file = new UploadFile(path.toString(), part.submittedFileName, part.name)
                                             uploadFiles << file
                                         } catch (Exception e) {
-                                            Log.e("Unable to upload file: %s", part.submittedFileName, e)
-                                            throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Unable to upload file")
+                                            handleException(sp, INTERNAL_SERVER_ERROR_500, String.format("Unable to upload file: %s", part.submittedFileName), e)
                                         }
                                     } else {
-                                        Log.w("File: %s was empty", part.submittedFileName)
                                         if(forceFile) {
-                                            throw new WebException(response, LENGTH_REQUIRED_411, "File was empty")
+                                            handleException(sp, LENGTH_REQUIRED_411, String.format("File: %s was empty", part.submittedFileName))
                                         }
                                     }
                                 }
@@ -652,14 +631,10 @@ class WebService extends WebServiceBase {
                             //noinspection GroovyUnusedAssignment : IDE mistake
                             output = handleContentType(res, sp.contentType ?: response.type(), sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                             if (output.responseCode && output.responseCode >= BAD_REQUEST_400) {
-                                Log.v("Service returned %d code", output.responseCode)
-                                throw new WebException(response, output.responseCode)
+                                handleException(sp, output.responseCode, String.format("Directory is not writable: %s", tempDir.absolutePath))
                             }
-                        } catch (WebException ignore) {
-                            // Do nothing
                         } catch (Exception e) {
-                            Log.e("Service.upload closure failed", e)
-                            throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Upload failed")
+                            handleException(sp, INTERNAL_SERVER_ERROR_500, "Upload failed", e)
                         }
                         uploadFiles.each {
                             if (it.exists()) {
@@ -667,12 +642,10 @@ class WebService extends WebServiceBase {
                             }
                         }
                     } else {
-                        Log.e("Uploaded file is empty")
-                        throw new WebException(response, LENGTH_REQUIRED_411, "Upload file was empty")
+                        handleException(sp, LENGTH_REQUIRED_411, "Upload file was empty")
                     }
                 } else {
-                    Log.e("Temporally directory %s is not writable", tempDir)
-                    throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Temporally directory is not writable")
+                    handleException(sp, INTERNAL_SERVER_ERROR_500, "Temporally directory %s is not writable")
                 }
             } else { // Normal requests: (no cache, no file upload)
                 try {
@@ -682,18 +655,13 @@ class WebService extends WebServiceBase {
                         //noinspection GroovyUnusedAssignment : IDE mistake
                         output = handleContentType(res, sp.contentType ?: response.type(), sp.charSet, forceBinary,  getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                         if(output.responseCode && output.responseCode >= BAD_REQUEST_400) {
-                            Log.v("Service returned %d code", output.responseCode)
-                            throw new WebException(response, output.responseCode)
+                            handleException(sp, output.responseCode, "Exception in Service")
                         }
                     } else {
-                        Log.v("Service returned null: %s", request.uri())
-                        throw new WebException(response, NOT_FOUND_404)
+                        handleException(sp, NOT_FOUND_404, String.format("Not Found : %s", request.uri()))
                     }
-                } catch (WebException ignore) {
-                    // Do nothing
                 } catch (Exception e) {
-                    Log.e("Service.action closure failed", e)
-                    throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Service action failed")
+                    handleException(sp, INTERNAL_SERVER_ERROR_500, "Service action failed", e)
                 }
             }
 
@@ -773,12 +741,11 @@ class WebService extends WebServiceBase {
                     }
                 }
             } else {
-                Log.v("Service returned null: %s", request.uri())
-                throw new WebException(response, NOT_FOUND_404)
+                handleException(sp, NOT_FOUND_404, String.format("Not found: %s", request.uri()))
             }
         } else { // Unauthorized
             Log.w("Forbidden: %s", request.uri())
-            throw new WebException(response, FORBIDDEN_403)
+            throw new WebException(FORBIDDEN_403)
         }
         return output
     }
@@ -1041,7 +1008,7 @@ class WebService extends WebServiceBase {
         ServiceOutput out
         if(! request.method || fromString(request.method.trim().toUpperCase()) == null) {
             Log.w("Method not allowed: %s", request.method)
-            throw new WebException(response, METHOD_NOT_ALLOWED_405)
+            throw new WebException(METHOD_NOT_ALLOWED_405)
         }
         Cache.CacheAccess onStore = {
             response.header(SERVER_CACHE, cacheSize.toString())
@@ -1084,6 +1051,7 @@ class WebService extends WebServiceBase {
                                                             compress: compress,
                                                             cacheTime: cacheTime,
                                                             maxAge: cacheTime,
+                                                            allow: { true } as Service.Allow,
                                                             action: { return bytes }
                                                         ), request, response)
                                                     }
@@ -1100,11 +1068,11 @@ class WebService extends WebServiceBase {
                                                     }
                                                 } catch (Exception e) {
                                                     Log.w("Unable to read resource from jar: %s (%s)", fullPath, e)
-                                                    throw new WebException(response, NOT_FOUND_404)
+                                                    throw new WebException(NOT_FOUND_404)
                                                 }
                                             } else {
                                                 Log.w("Unauthorized: %s", request.uri())
-                                                throw new WebException(response, UNAUTHORIZED_401)
+                                                throw new WebException(UNAUTHORIZED_401)
                                             }
                                         } else {
                                             File staticFile = File.get(fullPath)
@@ -1118,6 +1086,7 @@ class WebService extends WebServiceBase {
                                                             compress: compress,
                                                             cacheTime: cacheTime,
                                                             maxAge: cacheTime,
+                                                            allow: { true } as Service.Allow,
                                                             action: { return staticFile }
                                                         ), request, response)
                                                     }
@@ -1135,7 +1104,7 @@ class WebService extends WebServiceBase {
                                                 }
                                             } else {
                                                 Log.w("Unauthorized: %s", request.uri())
-                                                throw new WebException(response, UNAUTHORIZED_401)
+                                                throw new WebException(UNAUTHORIZED_401)
                                             }
                                         }
                                 }
@@ -1144,13 +1113,18 @@ class WebService extends WebServiceBase {
                     }
                 } else { // Very unlikely that will end up here:
                     Log.w("Invalid request (empty)")
-                    throw new WebException(response, BAD_REQUEST_400)
+                    throw new WebException(BAD_REQUEST_400)
                 }
             }
 
             // Then check services:
             if (!out) {
-                MatchFilterResult mfr = matchURI(request.requestURI, fromString(request.method.trim().toUpperCase()), request.headers(ACCEPT))
+                MatchFilterResult mfr = matchURI(
+                    request.requestURI,
+                    fromString(request.method.trim().toUpperCase()),
+                    request.headers(ACCEPT),
+                    request.headers(ACCEPT_CHARSET)
+                )
                 if (mfr.route.present) {
                     request.setPathParameters(mfr.params)   // Inject params to request
                     Service sp = mfr.route.get()
@@ -1168,11 +1142,10 @@ class WebService extends WebServiceBase {
                                 ServiceOutput toSave = null
                                 try {
                                     toSave = processService(sp, request, response)
-                                } catch (WebException ignore) {
-                                    // Do nothing
+                                } catch (WebException we) {
+                                    throw we
                                 } catch (Exception e) {
-                                    Log.e("Service.action CACHE closure failed", e)
-                                    throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Cache failure")
+                                    handleException(sp, INTERNAL_SERVER_ERROR_500, "Cache failure", e)
                                 }
                                 return toSave
                             }
@@ -1213,7 +1186,7 @@ class WebService extends WebServiceBase {
                             break
                         default:
                             Log.w("SSE Stream should be String or byte[]: %s", request.uri())
-                            throw new WebException(response, INTERNAL_SERVER_ERROR_500, "Invalid type")
+                            throw new WebException(INTERNAL_SERVER_ERROR_500, "Invalid type")
                     }
                 } else if (!response.committed) {
                     //noinspection GroovyFallthrough
@@ -1250,25 +1223,25 @@ class WebService extends WebServiceBase {
                 }
             } else if(! reserved) {
                 Log.v("No output found: %s", request.uri())
-                throw new WebException(response, NOT_FOUND_404)
+                throw new WebException(NOT_FOUND_404)
             }
         } else {
             Log.w("Unauthorized: %s", request.uri())
-            throw new WebException(response, UNAUTHORIZED_401)
+            throw new WebException(UNAUTHORIZED_401)
         }
         if(! reserved) {
             if (!response.status || response.status == NOT_FOUND_404) {
                 Log.v("The requested path was not found: %s", request.uri())
-                throw new WebException(response, NOT_FOUND_404)
+                throw new WebException(NOT_FOUND_404)
             }
             if (response.status != NOT_MODIFIED_304 && !response.type()) {
                 Log.w("Response without content type: %s", request.uri())
-                throw new WebException(response, INTERNAL_SERVER_ERROR_500)
+                throw new WebException(INTERNAL_SERVER_ERROR_500)
             }
             // Handle the rest of the errors:
             if (response.status >= 400) {
                 Log.v("Server status code was: %d : %s", response.status, request.uri())
-                throw new WebException(response, response.status, getCode(response.status).message)
+                throw new WebException(response.status, getCode(response.status).message)
             }
             // For streams do not close them unless instructed to do so
             if (out.type == Type.STREAM) {//FIXME: stream
@@ -1343,13 +1316,36 @@ class WebService extends WebServiceBase {
     boolean addService(Service service) {
         boolean duplicated = definitions.any {
             (it.path == service.path && it.method == service.method && it.acceptType == service.acceptType) ||
-            matchURI(service.path, service.method, service.acceptType).route.present }
+            matchURI(service.path, service.method, service.acceptType, service.acceptCharset).route.present }
         if (duplicated) {
             Log.w("Warning, duplicated path [%s] and method [%s] and acceptType [%s] found.",
                 service.path, service.method.toString(), service.acceptType)
             return false
         }
         return definitions.add(service)
+    }
+    /**
+     * Handle Exceptions related to a Service. If Service.onError is specified, it will be passed over,
+     * otherwise will be handled here and throw a WebException (page)
+     * @param sp
+     * @param code
+     * @param text
+     * @param e
+     */
+    static void handleException(Service sp, int code, String text = "", Exception e = null) {
+        boolean handled = false
+        if(sp.onError) {
+            handled = sp.onError.call(code, e ?: new Exception(text))
+        }
+        if(!handled) {
+            switch (true) {
+                case code >= BAD_REQUEST_400:
+                    throw new WebException(code, text)
+                    break
+                default:
+                    Log.v(text)
+            }
+        }
     }
     /**
      * Returns the full path including the root path
@@ -1384,14 +1380,14 @@ class WebService extends WebServiceBase {
      * @param request
      * @return
      */
-    protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType) {
+    protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType, String acceptCharset) {
         Map<String,String> params = [:]
         Service match = definitions.find {
             Service srv ->
                 boolean found = false
                 if(srv.method == method && (srv.acceptType == "*/*" || acceptType.tokenize(",").collect {
                     it.replaceAll(/;.*$/,"")
-                }.contains(srv.acceptType))) {
+                }.contains(srv.acceptType)) && (! srv.acceptCharset || srv.acceptCharset == acceptCharset)) {
                     // Match exact path
                     // Match with regex (e.g. /^path/(admin|control|manager)?$/ )
                     String fullPath = srv.path
@@ -1440,6 +1436,7 @@ class WebService extends WebServiceBase {
             params
         )
     }
+
     /**
      * Calculate size of cache
      * @return
