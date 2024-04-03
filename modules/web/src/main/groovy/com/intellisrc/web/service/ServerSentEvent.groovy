@@ -79,14 +79,14 @@ abstract class ServerSentEvent implements Serviciable {
     }
 
     void broadcast(String text, String event = "message") {
-        broadcast(new WebMessage(text))
+        broadcast(new WebMessage(text), event)
     }
 
     void broadcast(Map map, String event = "message") {
-        broadcast(new WebMessage(map))
+        broadcast(new WebMessage(map), event)
     }
 
     void broadcast(Collection list, String event = "message") {
-        broadcast(new WebMessage(list))
+        broadcast(new WebMessage(list), event)
     }
 }
