@@ -259,6 +259,27 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
         return ok
     }
     /**
+     * Delete using PK. Does not support multiple PKs
+     * @param ids
+     * @return
+     */
+    boolean deleteByPK(Collection<Integer> ids) {
+        DB db = connect()
+        boolean ok = false
+        if(pk) {
+            db.keys(pks)
+            if(pks.size() == 1) {
+                ok = db.delete(ids)
+            } else {
+                Log.w("Trying to delete using PL in a multiPK table: %s", tableName)
+            }
+        } else {
+            Log.w("Trying to delete using PK. No PK defined for table: %s", tableName)
+        }
+        db.close()
+        return ok
+    }
+    /**
      * Delete using multiple Models
      * @param ids
      * @return

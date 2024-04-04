@@ -371,6 +371,11 @@ class AutoTest extends Specification {
             assert time < 15000
         then:
             assert emails.count() == rows    : "Number of rows failed"
+        when:
+            int numToDelete = 10
+            List<Integer> toDelete = emails.all.subList(0, numToDelete).collect { it.id }
+            assert emails.deleteByPK(toDelete) : "Unable to delete IDs"
+            assert emails.count() == rows - numToDelete
         then:
             List<UserEmail> newEmailList = []
             emails.getAll({
@@ -383,6 +388,7 @@ class AutoTest extends Specification {
             })
             assert emails.update(newEmailList)
             assert emails.delete(newEmailList)
+            assert emails.count() == 0
         then:
             assert emails.clear()
             assert emails.count() == 0
