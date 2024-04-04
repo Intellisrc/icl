@@ -269,7 +269,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
         if(pk) {
             db.keys(pks)
             if(pks.size() == 1) {
-                ok = db.delete(ids)
+                ok = ids.empty || db.delete(ids)
             } else {
                 Log.w("Trying to delete using PL in a multiPK table: %s", tableName)
             }
