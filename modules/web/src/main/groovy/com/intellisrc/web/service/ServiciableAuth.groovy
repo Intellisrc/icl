@@ -7,9 +7,12 @@ import groovy.transform.CompileStatic
 /**
  * @since 17/04/03.
  */
-interface ServiciableAuth extends Serviciable {
-    String getLoginPath()
-    String getLogoutPath()
-    Map<String, Object> onLogin(Request request, Response response)
-    boolean onLogout(Request request, Response response)
+trait ServiciableAuth extends Serviciable {
+    abstract String getLoginPath()
+    abstract String getLogoutPath()
+    abstract AuthData onLogin(Request request, Response response)
+    boolean onLogout(Request request, Response response) {
+        request?.session?.invalidate()
+        return true
+    }
 }

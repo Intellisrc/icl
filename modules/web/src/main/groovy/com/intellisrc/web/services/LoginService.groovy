@@ -1,6 +1,7 @@
 package com.intellisrc.web.services
 
 import com.intellisrc.core.Log
+import com.intellisrc.web.service.AuthData
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Response
 import com.intellisrc.web.service.Service.Allow
@@ -67,7 +68,7 @@ class LoginService implements ServiciableAuth {
      * This interface will include full request
      */
     static interface LoginAction {
-        Map<String,Object> call(Request request)
+        AuthData call(Request request)
     }
     /**
      * This static interface will only send login auth information
@@ -92,11 +93,13 @@ class LoginService implements ServiciableAuth {
             } else {
                 level = onLoginAuth.call(user, pass) ?: Level.GUEST
             }
-            return [
-                user : user,
-                level : level,
-                login : level > Level.GUEST
-            ] as Map<String, Object>
+            return new AuthData(
+                toStoreInServer: [
+                    user : user,
+                    level : level,
+                    login : level > Level.GUEST
+                ]
+            )
     } as LoginAction
 
     /**
@@ -114,7 +117,7 @@ class LoginService implements ServiciableAuth {
      * @return
      */
     @Override
-    Map<String,Object> onLogin(final Request request, final Response response) {
+    AuthData onLogin(final Request request, final Response response) {
         return onLoginAction.call(request)
     }
 

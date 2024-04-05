@@ -240,21 +240,16 @@ class WebService extends WebServiceBase {
                                     Request request, Response response ->
                                         //noinspection GroovyUnusedAssignment
                                         boolean ok = false
-                                        Map<String, Object> sessionMap = auth.onLogin(request, response)
-                                        Map res = [:]
-                                        if (!sessionMap.isEmpty()) {
+                                        AuthData sessionData = auth.onLogin(request, response)
+                                        Map res
+                                        if (!sessionData.isEmpty()) {
                                             ok = true
+                                            res = sessionData.toSendToClient
                                             HttpSession session = request.session
-                                            //noinspection GroovyMissingReturnStatement
-                                            sessionMap.each {
-                                                if (it.key == "response" && it.value instanceof Map) {
-                                                    //noinspection GrReassignedInClosureLocalVar
-                                                    res += (it.value as Map)
-                                                } else {
-                                                    session.setAttribute(it.key, it.value)
-                                                }
+                                            sessionData.toStoreInServer.each {
+                                                session.setAttribute(it.key.toString(), it.value)
                                             }
-                                            res.id = session.id
+                                            res.session_id = session.id
                                         } else {
                                             Log.w("Unauthorized: %s", request.uri())
                                             throw new WebException(UNAUTHORIZED_401)

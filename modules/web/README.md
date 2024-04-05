@@ -534,7 +534,7 @@ class AuthService implements ServiciableAuth {
      * @return
      */
     @Override
-    Map<String,Object> onLogin(final Request request, final Response response) {
+    AuthData onLogin(final Request request, final Response response) {
         String user = request.queryParams("user") ?: ""
         String pass = request.queryParams("password") ?: ""
 
@@ -544,15 +544,22 @@ class AuthService implements ServiciableAuth {
         } else {
             level = Users.auth(user, pass) // Authentication logic
         }
-        // Information to store in a session:
-        Map session = [
+        // We return a `AuthData` object with the data to store in the server (if empty, login fails)
+        // and the data to send to the client (optional)
+        return level > Level.GUEST ? new AuthData(
+            toStoreInServer : [
                 user    : user,
                 level   : level,
                 ip      : request.ip(),
                 since   : SysClock.now
-        ]
-        // Whatever we return here, it will stored as session:
-        return level > Level.GUEST ? session : [:]
+            ],
+            toSendToClient : [
+                token   : FakeService.getToken(),
+                // will be automatically included in the response:
+                // ok : true
+                // session_id : <random_session_id> 
+            ]
+        ) : AuthData.empty
     }
 
     /**
@@ -571,7 +578,7 @@ class AuthService implements ServiciableAuth {
     }
 
     /**
-     * On logout
+     * On logout (no need to implement, it is handled automatically)
      * @param request
      * @param response
      * @return

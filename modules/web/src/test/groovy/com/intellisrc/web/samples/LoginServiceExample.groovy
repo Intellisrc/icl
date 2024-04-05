@@ -1,5 +1,6 @@
 package com.intellisrc.web.samples
 
+import com.intellisrc.web.service.AuthData
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Response
 import com.intellisrc.web.service.Service.Allow
@@ -55,27 +56,23 @@ class LoginServiceExample implements ServiciableAuth {
      *
      */
     @Override
-    Map onLogin(Request request, Response response) {
+    AuthData onLogin(Request request, Response response) {
         if(canLogin.check(request)) {
             String user = request.queryParams("my-user")
             String pass = request.queryParams("my-pass")
             if (user == "test" && pass == "test") {
                 //This information will be stored in the session:
-                return [
+                return new AuthData(
+                    toStoreInServer: [
                         user : "test",
                         level: Level.USER,
                         name : "Super User Name"
-                ]
+                    ]
+                )
             }
         }
         response.status(401)
-        return [:]
-    }
-
-    @Override
-    boolean onLogout(Request request, Response response) {
-        request?.session?.invalidate()
-        return true
+        return AuthData.empty
     }
 
     @Override
