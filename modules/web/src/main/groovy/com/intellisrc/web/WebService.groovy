@@ -238,13 +238,11 @@ class WebService extends WebServiceBase {
                                 ServiciableAuth auth = serviciable as ServiciableAuth
                                 setupService(serviciable, Service.new(POST, auth.path + auth.loginPath, {
                                     Request request, Response response ->
-                                        //noinspection GroovyUnusedAssignment
                                         boolean ok = false
                                         AuthData sessionData = auth.onLogin(request, response)
-                                        Map res
+                                        Map res = sessionData.toSendToClient
                                         if (!sessionData.isEmpty()) {
                                             ok = true
-                                            res = sessionData.toSendToClient
                                             HttpSession session = request.session
                                             sessionData.toStoreInServer.each {
                                                 session.setAttribute(it.key.toString(), it.value)
@@ -252,7 +250,9 @@ class WebService extends WebServiceBase {
                                             res.session_id = session.id
                                         } else {
                                             Log.w("Unauthorized: %s", request.uri())
-                                            throw new WebException(UNAUTHORIZED_401)
+                                            if(res.isEmpty()) {
+                                                throw new WebException(UNAUTHORIZED_401)
+                                            }
                                         }
                                         response.type(Mime.JSON)
                                         res.ok = ok
