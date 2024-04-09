@@ -445,6 +445,13 @@ int days6 = DAY * 6
 
 Useful constants to use instead of numeric representation of seconds. Similar to Millis
 
+## ToMap
+
+Interface (trait) to add `toMap` and `toSnakeMap` methods to any object:
+
+* `toMap` : Export object as Map<String,Object>
+* `toSnakeMap` : Same as `toMap`, but with names in snake_case
+
 ## SysInfo
 
 Information about the OS

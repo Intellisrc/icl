@@ -1,5 +1,5 @@
 dependencies {
-    def groovyVer = "4.0.15"
+    def groovyVer = "4.0.20"
     def jvmbrotli = "0.2.0"
     api project(':core')
     api "org.apache.groovy:groovy-json:${groovyVer}"
