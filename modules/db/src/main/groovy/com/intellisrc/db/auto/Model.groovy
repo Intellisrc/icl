@@ -1,7 +1,7 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.annot.ToMap
+import com.intellisrc.core.ext.ToMap
 import com.intellisrc.db.annot.Column
 import groovy.transform.CompileStatic
 

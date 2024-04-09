@@ -1,6 +1,6 @@
 package com.intellisrc.core
 
-import com.intellisrc.core.annot.ToMap
+import com.intellisrc.core.ext.ToMap
 import spock.lang.Specification
 
 /**

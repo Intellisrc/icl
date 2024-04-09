@@ -1,12 +1,6 @@
-package com.intellisrc.core.annot
+package com.intellisrc.core.ext
 
 import groovy.transform.CompileStatic
-
-import java.lang.annotation.Retention
-import java.lang.annotation.Target
-
-import static java.lang.annotation.ElementType.TYPE
-import static java.lang.annotation.RetentionPolicy.RUNTIME
 
 @CompileStatic
 trait ToMap {
