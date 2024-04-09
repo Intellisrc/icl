@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.9.1.4-SNAPSHOT"
+    version = "2.9.1.5-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -115,7 +115,7 @@ subprojects {
 	}
     dependencies {
         def groovyVer = "4.0.20" // Also in module etc
-        def groovyExt = "4.0.15.12"
+        def groovyExt = "4.0.20.13-SNAPSHOT"
         def spock = "2.4-M4-groovy-4.0"
         def junit = "5.10.2"
 
