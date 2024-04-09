@@ -1,13 +1,14 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.annot.ToMap
 import com.intellisrc.db.annot.Column
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Field
 
 @CompileStatic
-abstract class Model {
+abstract class Model implements ToMap {
     protected Field pkField
     /**
      * Get ID as Int
@@ -84,21 +85,10 @@ abstract class Model {
         return Table.convertToDB(asMap()) // We don't use toMap() here as it may be override
     }
     /**
-     * General conversion to Map (may be overrode)
-     * @return
-     */
-    Map<String, Object> toMap() {
-        return asMap()
-    }
-    /**
      * Convert Model fields to Map preserving types
      * @return
      */
     protected Map<String, Object> asMap() {
-        Map<String, Object> map = fields.collectEntries {
-            Field field ->
-                [(Table.getColumnName(field)) : this[field.name]]
-        }
-        return map
+        return toMap()
     }
 }
