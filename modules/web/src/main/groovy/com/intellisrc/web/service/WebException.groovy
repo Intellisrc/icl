@@ -28,6 +28,6 @@ class WebException extends Exception {
 
     @Override
     String getMessage() {
-        return text + (cause?.message ? "${cause.message}" : "") ?: cause?.class?.simpleName ?: "Unknown"
+        return text + (cause?.message && cause?.message != text ? " : ${cause.message}" : "") ?: cause?.class?.simpleName ?: "Unknown"
     }
 }

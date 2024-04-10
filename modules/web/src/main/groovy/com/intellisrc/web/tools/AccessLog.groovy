@@ -17,19 +17,27 @@ class AccessLog {
     String notFoundFormat = "%s %s %s (%s)"
     String loggedFormat = "%s %s %s >> %s"
     String failedFormat = "%s %s %s %s [%s]"
+
+    @SuppressWarnings('GrMethodMayBeStatic')
+    String getNow() {
+        return SysClock.now.atZone(SysClock.clock.zone).format("yyyy-MM-dd HH:mm:ss Z")
+    }
+
     void access(File accessLogFile, Request request) {
-        accessLogFile << String.format("$accessFormat\n", SysClock.now.YMDHmsS, request.method, request.ip, request.uri(), request.headers("Referer") ?: "no-referer", request.userAgent)
+        String query = request.queryString
+        accessLogFile << String.format("$accessFormat\n", now, request.method, request.ip, request.uri() + (query ? "?" + query : ""), request.headers("Referer") ?: "no-referer", request.userAgent)
     }
     void warn(File warnLogFile, Request request, int errorCode) {
-        warnLogFile << String.format("$warnFormat\n", SysClock.now.YMDHmsS, request.method, errorCode, request.ip, request.uri(), request.headers("Referer") ?: "no-referer", request.userAgent)
+        String query = request.queryString
+        warnLogFile << String.format("$warnFormat\n", now, request.method, errorCode, request.ip, request.uri() + (query ? "?" + query : ""), request.headers("Referer") ?: "no-referer", request.userAgent)
     }
     void notFound(File notFoundLogFile, Request request) {
-        notFoundLogFile << String.format("$notFoundFormat\n", SysClock.now.YMDHmsS, request.ip, request.uri(), request.headers("Referer") ?: "no-referer")
+        notFoundLogFile << String.format("$notFoundFormat\n", now, request.ip, request.uri(), request.headers("Referer") ?: "no-referer")
     }
     void logged(File authLogFile, Request request, boolean out = false) {
-        authLogFile << String.format("$loggedFormat\n", SysClock.now.YMDHmsS, out ? "OUT" : "IN ", request.ip, request.userAgent)
+        authLogFile << String.format("$loggedFormat\n", now, out ? "OUT" : "IN ", request.ip, request.userAgent)
     }
     void failed(File authFailedLogFile, Request request) {
-        authFailedLogFile << String.format("$failedFormat\n", SysClock.now.YMDHmsS, request.method, request.ip, request.uri(), request.userAgent)
+        authFailedLogFile << String.format("$failedFormat\n", now, request.method, request.ip, request.uri(), request.userAgent)
     }
 }

@@ -1,15 +1,11 @@
 package com.intellisrc.web
 
-import com.intellisrc.core.Log
+import com.intellisrc.core.Config
 import com.intellisrc.core.Millis
-import com.intellisrc.core.SysClock
 import com.intellisrc.web.service.KeyStore
 import com.intellisrc.web.service.Request
-import com.intellisrc.web.service.Response
+import com.intellisrc.web.tools.AccessLog
 import groovy.transform.CompileStatic
-
-import java.time.ZonedDateTime
-
 /**
  * This is the common class between HTTP and WebSocket services
  * @since 2023/05/24.
@@ -21,31 +17,15 @@ abstract class WebServiceBase {
     // Options:
     public Inet4Address address = "0.0.0.0".toInet4Address()
     public int port = 80
-    public File accessLog = File.get("log", "access.log")
-    public boolean log = true
     public KeyStore ssl = null // Key Store File location and password (For WSS and HTTPS)
     public int timeout = Millis.MIN_10
+    public AccessLog logger = new AccessLog()
+    public boolean log = Config.any.get("web.log", false) //Turn to true to save access logs automatically
 
-    void log(Request request, Response response) {
-        if(accessLog) {
-            if(accessLog.parentFile.canWrite()) {
-                ZonedDateTime now = SysClock.now.atZone(SysClock.clock.zone)
-                String query = request.queryString
-                accessLog << String.format("%s - - [%s] \"%s %s %s\" %d %d \"-\" \"%s\"\n",
-                    request.ip,
-                    now.format("dd/MMM/yyyy:HH:mm:ss Z"),
-                    request.method.toUpperCase(),
-                    request.requestURI + (query ? "?" + query : ""),
-                    request.protocol,
-                    response.status,
-                    response.length,
-                    request.userAgent
-                )
-            } else {
-                Log.w("Unable to write access log in: %s", accessLog.parentFile.absolutePath)
-            }
-        }
-    }
+    public final File logDir = Config.any.getFile("web.log.dir", File.get(Config.any.get("log.path", "log")))
+    protected File accessLogFile      = Config.any.getFile("web.log.access", File.get(logDir, "access.log"))
+    protected File warnLogFile        = Config.any.getFile("web.log.warn", File.get(logDir, "warn.log"))
+    protected File notFoundLogFile    = Config.any.getFile("web.log.notfound", File.get(logDir, "notfound.log"))
 
     boolean isSecure() {
         return ssl?.valid
@@ -73,5 +53,85 @@ abstract class WebServiceBase {
 
     boolean isFailed() {
         return initialized &&! this.running
+    }
+    /**
+     * Set path for access log
+     * @param path
+     */
+    void setAccessLog(Object path) {
+        this.accessLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
+    }
+    /**
+     * Set path for warn log
+     * @param path
+     */
+    void setWarnLog(Object path) {
+        this.warnLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
+    }
+    /**
+     * Set path for not found log
+     * @param path
+     */
+    void setNotFoundLog(Object path) {
+        this.notFoundLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
+    }
+
+    /**
+     * Log a client access
+     * @param request
+     */
+    void logAccess(Request request) {
+        if(log && accessLogFile) {
+            logger.access(accessLogFile, request)
+        }
+    }
+    /**
+     * Log some warning (request error)
+     * @param request
+     * @param code
+     */
+    void logWarn(Request request, int code) {
+        if(log && warnLogFile) {
+            logger.warn(warnLogFile, request, code)
+        }
+    }
+    /**
+     * Log not found requests
+     * @param request
+     */
+    void logNotFound(Request request) {
+        if(log && notFoundLogFile) {
+            logger.notFound(notFoundLogFile, request)
+        }
+    }
+    /**
+     * Log successful logins
+     * @param logFile
+     * @param request
+     */
+    void logLogin(File logFile, Request request) {
+        if(log && logFile) {
+            logger.logged(logFile, request)
+        }
+    }
+    /**
+     * Log failed login attempt
+     * @param logFile
+     * @param request
+     */
+    void logFailLogin(File logFile, Request request) {
+        if(log && logFile) {
+            logger.failed(logFile, request)
+        }
+    }
+    /**
+     * Log logout
+     * @param logFile
+     * @param request
+     */
+    void logLogout(File logFile, Request request) {
+        if(log && logFile) {
+            logger.logged(logFile, request, true)
+        }
     }
 }

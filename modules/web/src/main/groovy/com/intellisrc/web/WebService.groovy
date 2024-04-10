@@ -84,7 +84,6 @@ class WebService extends WebServiceBase {
     boolean trustForwardHeaders = true
     boolean checkSNIHostname = true
     boolean sniRequired = false
-    boolean logs = Config.any.get("web.log", false) //Turn to true to save access logs automatically
     public String allowOrigin = "" // disabled by default
     public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = HTTP
@@ -92,9 +91,7 @@ class WebService extends WebServiceBase {
     public PathPolicy pathPolicy = { String path -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
     public WebErrorTemplate errorTemplate = defaultErrorTemplate
-    public AccessLog logger = new AccessLog()
     public final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
-    public final File logDir = Config.any.getFile("web.log.dir", File.get(Config.any.get("log.path", "log")))
 
     protected List<StaticPath> staticPaths = []
     protected Server jettyServer
@@ -103,9 +100,6 @@ class WebService extends WebServiceBase {
     protected boolean multiThread
     protected List<Serviciable> services = []
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
-    protected File accessLogFile      = Config.any.getFile("web.log.access", File.get(logDir, "access.log"))
-    protected File warnLogFile        = Config.any.getFile("web.log.warn", File.get(logDir, "warn.log"))
-    protected File notFoundLogFile    = Config.any.getFile("web.log.notfound", File.get(logDir, "notfound.log"))
 
     static interface FilePolicy {
         boolean allow(File file)
@@ -231,7 +225,7 @@ class WebService extends WebServiceBase {
                                 ))
                                 break
                             case ServiciableAuth:
-                                if(logs) {
+                                if(log) {
                                     ServiciableAuth auth = serviciable as ServiciableAuth
                                     if(auth.authLog &&! auth.authLogFile) {
                                         auth.authLogFile = File.get(logDir, "auth.log")
@@ -1002,86 +996,6 @@ class WebService extends WebServiceBase {
             }
         } else {
             Log.w("WebService is already running. You can not change the resource path")
-        }
-    }
-    /**
-     * Set path for access log
-     * @param path
-     */
-    void setAccessLog(Object path) {
-        this.accessLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
-    }
-    /**
-     * Set path for warn log
-     * @param path
-     */
-    void setWarnLog(Object path) {
-        this.warnLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
-    }
-    /**
-     * Set path for not found log
-     * @param path
-     */
-    void setNotFoundLog(Object path) {
-        this.notFoundLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
-    }
-
-    /**
-     * Log a client access
-     * @param request
-     */
-    void logAccess(Request request) {
-        if(log && accessLogFile) {
-            logger.access(accessLogFile, request)
-        }
-    }
-    /**
-     * Log some warning (request error)
-     * @param request
-     * @param code
-     */
-    void logWarn(Request request, int code) {
-        if(log && warnLogFile) {
-            logger.warn(warnLogFile, request, code)
-        }
-    }
-    /**
-     * Log not found requests
-     * @param request
-     */
-    void logNotFound(Request request) {
-        if(log && notFoundLogFile) {
-            logger.notFound(notFoundLogFile, request)
-        }
-    }
-    /**
-     * Log successful logins
-     * @param logFile
-     * @param request
-     */
-    void logLogin(File logFile, Request request) {
-        if(log && logFile) {
-            logger.logged(logFile, request)
-        }
-    }
-    /**
-     * Log failed login attempt
-     * @param logFile
-     * @param request
-     */
-    void logFailLogin(File logFile, Request request) {
-        if(log && logFile) {
-            logger.failed(logFile, request)
-        }
-    }
-    /**
-     * Log logout
-     * @param logFile
-     * @param request
-     */
-    void logLogout(File logFile, Request request) {
-        if(log && logFile) {
-            logger.logged(logFile, request, true)
         }
     }
     /**
