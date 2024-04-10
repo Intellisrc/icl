@@ -11,6 +11,8 @@ Follow the instructions on the last published version in [maven repository](http
 
 ## WebService (HTTP Web Server)
 
+`WebService` manages the server, which handles one or more `Service`(s). A `Service` executes an `Action`.
+
 The easiest way to create a web server. For example:
 
 ```groovy
@@ -31,11 +33,46 @@ new WebService(
     eTagMaxKB   : 1024,     // Below this amount of KB, we will calculate eTag automatically
     // Other:    
     embedded    : false,    // Turn to true if resources are inside jar
-    allowOrigin : ""        // apply by default to all
+    allowOrigin : "",       // apply by default to all
+    // Logging:
+    logs        : false,    // Turn to true to save logs
+    
+)
+```
+**NOTE** : By default logs are exported to 'log' directory. You can override that directory by setting any of the following:
+
+Via `config.properties` or environment variables:
+
+```properties
+# Global log setting:
+log.dir="log"
+# Specific for 'web':
+web.log.dir="log"
+# Individual setting for each kind: (Set it empty to disable)
+web.log.access="access.log"
+web.log.warn="warn.log"
+web.log.notfound="notfound.log"
+```
+
+Via `WebService` (similar to `resources`, you can specify a path, filename or File object):
+
+```groovy
+new WebService(
+    //... other settings
+    accessLog   : "web_access.log",
+    warnLog     : File.get("web", "log", "web_warn.log"),
+    notFoundLog : "log/web_404.log"
 )
 ```
 
-`WebService` manages the server, which handles one or more `Service`(s). A `Service` executes an `Action`.
+You can replace the log output format by extending `AccessLog` class and overriding fields/methods:
+
+```groovy
+new WebService(
+    //... other settings
+    logger : new MyAccessLog()
+)
+```
 
 #### Advanced Options
 
@@ -510,10 +547,16 @@ This interface is used to create and manage sessions in order to enable authenti
 
 ```groovy
 class AuthService implements ServiciableAuth {
-    String path = "/private"         // general prefix
-    String loginPath = "/login"      // POST data to    : /private/login
-    String logoutPath = "/logout"    // GET request to  : /private/logout
-
+    String path         = "/private"   // general prefix
+    String loginPath    = "/login"     // POST data to    : /private/login
+    String logoutPath   = "/logout"    // GET request to  : /private/logout
+    // Enable auth logs (true by default if WebServer.logs is enabled). 
+    boolean authLog     = true         // will export successful login logs 
+    boolean failedLog   = true         // will export failed login attempts
+    // You can override default log files by setting (for example):
+    // File authLogFile = File.get("log", "my_auth_log_file.log")
+    // File authFailedLogFile = File.get("log", "my_failed_log_file.log")
+    
     /**
      * List of available type of users
      */

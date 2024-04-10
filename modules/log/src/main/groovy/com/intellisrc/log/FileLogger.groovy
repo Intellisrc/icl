@@ -20,6 +20,7 @@ import java.util.regex.Matcher
 class FileLogger extends BaseLogger implements LoggableOutputLevels {
     //---------------------- STATIC ----------------------
     protected static synchronized final List<OnCleanDone> onCleanList = []
+    static final File defaultLogDir = File.get("log")
     static void setOnCleanDone(OnCleanDone toSet) {
         onCleanList << toSet
     }
@@ -34,7 +35,7 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
     protected boolean initialized = false
     protected Output output
     protected int logDays               = 7
-    protected File logDir               = File.get("log")
+    protected File logDir               = defaultLogDir
     protected String logFileName        = "system.log"
     protected boolean rotateOtherLogs   = false  //When true it will also remove other old logs in the log directory
     protected boolean compress          = false
@@ -49,36 +50,36 @@ class FileLogger extends BaseLogger implements LoggableOutputLevels {
     void initialize(Loggable baseLogger) {
         if(initialized) { return }
         initialized = true
-        enabled = Config.get("log.file", true)
+        enabled = Config.any.get("log.file", true)
         // File output:
         if(enabled) {
-            level             = getLevelFromString(Config.get("log.file.level", baseLogger.level.toString()))
-            useColor          = Config.get("log.file.color", baseLogger.useColor)
-            colorInvert       = Config.get("log.file.color.invert", baseLogger.colorInvert)
-            showDateTime      = Config.get("log.file.show.time", baseLogger.showDateTime)
-            showThreadName    = Config.get("log.file.show.thread", baseLogger.showThreadName)
-            showThreadShort   = Config.get("log.file.show.thread.short", baseLogger.showThreadShort)
-            showLogName       = Config.get("log.file.show.logger", baseLogger.showLogName)
-            levelInBrackets   = Config.get("log.file.show.level.brackets", baseLogger.levelInBrackets)
-            levelAbbreviated  = Config.get("log.file.show.level.short", baseLogger.levelAbbreviated)
-            showPackage       = Config.get("log.file.show.package", baseLogger.showPackage)
-            showClassName     = Config.get("log.file.show.class", baseLogger.showClassName)
-            showMethod        = Config.get("log.file.show.method", baseLogger.showMethod)
-            showLineNumber    = Config.get("log.file.show.line.number", baseLogger.showLineNumber)
-            dateFormatter     = Config.get("log.file.show.time.format", baseLogger.dateFormatter)
-            showThreadHead    = Config.get("log.file.show.thread.head", baseLogger.showThreadHead)
-            showThreadTail    = Config.get("log.file.show.thread.tail", baseLogger.showThreadTail)
-            showStackTrace    = Config.get("log.file.show.stack", baseLogger.showStackTrace)
-            ignoreList        = Config.get("log.file.ignore", baseLogger.ignoreList)
-            ignoreLevel       = Config.get("log.file.ignore.level", baseLogger.ignoreLevel) as Level
+            level             = getLevelFromString(Config.any.get("log.file.level", baseLogger.level.toString()))
+            useColor          = Config.any.get("log.file.color", baseLogger.useColor)
+            colorInvert       = Config.any.get("log.file.color.invert", baseLogger.colorInvert)
+            showDateTime      = Config.any.get("log.file.show.time", baseLogger.showDateTime)
+            showThreadName    = Config.any.get("log.file.show.thread", baseLogger.showThreadName)
+            showThreadShort   = Config.any.get("log.file.show.thread.short", baseLogger.showThreadShort)
+            showLogName       = Config.any.get("log.file.show.logger", baseLogger.showLogName)
+            levelInBrackets   = Config.any.get("log.file.show.level.brackets", baseLogger.levelInBrackets)
+            levelAbbreviated  = Config.any.get("log.file.show.level.short", baseLogger.levelAbbreviated)
+            showPackage       = Config.any.get("log.file.show.package", baseLogger.showPackage)
+            showClassName     = Config.any.get("log.file.show.class", baseLogger.showClassName)
+            showMethod        = Config.any.get("log.file.show.method", baseLogger.showMethod)
+            showLineNumber    = Config.any.get("log.file.show.line.number", baseLogger.showLineNumber)
+            dateFormatter     = Config.any.get("log.file.show.time.format", baseLogger.dateFormatter)
+            showThreadHead    = Config.any.get("log.file.show.thread.head", baseLogger.showThreadHead)
+            showThreadTail    = Config.any.get("log.file.show.thread.tail", baseLogger.showThreadTail)
+            showStackTrace    = Config.any.get("log.file.show.stack", baseLogger.showStackTrace)
+            ignoreList        = Config.any.get("log.file.ignore", baseLogger.ignoreList)
+            ignoreLevel       = Config.any.get("log.file.ignore.level", baseLogger.ignoreLevel) as Level
 
             // Specific settings for File
-            logFileName       = Config.get("log.file.name", logFileName)
-            logDir            = Config.get("log.file.dir", logDir)
-            compress          = Config.get("log.file.compress", true)
-            logDays           = Config.get("log.file.days", logDays)
-            rotateOtherLogs   = Config.get("log.file.rotate.other", rotateOtherLogs)
-            maxTaskExecTimeMs = Config.get("log.file.max.exec", maxTaskExecTimeMs)
+            logFileName       = Config.any.get("log.file.name", logFileName)
+            logDir            = Config.any.get("log.file.dir", defaultLogDir)
+            compress          = Config.any.get("log.file.compress", true)
+            logDays           = Config.any.get("log.file.days", logDays)
+            rotateOtherLogs   = Config.any.get("log.file.rotate.other", rotateOtherLogs)
+            maxTaskExecTimeMs = Config.any.get("log.file.max.exec", maxTaskExecTimeMs)
 
             if(! logDir.exists())   { logDir.mkdirs() }
             cleanLogs()

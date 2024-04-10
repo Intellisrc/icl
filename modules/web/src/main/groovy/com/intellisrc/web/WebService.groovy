@@ -11,6 +11,7 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
+import com.intellisrc.web.tools.AccessLog
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import jakarta.servlet.MultipartConfigElement
@@ -83,6 +84,7 @@ class WebService extends WebServiceBase {
     boolean trustForwardHeaders = true
     boolean checkSNIHostname = true
     boolean sniRequired = false
+    boolean logs = Config.any.get("web.log", false) //Turn to true to save access logs automatically
     public String allowOrigin = "" // disabled by default
     public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = HTTP
@@ -90,7 +92,9 @@ class WebService extends WebServiceBase {
     public PathPolicy pathPolicy = { String path -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
     public WebErrorTemplate errorTemplate = defaultErrorTemplate
+    public AccessLog logger = new AccessLog()
     public final Cache<ServiceOutput> cache = new Cache<ServiceOutput>(timeout: Cache.FOREVER)
+    public final File logDir = Config.any.getFile("web.log.dir", File.get(Config.any.get("log.path", "log")))
 
     protected List<StaticPath> staticPaths = []
     protected Server jettyServer
@@ -99,6 +103,9 @@ class WebService extends WebServiceBase {
     protected boolean multiThread
     protected List<Serviciable> services = []
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
+    protected File accessLogFile      = Config.any.getFile("web.log.access", File.get(logDir, "access.log"))
+    protected File warnLogFile        = Config.any.getFile("web.log.warn", File.get(logDir, "warn.log"))
+    protected File notFoundLogFile    = Config.any.getFile("web.log.notfound", File.get(logDir, "notfound.log"))
 
     static interface FilePolicy {
         boolean allow(File file)
@@ -224,8 +231,16 @@ class WebService extends WebServiceBase {
                                 ))
                                 break
                             case ServiciableAuth:
+                                if(logs) {
+                                    ServiciableAuth auth = serviciable as ServiciableAuth
+                                    if(auth.authLog &&! auth.authLogFile) {
+                                        auth.authLogFile = File.get(logDir, "auth.log")
+                                    }
+                                    if(auth.failedLog &&! auth.authFailedLogFile) {
+                                        auth.authFailedLogFile = File.get(logDir, "auth.fail.log")
+                                    }
+                                }
                                 prepared = true
-                                //do nothing, skip
                                 break
                             default:
                                 throw new Exception("Interface not implemented: ${serviciable.class.simpleName}")
@@ -248,8 +263,10 @@ class WebService extends WebServiceBase {
                                                 session.setAttribute(it.key.toString(), it.value)
                                             }
                                             res.session_id = session.id
+                                            logLogin(auth.authLogFile, request)
                                         } else {
                                             Log.w("Unauthorized: %s", request.uri())
+                                            logFailLogin(auth.authFailedLogFile, request)
                                             if(res.isEmpty()) {
                                                 throw new WebException(UNAUTHORIZED_401)
                                             }
@@ -262,7 +279,8 @@ class WebService extends WebServiceBase {
                                     Request request, Response response ->
                                         boolean ok = auth.onLogout(request, response)
                                         if (ok) {
-                                            request.session?.invalidate()
+                                            logLogout(auth.authLogFile, request)
+                                            request?.session?.invalidate()
                                         }
                                         response.type(Mime.JSON)
                                         return [
@@ -740,6 +758,7 @@ class WebService extends WebServiceBase {
             }
         } else { // Unauthorized
             Log.w("Forbidden: %s", request.uri())
+            logWarn(request, FORBIDDEN_403)
             throw new WebException(FORBIDDEN_403)
         }
         return output
@@ -985,7 +1004,86 @@ class WebService extends WebServiceBase {
             Log.w("WebService is already running. You can not change the resource path")
         }
     }
+    /**
+     * Set path for access log
+     * @param path
+     */
+    void setAccessLog(Object path) {
+        this.accessLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
+    }
+    /**
+     * Set path for warn log
+     * @param path
+     */
+    void setWarnLog(Object path) {
+        this.warnLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
+    }
+    /**
+     * Set path for not found log
+     * @param path
+     */
+    void setNotFoundLog(Object path) {
+        this.notFoundLogFile = path ? (path instanceof String &&! path.contains("/") ? File.get(logDir, path) : File.get(path)) : null
+    }
 
+    /**
+     * Log a client access
+     * @param request
+     */
+    void logAccess(Request request) {
+        if(log && accessLogFile) {
+            logger.access(accessLogFile, request)
+        }
+    }
+    /**
+     * Log some warning (request error)
+     * @param request
+     * @param code
+     */
+    void logWarn(Request request, int code) {
+        if(log && warnLogFile) {
+            logger.warn(warnLogFile, request, code)
+        }
+    }
+    /**
+     * Log not found requests
+     * @param request
+     */
+    void logNotFound(Request request) {
+        if(log && notFoundLogFile) {
+            logger.notFound(notFoundLogFile, request)
+        }
+    }
+    /**
+     * Log successful logins
+     * @param logFile
+     * @param request
+     */
+    void logLogin(File logFile, Request request) {
+        if(log && logFile) {
+            logger.logged(logFile, request)
+        }
+    }
+    /**
+     * Log failed login attempt
+     * @param logFile
+     * @param request
+     */
+    void logFailLogin(File logFile, Request request) {
+        if(log && logFile) {
+            logger.failed(logFile, request)
+        }
+    }
+    /**
+     * Log logout
+     * @param logFile
+     * @param request
+     */
+    void logLogout(File logFile, Request request) {
+        if(log && logFile) {
+            logger.logged(logFile, request, true)
+        }
+    }
     /**
      * Process the path filter. Here we decide what to serve.
      * If we match a Service, we execute its action, otherwise we
@@ -1003,6 +1101,7 @@ class WebService extends WebServiceBase {
         ServiceOutput out
         if(! request.method || fromString(request.method.trim().toUpperCase()) == null) {
             Log.w("Method not allowed: %s", request.method)
+            logWarn(request, METHOD_NOT_ALLOWED_405)
             throw new WebException(METHOD_NOT_ALLOWED_405)
         }
         Cache.CacheAccess onStore = {
@@ -1063,10 +1162,12 @@ class WebService extends WebServiceBase {
                                                     }
                                                 } catch (Exception e) {
                                                     Log.w("Unable to read resource from jar: %s (%s)", fullPath, e)
-                                                    throw new WebException(NOT_FOUND_404)
+                                                    logNotFound(request)
+                                                    throw new WebException(NOT_FOUND_404, e)
                                                 }
                                             } else {
                                                 Log.w("Unauthorized: %s", request.uri())
+                                                logWarn(request, UNAUTHORIZED_401)
                                                 throw new WebException(UNAUTHORIZED_401)
                                             }
                                         } else {
@@ -1099,6 +1200,7 @@ class WebService extends WebServiceBase {
                                                 }
                                             } else {
                                                 Log.w("Unauthorized: %s", request.uri())
+                                                logWarn(request, UNAUTHORIZED_401)
                                                 throw new WebException(UNAUTHORIZED_401)
                                             }
                                         }
@@ -1108,6 +1210,7 @@ class WebService extends WebServiceBase {
                     }
                 } else { // Very unlikely that will end up here:
                     Log.w("Invalid request (empty)")
+                    logWarn(request, BAD_REQUEST_400)
                     throw new WebException(BAD_REQUEST_400)
                 }
             }
@@ -1218,24 +1321,29 @@ class WebService extends WebServiceBase {
                 }
             } else if(! reserved) {
                 Log.v("No output found: %s", request.uri())
+                logNotFound(request)
                 throw new WebException(NOT_FOUND_404)
             }
         } else {
             Log.w("Unauthorized: %s", request.uri())
+            logWarn(request, UNAUTHORIZED_401)
             throw new WebException(UNAUTHORIZED_401)
         }
         if(! reserved) {
             if (!response.status || response.status == NOT_FOUND_404) {
                 Log.v("The requested path was not found: %s", request.uri())
+                logNotFound(request)
                 throw new WebException(NOT_FOUND_404)
             }
             if (response.status != NOT_MODIFIED_304 && !response.type()) {
                 Log.w("Response without content type: %s", request.uri())
+                logWarn(request, INTERNAL_SERVER_ERROR_500)
                 throw new WebException(INTERNAL_SERVER_ERROR_500)
             }
             // Handle the rest of the errors:
             if (response.status >= 400) {
                 Log.v("Server status code was: %d : %s", response.status, request.uri())
+                logWarn(request, response.status)
                 throw new WebException(response.status, getCode(response.status).message)
             }
             // For streams do not close them unless instructed to do so
@@ -1249,6 +1357,7 @@ class WebService extends WebServiceBase {
                 response.writer.close()
             }
         }
+        logAccess(request)
         return commited || response.committed
     }
 
@@ -1335,7 +1444,10 @@ class WebService extends WebServiceBase {
         if(!handled) {
             switch (true) {
                 case code >= BAD_REQUEST_400:
-                    throw new WebException(code, text)
+                    if(e) {
+                        Log.e("Exception in service: ", e)
+                    }
+                    throw new WebException(code, text, e)
                     break
                 default:
                     Log.v(text)

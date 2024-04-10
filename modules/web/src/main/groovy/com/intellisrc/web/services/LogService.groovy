@@ -10,6 +10,7 @@ import groovy.transform.CompileStatic
 import java.time.LocalDateTime
 
 /**
+ * This class is used to display logs as a web service
  * @since 10/19/17.
  */
 @CompileStatic
