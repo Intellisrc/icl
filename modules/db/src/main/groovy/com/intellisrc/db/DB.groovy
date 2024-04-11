@@ -125,7 +125,7 @@ class DB {
                     list = dbConnector.tables
                 }
             }
-            if(! list.empty && enableCache) {
+            if(! list.empty) {
                 tableList.addAll(list)
             }
         } else {
@@ -530,7 +530,7 @@ class DB {
                         Log.v("Table [%s] didn't exists (yet)", table)
                     }
                 }
-                if (!columns.empty && enableCache) {
+                if (!columns.empty) {
                     colsInfo.set(jdbc.dbname + "." + table, columns)
                 }
             }
