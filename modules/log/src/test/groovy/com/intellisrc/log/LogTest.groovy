@@ -310,13 +310,15 @@ class LogTest extends Specification {
                 sleep(50)
             }
         then:
-            assert fileLogger.logDir.listFiles().find { it.name == "last-" + fileLogger.logFileName }
-            assert fileLogger.logDir.listFiles().size() == expected + 1
+            List<File> files = fileLogger.logDir.listFiles()
+            Log.i("Total files: %d, expected: %d", files.size(), expected + 1)
+            assert files.find { it.name == "last-" + fileLogger.logFileName }
+            assert files.size() == expected + 1
             if(compress) {
-                assert fileLogger.logDir.listFiles().findAll { it.name.endsWith(".gz") }.size() == expected - 1
-                assert fileLogger.logDir.listFiles().findAll { it.name.endsWith(".log") }.size() == 2
+                assert files.findAll { it.name.endsWith(".gz") }.size() == expected - 1
+                assert files.findAll { it.name.endsWith(".log") }.size() == 2
             } else {
-                assert fileLogger.logDir.listFiles().findAll { it.name.endsWith(".gz") }.size() == 0
+                assert files.findAll { it.name.endsWith(".gz") }.size() == 0
             }
             noExceptionThrown()
         cleanup:
@@ -373,10 +375,14 @@ class LogTest extends Specification {
             tempDir.eachFile {
                 println " > " + it.name.padRight(30) + "\t" + LocalDateTime.fromMillis(it.lastModified()).YMDHms
             }
+            List<File> files = tempDir.listFiles()
+            List<File> tests = files.findAll { it.name.contains("test") }
+            List<File> others = files.findAll { it.name.contains("other") }
+            Log.i("Test Files: %d, Other Files: %d", tests.size(), others.size())
         then:
             // total = create + other (same as create) + link
-            assert tempDir.listFiles().findAll { it.name.contains("other") }.size() == create + 1
-            assert tempDir.listFiles().findAll { it.name.contains("test") }.size() == create + 2
+            assert others.size() == create + 1
+            assert tests.size() == create + 2
         when:
             int otherLeft = rotateOthers ? keep : logsToCreate + 1
             fileLogger.onCleanDone = {
@@ -390,10 +396,15 @@ class LogTest extends Specification {
             while (!done) {
                 sleep(50)
             }
+
+            files = tempDir.listFiles()
+            tests = files.findAll { it.name.contains("test") }
+            others = files.findAll { it.name.contains("other") }
+            Log.i("Test Files: %d, Other Files: %d", tests.size(), others.size())
         then:
-            assert tempDir.listFiles().find { it.name == "last-" + fileLogger.logFileName }
-            assert tempDir.listFiles().findAll { it.name.contains("other") }.size() == (rotateOthers ? [keep, create + 1].min() : create + 1)
-            assert tempDir.listFiles().findAll { it.name.contains("test") }.size() == [keep, create + 1].min() + 1
+            assert files.find { it.name == "last-" + fileLogger.logFileName }
+            assert others.size() == (rotateOthers ? [keep, create + 1].min() : create + 1)
+            assert tests.size() == [keep, create + 1].min() + 1
             noExceptionThrown()
         cleanup:
             assert tempDir.deleteDir()
