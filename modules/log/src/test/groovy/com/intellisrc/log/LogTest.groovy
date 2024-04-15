@@ -51,11 +51,11 @@ class LogTest extends Specification {
     }
 
     def cleanup() {
-        if(fileLogger.defaultLogDir.exists()) {
-            fileLogger.defaultLogDir.eachFile {
+        if(fileLogger.logDir.exists()) {
+            fileLogger.logDir.eachFile {
                 it.delete()
             }
-            fileLogger.defaultLogDir.deleteDir()
+            fileLogger.logDir.deleteDir()
         }
         logger.domains.clear()
     }
@@ -213,7 +213,7 @@ class LogTest extends Specification {
         setup:
             Log.e("Some random error")
             // We create a File object here, so we can test if it exists. It is not creating the file (it should have been created in the previous line).
-            File link = new File(fileLogger.defaultLogDir, "last-" + fileLogger.logFileName)
+            File link = new File(fileLogger.logDir, "last-" + fileLogger.logFileName)
         expect:
             assert fileLogger.logFile.exists(): "Log file should have been created"
             assert link.exists(): "Link was not created"
@@ -239,30 +239,30 @@ class LogTest extends Specification {
     def "Changing date should create a new log"() {
         setup:
             LocalDateTime now = SysClock.now
-            assert fileLogger.defaultLogDir.exists()
+            assert fileLogger.logDir.exists()
         when:
             Log.i("First Log")
             String startLog = fileLogger.logFile.absolutePath
             println "Starting log: " + startLog
         then:
-            fileLogger.defaultLogDir.eachFile {
+            fileLogger.logDir.eachFile {
                 println " > " + it.name
             }
             assert fileLogger.logFile.exists()
             assert fileLogger.logFile.text.contains("First Log")
-            assert fileLogger.defaultLogDir.listFiles().size() == 2 //Including last-test.log link
+            assert fileLogger.logDir.listFiles().size() == 2 //Including last-test.log link
         when:
             SysClock.setClockAt(now.plusDays(1))
             Log.i("One day after...")
             println "Next log: " + fileLogger.logFile.name
         then:
-            fileLogger.defaultLogDir.eachFile {
+            fileLogger.logDir.eachFile {
                 println " > " + it.name
             }
             assert fileLogger.logFile.exists()
             assert !fileLogger.logFile.text.contains("First Log")
             assert fileLogger.logFile.text.contains("One day after")
-            assert fileLogger.defaultLogDir.listFiles().size() == 3 //Including last-test.log link
+            assert fileLogger.logDir.listFiles().size() == 3 //Including last-test.log link
             assert startLog != fileLogger.logFile.name
     }
 
@@ -290,16 +290,16 @@ class LogTest extends Specification {
             SysClock.setClockAt(now) //Reset time back to today
             Log.w("This is for today")
             println "------- Before cleaning -----------"
-            fileLogger.defaultLogDir.eachFile {
+            fileLogger.logDir.eachFile {
                 println " > " + it.name + "\t" + LocalDateTime.fromMillis(it.lastModified()).YMDHmsS
             }
         then:
-            assert fileLogger.defaultLogDir.listFiles().size() == logsToCreate + 2 // plus 1 link
+            assert fileLogger.logDir.listFiles().size() == logsToCreate + 2 // plus 1 link
         when:
             fileLogger.onCleanDone = {
                 println "------- After cleaning -----------"
-                if(fileLogger.defaultLogDir.exists()) {
-                    fileLogger.defaultLogDir.eachFile {
+                if(fileLogger.logDir.exists()) {
+                    fileLogger.logDir.eachFile {
                         println " > " + it.name
                     }
                 }
@@ -310,13 +310,13 @@ class LogTest extends Specification {
                 sleep(50)
             }
         then:
-            assert fileLogger.defaultLogDir.listFiles().find { it.name == "last-" + fileLogger.logFileName }
-            assert fileLogger.defaultLogDir.listFiles().size() == expected + 1
+            assert fileLogger.logDir.listFiles().find { it.name == "last-" + fileLogger.logFileName }
+            assert fileLogger.logDir.listFiles().size() == expected + 1
             if(compress) {
-                assert fileLogger.defaultLogDir.listFiles().findAll { it.name.endsWith(".gz") }.size() == expected - 1
-                assert fileLogger.defaultLogDir.listFiles().findAll { it.name.endsWith(".log") }.size() == 2
+                assert fileLogger.logDir.listFiles().findAll { it.name.endsWith(".gz") }.size() == expected - 1
+                assert fileLogger.logDir.listFiles().findAll { it.name.endsWith(".log") }.size() == 2
             } else {
-                assert fileLogger.defaultLogDir.listFiles().findAll { it.name.endsWith(".gz") }.size() == 0
+                assert fileLogger.logDir.listFiles().findAll { it.name.endsWith(".gz") }.size() == 0
             }
             noExceptionThrown()
         cleanup:
