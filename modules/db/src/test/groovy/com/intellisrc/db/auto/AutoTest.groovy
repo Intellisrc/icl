@@ -157,7 +157,7 @@ class AutoTest extends Specification {
     }
 
     def setup() {
-        Log.i("Initializing Test...")
+        Log.i("Setting up Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
         printLogger.setLevel(Level.TRACE)
         if(sqliteTmp.exists()) { sqliteTmp.delete() }
@@ -180,6 +180,7 @@ class AutoTest extends Specification {
     @Unroll
     def "Create table model"() {
         setup:
+            Log.i("Initializing test for: %s", type)
             Database database = new Database(type)
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
@@ -248,6 +249,7 @@ class AutoTest extends Specification {
     @Unroll
     def "Multi-column Primary Key should work fine"() {
         setup:
+            Log.i("Initializing test for: %s", type)
             Database database = new Database(type)
             Users users = new Users(database)
             Emails emails = new Emails(database)
@@ -303,6 +305,7 @@ class AutoTest extends Specification {
     @Unroll
     def "Primary Key is Model"() {
         setup:
+            Log.i("Initializing test for: %s", type)
             Database database = new Database(type)
             Users users = new Users(database)
             Addresses addresses = new Addresses(database)
@@ -351,6 +354,7 @@ class AutoTest extends Specification {
     @Unroll
     def "Insert, update and delete in bulk"() {
         setup:
+            Log.i("Initializing test for: %s", type)
             Database database = new Database(type)
             Emails emails = new Emails(database)
             emails.clear()

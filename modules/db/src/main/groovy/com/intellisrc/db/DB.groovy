@@ -111,12 +111,19 @@ class DB {
     }
 
     /**
-     * Get all tables in database
+     * Return tables using cache
      * @return
      */
     List<String> getTables() {
+        return getTables(true)
+    }
+    /**
+     * Get all tables in database
+     * @return
+     */
+    List<String> getTables(boolean useCache) {
         List<String> list = []
-        if(tableList.empty) {
+        if(tableList.empty ||! useCache) {
             if (openIfClosed()) {
                 String tablesQuery = jdbc.getTablesQuery()
                 if (!tablesQuery.empty) {
@@ -487,14 +494,21 @@ class DB {
         }
         return exists
     }
+    /**
+     * Return column Info using cache
+     * @return
+     */
+    List<ColumnInfo> info() {
+        return info(true)
+    }
     /** Get Table information:
      *  example:
      *      position, column, type, length, default, nullable, primary, comment
 	 * @return  **/
-    List<ColumnInfo> info() {
+    List<ColumnInfo> info(boolean useCache) {
         List<ColumnInfo> columns = []
         if(table) {
-            if (colsInfo.contains(jdbc.dbname + "." + table)) {
+            if (useCache && colsInfo.contains(jdbc.dbname + "." + table)) {
                 columns = colsInfo.get(jdbc.dbname + "." + table) ?: []
             } else {
                 String infoSQL = jdbc.getInfoQuery(table)
@@ -544,8 +558,8 @@ class DB {
      * @param column
      * @return
      */
-    ColumnInfo info(String column) {
-        return info().find { it.name == column }
+    ColumnInfo info(String column, boolean useCache = true) {
+        return info(useCache).find { it.name == column }
     }
     /** Quit **/
     boolean close() {

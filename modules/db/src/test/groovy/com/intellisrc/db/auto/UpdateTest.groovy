@@ -59,6 +59,7 @@ class UpdateTest extends AutoTest {
     def "Simple Update without data"() {
         setup:
             String tableName = "users"
+            Log.i("Initializing test for: %s", jdbc)
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)
             UserExtras extras = new UserExtras(database)
@@ -103,6 +104,7 @@ class UpdateTest extends AutoTest {
     @Unroll
     def "Update with data"() {
         setup:
+            Log.i("Initializing test for: %s", jdbc)
             String tableName = "users"
             Database database = new Database(jdbc)
             Users users = new Users(tableName, database)
@@ -159,5 +161,4 @@ class UpdateTest extends AutoTest {
         where:
             jdbc << getTestable(true)
     }
-
 }

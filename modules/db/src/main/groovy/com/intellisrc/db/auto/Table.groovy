@@ -97,7 +97,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
     boolean createTable(DB db, String copyName = "") {
         boolean ok = false
         String tableNameToCreate = copyName ?: tableName
-        if (!db.tables.contains(tableNameToCreate)) {
+        if (!db.getTables(false).contains(tableNameToCreate)) {
             String charset = "utf8"
             String engine = ""
             if (this.class.isAnnotationPresent(TableMeta) || this.class.isAnnotationPresent(ViewMeta)) {

@@ -494,21 +494,35 @@ extends java.lang.Object</pre>
                         <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>java.util.List&lt;java.lang.String&gt;</code></td>
-                            <td class="colLast"><code><strong><a href="#getTables()">getTables</a></strong>()</code><br>Get all tables in database
+                            <td class="colLast"><code><strong><a href="#getTables()">getTables</a></strong>()</code><br>Return tables using cache
  @return</td>
                         </tr>
                         
                         <tr class="rowColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>java.util.List&lt;java.lang.String&gt;</code></td>
+                            <td class="colLast"><code><strong><a href="#getTables(boolean)">getTables</a></strong>(boolean useCache)</code><br>Get all tables in database
+ @return</td>
+                        </tr>
+                        
+                        <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code><a href='../../../com/intellisrc/db/DB.html'>DB</a></code></td>
                             <td class="colLast"><code><strong><a href="#group(java.lang.String)">group</a></strong>(java.lang.String column)</code><br>Set Group By
  e.g. : .group("year")</td>
                         </tr>
                         
+                        <tr class="rowColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>java.util.List&lt;<a href='../../../com/intellisrc/db/ColumnInfo.html' title='ColumnInfo'>ColumnInfo</a>&gt;</code></td>
+                            <td class="colLast"><code><strong><a href="#info()">info</a></strong>()</code><br>Return column Info using cache
+ @return</td>
+                        </tr>
+                        
                         <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>java.util.List&lt;<a href='../../../com/intellisrc/db/ColumnInfo.html' title='ColumnInfo'>ColumnInfo</a>&gt;</code></td>
-                            <td class="colLast"><code><strong><a href="#info()">info</a></strong>()</code><br>Get Table information:
+                            <td class="colLast"><code><strong><a href="#info(boolean)">info</a></strong>(boolean useCache)</code><br>Get Table information:
   example:
       position, column, type, length, default, nullable, primary, comment</td>
                         </tr>
@@ -516,7 +530,7 @@ extends java.lang.Object</pre>
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code><a href='../../../com/intellisrc/db/ColumnInfo.html'>ColumnInfo</a></code></td>
-                            <td class="colLast"><code><strong><a href="#info(java.lang.String)">info</a></strong>(java.lang.String column)</code><br>Shortcut to get only the information about a column</td>
+                            <td class="colLast"><code><strong><a href="#info(java.lang.String, boolean)">info</a></strong>(java.lang.String column, boolean useCache)</code><br>Shortcut to get only the information about a column</td>
                         </tr>
                         
                         <tr class="altColor">
@@ -1217,6 +1231,15 @@ extends java.lang.Object</pre>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>java.util.List&lt;java.lang.String&gt; <strong>getTables</strong>()</h4>
+                                <p> Return tables using cache
+ @return</p>
+                            </li>
+                        </ul>
+                    
+                        <a name="getTables(boolean)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>java.util.List&lt;java.lang.String&gt; <strong>getTables</strong>(boolean useCache)</h4>
                                 <p> Get all tables in database
  @return</p>
                             </li>
@@ -1235,16 +1258,25 @@ extends java.lang.Object</pre>
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>java.util.List&lt;<a href='../../../com/intellisrc/db/ColumnInfo.html' title='ColumnInfo'>ColumnInfo</a>&gt; <strong>info</strong>()</h4>
+                                <p> Return column Info using cache
+ @return</p>
+                            </li>
+                        </ul>
+                    
+                        <a name="info(boolean)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>java.util.List&lt;<a href='../../../com/intellisrc/db/ColumnInfo.html' title='ColumnInfo'>ColumnInfo</a>&gt; <strong>info</strong>(boolean useCache)</h4>
                                 <p>Get Table information:
   example:
       position, column, type, length, default, nullable, primary, comment <DL><DT><B>Returns:</B></DT><DD>*</DD></DL></p>
                             </li>
                         </ul>
                     
-                        <a name="info(java.lang.String)"><!-- --></a>
+                        <a name="info(java.lang.String, boolean)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
-                                <h4><a href='../../../com/intellisrc/db/ColumnInfo.html'>ColumnInfo</a> <strong>info</strong>(java.lang.String column)</h4>
+                                <h4><a href='../../../com/intellisrc/db/ColumnInfo.html'>ColumnInfo</a> <strong>info</strong>(java.lang.String column, boolean useCache)</h4>
                                 <p> Shortcut to get only the information about a column
  @return <DL><DT><B>Parameters:</B></DT><DD>column</DD></DL></p>
                             </li>
