@@ -86,9 +86,14 @@ abstract class Model implements ToMap {
     }
     /**
      * Convert Model fields to Map preserving types
+     * NOTE: This is not the same as 'toMap()' because it converts the field names
      * @return
      */
     protected Map<String, Object> asMap() {
-        return toMap()
+        Map<String, Object> map = fields.collectEntries {
+            Field field ->
+                [(Table.getColumnName(field)) : this[field.name]]
+        }
+        return map
     }
 }
