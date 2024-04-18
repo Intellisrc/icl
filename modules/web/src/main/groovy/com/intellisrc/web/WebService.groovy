@@ -1351,20 +1351,25 @@ class WebService extends WebServiceBase {
      * @param e
      */
     static void handleException(Service sp, int code, String text = "", Exception e = null) {
-        boolean handled = false
-        if(sp.onError) {
-            handled = sp.onError.call(code, e ?: new Exception(text))
-        }
-        if(!handled) {
-            switch (true) {
-                case code >= BAD_REQUEST_400:
-                    if(e) {
-                        Log.e("Exception in service: ", e)
-                    }
-                    throw new WebException(code, text, e)
-                    break
-                default:
-                    Log.v(text)
+        // If the passed exception is already a WebException throw it to be handled later
+        if(e instanceof WebException) {
+            throw e
+        } else {
+            boolean handled = false
+            if (sp.onError) {
+                handled = sp.onError.call(code, e ?: new Exception(text))
+            }
+            if (!handled) {
+                switch (true) {
+                    case code >= BAD_REQUEST_400:
+                        if (e) {
+                            Log.e("Exception in service: ", e)
+                        }
+                        throw new WebException(code, text, e)
+                        break
+                    default:
+                        Log.v(text)
+                }
             }
         }
     }
