@@ -147,7 +147,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param map
      * @return
      */
-    M setMap(Map map) {
+    M setMap(Map map, boolean convertModel = true) {
         M model = null
         if(! map.isEmpty()) {
             model = parametrizedInstance
@@ -161,7 +161,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                     field = getFields().find { it.name == origName }
                 }
                 if (field) {
-                    model[origName] = fromDB(field, it.value)
+                    model[origName] = fromDB(field, it.value, convertModel)
                 } else {
                     Log.w("Field not found: %s", origName)
                 }
@@ -344,8 +344,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param id
      * @return
      */
-    M get(int id) {
-        return setMap(getRecord(id))
+    M get(int id, boolean convertModel = true) {
+        return setMap(getRecord(id), convertModel)
     }
     /**
      * Get one item using ID and return it as Map
@@ -368,10 +368,10 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param ids
      * @return
      */
-    List<M> get(Collection<Integer> ids) {
+    List<M> get(Collection<Integer> ids, boolean convertModel = true) {
         return getRecords(ids).collect {
             Map map ->
-                return setMap(map)
+                return setMap(map, convertModel)
         }
     }
     /**
@@ -395,11 +395,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param options
      * @return
      */
-    List<M> getAll(int limit, int offset = 0) {
-        return getAll(
+    List<M> getAll(int limit, int offset = 0, boolean convertModel = true) {
+        return getAll([
             limit: limit,
             offset: offset
-        )
+        ], convertModel)
     }
     /**
      * Get all limiting number of rows to return
@@ -423,11 +423,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param order
      * @return
      */
-    List<M> getAll(String sortBy, Query.SortOrder order) {
-        return getAll(
+    List<M> getAll(String sortBy, Query.SortOrder order, boolean convertModel = true) {
+        return getAll([
             sort: sortBy,
             order: order.toString()
-        )
+        ], convertModel)
     }
     /**
      * Get all sorting it database-side
@@ -451,11 +451,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param order
      * @param chunkReader
      */
-    void getAll(String sortBy, Query.SortOrder order, ChunkReader<M> chunkReader) {
+    void getAll(String sortBy, Query.SortOrder order, ChunkReader<M> chunkReader, boolean convertModel = true) {
         getAll([
             sort: sortBy,
             order: order
-        ], chunkReader)
+        ], chunkReader, convertModel)
     }
     /**
      * Get all sorting it database-side and getting results by chunks
@@ -479,13 +479,13 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param order
      * @return
      */
-    List<M> getAll(String sortBy, Query.SortOrder order, int limit, int offset = 0) {
-        return getAll(
+    List<M> getAll(String sortBy, Query.SortOrder order, int limit, int offset = 0, boolean convertModel = true) {
+        return getAll([
             limit: limit,
             offset: offset,
             sort: sortBy,
             order: order.toString()
-        )
+        ], convertModel)
     }
     /**
      * Get all limiting and sorting it database-side
@@ -512,8 +512,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * it will execute more queries.
      * @param chunkReader
      */
-    void getAll(ChunkReader<M> chunkReader) {
-        getAll([:], chunkReader)
+    void getAll(ChunkReader<M> chunkReader, boolean convertModel = true) {
+        getAll([:], chunkReader, convertModel)
     }
     /**
      * Sometimes if there are too many records `getAll()` may timeout.
@@ -539,10 +539,10 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param options
      * @return
      */
-    List<M> getAll(Map options = [:]) {
+    List<M> getAll(Map options = [:], boolean convertModel = true) {
         return getRecords(options).collect {
             Map map ->
-                return setMap(map)
+                return setMap(map, convertModel)
         }
     }
     /**
@@ -580,14 +580,14 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param options
      * @param chunkReader
      */
-    void getAll(Map options, ChunkReader<M> chunkReader) {
+    void getAll(Map options, ChunkReader<M> chunkReader, boolean convertModel = true) {
         int offset = 0
         int size
         do {
             List<M> buffer = getAll(options + [
                 limit : chunkSize,
                 offset: offset
-            ])
+            ], convertModel)
             chunkReader.call(buffer)
             //noinspection GroovyUnusedAssignment
             offset += chunkSize
@@ -624,8 +624,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param value
      * @return
      */
-    M find(String column, Object value) {
-        return find([(column): value])
+    M find(String column, Object value, boolean convertModel = true) {
+        return find([(column): value], convertModel)
     }
     /**
      * Find a single item which matches some column an some value
@@ -646,8 +646,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param criteria
      * @return
      */
-    M find(Map criteria) {
-        return setMap(findRecord(criteria))
+    M find(Map criteria, boolean convertModel = true) {
+        return setMap(findRecord(criteria), convertModel)
     }
     /**
      * Find a single item using multiple columns
@@ -673,8 +673,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param options (limit, sort, etc)
      * @return
      */
-    List<M> findAll(String fieldName, Model model, Map options = [:]) {
-        return findAll([(fieldName) : model.uniqueId], options)
+    List<M> findAll(String fieldName, Model model, Map options = [:], boolean convertModel = true) {
+        return findAll([(fieldName) : model.uniqueId], options, convertModel)
     }
     /**
      * Find all of a kind of model id
@@ -697,14 +697,14 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param model
      * @param chunkReader
      */
-    void findAll(String fieldName, Model model, ChunkReader<M> chunkReader) {
+    void findAll(String fieldName, Model model, ChunkReader<M> chunkReader, boolean convertModel = true) {
         int offset = 0
         int size
         do {
             List<M> buffer = findAll(fieldName, model, [
                 limit : chunkSize,
                 offset: offset
-            ])
+            ], convertModel)
             chunkReader.call(buffer)
             //noinspection GroovyUnusedAssignment
             offset += chunkSize
@@ -742,8 +742,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param value
      * @return
      */
-    List<M> findAll(String column, Object value) {
-        return findAll([(column): value])
+    List<M> findAll(String column, Object value, boolean convertModel = true) {
+        return findAll([(column): value], [:], convertModel)
     }
     /**
      * Find all items which matches a column and a value
@@ -765,8 +765,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param value
      * @param chunkReader
      */
-    void findAll(String column, Object value, ChunkReader<M> chunkReader) {
-        findAll([(column): value], chunkReader)
+    void findAll(String column, Object value, ChunkReader<M> chunkReader, boolean convertModel = true) {
+        findAll([(column): value], chunkReader, convertModel)
     }
     /**
      * Find all items which matches a column and a value and return by chunks
@@ -787,10 +787,10 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param criteria
      * @return
      */
-    List<M> findAll(Map criteria, Map options = [:]) {
+    List<M> findAll(Map criteria, Map options = [:], boolean convertModel = true) {
         return findRecords(criteria, options).collect {
             Map map ->
-                return setMap(map)
+                return setMap(map, convertModel)
         }
     }
     /**
@@ -823,14 +823,14 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param criteria
      * @param chunkReader
      */
-    void findAll(Map criteria, ChunkReader<M> chunkReader) {
+    void findAll(Map criteria, ChunkReader<M> chunkReader, boolean convertModel = true) {
         int offset = 0
         int size
         do {
             List<M> buffer = findAll(criteria, [
                 limit : chunkSize,
                 offset: offset
-            ])
+            ], convertModel)
             chunkReader.call(buffer)
             //noinspection GroovyUnusedAssignment
             offset += chunkSize
@@ -961,7 +961,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     @SuppressWarnings('GroovyUnusedAssignment')
-    Object fromDB(Field field, Object value, boolean convertModels = true) {
+    Object fromDB(Field field, Object value, boolean convertModel = true) {
         Object retVal = null
         if(value != null) {
             try {
@@ -1006,7 +1006,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         try {
                             retVal = YAML.decode((value ?: "").toString()) as List
                             if (retVal) {
-                                if (!(retVal as List).empty && convertModels) {
+                                if (!(retVal as List).empty && convertModel) {
                                     if (retVal.first() instanceof Integer && genericIsModel(field)) {
                                         Column annotation = field.getAnnotation(Column)
                                         Relational rel = getTableOrView(getParameterizedClass(field) as Model)
@@ -1080,7 +1080,14 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         break
                     case Model:
                         Relational rel = getTableOrView(field)
-                        retVal = rel.get(value as int)
+                        if(convertModel) {
+                            retVal = rel.get(value as int)
+                        } else {
+                            retVal = rel.getNew()
+                            try {
+                                retVal.pk.setInt(null, value as int)
+                            } catch(Exception ignore) {}
+                        }
                         break
                     default:
                         try {

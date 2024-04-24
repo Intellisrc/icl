@@ -307,10 +307,12 @@ class Users extends Table<User> {
 class Reservation extends Model {
     @Column(primary = true, autoincrement = true)
     int id
-    @Column(key = true)
+    @Column
     LocalDateTime dayTime
     @Column(key = true)
     User user
+    @Column(key = true)
+    boolean completed = false  // default value is 'false'
 }
 ```
 ```groovy
@@ -402,6 +404,41 @@ assert users.update(user)
 assert users.count() > 0
 assert users.count(active : true) > 0
 ```
+
+NOTE: When using methods that returns `Model` objects, like `get()`, `getAll()`, `find()` 
+and `findAll()`, it will automatically convert `Model` fields inside each `Model` object, 
+generating additional queries to the database. If you don't need such feature, you can:
+
+1. use `getRecord()`, `getRecords()`, `findRecord()` and `findRecords()` instead:
+
+```groovy
+List<Map> = reservations.findRecords("enabled", true)
+reservations.each {
+     // In the database, 'dateTime' is stored as 'date_time'
+     LocalDateTime reserved = it.date_time as LocalDateTime
+     // In the database, 'user' is stored as 'user_id'
+     int userId = it.user_id as int
+}
+```
+As explained in the example, the returning `Map` field names will be as they are stored 
+in the database, and you will need to cast or convert their values to their original type.
+
+2. pass `false` as last argument in those methods, disabling child Model conversions:
+
+```groovy
+List<Reservation> = reservations.getAll(/* convertModel: */ false)
+reservations.each {
+    // As we have 'Reservation' objects, fields keep name and type:
+    LocalDateTime reserved = it.dateTime
+    // Although 'user' is a 'User' object it is empty except for the ID:
+    int id = it.user.id
+    String name = it.user.name // This value will be empty!
+}
+```
+When disabling the `convertModel`, the performance will improve considerably as child 
+classes are not being converted, only empty objects are returned with their id.
+
+##### Updating tables
 
 When the table does not exist, it will be created automatically. If your `Model` version
 changes (either increases or decreases), it will update the table automatically, but if you 
