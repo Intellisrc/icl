@@ -47,6 +47,10 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         void call(List<M> rows)
     }
 
+    interface ChunkReaderRecord {
+        void call(List<Map> rows)
+    }
+
     /**
      * Information about a Field that will be used as column in a DB
      * @see com.intellisrc.db.annot.Column
@@ -341,12 +345,23 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     M get(int id) {
+        return setMap(getRecord(id))
+    }
+    /**
+     * Get one item using ID and return it as Map
+     *
+     * NOTE: This method is faster than get() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     * @param id
+     * @return
+     */
+    Map getRecord(int id) {
         DB db = connect()
         if(pk) { db.keys(pks) }
         Map map = db.get(id)?.toMap() ?: [:]
-        M model = setMap(map)
         db.close()
-        return model
+        return map
     }
     /**
      * Get a list of items using ids
@@ -354,15 +369,26 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> get(Collection<Integer> ids) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
-        List<Map> list = db.get(ids).toListMap()
-        List<M> all = list.collect {
+        return getRecords(ids).collect {
             Map map ->
                 return setMap(map)
         }
+    }
+    /**
+     * Get a list of items using ids and return it as List<Map>
+     *
+     * NOTE: This method is faster than get() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     * @param ids
+     * @return
+     */
+    List<Map> getRecords(Collection<Integer> ids) {
+        DB db = connect()
+        if(pk) { db.keys(pks) }
+        List<Map> list = db.get(ids).toListMap()
         db.close()
-        return all
+        return list
     }
     /**
      * Get all limiting number of rows to return
@@ -371,6 +397,22 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     List<M> getAll(int limit, int offset = 0) {
         return getAll(
+            limit: limit,
+            offset: offset
+        )
+    }
+    /**
+     * Get all limiting number of rows to return
+     *
+     * NOTE: This method is faster than getAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     * @param limit
+     * @param offset
+     * @return
+     */
+    List<Map> getRecords(int limit, int offset = 0) {
+        return getRecords(
             limit: limit,
             offset: offset
         )
@@ -388,6 +430,22 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         )
     }
     /**
+     * Get all sorting it database-side
+     *
+     * NOTE: This method is faster than getAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     * @param limit
+     * @param offset
+     * @return
+     */
+    List<Map> getRecords(String sortBy, Query.SortOrder order) {
+        return getRecords(
+            sort: sortBy,
+            order: order.toString()
+        )
+    }
+    /**
      * Get all sorting it database-side and getting results by chunks
      * @param sortBy
      * @param order
@@ -395,6 +453,22 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     void getAll(String sortBy, Query.SortOrder order, ChunkReader<M> chunkReader) {
         getAll([
+            sort: sortBy,
+            order: order
+        ], chunkReader)
+    }
+    /**
+     * Get all sorting it database-side and getting results by chunks
+     *
+     * NOTE: This method is faster than getAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     * @param sortBy
+     * @param order
+     * @param chunkReader
+     */
+    void getRecords(String sortBy, Query.SortOrder order, ChunkReaderRecord chunkReader) {
+        getRecords([
             sort: sortBy,
             order: order
         ], chunkReader)
@@ -414,6 +488,25 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         )
     }
     /**
+     * Get all limiting and sorting it database-side
+     *
+     * NOTE: This method is faster than getAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param sortBy
+     * @param order
+     * @return
+     */
+    List<Map> getRecords(String sortBy, Query.SortOrder order, int limit, int offset = 0) {
+        return getRecords(
+            limit: limit,
+            offset: offset,
+            sort: sortBy,
+            order: order.toString()
+        )
+    }
+    /**
      * Sometimes if there are too many records `getAll()` may timeout.
      * For those cases, this method will work faster than `getAll` but
      * it will execute more queries.
@@ -421,6 +514,20 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     void getAll(ChunkReader<M> chunkReader) {
         getAll([:], chunkReader)
+    }
+    /**
+     * Sometimes if there are too many records `getAll()` may timeout.
+     * For those cases, this method will work faster than `getAll` but
+     * it will execute more queries.
+     *
+     * NOTE: This method is faster than getAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param chunkReader
+     */
+    void getRecords(ChunkReaderRecord chunkReader) {
+        getRecords([:], chunkReader)
     }
     /**
      * Get all with options:
@@ -433,6 +540,26 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<M> getAll(Map options = [:]) {
+        return getRecords(options).collect {
+            Map map ->
+                return setMap(map)
+        }
+    }
+    /**
+     * Get all with options:
+     * limit : Total of items to get
+     * offset : Starting from...
+     * sort : Sort by
+     * order : ASC or DESC
+     *
+     * NOTE: This method is faster than getAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param options
+     * @return
+     */
+    List<Map> getRecords(Map options = [:]) {
         if(! options.isEmpty() &&! ["limit", "sort"].any { options.containsKey(it) }) {
             Log.e("Incorrect options: (%s) passed to `getAll`, did you mean `findAll` ?", options.toMapString())
             return []
@@ -445,12 +572,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
             con = con.order(options.sort.toString(), (options.order ?: "ASC") as Query.SortOrder)
         }
         List<Map> list = con.get().toListMap()
-        List<M> all = list.collect {
-            Map map ->
-                return setMap(map)
-        }
         con.close()
-        return all
+        return list
     }
     /**
      * Common method to get chunks with options
@@ -472,6 +595,30 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         } while(size == chunkSize)
     }
     /**
+     * Common method to get chunks with options
+     *
+     * NOTE: This method is faster than getAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param options
+     * @param chunkReader
+     */
+    void getRecords(Map options, ChunkReaderRecord chunkReader) {
+        int offset = 0
+        int size
+        do {
+            List<Map> buffer = getRecords(options + [
+                limit : chunkSize,
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
+    }
+    /**
      * Find a single item which matches some column an some value
      * @param column
      * @param value
@@ -481,17 +628,43 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         return find([(column): value])
     }
     /**
+     * Find a single item which matches some column an some value
+     *
+     * NOTE: This method is faster than find() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param column
+     * @param value
+     * @return
+     */
+    Map findRecord(String column, Object value) {
+        return findRecord([(column): value])
+    }
+    /**
      * Find a single item using multiple columns
      * @param criteria
      * @return
      */
     M find(Map criteria) {
+        return setMap(findRecord(criteria))
+    }
+    /**
+     * Find a single item using multiple columns
+     *
+     * NOTE: This method is faster than find() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param criteria
+     * @return
+     */
+    Map findRecord(Map criteria) {
         criteria = convertToDB(criteria)
         DB db = connect()
         Map map = db.get(criteria)?.toMap() ?: [:]
-        M model = setMap(map)
         db.close()
-        return model
+        return map
     }
     /**
      * Find all of a kind of model id
@@ -502,6 +675,21 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     List<M> findAll(String fieldName, Model model, Map options = [:]) {
         return findAll([(fieldName) : model.uniqueId], options)
+    }
+    /**
+     * Find all of a kind of model id
+     *
+     * NOTE: This method is faster than findAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param fieldName
+     * @param type
+     * @param options (limit, sort, etc)
+     * @return
+     */
+    List<Map> findRecords(String fieldName, Model model, Map options = [:]) {
+        return findRecords([(fieldName) : model.uniqueId], options)
     }
     /**
      * Find all using Model and return by chunks
@@ -524,6 +712,31 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         } while(size == chunkSize)
     }
     /**
+     * Find all using Model and return by chunks
+     *
+     * NOTE: This method is faster than findAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param fieldName
+     * @param model
+     * @param chunkReader
+     */
+    void findRecords(String fieldName, Model model, ChunkReaderRecord chunkReader) {
+        int offset = 0
+        int size
+        do {
+            List<Map> buffer = findRecords(fieldName, model, [
+                limit : chunkSize,
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
+    }
+    /**
      * Find all items which matches a column and a value
      * @param column
      * @param value
@@ -531,6 +744,20 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     List<M> findAll(String column, Object value) {
         return findAll([(column): value])
+    }
+    /**
+     * Find all items which matches a column and a value
+     *
+     * NOTE: This method is faster than findAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param column
+     * @param value
+     * @return
+     */
+    List<Map> findRecords(String column, Object value) {
+        return findRecords([(column): value])
     }
     /**
      * Find all items which matches a column and a value and return by chunks
@@ -542,11 +769,41 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         findAll([(column): value], chunkReader)
     }
     /**
+     * Find all items which matches a column and a value and return by chunks
+     *
+     * NOTE: This method is faster than findAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param column
+     * @param value
+     * @param chunkReader
+     */
+    void findRecords(String column, Object value, ChunkReaderRecord chunkReader) {
+        findRecords([(column): value], chunkReader)
+    }
+    /**
      * Find all items matching multiple columns
      * @param criteria
      * @return
      */
     List<M> findAll(Map criteria, Map options = [:]) {
+        return findRecords(criteria, options).collect {
+            Map map ->
+                return setMap(map)
+        }
+    }
+    /**
+     * Find all items matching multiple columns
+     *
+     * NOTE: This method is faster than findAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param criteria
+     * @return
+     */
+    List<Map> findRecords(Map criteria, Map options = [:]) {
         criteria = convertToDB(criteria)
         DB db = connect()
         if(! options.isEmpty()) {
@@ -558,12 +815,8 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
             }
         }
         List<Map> list = db.get(criteria).toListMap()
-        List<M> all = list.collect {
-            Map map ->
-                return setMap(map)
-        }
         db.close()
-        return all
+        return list
     }
     /**
      * Find all items matching multiple columns returning by chunks
@@ -575,6 +828,30 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         int size
         do {
             List<M> buffer = findAll(criteria, [
+                limit : chunkSize,
+                offset: offset
+            ])
+            chunkReader.call(buffer)
+            //noinspection GroovyUnusedAssignment
+            offset += chunkSize
+            size = buffer.size()
+        } while(size == chunkSize)
+    }
+    /**
+     * Find all items matching multiple columns returning by chunks
+     *
+     * NOTE: This method is faster than findAll() as it does not
+     * import and convert child Model objects. It will return as
+     * it is in the database.
+     *
+     * @param criteria
+     * @param chunkReader
+     */
+    void findRecords(Map criteria, ChunkReaderRecord chunkReader) {
+        int offset = 0
+        int size
+        do {
+            List<Map> buffer = findRecords(criteria, [
                 limit : chunkSize,
                 offset: offset
             ])
