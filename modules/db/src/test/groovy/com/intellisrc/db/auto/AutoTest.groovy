@@ -5,6 +5,7 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
+import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.DeleteActions
 import com.intellisrc.db.jdbc.*
@@ -38,9 +39,9 @@ class AutoTest extends Specification {
         @Column(primary = true, autoincrement = true)
         int id
         @Column
-        String name
+        String name = ""
         @Column(unsigned = true)
-        short age
+        short age = 0
         @Column
         boolean active = true
         @Column(nullable = true)
@@ -191,10 +192,23 @@ class AutoTest extends Specification {
                 name : "Benjamin",
                 age  : 99
             )
+            User v = new User(
+                name : "Angelina",
+                age  : 88
+            )
+            User w = new User(
+                name : "Anthony",
+                age  : 77
+            )
         then:
             assert users.get(1) == null
             assert users.insert(u) == 1
             assert u.uniqueId == 1
+            assert users.insert(v) == 2
+            assert users.insert(w) == 3
+            assert users.count() == 3
+            assert users.count(age : v.age) == 1
+            assert users.count("age > ?", 80) == 2
         when:
             Alias alias = new Alias(
                 user : u,
@@ -206,9 +220,20 @@ class AutoTest extends Specification {
             assert aliases.insert(alias)
             assert aliases.table.field("name").get(1).hasValue()
         when:
-            User u2 = users.find(name : "Benjamin")
+            Alias a1 = aliases.get(1, false)
+            Map aMap = aliases.getRecord(1)
+        then:
+            assert a1.user.id == 1
+            assert a1.user.name == ""
+            assert aMap.containsKey("user_id")
+            assert aMap.user_id == 1
+        when:
+            User u2 = users.find(name : u.name)
+            List<Map> userList = users.findRecords(name : u.name)
         then:
             assert u2.uniqueId == 1
+            assert userList.size() == 1
+            assert userList.first().age == u.age
         when:
             u2.name = "Benji"
             u2.active = false
@@ -336,10 +361,21 @@ class AutoTest extends Specification {
             address.zip = "444444"
         then:
             assert addresses.update(address)
-            assert addresses.find("user", user).zip == "444444"
+            assert addresses.find("user", user).zip == address.zip
+            assert addresses.findRecord("zip", address.zip).containsKey("user_id")
         when:
-            assert addresses.delete(address)
+            addresses.getAll("zip", Query.SortOrder.ASC, {
+                List<Address> chunk ->
+                    assert chunk.size() == rows
+                    assert chunk.first().user.name == ""
+            }, false)
+            addresses.getRecords("zip", Query.SortOrder.ASC, {
+                List<Map> chunk ->
+                    assert chunk.size() == rows
+                    assert chunk.first().user_id as int > 0
+            })
         then:
+            assert addresses.delete(address)
             assert addresses.all.size() == 2
         cleanup:
             addresses.reset()
@@ -369,18 +405,29 @@ class AutoTest extends Specification {
             }
             Log.i("Inserting rows...")
             LocalDateTime start = SysClock.now
+        then:
             assert emails.insert(emailList)
+        when:
             long time = ChronoUnit.MILLIS.between(start, SysClock.now)
             Log.i("%d new records, took: %d ms", rows, time)
-            assert time < 15000
         then:
+            assert time < 15000
             assert emails.count() == rows    : "Number of rows failed"
+        when:
+            List<Map> recs = emails.getRecords(100, 100)
+            List<Map> recsInv = emails.getRecords("id", Query.SortOrder.DESC)
+        then:
+            assert recs.size() == 100
+            assert recs.first().email.toString().contains("101")
+            assert recsInv.first().email.toString().contains("500")
         when:
             int numToDelete = 10
             List<Integer> toDelete = emails.all.subList(0, numToDelete).collect { it.id }
+        then:
             assert emails.deleteByPK(toDelete) : "Unable to delete IDs"
             assert emails.count() == rows - numToDelete
-        then:
+        when:
+            String userToFind = "user200@example.com"
             List<UserEmail> newEmailList = []
             emails.getAll({
                 List<UserEmail> chunk ->
@@ -390,12 +437,30 @@ class AutoTest extends Specification {
                         newEmailList << it
                     }
             })
+            List<Map> few = emails.getRecords("id", Query.SortOrder.DESC, 10, 10)
+            emails.getRecords({
+                List<Map> chunk ->
+                    assert chunk.first().email instanceof String
+            })
+            Map email200 = emails.findRecord("id", 200)
+            List<Map> finder = emails.findRecords("id", 200)
+            emails.findRecords("id", 200, {
+                List<Map> chunk ->
+                    assert chunk.size() == 1
+                    assert chunk.first().email == userToFind
+            })
+        then:
             assert emails.update(newEmailList)
             assert emails.delete(newEmailList)
             assert emails.count() == 0
-        then:
             assert emails.clear()
             assert emails.count() == 0
+            assert few.size() == 10
+            assert few.first().id as int == 490
+            assert few.last().id as int == 481
+            assert email200.email == userToFind
+            assert finder.size() == 1
+            assert finder.first().email == userToFind
         cleanup:
             emails.reset()
             [emails].each {

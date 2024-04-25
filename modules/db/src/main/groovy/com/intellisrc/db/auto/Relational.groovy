@@ -677,21 +677,6 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         return findAll([(fieldName) : model.uniqueId], options, convertModel)
     }
     /**
-     * Find all of a kind of model id
-     *
-     * NOTE: This method is faster than findAll() as it does not
-     * import and convert child Model objects. It will return as
-     * it is in the database.
-     *
-     * @param fieldName
-     * @param type
-     * @param options (limit, sort, etc)
-     * @return
-     */
-    List<Map> findRecords(String fieldName, Model model, Map options = [:]) {
-        return findRecords([(fieldName) : model.uniqueId], options)
-    }
-    /**
      * Find all using Model and return by chunks
      * @param fieldName
      * @param model
@@ -705,31 +690,6 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                 limit : chunkSize,
                 offset: offset
             ], convertModel)
-            chunkReader.call(buffer)
-            //noinspection GroovyUnusedAssignment
-            offset += chunkSize
-            size = buffer.size()
-        } while(size == chunkSize)
-    }
-    /**
-     * Find all using Model and return by chunks
-     *
-     * NOTE: This method is faster than findAll() as it does not
-     * import and convert child Model objects. It will return as
-     * it is in the database.
-     *
-     * @param fieldName
-     * @param model
-     * @param chunkReader
-     */
-    void findRecords(String fieldName, Model model, ChunkReaderRecord chunkReader) {
-        int offset = 0
-        int size
-        do {
-            List<Map> buffer = findRecords(fieldName, model, [
-                limit : chunkSize,
-                offset: offset
-            ])
             chunkReader.call(buffer)
             //noinspection GroovyUnusedAssignment
             offset += chunkSize
@@ -1085,8 +1045,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         } else {
                             retVal = rel.getNew()
                             try {
-                                retVal.pk.setInt(null, value as int)
-                            } catch(Exception ignore) {}
+                                //retVal.pk.setInt(retVal, value as int)
+                                retVal[rel.pk] = value as int
+                            } catch(Exception e) {
+                                Log.v("Unable to find primary key in object", e)
+                            }
                         }
                         break
                     default:
