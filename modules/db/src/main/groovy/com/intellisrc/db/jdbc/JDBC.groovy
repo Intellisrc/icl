@@ -55,7 +55,7 @@ abstract class JDBC {
 
     ErrorHandler onError = {
         Throwable e ->
-            Log.w("Database exception: %s", e)
+            Log.e("Database exception: ", e)
     } as ErrorHandler
 
     // Aliases
@@ -226,6 +226,14 @@ abstract class JDBC {
 
     //----------- STATIC ----------------
     /**
+     * Uses a JDBCConfig object to specify connection configuration
+     * @param config
+     * @return
+     */
+    static JDBC fromSettings(JDBCConfig config) {
+        return fromSettings(config.toMap())
+    }
+    /**
      * Will return a JDBC object from passed settings or those in config.properties
      * If settings are specified as parameter, those will be used. Otherwise will try
      * to get the values form your configuration file.
@@ -239,36 +247,36 @@ abstract class JDBC {
         if(settings.keySet().empty) {
             // Only set if exists:
             //noinspection GroovyMissingReturnStatement
-            if (Config.exists("db.name")) {
+            if (Config.any.exists("db.name")) {
                 settings.dbname = Config.any.get("db.name")
             }
-            if (Config.exists("db.host")) {
+            if (Config.any.exists("db.host")) {
                 settings.hostname = Config.any.get("db.host")
             }
-            if (Config.exists("db.port")) {
+            if (Config.any.exists("db.port")) {
                 settings.port = Config.any.getInt("db.port")
             }
-            if (Config.exists("db.user")) {
+            if (Config.any.exists("db.user")) {
                 settings.user = Config.any.get("db.user")
             }
-            if (Config.exists("db.pass")) {
+            if (Config.any.exists("db.pass")) {
                 settings.password = Config.any.get("db.pass")
             }
-            if (Config.exists("db.driver")) {
+            if (Config.any.exists("db.driver")) {
                 settings.driver = Config.any.get("db.driver")
             }
-            if (Config.exists("db.params")) {
+            if (Config.any.exists("db.params")) {
                 settings.params = Config.any.getMap("db.params")
             }
         } else {
             // Allow different aliases for keys
             //noinspection GroovyMissingReturnStatement
             [
-                database : "dbname",
-                name     : "dbname",
-                username : "user",
-                pass     : "password",
-                host     : "hostname"
+                database : "",
+                name     : "",
+                username : "",
+                pass     : "",
+                host     : "localhost"
             ].each {
                 if(settings.containsKey(it.key)) {
                     settings[it.value] = settings[it.key]

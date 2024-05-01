@@ -907,7 +907,6 @@ class DB {
                 } else if(returned) {
                     Log.w("Connection was closed (returned to the pool). Unable to execute query: %s", query.queryStr)
                 } else {
-                    Log.e("Unable to read from server")
                     dbConnector.onError(new ConnectException())
                     return null
                 }

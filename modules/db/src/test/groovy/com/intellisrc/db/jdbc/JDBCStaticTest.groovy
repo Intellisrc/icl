@@ -8,10 +8,10 @@ import spock.lang.Specification
 class JDBCStaticTest extends Specification {
     def "Get JDBC from settings for sqlite"() {
         when:
-            JDBC jdbc = JDBC.fromSettings([
+            JDBC jdbc = JDBC.fromSettings(new JDBCConfig(
                 type : "sqlite",
                 memory : true
-            ])
+            ))
         then:
             assert jdbc instanceof SQLite
             assert (jdbc as SQLite).memory
