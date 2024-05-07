@@ -297,6 +297,13 @@ new Cmd("echo", arg1, arg2).getText {
 }.exec()
 ```
 
+If you don't need the output, you can simply do:
+```groovy
+new Cmd("echo", args).onSuccess {
+    println "Well Done."
+}.exec()
+```
+
 Asynchronously: Just set `true` in `exec` to send the process to the background.
 ```groovy
 new Cmd("echo", arg1, arg2).getText {

@@ -34,6 +34,9 @@ class Cmd {
     static interface Fail {
         void call(String out, int code)
     }
+    static interface Success {
+        void call()
+    }
 
     protected List<String> cmd
     protected boolean secret  = false     // if command contains sensitive information
@@ -95,6 +98,13 @@ class Cmd {
         if(stdErr) {
             this.stdErr = stdErr
         }
+        return this
+    }
+    Cmd onSuccess(Success onSuccess) {
+        this.onText = {
+            String ignore ->
+                onSuccess.call()
+        } as Output
         return this
     }
     Cmd getLines(Lines onDone) {
