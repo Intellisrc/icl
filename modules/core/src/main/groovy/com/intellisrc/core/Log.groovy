@@ -452,7 +452,7 @@ class Log {
                     newMsg = String.format(msg, args)
                     msg = newMsg
                 } catch(Exception e) {
-                    Log.e("Invalid format in message: [$msg]", e) //Set inline to prevent stack overflow
+                    Log.e("Invalid format in message: [%s]", msg, throwable ?: e) //Set inline to prevent stack overflow
                 }
             }
         }
