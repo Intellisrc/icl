@@ -1,6 +1,6 @@
 # WEB Module (ICL.web)
 
-Create restful HTTP (GET, POST, PUT, DELETE, etc), WebSocket or Server-Sent Event application services.
+Simplify HTTP and WS clients or create restful HTTP (GET, POST, PUT, DELETE, etc), WebSocket or Server-Sent Event application services.
 Manage JSON data from and to the server easily. It is build on top of [Jetty](https://github.com/eclipse/jetty.project) 
 
 [JavaDoc](https://intellisrc.gitlab.io/common/#web)
@@ -8,6 +8,35 @@ Manage JSON data from and to the server easily. It is build on top of [Jetty](ht
 ## Usage
 
 Follow the instructions on the last published version in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/web)
+
+## HTTP Client (To send encoded body requests)
+
+`WebClient` will request services sending a body either as text or json (you can extend this class to allow other types).
+
+To send a JSON message to a POST service:
+
+```groovy
+WebClient wc = new WebClient("https://example.com/api/post/me")
+wc.post([ id : 100, user : "new" ], {
+    Map json ->
+        if(json.ok) {
+            Log.i("Post was successful")
+        }
+} as WebClient.JsonOutput)
+```
+
+Alternatively you can send the body as text and receive text as well:
+
+```groovy
+WebClient wc = new WebClient("https://example.com/api/post/me")
+wc.post("done", {
+    String response ->
+        if(response == "ok") {
+            Log.i("Post was successful")
+        }
+} as WebClient.Output)
+```
+If you expect a large number of lines in your response, you can use `eachLine` to process each line at a time.
 
 ## WebService (HTTP Web Server)
 
