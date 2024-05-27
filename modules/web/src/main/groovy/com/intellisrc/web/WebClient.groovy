@@ -1,6 +1,5 @@
 package com.intellisrc.web
 
-import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
 import groovy.transform.CompileStatic
@@ -55,49 +54,45 @@ class WebClient {
     }
 
     void request(Object data, Output onResponse = null, HttpMethod method) {
-        try {
-            HttpURLConnection con = (HttpURLConnection) url.openConnection()
-            con.doOutput = true
-            String body = ""
-            //noinspection GroovyFallthrough
-            switch (data) {
-                case Map :
-                case List :
-                    con.setRequestProperty("Accept", Mime.JSON)
-                    body = JSON.encode(data)
-                    break
-                default:
-                    con.requestMethod = method.toString()
-                    body = data.toString()
-                    break
-            }
-            try(OutputStream os = con.getOutputStream()) {
-                byte[] input = body.getBytes(charset)
-                os.write(input, 0, input.length)
-            }
-            try(BufferedReader br = new BufferedReader(
-            new InputStreamReader(con.inputStream, charset))) {
-                StringBuilder response = new StringBuilder()
-                String responseLine
-                while ((responseLine = br.readLine()) != null) {
-                    if(eachLine) {
-                        eachLine.call(responseLine.trim())
-                    }
-                    response.append(responseLine.trim())
+        HttpURLConnection con = (HttpURLConnection) url.openConnection()
+        con.doOutput = true
+        String body
+        //noinspection GroovyFallthrough
+        switch (data) {
+            case Map :
+            case List :
+                con.setRequestProperty("Accept", Mime.JSON)
+                body = JSON.encode(data)
+                break
+            default:
+                con.requestMethod = method.toString()
+                body = data.toString()
+                break
+        }
+        try(OutputStream os = con.getOutputStream()) {
+            byte[] input = body.getBytes(charset)
+            os.write(input, 0, input.length)
+        }
+        try(BufferedReader br = new BufferedReader(
+        new InputStreamReader(con.inputStream, charset))) {
+            StringBuilder response = new StringBuilder()
+            String responseLine
+            while ((responseLine = br.readLine()) != null) {
+                if(eachLine) {
+                    eachLine.call(responseLine.trim())
                 }
-                if(onResponse) {
-                    switch (onResponse) {
-                        case JsonOutput:
-                            (onResponse as JsonOutput).call(JSON.decode(response.toString()) as Map)
-                            break
-                        default:
-                            onResponse.call(response.toString())
-                            break
-                    }
+                response.append(responseLine.trim())
+            }
+            if(onResponse) {
+                switch (onResponse) {
+                    case JsonOutput:
+                        (onResponse as JsonOutput).call(JSON.decode(response.toString()) as Map)
+                        break
+                    default:
+                        onResponse.call(response.toString())
+                        break
                 }
             }
-        } catch(Exception e) {
-            Log.w("Unable to perform request: %s", url.toExternalForm(), e)
         }
     }
 }
