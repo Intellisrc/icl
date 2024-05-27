@@ -53,6 +53,12 @@ class WebClient {
         request(data, onResponse, HttpMethod.POST)
     }
 
+    /**
+     * Performa the request
+     * @param data
+     * @param onResponse
+     * @param method
+     */
     void request(Object data, Output onResponse = null, HttpMethod method) {
         HttpURLConnection con = (HttpURLConnection) url.openConnection()
         con.doOutput = true
