@@ -1,6 +1,7 @@
 //file:noinspection GrMethodMayBeStatic
 package com.intellisrc.web.service
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
@@ -75,7 +76,7 @@ abstract class WebSocketService implements ServiciableWebSocket {
     // Override to change (accessed only during initialization):
     protected boolean replaceOnDuplicate = true
     // Override to change (accessed only during initialization):
-    protected int timeout = Millis.HOUR
+    protected int timeout = Config.any.get("web.ws.timeout", Millis.HOUR) //ms
 
     /**
      * Set WebSocket path

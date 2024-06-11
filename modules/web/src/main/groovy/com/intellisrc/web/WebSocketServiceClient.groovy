@@ -97,13 +97,13 @@ class WebSocketServiceClient {
      * @param onError
      */
     void connect(Callable onMessage = null, Callable onError = null) {
+        onMessageReceived = onMessage
+        onErrorReceived = onError
         client = new WebSocketClient()
         client.start()
         ClientUpgradeRequest request = new ClientUpgradeRequest()
         Future<WebsocketSession> future = client.connect(new WSSocket(), url, request)
         clientSession = future.get()
-        onMessageReceived = onMessage
-        onErrorReceived = onError
     }
     /**
      * Returns true if client is connected

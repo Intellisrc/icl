@@ -944,9 +944,9 @@ You can also set `timeout` and `maxSize` in your `config.properties` file:
 
 ```properties
 # Set timeout to 10 minutes: (default 5 minutes)
-websocket.timeout=600
+web.ws.timeout=600
 # Set maximum message size to 1MB: (default 64Kb)
-websocket.max.size=1024
+web.ws.max.size=1024
 ```
 
 ## WebSocketSecure (WSS)
