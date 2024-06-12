@@ -76,10 +76,10 @@ class CommonLogger extends MarkerIgnoringBase {
      */
     protected void setDomains() {
         if (Config.exists("log.domain")) {
-            domains << Config.get("log.domain")
+            domains << Config.any.get("log.domain")
         }
         if (Config.exists("log.domains")) {
-            domains = Config.getList("log.domains")
+            domains = Config.any.getList("log.domains")
         }
         if(domains.empty) {
             if(Version.mainClass !== Version.class) {
