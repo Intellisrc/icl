@@ -8,7 +8,8 @@ trait ToMap {
         return this.class.declaredFields.findAll {
             ! it.synthetic
         }.collectEntries {
-            [(it.name) : this[it.name]]
+            Object value = ToMapConverter.convert(this[it.name])
+            return [(it.name) : value]
         }
     }
     Map<String,Object> toSnakeMap(Object self) {
