@@ -326,7 +326,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 String joinTable = refType.tableName
                 String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
                 indices = "FOREIGN KEY (`${column.name}`) " +
-                    "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action}"
+                    "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action} ON UPDATE CASCADE"
                 break
         }
         return indices
