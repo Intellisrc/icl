@@ -48,17 +48,35 @@ class TableMaker {
         }
 
         def asType(Class targetType) {
-            return value.asType(targetType)
+            def res
+            try {
+                res = value.asType(targetType)
+            } catch(Exception ignore) {
+                res = toString().asType(targetType)
+            }
+            return res
         }
 
         @Override
         boolean equals(Object o) {
-            return value == o
+            boolean equal
+            try {
+                equal = value == o
+            } catch (Exception ignore) {
+                equal = asType(o.class) == o
+            }
+            return equal
         }
 
         @Override
         int compareTo(Object o) {
-            return (value as Comparable) <=> o
+            int comp
+            try {
+                comp = (value as Comparable) <=> o
+            } catch(Exception ignore) {
+                comp = (asType(o.class) as Comparable) <=> o
+            }
+            return comp
         }
     }
     /**
@@ -285,7 +303,7 @@ class TableMaker {
         if(columns.empty) {
             columns.addAll(cells.collect { new Column() })
         }
-        rows << new Row(cells : cells)
+        rows << new Row(cells : cells, index: rows.size())
     }
     /**
      * Add multiple rows at once
