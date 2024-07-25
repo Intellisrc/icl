@@ -127,7 +127,10 @@ class TableMakerTest extends Specification {
             tp.columns[2].formatter = {
                     String.format("\$ %.2f", it as double)
             }
-            tp.columns[2].color = { it > 2000 ? RED : GREEN }
+            tp.columns[2].color = {
+                TableMaker.Cell cell ->
+                    cell > 2000 ? RED : GREEN
+            }
         then:
             tp.print()
             String out = tp.toString().trim()
@@ -135,6 +138,7 @@ class TableMakerTest extends Specification {
             assert out.contains(RED)
             assert out.contains(GREEN)
             assert out.contains(YELLOW)
+            assert tp.getCell(0,1) == "jp@example.com"
     }
     def "Using setRows"() {
         setup:

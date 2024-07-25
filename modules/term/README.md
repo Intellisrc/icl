@@ -275,7 +275,9 @@ table.columns[2].with {
     formatter = {         // Use formatter to change the resulting String 
         String.format("\$ %.2f", it as double)
     }
-    color = { it > 2000 ? RED : GREEN } // Use 'color' to set the cell color based on its contents (previous to formatter)
+    color = { // Use 'color' to set the cell color based on its contents (previous to formatter)
+        it > 2000 ? RED : GREEN 
+    }
 }  
 ```
 
@@ -321,6 +323,31 @@ TableMaker table = new TableMaker(
 )
 ```
 
+`Tablemaker.Formatter` returns a `Tablemaker.Cell`, which contains
+also row and column information, as well the current table:
+
+```groovy
+TableMaker table = new TableMaker(
+    columns : [
+        new Column(
+            header : "Email",
+            formatter : {
+                Cell cell ->
+                    return "Cell [${cell.row},${cell.col}] : ${cell.toString()}"
+            },
+            color : {
+                Cell cell ->
+                    // In reference to another cell:
+                    return cell.table.getCell(cell.row, 4) > 90 ? RED : GREEN
+            }
+        ),
+
+    ]
+)
+```
+`Cell` objects are useful when comparing with another cells from the same column or row. 
+Note that `Cell` objects can be used as any `Object` (you can compare against numbers,
+convert it to `String` or `Boolean` or cast it).
 
 ## Console
 

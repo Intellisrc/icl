@@ -21,7 +21,7 @@ class TableMaker {
      * It is used to give format to each cell
      */
     static interface Formatter {
-        String call(Object cell)
+        String call(Cell cell)
     }
     /**
      * Column alignment
@@ -30,10 +30,43 @@ class TableMaker {
         LEFT, CENTER, RIGHT
     }
     /**
+     * Cell that will be used in formatting
+     */
+    static class Cell implements Comparable {
+        Object value
+        int row
+        int col
+        TableMaker table
+
+        @Override
+        String toString() {
+            return value.toString()
+        }
+
+        boolean asBoolean() {
+            return value as boolean
+        }
+
+        def asType(Class targetType) {
+            return value.asType(targetType)
+        }
+
+        @Override
+        boolean equals(Object o) {
+            return value == o
+        }
+
+        @Override
+        int compareTo(Object o) {
+            return (value as Comparable) <=> o
+        }
+    }
+    /**
      * A row is a list of cells
      */
     static class Row {
         Collection cells = []
+        int index = 0
     }
     /**
      * Information and format of a column
@@ -159,7 +192,7 @@ class TableMaker {
             }
             return after
         }
-        String format(Object cell, boolean trim = true) {
+        String format(Cell cell, boolean trim = true) {
             String color = color.call(cell)
             String formatted = formatter.call(cell)
             return color + (trim ? trimPad(formatted) : formatted) + (color ? RESET : "")
@@ -299,6 +332,23 @@ class TableMaker {
         }
     }
     /**
+     * Will return the value in a specific cell
+     * @return
+     */
+    Cell getCell(int row, int col) {
+        Object val = row >= 0 && col >= 0 &&
+            rows.size() > row &&
+            rows[row].cells.size() > col ?
+                rows[row].cells[col] : ""
+        return new Cell(
+            row: row,
+            col: col,
+            value: val,
+            table: this
+        )
+    }
+
+    /**
      * Generate table
      * @return
      */
@@ -328,16 +378,18 @@ class TableMaker {
                 colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
         }
         rows.each {
-            it.cells.eachWithIndex {
-                Object entry, int i ->
-                    int cellWidth = getDisplayWidth(decolor(columns.get(i).format(entry, false)))
-                    Column col = columns.get(i)
-                    col.length = [col.minLen, col.length, cellWidth].max()
-                    colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
-                    if(cellWidth > 0 ||! col.hideWhenEmpty) {
-                        emptyCol[col] = false
-                    }
-            }
+            Row row ->
+                row.cells.eachWithIndex {
+                    Object entry, int i ->
+                        Cell cell = new Cell(value: entry, row: row.index, col: i, table: this)
+                        int cellWidth = getDisplayWidth(decolor(columns.get(i).format(cell, false)))
+                        Column col = columns.get(i)
+                        col.length = [col.minLen, col.length, cellWidth].max()
+                        colWidthStats[col] = (colWidthStats[col] + cellWidth) / 2d
+                        if(cellWidth > 0 ||! col.hideWhenEmpty) {
+                            emptyCol[col] = false
+                        }
+                }
         }
         if(!columns.empty) {
             // Merge footer in several columns if its of length 1
@@ -386,9 +438,10 @@ class TableMaker {
         rows.each {
             Row row ->
                 lines << ((style.window ? s.vb + " " : '') + row.cells.withIndex().collect {
-                    Object cell, int i ->
+                    Object obj, int i ->
                         Column col = columns.get(i)
                         boolean include = !(col.hideWhenEmpty && emptyCol.get(col))
+                        Cell cell = new Cell(value: obj, row: row.index, col: i, table: this)
                         return include ? col.format(cell) : null
                 }.findAll { it != null }.join(" " + s.cs + " ") + (style.window ? " " + s.vb : ''))
                 boolean lastRow = row == rows.last()
