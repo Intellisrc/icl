@@ -411,4 +411,22 @@ class TableMakerTest extends Specification {
             }
 
     }
+
+    def "As Value should return correct value when using numbers"() {
+        setup:
+            TableMaker.Cell cell = new TableMaker.Cell(
+                value: "0"
+            )
+        expect:
+            assert (cell as int) == 0
+    }
+
+    def "As Value should return correct value when using doubles"() {
+        setup:
+        TableMaker.Cell cell = new TableMaker.Cell(
+            value: "0.1234"
+        )
+        expect:
+        assert (cell as double) == 0.1234d
+    }
 }

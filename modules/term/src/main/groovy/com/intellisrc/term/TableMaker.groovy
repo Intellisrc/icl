@@ -50,7 +50,11 @@ class TableMaker {
         def asType(Class targetType) {
             def res
             try {
-                res = value.asType(targetType)
+                if(value.toString().isNumber()) {
+                    res = (value as Number).asType(targetType)
+                } else {
+                    res = value.asType(targetType)
+                }
             } catch(Exception ignore) {
                 res = toString().asType(targetType)
             }
