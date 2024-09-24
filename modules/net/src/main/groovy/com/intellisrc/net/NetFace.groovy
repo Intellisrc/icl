@@ -30,7 +30,13 @@ class NetFace {
                 }
         }
     }
-
+    /**
+     * Return network of interface
+     * @return
+     */
+    Optional<Network> getNetwork(Inet4Address ip) {
+        return Optional.ofNullable(new Network(ip, iface.interfaceAddresses.find { it.address.hostAddress == ip.hostAddress }.networkPrefixLength))
+    }
     /**
      * For convenience, it returns the first IP4 found
      * @return
