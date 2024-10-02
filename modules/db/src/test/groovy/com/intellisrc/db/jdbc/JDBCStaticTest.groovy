@@ -18,16 +18,19 @@ class JDBCStaticTest extends Specification {
     }
     def "Get JDBC from settings JDBCServer"() {
         when:
+            // These settings are using aliases for "database", "username", "password" and "hostname"
             JDBC jdbc = JDBC.fromSettings([
                 type : "derby",
+                name : "mydb",
                 user : "someuser",
                 pass : "somepass",
                 host : "myhostname",
                 memory : true
             ])
         then:
+            assert jdbc.database == "mydb"
             assert jdbc.password == "somepass"
-            assert jdbc.user == "someuser"
+            assert jdbc.username == "someuser"
             assert (jdbc as JDBCServer).hostname == "myhostname"
             assert jdbc instanceof Derby
             assert (jdbc as Derby).memory

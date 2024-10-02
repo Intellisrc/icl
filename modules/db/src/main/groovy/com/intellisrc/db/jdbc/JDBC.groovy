@@ -272,11 +272,11 @@ abstract class JDBC {
             // Allow different aliases for keys
             //noinspection GroovyMissingReturnStatement
             [
-                database : "",
-                name     : "",
-                username : "",
-                pass     : "",
-                host     : "localhost"
+                database : "dbname",
+                name     : "dbname",
+                username : "user",
+                pass     : "password",
+                host     : "hostname"
             ].each {
                 if(settings.containsKey(it.key)) {
                     settings[it.value] = settings[it.key]
