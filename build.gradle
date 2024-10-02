@@ -8,12 +8,12 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.9.2-SNAPSHOT"
+    version = "2.9.2"
     repositories {
         mavenLocal()
         mavenCentral()
         maven { // Sonatype Snapshots
-            url = "https://oss.sonatype.org/content/repositories/snapshots"
+            url = "https://s01.oss.sonatype.org/content/repositories/snapshots"
         }
     }
 }
@@ -114,10 +114,9 @@ subprojects {
 		documentation
 	}
     dependencies {
-        def groovyVer = "4.0.20" // Also in module etc
-        def groovyExt = "4.0.20.13-SNAPSHOT"
+        def groovyVer = "4.0.23" // Also in module etc
+        def groovyExt = "4.0.23.14"
         def spock = "2.4-M4-groovy-4.0"
-        def junit = "5.10.2"
 
         //Link it so we can choose version
         compileOnly "org.apache.groovy:groovy:${groovyVer}"
@@ -129,9 +128,8 @@ subprojects {
 
         testImplementation "org.apache.groovy:groovy:${groovyVer}"
         testImplementation "org.spockframework:spock-core:${spock}"
-        testImplementation "org.junit.jupiter:junit-jupiter-api:${junit}"
 
-		documentation "com.github.javaparser:javaparser-core:3.25.10"
+		documentation "com.github.javaparser:javaparser-core:3.26.2"
     }
 	groovydoc {
 		classpath += project.configurations.documentation
@@ -145,8 +143,8 @@ subprojects {
     publishing {
         repositories {
             maven {
-                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
                 url = isDev ? snapshotsRepoUrl : releasesRepoUrl
                 credentials {
                     username = ossrhUsername

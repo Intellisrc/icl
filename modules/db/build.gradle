@@ -3,16 +3,16 @@ dependencies {
     api "org.reflections:reflections:0.10.2"
 
     def derby= '10.15.2.0' // After 10.16.1.1 it is compiled with Java 17
-    def firebird = '5.0.3.java11'
-    def h2 = '2.1.214' // ''2.2.224' is failing tests
-    def hypersql = '2.7.2'
-    def informix = '4.50.10'
-    def mariadb = '3.3.1'
-    def mysql = '8.3.0'
+    def firebird = '5.0.5.java11'
+    def h2 = '2.3.232' // ''2.2.224' is failing tests
+    def hypersql = '2.7.3'
+    def informix = '4.50.11'
+    def mariadb = '3.4.1'
+    def mysql = '9.0.0'
     def oracle = '21.9.0.0'    // '23.3.0.23.09' test container is 21
-    def postgresql = '42.7.3'
-    def sqlite = '3.40.1.0'   // '3.44.1.0' is failing tests
-    def sqlserver = '12.2.0.jre11'
+    def postgresql = '42.7.4'
+    def sqlite = '3.46.1.3'   // '3.44.1.0' is failing tests
+    def sqlserver = '12.8.1.jre11'
 
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.

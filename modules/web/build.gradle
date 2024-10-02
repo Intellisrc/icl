@@ -4,7 +4,7 @@ dependencies {
     def os = DefaultNativePlatform.currentOperatingSystem
     def arch = DefaultNativePlatform.currentArchitecture
 
-    def jetty = "11.0.20"
+    def jetty = "11.0.24"
     api project(':etc')
     api project(':net')
     api "org.eclipse.jetty:jetty-server:${jetty}"
@@ -26,7 +26,6 @@ dependencies {
     def jvmbrotli = "0.2.0"
     def jvmBrotliMain = "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
     def jvmBrotliLib = ""
-    def sse_client = "4.0.3"
     switch (true) {
         case os.windows && arch.i386:
             jvmBrotliLib = "com.nixxcode.jvmbrotli:jvmbrotli-win32-x86:$jvmbrotli"
