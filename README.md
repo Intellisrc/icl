@@ -51,7 +51,7 @@ dependencies {
 
 Follow the instructions on the last published version for each module in [maven repository](https://mvnrepository.com/artifact/com.intellisrc/)
 
-In which `VERSION` is for example: `2.8.x`, and MODULE any of these: 
+In which `VERSION` is for example: `2.9.x`, and MODULE any of these: 
 * [core](#core)
 * [crypt](#crypt)
 * [db](#db)
@@ -80,20 +80,22 @@ For more detailed explanation, click on the module title.<br>
 > For example, configuration, logging, executing commands, controlling services and 
 > displaying colors in the console. [read more...](modules/core/README.md)
 
-|     | Class              | Usage                                                                            |
-|-----|--------------------|----------------------------------------------------------------------------------|
-|     | `AnsiColor`        | Color dictionary for Linux terminal                                              |
-|     | `Cmd`              | Execute system commands                                                          |
-| ★   | `Config`           | Manage configuration files (by default config.properties)                        |
-| ★   | `Log`              | Log messages to `SLF4J`                                                          |
-| ★   | `Millis`           | Milliseconds constants to be used instead numeric values.                        |
-| ★   | `Secs`             | Seconds constants to be used instead numeric values.                             |
-| ★   | `SysClock`         | Provides simple methods to interact with LocalDateTime. Useful for Unit Testing. |
-|     | `SysInfo`          | Get information about the system                                                 |
-|     | `SysMain`          | Convert class into runnable class                                                |
-| ★   | `SysService`       | Convert class into service (only one by project)                                 |
-| @   | `StringProperties` | Base class for properties setters and getters                                    |
-|     | `Version`          | Return system/application version and makes it easy to handle versions           |
+|   | Class              | Usage                                                                            |
+|---|--------------------|----------------------------------------------------------------------------------|
+|   | `AnsiColor`        | Color dictionary for Linux terminal                                              |
+|   | `Cmd`              | Execute system commands                                                          |
+| ★ | `Config`           | Manage configuration files (by default config.properties)                        |
+| ★ | `Log`              | Log messages to `SLF4J`                                                          |
+| ★ | `Millis`           | Milliseconds constants to be used instead numeric values.                        |
+| ★ | `Secs`             | Seconds constants to be used instead numeric values.                             |
+| ★ | `SysClock`         | Provides simple methods to interact with LocalDateTime. Useful for Unit Testing. |
+|   | `SysInfo`          | Get information about the system                                                 |
+|   | `SysMain`          | Convert class into runnable class                                                |
+| ★ | `SysService`       | Convert class into service (only one by project)                                 |
+|   | `Triplet`          | A convenient generic class to store 3 objects (similar as `Pair`)                |
+| @ | `StringProperties` | Base class for properties setters and getters                                    |
+|   | `Version`          | Return system/application version and makes it easy to handle versions           |
+| ★ | `ToMap`            | Useful interface to export a class object into a Map (automatic conversion)      |
 
 [Documentation](modules/core/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#core) 
 
@@ -157,28 +159,28 @@ Includes : core, etc
 
 **NOTE** : You may need to include your database driver as dependency in order to use this module.
 
-|     | Class                      | Usage                                                                              |
-|-----|----------------------------|------------------------------------------------------------------------------------|
- | ★   | `Database`                 | Main class which will handle connections to SQL databases                          |
- | ★   | `DB`                       | Object to interact with the databases (Fluid SQL query builder)                    |
- |     | `Query`                    | Handles SQL queries                                                                |
- | ★   | `Table`, `Model`           | Automatic table creation/update and CRUD data manipulations                        |
- |     | `@TableMeta`, `@ModelMeta` | Additional options to the above classes                                            |
- | @   | `Data`                     | Object returned by SQL databases and which can be converted into different classes |
- | @   | `DBPool`                   | Keep connections in a pool to increase performance                                 |
- | @   | `Dummy`                    | Dummy database (used for unit testing)                                             |
- | @   | `DummyConnector`           | Simulate and log DB connections (used for unite testing)                           |
- | @   | `JDBCConnector`            | A single JDBC connection                                                           |
- | @   | `PoolConnector`            | Implements a connector to be used in `DBPool`                                      |
- | @   | `JDBC`                     | Extend this class to create your own JDBC connection                               |
-|     | `Derby`                    | JDBC implementation for Derby databases                                            |
-|     | `Firebird`                 | JDBC implementation for Firebird databases                                         |
-|     | `MySQL`                    | JDBC implementation for MySQL databases                                            |
-|     | `MariaDB`                  | JDBC implementation for MariaDB databases                                          |
-|     | `Oracle`                   | JDBC implementation for Oracle databases                                           |
-|     | `PostgreSQL`               | JDBC implementation for PostgresSQL databases                                       |
- |     | `SQLite`                   | JDBC implementation for SQLite databases                                           |
-|     | `SQLServer`                | JDBC implementation for SQL Server databases                                       |
+|   | Class                      | Usage                                                                              |
+|---|----------------------------|------------------------------------------------------------------------------------|
+ | ★ | `Database`                 | Main class which will handle connections to SQL databases                          |
+ | ★ | `DB`                       | Object to interact with the databases (Fluid SQL query builder)                    |
+ |   | `Query`                    | Handles SQL queries                                                                |
+ | ★ | `Table`, `View`, `Model`   | Automatic table creation/update and CRUD data manipulations                        |
+ |   | `@TableMeta`, `@ModelMeta` | Annotations: Additional options to the above classes                               |
+ | @ | `Data`                     | Object returned by SQL databases and which can be converted into different classes |
+ | @ | `DBPool`                   | Keep connections in a pool to increase performance                                 |
+ | @ | `Dummy`                    | Dummy database (used for unit testing)                                             |
+ | @ | `DummyConnector`           | Simulate and log DB connections (used for unite testing)                           |
+ | @ | `JDBCConnector`            | A single JDBC connection                                                           |
+ | @ | `PoolConnector`            | Implements a connector to be used in `DBPool`                                      |
+ | @ | `JDBC`                     | Extend this class to create your own JDBC connection                               |
+|   | `Derby`                    | JDBC implementation for Derby databases                                            |
+|   | `Firebird`                 | JDBC implementation for Firebird databases                                         |
+|   | `MySQL`                    | JDBC implementation for MySQL databases                                            |
+|   | `MariaDB`                  | JDBC implementation for MariaDB databases                                          |
+|   | `Oracle`                   | JDBC implementation for Oracle databases                                           |
+|   | `PostgreSQL`               | JDBC implementation for PostgresSQL databases                                      |
+ |   | `SQLite`                   | JDBC implementation for SQLite databases                                           |
+|   | `SQLServer`                | JDBC implementation for SQL Server databases                                       |
 
 [Documentation](modules/db/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#db)
 
@@ -189,18 +191,20 @@ Includes : core, etc, crypt
 > connecting or creating TCP/UDP servers, getting network interfaces and
 > perform netmask calculations, etc. [read more...](modules/net/README.md)
 
-|     | Class        | Usage                                                                      |
-|-----|--------------|----------------------------------------------------------------------------|
- | ★   | `Email`      | Verify email format                                                        |
- |     | `MacAddress` | Convert format from and to MacAddress  XX:XX:XX:XX                         |
- |     | `Network`    | Methods related to networking and ip addresses but not to NetworkInterface |
- |     | `NetFace`    | Simple representation of a Network Interface                               |
- | ★   | `Smtp`       | Class to send emails using SMTP server                                     |
- |     | `FtpClient`  | FTP client                                                                 |
- |     | `TCPClient`  | TCP client                                                                 |
- |     | `TCPServer`  | TCP server                                                                 |
- |     | `UDPClient`  | UDP client                                                                 |
- |     | `UDPServer`  | UDP server                                                                 |
+|   | Class        | Usage                                                                      |
+|---|--------------|----------------------------------------------------------------------------|
+ | ★ | `Email`      | Verify email format                                                        |
+ |   | `MacAddress` | Convert format from and to MacAddress  XX:XX:XX:XX                         |
+ |   | `Network`    | Methods related to networking and ip addresses but not to NetworkInterface |
+ |   | `NetFace`    | Simple representation of a Network Interface                               |
+ | ★ | `Smtp`       | Class to send emails using SMTP server                                     |
+| ★ | `Host`       | Information about a remote host (ping, name, port)                         |
+| ★ | `LocalHost`  | Localhost information (free ports, interfaces, name, ip addresses, etc)    |
+ |   | `FtpClient`  | FTP client                                                                 |
+ |   | `TCPClient`  | TCP client                                                                 |
+ |   | `TCPServer`  | TCP server                                                                 |
+ |   | `UDPClient`  | UDP client                                                                 |
+ |   | `UDPServer`  | UDP server                                                                 |
 
 [Documentation](modules/net/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#net)
 
@@ -227,23 +231,30 @@ Includes : core, etc, net
 > Spark-Java Web Framework, so it is very flexible and powerful, but designed
 > to be elegant and easier to use. [read more...](modules/web/README.md)
 
-|     | Class                    | Usage                                                    |
-|-----|--------------------------|----------------------------------------------------------|
- | ★   | `Service`                | Defines a single service to be used in `WebService`      |
-|     | `ServiceOutput`          | Customize output response from a `Service`               |
-| @   | `Serviciable`            | Generic interface for services                           |
- |     | `ServiciableAuth`        | Interface to be used in services which requires sessions |
- |     | `ServiciableHTTPS`       | Interface to be used to support SSL                      |
- |     | `ServiciableSingle`      | Defines a web service with a single `Service`            |
- | ★   | `ServiciableMultiple`    | Defines a web service with multiple `Service`            |
- | ★   | `ServiciableWebSocket`   | Defines a web service using websockets                   |
- | @   | `Session`                | Represents a user session                                |
-|     | `UploadFile`             | Represents an uploaded file                              |
-| ★   | `WebService`             | Main class used to create a web server. It wraps Spark   |
- | ★   | `WebSocketService`       | Wrapper class to use with websockets                     |
- | ★   | `WebSocketServiceClient` | Client for websocket services                            |
- |     | services/`LoginService`  | Implementation for login services                        |
- |     | services/`LogService`    | Implementation to browse logs in a browser               |
+|   | Class                        | Usage                                                    |
+|---|------------------------------|----------------------------------------------------------|
+ | ★ | `Service`                    | Defines a single service to be used in `WebService`      |
+|   | `ServiceOutput`              | Customize output response from a `Service`               |
+| @ | `Serviciable`                | Generic interface for services                           |
+ |   | `ServiciableAuth`            | Interface to be used in services which requires sessions |
+ |   | `ServiciableSingle`          | Defines a web service with a single `Service`            |
+|   | `SingleService`              | Abstract class implementing `ServiciableSingle`          |
+ | ★ | `ServiciableMultiple`        | Defines a web service with multiple `Service`            |
+ | ★ | `ServiciableWebSocket`       | Defines a web service using websockets                   |
+| ★ | `Request`                    | HTTP Request object                                      |
+| ★ | `Response`                   | HTTP Response object (often not needed)                  |
+ | @ | `Session`                    | Represents a user session                                |
+|   | `UploadFile`                 | Represents an uploaded file                              |
+| ★ | `WebService`                 | Main class used to create a web server. It wraps Jetty   |
+| ★ | `WebClient`                  | Convenient class to request a web service                |
+ | ★ | `WebSocketService`           | Wrapper class to use with websockets                     |
+ | ★ | `WebSocketServiceClient`     | Client for websocket services                            |
+| ★ | `ServerSentEvent`            | Abstract class which implements `SSE` service            |
+| ★ | `WebMessage`                 | Class used to send messages (`SSE` or `WebSocket`)       |
+ |   | services/`LoginService`      | Implementation for login services                        |
+ |   | services/`LogService`        | Implementation to browse logs in a browser               |
+|   | services/`AutoConfigService` | Implementation for `AutoConfig` services                 |
+|   | tools/`AccessLog`            | Class which is used to export access logs                |
 
 [Documentation](modules/web/README.md) / [JavaDoc](https://intellisrc.gitlab.io/common/#web)
 
@@ -338,33 +349,33 @@ you to choose your library versions, reduce the compilation time and your projec
 Below each module, I'm including the recommended version (the one used during compilation).
 
 * `core` : Groovy version is now up to you (required by any module). 
-    * `org.codehaus.groovy:groovy-all:3.0.12`
+    * `org.codehaus.groovy:groovy-all:4.0.23`
 * `db`   : Database drivers need to be included (Choose the one(s) which match(es) your database(s)):
-    * `com.microsoft.sqlserver:mssql-jdbc:10.2.1.jre11`
-    * `com.oracle.database.jdbc:ojdbc11:21.7.0.0`
-    * `mysql:mysql-connector-java:8.0.30`
-    * `org.apache.derby:derby:10.15.2.0`
-    * `org.firebirdsql.jdbc:jaybird:4.0.7.java11`
-    * `org.mariadb.jdbc:mariadb-java-client:3.0.6`
-    * `org.postgresql:postgresql:42.5.0`
-    * `org.xerial:sqlite-jdbc:3.39.4.1`
+    * `com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11`
+    * `com.oracle.database.jdbc:ojdbc11:21.9.0.0`
+    * `mysql:mysql-connector-java:9.0.0`
+    * `org.apache.derby:derby:10.15.2.0` // After 10.16.1.1 requires Java 17
+    * `org.firebirdsql.jdbc:jaybird:5.0.5.java11`
+    * `org.mariadb.jdbc:mariadb-java-client:3.4.1`
+    * `org.postgresql:postgresql:42.7.4`
+    * `org.xerial:sqlite-jdbc:3.46.1.3`
 * `etc`  :
-  * Jedis (`redis.clients:jedis:4.3.1`)
+  * Jedis (`redis.clients:jedis:5.2.0`)
   * BerkeleyDB (`com.sleepycat:je:18.3.12`)
 
 The following modules are already included in the specified modules:
 
 * `crypt`  
-  * Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.70`, `org.bouncycastle:bcpg-jdk15on:1.70`, `org.bouncycastle:bcprov-ext-jdk15on:1.70`)
+  * Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.78.1`, `org.bouncycastle:bcpg-jdk15on:1.70`, `org.bouncycastle:bcprov-ext-jdk15on:1.78.1`)
 * `net`    
-  * Apache Common Net (`commons-net:commons-net:3.8.0`) 
-  * JavaX Mail(`com.sun.mail:javax.mail:1.6.2`)
+  * Apache Common Net (`commons-net:commons-net:3.11.1`) 
+  * JavaX Mail(`com.sun.mail:javax.mail:2.0.1`)
 * `serial` 
   * JSSC library (`org.scream3r:jssc:2.8.0`) 
 * `term`   
-  * JLine library (`org.jline:jline:3.21.0`)
+  * JLine library (`org.jline:jline:3.27.0`)
 * `web`    
-  * Spark Framework (`com.intellisrc:spark-core:2.9.4-unofficial-4`)
+  * Brotli (`com.nixxcode.jvmbrotli:jvmbrotli:0.2.0`, `com.nixxcode.jvmbrotli:jvmbrotli-<os>-<arch>:0.2.0`) // os: win32, darwin, linux; arch: x86, amd64
 
 ## Recommendations
 
