@@ -122,6 +122,7 @@ class TaskPool implements TaskLoggable {
                             long timed = ChronoUnit.MILLIS.between(info.startTime, SysClock.dateTime)
                             if (timed > info.task.maxExecutionTime) {
                                 Log.w("[%s] Timed out (Took: %d ms)", info.name, timed)
+                                info.task.onFailure()
                                 info.state = TaskInfo.State.TIMEOUT
                                 executor.kill(info)
                                 break //Run once

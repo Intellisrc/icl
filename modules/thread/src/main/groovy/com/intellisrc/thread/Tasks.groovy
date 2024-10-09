@@ -200,6 +200,7 @@ class Tasks {
             if (!summ) {
                 summ = new TaskSummary(changedTask.name)
                 summary << summ
+                changedTask.task.summary = summ
             }
             switch (changedTask.state) {
                 case TaskInfo.State.DONE:

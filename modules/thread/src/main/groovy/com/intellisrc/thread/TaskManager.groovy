@@ -49,10 +49,12 @@ class TaskManager {
                             task.taskName,
                             task.minThreads,
                             task.maxThreads,
-                            queueTimeout, {
-                        failedCount.incrementAndGet()
-                        okTime = SysClock.dateTime
-                    })
+                            queueTimeout,
+                     {
+                                failedCount.incrementAndGet()
+                                okTime = SysClock.dateTime
+                            }
+                    )
                 } catch(AssertionError e) {
                     Log.e("Unable to create pool", e)
                     return false
@@ -122,6 +124,7 @@ class TaskManager {
                                 if(intervalTask.warnOnSkip) {
                                     Log.w("[%s] Task was not executed. Disable this warning setting: warnOnSkip to false", taskInfo.name)
                                 }
+                                intervalTask.onFailure()
                             }
                         }
                     }, 0, task.sleepTime, TimeUnit.MILLISECONDS)
