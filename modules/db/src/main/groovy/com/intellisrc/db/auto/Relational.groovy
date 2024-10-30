@@ -17,6 +17,7 @@ import javassist.Modifier
 import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -81,9 +82,10 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     Relational(String name = "", Database database = null) {
         this.database = database ?: Database.getDefault()
         Annotation meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
-        this.name = name ?: (meta && meta.hasProperty("name") ? meta.properties.name : this.class.simpleName.toSnakeCase()).toString()
-        this.cache = (meta && meta.hasProperty("cache") ? meta.properties.cache : 0) as int
-        this.clearCache = (meta && meta.hasProperty("clearCache") ? meta.properties.clearCache : false) as boolean
+        List<Method> methods = meta ? meta.class.declaredMethods.toList() : []
+        this.name = name ?: (methods.any {it.name == "name" } ? meta.class.getMethod("name").invoke(meta) : this.class.simpleName.toSnakeCase()).toString()
+        this.cache = (methods.any {it.name == "cache" } ? meta.class.getMethod("cache").invoke(meta) : 0) as int
+        this.clearCache = (methods.any {it.name == "clearCache" } ? meta.class.getMethod("clearCache").invoke(meta) : false) as boolean
         assert this.name : "Table or View name not set"
         Class model = getParametrizedInstance().class
         if(tableModelRel.containsValue(model)) {
