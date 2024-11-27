@@ -83,7 +83,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         this.database = database ?: Database.getDefault()
         Annotation meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
         List<Method> methods = meta ? meta.class.declaredMethods.toList() : []
-        this.name = name ?: (methods.any {it.name == "name" } ? meta.class.getMethod("name").invoke(meta) : this.class.simpleName.toSnakeCase()).toString()
+        this.name = (name ?: (methods.any {it.name == "name" } ? meta.class.getMethod("name").invoke(meta) : "") ?: this.class.simpleName.toSnakeCase()).toString()
         this.cache = (methods.any {it.name == "cache" } ? meta.class.getMethod("cache").invoke(meta) : 0) as int
         this.clearCache = (methods.any {it.name == "clearCache" } ? meta.class.getMethod("clearCache").invoke(meta) : false) as boolean
         assert this.name : "Table or View name not set"
