@@ -102,6 +102,7 @@ class Service implements Serviciable {
     HttpMethod method           = HttpMethod.GET        // HTTP Method to be used
     Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = null                  // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
+    String notAllowedRedirect   = ""                    // If set it will redirect not allowed requests to that URL or path
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
     String acceptType           = ""                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
     String acceptCharset        = ""                    // By default it accepts all charsets

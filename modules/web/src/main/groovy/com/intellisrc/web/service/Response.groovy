@@ -15,6 +15,7 @@ class Response extends JettyResponse {
     protected final JettyResponse original
     WebErrorTemplate errorTemplate = null
     Compression compression = Compression.NONE
+    boolean redirected = false
     /**
      * Constructor
      * @param channel
@@ -84,6 +85,7 @@ class Response extends JettyResponse {
      * @param path
      */
     void redirect(String path) {
+        redirected = true
         original.sendRedirect(path)
         sendRedirect(path)
     }

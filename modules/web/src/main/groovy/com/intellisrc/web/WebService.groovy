@@ -359,6 +359,9 @@ class WebService extends WebServiceBase {
         if(! sp.allow) {
             sp.allow = { true } as Service.Allow
         }
+        if(! sp.notAllowedRedirect && serviciable.notAllowedRedirect) {
+            sp.notAllowedRedirect = serviciable.notAllowedRedirect
+        }
         if(! sp.beforeRequest && serviciable.beforeRequest) {
             sp.beforeRequest = serviciable.beforeRequest
         }
@@ -752,7 +755,14 @@ class WebService extends WebServiceBase {
         } else { // Unauthorized
             Log.w("Forbidden: %s", request.uri())
             logWarn(request, FORBIDDEN_403)
-            throw new WebException(FORBIDDEN_403)
+            if(sp.notAllowedRedirect) {
+                try {
+                    response.redirect(sp.notAllowedRedirect)
+                } catch(IllegalStateException ignore) {}
+                output = null
+            } else {
+                throw new WebException(FORBIDDEN_403)
+            }
         }
         return output
     }
@@ -1031,7 +1041,7 @@ class WebService extends WebServiceBase {
                 onHit.call(cacheKey)
             }
 
-            // Lok for static files:
+            // Look for static files:
             if (!out) {
                 // The request is already clean from Jetty and without query string:
                 String uri = request.requestURI
@@ -1232,7 +1242,7 @@ class WebService extends WebServiceBase {
                             break
                     }
                 }
-            } else if(! reserved) {
+            } else if(! reserved &&! response.redirected) {
                 Log.v("No output found: %s", request.uri())
                 logNotFound(request)
                 throw new WebException(NOT_FOUND_404)
@@ -1242,7 +1252,7 @@ class WebService extends WebServiceBase {
             logWarn(request, UNAUTHORIZED_401)
             throw new WebException(UNAUTHORIZED_401)
         }
-        if(! reserved) {
+        if(! reserved &&! response.redirected) {
             if (!response.status || response.status == NOT_FOUND_404) {
                 Log.v("The requested path was not found: %s", request.uri())
                 logNotFound(request)
