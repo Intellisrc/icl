@@ -28,6 +28,7 @@ trait Serviciable {
     String getAllowOrigin() { return null }
     String getAcceptType() { return "" }
     String getAcceptCharset() { return "" }
+    String getNotAllowedRedirect() { return "" }
     Allow getAllow() { return null }
 
     BeforeRequest getBeforeRequest() { return null }
