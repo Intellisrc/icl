@@ -22,6 +22,7 @@ class SQLServer extends JDBCServer {
     // Most common:
     boolean useWinLogin = false
     boolean trustCert = false
+    boolean supportsJSON = true
 
     //encrypt : true // for drivers 10.2 and below
     //encrypt : "strict" // For drivers 11.2 or above

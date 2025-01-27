@@ -10,6 +10,7 @@ import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
+import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
@@ -39,6 +40,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
     boolean compression = false
     boolean ssl = false
     boolean trustCert = true
+    boolean supportsJSON = true
 
     // MySQL Parameters
     // https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-reference-configuration-properties.html
@@ -94,8 +96,9 @@ class MySQL extends JDBCServer implements AutoJDBC {
 
     /////////////////////////////// AUTO ////////////////////////
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta) {
         boolean ok
+        this.meta = meta
         String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
         List<String> defs = []
         List<String> keys = []
@@ -170,7 +173,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
     }
     @Override
     boolean copyTableStructure(final DB db, String from, String to) {
-        return set(db, "CREATE TABLE $to LIKE $from") && copyTableData(db, from, to, [])
+        return set(db, "CREATE TABLE $to LIKE $from") //&& copyTableData(db, from, to, [])
     }
     @Override
     boolean copyTableData(final DB db, String from, String to, Collection<ColumnDB> columns) {
@@ -271,9 +274,18 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 break
             case URL:
             case URI:
+                boolean isIndex = column.annotation.key() || column.annotation.unique()
+                boolean isShort = (column.annotation.length() ?: 256) <= 255
+                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
+                type = (isIndex || isShort) ? varChar : "TEXT"
+                break
             case Collection:
             case Map:
-                type = column.annotation.key() || column.annotation.unique() || (column.annotation.length() ?: 256) <= 255 ? "VARCHAR(${column.annotation.length() ?: 255})" : "TEXT"
+                boolean isIndex = column.annotation.key() || column.annotation.unique()
+                boolean isShort = (column.annotation.length() ?: 256) <= 255
+                boolean json = supportsJSON && meta && meta.hasProperty("useJson") && meta.class.getMethod("useJson").invoke(meta)
+                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
+                type = isIndex ? varChar : (json ? "JSON" : (isShort ? varChar : "TEXT"))
                 break
             case Enum:
                 type = "ENUM('" + column.type.getEnumConstants().join("','") + "')"

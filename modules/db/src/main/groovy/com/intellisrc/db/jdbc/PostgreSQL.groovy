@@ -12,6 +12,7 @@ import com.intellisrc.db.auto.Table
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
+import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
@@ -40,6 +41,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     // Most common:
     boolean readOnly = false
     boolean ssl = false
+    boolean supportsJSON = true
     // PostgreSQL specific parameters:
     // https://jdbc.postgresql.org/documentation/head/connect.html
     // You may add more parameters as needed (values shown below are default values)
@@ -83,8 +85,9 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<Relational.ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<Relational.ColumnDB> columns, Annotation meta) {
         boolean ok
+        this.meta = meta
         String createSQL = "CREATE TABLE IF NOT EXISTS \"${tableName}\" (\n"
         List<String> defs = []
         List<String> keys = []
@@ -223,9 +226,18 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
                 break
             case URL:
             case URI:
+                boolean isIndex = column.annotation.key() || column.annotation.unique()
+                boolean isShort = (column.annotation.length() ?: 256) <= 255
+                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
+                type = (isIndex || isShort) ? varChar : "TEXT"
+                break
             case Collection:
             case Map:
-                type = column.annotation.key() || column.annotation.unique() || (column.annotation.length() ?: 256) <= 255 ? "VARCHAR(${column.annotation.length() ?: 255})" : "TEXT"
+                boolean isIndex = column.annotation.key() || column.annotation.unique()
+                boolean isShort = (column.annotation.length() ?: 256) <= 255
+                boolean json = supportsJSON && meta.hasProperty("useJson") && meta.class.getMethod("useJson").invoke(meta)
+                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
+                type = isIndex ? varChar : (json ? "JSON" : (isShort ? varChar : "TEXT"))
                 break
             case Enum:
                 type = "ENUM('" + column.type.getEnumConstants().join("','") + "')"
