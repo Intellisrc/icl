@@ -23,6 +23,7 @@ class Oracle extends JDBCServer {
     String hostname = "localhost"
     int port = 1521 // ssl port: 2484
     String driver = "oracle.jdbc.driver.OracleDriver"
+    boolean supportsJSON = true
 
     // Oracle specific parameters:
     // https://docs.oracle.com/cd/E13222_01/wls/docs81/jdbc_drivers/oracle.html#1066413

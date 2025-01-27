@@ -20,6 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME
     String charset() default "UTF8"
     int cache() default 0       // seconds to store in memory
     boolean clearCache() default false  // if true, will remove cache keys corresponding to this table (on update)
+    boolean useJson() default false
 
     // Unique to Table:
     String engine() default "auto"

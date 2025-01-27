@@ -10,6 +10,7 @@ import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
+import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
@@ -139,7 +140,7 @@ class Derby extends JDBCServer implements AutoJDBC {
         }
     }
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta) {
         boolean ok = false
         if(! exists(db, tableName)) {
             String createSQL = "CREATE TABLE ${tableName} (\n"

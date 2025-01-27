@@ -100,8 +100,9 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
         if (!db.getTables(false).contains(tableNameToCreate)) {
             String charset = "utf8"
             String engine = ""
+            Annotation meta = null
             if (this.class.isAnnotationPresent(TableMeta) || this.class.isAnnotationPresent(ViewMeta)) {
-                Annotation meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
+                meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
                 if (meta.hasProperty("engine") && meta.properties.engine.toString() != "auto") {
                     engine = meta.properties.engine.toString()
                 }
@@ -110,7 +111,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                 }
             }
             AutoJDBC auto = jdbc as AutoJDBC
-            ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns)
+            ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns, meta)
         }
         return ok
     }

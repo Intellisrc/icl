@@ -128,6 +128,8 @@ abstract class JDBC {
     boolean getUseFetch() { return true }
     // If Database supports native boolean
     boolean getSupportsBoolean() { return false }
+    // If Database supports JSON datatype
+    boolean getSupportsJSON() { return false }
     // Syntax to specify column is null
     String getIsNullQuery() { return  "IS NULL" }
     // When true, it will use "replace" query, otherwise will try to update first and if it fails, will insert

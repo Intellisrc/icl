@@ -82,7 +82,7 @@ abstract class Model implements ToMap {
      * @return
      */
     Map<String, Object> toDB() {
-        return Table.convertToDB(asMap()) // We don't use toMap() here as it may be override
+        return Relational.getTableOrView(this).convertToDB(asMap()) // We don't use toMap() here as it may be override
     }
     /**
      * Convert Model fields to Map preserving types

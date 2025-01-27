@@ -5,6 +5,8 @@ import com.intellisrc.db.Data
 import com.intellisrc.db.Query
 import groovy.transform.CompileStatic
 
+import java.lang.annotation.Annotation
+
 import static com.intellisrc.db.auto.Relational.ColumnDB
 
 /**
@@ -18,6 +20,15 @@ trait AutoJDBC {
      * @return
      */
     abstract boolean getSupportsBoolean()
+    /**
+     * Some databases does not support JSON datatype
+     * @return
+     */
+    boolean supportsJSON = false
+    /**
+     * AutoJDBC uses CreateTable so we need to store annotation
+     */
+    Annotation meta
     /**
      * Initialize additional functionality
      */
@@ -50,7 +61,7 @@ trait AutoJDBC {
      * @param fields
      * @return
      */
-    abstract boolean createTable(final DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns)
+    abstract boolean createTable(final DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta)
     /**
      * Get default statement
      * @param val
