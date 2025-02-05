@@ -46,6 +46,7 @@ class Oracle extends JDBCServer {
     // QUERY BUILDING -------------------------
     // Query parameters
     boolean supportsReplace = false
+    boolean convertToLowerCase = false
     String fieldsQuotation = '"'
     String catalogSearchName = "%"
     @Override
