@@ -122,7 +122,7 @@ abstract class JDBC {
     String getTablesQuotation() { return "" }
     // Some databases (like SQLite) does not support DATE type. Turn this off.
     boolean getSupportsDate() { return true }
-    // Some databases (like Oracle) stores tables and fields in UpperCase, with this, all all converted into lower:
+    // Some databases (like Oracle) stores tables and fields in UpperCase, with this, all are converted into lower:
     boolean getConvertToLowerCase() { return true }
     // When false it will use LIMIT ... OFFSET
     boolean getUseFetch() { return true }

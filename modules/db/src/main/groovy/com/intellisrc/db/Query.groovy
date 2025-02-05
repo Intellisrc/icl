@@ -490,7 +490,9 @@ class Query {
      * Returns column or table name clean and with ``
      */
     private String fieldName(final String str, boolean tableName = false) {
-        String result = str.toLowerCase().replaceAll("/[^a-z0-9._]/", "")
+        String fieldName = str
+        if(dbType.convertToLowerCase) { fieldName = fieldName.toLowerCase() }
+        String result = fieldName.replaceAll("/[^a-z0-9._]/", "")
         String ch = tableName ? dbType.tablesQuotation : dbType.fieldsQuotation
         return ch + result + ch
     }
