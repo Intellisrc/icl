@@ -118,6 +118,14 @@ class DB {
         return getTables(true)
     }
     /**
+     * Return true if table exists (case insensitive)
+     * @param table
+     * @return
+     */
+    boolean hasTable(String table) {
+        return tables.collect { it.toLowerCase() }.contains(table.toLowerCase())
+    }
+    /**
      * Get all tables in database
      * @return
      */
@@ -403,8 +411,18 @@ class DB {
         boolean ok = false
         if(table) {
             Log.i("Dropping table: %s", table)
+            String before = jdbc.getBeforeDropTableQuery(table)
+            if(before) {
+                dbConnector.execute(new Query(before), true)
+            }
             query.setAction(DROP_TABLE)
             ok = execSet()
+            if(ok) {
+                String after = jdbc.getBeforeDropTableQuery(table)
+                if(after) {
+                    dbConnector.execute(new Query(after), true)
+                }
+            }
         } else {
             Log.w("Can not drop: No table specified")
         }
@@ -490,7 +508,7 @@ class DB {
     boolean exists() {
         boolean exists = false
         if(table) {
-            exists = tables.contains(table)
+            exists = hasTable(table)
         }
         return exists
     }
@@ -532,16 +550,13 @@ class DB {
                         ), it)
                     }
                 } else {
-                    if(! tables.collect { it.toLowerCase() }.contains(table.toLowerCase())) {
-                        tableList.clear()
-                    }
-                    if(tables.collect { it.toLowerCase() }.contains(table.toLowerCase())) {
+                    if(hasTable(table)) {
                         columns = dbConnector.getColumns(table)
                         if(columns.empty) {
                             Log.w("Columns were not found in table: %s", table)
                         }
                     } else {
-                        Log.v("Table [%s] didn't exists (yet)", table)
+                        tableList.clear()
                     }
                 }
                 if (!columns.empty) {
@@ -991,30 +1006,32 @@ class DB {
                 if (st) {
                     try {
                         st.next()
-                        List<String> pks = getPKs()
-                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first())?.autoIncrement) {
-                            String id = st.columnStr(1)
-                            if (id && id.isNumber()) {
-                                last_id = st.columnInt(1)
-                            } else {
-                                if(! st.isColumnNull(1)) {
-                                    Log.v("Received last id: %s", id)
+                        if (query.isIdentityUpdate) {
+                            List<String> pks = getPKs()
+                            if(pks.size() == 1 && info(pks.first())?.autoIncrement) {
+                                String id = st.columnStr(1)
+                                if (id && id.isNumber()) {
+                                    last_id = st.columnInt(1)
+                                } else {
+                                    if (!st.isColumnNull(1)) {
+                                        Log.v("Received last id: %s", id)
+                                    }
+                                    last_id = 0
                                 }
-                                last_id = 0
-                            }
-                            String lastIdQuery = jdbc.getLastIdQuery(query.table, pks.first())
-                            if (!last_id && lastIdQuery) {
-                                Log.v("Last ID not found. Using fallback method...")
-                                String table = query.table
-                                queryBuilder = new Query(lastIdQuery)
-                                queryBuilder.table = table
-                                if (queryBuilder) {
-                                    last_id = execGet().toInt()
-                                    Log.v("Fallback method returned [%d] as last id", last_id)
+                                String lastIdQuery = jdbc.getLastIdQuery(query.table, pks.first())
+                                if (!last_id && lastIdQuery) {
+                                    Log.v("Last ID not found. Using fallback method...")
+                                    String table = query.table
+                                    queryBuilder = new Query(lastIdQuery)
+                                    queryBuilder.table = table
+                                    if (queryBuilder) {
+                                        last_id = execGet().toInt()
+                                        Log.v("Fallback method returned [%d] as last id", last_id)
+                                    }
                                 }
-                            }
-                            if (!last_id) {
-                                Log.v("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
+                                if (!last_id) {
+                                    Log.v("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
+                                }
                             }
                         }
                         ok = true
@@ -1030,6 +1047,8 @@ class DB {
                 Log.e("No changes done: database is not open")
                 dbConnector.onError(new ConnectException())
             }
+        } else {
+            ok = true
         }
         return ok
     }

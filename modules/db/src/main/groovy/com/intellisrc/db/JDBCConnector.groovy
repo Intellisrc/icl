@@ -82,34 +82,38 @@ class JDBCConnector implements Connector {
 	List<ColumnInfo> getColumns(String table) {
 		List<ColumnInfo> columns = []
 		try {
-			DatabaseMetaData meta = connection.getMetaData()
-			List<String> pks = []
-			ResultSet rsPk = meta.getPrimaryKeys(jdbc.catalogSearchName,jdbc.schemaSearchName, jdbc.getTableSearchName(table))
-			while (rsPk.next()) {
-				pks << (jdbc.convertToLowerCase ? rsPk.getString("COLUMN_NAME").toLowerCase() : rsPk.getString("COLUMN_NAME"))
+			if(connection) {
+				DatabaseMetaData meta = connection.getMetaData()
+				List<String> pks = []
+				ResultSet rsPk = meta.getPrimaryKeys(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table))
+				while (rsPk.next()) {
+					pks << (jdbc.convertToLowerCase ? rsPk.getString("COLUMN_NAME").toLowerCase() : rsPk.getString("COLUMN_NAME"))
+				}
+				rsPk.close()
+				ResultSet rsCols = meta.getColumns(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table), "%")
+				while (rsCols.next()) {
+					String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
+					ColumnInfo col = new ColumnInfo(
+						name: colName,
+						type: ColumnType.fromJavaSQL(rsCols.getInt("DATA_TYPE")),
+						position: rsCols.getInt("ORDINAL_POSITION"),
+						length: rsCols.getInt("COLUMN_SIZE"),
+						charLength: rsCols.getInt("CHAR_OCTET_LENGTH"),
+						bufferLength: rsCols.getInt("BUFFER_LENGTH"),
+						decimalDigits: rsCols.getInt("DECIMAL_DIGITS"),
+						nullable: rsCols.getString("IS_NULLABLE") == "YES",
+						defaultValue: rsCols.getString("COLUMN_DEF"),
+						autoIncrement: rsCols.getString("IS_AUTOINCREMENT") == "YES" || (rsCols.getString("COLUMN_DEF") ?: "").contains("NEXTVAL"), // For Oracle
+						generated: rsCols.getString("IS_GENERATEDCOLUMN") == "YES",
+						unique: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
+						primaryKey: pks.contains(colName)
+					)
+					columns << col
+				}
+				rsCols.close()
+			} else {
+				Log.w("Connection was null")
 			}
-			rsPk.close()
-			ResultSet rsCols = meta.getColumns(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table), "%")
-			while(rsCols.next()) {
-				String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
-				ColumnInfo col = new ColumnInfo(
-					name 			: colName,
-					type 			: ColumnType.fromJavaSQL(rsCols.getInt("DATA_TYPE")),
-					position		: rsCols.getInt("ORDINAL_POSITION"),
-					length			: rsCols.getInt("COLUMN_SIZE"),
-					charLength		: rsCols.getInt("CHAR_OCTET_LENGTH"),
-					bufferLength	: rsCols.getInt("BUFFER_LENGTH"),
-					decimalDigits	: rsCols.getInt("DECIMAL_DIGITS"),
-					nullable		: rsCols.getString("IS_NULLABLE") == "YES",
-					defaultValue	: rsCols.getString("COLUMN_DEF"),
-					autoIncrement	: rsCols.getString("IS_AUTOINCREMENT") == "YES" || (rsCols.getString("COLUMN_DEF") ?: "").contains("NEXTVAL"), // For Oracle
-					generated		: rsCols.getString("IS_GENERATEDCOLUMN") == "YES",
-					unique			: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
-					primaryKey		: pks.contains(colName)
-				)
-				columns << col
-			}
-			rsCols.close()
 		} catch(Exception e) {
 			Log.w("Unable to get columns of table: [%s] via JDBC", table)
 			onError(e)
@@ -285,8 +289,10 @@ class JDBCConnector implements Connector {
 			final ResultSetMetaData rm = updaction ? null : rs.getMetaData()
 			return new DBStatement(jdbc, this, st, rs, rm, countUpdated)
 		} catch (SQLException ex) {
-			Log.w("Statement failed")
-			onError(ex)
+			if(!silent) {
+				Log.w("Statement failed")
+				onError(ex)
+			}
 		} catch (AssertionError ae) {
 			Log.w("Invalid query")
 			onError(ae)
