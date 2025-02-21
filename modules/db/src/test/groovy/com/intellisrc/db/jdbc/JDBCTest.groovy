@@ -81,7 +81,7 @@ abstract class JDBCTest extends Specification {
             }
             def q = {
                 String s ->
-                    return jdbc.fieldsQuotation + s + jdbc.fieldsQuotation
+                    return jdbc.getFieldForQuery(s)
             }
         then:
             assert db : "Unable to connect"
@@ -290,7 +290,7 @@ abstract class JDBCTest extends Specification {
             assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table))
         then : "Be sure the table is there"
             assert db.tables.size() == 1
-            assert db.tables.contains(table)
+            assert db.hasTable(table)
         then: "Insert first"
             assert db.table(table).insert(
                 [ name : "Ubuntu", active: true, updated: setDate("2022-08-01"), version: 3.7 ],
@@ -326,12 +326,12 @@ abstract class JDBCTest extends Specification {
                 assert isSingleStm ? db.setSQL(getTableCreate("${table}${it}")) : db.setSQL(getTableCreateMulti("${table}${it}"))
             }
         then: "Be sure we have all tables"
-            List<String> tables = db.tables
+            List<String> tables = db.tables.collect { it.toLowerCase() }
             assert tables.size() == numTables
             println tables
         then: "List tables"
             (1..numTables).each {
-                assert tables.contains("${table}${it}".toString()) : "${table}${it} was not found"
+                assert tables.contains("${table}${it}".toString().toLowerCase()) : "${table}${it} was not found"
             }
         when: "Drop tables"
             db.dropAllTables()
@@ -389,7 +389,7 @@ abstract class JDBCTest extends Specification {
             assert db.setSQL(getTableCreateMultiplePK(table))
         then : "Be sure the table is there"
             assert db.tables.size() == 1
-            assert db.tables.contains(table)
+            assert db.hasTable(table)
         then: "Insert values"
             assert db.table(table).insert([
                 [ uid : 1, gid : 1, name : "User1-1" ],

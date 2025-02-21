@@ -112,6 +112,7 @@ abstract class JDBC {
     String getSchemaSearchName() { return "" }
     String getTableSearchName(String table) { return table }
     List<String> filterTables(List<String> tables) { return tables }
+    String getFieldForQuery(String field) { return fieldsQuotation + field + fieldsQuotation }
     /*
      * Properties:
      * Override if its different
@@ -149,8 +150,14 @@ abstract class JDBC {
     String getTruncateQuery(String table) {
         return "TRUNCATE TABLE $table"
     }
+    String getBeforeDropTableQuery(String table) {
+        return ""
+    }
     String getDropTableQuery(String table) {
         return "DROP TABLE $table"
+    }
+    String getAfterDropTableQuery(String table) {
+        return ""
     }
     String getDropViewQuery(String view) {
         return "DROP VIEW $view"
