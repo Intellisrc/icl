@@ -717,9 +717,9 @@ to ensure the basic usage compatibility.
 | PostgreSQL      | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Very Fast     |
 | SQLite          | Yes   | Yes           | No              | Yes        | No                  | Yes          | No                    | Fast          |
 | Derby           | Yes * | Yes           | Yes             | Yes        | Yes                 | Yes          | Yes                   | Very Fast     |
+| Oracle          | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Slow          |
 | HSQLDB          | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
 | H2              | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
-| Oracle          | No    | Yes           | Yes             | No         | No                  | No           | No                    | Slow          |
 | SQLServer       | No    | Yes           | Yes             | No         | No                  | No           | No                    | Fast          |
 | Firebird        | No    | Yes           | Yes             | No         | No                  | No           | No                    | Very Slow     |
 
