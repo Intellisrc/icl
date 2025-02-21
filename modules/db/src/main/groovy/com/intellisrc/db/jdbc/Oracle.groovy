@@ -256,7 +256,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
         switch (column.type) {
             case boolean:
             case Boolean:
-                type = "CHAR(6)" //FIXME: in Oracle 23c+ finally it is implemented
+                type = supportsBoolean ? "BOOLEAN" : "CHAR(6)" //FIXME: in Oracle 23c+ finally it is implemented
                 break
             case char:
             case Character:
