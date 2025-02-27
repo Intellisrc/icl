@@ -93,14 +93,15 @@ class JDBCConnector implements Connector {
 				ResultSet rsCols = meta.getColumns(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table), "%")
 				while (rsCols.next()) {
 					String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
+					int decimals = rsCols.getInt("DECIMAL_DIGITS")
 					ColumnInfo col = new ColumnInfo(
 						name: colName,
-						type: ColumnType.fromJavaSQL(rsCols.getInt("DATA_TYPE")),
+						type: ColumnType.fromJavaSQL(rsCols.getInt("DATA_TYPE"), decimals),
 						position: rsCols.getInt("ORDINAL_POSITION"),
 						length: rsCols.getInt("COLUMN_SIZE"),
 						charLength: rsCols.getInt("CHAR_OCTET_LENGTH"),
 						bufferLength: rsCols.getInt("BUFFER_LENGTH"),
-						decimalDigits: rsCols.getInt("DECIMAL_DIGITS"),
+						decimalDigits: decimals,
 						nullable: rsCols.getString("IS_NULLABLE") == "YES",
 						defaultValue: rsCols.getString("COLUMN_DEF"),
 						autoIncrement: rsCols.getString("IS_AUTOINCREMENT") == "YES" || (rsCols.getString("COLUMN_DEF") ?: "").contains("NEXTVAL"), // For Oracle
@@ -323,15 +324,11 @@ class JDBCConnector implements Connector {
             commited = true
 		} catch(Exception e) {
 			onError(e)
+			connection?.rollback()
 		}
 		connection.autoCommit = true
 		clear(connection)
 		return commited
-	}
-
-	@Override
-	void rollback() {
-		connection?.rollback()
 	}
 
 	/**

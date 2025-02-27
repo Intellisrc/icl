@@ -19,6 +19,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 import static com.intellisrc.db.auto.Relational.getColumnName
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * Oracle Database
@@ -41,6 +42,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
     int port = 1521 // ssl port: 2484
     String driver = "oracle.jdbc.driver.OracleDriver"
     boolean supportsJSON = true
+    BooleanHandle booleanHandle = parameters.Boolean ? BOOLEAN : NUMBER //Oracle 23+ supports BOOLEAN
 
     // Oracle specific parameters:
     // https://docs.oracle.com/cd/E13222_01/wls/docs81/jdbc_drivers/oracle.html#1066413
@@ -51,7 +53,9 @@ class Oracle extends JDBCServer implements AutoJDBC {
             BatchPerformanceWorkaround : false,
             LoginTimeout : 0,
             ConnectionRetryCount : 0,
-            ConnectionRetryDelay : 3
+            ConnectionRetryDelay : 3,
+            // Added:
+            Boolean : false
         ] + params)
     }
 
@@ -64,6 +68,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
     // Query parameters
     boolean supportsReplace = false
     boolean convertToLowerCase = false
+    boolean checkDecimals = true // Force to check
     String fieldsQuotation = '"'
     String catalogSearchName = "%"
     @Override
@@ -193,7 +198,12 @@ class Oracle extends JDBCServer implements AutoJDBC {
             Relational.ColumnDB column ->
                 List<String> parts = ["\"${column.name}\"".toString()]
                 if (column.annotation.columnDefinition()) {
-                    parts << column.annotation.columnDefinition()
+                    String colDef = column.annotation.columnDefinition()
+                    int len = column.annotation.length()
+                    if(len &&! colDef.contains("(")) {
+                        colDef += "(${len})".toString()
+                    }
+                    parts << colDef
                 } else {
                     String type = getColumnDefinition(column)
                     type = type.replaceAll("TABLE_NAME", tableName) //Only applies to Oracle
@@ -256,7 +266,11 @@ class Oracle extends JDBCServer implements AutoJDBC {
         switch (column.type) {
             case boolean:
             case Boolean:
-                type = supportsBoolean ? "BOOLEAN" : "CHAR(6)" //FIXME: in Oracle 23c+ finally it is implemented
+                type = switch (booleanHandle) {
+                    case BOOLEAN -> "BOOLEAN"
+                    case NUMBER -> "NUMBER(1,0)"
+                    case CHAR -> "CHAR"
+                }
                 break
             case char:
             case Character:
@@ -271,7 +285,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 type = "CHAR($len)"
                 break
             case String:
-                type = "VARCHAR(${column.annotation.length() ?: 255})"
+                type = "VARCHAR2(${column.annotation.length() ?: 255})"
                 break
                 // All numeric values share unsigned/autoincrement and primary instructions:
             case byte:
@@ -300,8 +314,10 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 break
             case double:
             case Double:
+                type = "DOUBLE PRECISION"
+                break
             case BigDecimal:
-                type = "DOUBLE"
+                type = "NUMBER"
                 break
             case LocalDate:
                 type = "DATE"
@@ -313,17 +329,17 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 type = "TIME"
                 break
             case Inet4Address:
-                type = "VARCHAR(${column.annotation.length() ?: 15})"
+                type = "VARCHAR2(${column.annotation.length() ?: 15})"
                 break
             case Inet6Address:
             case InetAddress:
-                type = "VARCHAR(${column.annotation.length() ?: 45})"
+                type = "VARCHAR2(${column.annotation.length() ?: 45})"
                 break
             case URL:
             case URI:
                 boolean isIndex = column.annotation.key() || column.annotation.unique()
                 boolean isShort = (column.annotation.length() ?: 256) <= 255
-                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
+                String varChar = "VARCHAR2(${column.annotation.length() ?: 255})"
                 type = (isIndex || isShort) ? varChar : "NCLOB"
                 break
             case Collection:
@@ -331,20 +347,15 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 boolean isIndex = column.annotation.key() || column.annotation.unique()
                 boolean isShort = (column.annotation.length() ?: 256) <= 255
                 boolean json = supportsJSON && meta.hasProperty("useJson") && meta.class.getMethod("useJson").invoke(meta)
-                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
+                String varChar = "VARCHAR2(${column.annotation.length() ?: 255})"
                 type = isIndex ? varChar : (json ? "JSON" : (isShort ? varChar : "NCLOB"))
                 break
             case Enum:
-                type = "ENUM('" + column.type.getEnumConstants().join("','") + "')"
+                List<String> constants = column.type.getEnumConstants().collect { it.toString().toUpperCase() }
+                type = "VARCHAR2(${constants.max { it.length() }}) CHECK (${column.name} IN ('" + constants.join("','") + "'))"
                 break
             case byte[]:
-                int len = column.annotation.length() ?: 65535
-                switch (true) {
-                    case len < 256      : type = "TINYBLOB"; break
-                    case len < 65536    : type = "BLOB"; break
-                    case len < 16777216 : type = "MEDIUMBLOB"; break
-                    default             : type = "LONGBLOB"; break
-                }
+                type = "BLOB"
                 break
             default:
                 // Having a constructor with String or Having a static method 'fromString'
@@ -360,7 +371,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 }
                 if(canImport) {
                     int len = column.annotation.length() ?: 256
-                    type = len < 256 ? "VARCHAR($len)" : "NCLOB"
+                    type = len < 256 ? "VARCHAR2($len)" : "CLOB"
                 } else {
                     Log.w("Unknown field type: %s", column.type.simpleName)
                     Log.v("If you want to able to use '%s' type in the database, either set `fromString` " +

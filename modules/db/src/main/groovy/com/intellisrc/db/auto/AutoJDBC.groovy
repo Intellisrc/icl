@@ -3,11 +3,13 @@ package com.intellisrc.db.auto
 import com.intellisrc.db.DB
 import com.intellisrc.db.Data
 import com.intellisrc.db.Query
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.lang.annotation.Annotation
 
 import static com.intellisrc.db.auto.Relational.ColumnDB
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * @since 2022/07/05.
@@ -19,7 +21,7 @@ trait AutoJDBC {
      * Property from JDBC
      * @return
      */
-    abstract boolean getSupportsBoolean()
+    abstract JDBC.BooleanHandle getBooleanHandle()
     /**
      * Some databases does not support JSON datatype
      * @return
@@ -77,9 +79,20 @@ trait AutoJDBC {
             String dv = getDefaultForType(column)
             if (val != null) { // When default value is null, it will be set as nullable
                 boolean isNum = val.toString().isNumber()
-                boolean isBool = false
-                if(supportsBoolean) {
-                    isBool = ["true","false"].contains(val.toString().toLowerCase())
+                // Relational.getColumnDB will convert boolean to string: (from column.defaultVal above)
+                boolean isBool = val instanceof Boolean //["true","false"].contains(val.toString().toLowerCase().trim())
+                if(isBool) {
+                    switch (booleanHandle) {
+                        case NUMBER:
+                            val = Data.booleanAsInt(val as boolean)
+                            isNum = true
+                            isBool = false
+                            break
+                        case CHAR:
+                            val = Data.booleanAsChar(val as boolean)
+                            isBool = false
+                            break
+                    }
                 }
                 dv = (isNum || isBool) ? val.toString().toUpperCase() : "'${val}'".toString()
             }
@@ -100,34 +113,12 @@ trait AutoJDBC {
         if(column.annotation.defaultValue() != "") {
             dv = column.annotation.defaultValue()
         } else {
-            //noinspection GroovyFallthrough
-            switch (column.type) {
-                case Collection:
-                    dv = "'[]'"
-                    break
-                case Map:
-                    dv = "'{}'"
-                    break
-                case int:
-                case short:
-                case Integer:
-                case BigInteger:
-                case long:
-                case Long:
-                case float:
-                case Float:
-                case double:
-                case Double:
-                case BigDecimal:
-                    dv = "0"
-                    break
-                case String:
-                case Character:
-                case char:
-                    dv = "''"
-                    break
-                default:
-                    dv = "NULL"
+            dv = switch (column.type) {
+                case Collection -> "'[]'"
+                case Map -> "'{}'"
+                case int, short, Integer, BigInteger, long, Long, float, Float, double, Double, BigDecimal -> "0"
+                case String, Character, char -> "''"
+                default -> "NULL"
             }
         }
         return dv

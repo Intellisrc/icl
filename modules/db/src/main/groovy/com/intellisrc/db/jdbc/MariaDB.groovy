@@ -3,6 +3,9 @@ package com.intellisrc.db.jdbc
 import com.intellisrc.core.Config
 import groovy.transform.CompileStatic
 
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.BOOLEAN
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
+
 /**
  * MariaDB Database
  * @since 17/12/14.
@@ -13,6 +16,9 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class MariaDB extends MySQL {
     String driver = "org.mariadb.jdbc.Driver"
+    // Overrides ENUM in MySQL
+    BooleanHandle booleanHandle = BOOLEAN
+
     // MariaDB Parameters
     // https://mariadb.com/kb/en/about-mariadb-connector-j/
     // You may add more parameters as needed (values shown below are default values)

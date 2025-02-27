@@ -1,6 +1,9 @@
 package com.intellisrc.db
 
+import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
+
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 @CompileStatic
 /**
@@ -63,10 +66,74 @@ class Data {
         if(!data.isEmpty()) {
             Map map = data.get(0)
             if(!map.isEmpty()) {
-                val = ["true","on","yes","1","t","y"].contains(getFirstElement(map)?.toString()?.toLowerCase())
+                val = toBoolean(getFirstElement(map), null)
             }
         }
         return val
+    }
+
+    /**
+     * Converts object to boolean
+     * @param object
+     * NOTE: passing handler = null will convert generic strings/values to boolean
+     * @return
+     */
+    static boolean toBoolean(Object object, JDBC.BooleanHandle handler) {
+        return switch (handler) {
+            case BOOLEAN, ENUM -> object.toString().trim().toLowerCase() == "true"
+            case NUMBER     -> object.toString().trim().isNumber() && parseInt(object.toString()) == 1
+            case CHAR       -> object.toString().trim().toLowerCase() == "y"
+            // Generic conversion (use null)
+            default         -> ["y","t","on","1","true"].contains(object.toString().trim().toLowerCase())
+        }
+    }
+    /**
+     * Converts boolean to numeric
+     * @param object
+     * @return
+     */
+    static int booleanAsInt(boolean value) {
+        return value ? 1 : 0
+    }
+    /**
+     * Converts boolean to char
+     * @param object
+     * @return
+     */
+    static char booleanAsChar(boolean value) {
+        return (value ? 'y' : 'n') as char
+    }
+    /**
+     * Convert boolean to representation in database
+     * @param object
+     * @param handler
+     * @return
+     */
+    static Object booleanToValue(boolean value, JDBC.BooleanHandle handler) {
+        return switch (handler) {
+            case BOOLEAN -> value
+            case NUMBER -> booleanAsInt(value)
+            case CHAR -> booleanAsChar(value)
+            case ENUM -> value.toString().toUpperCase()
+        }
+    }
+    /**
+     * Returns true if Object is an int (that includes numbers like: 1.00)
+     * @param object
+     * @return
+     */
+    static boolean isInt(Object object) {
+        return object.toString().matches(/^\d+(\.0+)?$/)
+    }
+    /**
+     * Parse object as int. It will throw and exception if it is not an int
+     * Integer.parseInt() fails for numbers like: "0.0"
+     * @param object
+     * @return
+     */
+    static int parseInt(Object object) throws AssertionError {
+        assert isInt(object) : "${object.toString()} is not an int"
+        return object.toString().toBigDecimal().intValue()
     }
     /**
      * Returns the first column of the first row as String
