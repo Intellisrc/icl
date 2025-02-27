@@ -18,7 +18,6 @@ interface Connector {
     boolean isOpen()
     ResultStatement execute(Query query, boolean silent)
     boolean commit(Collection<Query> query)
-    void rollback()
     void onError(Throwable ex)
 
     JDBC getJdbc()

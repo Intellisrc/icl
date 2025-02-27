@@ -3,6 +3,9 @@ package com.intellisrc.db.jdbc
 import com.intellisrc.core.Config
 import groovy.transform.CompileStatic
 
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
+
 /**
  * MS SQL Server
  * @since 2022/01/18.
@@ -23,6 +26,7 @@ class SQLServer extends JDBCServer {
     boolean useWinLogin = false
     boolean trustCert = false
     boolean supportsJSON = true
+    BooleanHandle booleanHandle = NUMBER
 
     //encrypt : true // for drivers 10.2 and below
     //encrypt : "strict" // For drivers 11.2 or above

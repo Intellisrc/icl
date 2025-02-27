@@ -20,6 +20,10 @@ import java.util.regex.Matcher
 
 import static com.intellisrc.db.auto.Relational.ColumnDB
 import static com.intellisrc.db.auto.Relational.getColumnName
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.BOOLEAN
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.CHAR
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
 
 /**
  * MySQL Database
@@ -41,6 +45,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
     boolean ssl = false
     boolean trustCert = true
     boolean supportsJSON = true
+    BooleanHandle booleanHandle = ENUM
 
     // MySQL Parameters
     // https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-reference-configuration-properties.html
@@ -111,7 +116,12 @@ class MySQL extends JDBCServer implements AutoJDBC {
             ColumnDB column ->
                 List<String> parts = ["`${column.name}`".toString()]
                 if (column.annotation.columnDefinition()) {
-                    parts << column.annotation.columnDefinition()
+                    String colDef = column.annotation.columnDefinition()
+                    int len = column.annotation.length()
+                    if(len &&! colDef.contains("(")) {
+                        colDef += "(${len})".toString()
+                    }
+                    parts << colDef
                 } else {
                     String type = getColumnDefinition(column)
                     parts << type
@@ -209,7 +219,12 @@ class MySQL extends JDBCServer implements AutoJDBC {
         switch (column.type) {
             case boolean:
             case Boolean:
-                type = "ENUM('true','false')"
+                type = switch (booleanHandle) {
+                    case BOOLEAN -> "BOOLEAN"
+                    case NUMBER -> "TINYINT(1)"
+                    case CHAR -> "CHAR"
+                    case ENUM -> "ENUM('TRUE','FALSE')"
+                }
                 break
             case char:
             case Character:

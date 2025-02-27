@@ -195,9 +195,6 @@ class DB {
                         removeAutoId(autoKeys(createQuery().setAction(UPDATE)).setWhere(keyvals[idx]).setValues(row))
                 })
                 updated = dbConnector.commit(queries)
-                if(!updated) {
-                    dbConnector.rollback()
-                }
             } else {
                 Log.w("Trying to update data with unequal number of rows and keys")
             }
@@ -230,9 +227,6 @@ class DB {
                 removeAutoId(autoKeys(createQuery().setAction(INSERT)).setValues(it))
             })
             ok = dbConnector.commit(queries)
-            if (!ok) {
-                dbConnector.rollback()
-            }
         } else {
             Log.v("Insert received an empty list")
         }
@@ -262,9 +256,6 @@ class DB {
                     autoKeys(createQuery().setAction(REPLACE)).setValues(it)
                 })
                 ok = dbConnector.commit(queries)
-                if(!ok) {
-                    dbConnector.rollback()
-                }
             } else {
                 if (repvals.size() > 100 && !jdbc.supportsReplace) {
                     Log.w("Using REPLACE with many records in [%s] may be too slow. Consider using INSERT or UPDATE instead", jdbc.class.simpleName)
@@ -856,7 +847,7 @@ class DB {
      * @return Data (List<Map>)
      */
     protected Data execGet() {
-        String qryStr = query.toString()
+        String qryStr = query.toString().trim()
         Data data
         if(! qryStr.empty) {
             Log.v("GET ::: " + qryStr)
@@ -891,7 +882,12 @@ class DB {
                                                 row.put(column, st.columnBool(i))
                                                 break
                                             case INTEGER:
-                                                row.put(column, st.columnInt(i))
+                                                // Oracle does not report decimals when using functions like: MAX()
+                                                if(jdbc.checkDecimals && st.columnInt(i) != st.columnDbl(i)) {
+                                                    row.put(column, st.columnDbl(i))
+                                                } else {
+                                                    row.put(column, st.columnInt(i))
+                                                }
                                                 break
                                             case FLOAT:
                                                 row.put(column, st.columnFloat(i))
@@ -1049,6 +1045,7 @@ class DB {
             }
         } else {
             ok = true
+            Log.w("Query was empty")
         }
         return ok
     }

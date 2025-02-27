@@ -2,6 +2,8 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.db.DB
 
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
+
 /**
  * @since 18/06/15.
  * Useful reference : https://blogs.oracle.com/sql/post/how-to-create-users-grant-them-privileges-and-remove-them-in-oracle-database
@@ -10,14 +12,15 @@ class OracleSQLTest extends JDBCTest {
 
     // Requires Oracle 12c+
     List<String> getTableCreateMulti(String name) {
+        boolean num = getDB().booleanHandle == NUMBER
         // Oracle doesn't support ENUM nor BOOLEAN
         return [
 "CREATE SEQUENCE ${name}_seq",
 """CREATE TABLE $name (
-    "id" NUMBER(10) DEFAULT ${name}_seq.nextval PRIMARY KEY,
+    "id" NUMBER(10,0) DEFAULT ${name}_seq.nextval PRIMARY KEY,
     "name" VARCHAR2(10) NOT NULL UNIQUE,
-    "version" FLOAT, 
-    "active" VARCHAR(5) CHECK("active" IN('true', 'false')),
+    "version" NUMBER(2,1), 
+    "active" ${ num ? 'NUMBER(1,0)' : 'CHAR(1)'},
     "updated" DATE
 )"""
         ]
@@ -30,7 +33,7 @@ class OracleSQLTest extends JDBCTest {
         return """CREATE TABLE ${name} (
           "uid" INT NOT NULL,
           "gid" INT NOT NULL,
-          "name" VARCHAR(30) NOT NULL,
+          "name" VARCHAR2(30) NOT NULL,
           PRIMARY KEY ("uid","gid")
         )"""
     }

@@ -4,6 +4,7 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
+import com.intellisrc.db.Data
 import com.intellisrc.db.Database
 import com.intellisrc.net.LocalHost
 import com.intellisrc.term.TableMaker
@@ -12,6 +13,7 @@ import spock.lang.Specification
 
 import static com.intellisrc.db.Query.SortOrder.ASC
 import static com.intellisrc.db.Query.SortOrder.DESC
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * @since 2022/01/20.
@@ -21,6 +23,7 @@ abstract class JDBCTest extends Specification {
 
     abstract JDBC getDB()
 
+    @SuppressWarnings('unused')
     boolean shouldSkip() {
         JDBC jdbc = this.getDB()
         boolean skip = jdbc instanceof JDBCServer
@@ -207,8 +210,20 @@ abstract class JDBCTest extends Specification {
             }
         then: "Match order and group"
             assert listOfMaps.size() == 2
-            assert listOfMaps.first().active == false
-            assert listOfMaps.last().active == true
+            switch (jdbc.booleanHandle) {
+                case BOOLEAN:
+                    assert listOfMaps.first().active == false
+                    assert listOfMaps.last().active == true
+                    break
+                case NUMBER:
+                    assert Data.parseInt(listOfMaps.first().active.toString()) == 0
+                    assert Data.parseInt(listOfMaps.last().active.toString()) == 1
+                    break
+                case CHAR:
+                    assert listOfMaps.first().active.toString() == "n"
+                    assert listOfMaps.last().active.toString() == "y"
+                    break
+            }
         then: "Updating with single ID"
             assert db.table(table).key("id").update([
                 name : "Kubuntu"
@@ -354,7 +369,7 @@ abstract class JDBCTest extends Specification {
             }
         when: "Create table"
             println "Creating table: $table ..."
-            assert db.setSQL(getTableCreate(table)) ?: db.setSQL(getTableCreateMulti(table))
+            assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table))
         then: "Insert values"
             assert db.table(table).insert([
                 [ name : "RedHat",      active: false,   updated: null,     version: 3.3 ],

@@ -107,12 +107,12 @@ class AutoTest extends Specification {
     //FIXME: Some tests fails when two or more databases are tested at the same time
     //       until it is fixed, test one by one before releasing (leave Derby for fast test)
     static List<JDBC> getTestable(boolean update = false) {
-        boolean testDerby       = false
+        boolean testDerby       = true
         boolean testSQLite      = false
         boolean testMariaDB     = false
         boolean testMySQL       = false
         boolean testPostgres    = false
-        boolean testOracle      = true
+        boolean testOracle      = false
 
         List<JDBC> dbs = []
         if(testDerby) {
@@ -363,14 +363,14 @@ class AutoTest extends Specification {
                 addresses.insert(new Address(
                     user: usr,
                     address: "Street $it number ${usr.id}",
-                    zip: "9000${usr.id}",
+                    zip: "9000${usr.id}".toString(),
                     city: "Gothic City"
                 ))
             }
         then:
             User user = users.get(1)
             Address address = addresses.find("user", user)
-            assert address.zip == "9000${user.id}"
+            assert address.zip == "9000${user.id}".toString()
         when:
             address.zip = "444444"
         then:
@@ -443,7 +443,7 @@ class AutoTest extends Specification {
             assert emails.deleteByPK(toDelete) : "Unable to delete IDs"
             assert emails.count() == rows - numToDelete
         when:
-            String userToFind = "user200@example.com"
+            String userToFind = "user500@example.com"
             List<UserEmail> newEmailList = []
             emails.getAll({
                 List<UserEmail> chunk ->
@@ -458,9 +458,9 @@ class AutoTest extends Specification {
                 List<Map> chunk ->
                     assert chunk.first().email instanceof String
             })
-            Map email200 = emails.findRecord("id", 200)
-            List<Map> finder = emails.findRecords("id", 200)
-            emails.findRecords("id", 200, {
+            Map email500 = emails.findRecord("id", 500)
+            List<Map> finder = emails.findRecords("id", 500)
+            emails.findRecords("id", 500, {
                 List<Map> chunk ->
                     assert chunk.size() == 1
                     assert chunk.first().email == userToFind
@@ -474,7 +474,7 @@ class AutoTest extends Specification {
             assert few.size() == 10
             assert few.first().id as int == 490
             assert few.last().id as int == 481
-            assert email200.email == userToFind
+            assert email500.email == userToFind
             assert finder.size() == 1
             assert finder.first().email == userToFind
         cleanup:

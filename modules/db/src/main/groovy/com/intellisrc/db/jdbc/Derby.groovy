@@ -155,7 +155,12 @@ class Derby extends JDBCServer implements AutoJDBC {
                 ColumnDB column ->
                     List<String> parts = ["${column.name}".toString()]
                     if (column.annotation.columnDefinition()) {
-                        parts << column.annotation.columnDefinition()
+                        String colDef = column.annotation.columnDefinition()
+                        int len = column.annotation.length()
+                        if(len &&! colDef.contains("(")) {
+                            colDef += "(${len})".toString()
+                        }
+                        parts << colDef
                     } else {
                         String type = getColumnDefinition(column).replace("_pk", tableName + "_pk" + "_v" + version)
                         parts << type

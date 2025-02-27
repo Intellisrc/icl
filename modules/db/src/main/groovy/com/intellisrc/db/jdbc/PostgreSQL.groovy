@@ -100,7 +100,12 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
             Relational.ColumnDB column ->
                 List<String> parts = ["\"${column.name}\"".toString()]
                 if (column.annotation.columnDefinition()) {
-                    parts << column.annotation.columnDefinition()
+                    String colDef = column.annotation.columnDefinition()
+                    int len = column.annotation.length()
+                    if(len &&! colDef.contains("(")) {
+                        colDef += "(${len})".toString()
+                    }
+                    parts << colDef
                 } else {
                     String type = getColumnDefinition(column)
                     parts << type

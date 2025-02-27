@@ -109,13 +109,6 @@ class PoolConnector implements Connector {
     }
 
 	@Override
-	void rollback() {
-		if(open()) {
-			currentConnector.rollback()
-		}
-	}
-
-	@Override
 	void onError(Throwable ex) {
 		currentConnector?.onError(ex)
 	}

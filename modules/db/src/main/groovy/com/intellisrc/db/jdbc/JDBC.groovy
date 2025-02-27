@@ -32,6 +32,9 @@ abstract class JDBC {
     interface ErrorHandler {
         void call(Throwable e)
     }
+    static enum BooleanHandle {
+        BOOLEAN, NUMBER, CHAR, ENUM
+    }
     /**
      * Override this method for custom classes
      * No need to include user/password in URL
@@ -127,8 +130,10 @@ abstract class JDBC {
     boolean getConvertToLowerCase() { return true }
     // When false it will use LIMIT ... OFFSET
     boolean getUseFetch() { return true }
-    // If Database supports native boolean
-    boolean getSupportsBoolean() { return false }
+    // In cases como Oracle which MAX(column) does not include the digits, we force to check:
+    boolean getCheckDecimals() { return false }
+    // How do boolean will be stored in Database? (BOOLEAN == native support)
+    BooleanHandle getBooleanHandle() { return BooleanHandle.BOOLEAN }
     // If Database supports JSON datatype
     boolean getSupportsJSON() { return false }
     // Syntax to specify column is null

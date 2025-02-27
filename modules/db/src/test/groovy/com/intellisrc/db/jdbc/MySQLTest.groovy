@@ -15,7 +15,7 @@ class MySQLTest extends JDBCTest {
                 `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
                 `name` VARCHAR(10) NOT NULL UNIQUE,
                 `version` FLOAT,
-                `active` ENUM('false','true'),
+                `active` ENUM('FALSE','TRUE'),
                 `updated` DATE
         )"""
     }

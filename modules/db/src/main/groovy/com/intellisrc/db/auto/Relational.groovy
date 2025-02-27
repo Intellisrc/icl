@@ -2,6 +2,7 @@ package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
+import com.intellisrc.db.Data
 import com.intellisrc.db.Database
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
@@ -24,6 +25,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.concurrent.ConcurrentHashMap
+
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * @since 2023/05/30.
@@ -233,7 +236,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                 return preserve ? (val as Enum).ordinal() : val.toString()
             case boolean: // bool = ENUM
             case Boolean:
-                return preserve ? val : val.toString()
+                return val
             case InetAddress:
                 return (val as InetAddress).hostAddress
             case Model:
@@ -964,7 +967,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         break
                     case boolean:
                     case Boolean:
-                        retVal = value.toString() == "true"
+                        retVal = Data.toBoolean(value, jdbc.booleanHandle)
                         break
                     case Collection:
                         try {
