@@ -134,7 +134,7 @@ class DBStatement implements ResultStatement {
             return switch (jdbc.booleanHandle) {
                 case BOOLEAN -> resultSet.getBoolean(index)
                 case NUMBER -> Data.toBoolean(resultSet.getInt(index), NUMBER)
-                case CHAR -> Data.toBoolean(resultSet.getString(index), CHAR)
+                case CHAR -> Data.toBoolean(resultSet.getString(index), CHAR, jdbc.trueChar)
                 case ENUM -> Data.toBoolean(resultSet.getString(index), ENUM)
             }
         } catch (SQLException ex) {

@@ -236,7 +236,7 @@ class Query {
                                     break
                                 case NUMBER: wherePart.append(fieldName(k) + " = ? ", [Data.booleanAsInt(v as boolean)])
                                     break
-                                case CHAR:  wherePart.append(fieldName(k) + " = ? ", [Data.booleanAsChar(v as boolean)])
+                                case CHAR:  wherePart.append(fieldName(k) + " = ? ", [Data.booleanAsChar(v as boolean, dbType.trueChar, dbType.falseChar)])
                                     break
                                 case ENUM:  wherePart.append(fieldName(k) + " = ? ", [v.toString().toUpperCase()])
                                     break
@@ -315,7 +315,7 @@ class Query {
         return switch (dbType.booleanHandle) {
             case BOOLEAN, ENUM -> ["true", "false"].contains(value.toString().toLowerCase())
             case NUMBER -> Data.isInt(value) && [0,1].contains(Data.parseInt(value.toString()))
-            case CHAR -> ["y","n"].contains(value.toString().toLowerCase())
+            case CHAR -> [dbType.trueChar, dbType.falseChar].collect { it.toString() }.contains(value.toString().toLowerCase())
         }
     }
     /**
@@ -326,7 +326,7 @@ class Query {
     protected String getPlaceHolder(Object value) {
         return switch (true) {
             case (value == null) -> "NULL"
-            case dbType.booleanHandle == BOOLEAN && isBoolean(value) -> value.toString().toUpperCase()
+            case dbType.booleanHandle == BOOLEAN && isBoolean(value as Object) -> value.toString().toUpperCase() //FIXME: IntelliJ bug: value as Object needed
             default -> "?"
         }
     }
@@ -354,7 +354,7 @@ class Query {
     Query setValues(final Map<String,Object> values) {
         whereValues = values.collectEntries {
             Object val = switch (it.value) {
-                case boolean, Boolean -> Data.booleanToValue(it.value as boolean, dbType.booleanHandle)
+                case boolean, Boolean -> Data.booleanToValue(it.value as boolean, dbType.booleanHandle, dbType.trueChar, dbType.falseChar)
                 default -> it.value
             }
             return [(it.key) : val ]
@@ -441,12 +441,12 @@ class Query {
         }
         args = args.collect {
             return switch (it) {
-                case boolean, Boolean -> Data.booleanToValue(it as boolean, dbType.booleanHandle)
+                case boolean, Boolean -> Data.booleanToValue(it as boolean, dbType.booleanHandle, dbType.trueChar, dbType.falseChar)
                 // If we pass a String as argument we convert automatically the value to its representation in the database
                 // NOTE: we don't use only Data.toBoolean or Data.booleanAsInt here as we have to be sure that any other
                 //       value is not interpreted as false, e.g.: "other" -> false (as "other" != "true")
                 case String -> switch (dbType.booleanHandle) {
-                                    case BOOLEAN -> ["true","false"].contains(it.toString().toLowerCase().trim()) ? Data.toBoolean(it, dbType.booleanHandle) : it // converts "true" to true, "false" to false
+                                    case BOOLEAN -> ["true","false"].contains(it.toString().toLowerCase().trim()) ? Data.toBoolean(it, dbType.booleanHandle, dbType.trueChar) : it // converts "true" to true, "false" to false
                                     default -> it
                                }
                 default -> it

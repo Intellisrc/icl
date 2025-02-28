@@ -23,6 +23,16 @@ trait AutoJDBC {
      */
     abstract JDBC.BooleanHandle getBooleanHandle()
     /**
+     * Property from JDBC
+     * @return
+     */
+    abstract char getTrueChar()
+    /**
+     * Property from JDBC
+     * @return
+     */
+    abstract char getFalseChar()
+    /**
      * Some databases does not support JSON datatype
      * @return
      */
@@ -79,8 +89,7 @@ trait AutoJDBC {
             String dv = getDefaultForType(column)
             if (val != null) { // When default value is null, it will be set as nullable
                 boolean isNum = val.toString().isNumber()
-                // Relational.getColumnDB will convert boolean to string: (from column.defaultVal above)
-                boolean isBool = val instanceof Boolean //["true","false"].contains(val.toString().toLowerCase().trim())
+                boolean isBool = val instanceof Boolean
                 if(isBool) {
                     switch (booleanHandle) {
                         case NUMBER:
@@ -89,7 +98,7 @@ trait AutoJDBC {
                             isBool = false
                             break
                         case CHAR:
-                            val = Data.booleanAsChar(val as boolean)
+                            val = Data.booleanAsChar(val as boolean, trueChar, falseChar)
                             isBool = false
                             break
                     }

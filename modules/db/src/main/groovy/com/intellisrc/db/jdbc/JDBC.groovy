@@ -134,6 +134,10 @@ abstract class JDBC {
     boolean getCheckDecimals() { return false }
     // How do boolean will be stored in Database? (BOOLEAN == native support)
     BooleanHandle getBooleanHandle() { return BooleanHandle.BOOLEAN }
+    // True char in case booleanHandle == CHAR
+    char getTrueChar() { return 'y' as char }
+    // False char in case booleanHandle == CHAR
+    char getFalseChar() { return 'n' as char }
     // If Database supports JSON datatype
     boolean getSupportsJSON() { return false }
     // Syntax to specify column is null
