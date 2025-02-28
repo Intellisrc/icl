@@ -967,7 +967,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         break
                     case boolean:
                     case Boolean:
-                        retVal = Data.toBoolean(value, jdbc.booleanHandle)
+                        retVal = Data.toBoolean(value, jdbc.booleanHandle, jdbc.trueChar)
                         break
                     case Collection:
                         try {

@@ -66,7 +66,7 @@ class Data {
         if(!data.isEmpty()) {
             Map map = data.get(0)
             if(!map.isEmpty()) {
-                val = toBoolean(getFirstElement(map), null)
+                val = toBoolean(getFirstElement(map))
             }
         }
         return val
@@ -78,11 +78,11 @@ class Data {
      * NOTE: passing handler = null will convert generic strings/values to boolean
      * @return
      */
-    static boolean toBoolean(Object object, JDBC.BooleanHandle handler) {
+    static boolean toBoolean(Object object, JDBC.BooleanHandle handler = null, char trueChar = 'y' as char) {
         return switch (handler) {
             case BOOLEAN, ENUM -> object.toString().trim().toLowerCase() == "true"
             case NUMBER     -> object.toString().trim().isNumber() && parseInt(object.toString()) == 1
-            case CHAR       -> object.toString().trim().toLowerCase() == "y"
+            case CHAR       -> object.toString().trim().toLowerCase() == trueChar.toString().toLowerCase()
             // Generic conversion (use null)
             default         -> ["y","t","on","1","true"].contains(object.toString().trim().toLowerCase())
         }
@@ -100,8 +100,8 @@ class Data {
      * @param object
      * @return
      */
-    static char booleanAsChar(boolean value) {
-        return (value ? 'y' : 'n') as char
+    static char booleanAsChar(boolean value, char trueChar, char falseChar) {
+        return (value ? trueChar : falseChar) as char
     }
     /**
      * Convert boolean to representation in database
@@ -109,11 +109,11 @@ class Data {
      * @param handler
      * @return
      */
-    static Object booleanToValue(boolean value, JDBC.BooleanHandle handler) {
+    static Object booleanToValue(boolean value, JDBC.BooleanHandle handler, char trueChar, char falseChar) {
         return switch (handler) {
             case BOOLEAN -> value
             case NUMBER -> booleanAsInt(value)
-            case CHAR -> booleanAsChar(value)
+            case CHAR -> booleanAsChar(value, trueChar, falseChar)
             case ENUM -> value.toString().toUpperCase()
         }
     }
