@@ -45,8 +45,7 @@ class HyperSQL extends JDBCServer {
 
     @Override
     String getConnectionString() {
-        String conn = "hsqldb:" + (hostname ? "$hostname/$port:$dbname" : "file:$dbname")
-        return conn + "?" + parameters.toQueryString()
+        return connectionURI ?: "hsqldb:" + (hostname ? "$hostname/$port:$dbname" : "file:$dbname") + "?" + parameters.toQueryString()
     }
 
     // QUERY BUILDING -------------------------

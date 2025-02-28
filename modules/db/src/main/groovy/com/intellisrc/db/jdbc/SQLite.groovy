@@ -43,7 +43,7 @@ class SQLite extends JDBC implements AutoJDBC {
     boolean memory = Config.any.get("db.sqlite.memory", false)
     @Override
     String getConnectionString() {
-        return (memory ? "sqlite::memory:" : "sqlite:$dbname") + (parameters.isEmpty() ? "" : "?" + parameters.toQueryString())
+        return  connectionURI ?: "sqlite:" + (memory ? ":memory:" : dbname) + (parameters.isEmpty() ? "" : "?" + parameters.toQueryString())
     }
 
     @Override

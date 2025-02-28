@@ -81,6 +81,9 @@ class Derby extends JDBCServer implements AutoJDBC {
     @Override
     String getConnectionString() {
         String sub = ""
+        if(connectionURI) {
+            return connectionURI
+        }
         // Do not set unless is enabled:
         if(encrypt) {
             parameters.dataEncryption = true

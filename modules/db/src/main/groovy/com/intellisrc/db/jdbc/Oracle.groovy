@@ -61,7 +61,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
 
     @Override
     String getConnectionString() {
-        return "oracle:thin:@//$hostname:$port/$dbname"
+        return  connectionURI ?: "oracle:thin:@//$hostname:$port/$dbname"
     }
 
     // QUERY BUILDING -------------------------

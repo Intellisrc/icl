@@ -77,6 +77,9 @@ abstract class JDBC {
     // Clear the connection (used in case something is left in it that may affect reusing it later)
     void clear(Connection connection) {}
 
+    // This will be set in case it is set directly
+    protected String connectionURI = ""
+
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):
@@ -331,10 +334,15 @@ abstract class JDBC {
      * @return
      */
     static JDBC fromType(String type) {
+        type = switch(type) {
+            case "hsqldb" -> "hypersql"
+            case "firebirdsql" -> "firebird"
+            default -> type.toLowerCase()
+        }
         Reflections reflections = new Reflections(this.package.name)
         Set<Class<? extends JDBC>> set = reflections.getSubTypesOf(JDBC.class)
         Class<? extends JDBC> cj = set.find {
-            it.simpleName.toLowerCase() == type.toLowerCase()
+            it.simpleName.toLowerCase() == type
         }
         return cj ? cj.getConstructor().newInstance() : null
     }
@@ -344,22 +352,20 @@ abstract class JDBC {
      * @return
      */
     static JDBC fromURI(String uri, String userName = "", char[] pwd = []) {
-        return new JDBC() {
+        String type = uri.tokenize(":").first()
+        JDBC jdbc = fromType(type) ?: new JDBC() {
             String dbname = ""
-            String user = userName
-            String password = pwd.toString()
+            String user = ""
+            String password = ""
             String driver = ""
             @Override
             String getConnectionString() {
-                String protocol = uri.tokenize(":").first()
-                String type = switch(protocol) {
-                    case "hsqldb" -> "hypersql"
-                    case "firebirdsql" -> "firebird"
-                    default -> protocol.toLowerCase()
-                }
-                driver = fromType(type)?.driver ?: ""
                 return uri
             }
         }
+        jdbc.connectionURI = uri
+        jdbc.user = userName
+        jdbc.password = pwd.toString()
+        return jdbc
     }
 }

@@ -60,7 +60,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
     @Override
     String getConnectionString() {
-        return "postgresql://$hostname:$port/$dbname" + (parameters.ssl ? "?ssl=true" : "")
+        return  connectionURI ?: "postgresql://$hostname:$port/$dbname" + (parameters.ssl ? "?ssl=true" : "")
     }
 
     // QUERY BUILDING -------------------------
