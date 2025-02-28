@@ -58,7 +58,6 @@ class Derby extends JDBCServer implements AutoJDBC {
     String catalogSearchName = "%"
     String schemaSearchName = "%"
     boolean supportsReplace = false
-    boolean supportsBoolean = true
 
     // Derby specific parameters:
     // https://db.apache.org/derby/docs/10.0/manuals/reference/sqlj238.html#HDRSII-ATTRIB-24612

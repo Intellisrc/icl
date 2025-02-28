@@ -67,7 +67,6 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     // Query parameters
     boolean useFetch = false
     boolean supportsReplace = false
-    boolean supportsBoolean = true
     /**
      * Fallback for last ID
      * @param table

@@ -24,7 +24,6 @@ class HyperSQL extends JDBCServer {
     int port = 9001
     String packageName = "org.hsqldb.jdbc"
     String driver = "${packageName}.JDBCDriver"
-    boolean supportsBoolean = true
     boolean supportsReplace = false     //TODO: it supports it, but the syntax is more complicated to implement
     String catalogSearchName = null
     String schemaSearchName = null

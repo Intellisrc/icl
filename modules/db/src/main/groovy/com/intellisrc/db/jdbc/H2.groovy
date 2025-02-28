@@ -20,7 +20,6 @@ class H2 extends JDBCServer {
     int port = 1521
     String packageName = "org.h2"
     String driver = "${packageName}.Driver"
-    boolean supportsBoolean = true
     boolean supportsReplace = false
     String catalogSearchName = null
     String schemaSearchName = null

@@ -145,11 +145,14 @@ class JDBCConnector implements Connector {
 				conn = "jdbc:$conn"
 			}
 			// Be sure that the driver is loaded
-			Class.forName(jdbc.driver)
-
-			connection = DriverManager.getConnection(conn, jdbc.user, jdbc.password)
-			Log.v( "Connected to DB: %s (%s)", jdbc.dbname ?: jdbc.toString())
-			connected = true
+			if(jdbc.driver) {
+				Class.forName(jdbc.driver)
+				connection = DriverManager.getConnection(conn, jdbc.user, jdbc.password)
+				Log.v( "Connected to DB: %s (%s)", jdbc.dbname ?: jdbc.toString())
+				connected = true
+			} else {
+				Log.w("Driver was not specified for database (%s)", conn)
+			}
 		} catch (SQLException e) {
 			Log.w( "Connection failed: %s", conn)
 			onError(e)

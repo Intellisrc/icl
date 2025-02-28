@@ -302,29 +302,41 @@ abstract class JDBC {
             }
         }
         if(cfgType) {
-            Reflections reflections = new Reflections(this.package.name)
-            Set<Class<? extends JDBC>> set = reflections.getSubTypesOf(JDBC.class)
-            Class<? extends JDBC> cj = set.find {
-                it.simpleName.toLowerCase() == cfgType.toLowerCase()
-            }
-            if(cj) {
-                jdbc = cj.getConstructor().newInstance()
-                Class cls = cj
-                while(cls != Object) {
+            jdbc = fromType(cfgType)
+            if(jdbc) {
+                Class cls = jdbc.class
+                while (cls != Object) {
                     cls.declaredFields.findAll { !it.synthetic }.each {
                         Field field ->
-                            if(settings.containsKey(field.name)) {
+                            if (settings.containsKey(field.name)) {
                                 field.setAccessible(true)
                                 field.set(jdbc, settings.get(field.name))
                             }
                     }
                     cls = cls.superclass
                 }
+            } else {
+                Log.w("Unknown JDBC class for type: %s", cfgType)
             }
         } else {
             Log.e("No `type` was specified in argument or in configuration. Connection will fail.")
         }
         return jdbc
+    }
+
+    /**
+     * Get an empty JDBC instance for that type
+     * for example "mysql" will return an empty "MySQL" instance
+     * @param type
+     * @return
+     */
+    static JDBC fromType(String type) {
+        Reflections reflections = new Reflections(this.package.name)
+        Set<Class<? extends JDBC>> set = reflections.getSubTypesOf(JDBC.class)
+        Class<? extends JDBC> cj = set.find {
+            it.simpleName.toLowerCase() == type.toLowerCase()
+        }
+        return cj ? cj.getConstructor().newInstance() : null
     }
     /**
      * Get a JDBC object from connection URI
@@ -339,6 +351,13 @@ abstract class JDBC {
             String driver = ""
             @Override
             String getConnectionString() {
+                String protocol = uri.tokenize(":").first()
+                String type = switch(protocol) {
+                    case "hsqldb" -> "hypersql"
+                    case "firebirdsql" -> "firebird"
+                    default -> protocol.toLowerCase()
+                }
+                driver = fromType(type)?.driver ?: ""
                 return uri
             }
         }
