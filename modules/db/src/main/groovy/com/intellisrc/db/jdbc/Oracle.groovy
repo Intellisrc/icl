@@ -158,18 +158,6 @@ class Oracle extends JDBCServer implements AutoJDBC {
         return "DROP USER $user CASCADE"
     }
 
-        /*
-        DB db = connect()
-        boolean exists = db.hasTable(table)
-        if(exists) {
-            boolean hasAutoInc = db.table(table).info().any { it.autoIncrement }
-            if (hasAutoInc) {
-                db.set(new Query("DROP SEQUENCE ${table}_seq"))
-            }
-        }
-        db.close()
-        return exists ? super.getDropTableQuery(table) : true*/
-
     @Override
     String getBeforeDropTableQuery(String table) {
         return "DROP SEQUENCE ${table}_seq"
@@ -270,11 +258,12 @@ class Oracle extends JDBCServer implements AutoJDBC {
                     case BOOLEAN -> "BOOLEAN"
                     case NUMBER -> "NUMBER(1,0)"
                     case CHAR -> "CHAR"
+                    case ENUM -> "VARCHAR2(5) CHECK (${column.name} IN ('true','false'))"
                 }
                 break
             case char:
             case Character:
-                type = "CHARACTER"
+                type = "CHAR(1)"
                 break
             case char[]:
                 int len = column.annotation.length()
@@ -320,13 +309,9 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 type = "NUMBER"
                 break
             case LocalDate:
-                type = "DATE"
-                break
             case LocalDateTime:
-                type = "DATETIME"
-                break
             case LocalTime:
-                type = "TIME"
+                type = "DATE"
                 break
             case Inet4Address:
                 type = "VARCHAR2(${column.annotation.length() ?: 15})"
