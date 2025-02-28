@@ -13,7 +13,7 @@ class Dummy extends JDBC {
     String driver = ""
     @Override
     String getConnectionString() {
-        return "dummy://dummy"
+        return connectionURI ?: "dummy://dummy"
     }
 
     @Override

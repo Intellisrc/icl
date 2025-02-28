@@ -52,7 +52,7 @@ class Firebird extends JDBCServer {
             default:
                 conn = "firebirdsql:$hostname/$port:$dbname"
         }
-        return conn + "?" + parameters.toQueryString()
+        return connectionURI ?: (conn + "?" + parameters.toQueryString())
     }
 
     // QUERY BUILDING -------------------------

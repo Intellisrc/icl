@@ -147,7 +147,9 @@ class JDBCConnector implements Connector {
 			// Be sure that the driver is loaded
 			if(jdbc.driver) {
 				Class.forName(jdbc.driver)
-				connection = DriverManager.getConnection(conn, jdbc.user, jdbc.password)
+				connection = (jdbc.user || jdbc.password) ?
+					DriverManager.getConnection(conn, jdbc.user, jdbc.password) :
+					DriverManager.getConnection(conn)
 				Log.v( "Connected to DB: %s (%s)", jdbc.dbname ?: jdbc.toString())
 				connected = true
 			} else {

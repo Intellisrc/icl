@@ -46,7 +46,7 @@ class SQLServer extends JDBCServer {
 
     @Override
     String getConnectionString() {
-        return "sqlserver://$hostname:$port;" +
+        return connectionURI ?: "sqlserver://$hostname:$port;" +
             (dbname ? "database=$dbname;" : "" ) +
             parameters.collect {
                 "${it.key}=${it.value}"

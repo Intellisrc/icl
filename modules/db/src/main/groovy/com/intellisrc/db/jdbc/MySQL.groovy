@@ -80,7 +80,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
     @Override
     String getConnectionString() {
         String proto = this.toString() // mysql or mariadb
-        return "$proto://$hostname:$port/$dbname?" + parameters.toQueryString()
+        return connectionURI ?: "$proto://$hostname:$port/$dbname?" + parameters.toQueryString()
     }
 
     // QUERY BUILDING -------------------------

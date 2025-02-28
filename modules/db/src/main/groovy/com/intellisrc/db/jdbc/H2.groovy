@@ -41,7 +41,7 @@ class H2 extends JDBCServer {
 
     @Override
     String getConnectionString() {
-        return "h2:" + (hostname ? "tcp://$hostname:$port/$dbname" + "?" + parameters.toQueryString() : "h2:$dbname")
+        return connectionURI ?: "h2:" + (hostname ? "tcp://$hostname:$port/$dbname" + "?" + parameters.toQueryString() : "h2:$dbname")
     }
 
     // QUERY BUILDING -------------------------
