@@ -75,6 +75,36 @@ class JDBCConnector implements Connector {
 		return jdbc.filterTables(list)
 	}
 	/**
+	 * To handle exceptions coming from JDBC driver
+	 * @param rs
+	 * @param prop
+	 * @return
+	 */
+	protected static String getColumnPropertyString(ResultSet rs, String prop) {
+		String s = ""
+		try {
+			s = rs.getString(prop)
+		} catch (Exception e) {
+			Log.w("Unable to get property: ", e)
+		}
+		return s
+	}
+	/**
+	 * To handle exceptions coming from JDBC driver
+	 * @param rs
+	 * @param prop
+	 * @return
+	 */
+	protected static int getColumnPropertyInt(ResultSet rs, String prop) {
+		int i = 0
+		try {
+			i = rs.getInt(prop)
+		} catch (Exception e) {
+			Log.w("Unable to get property: ", e)
+		}
+		return i
+	}
+	/**
 	 * Get columns via JDBC
 	 * @return Map [ column_name : is_primary ]
 	 * https://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getColumns
@@ -93,19 +123,20 @@ class JDBCConnector implements Connector {
 				ResultSet rsCols = meta.getColumns(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table), "%")
 				while (rsCols.next()) {
 					String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
-					int decimals = rsCols.getInt("DECIMAL_DIGITS")
+					int decimals = getColumnPropertyInt(rsCols,"DECIMAL_DIGITS")
+
 					ColumnInfo col = new ColumnInfo(
 						name: colName,
-						type: ColumnType.fromJavaSQL(rsCols.getInt("DATA_TYPE"), decimals),
-						position: rsCols.getInt("ORDINAL_POSITION"),
-						length: rsCols.getInt("COLUMN_SIZE"),
-						charLength: rsCols.getInt("CHAR_OCTET_LENGTH"),
-						bufferLength: rsCols.getInt("BUFFER_LENGTH"),
+						type: ColumnType.fromJavaSQL(getColumnPropertyInt(rsCols,"DATA_TYPE"), decimals),
+						position: getColumnPropertyInt(rsCols, "ORDINAL_POSITION"),
+						length: getColumnPropertyInt(rsCols,"COLUMN_SIZE"),
+						charLength: getColumnPropertyInt(rsCols,"CHAR_OCTET_LENGTH"),
+						bufferLength: getColumnPropertyInt(rsCols,"BUFFER_LENGTH"),
 						decimalDigits: decimals,
-						nullable: rsCols.getString("IS_NULLABLE") == "YES",
-						defaultValue: rsCols.getString("COLUMN_DEF"),
-						autoIncrement: rsCols.getString("IS_AUTOINCREMENT") == "YES" || (rsCols.getString("COLUMN_DEF") ?: "").contains("NEXTVAL"), // For Oracle
-						generated: rsCols.getString("IS_GENERATEDCOLUMN") == "YES",
+						nullable: getColumnPropertyString(rsCols,"IS_NULLABLE") == "YES",
+						defaultValue: getColumnPropertyString(rsCols, "COLUMN_DEF"),
+						autoIncrement: getColumnPropertyString(rsCols,"IS_AUTOINCREMENT") == "YES" || (getColumnPropertyString(rsCols,"COLUMN_DEF") ?: "").contains("NEXTVAL"), // For Oracle
+						generated: getColumnPropertyString(rsCols,"IS_GENERATEDCOLUMN") == "YES",
 						unique: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
 						primaryKey: pks.contains(colName)
 					)
