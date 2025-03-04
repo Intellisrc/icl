@@ -1,6 +1,8 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
+import com.intellisrc.db.ColumnInfo
+import com.intellisrc.db.ColumnType
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
@@ -12,6 +14,11 @@ import groovy.transform.CompileStatic
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.Field
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
+
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle as BoolType
 
 @CompileStatic
 class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
@@ -60,8 +67,41 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                             if (definedVersion != version) {
                                 updateTable()
                             } else {
-                                Log.v("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
-                                    tableName, definedVersion, version)
+                                boolean updated = false
+                                // The following only applies if the field @Column type is "boolean":
+                                getFields().findAll { [boolean,Boolean].contains(it.type) }.each {
+                                    Field field ->
+                                        String fname = field.name.toSnakeCase()
+                                        // 'ct' is what the database is reporting
+                                        ColumnInfo ci = conn.info(fname, true)
+                                        ColumnType ct = ci.type
+                                        // booleanHandle is what the column in the database should be (according to Database type):
+                                        boolean needUpdate = switch (jdbc.booleanHandle) {
+                                            case BoolType.ENUM,
+                                                 BoolType.CHAR    -> ct != ColumnType.TEXT
+                                            case BoolType.BOOLEAN -> ct != ColumnType.BOOLEAN
+                                            case BoolType.NUMBER  -> ct != ColumnType.INTEGER
+                                        }
+                                        if(needUpdate) {
+                                            updated = true
+                                            BoolType from = switch (true) {
+                                                case ct == ColumnType.INTEGER || ct == ColumnType.BOOLEAN -> BoolType.BOOLEAN
+                                                case ColumnType.TEXT && ci.length == 1 -> BoolType.CHAR
+                                                case ColumnType.TEXT && ci.length > 4 -> BoolType.ENUM
+                                            }
+                                            if(getUpdateBooleanQuery(tableName.toString(), fname, from).every {
+                                                return conn.setSQL(it)
+                                            }){
+                                                Log.i("Table [%s] . [%s] boolean type was updated", tableName, field.name)
+                                            } else {
+                                                Log.w("There were problems trying to update boolean field: [%s] . [%s]", tableName, field.name)
+                                            }
+                                        }
+                                }
+                                if (!updated) {
+                                    Log.v("Table [%s] doesn't need to be updated: [Code: %d] vs [DB: %d]",
+                                        tableName, definedVersion, version)
+                                }
                             }
                         }
                     } else {
@@ -114,6 +154,104 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns, meta)
         }
         return ok
+    }
+    /**
+     * Change Boolean type (store type)
+     * @param table
+     * @param column
+     * @return list of queries to execute to fix column and data
+     */
+    List<String> getUpdateBooleanQuery(String table, String column, BoolType from) {
+        List<String> queries = []
+        AutoJDBC auto = jdbc as AutoJDBC
+        String boolDef = auto.getColumnDefinition(new ColumnDB(type: boolean))
+        // Simulate "Column" annotation:
+        Column annot = (Column) Proxy.newProxyInstance(
+            Column.classLoader,
+            [Column] as Class[],
+            { Object proxy, Method method, Object[] args ->
+                return switch (method.name) {
+                    case "length" -> 6
+                    case "unlimited" -> false
+                    default -> null
+                }
+            } as InvocationHandler
+        )
+        String varChar = auto.getColumnDefinition(new ColumnDB(type: String, annotation: annot))
+        column = jdbc.getFieldForQuery(column)
+        BoolType to = jdbc.booleanHandle
+        // Pre-modification query:
+        //noinspection GroovyFallthrough
+        switch (true) {
+            // We need to update from 'true' -> y, 'false' -> n
+            case from == BoolType.ENUM && to == BoolType.CHAR:
+                // First we need to change the column to VARCHAR
+                queries << "ALTER TABLE ${ jdbc.getTableForQuery(table) } CHANGE COLUMN $column $column $varChar".toString()
+                // Then replace the values
+                queries << ("UPDATE ${ jdbc.getTableForQuery(table) } " +
+                    "SET $column = CASE " +
+                    "WHEN $column = 'true' THEN '${ jdbc.getTrueChar() }' " +
+                    "WHEN $column = 'false' THEN '${ jdbc.getFalseChar() }' " +
+                    "END").toString()
+                break
+
+            // We need to update from 'y' -> 1, 'n' -> 0
+            case from == BoolType.CHAR && to == BoolType.BOOLEAN:
+            case from == BoolType.CHAR && to == BoolType.NUMBER:
+                queries << ("UPDATE ${ jdbc.getTableForQuery(table) } " +
+                            "SET $column = CASE " +
+                                "WHEN $column = '${ jdbc.getTrueChar() }' THEN 1 " +
+                                "WHEN $column = '${ jdbc.getFalseChar() }' THEN 0 " +
+                            "END").toString()
+                break
+
+            // We need to update from 'y' -> 'true', 'n' -> 'false'
+            case from == BoolType.CHAR && to == BoolType.ENUM:
+                // First we need to change the column to VARCHAR
+                queries << "ALTER TABLE ${ jdbc.getTableForQuery(table) } CHANGE COLUMN $column $column $varChar".toString()
+                // Then replace the values
+                queries << ("UPDATE ${ jdbc.getTableForQuery(table) } " +
+                    "SET $column = CASE " +
+                    "WHEN $column = '${ jdbc.getTrueChar() }' THEN 'true' " +
+                    "WHEN $column = '${ jdbc.getFalseChar() }' THEN 'false' " +
+                    "END").toString()
+                break
+        }
+        // Modification query:
+        queries << "ALTER TABLE ${ jdbc.getTableForQuery(table) } CHANGE COLUMN $column $column $boolDef".toString()
+        // Post-modification query:
+        //noinspection GroovyFallthrough
+        switch (true) {
+            // We need to Update values from 1 -> 0, 2 -> 1 (as number as we already changed the column)
+            case from == BoolType.ENUM && to == BoolType.BOOLEAN:
+            case from == BoolType.ENUM && to == BoolType.NUMBER:
+                queries << ("UPDATE ${ jdbc.getTableForQuery(table) } " +
+                    "SET $column = CASE " +
+                    "WHEN $column = 1 THEN 0 " +
+                    "WHEN $column = 2 THEN 1 " +
+                    "END").toString()
+                break
+            // We need to update from '0' -> 'n', '1' -> 'y' (as char as we already changed the column)
+            case from == BoolType.BOOLEAN && to == BoolType.CHAR:
+            case from == BoolType.NUMBER && to == BoolType.CHAR:
+                queries << ("UPDATE ${ jdbc.getTableForQuery(table) } " +
+                    "SET $column = CASE " +
+                    "WHEN $column = '0' THEN '${ jdbc.getTrueChar() }' " +
+                    "WHEN $column = '1' THEN '${ jdbc.getFalseChar() }' " +
+                    "END").toString()
+
+                break
+            // We need to update from 0 -> 1, 1 -> 2 (as number as we already changed the column)
+            case from == BoolType.BOOLEAN && to == BoolType.ENUM:
+            case from == BoolType.NUMBER && to == BoolType.ENUM:
+                queries << ("UPDATE ${ jdbc.getTableForQuery(table) } " +
+                    "SET $column = CASE " +
+                    "WHEN $column = 1 THEN 2 " +
+                    "WHEN $column = 0 THEN 1 " +
+                    "END").toString()
+                break
+        }
+        return queries
     }
 
     /**
