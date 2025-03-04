@@ -118,7 +118,8 @@ abstract class JDBC {
     String getSchemaSearchName() { return "" }
     String getTableSearchName(String table) { return table }
     List<String> filterTables(List<String> tables) { return tables }
-    String getFieldForQuery(String field) { return fieldsQuotation + field + fieldsQuotation }
+    String getFieldForQuery(String field) { return fieldsQuotation + (convertToLowerCase ? field.toLowerCase() : field) + fieldsQuotation }
+    String getTableForQuery(String table) { return tablesQuotation + table + tablesQuotation }
     /*
      * Properties:
      * Override if its different
@@ -152,6 +153,7 @@ abstract class JDBC {
     /*
      * DEFAULT SQL
      * Override if its different
+     * In all the following methods, "table" is already quoted, if needed (added by Query)
      */
     String getCreateDatabaseQuery() {
         return "CREATE DATABASE $dbname"
@@ -221,6 +223,7 @@ abstract class JDBC {
 
     /**
      * In case it is needed to complete a column information
+     * (may be override)
      * @param info
      * @return
      */

@@ -140,6 +140,7 @@ class JDBCConnector implements Connector {
 						unique: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
 						primaryKey: pks.contains(colName)
 					)
+					//FIXME: autoincrement in Oracle
 					columns << col
 				}
 				rsCols.close()

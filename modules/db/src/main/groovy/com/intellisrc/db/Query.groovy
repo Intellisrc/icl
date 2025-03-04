@@ -501,11 +501,7 @@ class Query {
      * Returns column or table name clean and with ``
      */
     private String fieldName(final String str, boolean tableName = false) {
-        String fieldName = str
-        if(dbType.convertToLowerCase) { fieldName = fieldName.toLowerCase() }
-        String result = fieldName.replaceAll("/[^a-z0-9._]/", "")
-        String ch = tableName ? dbType.tablesQuotation : dbType.fieldsQuotation
-        return ch + result + ch
+        return tableName ? dbType.getTableForQuery(str) : dbType.getFieldForQuery(str)
     }
 	/**
 	 * Clean a SQL query removing invalid characters like unicode, comments, semicolon, etc
