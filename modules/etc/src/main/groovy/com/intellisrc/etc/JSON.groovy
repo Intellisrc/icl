@@ -44,7 +44,7 @@ class JSON {
      * @return
      */
     static <T> T decode(String json, boolean largeSize = false) {
-        return (T) convertObj(decode(json, largeSize))
+        return (T) convertObj(decodeFast(json, largeSize))
     }
     /**
      * Decode a JSON string into an object. This method will return LazyMap objects
