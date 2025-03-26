@@ -47,7 +47,8 @@ class JSON {
         return (T) convertObj(decode(json, largeSize))
     }
     /**
-     * Decode a JSON string into an object
+     * Decode a JSON string into an object. This method will return LazyMap objects
+     * which are not editable unless they are passed to a HashMap constructor
      * @param json
      * @param largeSize : recommended for documents larger than 2MB
      * @return
