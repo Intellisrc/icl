@@ -114,7 +114,7 @@ subprojects {
 		documentation
 	}
     dependencies {
-        def groovyVer = "4.0.23" // Also in module etc
+        def groovyVer = "4.0.26" // Also in module etc
         def groovyExt = "4.0.23.14"
         def spock = "2.4-M4-groovy-4.0"
 
