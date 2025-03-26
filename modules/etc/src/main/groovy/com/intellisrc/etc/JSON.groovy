@@ -44,7 +44,7 @@ class JSON {
      * @return
      */
     static <T> T decode(String json, boolean largeSize = false) {
-        return (T) convertObj(decodeFast(json, largeSize))
+        return (T) convertObj(decodeLazy(json, largeSize))
     }
     /**
      * Decode a JSON string into an object. This method will return LazyMap objects
@@ -53,7 +53,7 @@ class JSON {
      * @param largeSize : recommended for documents larger than 2MB
      * @return
      */
-    static <T> T decodeFast(String json, boolean largeSize = false) {
+    static <T> T decodeLazy(String json, boolean largeSize = false) {
         T ret = null
         try {
             ret = (T) new JsonSlurper(type: largeSize ? JsonParserType.CHARACTER_SOURCE : JsonParserType.LAX).parseText(json)
