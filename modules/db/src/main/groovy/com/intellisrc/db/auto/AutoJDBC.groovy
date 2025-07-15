@@ -97,6 +97,11 @@ trait AutoJDBC {
                             isNum = true
                             isBool = false
                             break
+                        case ENUM:
+                            val = val.toString().toUpperCase()
+                            isBool = false
+                            isNum = false
+                            break
                         case CHAR:
                             val = Data.booleanAsChar(val as boolean, trueChar, falseChar)
                             isBool = false

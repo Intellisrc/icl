@@ -7,6 +7,7 @@ import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
+import java.sql.SQLSyntaxErrorException
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import static com.intellisrc.db.ColumnType.*
@@ -385,12 +386,12 @@ class DB {
      * Truncate a table (in some cases it will reset autoincrement ids as well)
      * @return
      */
-    boolean truncate() {
+    boolean truncate(boolean silent = true) {
         boolean ok = false
         if(table) {
             Log.i("Truncating table: %s", table)
             query.setAction(TRUNCATE)
-            ok = execSet()
+            ok = execSet(silent)
         } else {
             Log.w("Can not truncate: No table specified")
         }
@@ -930,9 +931,10 @@ class DB {
 
     /**
      * Executes Query (Final stop for write queries)
+     * @param silent : when true, it will minimize error reporting
      * @return true on success
      */
-    protected boolean execSet() {
+    protected boolean execSet(boolean silent = false) {
 		boolean ok = false
         Map<String,Object> replaceData = [:]
         query.isSetQuery = true
@@ -976,7 +978,7 @@ class DB {
                 ResultStatement st
                 try {
                     boolean upsert = ! replaceData.isEmpty()
-                    boolean silent = upsert
+                    silent = silent ?: upsert
                     st = dbConnector.execute(query, silent)
                     if (upsert && st && st.updatedCount() == 0) {
                         try {

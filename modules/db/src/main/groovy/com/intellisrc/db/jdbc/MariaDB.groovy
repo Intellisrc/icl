@@ -36,7 +36,7 @@ class MariaDB extends MySQL {
             useUnicode              : true,
             characterEncoding       : "UTF-8",
             characterSetResults     : "utf8",
-            connectionCollation     : "utf8_general_ci",
+            ////connectionCollation     : "utf8_general_ci", <-- setting this will cause exception in more recent drivers
 
             // These properties are not compatible with MySQL:
             //dumpQueriesOnException  : false,
