@@ -66,6 +66,7 @@ class OracleSQLTest extends JDBCTest {
             port    : 31521,
             user    : "test",
             password: "test",
+            //dbname  : "FREEPDB1" // v23 docker
             dbname  : "XEPDB1" // PDB name (or SID)
             // For docker XE lower than 18 :
             // dbname  : "XE"

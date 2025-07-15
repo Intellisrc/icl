@@ -370,4 +370,9 @@ class Derby extends JDBCServer implements AutoJDBC {
     boolean renameTable(final DB db, String from, String to) {
         return set(db, "RENAME TABLE ${from} TO ${to}")
     }
+
+    @Override
+    String getTruncateQuery(String table) {
+        return super.getDeleteQuery(table, "")
+    }
 }

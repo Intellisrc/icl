@@ -321,8 +321,9 @@ abstract class JDBCTest extends Specification {
         then: "Drop table"
             assert db.table(table).drop()
         then: "Confirm drop"
-            assert db.tables.empty
+            assert db.tables.empty : "Tables not empty"
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             database?.quit()
     }
@@ -353,6 +354,7 @@ abstract class JDBCTest extends Specification {
         then:
             assert db.tables.empty
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             db?.close()
     }
@@ -387,6 +389,7 @@ abstract class JDBCTest extends Specification {
         then:
             assert db.tables.empty
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             db?.close()
     }
@@ -443,6 +446,7 @@ abstract class JDBCTest extends Specification {
         then:
             assert db.tables.empty
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             db?.close()
     }

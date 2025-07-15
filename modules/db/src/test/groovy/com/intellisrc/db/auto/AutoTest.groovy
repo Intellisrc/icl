@@ -107,12 +107,12 @@ class AutoTest extends Specification {
     //FIXME: Some tests fails when two or more databases are tested at the same time
     //       until it is fixed, test one by one before releasing (leave Derby for fast test)
     static List<JDBC> getTestable(boolean update = false) {
-        boolean testDerby       = true
+        boolean testDerby       = false
         boolean testSQLite      = false
         boolean testMariaDB     = false
         boolean testMySQL       = false
         boolean testPostgres    = false
-        boolean testOracle      = false
+        boolean testOracle      = true
 
         List<JDBC> dbs = []
         if(testDerby) {
@@ -161,10 +161,12 @@ class AutoTest extends Specification {
                 user: "test",
                 hostname: "127.0.0.1",
                 password: "test",
+                //dbname: "FREEPDB1", //v.23 docker
                 dbname: "XEPDB1",
                 port: ports.oracle
             )
         }
+        assert ! dbs.empty : "None of the databases are available or selected"
         return dbs
     }
 
@@ -274,12 +276,14 @@ class AutoTest extends Specification {
             assert users.delete(u)
             assert aliases.all.empty
         cleanup:
-            aliases.reset()
-            users.reset()
-            aliases.drop()
-            users.drop()
-            aliases.quit()
-            users.quit()
+            try {
+                aliases.reset()
+                users.reset()
+                aliases.drop()
+                users.drop()
+                aliases.quit()
+                users.quit()
+            } catch(Exception ignore) {}
         where:
             type << testable
     }

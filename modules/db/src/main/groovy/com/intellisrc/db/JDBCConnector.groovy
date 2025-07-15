@@ -310,16 +310,18 @@ class JDBCConnector implements Connector {
 						Log.v("Rows affected: %d", countUpdated)
 					}
 				} catch(SQLException syntaxError) {
-					if(!silent) {
-						Log.w("Query was mistaken: %s", syntaxError)
+					if(silent) {
+						Log.w("SQL Exception: %s", syntaxError)
+					} else {
+						onError(syntaxError)
 					}
-					onError(syntaxError)
 					return null
 				} catch(Exception e) {
-					if(!silent) {
+					if(silent) {
 						Log.w("Unable to set statement for query [%s]: %s", query.toString(), e)
+					} else {
+						onError(e)
 					}
-					onError(e)
 					return null
 				}
 			}

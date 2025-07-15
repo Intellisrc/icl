@@ -21,9 +21,17 @@ class ViewTest extends AutoTest {
         @Column
         LocalDate added
     }
+
+    // Not the way to use this class, just for testing purposes:
     static class TestView extends View<TestModel> {
-        TestView(String name, Database database, String sql) {
-            super(name, database, sql)
+        static String sql = ""
+        TestView(String name, Database database) {
+            super(name, database)
+        }
+
+        @Override
+        String getCreateSQL() {
+            return sql
         }
     }
     def "Should create view"() {
@@ -33,7 +41,7 @@ class ViewTest extends AutoTest {
             Aliases aliases = new Aliases(database)
             aliases.clear()
             users.clear()
-            String sql = ""
+            TestView.sql = ""
             //noinspection GroovyFallthrough
             switch (jdbc) {
                 case Derby:
@@ -41,12 +49,13 @@ class ViewTest extends AutoTest {
                 case MySQL:
                 case MariaDB:
                 case PostgreSQL:
-                    sql = """CREATE VIEW test_view AS SELECT u.id, u.name, u.age, a.added 
+                    TestView.sql = """CREATE VIEW test_view AS SELECT u.id, u.name, u.age, a.added 
                              FROM users u LEFT JOIN aliases a ON(u.id = a.user_id)"""
                     break
             }
-            assert sql : "SQL not specified"
-            TestView view = new TestView("test_view", database, sql)
+            assert TestView.sql : "SQL not specified"
+            TestView view = new TestView("test_view", database)
+
         when:
             User u = new User(
                 name : "Benjamin",

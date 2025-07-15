@@ -74,28 +74,32 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                                         String fname = field.name.toSnakeCase()
                                         // 'ct' is what the database is reporting
                                         ColumnInfo ci = conn.info(fname, true)
-                                        ColumnType ct = ci.type
-                                        // booleanHandle is what the column in the database should be (according to Database type):
-                                        boolean needUpdate = switch (jdbc.booleanHandle) {
-                                            case BoolType.ENUM,
-                                                 BoolType.CHAR    -> ct != ColumnType.TEXT
-                                            case BoolType.BOOLEAN -> ct != ColumnType.BOOLEAN
-                                            case BoolType.NUMBER  -> ct != ColumnType.INTEGER
-                                        }
-                                        if(needUpdate) {
-                                            updated = true
-                                            BoolType from = switch (true) {
-                                                case ct == ColumnType.INTEGER || ct == ColumnType.BOOLEAN -> BoolType.BOOLEAN
-                                                case ColumnType.TEXT && ci.length == 1 -> BoolType.CHAR
-                                                case ColumnType.TEXT && ci.length > 4 -> BoolType.ENUM
+                                        if(ci) {
+                                            ColumnType ct = ci.type
+                                            // booleanHandle is what the column in the database should be (according to Database type):
+                                            boolean needUpdate = switch (jdbc.booleanHandle) {
+                                                case BoolType.ENUM,
+                                                    BoolType.CHAR -> ct != ColumnType.TEXT
+                                                case BoolType.BOOLEAN -> ct != ColumnType.BOOLEAN
+                                                case BoolType.NUMBER -> ct != ColumnType.INTEGER
                                             }
-                                            if(getUpdateBooleanQuery(tableName.toString(), fname, from).every {
-                                                return conn.setSQL(it)
-                                            }){
-                                                Log.i("Table [%s] . [%s] boolean type was updated", tableName, field.name)
-                                            } else {
-                                                Log.w("There were problems trying to update boolean field: [%s] . [%s]", tableName, field.name)
+                                            if (needUpdate) {
+                                                updated = true
+                                                BoolType from = switch (true) {
+                                                    case ct == ColumnType.INTEGER || ct == ColumnType.BOOLEAN -> BoolType.BOOLEAN
+                                                    case ColumnType.TEXT && ci.length == 1 -> BoolType.CHAR
+                                                    case ColumnType.TEXT && ci.length > 4 -> BoolType.ENUM
+                                                }
+                                                if (getUpdateBooleanQuery(tableName.toString(), fname, from).every {
+                                                    return conn.setSQL(it)
+                                                }) {
+                                                    Log.i("Table [%s] . [%s] boolean type was updated", tableName, field.name)
+                                                } else {
+                                                    Log.w("There were problems trying to update boolean field: [%s] . [%s]", tableName, field.name)
+                                                }
                                             }
+                                        } else {
+                                            Log.w("ColumnType of [%s] was null", fname)
                                         }
                                 }
                                 if (!updated) {

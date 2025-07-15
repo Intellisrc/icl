@@ -31,7 +31,7 @@ class PostgreSQLTest extends JDBCTest {
 
     @Override
     void clean(DB db, String table) {
-        if(db) {
+        if(db && db.tables.empty) {
             db.setSQL("DROP SEQUENCE IF EXISTS ${table}_seq")
             (1..5).each {
                 db.setSQL("DROP SEQUENCE IF EXISTS ${table}${it}_seq")
