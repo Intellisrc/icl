@@ -104,18 +104,9 @@ static String getProjectDescription(String name) {
 nexusPublishing {
     repositories {
         sonatype {
-            // The URL for the Central Publisher Portal.
-            // For releases, this is the main deploy endpoint.
-            // For snapshots, it's typically the same URL or a dedicated snapshot endpoint.
-            // The 'snapshotsRepoUrl' you had previously might not be directly applicable
-            // to the new portal in the same way, as the plugin handles staging.
-            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/") // This is for the OSSRH Staging API, which is compatible
-            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") // This might still be used for snapshots with the staging API
-
-            // Your credentials from central.sonatype.com.
-            // It's highly recommended to use environment variables or a secure properties file.
-            username = ossrhUsername
-            password = ossrhPassword
+            // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
         }
     }
 }
@@ -164,8 +155,9 @@ subprojects {
     publishing {
        publications {
            mavenJava(MavenPublication) {
-               artifactId project.name
                from components.java
+
+               artifactId project.name
                group "com.intellisrc"
 
                pom {
