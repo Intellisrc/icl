@@ -32,6 +32,9 @@ abstract class JDBC {
     interface ErrorHandler {
         void call(Throwable e)
     }
+    static enum BooleanHandle {
+        BOOLEAN, NUMBER, CHAR, ENUM
+    }
     /**
      * Override this method for custom classes
      * No need to include user/password in URL
@@ -74,6 +77,9 @@ abstract class JDBC {
     // Clear the connection (used in case something is left in it that may affect reusing it later)
     void clear(Connection connection) {}
 
+    // This will be set in case it is set directly
+    protected String connectionURI = ""
+
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):
@@ -112,6 +118,8 @@ abstract class JDBC {
     String getSchemaSearchName() { return "" }
     String getTableSearchName(String table) { return table }
     List<String> filterTables(List<String> tables) { return tables }
+    String getFieldForQuery(String field) { return fieldsQuotation + (convertToLowerCase ? field.toLowerCase() : field) + fieldsQuotation }
+    String getTableForQuery(String table) { return tablesQuotation + table + tablesQuotation }
     /*
      * Properties:
      * Override if its different
@@ -122,12 +130,20 @@ abstract class JDBC {
     String getTablesQuotation() { return "" }
     // Some databases (like SQLite) does not support DATE type. Turn this off.
     boolean getSupportsDate() { return true }
-    // Some databases (like Oracle) stores tables and fields in UpperCase, with this, all all converted into lower:
+    // Some databases (like Oracle) stores tables and fields in UpperCase, with this, all are converted into lower:
     boolean getConvertToLowerCase() { return true }
     // When false it will use LIMIT ... OFFSET
     boolean getUseFetch() { return true }
-    // If Database supports native boolean
-    boolean getSupportsBoolean() { return false }
+    // In cases como Oracle which MAX(column) does not include the digits, we force to check:
+    boolean getCheckDecimals() { return false }
+    // How do boolean will be stored in Database? (BOOLEAN == native support)
+    BooleanHandle getBooleanHandle() { return BooleanHandle.BOOLEAN }
+    // True char in case booleanHandle == CHAR
+    char getTrueChar() { return 'y' as char }
+    // False char in case booleanHandle == CHAR
+    char getFalseChar() { return 'n' as char }
+    // If Database supports JSON datatype
+    boolean getSupportsJSON() { return false }
     // Syntax to specify column is null
     String getIsNullQuery() { return  "IS NULL" }
     // When true, it will use "replace" query, otherwise will try to update first and if it fails, will insert
@@ -137,6 +153,7 @@ abstract class JDBC {
     /*
      * DEFAULT SQL
      * Override if its different
+     * In all the following methods, "table" is already quoted, if needed (added by Query)
      */
     String getCreateDatabaseQuery() {
         return "CREATE DATABASE $dbname"
@@ -147,8 +164,14 @@ abstract class JDBC {
     String getTruncateQuery(String table) {
         return "TRUNCATE TABLE $table"
     }
+    String getBeforeDropTableQuery(String table) {
+        return ""
+    }
     String getDropTableQuery(String table) {
         return "DROP TABLE $table"
+    }
+    String getAfterDropTableQuery(String table) {
+        return ""
     }
     String getDropViewQuery(String view) {
         return "DROP VIEW $view"
@@ -200,6 +223,7 @@ abstract class JDBC {
 
     /**
      * In case it is needed to complete a column information
+     * (may be override)
      * @param info
      * @return
      */
@@ -284,29 +308,46 @@ abstract class JDBC {
             }
         }
         if(cfgType) {
-            Reflections reflections = new Reflections(this.package.name)
-            Set<Class<? extends JDBC>> set = reflections.getSubTypesOf(JDBC.class)
-            Class<? extends JDBC> cj = set.find {
-                it.simpleName.toLowerCase() == cfgType.toLowerCase()
-            }
-            if(cj) {
-                jdbc = cj.getConstructor().newInstance()
-                Class cls = cj
-                while(cls != Object) {
+            jdbc = fromType(cfgType)
+            if(jdbc) {
+                Class cls = jdbc.class
+                while (cls != Object) {
                     cls.declaredFields.findAll { !it.synthetic }.each {
                         Field field ->
-                            if(settings.containsKey(field.name)) {
+                            if (settings.containsKey(field.name)) {
                                 field.setAccessible(true)
                                 field.set(jdbc, settings.get(field.name))
                             }
                     }
                     cls = cls.superclass
                 }
+            } else {
+                Log.w("Unknown JDBC class for type: %s", cfgType)
             }
         } else {
             Log.e("No `type` was specified in argument or in configuration. Connection will fail.")
         }
         return jdbc
+    }
+
+    /**
+     * Get an empty JDBC instance for that type
+     * for example "mysql" will return an empty "MySQL" instance
+     * @param type
+     * @return
+     */
+    static JDBC fromType(String type) {
+        type = switch(type) {
+            case "hsqldb" -> "hypersql"
+            case "firebirdsql" -> "firebird"
+            default -> type.toLowerCase()
+        }
+        Reflections reflections = new Reflections(this.package.name)
+        Set<Class<? extends JDBC>> set = reflections.getSubTypesOf(JDBC.class)
+        Class<? extends JDBC> cj = set.find {
+            it.simpleName.toLowerCase() == type
+        }
+        return cj ? cj.getConstructor().newInstance() : null
     }
     /**
      * Get a JDBC object from connection URI
@@ -314,15 +355,20 @@ abstract class JDBC {
      * @return
      */
     static JDBC fromURI(String uri, String userName = "", char[] pwd = []) {
-        return new JDBC() {
+        String type = uri.tokenize(":").first()
+        JDBC jdbc = fromType(type) ?: new JDBC() {
             String dbname = ""
-            String user = userName
-            String password = pwd.toString()
+            String user = ""
+            String password = ""
             String driver = ""
             @Override
             String getConnectionString() {
                 return uri
             }
         }
+        jdbc.connectionURI = uri
+        jdbc.user = userName
+        jdbc.password = pwd.toString()
+        return jdbc
     }
 }

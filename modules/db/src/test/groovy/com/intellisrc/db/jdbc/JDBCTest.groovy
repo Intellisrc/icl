@@ -4,6 +4,7 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
+import com.intellisrc.db.Data
 import com.intellisrc.db.Database
 import com.intellisrc.net.LocalHost
 import com.intellisrc.term.TableMaker
@@ -12,6 +13,7 @@ import spock.lang.Specification
 
 import static com.intellisrc.db.Query.SortOrder.ASC
 import static com.intellisrc.db.Query.SortOrder.DESC
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * @since 2022/01/20.
@@ -21,6 +23,7 @@ abstract class JDBCTest extends Specification {
 
     abstract JDBC getDB()
 
+    @SuppressWarnings('unused')
     boolean shouldSkip() {
         JDBC jdbc = this.getDB()
         boolean skip = jdbc instanceof JDBCServer
@@ -81,7 +84,7 @@ abstract class JDBCTest extends Specification {
             }
             def q = {
                 String s ->
-                    return jdbc.fieldsQuotation + s + jdbc.fieldsQuotation
+                    return jdbc.getFieldForQuery(s)
             }
         then:
             assert db : "Unable to connect"
@@ -207,8 +210,20 @@ abstract class JDBCTest extends Specification {
             }
         then: "Match order and group"
             assert listOfMaps.size() == 2
-            assert listOfMaps.first().active == false
-            assert listOfMaps.last().active == true
+            switch (jdbc.booleanHandle) {
+                case BOOLEAN:
+                    assert listOfMaps.first().active == false
+                    assert listOfMaps.last().active == true
+                    break
+                case NUMBER:
+                    assert Data.parseInt(listOfMaps.first().active.toString()) == 0
+                    assert Data.parseInt(listOfMaps.last().active.toString()) == 1
+                    break
+                case CHAR:
+                    assert listOfMaps.first().active.toString() == "n"
+                    assert listOfMaps.last().active.toString() == "y"
+                    break
+            }
         then: "Updating with single ID"
             assert db.table(table).key("id").update([
                 name : "Kubuntu"
@@ -290,7 +305,7 @@ abstract class JDBCTest extends Specification {
             assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table))
         then : "Be sure the table is there"
             assert db.tables.size() == 1
-            assert db.tables.contains(table)
+            assert db.hasTable(table)
         then: "Insert first"
             assert db.table(table).insert(
                 [ name : "Ubuntu", active: true, updated: setDate("2022-08-01"), version: 3.7 ],
@@ -306,8 +321,9 @@ abstract class JDBCTest extends Specification {
         then: "Drop table"
             assert db.table(table).drop()
         then: "Confirm drop"
-            assert db.tables.empty
+            assert db.tables.empty : "Tables not empty"
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             database?.quit()
     }
@@ -326,18 +342,19 @@ abstract class JDBCTest extends Specification {
                 assert isSingleStm ? db.setSQL(getTableCreate("${table}${it}")) : db.setSQL(getTableCreateMulti("${table}${it}"))
             }
         then: "Be sure we have all tables"
-            List<String> tables = db.tables
+            List<String> tables = db.tables.collect { it.toLowerCase() }
             assert tables.size() == numTables
             println tables
         then: "List tables"
             (1..numTables).each {
-                assert tables.contains("${table}${it}".toString()) : "${table}${it} was not found"
+                assert tables.contains("${table}${it}".toString().toLowerCase()) : "${table}${it} was not found"
             }
         when: "Drop tables"
             db.dropAllTables()
         then:
             assert db.tables.empty
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             db?.close()
     }
@@ -354,7 +371,7 @@ abstract class JDBCTest extends Specification {
             }
         when: "Create table"
             println "Creating table: $table ..."
-            assert db.setSQL(getTableCreate(table)) ?: db.setSQL(getTableCreateMulti(table))
+            assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table))
         then: "Insert values"
             assert db.table(table).insert([
                 [ name : "RedHat",      active: false,   updated: null,     version: 3.3 ],
@@ -372,6 +389,7 @@ abstract class JDBCTest extends Specification {
         then:
             assert db.tables.empty
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             db?.close()
     }
@@ -389,7 +407,7 @@ abstract class JDBCTest extends Specification {
             assert db.setSQL(getTableCreateMultiplePK(table))
         then : "Be sure the table is there"
             assert db.tables.size() == 1
-            assert db.tables.contains(table)
+            assert db.hasTable(table)
         then: "Insert values"
             assert db.table(table).insert([
                 [ uid : 1, gid : 1, name : "User1-1" ],
@@ -428,6 +446,7 @@ abstract class JDBCTest extends Specification {
         then:
             assert db.tables.empty
         cleanup:
+            db?.dropAllTables() //In case of exceptions
             clean(db, table)
             db?.close()
     }

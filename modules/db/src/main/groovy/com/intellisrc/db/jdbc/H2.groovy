@@ -20,7 +20,6 @@ class H2 extends JDBCServer {
     int port = 1521
     String packageName = "org.h2"
     String driver = "${packageName}.Driver"
-    boolean supportsBoolean = true
     boolean supportsReplace = false
     String catalogSearchName = null
     String schemaSearchName = null
@@ -42,7 +41,7 @@ class H2 extends JDBCServer {
 
     @Override
     String getConnectionString() {
-        return "h2:" + (hostname ? "tcp://$hostname:$port/$dbname" + "?" + parameters.toQueryString() : "h2:$dbname")
+        return connectionURI ?: "h2:" + (hostname ? "tcp://$hostname:$port/$dbname" + "?" + parameters.toQueryString() : "h2:$dbname")
     }
 
     // QUERY BUILDING -------------------------

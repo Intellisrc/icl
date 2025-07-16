@@ -12,5 +12,9 @@ trait TaskCancellable {
     void cancel() {
         this.cancelled = true
     }
+    // Manually reset cancelled flag to run again:
+    void resetCancel() {
+        this.cancelled = false
+    }
     private void setCancelled(boolean cancel) {} //Prevent setting directly to force the use of cancel()
 }

@@ -10,6 +10,8 @@ import java.sql.ResultSetMetaData
 import java.sql.SQLException
 import java.time.LocalDateTime
 
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
+
 /**
  * @since 2022/08/09.
  */
@@ -74,7 +76,7 @@ class DBStatement implements ResultStatement {
     @Override
     ColumnType columnType(int index) {
         try {
-            return ColumnType.fromJavaSQL(resultSetMetaData.getColumnType(index))
+            return ColumnType.fromJavaSQL(resultSetMetaData.getColumnType(index), resultSetMetaData.getScale(index))
         } catch (SQLException ex) {
             Log.w( "column type failed for index: %d", index)
             conn.onError(ex)
@@ -129,7 +131,12 @@ class DBStatement implements ResultStatement {
     @Override
     boolean columnBool(int index) {
         try {
-            return jdbc.supportsBoolean ? resultSet.getBoolean(index) : (resultSet.getString(index).trim().toLowerCase() == 'true')
+            return switch (jdbc.booleanHandle) {
+                case BOOLEAN -> resultSet.getBoolean(index)
+                case NUMBER -> Data.toBoolean(resultSet.getInt(index), NUMBER)
+                case CHAR -> Data.toBoolean(resultSet.getString(index), CHAR, jdbc.trueChar)
+                case ENUM -> Data.toBoolean(resultSet.getString(index), ENUM)
+            }
         } catch (SQLException ex) {
             Log.w( "column Boolean failed for index: %d", index)
             conn.onError(ex)

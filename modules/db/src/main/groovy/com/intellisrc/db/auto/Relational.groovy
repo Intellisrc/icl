@@ -2,6 +2,7 @@ package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
+import com.intellisrc.db.Data
 import com.intellisrc.db.Database
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
@@ -10,6 +11,7 @@ import com.intellisrc.db.annot.TableMeta
 import com.intellisrc.db.annot.ViewMeta
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Instanciable
+import com.intellisrc.etc.JSON
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import javassist.Modifier
@@ -17,11 +19,14 @@ import javassist.Modifier
 import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.concurrent.ConcurrentHashMap
+
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * @since 2023/05/30.
@@ -39,6 +44,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     protected boolean clearCache = false
     protected List<String> primaryKey = []
     protected int chunkSize = 100
+    protected final Annotation meta
 
     /**
      * When using `getAllByChunks` it will use this interface to return as it goes
@@ -80,10 +86,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     Relational(String name = "", Database database = null) {
         this.database = database ?: Database.getDefault()
-        Annotation meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
-        this.name = name ?: (meta && meta.hasProperty("name") ? meta.properties.name : this.class.simpleName.toSnakeCase()).toString()
-        this.cache = (meta && meta.hasProperty("cache") ? meta.properties.cache : 0) as int
-        this.clearCache = (meta && meta.hasProperty("clearCache") ? meta.properties.clearCache : false) as boolean
+        meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
+        List<Method> annotations = meta ? meta.class.declaredMethods.toList() : []
+        this.name = (name ?: (annotations.any {it.name == "name" } ? meta.class.getMethod("name").invoke(meta) : "") ?: this.class.simpleName.toSnakeCase()).toString()
+        this.cache = (annotations.any {it.name == "cache" } ? meta.class.getMethod("cache").invoke(meta) : 0) as int
+        this.clearCache = (annotations.any {it.name == "clearCache" } ? meta.class.getMethod("clearCache").invoke(meta) : false) as boolean
         assert this.name : "Table or View name not set"
         Class model = getParametrizedInstance().class
         if(tableModelRel.containsValue(model)) {
@@ -187,7 +194,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param preserve : Preserve some types to be exported into json/yaml
      * @return
      */
-    static Map<String, Object> convertToDB(Map<String, Object> map, boolean preserve = false) {
+    Map<String, Object> convertToDB(Map<String, Object> map, boolean preserve = false) {
         Map<String, Object> res = [:]
         map.each {
             key, val ->
@@ -206,7 +213,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param preserve : preserve some types to be exported into json/yaml
      * @return
      */
-    static Object toDBValue(Object val, boolean preserve = false) {
+    Object toDBValue(Object val, boolean preserve = false) {
         //noinspection GroovyFallthrough
         switch (val) {
             case Collection:
@@ -216,11 +223,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         list = list.collect {(it as Model).uniqueId }
                     }
                 }
-                return preserve ? list : YAML.encode(list.empty ? [] : list.collect {
+                return preserve ? list : encode(list.empty ? [] : list.collect {
                     toDBValue(it)
                 }).trim()
             case Map:
-                return preserve ? val : YAML.encode(val).trim()
+                return preserve ? val : encode(val).trim()
             case URL:
                 return (val as URL).toExternalForm()
             case URI:
@@ -229,7 +236,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                 return preserve ? (val as Enum).ordinal() : val.toString()
             case boolean: // bool = ENUM
             case Boolean:
-                return preserve ? val : val.toString()
+                return val
             case InetAddress:
                 return (val as InetAddress).hostAddress
             case Model:
@@ -960,11 +967,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         break
                     case boolean:
                     case Boolean:
-                        retVal = value.toString() == "true"
+                        retVal = Data.toBoolean(value, jdbc.booleanHandle, jdbc.trueChar)
                         break
                     case Collection:
                         try {
-                            retVal = YAML.decode((value ?: "").toString()) as List
+                            retVal = decode((value ?: "").toString()) as List
                             if (retVal) {
                                 if (!(retVal as List).empty && convertModel) {
                                     if (retVal.first() instanceof Integer && genericIsModel(field)) {
@@ -979,7 +986,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                                                 boolean warn = annotation.ondelete() == DeleteActions.RESTRICT
                                                 if(warn && retVal.find { it == null }) {
                                                     Log.w("Table: [%s], field: %s, contains NULL values",
-                                                        this.name, field.name)
+                                                        this.name, field?.name)
                                                 }
                                                 retVal = retVal.findAll {
                                                     return it != null
@@ -990,15 +997,15 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                                 }
                             }
                         } catch (Exception e) {
-                            Log.w("Unable to parse list value in field %s: %s", field.name, e)
+                            Log.w("Unable to parse list value in field %s: %s", field?.name, e)
                             retVal = []
                         }
                         break
                     case Map:
                         try {
-                            retVal = YAML.decode((value ?: "").toString()) as Map
+                            retVal = decode((value ?: "").toString()) as Map
                         } catch (Exception e) {
-                            Log.w("Unable to parse map value in field %s: %s", field.name, e)
+                            Log.w("Unable to parse map value in field %s: %s", field?.name, e)
                             retVal = [:]
                         }
                         break
@@ -1064,16 +1071,47 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                                 try {
                                     retVal = value
                                 } catch (Exception e) {
-                                    Log.w("Unable to set Model field: %s with value: %s (%s)", field.name, value, e)
+                                    Log.w("Unable to set Model field: %s with value: %s (%s)", field?.name, value, e)
                                 }
                             }
                         }
                 }
             } catch(Exception ex) {
-                Log.w("Unable to set value: %s in field: %s (%s)", value, field.name, ex)
+                Log.w("Unable to set value: %s in field: %s (%s)", value, field?.name, ex)
             }
         }
         return retVal
+    }
+    /**
+     * Encode Collections, Map to JSON or YAML
+     * @param data
+     * @return
+     */
+    String encode(Object data) {
+        return jdbc.supportsJSON && meta && meta.hasProperty("useJson") &&  meta.class.getMethod("useJson").invoke(meta) ? JSON.encode(data) : YAML.encode(data)
+    }
+    /**
+     * Decode JSON or YAML into Collections or Map
+     * @param data
+     * @return
+     */
+    Object decode(String data) {
+        boolean json = jdbc.supportsJSON && meta && meta.hasProperty("useJson") && meta.class.getMethod("useJson").invoke(meta)
+        Object decoded = null
+        if(json) { // Automatically switch from JSON to YAML if needed: (previous version support)
+            try {
+                decoded = JSON.decode(data)
+            } catch (Exception ignore) {
+                try {
+                    decoded = YAML.decode(data)
+                } catch(Exception e) {
+                    Log.w("Unable to decode data", e)
+                }
+            }
+        } else {
+            decoded = YAML.decode(data)
+        }
+        return decoded
     }
     /**
      * Get the parameterized class of a List (using field)

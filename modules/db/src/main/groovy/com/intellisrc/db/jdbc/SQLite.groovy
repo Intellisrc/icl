@@ -7,10 +7,12 @@ import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
+import com.intellisrc.db.auto.Relational
 import com.intellisrc.db.auto.Relational.ColumnDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
+import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
@@ -18,6 +20,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 import static com.intellisrc.db.auto.Table.getColumnName
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
 
 /**
  * SQLite Database
@@ -34,12 +37,13 @@ class SQLite extends JDBC implements AutoJDBC {
     String driver = "org.sqlite.JDBC"
     String tableMeta = Config.any.get("db.sqlite.meta", "_meta")
     boolean fkEnabled = Config.any.get("db.sqlite.fk", true) // ON By default
+    BooleanHandle booleanHandle = ENUM
 
     // SQLite specific parameters:
     boolean memory = Config.any.get("db.sqlite.memory", false)
     @Override
     String getConnectionString() {
-        return (memory ? "sqlite::memory:" : "sqlite:$dbname") + (parameters.isEmpty() ? "" : "?" + parameters.toQueryString())
+        return  connectionURI ?: "sqlite:" + (memory ? ":memory:" : dbname) + (parameters.isEmpty() ? "" : "?" + parameters.toQueryString())
     }
 
     @Override
@@ -92,8 +96,9 @@ class SQLite extends JDBC implements AutoJDBC {
     }
 
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta) {
         boolean ok
+        this.meta = meta
         String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
         List<String> defs = []
         List<String> keys = []
@@ -106,7 +111,12 @@ class SQLite extends JDBC implements AutoJDBC {
             ColumnDB column ->
                 List<String> parts = ["`${column.name}`".toString()]
                 if (column.annotation.columnDefinition()) {
-                    parts << column.annotation.columnDefinition()
+                    String colDef = column.annotation.columnDefinition()
+                    int len = column.annotation.length()
+                    if(len &&! colDef.contains("(")) {
+                        colDef += "(${len})".toString()
+                    }
+                    parts << colDef
                 } else {
                     String type = getColumnDefinition(column) +
                                   (column.annotation.key() ? " KEY" : "")

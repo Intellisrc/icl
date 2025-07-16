@@ -49,28 +49,30 @@ class RequestHandle extends SessionHandler {
                     // Execute the filter
                     handled = service.doFilter(request, response)
                 } catch (WebException we) {
-                    boolean display = true
-                    switch (true) {
-                        case we.code >= INTERNAL_SERVER_ERROR_500:
-                            Log.w("[%d] Request: [%s %s]. Exception in web response: %s", we.code, request.method, request.uri(), we.message)
-                            break
-                        case we.code >= BAD_REQUEST_400:
-                            Log.w("[%d] Request: [%s %s]. Exception with the request: %s", we.code, request.method, request.uri(), we.message)
-                            break
-                        default:
-                            display = false
-                    }
-                    if(display) {
-                        // Ignore as it will just set the response to return error page
-                        if (!we.text) {
-                            we.text = getCode(we.code).message
-                        } // Automatic
-                        WebError webError = response.errorTemplate.call(we.code, we.text, response.type())
-                        response.type(webError.contentType + (webError.charSet ? "; charset=" + webError.charSet : ""))
-                        response.status(we.code)
-                        response.writer.print(webError.content)
-                        response.writer.flush()
-                        response.writer.close()
+                    if(! response.redirected) {
+                        boolean display = true
+                        switch (true) {
+                            case we.code >= INTERNAL_SERVER_ERROR_500:
+                                Log.w("[%d] Request: [%s %s]. Exception in web response: %s", we.code, request.method, request.uri(), we.message)
+                                break
+                            case we.code >= BAD_REQUEST_400:
+                                Log.w("[%d] Request: [%s %s]. Exception with the request: %s", we.code, request.method, request.uri(), we.message)
+                                break
+                            default:
+                                display = false
+                        }
+                        if (display) {
+                            // Ignore as it will just set the response to return error page
+                            if (!we.text) {
+                                we.text = getCode(we.code).message
+                            } // Automatic
+                            WebError webError = response.errorTemplate.call(we.code, we.text, response.type())
+                            response.type(webError.contentType + (webError.charSet ? "; charset=" + webError.charSet : ""))
+                            response.status(we.code)
+                            response.writer.print(webError.content)
+                            response.writer.flush()
+                            response.writer.close()
+                        }
                     }
                     handled = true
                 }

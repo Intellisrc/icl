@@ -46,6 +46,7 @@ abstract class IntervalTask extends Task implements TaskCancellable {
     
             @Override
             boolean reset() {
+                super.reset()
                 return true
             }
             

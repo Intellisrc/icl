@@ -28,27 +28,75 @@ class FtpClient {
     String cwd = "/"
     final boolean secure
     boolean verifyHost = false // Only if encrypted is true, will check certificate against host name
-    protected final FTPClient client
+    final FTPClient client
+
+    // Enable FTP Debug
+    static {
+        if(Config.any.getBool("ftp.debug")) {
+            System.setProperty("org.apache.commons.net.ftp.FTP", "DEBUG");
+        }
+    }
+
+    static enum Protocol {
+        TLS, SSL
+    }
     /**
-     * Constructor
+     * Constructor (full options)
      * @param ip    : Server IP address
-     * @param port  : Server port
+     * @param port  : Server port : 0 = Automatic
      * @param user  : username
      * @param pass  : password
      * @param path  : path to change upon connection
      * @param secure : Use FTPS
-     * @param hostToVerify : Hostname to verify (it is not needed if encrypted is false)
+     * @param hostToVerify : Hostname to verify (it is not needed if secure is false)
+     * @param protocol : protocol
+     * @param implicit : implicit option:
+     *      Port 21:
+     *          Explicit FTPS: The client connects to port 21 (the standard FTP port), and once the connection is established, it sends an AUTH TLS or AUTH SSL command to initiate encryption over the control connection.
+     *          Implicit FTPS: The client automatically assumes SSL/TLS encryption when connecting to port 990, without needing the AUTH TLS or AUTH SSL command. This means the connection starts encrypted from the beginning.
+     *      Port 990:
+     *          Implicit SSL/TLS: The client connects to port 990, and the entire session (control and data connections) is encrypted from the start, without the need for an AUTH TLS command.
      */
-    FtpClient(InetAddress ip, int port = 21, String user, String pass, String path, boolean secure = false, String hostToVerify = "") {
+    FtpClient(InetAddress ip, int port, String user, String pass, String path, boolean secure, String hostToVerify = "", Protocol protocol = Protocol.TLS, boolean implicit = false) {
         this.ip = ip
-        this.port = port
+        this.port = port ?: (secure && implicit ? 990 : 21)
         this.user = user
         this.pass = pass
         this.path = path.replaceAll(/\/$/, '') // Remove trailing slash if present
         this.secure = secure
         this.hostname = hostToVerify
-        this.verifyHost = ! hostToVerify.empty
-        client = secure ? new FTPSClient() : new FTPClient()
+        this.verifyHost = secure &&! hostToVerify.empty
+        client = secure ? new FTPSClient(protocol.toString(), implicit) : new FTPClient()
+    }
+    /**
+       Constructor with automatic port
+     */
+    FtpClient(InetAddress ip, String user, String pass, String path, boolean secure, String hostToVerify = "", Protocol protocol = Protocol.TLS, boolean implicit = false) {
+        this(ip, 0, user, pass, path, secure, hostToVerify, protocol, implicit)
+    }
+
+    /**
+     * Constructor for FTPClient (not secure)
+     * @param ip    : Server IP address
+     * @param port  : Server port
+     * @param user  : username
+     * @param pass  : password
+     * @param path  : path to change upon connection
+     */
+    FtpClient(InetAddress ip, int port, String user, String pass, String path) {
+        this(ip, port, user, pass, path, false)
+    }
+    /**
+     * Constructor with automatic port
+     */
+    FtpClient(InetAddress ip, String user, String pass, String path) {
+        this(ip, 0, user, pass, path, false)
+    }
+    /**
+     * Constructor for guest
+     */
+    FtpClient(InetAddress ip, String path) {
+        this(ip, 0, "guest", null, path, false)
     }
     /**
      * Constructor using hostname instead of IP
@@ -56,8 +104,14 @@ class FtpClient {
      * ...
      * @param verifyHost : Verify hostname (boolean) against certificate
      */
-    FtpClient(String hostname, int port = 21, String user, String pass, String path, boolean secure = false, boolean verifyHost = false) {
+    FtpClient(String hostname, int port, String user, String pass, String path, boolean secure = false, boolean verifyHost = false) {
         this(InetAddress.getByName(hostname), port, user, pass, path, secure, verifyHost ? hostname : "")
+    }
+    /**
+     * Constructor with automatic port
+     */
+    FtpClient(String hostname, String user, String pass, String path, boolean secure = false, boolean verifyHost = false) {
+        this(InetAddress.getByName(hostname), 0, user, pass, path, secure, verifyHost ? hostname : "")
     }
 
     /**
@@ -74,31 +128,43 @@ class FtpClient {
                 client.setDefaultPort(port)
             }
             if(secure) {
-                FTPSClient ftps = (client as FTPSClient)
-                Log.v("Enabled cipher-suites: ")
-                ftps.enabledCipherSuites.each {
-                    Log.v("cipher-suite: %s", it)
+                if(secureClient.enabledCipherSuites) {
+                    Log.v("Enabled cipher-suites: ")
+                    secureClient.enabledCipherSuites.each {
+                        Log.v("cipher-suite: %s", it)
+                    }
+                } else {
+                    Log.w("No enabled cipher-suits found in FTP server")
                 }
-                Log.v("Enabled protocols: ")
-                ftps.enabledProtocols.each {
-                    Log.v("protocol: %s", it)
+                if(secureClient.enabledProtocols) {
+                    Log.v("Enabled protocols: ")
+                    secureClient.enabledProtocols.each {
+                        Log.v("protocol: %s", it)
+                    }
+                } else {
+                    Log.w("No enabled protocols found in FTP server")
                 }
-                ftps.endpointCheckingEnabled = verifyHost
-                ftps.trustManager = verifyHost ? TrustManagerUtils.validateServerCertificateTrustManager : TrustManagerUtils.acceptAllTrustManager
+                secureClient.endpointCheckingEnabled = verifyHost
+                secureClient.trustManager = verifyHost ? TrustManagerUtils.validateServerCertificateTrustManager : TrustManagerUtils.acceptAllTrustManager
                 Log.i("Connecting using secure socket (host verification: %s)", verifyHost ? "Yes [${hostname}]".toString() : "No")
             } else {
                 Log.i("Using non-encrypted communication")
             }
             client.connect(ip)
             if (FTPReply.isPositiveCompletion(client.replyCode)) {
+                Log.v("Setting %s mode", active ? "ACTIVE" : "PASSIVE")
+                if (active) {
+                    client.enterLocalActiveMode()
+                } else {
+                    client.enterLocalPassiveMode()
+                }
                 Log.i("Logging in...")
                 boolean login = client.login(user, pass)
                 if (login) {
                     connected = true
-                    if (active) {
-                        client.enterLocalActiveMode()
-                    } else {
-                        client.enterLocalPassiveMode()
+                    if(secure) {
+                        secureClient.execPBSZ(0)
+                        secureClient.execPROT("P")
                     }
                     Log.i("Connection was successful : %s", active ? "ACTIVE" : "PASSIVE")
                     cd(path)
@@ -274,5 +340,13 @@ class FtpClient {
                 client.disconnect()
             }
         } catch(Exception ignore) {}
+    }
+    /**
+     * Return the client as FTPSClient
+     * @return
+     */
+    FTPSClient getSecureClient() {
+        assert client instanceof FTPSClient : "Client is not secure."
+        return (client as FTPSClient)
     }
 }

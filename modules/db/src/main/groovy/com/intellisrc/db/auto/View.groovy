@@ -15,24 +15,22 @@ import groovy.transform.CompileStatic
  * it can be set later, for example:
  *
  * <code>
- * MyView myView = new MyView()
- * myView.createSQL = "CREATE VIEW my_view AS ..."
- * boolean recreate = true
- * if(myView.create(recreate)) {
- *     Log.i("All good!")
- * }
- *
- * // Which is similar to:
  * MyView myView = new MyView("CREATE VIEW...", true)
  * </code>
  * @since 2023/05/30.
  */
 @CompileStatic
-class View<M extends Model> extends Relational<M> implements Instanciable<M> {
-
+abstract class View<M extends Model> extends Relational<M> implements Instanciable<M> {
+    abstract String getCreateSQL()
+    final boolean recreate
     // ----------- Flags and other instance properties -------------
-    String createSQL = ""
-
+    /**
+     * Default constructor
+     * @param recreate : Remove and Create VIEW each time (recommended)
+     */
+    View(boolean recreate = true) {
+        this("", null, recreate)
+    }
     /**
      * Constructor. A Database object can be passed
      * when using multiple databases.
@@ -40,8 +38,8 @@ class View<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @param database
      * @param sql
      */
-    View(Database database, String sql) {
-        this("", database, sql)
+    View(Database database, boolean recreate = true) {
+        this("", database, recreate)
     }
     /**
      * Constructor. A Database object can be passed
@@ -49,22 +47,18 @@ class View<M extends Model> extends Relational<M> implements Instanciable<M> {
      *
      * @param name : Alternative way to set table name (besides @TableMeta)
      * @param database
-     * @param sql : SQL to create view (if needed)
      */
-    View(String name = "", Database database = null, String sql = "", boolean recreate = false) {
-        super(name, database)
-        if(sql) {
-            createSQL = sql
-            assert create(recreate) : "Failed to create view/table: $name"
-        }
+    View(String name, Database database, boolean recreate = true) {
+        super(name, database) //Here name will be automatically set if empty
+        this.recreate = recreate
+        assert create() : "Failed to create view/table: $name"
     }
-
     /**
      * Execute SQL to create view
      */
-    boolean create(boolean recreate) {
-        boolean ok = true
-        if(createSQL) {
+    boolean create() {
+        boolean ok = false
+        if(createSQL != "") {
             switch (jdbc) {
                 case AutoJDBC:
                     // Initialize Auto
@@ -85,6 +79,8 @@ class View<M extends Model> extends Relational<M> implements Instanciable<M> {
                     ok = false
                     break
             }
+        } else {
+            ok = true
         }
         return ok
     }

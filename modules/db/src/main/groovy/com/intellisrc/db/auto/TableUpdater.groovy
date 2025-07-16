@@ -61,7 +61,7 @@ class TableUpdater {
                             TableInfo info ->
                                 boolean ok2 = true
                                 int records = 0
-                                if (db.tables.contains(info.backName)) {
+                                if (db.hasTable(info.backName)) {
                                     ok2 = db.table(info.backName).drop()
                                 }
                                 if(ok2) {

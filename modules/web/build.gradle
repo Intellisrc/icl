@@ -4,7 +4,7 @@ dependencies {
     def os = DefaultNativePlatform.currentOperatingSystem
     def arch = DefaultNativePlatform.currentArchitecture
 
-    def jetty = "11.0.24"
+    def jetty = "11.0.25" //Jetty 12 requires Java 17
     api project(':etc')
     api project(':net')
     api "org.eclipse.jetty:jetty-server:${jetty}"

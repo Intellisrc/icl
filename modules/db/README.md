@@ -517,7 +517,7 @@ class User extends Model {
 
 This will create a foreign key. You can specify an action for `ondelete` inside `@Column` annotation.
 
-There are some cases in which you don't need foreign keys and want to keep you code simple. For those scenarios,
+There are some cases in which you don't need foreign keys and want to keep your code simple. For those scenarios,
 you can use for example: `List<Model>`:
 
 ```groovy
@@ -550,6 +550,19 @@ will contain a `List<User>`. By default, any `User` which doesn't exist anymore,
 and will be removed from it when the Model is updated. If you want non-existing Models to be returned as `null`
 you can specify `ondelete = NULL` (inside your `@Column` annotation). If you specify `ondelete = RESTRICT`,
 only a warning will be printed each time a `Model` is `null`.
+
+> NOTE: It is more convenient if you set as default value an empty List, like: `List<User> users = []`, however
+> this library will store it in a `TEXT` or `VARCHAR` (if length or index is defined in `@Column` annotation) field. 
+> In some databases, having a default value with a `TEXT` field will throw an exception. In such cases, you can turn 
+> on JSON support for the table (be sure the database supports `JSON` datatype, for example MySQL/MariaDB and 
+> PostgreSQL supports it):
+
+```groovy
+@TableMeta(useJson = true)
+class Users extends Table<User> { ... }
+```
+> If the above doesn't work, setting the `length` property in the `@Column` annotation to 255 or lower will fix the
+> issue. Another alternative is to set `null` as default value and handle null protection in your code.
 
 For `many-to-many` relations, you will need to add one extra `Model` class (using multiple columns as primary key)
 as follows:
@@ -704,9 +717,9 @@ to ensure the basic usage compatibility.
 | PostgreSQL      | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Very Fast     |
 | SQLite          | Yes   | Yes           | No              | Yes        | No                  | Yes          | No                    | Fast          |
 | Derby           | Yes * | Yes           | Yes             | Yes        | Yes                 | Yes          | Yes                   | Very Fast     |
+| Oracle          | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Slow          |
 | HSQLDB          | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
 | H2              | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
-| Oracle          | No    | Yes           | Yes             | No         | No                  | No           | No                    | Slow          |
 | SQLServer       | No    | Yes           | Yes             | No         | No                  | No           | No                    | Fast          |
 | Firebird        | No    | Yes           | Yes             | No         | No                  | No           | No                    | Very Slow     |
 

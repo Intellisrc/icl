@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = groupName
-    version = "2.9.2"
+    version = "2.9.3"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -114,7 +114,7 @@ subprojects {
 		documentation
 	}
     dependencies {
-        def groovyVer = "4.0.23" // Also in module etc
+        def groovyVer = "4.0.27" // Also in module etc
         def groovyExt = "4.0.23.14"
         def spock = "2.4-M4-groovy-4.0"
 
@@ -128,6 +128,8 @@ subprojects {
 
         testImplementation "org.apache.groovy:groovy:${groovyVer}"
         testImplementation "org.spockframework:spock-core:${spock}"
+        // Fixes "The automatic loading of test framework implementation dependencies has been deprecated." for Gradle 9
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 		documentation "com.github.javaparser:javaparser-core:3.26.2"
     }

@@ -10,6 +10,7 @@ import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
+import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
@@ -57,7 +58,6 @@ class Derby extends JDBCServer implements AutoJDBC {
     String catalogSearchName = "%"
     String schemaSearchName = "%"
     boolean supportsReplace = false
-    boolean supportsBoolean = true
 
     // Derby specific parameters:
     // https://db.apache.org/derby/docs/10.0/manuals/reference/sqlj238.html#HDRSII-ATTRIB-24612
@@ -81,6 +81,9 @@ class Derby extends JDBCServer implements AutoJDBC {
     @Override
     String getConnectionString() {
         String sub = ""
+        if(connectionURI) {
+            return connectionURI
+        }
         // Do not set unless is enabled:
         if(encrypt) {
             parameters.dataEncryption = true
@@ -139,7 +142,7 @@ class Derby extends JDBCServer implements AutoJDBC {
         }
     }
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns) {
+    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta) {
         boolean ok = false
         if(! exists(db, tableName)) {
             String createSQL = "CREATE TABLE ${tableName} (\n"
@@ -154,7 +157,12 @@ class Derby extends JDBCServer implements AutoJDBC {
                 ColumnDB column ->
                     List<String> parts = ["${column.name}".toString()]
                     if (column.annotation.columnDefinition()) {
-                        parts << column.annotation.columnDefinition()
+                        String colDef = column.annotation.columnDefinition()
+                        int len = column.annotation.length()
+                        if(len &&! colDef.contains("(")) {
+                            colDef += "(${len})".toString()
+                        }
+                        parts << colDef
                     } else {
                         String type = getColumnDefinition(column).replace("_pk", tableName + "_pk" + "_v" + version)
                         parts << type
@@ -361,5 +369,10 @@ class Derby extends JDBCServer implements AutoJDBC {
     @Override
     boolean renameTable(final DB db, String from, String to) {
         return set(db, "RENAME TABLE ${from} TO ${to}")
+    }
+
+    @Override
+    String getTruncateQuery(String table) {
+        return super.getDeleteQuery(table, "")
     }
 }

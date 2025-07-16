@@ -9,11 +9,11 @@ class MariaDBTest extends JDBCTest {
         //NOTE: in ENUM, 'false' is first to represent 0 ordinal (used for sorting)
         return """CREATE TABLE `$name` (
                 `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
-                `name` VARCHAR(10) NOT NULL,
-                `version` DECIMAL(2,1),
-                `active` ENUM('false','true'),
-                `updated` DATETIME
-        );"""
+                `name` VARCHAR(10) NOT NULL UNIQUE,
+                `version` FLOAT,
+                `active` BOOLEAN,
+                `updated` DATE
+        )"""
     }
 
     String getTableCreateMultiplePK(String name) {

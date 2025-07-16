@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 import static com.intellisrc.db.Query.Action.*
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 @CompileStatic
 /**
@@ -230,10 +231,15 @@ class Query {
                         if(v == null) {
                             wherePart.append(fieldName(k) + " " + dbType.isNullQuery)
                         } else if(v instanceof Boolean) {
-                            if(dbType.supportsBoolean) {
-                                wherePart.append(fieldName(k) + " = " + v.toString().toUpperCase())
-                            } else {
-                                wherePart.append(fieldName(k) + " = ? ", [v.toString()])
+                            switch (dbType.booleanHandle) {
+                                case BOOLEAN: wherePart.append(fieldName(k) + " = " + v.toString().toUpperCase())
+                                    break
+                                case NUMBER: wherePart.append(fieldName(k) + " = ? ", [Data.booleanAsInt(v as boolean)])
+                                    break
+                                case CHAR:  wherePart.append(fieldName(k) + " = ? ", [Data.booleanAsChar(v as boolean, dbType.trueChar, dbType.falseChar)])
+                                    break
+                                case ENUM:  wherePart.append(fieldName(k) + " = ? ", [v.toString().toUpperCase()])
+                                    break
                             }
                         } else {
                             wherePart.append(fieldName(k) + " = ? ", [v])
@@ -306,7 +312,11 @@ class Query {
      * @return
      */
     protected boolean isBoolean(Object value) {
-        return dbType.supportsBoolean && ["true","false"].contains(value.toString().toLowerCase())
+        return switch (dbType.booleanHandle) {
+            case BOOLEAN, ENUM -> ["true", "false"].contains(value.toString().toLowerCase())
+            case NUMBER -> Data.isInt(value) && [0,1].contains(Data.parseInt(value.toString()))
+            case CHAR -> [dbType.trueChar, dbType.falseChar].collect { it.toString() }.contains(value.toString().toLowerCase())
+        }
     }
     /**
      * Prepare '?' characters for values
@@ -314,33 +324,39 @@ class Query {
      * @return
      */
     protected String getPlaceHolder(Object value) {
-        String ph = "?"
-        switch (true) {
-            case value == null:
-                ph = "NULL"
-                break
-            case isBoolean(value):
-                ph = value.toString().toUpperCase()
-                break
+        return switch (true) {
+            case (value == null) -> "NULL"
+            case dbType.booleanHandle == BOOLEAN && isBoolean(value as Object) -> value.toString().toUpperCase() //FIXME: IntelliJ bug: value as Object needed
+            default -> "?"
         }
-        return ph
     }
+    /**
+     * This method will generate the VALUES(?,?,?,NULL) part of the query
+     * @return
+     */
     protected Part getInsertPart() {
         String inspst = whereValues.collect { getPlaceHolder(it.value) }.join(",")
         return new Part().append("VALUES (" + inspst + ")", whereValues.values().toList().findAll {
-            it != null &&! isBoolean(it)
+            it != null &&! (dbType.booleanHandle == BOOLEAN && isBoolean(it))
         })
     }
+    /**
+     * This method will generate the SET x = ?, y = ? part of the query
+     * @return
+     */
     protected Part getUpdatePart() {
         String updstr = whereValues.collect { fieldName(it.key) + " = " + getPlaceHolder(it.value) }.join(",")
         return new Part().append(updstr, whereValues.values().toList().findAll {
-            it != null &&! isBoolean(it)
+            it != null &&! (dbType.booleanHandle == BOOLEAN && isBoolean(it))
         })
     }
 
     Query setValues(final Map<String,Object> values) {
         whereValues = values.collectEntries {
-            Object val = (it.value instanceof Boolean &&! dbType.supportsBoolean) ? it.value.toString() : it.value
+            Object val = switch (it.value) {
+                case boolean, Boolean -> Data.booleanToValue(it.value as boolean, dbType.booleanHandle, dbType.trueChar, dbType.falseChar)
+                default -> it.value
+            }
             return [(it.key) : val ]
         }
         return this
@@ -423,22 +439,17 @@ class Query {
 
             case UPDATE:    args = updatePart.data + wherePart.data; break
         }
-        if(dbType.supportsBoolean) {
-            args = args.collect {
-                Object arg = it
-                switch (arg) {
-                    case String:
-                        switch (it.toString().toLowerCase()) {
-                            case 'true':
-                                arg = true
-                                break
-                            case 'false':
-                                arg = false
-                                break
-                        }
-                        break
-                }
-                return arg
+        args = args.collect {
+            return switch (it) {
+                case boolean, Boolean -> Data.booleanToValue(it as boolean, dbType.booleanHandle, dbType.trueChar, dbType.falseChar)
+                // If we pass a String as argument we convert automatically the value to its representation in the database
+                // NOTE: we don't use only Data.toBoolean or Data.booleanAsInt here as we have to be sure that any other
+                //       value is not interpreted as false, e.g.: "other" -> false (as "other" != "true")
+                case String -> switch (dbType.booleanHandle) {
+                                    case BOOLEAN -> ["true","false"].contains(it.toString().toLowerCase().trim()) ? Data.toBoolean(it, dbType.booleanHandle, dbType.trueChar) : it // converts "true" to true, "false" to false
+                                    default -> it
+                               }
+                default -> it
             }
         }
         return args
@@ -490,9 +501,7 @@ class Query {
      * Returns column or table name clean and with ``
      */
     private String fieldName(final String str, boolean tableName = false) {
-        String result = str.toLowerCase().replaceAll("/[^a-z0-9._]/", "")
-        String ch = tableName ? dbType.tablesQuotation : dbType.fieldsQuotation
-        return ch + result + ch
+        return tableName ? dbType.getTableForQuery(str) : dbType.getFieldForQuery(str)
     }
 	/**
 	 * Clean a SQL query removing invalid characters like unicode, comments, semicolon, etc

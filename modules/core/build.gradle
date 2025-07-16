@@ -1,6 +1,6 @@
 dependencies {
-    api 'org.yaml:snakeyaml:2.3' //Same as in DB
-    api 'org.slf4j:slf4j-api:2.0.16' //If change, update log.CommonLoggerService.REQUESTED_API_VERSION
+    api 'org.yaml:snakeyaml:2.4' //Same as in DB
+    api 'org.slf4j:slf4j-api:2.0.17' //If change, update log.CommonLoggerService.REQUESTED_API_VERSION
 }
 
 repositories {

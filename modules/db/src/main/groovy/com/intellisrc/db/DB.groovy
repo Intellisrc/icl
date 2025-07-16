@@ -7,6 +7,7 @@ import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
+import java.sql.SQLSyntaxErrorException
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import static com.intellisrc.db.ColumnType.*
@@ -118,6 +119,14 @@ class DB {
         return getTables(true)
     }
     /**
+     * Return true if table exists (case insensitive)
+     * @param table
+     * @return
+     */
+    boolean hasTable(String table) {
+        return tables.collect { it.toLowerCase() }.contains(table.toLowerCase())
+    }
+    /**
      * Get all tables in database
      * @return
      */
@@ -187,9 +196,6 @@ class DB {
                         removeAutoId(autoKeys(createQuery().setAction(UPDATE)).setWhere(keyvals[idx]).setValues(row))
                 })
                 updated = dbConnector.commit(queries)
-                if(!updated) {
-                    dbConnector.rollback()
-                }
             } else {
                 Log.w("Trying to update data with unequal number of rows and keys")
             }
@@ -222,9 +228,6 @@ class DB {
                 removeAutoId(autoKeys(createQuery().setAction(INSERT)).setValues(it))
             })
             ok = dbConnector.commit(queries)
-            if (!ok) {
-                dbConnector.rollback()
-            }
         } else {
             Log.v("Insert received an empty list")
         }
@@ -254,9 +257,6 @@ class DB {
                     autoKeys(createQuery().setAction(REPLACE)).setValues(it)
                 })
                 ok = dbConnector.commit(queries)
-                if(!ok) {
-                    dbConnector.rollback()
-                }
             } else {
                 if (repvals.size() > 100 && !jdbc.supportsReplace) {
                     Log.w("Using REPLACE with many records in [%s] may be too slow. Consider using INSERT or UPDATE instead", jdbc.class.simpleName)
@@ -386,12 +386,12 @@ class DB {
      * Truncate a table (in some cases it will reset autoincrement ids as well)
      * @return
      */
-    boolean truncate() {
+    boolean truncate(boolean silent = true) {
         boolean ok = false
         if(table) {
             Log.i("Truncating table: %s", table)
             query.setAction(TRUNCATE)
-            ok = execSet()
+            ok = execSet(silent)
         } else {
             Log.w("Can not truncate: No table specified")
         }
@@ -403,8 +403,18 @@ class DB {
         boolean ok = false
         if(table) {
             Log.i("Dropping table: %s", table)
+            String before = jdbc.getBeforeDropTableQuery(table)
+            if(before) {
+                dbConnector.execute(new Query(before), true)
+            }
             query.setAction(DROP_TABLE)
             ok = execSet()
+            if(ok) {
+                String after = jdbc.getBeforeDropTableQuery(table)
+                if(after) {
+                    dbConnector.execute(new Query(after), true)
+                }
+            }
         } else {
             Log.w("Can not drop: No table specified")
         }
@@ -490,7 +500,7 @@ class DB {
     boolean exists() {
         boolean exists = false
         if(table) {
-            exists = tables.contains(table)
+            exists = hasTable(table)
         }
         return exists
     }
@@ -532,16 +542,13 @@ class DB {
                         ), it)
                     }
                 } else {
-                    if(! tables.collect { it.toLowerCase() }.contains(table.toLowerCase())) {
-                        tableList.clear()
-                    }
-                    if(tables.collect { it.toLowerCase() }.contains(table.toLowerCase())) {
+                    if(hasTable(table)) {
                         columns = dbConnector.getColumns(table)
                         if(columns.empty) {
                             Log.w("Columns were not found in table: %s", table)
                         }
                     } else {
-                        Log.v("Table [%s] didn't exists (yet)", table)
+                        tableList.clear()
                     }
                 }
                 if (!columns.empty) {
@@ -841,7 +848,7 @@ class DB {
      * @return Data (List<Map>)
      */
     protected Data execGet() {
-        String qryStr = query.toString()
+        String qryStr = query.toString().trim()
         Data data
         if(! qryStr.empty) {
             Log.v("GET ::: " + qryStr)
@@ -876,7 +883,12 @@ class DB {
                                                 row.put(column, st.columnBool(i))
                                                 break
                                             case INTEGER:
-                                                row.put(column, st.columnInt(i))
+                                                // Oracle does not report decimals when using functions like: MAX()
+                                                if(jdbc.checkDecimals && st.columnInt(i) != st.columnDbl(i)) {
+                                                    row.put(column, st.columnDbl(i))
+                                                } else {
+                                                    row.put(column, st.columnInt(i))
+                                                }
                                                 break
                                             case FLOAT:
                                                 row.put(column, st.columnFloat(i))
@@ -919,9 +931,10 @@ class DB {
 
     /**
      * Executes Query (Final stop for write queries)
+     * @param silent : when true, it will minimize error reporting
      * @return true on success
      */
-    protected boolean execSet() {
+    protected boolean execSet(boolean silent = false) {
 		boolean ok = false
         Map<String,Object> replaceData = [:]
         query.isSetQuery = true
@@ -965,7 +978,7 @@ class DB {
                 ResultStatement st
                 try {
                     boolean upsert = ! replaceData.isEmpty()
-                    boolean silent = upsert
+                    silent = silent ?: upsert
                     st = dbConnector.execute(query, silent)
                     if (upsert && st && st.updatedCount() == 0) {
                         try {
@@ -991,30 +1004,32 @@ class DB {
                 if (st) {
                     try {
                         st.next()
-                        List<String> pks = getPKs()
-                        if (query.isIdentityUpdate && pks.size() == 1 && info(pks.first())?.autoIncrement) {
-                            String id = st.columnStr(1)
-                            if (id && id.isNumber()) {
-                                last_id = st.columnInt(1)
-                            } else {
-                                if(! st.isColumnNull(1)) {
-                                    Log.v("Received last id: %s", id)
+                        if (query.isIdentityUpdate) {
+                            List<String> pks = getPKs()
+                            if(pks.size() == 1 && info(pks.first())?.autoIncrement) {
+                                String id = st.columnStr(1)
+                                if (id && id.isNumber()) {
+                                    last_id = st.columnInt(1)
+                                } else {
+                                    if (!st.isColumnNull(1)) {
+                                        Log.v("Received last id: %s", id)
+                                    }
+                                    last_id = 0
                                 }
-                                last_id = 0
-                            }
-                            String lastIdQuery = jdbc.getLastIdQuery(query.table, pks.first())
-                            if (!last_id && lastIdQuery) {
-                                Log.v("Last ID not found. Using fallback method...")
-                                String table = query.table
-                                queryBuilder = new Query(lastIdQuery)
-                                queryBuilder.table = table
-                                if (queryBuilder) {
-                                    last_id = execGet().toInt()
-                                    Log.v("Fallback method returned [%d] as last id", last_id)
+                                String lastIdQuery = jdbc.getLastIdQuery(query.table, pks.first())
+                                if (!last_id && lastIdQuery) {
+                                    Log.v("Last ID not found. Using fallback method...")
+                                    String table = query.table
+                                    queryBuilder = new Query(lastIdQuery)
+                                    queryBuilder.table = table
+                                    if (queryBuilder) {
+                                        last_id = execGet().toInt()
+                                        Log.v("Fallback method returned [%d] as last id", last_id)
+                                    }
                                 }
-                            }
-                            if (!last_id) {
-                                Log.v("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
+                                if (!last_id) {
+                                    Log.v("Last ID was not found in table (does it has identity/autoincrement field?): %s", table)
+                                }
                             }
                         }
                         ok = true
@@ -1030,6 +1045,9 @@ class DB {
                 Log.e("No changes done: database is not open")
                 dbConnector.onError(new ConnectException())
             }
+        } else {
+            ok = true
+            Log.w("Query was empty")
         }
         return ok
     }

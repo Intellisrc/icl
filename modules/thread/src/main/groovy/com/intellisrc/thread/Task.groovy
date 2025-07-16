@@ -34,6 +34,7 @@ abstract class Task {
     protected int sleepTime = 0
     protected Priority priority = Priority.NORMAL
 
+    Tasks.TaskSummary summary = new Tasks.TaskSummary(taskName) //To be filled later
     StateUpdater taskState = (StateUpdater) {} //To be used by TaskInfo
     static interface StateUpdater {
         void update(TaskInfo.State State)
@@ -141,6 +142,12 @@ abstract class Task {
      */
     void quit() {}
     //--------------------- OPTIONAL (Override if needed) -------------------
+    /**
+     * Override this method to execute some code when Tasks was unable
+     * to execute the process
+     * @return
+     */
+    void onFailure() {}
     /**
      * Automatic get class name
      * @return simple name to identify thread

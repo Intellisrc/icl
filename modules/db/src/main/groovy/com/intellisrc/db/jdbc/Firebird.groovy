@@ -25,7 +25,6 @@ class Firebird extends JDBCServer {
     String packageName = "org.firebirdsql.jdbc"
     String driver = "${packageName}.FBDriver"
     String connectionClass = "${packageName}.FBConnection"
-    boolean supportsBoolean = true
 
     boolean embedded = Config.any.get("db.firebird.embedded", false)
     boolean local = Config.any.get("db.firebird.local", false)
@@ -53,7 +52,7 @@ class Firebird extends JDBCServer {
             default:
                 conn = "firebirdsql:$hostname/$port:$dbname"
         }
-        return conn + "?" + parameters.toQueryString()
+        return connectionURI ?: (conn + "?" + parameters.toQueryString())
     }
 
     // QUERY BUILDING -------------------------

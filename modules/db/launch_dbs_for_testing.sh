@@ -17,10 +17,10 @@ fi
 # MariaDB
 if [[ $1 == "" || $1 == "mariadb" ]]; then
 docker run --name mariadb_test \
-  -e "MYSQL_ROOT_PASSWORD=rootpassword" \
-  -e "MYSQL_DATABASE=test" \
-  -e "MYSQL_USER=test" \
-  -e "MYSQL_PASSWORD=test" \
+  -e "MARIADB_ROOT_PASSWORD=rootpassword" \
+  -e "MARIADB_DATABASE=test" \
+  -e "MARIADB_USER=test" \
+  -e "MARIADB_PASSWORD=test" \
   -p 127.0.0.1:33007:3306 \
   -d mariadb
 fi
@@ -31,7 +31,8 @@ docker run --name oracle_test \
   -e "APP_USER=test" \
   -e "APP_USER_PASSWORD=test" \
   -p 127.0.0.1:31521:1521 \
-  -d gvenzl/oracle-xe:21-slim
+  -d gvenzl/oracle-xe:21-slim #<-- old version
+  #-d gvenzl/oracle-free:23-slim #<-- use this one when oracle 23 driver can be used
 echo "Oracle may take a few minutes to be available. You can check the logs with:"
 echo "docker logs -f oracle_test"
 fi

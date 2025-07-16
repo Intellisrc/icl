@@ -18,7 +18,7 @@ enum ColumnType {
      * @param type
      * @return
      */
-    static ColumnType fromJavaSQL(int type) {
+    static ColumnType fromJavaSQL(int type, int decimals) {
         //noinspection GroovyFallthrough
         switch (type) {
             case Types.NCLOB: //N means: Unicode
@@ -42,6 +42,7 @@ enum ColumnType {
             case Types.FLOAT:
                 return FLOAT
             case Types.NUMERIC:
+                if(decimals == 0) { return INTEGER }
             case Types.DECIMAL:
             case Types.DOUBLE:
                 return DOUBLE

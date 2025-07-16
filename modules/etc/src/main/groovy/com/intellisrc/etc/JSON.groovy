@@ -18,12 +18,42 @@ import java.time.LocalTime
 @CompileStatic
 class JSON {
     /**
-     * Decode a JSON string into an object
+     * Converts JSON LazyMap/ValueList to Map/List which allows modification
+     */
+    protected static Object convertObj(Object obj) {
+        if (obj instanceof Map) {
+            Map result = new HashMap()
+            (obj as Map).each { key, value ->
+                result.put(key, convertObj(value))
+            }
+            return result
+        } else if (obj instanceof List) {
+            List result = new ArrayList()
+            (obj as List).each { item ->
+                result.add(convertObj(item))
+            }
+            return result
+        } else {
+            return obj
+        }
+    }
+    /**
+     * Decode a JSON and make the Map/List editable recursively
+     * @param json
+     * @param largeSize
+     * @return
+     */
+    static <T> T decode(String json, boolean largeSize = false) {
+        return (T) convertObj(decodeLazy(json, largeSize))
+    }
+    /**
+     * Decode a JSON string into an object. This method will return LazyMap objects
+     * which are not editable unless they are passed to a HashMap constructor
      * @param json
      * @param largeSize : recommended for documents larger than 2MB
      * @return
      */
-    static <T> T decode(String json, boolean largeSize = false) {
+    static <T> T decodeLazy(String json, boolean largeSize = false) {
         T ret = null
         try {
             ret = (T) new JsonSlurper(type: largeSize ? JsonParserType.CHARACTER_SOURCE : JsonParserType.LAX).parseText(json)
