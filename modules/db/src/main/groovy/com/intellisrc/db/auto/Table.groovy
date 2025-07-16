@@ -79,9 +79,9 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                                             // booleanHandle is what the column in the database should be (according to Database type):
                                             boolean needUpdate = switch (jdbc.booleanHandle) {
                                                 case BoolType.ENUM,
-                                                    BoolType.CHAR -> ct != ColumnType.TEXT
-                                                case BoolType.BOOLEAN -> ct != ColumnType.BOOLEAN
-                                                case BoolType.NUMBER -> ct != ColumnType.INTEGER
+                                                     BoolType.CHAR      -> ct != ColumnType.TEXT
+                                                case BoolType.BOOLEAN   -> ct != ColumnType.BOOLEAN
+                                                case BoolType.NUMBER    -> ct != ColumnType.INTEGER
                                             }
                                             if (needUpdate) {
                                                 updated = true
@@ -245,13 +245,13 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                     "END").toString()
 
                 break
-            // We need to update from 0 -> 1, 1 -> 2 (as number as we already changed the column)
+            // We need to update from 1 -> 'TRUE', 0 -> 'FALSE' (as number as we already changed the column)
             case from == BoolType.BOOLEAN && to == BoolType.ENUM:
             case from == BoolType.NUMBER && to == BoolType.ENUM:
                 queries << ("UPDATE ${ jdbc.getTableForQuery(table) } " +
                     "SET $column = CASE " +
-                    "WHEN $column = 1 THEN 2 " +
-                    "WHEN $column = 0 THEN 1 " +
+                    "WHEN $column = 1 THEN 'TRUE' " +
+                    "WHEN $column = 0 THEN 'FALSE' " +
                     "END").toString()
                 break
         }

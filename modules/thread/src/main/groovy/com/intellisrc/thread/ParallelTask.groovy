@@ -4,6 +4,8 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 
+import java.util.concurrent.CancellationException
+
 import static com.intellisrc.core.Millis.*
 
 /**
