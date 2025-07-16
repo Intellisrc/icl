@@ -119,6 +119,14 @@ class ParallelTaskTest extends Specification {
             
     }
 
+    /**
+     * This task will run 2 times (in total 4 tasks), as each task will take 3 seconds.
+     * The first 2 tasks will be executed and finish after 3 seconds. Then 2 more tasks
+     * will start. On second 5, the "cancel" order will be issued, so no more tasks
+     * will be started.
+     *
+     * @return
+     */
     @Retry
     def "If task is cancelled, it should not execute pending threads"() {
         setup :
@@ -128,9 +136,7 @@ class ParallelTaskTest extends Specification {
                 int instance ->
                     runnables << {
                         println "[$instance] starting ..."
-                        (1..10).each {
-                            sleep(MILLIS_100)
-                        }
+                        sleep(SECOND_3)
                         println "[$instance] finished in "+times.incrementAndGet()+" place"
                     }
             }
@@ -138,14 +144,14 @@ class ParallelTaskTest extends Specification {
             ParallelTask parallelTask
             Tasks.runLater({
                 parallelTask.cancel()
-            }, "Later", MILLIS_300)
-            parallelTask = ParallelTask.create(runnables, "Sleeping", 2, SECOND_10, Task.Priority.NORMAL, true)
+            }, "Later", SECOND_5)
+            parallelTask = ParallelTask.create(runnables, "Sleeping", 2, MIN_20, Task.Priority.NORMAL, true)
             Tasks.add(parallelTask)
         when:
-            sleep(MILLIS_200)
+            sleep(SECOND_2)
         then:
             assert parallelTask.cancelled
-            assert times.get() < 4
+            assert times.get() == 4
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
