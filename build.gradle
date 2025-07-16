@@ -3,6 +3,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
     id 'net.saliman.properties' version '1.5.1'
 }
 
@@ -100,6 +101,24 @@ static String getProjectDescription(String name) {
     }
     return desc
 }
+nexusPublishing {
+    repositories {
+        sonatype {
+            // The URL for the Central Publisher Portal.
+            // For releases, this is the main deploy endpoint.
+            // For snapshots, it's typically the same URL or a dedicated snapshot endpoint.
+            // The 'snapshotsRepoUrl' you had previously might not be directly applicable
+            // to the new portal in the same way, as the plugin handles staging.
+            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/") // This is for the OSSRH Staging API, which is compatible
+            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") // This might still be used for snapshots with the staging API
+
+            // Your credentials from central.sonatype.com.
+            // It's highly recommended to use environment variables or a secure properties file.
+            username = ossrhUsername
+            password = ossrhPassword
+        }
+    }
+}
 
 subprojects {
     apply plugin: 'groovy'
@@ -143,17 +162,6 @@ subprojects {
         }
     }
     publishing {
-        repositories {
-            maven {
-                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
-                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
-                url = isDev ? snapshotsRepoUrl : releasesRepoUrl
-                credentials {
-                    username = ossrhUsername
-                    password = ossrhPassword
-                }
-            }
-       }
        publications {
            mavenJava(MavenPublication) {
                artifactId project.name
