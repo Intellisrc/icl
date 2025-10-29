@@ -1,13 +1,18 @@
 dependencies {
-    def groovyVer = "4.0.27"
+    def groovyVer = "4.0.29"
     def jvmbrotli = "0.2.0"
+    def tika      = "3.2.3"
+    def reflections= "0.10.2"
+    def jedis     = "6.0.0"
+    def sleepycat = "18.3.12"
+
     api project(':core')
     api "org.apache.groovy:groovy-json:${groovyVer}"
-    api "org.reflections:reflections:0.10.2" //Same as in DB
-    api 'org.apache.tika:tika-core:3.2.1'
+    api "org.reflections:reflections:${reflections}" //Same as in DB
+    api "org.apache.tika:tika-core:${tika}"
     // We set Jedis to be optional so it is not always required, only when AutoConfig is being used.
-    api "com.sleepycat:je:18.3.12"
-    api 'redis.clients:jedis:6.0.0'
+    api "com.sleepycat:je:${sleepycat}"
+    api "redis.clients:jedis:${jedis}"
 
     compileOnly "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
 }
