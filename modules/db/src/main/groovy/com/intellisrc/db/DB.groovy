@@ -123,8 +123,8 @@ class DB {
      * @param table
      * @return
      */
-    boolean hasTable(String table) {
-        return tables.collect { it.toLowerCase() }.contains(table.toLowerCase())
+    boolean hasTable(String table, boolean useCache = true) {
+        return getTables(useCache).collect { it.toLowerCase() }.contains(table.toLowerCase())
     }
     /**
      * Get all tables in database
@@ -542,13 +542,11 @@ class DB {
                         ), it)
                     }
                 } else {
-                    if(hasTable(table)) {
+                    if(hasTable(table, useCache)) {
                         columns = dbConnector.getColumns(table)
                         if(columns.empty) {
                             Log.w("Columns were not found in table: %s", table)
                         }
-                    } else {
-                        tableList.clear()
                     }
                 }
                 if (!columns.empty) {

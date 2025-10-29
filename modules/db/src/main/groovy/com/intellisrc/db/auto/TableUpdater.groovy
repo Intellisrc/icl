@@ -82,7 +82,7 @@ class TableUpdater {
                                         auto.renameTable(db, info.backName, info.name)
                                         return false
                                     } else {
-                                        if (!auto.createTable(db, info.table, info.name)) { //Creating new database
+                                        if (!auto.createTable(db, info.table, info.name)) { //Creating new table
                                             Log.w("Unable to copy table. Reverting")
                                             db.table(info.name).drop()
                                             auto.renameTable(db, info.backName, info.name)
@@ -108,31 +108,37 @@ class TableUpdater {
                                         ok = countMatch
                                         if (!ok) {
                                             // Probably column mismatch (using row by row method):
-                                            List<String> columnsOld = db.table(info.backName).info().collect { it.name }
-                                            List<String> columnsNew = db.table(info.name).info().collect { it.name }
-                                            List<String> columnsAdded = columnsNew - columnsOld
-                                            List<String> columnsRemoved = columnsOld - columnsNew
-                                            List<Map> newData = db.table(info.backName).get().toListMap().collect {
-                                                Map row ->
-                                                    if (!columnsAdded.empty) {
-                                                        columnsAdded.each {
-                                                            row[it] = null
+                                            List<String> columnsOld = db.table(info.backName).info(false).collect { it.name }
+                                            List<String> columnsNew = db.table(info.name).info(false).collect { it.name }
+                                            Log.v("Old columns: %d, New columns: %d", columnsOld.size(), columnsNew.size())
+                                            columnsNew = db.table(info.name).info(false).collect { it.name }
+                                            if(! columnsNew.empty) {
+                                                List<String> columnsAdded = columnsNew - columnsOld
+                                                List<String> columnsRemoved = columnsOld - columnsNew
+                                                List<Map> newData = db.table(info.backName).get().toListMap().collect {
+                                                    Map row ->
+                                                        if (!columnsAdded.empty) {
+                                                            columnsAdded.each {
+                                                                row[it] = null
+                                                            }
                                                         }
-                                                    }
-                                                    if (!columnsRemoved.empty) {
-                                                        columnsRemoved.each {
-                                                            row.remove(it)
+                                                        if (!columnsRemoved.empty) {
+                                                            columnsRemoved.each {
+                                                                row.remove(it)
+                                                            }
                                                         }
-                                                    }
-                                                    return row
-                                            }
-                                            Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
-                                            ok = newData.empty ?: db.table(info.name).insert(newData) &&
-                                                 db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
-                                            if (ok) {
-                                                Log.i("Data was successfully imported.")
+                                                        return row
+                                                }
+                                                Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
+                                                ok = newData.empty ?: db.table(info.name).insert(newData) &&
+                                                     db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
+                                                if (ok) {
+                                                    Log.i("Data was successfully imported.")
+                                                } else {
+                                                    Log.w("Unable to import data to the new table structure. Try setting `execOnUpdate()` to true, and handle the data change in `onUpdate()`.")
+                                                }
                                             } else {
-                                                Log.w("Unable to import data to the new table structure. Try setting `execOnUpdate()` to true, and handle the data change in `onUpdate()`.")
+                                                Log.w("Unable to create new table.")
                                             }
                                         }
                                     }
