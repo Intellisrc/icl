@@ -1,5 +1,6 @@
 package com.intellisrc.db.auto
 
+import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Data
 import com.intellisrc.db.Query
