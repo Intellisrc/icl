@@ -3,5 +3,5 @@ dependencies {
     // SerialPort is used in method arguments. Using 'api' :
     api 'org.scream3r:jssc:2.8.0'
     // To Mock SerialPort
-    testImplementation 'net.bytebuddy:byte-buddy:1.17.6'
+    testImplementation 'net.bytebuddy:byte-buddy:1.17.8'
 }
