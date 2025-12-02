@@ -92,10 +92,10 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
      * @param message
      */
     void sendTo(EventClient client, WebMessage message) {
-        sendTo(client, message, {}, {
+        sendTo(client, message, {}) {
             Throwable t ->
                 Log.v("Unable to send message to: %s", client.id)
-        })
+        }
     }
     /**
      * Use this method if you want to handle only the success case (failure will be ignored)
@@ -104,7 +104,7 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
      * @param onSuccess
      */
     void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess) {
-        sendTo(client, message, onSuccess, { Throwable t -> })
+        sendTo(client, message, onSuccess) { Throwable t -> }
     }
     /**
      * Send Message to client
@@ -115,11 +115,12 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
      */
     @Override
     void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess, FailCallback onFail) {
-        if(client.session) {
+        if(client.session && client.session.websocketSession) {
             client.session.websocketSession.remote.sendString(message.toString())
         } else {
-            Log.w("Session was empty")
-            onFail?.call(new Exception("Session was empty"))
+            String source = client.session ? "Websocket Session" : "Session"
+            Log.w("%s was empty", source)
+            onFail?.call(new Exception("$source was empty"))
         }
     }
 
@@ -128,11 +129,11 @@ class WebSocketBroadcastService extends JettyWebSocketServlet implements Broadca
         factory.maxTextMessageSize =
             factory.maxBinaryMessageSize =
                 factory.inputBufferSize = maxSize * 1024
-        factory.addMapping(path, {
+        factory.addMapping(path) {
             // EndPoint creator:
             JettyServerUpgradeRequest request, JettyServerUpgradeResponse response ->
                new EventEndpoint(request.httpServletRequest)
-        })
+        }
         factory.idleTimeout = Duration.ofMillis(timeout * Millis.SECOND)
     }
 }
