@@ -3,29 +3,74 @@ package com.intellisrc.web.service
 import com.intellisrc.etc.JSON
 import groovy.transform.CompileStatic
 
+import static com.intellisrc.web.service.WebMessage.WebMessageType.*
+
 /**
- * Simple class to convert data to String
+ * Automatic wrap messages to handle Map, Collection and String messages
+ * When the code auto-detects a JSON object, 'data' property will be assigned.
+ * When the code auto-detects a JSON array, 'data' property will be converted into Map: [ list : [...] ]
+ * In any case, the original text message will be assigned into 'text' property.
  */
 @CompileStatic
 class WebMessage {
-    protected final Map data
-    protected final Class type
+    static enum WebMessageType {
+        STRING, MAP, LIST
+    }
+    protected final Map map
+    protected final String text
+    protected final WebMessageType type
     WebMessage(Map data) {
-        this.data = data
-        type = Map
+        map = data
+        text = ""
+        type = MAP
     }
     WebMessage(Collection data) {
-        this.data = [ _data_ : data ]
-        type = Collection
+        map = [list: data]
+        text = data
+        type = LIST
     }
     WebMessage(String data) {
-        this.data = [ _data_ : data ]
-        type = String
+        boolean string = true
+        Map tmpData = [:]
+        WebMessageType tmpType = STRING
+        if (data.startsWith("{")) {
+            try {
+                tmpData = JSON.decode(data) as Map
+                tmpType = MAP
+                string = false
+            } catch (Exception ignore) {
+                // Not JSON
+            }
+        } else if (data.startsWith("[")) {
+            try {
+                tmpData = [ list : JSON.decode(data) as Collection ]
+                tmpType = LIST
+                string = false
+            } catch (Exception ignore) {
+                // Not JSON
+            }
+        }
+        if(string) {
+            tmpData = [ text : data ]
+            tmpType = STRING
+        }
+        map = tmpData
+        type = tmpType
+        text = data
     }
     String toString() {
-        return JSON.encode(type != Map ? data._data_ : data)
+        return switch (type) {
+            case STRING -> text
+            case MAP -> JSON.encode(map)
+            case LIST -> JSON.encode(map.list)
+        }
+
+    }
+    // Alias
+    String getText() {
+        return toString()
     }
     Map getData() {
-        return type != Map ? [ data : data._data_ ] : data
+        return map
     }
 }
