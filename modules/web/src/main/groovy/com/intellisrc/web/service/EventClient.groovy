@@ -24,6 +24,9 @@ class EventClient {
         this.id = id
         this.maxSize = maxSize
         this.session = request?.session ? new Session(id, request.session) : new Session(id, wsSession)
+        if(! this.session.websocketSession && wsSession) {
+            this.session.websocketSession = wsSession
+        }
         if(request.asyncSupported &&! request.asyncStarted) {
             try {
                 context = request.startAsync()
