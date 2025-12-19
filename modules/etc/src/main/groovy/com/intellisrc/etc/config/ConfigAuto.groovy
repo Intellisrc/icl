@@ -157,7 +157,7 @@ class ConfigAuto {
             boolean updated = true
             if (changed) {
                 updated = props.set(key, field)
-                Log.v("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
+                Log.i("Value changed: %s, Prev: %s, Now: %s", props.getFullKey(key), previous.toString(), current.toString())
                 resetChange()
                 switch (props) {
                     case BerkeleyDB:
