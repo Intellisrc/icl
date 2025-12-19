@@ -1,140 +1,81 @@
 package com.intellisrc.web.service
 
 import com.intellisrc.core.Log
-import jakarta.servlet.ServletOutputStream
-import org.eclipse.jetty.server.Response as JettyResponse
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletResponse
 
 import java.lang.reflect.Field
 
-import static com.intellisrc.web.service.WebError.*
-
 /**
- * @since 2023/05/19.
+ * Jetty 12 compatible Response wrapper with servlet delegation.
  */
-class Response extends JettyResponse {
-    protected final JettyResponse original
-    WebErrorTemplate errorTemplate = null
+class Response {
+
+    /** Delegate ONLY the servlet API */
+    @Delegate
+    final HttpServletResponse servlet
+
+    WebError.WebErrorTemplate errorTemplate = null
     Compression compression = Compression.NONE
     boolean redirected = false
-    /**
-     * Constructor
-     * @param channel
-     * @param out
-     */
-    Response(JettyResponse response) {
-        super(response.httpChannel, response.httpOutput)
-        original = response
-        JettyResponse.class.declaredFields.each {
-            Field field ->
-                try {
-                    field.setAccessible(true)
-                    Object value = field.get(response)
-                    field.set(this, value)
-                } catch (Exception ignore) {
-                    // Handle the exception as needed
-                }
-        }
+
+    Response(ServletResponse response) {
+        this.servlet = (HttpServletResponse) response
     }
 
-    /**
-     * Export a Response into Jetty
-     * @return
-     */
-    void update() {
-        JettyResponse.class.declaredFields.each {
-            Field field ->
-                try {
-                    field.setAccessible(true)
-                    Object value = field.get(this)
-                    field.set(original, value)
-                } catch (Exception ignore) {
-                    // Handle the exception as needed
-                }
-        }
-        // Copy headers
-        headers.each {
-            original.setHeader(it.key, it.value)
-        }
-    }
+    /* ------------------------------------------------------------ */
+    /* Spark-style compatibility methods                            */
+    /* ------------------------------------------------------------ */
 
-    @Override
-    PrintWriter getWriter() {
-        return original.writer
-    }
-    @Override
-    ServletOutputStream getOutputStream() {
-        return original.outputStream
-    }
-    /**
-     * Get length
-     * @return
-     */
-    int getLength() {
-        return (header("Content-Length") ?: "0") as int
-    }
-    /**
-     * Set status
-     * @param code
-     */
     void status(int code) {
-        original.status = code
-        setStatus(code)
+        servlet.setStatus(code)
     }
-    /**
-     * Redirect
-     * @param path
-     */
+
     void redirect(String path) {
         redirected = true
-        original.sendRedirect(path)
-        sendRedirect(path)
+        servlet.sendRedirect(path)
     }
-    /**
-     * Set content-type
-     * @param type
-     */
+
     void type(String type) {
-        original.setContentType(type)
-        setContentType(type)
+        servlet.setContentType(type)
     }
-    /**
-     * Get content-type
-     * @return
-     */
+
     String type() {
-        return getContentType()
+        return servlet.getContentType()
     }
-    /**
-     * Set header
-     * @param key
-     * @param value
-     */
+
+    int getLength() {
+        String len = servlet.getHeader("Content-Length")
+        return len ? len as int : 0
+    }
+
     void header(String key, String value) {
-        if(key != "Date") {
-            if (headerNames.contains(key) && value != header(key)) {
-                Log.v("HTTP Header: '%s' already existed. Replaced: %s -> %s", key, header(key), value)
-            }
-            original.setHeader(key, value)
-            setHeader(key, value)
+        if (key == "Date") return
+
+        String existing = servlet.getHeader(key)
+        if (existing != null && existing != value) {
+            Log.v(
+                "HTTP Header: '%s' already existed. Replaced: %s -> %s",
+                key, existing, value
+            )
         }
+        servlet.setHeader(key, value)
     }
-    /**
-     * Get header
-     * @param key
-     * @return
-     */
+
     String header(String key) {
-        return getHeader(key)
+        return servlet.getHeader(key)
     }
-    /**
-     * Get a copy of all headers
-     * @return
-     */
+
     Map<String, String> getHeaders() {
-        Map<String, String> insensitiveMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
-        insensitiveMap.putAll(headerNames.findAll {
-            header(it) != null && header(it) != ""
-        }.collectEntries {[ (it): header(it) ] })
+        Map<String, String> insensitiveMap =
+            new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+
+        servlet.getHeaderNames().each { name ->
+            String value = servlet.getHeader(name)
+            if (value) {
+                insensitiveMap[name] = value
+            }
+        }
         return Collections.unmodifiableMap(insensitiveMap)
     }
 }

@@ -4,260 +4,193 @@ import com.intellisrc.core.Log
 import com.intellisrc.etc.Bytes
 import groovy.transform.CompileStatic
 import jakarta.servlet.ServletRequest
-import org.apache.commons.io.IOUtils
-import org.eclipse.jetty.server.Request as JettyRequest
+import jakarta.servlet.http.Cookie
+import jakarta.servlet.http.HttpServletRequest
+import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.util.IO
 
 import java.util.concurrent.ConcurrentHashMap
 
-/**
- * @since 2023/05/19.
- */
 @CompileStatic
-class Request extends JettyRequest {
+class Request {
+
     static final String X_FORWARDED_FOR = "X-Forwarded-For"
-    static String SESSION_ID = "JSESSIONID"
-    //protected final Session requestSession = new Session()
+    static final String SESSION_ID = "JSESSIONID"
+
+    /** Servlet API request */
+    @Delegate
+    final HttpServletRequest servlet
+
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
     protected String splat = ""
 
     Request(ServletRequest request) {
-        this(getBaseRequest(request))
-    }
-    Request(JettyRequest request) {
-        super(request.httpChannel, request.httpInput)
-        importFrom(request, JettyRequest)
-    }
-    /**
-     * Improve properties from another class
-     * @param fromClass
-     */
-    void importFrom(Object request, Class fromClass) {
-        fromClass.declaredFields.each {
-            try {
-                it.setAccessible(true)
-                Object value = it.get(request)
-                it.set(this, value)
-            } catch (IllegalAccessException ignore) {
-                // Handle the exception as needed
-            }
+        this.servlet = (HttpServletRequest) request
+        if (!(request instanceof HttpServletRequest)) {
+            throw new IllegalArgumentException("Not an HTTP request")
         }
     }
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
-    String ip() {
-        return ip
-    }
+
+    // ---------------- IP / HOST ----------------
+
+    String ip() { getIp() }
+
     String getIp() {
-        return headerNames.toList().contains(X_FORWARDED_FOR) ? headers(X_FORWARDED_FOR) : remoteAddr
+        String forwarded = getHeader(X_FORWARDED_FOR)
+        return forwarded ?: getRemoteAddr()
     }
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
+
     String uri() {
-        return requestURI
+        return getRequestURI()
     }
-    /**
-     * Backward compatibility with Spark
-     * Get request host name
-     * @return
-     */
-    String host() {
-        return host
-    }
-    /**
-     * Get request host
-     * NOTE: Sometimes Jetty hostHeader may not return the expected host
-     * in such cases is better to use getLocalName(), however sometimes
-     * that may return an IP address.
-     * @return
-     */
+
+    String host() { getHost() }
+
     String getHost() {
         String local = getLocalName()
-        if(!(local =~ /[a-zA-Z]+/)) {
+        if (!(local =~ /[a-zA-Z]+/)) {
             try {
-                local.toInetAddress() // If it doesn't fail, it is an IP address
-                local = hostHeader.tokenize(":").first()
-            } catch(Exception ignore) {}
+                local.toInetAddress()
+                local = getHostHeader().tokenize(":").first()
+            } catch (Exception ignore) {}
         }
         return local
     }
-    /**
-     * Get local address
-     * @return
-     */
+
     String getAddress() {
         return getLocalAddr()
     }
-    /**
-     * Return the host header which may include port
-     * @return
-     */
+
     String getHostHeader() {
-        return getHeader("host") ?: "localhost"
+        return getHeader("Host") ?: "localhost"
     }
-    /**
-     * Returns the port
-     * @return
-     */
-    String getPort() {
+
+    int getPort() {
         return getLocalPort()
     }
-    /**
-     * Backward compatibility with Spark
-     * Return scheme
-     * @return
-     */
+
     String scheme() {
         return getScheme()
     }
-    //------------- HEADERS / ATTRIBUTES --------------
+
+    // ---------------- HEADERS / ATTRIBUTES ----------------
+
     String headers(String key) {
         return getHeader(key)
     }
+
     String attribute(String key) {
-        return getAttribute(key)
+        return (String) getAttribute(key)
     }
+
     void attribute(String key, Object value) {
         setAttribute(key, value)
     }
+
     List<Compression> getAcceptedEncodings() {
-        String encodings = headers(HttpHeader.ACCEPT_ENCODING)
-        return encodings ? encodings.tokenize(",").collect { Compression.fromString(it.trim()) }.sort { it.ordinal() } : []
+        String enc = getHeader(HttpHeader.ACCEPT_ENCODING.asString())
+        return enc
+            ? enc.tokenize(",")
+            .collect { Compression.fromString(it.trim()) }
+            .sort { it.ordinal() }
+            : []
     }
-    //------------- PATH PARAMS ---------------
+
+    // ---------------- PATH PARAMS ----------------
+
     void setPathParameters(Map<String, String> params) {
-        params.keySet().each {
-            if(it == "splat") {
-                splat = params[it]
-            } else {
-                pathParameters.put(it, params[it])
-            }
+        params.each { k, v ->
+            if (k == "splat") splat = v
+            else pathParameters.put(k, v)
         }
     }
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
+
     String params(String key) {
         return getPathParam(key)
     }
-    /**
-     * Get a path parameter
-     * @param key
-     * @return
-     */
+
     String getPathParam(String key) {
-        return pathParameters.containsKey(key) ? pathParameters[key] : ""
+        return pathParameters.getOrDefault(key, "")
     }
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
+
     Set<String> params() {
-        return pathParameters.keys().toSet()
+        return pathParameters.keySet()
     }
-    /**
-     * Get the list of path parameters
-     * @return
-     */
+
     Map<String, String> getPathParams() {
         return Collections.unmodifiableMap(pathParameters)
     }
-    /**
-     * True if it has path parameters
-     * @return
-     */
+
     boolean hasPathParams() {
-        return ! pathParameters.isEmpty()
+        return !pathParameters.isEmpty()
     }
-    /**
-     * Backward compatibility with Spark
-     * Get all covered by "*"
-     * @return list of strings of each part of the path
-     */
+
     List<String> splat() {
-        return splat.tokenize("/")
+        return splat ? splat.tokenize("/") : []
     }
-    //------------- QUERY PARAMS ---------------
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
+
+    // ---------------- QUERY PARAMS ----------------
+
     String queryParams(String key) {
         return getQueryParam(key)
     }
-    /**
-     * Get a query parameter
-     * @param key
-     * @return
-     */
+
     String getQueryParam(String key) {
         return getParameter(key)
     }
-    /**
-     * Get a query parameter that contains a list
-     * @param key
-     * @return
-     */
+
     List<String> getQueryParamAsList(String key) {
-        return parameterMap.get(key).toList()
+        return getParameterValues(key)?.toList() ?: []
     }
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
+
     List<String> queryParams() {
-        return getQueryParams().keySet().toList()
+        return getParameterMap().keySet().toList()
     }
-    /**
-     * Get the list of query parameters
-     * @return
-     */
+
     Map<String, String> getQueryParams() {
-        return Collections.unmodifiableMap(parameterMap.collectEntries {
-            [(it.key): it.value.join(",")]
-        })
+        return Collections.unmodifiableMap(
+            getParameterMap().collectEntries {
+                [(it.key): it.value.join(",")]
+            }
+        )
     }
-    /**
-     * True if it has query params
-     * @return
-     */
+
     boolean hasQueryParams() {
-        return ! queryParams.empty
+        return !getParameterMap().isEmpty()
     }
-    //------------ SESSION ------------
-    /**
-     * Return HTTPSession wrapper
-     * @return
-     */
+
+    // ---------------- SESSION ----------------
+
     Session session() {
-        String id = (cookies?.toList() ?: []).find { it.name == SESSION_ID }?.value ?: UUID.randomUUID().toString()
-        return new Session(id, session)
+        String id = getCookies()?.find { it.name == SESSION_ID }?.value
+            ?: UUID.randomUUID().toString()
+        return new Session(id, getSession(true))
     }
-    //------------ OTHER --------------
-    /**
-     * Backward compatibility with Spark
-     * @return
-     */
+
+    Cookie[] getCookies() {
+        return servlet.getCookies()
+    }
+
+    // ---------------- BODY ----------------
+
     String body() {
         return getBody()
     }
+
     String getBody() {
-        return Bytes.toString(bodyAsBytes, getCharacterEncoding() ?: "UTF-8")
+        return Bytes.toString(getBodyAsBytes(), getCharacterEncoding() ?: "UTF-8")
     }
+
     byte[] getBodyAsBytes() {
-        byte[] bodyAsBytes = null
         try {
-            bodyAsBytes = IOUtils.toByteArray(getInputStream())
+            return IO.readBytes(getInputStream())
         } catch (Exception e) {
             Log.w("Exception when reading body", e)
+            return new byte[0]
         }
-        return bodyAsBytes
     }
+
     String getUserAgent() {
-        return headers("User-Agent")
+        return getHeader("User-Agent")
     }
 }

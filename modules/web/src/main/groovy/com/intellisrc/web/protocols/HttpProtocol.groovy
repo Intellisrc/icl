@@ -1,6 +1,5 @@
 package com.intellisrc.web.protocols
 
-import com.intellisrc.core.Log
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.server.*
@@ -15,36 +14,6 @@ abstract class HttpProtocol {
     boolean trustForwardHeaders = true
     boolean checkSNIHostname = true
     boolean sniRequired = false
-
-    static class ErrorListener implements HttpChannel.Listener {
-        /**
-         * Invoked when the application threw an exception.
-         *
-         * @param request the request object
-         * @param failure the exception thrown by the application
-         */
-        void onDispatchFailure(Request request, Throwable failure) {
-            Log.e("Dispatch failure", failure)
-        }
-        /**
-         * Invoked when the request processing failed.
-         *
-         * @param request the request object
-         * @param failure the request failure
-         */
-        void onRequestFailure(Request request, Throwable failure) {
-            Log.e("Request failure", failure)
-        }
-        /**
-         * Invoked when the response processing failed.
-         *
-         * @param request the request object
-         * @param failure the response failure
-         */
-        void onResponseFailure(Request request, Throwable failure) {
-            Log.e("Response failure", failure)
-        }
-    }
 
     HttpProtocol(WebService server) {
         this.server = server

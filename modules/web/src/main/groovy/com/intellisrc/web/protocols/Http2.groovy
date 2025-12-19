@@ -1,6 +1,7 @@
 package com.intellisrc.web.protocols
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
@@ -15,6 +16,8 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
  */
 @CompileStatic
 class Http2 extends Http {
+    int idleTimeout = Millis.MIN_5
+
     Http2(WebService server) {
         super(server)
     }
@@ -22,25 +25,42 @@ class Http2 extends Http {
     @Override
     AbstractNetworkConnector prepareConnector() {
         assert server : "No server specified"
-        // HTTP(S) Configuration
-        HttpConnectionFactory h1 = getConnectionFactory(createHttpConfiguration())
-        ServerConnector connector
-        if(server.secure) {
-            SslContextFactory.Server sslContextFactory = getSSLContextFactory()
-            sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR)
 
-            // HTTP2 factory
-            HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(h1.httpConfiguration)
-            NegotiatingServerConnectionFactory alpn = new ALPNServerConnectionFactory()
-            alpn.setDefaultProtocol(h2.getProtocol())
+        HttpConfiguration httpConfig = createHttpConfiguration()
+
+        ServerConnector connector
+        HttpConnectionFactory h1
+
+        if (server.secure) {
+            // HTTPS config MUST include SecureRequestCustomizer
+            httpConfig.addCustomizer(new SecureRequestCustomizer())
+
+            h1 = new HttpConnectionFactory(httpConfig)
+
+            SslContextFactory.Server sslContextFactory = getSSLContextFactory()
+
+            HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig)
+            ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory("h2", "http/1.1")
+            alpn.setDefaultProtocol("http/1.1")
+
             SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, alpn.protocol)
-            // HTTP2 Connector
-            connector = new ServerConnector(server.server, ssl, alpn, h2, h1)
+
+            connector = new ServerConnector(
+                server.server,
+                ssl,
+                alpn,
+                h2,
+                h1
+            )
         } else {
-            Log.w("Unsecure HTTP/2 will not work in most browsers. Enable HTTPS to fix it. See: https://http2.github.io/faq/#does-http2-require-encryption")
-            HTTP2CServerConnectionFactory h2 = new HTTP2CServerConnectionFactory(h1.httpConfiguration)
-            connector = new ServerConnector(server.server, h1, h2)
+            Log.w("Unsecure HTTP/2 will not work in most browsers. Enable HTTPS to fix it.")
+
+            h1 = new HttpConnectionFactory(httpConfig)
+            HTTP2CServerConnectionFactory h2c = new HTTP2CServerConnectionFactory(httpConfig)
+            connector = new ServerConnector(server.server, h1, h2c)
         }
+
+        connector.setIdleTimeout(idleTimeout)
         return connector
     }
 }

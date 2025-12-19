@@ -21,13 +21,12 @@ import jakarta.servlet.http.Part
 import org.apache.commons.io.IOUtils
 import org.codehaus.groovy.runtime.metaclass.MissingMethodExceptionNoStack
 import org.eclipse.jetty.http.HttpMethod
-import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server
-import org.eclipse.jetty.server.handler.HandlerList
-import org.eclipse.jetty.servlet.ServletContextHandler
-import org.eclipse.jetty.servlet.ServletHolder
+import org.eclipse.jetty.server.Handler
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler
+import org.eclipse.jetty.ee10.servlet.ServletHolder
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer
 import org.eclipse.jetty.util.thread.QueuedThreadPool
-import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer
 
 import javax.imageio.ImageIO
 import javax.imageio.ImageWriter
@@ -147,8 +146,9 @@ class WebService extends WebServiceBase {
                 jettyServer.addConnector(httpProtocol.connector)
                 requestHandle = new RequestHandle(this)
                 contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS)
-                HandlerList handlers = new HandlerList()
-                handlers.setHandlers([requestHandle, contextHandler].toArray() as Handler[])
+                Handler.Sequence handlers = new Handler.Sequence()
+                handlers.addHandler(requestHandle)
+                handlers.addHandler(contextHandler)
                 jettyServer.setHandler(handlers)
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
@@ -200,7 +200,12 @@ class WebService extends WebServiceBase {
                                 holder.initOrder = 0
                                 sseContext.addServlet(holder, sse.path)
 
-                                jettyServer.handler = new HandlerList(requestHandle, sseContext, contextHandler)
+                                Handler.Sequence handlers = new Handler.Sequence()
+                                handlers.addHandler(requestHandle)
+                                handlers.addHandler(sseContext)
+                                handlers.addHandler(contextHandler)
+                                jettyServer.handler = handlers
+
                                 // We set reserved services to prevent other services to use the same path:
                                 prepared = setupService(serviciable, new Service(
                                     method: GET,
@@ -210,17 +215,15 @@ class WebService extends WebServiceBase {
                             case ServiciableWebSocket:
                                 ServiciableWebSocket websocket = serviciable as ServiciableWebSocket
                                 Log.v("Adding WebSocket Service at path: [%s]", websocket.path)
-                                ServletHolder holder = new ServletHolder(websocket.webSocketService)
-                                holder.initOrder = 0
-                                contextHandler.addServlet(holder, websocket.path)
-                                JettyWebSocketServletContainerInitializer.configure(contextHandler, null)
-                                // We set reserved services to prevent other services to use the same path:
+                                // Register WebSocket endpoint
+                                websocket.webSocketService.configure(contextHandler)
+                                // Reserve HTTP paths so no HTTP service collides
                                 prepared = setupService(serviciable, new Service(
-                                    method: CONNECT,
-                                    reserved : true
+                                     method: CONNECT,
+                                     reserved: true
                                 )) && setupService(serviciable, new Service(
-                                    method: GET,
-                                    reserved : true
+                                     method: GET,
+                                     reserved: true
                                 ))
                                 break
                             case ServiciableAuth:
@@ -1191,7 +1194,7 @@ class WebService extends WebServiceBase {
                 prepareResponse(out, response)
                 // If the response is not closed yet...
                 if(out.type == Type.STREAM) {
-                    response.update()
+                    //response.update() TODO: before we updated all fields in Response to JettyResponse, but probably is no longer needed
                     switch (out.content) {
                         case String: // Without compression
                             String text = out.content.toString()

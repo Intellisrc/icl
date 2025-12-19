@@ -4,136 +4,71 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
-import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.ServletContext
+import jakarta.websocket.server.ServerContainer
+import jakarta.websocket.server.ServerEndpointConfig
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler
+import org.eclipse.jetty.websocket.api.Callback
 import org.eclipse.jetty.websocket.api.Session as JettySession
-import org.eclipse.jetty.websocket.api.StatusCode
-import org.eclipse.jetty.websocket.api.WebSocketAdapter
-import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest
-import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse
-import org.eclipse.jetty.websocket.server.JettyWebSocketServlet
-import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer
 
-import java.time.Duration
-
-/**
- * Extension of JettyWebSocketServlet.
- * @since 2023/07/04.
- */
 @CompileStatic
-class WebSocketBroadcastService extends JettyWebSocketServlet implements BroadcastService {
+class WebSocketBroadcastService implements BroadcastService {
     int maxSize = Config.any.get("web.ws.max.size", 64) // KB
     String path = "/"
+    ServletContextHandler contextHandler
 
-    /**
-     * This class is applied to a single client
-     */
-    class EventEndpoint extends WebSocketAdapter {
-        final HttpServletRequest request
-        final String id
-        EventEndpoint(HttpServletRequest request) {
-            this.request = request
-            Request req = new Request(request)
-            id = identifier.call(req)
-        }
-        List<String> closeMessages = Config.any.get("websocket.close.list", ["quit","exit","close","bye"]) //TODO: document
-        @Override
-        void onWebSocketConnect(JettySession sess) {
-            super.onWebSocketConnect(sess)
-            Log.i("[%s] Client connected: %s", request.remoteAddr, id)
-            EventClient client = new EventClient(request, id, timeout, maxSize, sess)
-            clientList << client
-            onClientConnect.call(client)
-            onClientListUpdated.call(clientList.toList())
-        }
+    void configure(ServletContextHandler context) {
+        contextHandler = context
+        JakartaWebSocketServletContainerInitializer.configure(context, {
+            ServletContext sc, ServerContainer container ->
+                container.defaultMaxTextMessageBufferSize = maxSize * 1024
+                container.defaultMaxBinaryMessageBufferSize = maxSize * 1024
+                container.defaultMaxSessionIdleTimeout =
+                    timeout * Millis.SECOND
 
-        @Override
-        void onWebSocketText(String message) {
-            super.onWebSocketText(message)
-            if (closeMessages.contains(message.toLowerCase())) {
-                Log.i("Client [%s] disconnected", id)
-                Optional<EventClient> clientOpt = get(id)
-                if(clientOpt.present) {
-                    EventClient client = clientOpt.get()
-                    disconnectClient(client)
-                }
-                getSession().close(StatusCode.NORMAL, "client request")
-            } else {
-                Log.v("Received TEXT message: %s", message)
-                Optional<EventClient> clientOpt = get(id)
-                WebMessage msg = new WebMessage(message)
-                if(clientOpt.present) {
-                    onMessageReceived.call(clientOpt.get(), msg)
-                }
-            }
-        }
-
-        @Override
-        void onWebSocketClose(int statusCode, String reason) {
-            if(statusCode != StatusCode.NORMAL) {
-                Optional<EventClient> clientOpt = get(id)
-                if(clientOpt.present) {
-                    disconnectClient(clientOpt.get())
-                }
-            }
-            super.onWebSocketClose(statusCode, reason)
-            Log.v("Socket Closed: [%d] %s", statusCode, reason)
-        }
-
-        @Override
-        void onWebSocketError(Throwable cause) {
-            super.onWebSocketError(cause)
-            Log.w("WebSocket error: %s", cause)
-        }
+                container.addEndpoint(
+                    ServerEndpointConfig.Builder
+                        .create(EventEndPoint, path)
+                        .configurator(new EventEndPoint.Configurator(this))
+                        .build()
+                )
+        })
     }
 
-    /**
-     * Use this method when you don't care about success or failure status
-     * @param client
-     * @param message
-     */
-    void sendTo(EventClient client, WebMessage message) {
-        sendTo(client, message, {}) {
-            Throwable t ->
-                Log.v("Unable to send message to: %s", client.id)
-        }
-    }
-    /**
-     * Use this method if you want to handle only the success case (failure will be ignored)
-     * @param client
-     * @param message
-     * @param onSuccess
-     */
-    void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess) {
-        sendTo(client, message, onSuccess) { Throwable t -> }
-    }
-    /**
-     * Send Message to client
-     * @param client
-     * @param message
-     * @param onSuccess
-     * @param onFail
-     */
+    /* ------------------------------------------------------------ */
+    /* Message sending                                              */
+    /* ------------------------------------------------------------ */
+
     @Override
-    void sendTo(EventClient client, WebMessage message, SuccessCallback onSuccess, FailCallback onFail) {
-        if(client.session && client.session.websocketSession) {
-            client.session.websocketSession.remote.sendString(message.toString())
+    void sendTo(
+        EventClient client,
+        WebMessage message,
+        SuccessCallback onSuccess = null,
+        FailCallback onFail = null
+    ) {
+        JettySession session = client?.session?.websocketSession
+
+        if (session && session.isOpen()) {
+            Callback callback = new Callback() {
+                @Override
+                void succeed() {
+                    onSuccess?.call()
+                }
+
+                @Override
+                void fail(Throwable x) {
+                    onFail?.call(x)
+                }
+            }
+            session.sendText(
+                message.toString(),
+                callback
+            )
         } else {
-            String source = client.session ? "Websocket Session" : "Session"
-            Log.w("%s was empty", source)
-            onFail?.call(new Exception("$source was empty"))
+            Exception e = new IllegalStateException("WebSocket session is not open")
+            Log.v("Unable to send message to client: %s", client?.id)
+            onFail?.call(e)
         }
-    }
-
-    @Override
-    protected void configure(JettyWebSocketServletFactory factory) {
-        factory.maxTextMessageSize =
-            factory.maxBinaryMessageSize =
-                factory.inputBufferSize = maxSize * 1024
-        factory.addMapping(path) {
-            // EndPoint creator:
-            JettyServerUpgradeRequest request, JettyServerUpgradeResponse response ->
-               new EventEndpoint(request.httpServletRequest)
-        }
-        factory.idleTimeout = Duration.ofMillis(timeout * Millis.SECOND)
     }
 }

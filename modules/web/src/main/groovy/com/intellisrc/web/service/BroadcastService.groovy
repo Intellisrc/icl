@@ -69,7 +69,7 @@ trait BroadcastService {
     InetAddress getAddressFromSession(JettySession sockSession) {
         return  sockSession.upgradeRequest.headers.containsKey(X_FORWARDED_FOR)
             ? sockSession.upgradeRequest.headers[X_FORWARDED_FOR].first().toInetAddress()
-            : getAddressFromSocket(sockSession.remoteAddress)
+            : getAddressFromSocket(sockSession.remoteSocketAddress)
     }
 
     //-------------------- INSTANCE ------------------------

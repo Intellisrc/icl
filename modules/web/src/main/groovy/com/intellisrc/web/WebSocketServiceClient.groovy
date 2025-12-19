@@ -3,59 +3,61 @@ package com.intellisrc.web
 import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import groovy.transform.CompileStatic
-import org.eclipse.jetty.websocket.api.Session as WebsocketSession
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
-import org.eclipse.jetty.websocket.api.annotations.WebSocket
-import org.eclipse.jetty.websocket.client.ClientUpgradeRequest
-import org.eclipse.jetty.websocket.client.WebSocketClient
-
-import java.util.concurrent.Future
+import jakarta.websocket.*
+import jakarta.websocket.ClientEndpointConfig.Configurator
+import org.eclipse.jetty.ee10.websocket.jakarta.client.JakartaWebSocketClientContainer
 
 /**
- * Wrapper for org.eclipse.jetty.websocket.client.WebSocketClient that serves
- * to connect to a WebSocket Server
+ * WebSocket client (Jetty 12 / Jakarta WebSocket)
  * @since 17/04/24.
  */
 @CompileStatic
 class WebSocketServiceClient {
+
     protected Callable onMessageReceived
     protected Callable onErrorReceived
-    protected WebsocketSession clientSession
-    protected WebSocketClient client
+
+    protected Session clientSession
+    protected JakartaWebSocketClientContainer container
     protected URI url
+
     /**
-     * WebSocket which will handle the connection
+     * WebSocket endpoint
      */
-    @WebSocket
-    class WSSocket {
-        @OnWebSocketConnect
-        void onConnect(WebsocketSession sockSession) throws Exception {
-            clientSession = sockSession
+    class WSSocket extends Endpoint {
+
+        @Override
+        void onOpen(Session session, EndpointConfig config) {
+            clientSession = session
+
+            session.addMessageHandler(String, (MessageHandler.Whole<String>) {
+                String message ->
+                    if (onMessageReceived) {
+                        onMessageReceived.call(JSON.decode(message) as Map)
+                    }
+            })
         }
 
-        @OnWebSocketMessage
-        void onMessage(WebsocketSession sockSession, String message) {
-            if(onMessageReceived != null) {
-                onMessageReceived.call(JSON.decode(message) as Map)
+        @Override
+        void onError(Session session, Throwable throwable) {
+            if (onErrorReceived) {
+                onErrorReceived.call([
+                    error     : throwable.message,
+                    cause     : throwable.cause,
+                    localized : throwable.localizedMessage,
+                    trace     : throwable.stackTrace.join("\n")
+                ])
             }
         }
 
-        @OnWebSocketError
-        void onWebSocketError(WebsocketSession sockSession, Throwable throwable) {
-            if(onErrorReceived != null) {
-                onErrorReceived.call(
-                        error: throwable.message,
-                        cause: throwable.cause,
-                        localized : throwable.localizedMessage,
-                        trace : throwable.getStackTrace().join("\n")
-                )
-            }
+        @Override
+        void onClose(Session session, CloseReason reason) {
+            Log.v("WebSocket closed: %s", reason)
         }
     }
+
     /**
-     * Interface used as callback for onMessage and onError
+     * Interface used as callback
      */
     static interface Callable {
         void call(Map message)
@@ -64,81 +66,70 @@ class WebSocketServiceClient {
     WebSocketServiceClient(URI uri) {
         this.url = uri
     }
+
     WebSocketServiceClient(URL url) {
         this.url = url.toURI()
     }
+
     WebSocketServiceClient(Map<String, Object> map) {
-        if(!map.protocol)   { map.protocol = "ws" }
-        if(!map.hostname)   { map.hostname = "localhost" }
-        if(!map.port)       { map.port = 8000 }
-        if(!map.path)       { map.path = "/" }
-        this.url = new URI(map.protocol.toString() + "://" + map.hostname.toString() + ":" + map.port.toString() + map.path.toString() )
+        map.protocol  = map.protocol ?: "ws"
+        map.hostname  = map.hostname ?: "localhost"
+        map.port      = map.port ?: 8000
+        map.path      = map.path ?: "/"
+
+        this.url = new URI(
+            "${map.protocol}://${map.hostname}:${map.port}${map.path}"
+        )
     }
 
-    /**
-     * Return JettySession (jetty Session) object
-     * @return
-     */
-    WebsocketSession getSession() {
+    Session getSession() {
         return clientSession
     }
 
     /**
-     * Return Jetty websocket client
-     * @return
-     */
-    WebSocketClient getClient() {
-        return client
-    }
-    /**
-     * Connects to a WS Server
-     * @param URL : localhost:8888/something
-     * @param onMessage
-     * @param onError
+     * Connect to WebSocket server
      */
     void connect(Callable onMessage = null, Callable onError = null) {
-        onMessageReceived = onMessage
-        onErrorReceived = onError
-        client = new WebSocketClient()
-        client.start()
-        ClientUpgradeRequest request = new ClientUpgradeRequest()
-        Future<WebsocketSession> future = client.connect(new WSSocket(), url, request)
-        clientSession = future.get()
+        this.onMessageReceived = onMessage
+        this.onErrorReceived = onError
+
+        container = new JakartaWebSocketClientContainer()
+        container.start()
+
+        ClientEndpointConfig config =
+            ClientEndpointConfig.Builder.create()
+                .configurator(new Configurator() {})
+                .build()
+
+        container.connectToServer(
+            new WSSocket(),
+            config,
+            url
+        )
     }
-    /**
-     * Returns true if client is connected
-     * @return
-     */
+
     boolean isConnected() {
-        return clientSession && clientSession.open
+        return clientSession?.open
     }
-    /**
-     * Sends a message
-     * @param message
-     */
+
     void sendMessage(Map message) {
-        if(message &&! message.isEmpty()) {
+        if (message && !message.isEmpty()) {
             sendMessage(JSON.encode(message))
         } else {
             Log.v("Trying to send an empty message")
         }
     }
-    /**
-     * Sends a message
-     * @param message
-     */
+
     void sendMessage(String message) {
-        if(message) {
-            clientSession.getRemote().sendString(message)
+        if (message && clientSession?.open) {
+            clientSession.asyncRemote.sendText(message)
         } else {
-            Log.v("Trying to send an empty message")
+            Log.v("WebSocket not connected or empty message")
         }
     }
-    /**
-     * Disconnects from server
-     */
+
     void disconnect() {
-        clientSession.disconnect()
-        client.stop()
+        clientSession?.close()
+        container?.stop()
     }
 }

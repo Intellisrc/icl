@@ -110,6 +110,11 @@ nexusPublishing {
         }
     }
 }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 subprojects {
     apply plugin: 'groovy'
@@ -147,6 +152,8 @@ subprojects {
 		classpath += project.configurations.documentation
 	}
     java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         if(!isDev || publishDev) {
             withSourcesJar()
             withJavadocJar()
@@ -192,6 +199,9 @@ subprojects {
         if(! isDev || publishDev) {
             sign publishing.publications.mavenJava
         }
+    }
+    tasks.withType(JavaCompile) {
+        options.release = 17 // Ensures bytecode compatibility with Java 17
     }
     tasks.named('test') {
         // Use JUnit Platform for unit tests.

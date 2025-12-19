@@ -4,18 +4,22 @@ dependencies {
     def os = DefaultNativePlatform.currentOperatingSystem
     def arch = DefaultNativePlatform.currentArchitecture
 
-    def jetty = "11.0.26" //Jetty 12 requires Java 17
+    def jetty = "12.1.5" //Jetty 12 requires Java 17
     api project(':etc')
     api project(':net')
     api "org.eclipse.jetty:jetty-server:${jetty}"
-    api "org.eclipse.jetty.http2:http2-server:${jetty}"
+    api "org.eclipse.jetty.http2:jetty-http2-server:${jetty}"
+    api "org.eclipse.jetty.http3:jetty-http3-server:${jetty}"
+    // HTTP2 + HTTP3
     api "org.eclipse.jetty:jetty-alpn-server:${jetty}"
     api "org.eclipse.jetty:jetty-alpn-conscrypt-server:${jetty}"
-    api "org.eclipse.jetty.websocket:websocket-jetty-server:${jetty}"
-    api "org.eclipse.jetty.websocket:websocket-jetty-client:${jetty}"
-    api "org.eclipse.jetty.websocket:websocket-servlet:${jetty}"
-    api "org.eclipse.jetty:jetty-webapp:${jetty}"
-    api "org.eclipse.jetty:jetty-servlets:${jetty}"
+    // HTTP3
+    api "org.eclipse.jetty.quic:jetty-quic-server:${jetty}"
+
+    api "org.eclipse.jetty.ee10:jetty-ee10-servlets:${jetty}"
+    api "org.eclipse.jetty.websocket:jetty-websocket-jetty-client:${jetty}"
+    api "org.eclipse.jetty.websocket:jetty-websocket-jetty-server:${jetty}"
+    api "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server:${jetty}"
 
     // NOTE: To enable Brotli compression, you may need to add this to your project:
     // implementation "com.nixxcode.jvmbrotli:jvmbrotli:$jvmbrotli"
