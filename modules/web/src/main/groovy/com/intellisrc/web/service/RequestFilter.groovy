@@ -2,40 +2,39 @@ package com.intellisrc.web.service
 
 import com.intellisrc.core.Log
 import com.intellisrc.web.WebService
-import com.intellisrc.web.service.Request as RequestWrapper
-import com.intellisrc.web.service.Response as ResponseWrapper
 import groovy.transform.CompileStatic
+import groovy.transform.TupleConstructor
+import jakarta.servlet.Filter
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.eclipse.jetty.server.Request
-import org.eclipse.jetty.server.Response
-import org.eclipse.jetty.util.Callback
 
 import static com.intellisrc.web.service.HttpHeader.ACCEPT
 import static com.intellisrc.web.service.HttpHeader.UPGRADE
-import static org.eclipse.jetty.http.HttpStatus.*
-import static org.eclipse.jetty.server.Handler.Abstract
+import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400
+import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500
+import static org.eclipse.jetty.http.HttpStatus.getCode
 
+/**
+ * @since 2025/12/22.
+ */
 @CompileStatic
-class RequestHandle extends Abstract {
-
-    protected final WebService service
+@TupleConstructor
+class RequestFilter implements Filter {
+    WebService service
     final List<String> ignoreURIs = []
 
-    RequestHandle(WebService service) {
-        this.service = service
-    }
-
     @Override
-    boolean handle(
-        Request httpRequest,
-        Response httpResponse,
-        Callback callback
-    ) {
-        RequestWrapper request = new RequestWrapper((HttpServletRequest) httpRequest)
-        ResponseWrapper response = new ResponseWrapper((HttpServletResponse) httpResponse)
-
+    void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
         boolean handled = false
+
+        HttpServletRequest httpReq = (HttpServletRequest) req
+        HttpServletResponse httpRes = (HttpServletResponse) res
+
+        Request request = new Request(httpReq)
+        Response response = new Response(httpRes)
 
         if (request.headers(UPGRADE) != "websocket" &&
             request.headers(ACCEPT) != "text/event-stream") {
@@ -94,11 +93,8 @@ class RequestHandle extends Abstract {
             }
         }
 
-        if (handled) {
-            //request.handled = true //FIXME: not sure if it is required now
-            return true
+        if (!handled) {
+            chain.doFilter(req, res)
         }
-
-        return false
     }
 }

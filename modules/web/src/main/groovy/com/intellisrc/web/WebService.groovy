@@ -13,6 +13,8 @@ import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
+import jakarta.servlet.DispatcherType
+import jakarta.servlet.Filter
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -94,7 +96,6 @@ class WebService extends WebServiceBase {
     protected List<StaticPath> staticPaths = []
     protected Server jettyServer
     protected ServletContextHandler contextHandler
-    protected RequestHandle requestHandle
     protected boolean multiThread
     protected List<Serviciable> services = []
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
@@ -144,10 +145,9 @@ class WebService extends WebServiceBase {
                 this.multiThread = threads > 0
                 jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
                 jettyServer.addConnector(httpProtocol.connector)
-                requestHandle = new RequestHandle(this)
                 contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS)
+                contextHandler.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
                 Handler.Sequence handlers = new Handler.Sequence()
-                handlers.addHandler(requestHandle)
                 handlers.addHandler(contextHandler)
                 jettyServer.setHandler(handlers)
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
@@ -199,9 +199,9 @@ class WebService extends WebServiceBase {
                                 ServletHolder holder = new ServletHolder(sse.servlet)
                                 holder.initOrder = 0
                                 sseContext.addServlet(holder, sse.path)
+                                sseContext.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
 
                                 Handler.Sequence handlers = new Handler.Sequence()
-                                handlers.addHandler(requestHandle)
                                 handlers.addHandler(sseContext)
                                 handlers.addHandler(contextHandler)
                                 jettyServer.handler = handlers

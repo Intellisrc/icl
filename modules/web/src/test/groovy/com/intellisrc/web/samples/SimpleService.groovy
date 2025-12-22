@@ -20,14 +20,14 @@ class SimpleService {
 
     static File storeFile = File.get(resourcesDir, "private", "keystore.jks")
     static String pass = "password"
-    static int fixedPort = 0
+    static int fixedPort = 6789
 
     static void main(String[] args) {
         WebService ws = new WebService(
-            protocol: Protocol.HTTP2,
+            //protocol: Protocol.HTTP2,
             port: fixedPort ?: LocalHost.freePort,
             resources: publicDir,
-            ssl: new KeyStore(storeFile, pass)
+            //ssl: new KeyStore(storeFile, pass)
         )
         Log.i("Web Service available at port: %d", ws.port)
         ws.add(new Service(
