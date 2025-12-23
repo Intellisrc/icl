@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
 abstract class WebSocketService implements ServiciableWebSocket {
     final protected ConcurrentLinkedQueue<EventClient> clients = new ConcurrentLinkedQueue<>()
     final protected WebSocketBroadcastService ws = new WebSocketBroadcastService(
-        path: path,
         onClientConnect : {
             EventClient client ->
                 EventClient existent = getClient(client)
@@ -71,6 +70,7 @@ abstract class WebSocketService implements ServiciableWebSocket {
     )
     @Override
     WebSocketBroadcastService getWebSocketService() {
+        ws.path = path
         return ws
     }
     // Override to change (accessed only during initialization):

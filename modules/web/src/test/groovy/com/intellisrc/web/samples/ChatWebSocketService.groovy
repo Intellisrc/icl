@@ -12,6 +12,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class ChatWebSocketService extends WebSocketService {
+    String path = "/chat"
 
     @Override
     String getIdentifier(Request request) {
@@ -31,9 +32,5 @@ class ChatWebSocketService extends WebSocketService {
             list : clients.collect { it.id },
             type : "txt"
         )
-    }
-
-    String getPath() {
-        "/ws/chat"
     }
 }

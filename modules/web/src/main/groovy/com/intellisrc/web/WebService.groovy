@@ -14,7 +14,6 @@ import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import jakarta.servlet.DispatcherType
-import jakarta.servlet.Filter
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
@@ -27,7 +26,6 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
 import org.eclipse.jetty.ee10.servlet.ServletHolder
-import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 import javax.imageio.ImageIO
@@ -99,6 +97,7 @@ class WebService extends WebServiceBase {
     protected boolean multiThread
     protected List<Serviciable> services = []
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
+    protected Handler.Sequence handlers = new Handler.Sequence()
 
     static interface FilePolicy {
         boolean allow(File file)
@@ -147,7 +146,6 @@ class WebService extends WebServiceBase {
                 jettyServer.addConnector(httpProtocol.connector)
                 contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS)
                 contextHandler.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
-                Handler.Sequence handlers = new Handler.Sequence()
                 handlers.addHandler(contextHandler)
                 jettyServer.setHandler(handlers)
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
@@ -201,10 +199,7 @@ class WebService extends WebServiceBase {
                                 sseContext.addServlet(holder, sse.path)
                                 sseContext.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
 
-                                Handler.Sequence handlers = new Handler.Sequence()
                                 handlers.addHandler(sseContext)
-                                handlers.addHandler(contextHandler)
-                                jettyServer.handler = handlers
 
                                 // We set reserved services to prevent other services to use the same path:
                                 prepared = setupService(serviciable, new Service(
@@ -215,7 +210,7 @@ class WebService extends WebServiceBase {
                             case ServiciableWebSocket:
                                 ServiciableWebSocket websocket = serviciable as ServiciableWebSocket
                                 Log.v("Adding WebSocket Service at path: [%s]", websocket.path)
-                                // Register WebSocket endpoint
+                                // Configure WebSocket endpoint:
                                 websocket.webSocketService.configure(contextHandler)
                                 // Reserve HTTP paths so no HTTP service collides
                                 prepared = setupService(serviciable, new Service(

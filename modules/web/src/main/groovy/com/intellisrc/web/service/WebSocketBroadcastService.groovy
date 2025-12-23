@@ -5,11 +5,12 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 import jakarta.servlet.ServletContext
+import jakarta.websocket.SendHandler
+import jakarta.websocket.SendResult
 import jakarta.websocket.server.ServerContainer
 import jakarta.websocket.server.ServerEndpointConfig
+import jakarta.websocket.Session as JakartaSession
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
-import org.eclipse.jetty.websocket.api.Callback
-import org.eclipse.jetty.websocket.api.Session as JettySession
 import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer
 
 @CompileStatic
@@ -47,24 +48,17 @@ class WebSocketBroadcastService implements BroadcastService {
         SuccessCallback onSuccess = null,
         FailCallback onFail = null
     ) {
-        JettySession session = client?.session?.websocketSession
+        JakartaSession session = client?.session?.websocketSession
 
         if (session && session.isOpen()) {
-            Callback callback = new Callback() {
-                @Override
-                void succeed() {
+            session.asyncRemote.sendText(message.toString(), {
+                SendResult result ->
+                if (result.exception) {
+                    onFail?.call(result.exception)
+                } else {
                     onSuccess?.call()
                 }
-
-                @Override
-                void fail(Throwable x) {
-                    onFail?.call(x)
-                }
-            }
-            session.sendText(
-                message.toString(),
-                callback
-            )
+            } as SendHandler)
         } else {
             Exception e = new IllegalStateException("WebSocket session is not open")
             Log.v("Unable to send message to client: %s", client?.id)

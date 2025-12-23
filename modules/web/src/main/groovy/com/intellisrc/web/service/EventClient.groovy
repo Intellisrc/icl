@@ -3,7 +3,7 @@ package com.intellisrc.web.service
 import groovy.transform.CompileStatic
 import jakarta.servlet.AsyncContext
 import jakarta.servlet.http.HttpServletRequest
-import org.eclipse.jetty.websocket.api.Session as JettySession
+import jakarta.websocket.Session as JakartaSession
 
 /**
  * Client used in WebSockets and ServerSendEvents
@@ -19,7 +19,7 @@ class EventClient {
     final String id
     Session session
 
-    EventClient(HttpServletRequest request, String id, long timeout, int maxSize, JettySession wsSession = null) {
+    EventClient(HttpServletRequest request, String id, long timeout, int maxSize, JakartaSession wsSession = null) {
         ip = request.remoteAddr.toInetAddress()
         this.id = id
         this.maxSize = maxSize

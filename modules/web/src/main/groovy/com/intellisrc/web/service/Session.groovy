@@ -2,7 +2,7 @@ package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
 import jakarta.servlet.http.HttpSession
-import org.eclipse.jetty.websocket.api.Session as JettySession
+import jakarta.websocket.Session as JakartaSession
 
 /**
  * HTTPSession/WebSocket Session wrapper
@@ -12,14 +12,14 @@ import org.eclipse.jetty.websocket.api.Session as JettySession
 class Session {
     final String id
     protected HttpSession httpSession = null
-    protected JettySession websocketSession = null //This will be set by the WebSocket Server
+    protected JakartaSession websocketSession = null //This will be set by the WebSocket Server
 
     Session(String id, HttpSession session) {
         this.id = id
         this.httpSession = session
     }
 
-    Session(String id, JettySession session) {
+    Session(String id, JakartaSession session) {
         this.id = id
         this.websocketSession = session
     }
@@ -73,7 +73,7 @@ class Session {
         return httpSession
     }
 
-    JettySession getWebsocketSession() {
+    JakartaSession getWebsocketSession() {
         return websocketSession
     }
 }

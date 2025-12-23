@@ -13,10 +13,12 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class ChatWebSocketServiceIface implements ServiciableWebSocket {
+    String path = "/chat"
     Map<String, String> usersList = [:]
 
     WebSocketBroadcastService getWebSocketService() {
         return new WebSocketBroadcastService(
+            path: path,
             onClientConnect : {
                 EventClient client ->
                     usersList[client.id] = client.ip.hostAddress
@@ -54,9 +56,5 @@ class ChatWebSocketServiceIface implements ServiciableWebSocket {
 
     static String getRandomName() {
         return "Guest "+(new Random().nextInt(100) + 1)
-    }
-
-    String getPath() {
-        "/ws/chat"
     }
 }

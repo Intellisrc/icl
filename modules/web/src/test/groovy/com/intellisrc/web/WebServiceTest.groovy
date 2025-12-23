@@ -9,6 +9,7 @@ import com.intellisrc.web.samples.*
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Service
 import spock.lang.Specification
+import spock.lang.Unroll
 import spock.util.concurrent.AsyncConditions
 
 import static com.intellisrc.web.samples.ChatWebSocketService.getRandomName
@@ -245,6 +246,7 @@ class WebServiceTest extends Specification {
             uploadDir.eachFile { it.delete() }
     }
 
+    @Unroll
     def "Websocket Test"() {
         setup:
             def conds = new AsyncConditions()
@@ -258,10 +260,11 @@ class WebServiceTest extends Specification {
                 resources: System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
             )
-            web.addService(new ChatWebSocketService())
+            Log.i("Adding service: %s", serviceName)
+            web.addService(chatService)
             web.start(!keepalive)
         when:
-            ChatWebSocketClient cc = new ChatWebSocketClient(chatPort, randomName)
+            ChatWebSocketClient cc = new ChatWebSocketClient(chatPort, chatService.path, randomName)
             cc.handler = {
                 Map msg ->
                     conds.evaluate {
@@ -276,5 +279,9 @@ class WebServiceTest extends Specification {
             assert cc.disconnect()
             web.stop()
             assert !web.isRunning()
+        where:
+            chatService                         | serviceName
+            new ChatWebSocketService()          | "Chat WebSocket extends"
+            new ChatWebSocketServiceIface()     | "Chat WebSocket implements"
     }
 }

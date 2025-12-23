@@ -75,12 +75,12 @@ class ChatWebSocketClient {
             }
     }
 
-    ChatWebSocketClient(int port, String userName) {
+    ChatWebSocketClient(int port, String path, String userName) {
         this.uname = userName
         wssc = new WebSocketServiceClient(
             hostname: "localhost",
             port : port,
-            path : "/ws/chat?user=$uname"
+            path : path + "?user=$uname"
         )
     }
 

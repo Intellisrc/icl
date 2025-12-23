@@ -5,20 +5,18 @@ import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.websocket.*
+import jakarta.websocket.Session
 import jakarta.websocket.server.ServerEndpointConfig
-import org.eclipse.jetty.websocket.api.Callback
 
 @CompileStatic
-class EventEndPoint {
+class EventEndPoint extends Endpoint {
     static final List<String> CLOSE_MESSAGES = Config.any.get("websocket.close.list", ["quit", "exit", "close", "bye"])
     Session session
     EventClient client
     WebSocketBroadcastService service
 
     @OnOpen
-    void onOpen(Session session, EndpointConfig config) {
-        this.session = session
-
+    void onOpen(Session jakartaSession, EndpointConfig config) {
         HttpServletRequest request =
             (HttpServletRequest) config.userProperties["request"]
 
@@ -30,7 +28,7 @@ class EventEndPoint {
             id,
             service.timeout,
             service.maxSize,
-            session.websocketSession
+            //session.websocketSession
         )
 
         service.clientList << client
@@ -41,9 +39,8 @@ class EventEndPoint {
     @OnMessage
     void onMessage(String message) {
         if (CLOSE_MESSAGES.contains(message.toLowerCase())) {
-            session.websocketSession.close(CloseReason.CloseCodes.NORMAL_CLOSURE.code,"client request", (Callback) {
-                Log.v("Client disconnected")
-            })
+            session.close()
+            Log.v("Client disconnected")
             service.disconnectClient(client)
         } else {
             service.onMessageReceived.call(client, new WebMessage(message))
