@@ -723,7 +723,22 @@ To enable HTTPS, you will need a certificate. You can generate one and create th
 
 ```bash
 # It will ask you some basic information
-keytool -genkey -keyalg RSA -alias localhost -keystore keystore.jks -storepass yourpasswordhere -validity 365 -keysize 2048
+keytool -genkey -keyalg RSA -dname "CN=localhost" -ext SAN=dns:localhost -alias localhost -keystore keystore.jks -storepass yourpasswordhere -validity 365 -keysize 2048
+```
+
+or you can use the `KeyStoreGenerator` class in the `[crypt]` module:
+
+```groovy
+File keyStore = File.get("keystore.jks")
+KeyStoreGenerator ksg = new KeyStoreGenerator(
+    subject: "example.com",                     //default: localhost
+    alias: "www.example.com",                   //default: localhost
+    ip : "192.168.0.1".toInet4Address(),        //default: 127.0.0.1
+    includeIp : true,                           //default: false
+    keysize : 4096,                             //default: 2048
+    days : 90,                                  //default: 365
+)
+ksg.create(keyStore, "password".toCharArray(), /*replace*/ true)
 ```
 
 If you already have a valid certificate, you can create the key store with these commands instead:

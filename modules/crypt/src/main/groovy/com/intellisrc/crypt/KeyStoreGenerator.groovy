@@ -21,12 +21,11 @@ class KeyStoreGenerator {
     String alias = subject
     String algo = "RSA"
     String signAlgo = "SHA256withRSA"
+    String keystoreType = "PKCS12"   // ← RECOMMENDED
     Inet4Address ip = "127.0.0.1".toInet4Address()
     int days = 365
     int keysize = 2048
     boolean includeIp = false
-    boolean replace = true
-    String keystoreType = "PKCS12"   // ← RECOMMENDED
 
     static {
         if (Security.getProvider("BC") == null) {
@@ -34,7 +33,7 @@ class KeyStoreGenerator {
         }
     }
 
-    void create(File file, char[] password) {
+    void create(File file, char[] password, boolean replace = true) {
 
         if (file.exists()) {
             if (replace) file.delete()
