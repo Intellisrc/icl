@@ -54,4 +54,5 @@ dependencies {
         testImplementation jvmBrotliLib
     }
     testImplementation project(':thread')
+    testImplementation project(':crypt')
 }

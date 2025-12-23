@@ -1,6 +1,7 @@
 package com.intellisrc.web
 
 import com.intellisrc.core.Log
+import com.intellisrc.crypt.KeyStoreGenerator
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.KeyStore
@@ -67,6 +68,11 @@ class WebServiceHTTPTest extends Specification {
         }
         Log.i("Status code: %d", response.statusCode())
         return response.body()
+    }
+
+    def setup() {
+        KeyStoreGenerator ksg = new KeyStoreGenerator(includeIp: true)
+        ksg.create(storeFile, "password".toCharArray())
     }
 
     @Unroll

@@ -3,5 +3,6 @@ dependencies {
     def bouncyVersion = '1.82'
 
     api "org.bouncycastle:bcprov-jdk18on:${bouncyVersion}"
+    api "org.bouncycastle:bcpkix-jdk18on:${bouncyVersion}"
     api "org.bouncycastle:bcpg-jdk18on:${bouncyVersion}"
 }
