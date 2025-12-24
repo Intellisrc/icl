@@ -275,7 +275,7 @@ class WebServiceTest extends Specification {
             assert web.isRunning()
             assert cc.connect()
             assert cc.sendLoginMessage()
-            conds.await()
+            conds.await(Millis.SECOND_10)
             assert cc.disconnect()
             web.stop()
             assert !web.isRunning()

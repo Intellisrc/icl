@@ -249,9 +249,9 @@ class WebService extends WebServiceBase {
                                         Map res = sessionData.toSendToClient
                                         if (!sessionData.isEmpty()) {
                                             ok = true
-                                            HttpSession session = request.session
+                                            Session session = request.session
                                             sessionData.toStoreInServer.each {
-                                                session.setAttribute(it.key.toString(), it.value)
+                                                session.attribute(it.key.toString(), it.value)
                                             }
                                             res.session_id = session.id
                                             logLogin(auth.authLogFile, request)
@@ -1042,7 +1042,7 @@ class WebService extends WebServiceBase {
             // Look for static files:
             if (!out) {
                 // The request is already clean from Jetty and without query string:
-                String uri = request.requestURI
+                String uri = request.uri()
                 if (uri && !uri.empty) {
                     if(! staticPaths.empty) {
                         staticPaths.any {
@@ -1139,7 +1139,7 @@ class WebService extends WebServiceBase {
             // Then check services:
             if (!out) {
                 MatchFilterResult mfr = matchURI(
-                    request.requestURI,
+                    request.uri(),
                     fromString(request.method.trim().toUpperCase()),
                     request.headers(ACCEPT),
                     request.headers(ACCEPT_CHARSET)

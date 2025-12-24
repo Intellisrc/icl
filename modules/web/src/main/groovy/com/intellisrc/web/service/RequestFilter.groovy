@@ -44,7 +44,7 @@ class RequestFilter implements Filter {
 
                 try {
                     response.errorTemplate = service.errorTemplate
-                    handled = service.doFilter(request, response)
+                    handled = service.doFilter(req, res)
 
                 } catch (WebException we) {
                     if (!response.redirected) {

@@ -99,7 +99,7 @@ trait BroadcastService {
     //TODO: document
     SessionIdentifier identifier = {
         Request request ->
-            return request.requestedSessionId ?: request.remoteUser ?: request.remoteAddr
+            return request.session().id
     }
 
     long timeout = 0

@@ -15,6 +15,9 @@ import groovy.transform.CompileStatic
  * @since 17/04/03.
  */
 class LoginServiceExample implements ServiciableAuth {
+    final String path = "/auth"
+    final String loginPath = ".login"   //auth.login
+    final String logoutPath = ".logout" //auth.logout
 
     static enum Level {
         GUEST, USER, EDITOR, ADMIN
@@ -22,7 +25,7 @@ class LoginServiceExample implements ServiciableAuth {
     static final Allow canEditEmails = {
         Request request ->
             if(request.session) {
-                Level level = request.session.getAttribute("level").toString().toUpperCase() as Level
+                Level level = request.session.attribute("level").toString().toUpperCase() as Level
                 return level >= Level.EDITOR
             } else {
                 return false
@@ -31,7 +34,7 @@ class LoginServiceExample implements ServiciableAuth {
     static final Allow isAdmin = {
         Request request ->
             if(!request.session.new) {
-                Level level = request.session.getAttribute("level").toString().toUpperCase() as Level
+                Level level = request.session.attribute("level").toString().toUpperCase() as Level
                 return level >= Level.ADMIN
             } else {
                 return false
@@ -74,20 +77,4 @@ class LoginServiceExample implements ServiciableAuth {
         response.status(401)
         return AuthData.empty
     }
-
-    @Override
-    String getPath() {
-        "/auth"
-    }
-
-    @Override
-    String getLoginPath() {
-        ".login"        //becomes: /auth.login
-    }
-
-    @Override
-    String getLogoutPath() {
-        ".logout"       //becomes: /auth.logout
-    }
-
 }

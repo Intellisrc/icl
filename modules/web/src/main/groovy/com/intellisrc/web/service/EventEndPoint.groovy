@@ -4,8 +4,10 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpSession
 import jakarta.websocket.*
 import jakarta.websocket.Session
+import jakarta.websocket.server.HandshakeRequest
 import jakarta.websocket.server.ServerEndpointConfig
 
 @CompileStatic
@@ -15,20 +17,39 @@ class EventEndPoint extends Endpoint {
     EventClient client
     WebSocketBroadcastService service
 
+    static class Configurator extends ServerEndpointConfig.Configurator {
+        final WebSocketBroadcastService localService
+
+        Configurator(WebSocketBroadcastService wbService) {
+            localService = wbService
+        }
+
+        @Override
+        void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
+            // Store HTTP info for later
+            InetSocketAddress isa = sec.userProperties["jakarta.websocket.endpoint.remoteAddress"] as InetSocketAddress
+            HttpSession httpSession = sec.userProperties["jakarta.websocket.server.HttpSession"] as HttpSession
+            HttpServletRequest servletRequest = sec.userProperties["jakarta.websocket.server.HttpServletRequest"] as HttpServletRequest
+
+            sec.userProperties["request"] = new Request(request, isa, httpSession, servletRequest)
+            sec.userProperties["headers"] = request.headers
+            sec.userProperties["service"] = localService
+        }
+    }
+
     @OnOpen
     void onOpen(Session jakartaSession, EndpointConfig config) {
-        HttpServletRequest request =
-            (HttpServletRequest) config.userProperties["request"]
+        Request request = (Request) config.userProperties["request"]
+        request.setWebSocket(jakartaSession)
+        service = (WebSocketBroadcastService) config.userProperties["service"]
 
-        Request req = new Request(request)
-        String id = service.identifier.call(req)
+        String id = service.identifier.call(request)
 
         client = new EventClient(
             request,
             id,
             service.timeout,
-            service.maxSize,
-            //session.websocketSession
+            service.maxSize
         )
 
         service.clientList << client
@@ -55,27 +76,5 @@ class EventEndPoint extends Endpoint {
     @OnError
     void onError(Throwable cause) {
         Log.w("WebSocket error", cause)
-    }
-
-    /** Inject servlet request */
-    static class Configurator extends ServerEndpointConfig.Configurator {
-        final WebSocketBroadcastService service
-
-        Configurator(WebSocketBroadcastService service) {
-            this.service = service
-        }
-
-        @Override
-        <T> T getEndpointInstance(Class<T> endpointClass) {
-            T ep = endpointClass
-                .getDeclaredConstructor()
-                .newInstance()
-
-            if (ep instanceof EventEndPoint) {
-                ep.service = service
-            }
-
-            return ep
-        }
     }
 }

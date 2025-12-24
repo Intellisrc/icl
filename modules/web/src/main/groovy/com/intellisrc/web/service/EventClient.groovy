@@ -19,17 +19,14 @@ class EventClient {
     final String id
     Session session
 
-    EventClient(HttpServletRequest request, String id, long timeout, int maxSize, JakartaSession wsSession = null) {
-        ip = request.remoteAddr.toInetAddress()
+    EventClient(Request request, String id, long timeout, int maxSize) {
+        ip = request.ip.toInetAddress()
         this.id = id
         this.maxSize = maxSize
-        this.session = request?.session ? new Session(id, request.session) : new Session(id, wsSession)
-        if(! this.session.websocketSession && wsSession) {
-            this.session.websocketSession = wsSession
-        }
-        if(request.asyncSupported &&! request.asyncStarted) {
+        this.session = request.session
+        if(request.servlet && request.servlet.asyncSupported &&! request.servlet.asyncStarted) {
             try {
-                context = request.startAsync()
+                context = request.servlet.startAsync()
                 context.setTimeout(timeout)
             } catch (Exception ignore) {
                 // Async failed

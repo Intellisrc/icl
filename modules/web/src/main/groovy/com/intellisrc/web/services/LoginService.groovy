@@ -19,9 +19,6 @@ import groovy.transform.CompileStatic
  *     ...
  * } as LoginAction)
  *
- * TODO: redesign this class. Its not flexible enough. If possible, use:
- * https://github.com/pac4j/spark-pac4j
- *
  * @since 10/19/17.
  */
 
@@ -36,7 +33,7 @@ class LoginService implements ServiciableAuth {
     }
 
     static Level getUserLevel(Request request) {
-        return (request?.session?.getAttribute("level") ?: "GUEST").toString().toUpperCase() as Level
+        return (request?.session?.attribute("level") ?: "GUEST").toString().toUpperCase() as Level
     }
 
     static final Allow User = {

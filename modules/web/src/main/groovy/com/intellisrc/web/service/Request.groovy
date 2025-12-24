@@ -6,6 +6,10 @@ import groovy.transform.CompileStatic
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpSession
+import jakarta.servlet.http.Part
+import jakarta.websocket.Session as JakartaSession
+import jakarta.websocket.server.HandshakeRequest
 import org.eclipse.jetty.http.HttpHeader
 import org.eclipse.jetty.util.IO
 
@@ -18,16 +22,34 @@ class Request {
     static final String SESSION_ID = "JSESSIONID"
 
     /** Servlet API request */
-    @Delegate
     final HttpServletRequest servlet
+    final HandshakeRequest handshake
+    final HttpSession httpSession
+    protected JakartaSession wsSession
+
+    protected final InetSocketAddress webSocketAddress
 
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
     protected String splat = ""
 
     Request(ServletRequest request) {
         this.servlet = (HttpServletRequest) request
+        this.handshake = null
+        this.webSocketAddress = null
+        this.httpSession = this.servlet.session
         if (!(request instanceof HttpServletRequest)) {
             throw new IllegalArgumentException("Not an HTTP request")
+        }
+    }
+
+    Request(HandshakeRequest handshake, InetSocketAddress address, HttpSession httpSession, HttpServletRequest servletRequest) {
+        this.handshake = handshake
+        this.webSocketAddress = address
+        this.servlet = servletRequest
+        this.httpSession = httpSession
+
+        if (!(handshake instanceof HandshakeRequest)) {
+            throw new IllegalArgumentException("Not a WS handshake request")
         }
     }
 
@@ -37,17 +59,17 @@ class Request {
 
     String getIp() {
         String forwarded = getHeader(X_FORWARDED_FOR)
-        return forwarded ?: getRemoteAddr()
+        return forwarded ?: handshake ? webSocketAddress.address.hostAddress : servlet.getRemoteAddr()
     }
 
     String uri() {
-        return getRequestURI()
+        return handshake ? handshake.getRequestURI() : servlet?.getRequestURI()
     }
 
     String host() { getHost() }
 
     String getHost() {
-        String local = getLocalName()
+        String local = handshake ? webSocketAddress.hostName : servlet?.getLocalName()
         if (!(local =~ /[a-zA-Z]+/)) {
             try {
                 local.toInetAddress()
@@ -58,7 +80,7 @@ class Request {
     }
 
     String getAddress() {
-        return getLocalAddr()
+        return servlet?.getLocalAddr()
     }
 
     String getHostHeader() {
@@ -66,25 +88,41 @@ class Request {
     }
 
     int getPort() {
-        return getLocalPort()
+        return handshake ? webSocketAddress.port : servlet.getLocalPort()
     }
 
     String scheme() {
-        return getScheme()
+        return handshake ? "ws" : servlet.getScheme()   //TODO: Do we need to return ws / wss?
     }
 
     // ---------------- HEADERS / ATTRIBUTES ----------------
+
+    String getMethod() {
+        return handshake ? "GET" : servlet.method // FIXME: method for WS
+    }
+
+    String getHeader(String key) {
+        return handshake ? handshake.headers[key].join(",") : servlet.getHeader(key)
+    }
 
     String headers(String key) {
         return getHeader(key)
     }
 
     String attribute(String key) {
-        return (String) getAttribute(key)
+        if(handshake) {
+            Log.w("Websockets has no attributes")
+            return ""
+        }
+        return (String) servlet.getAttribute(key)
     }
 
     void attribute(String key, Object value) {
-        setAttribute(key, value)
+        if(handshake) {
+            Log.w("Websockets has no attributes")
+            return
+        }
+        servlet.setAttribute(key, value)
     }
 
     List<Compression> getAcceptedEncodings() {
@@ -131,59 +169,85 @@ class Request {
 
     // ---------------- QUERY PARAMS ----------------
 
+    String getQueryString() {
+        return handshake ? handshake.queryString : servlet?.queryString
+    }
+
     String queryParams(String key) {
         return getQueryParam(key)
     }
 
     String getQueryParam(String key) {
-        return getParameter(key)
+        return handshake ? handshake.queryString.queryMap[key].toString() : servlet.getParameter(key)
     }
 
+    //FIXME: in case of handshake, I'm not sure how an array will be handled in the query string (it is very unlikely that it will be used)
     List<String> getQueryParamAsList(String key) {
-        return getParameterValues(key)?.toList() ?: []
+        return handshake ? handshake.queryString.queryMap[key].toString().tokenize(",") : servlet.getParameterValues(key)?.toList() ?: []
     }
 
     List<String> queryParams() {
-        return getParameterMap().keySet().toList()
+        return handshake ? handshake.queryString.queryMap.keySet()?.toList() : servlet.getParameterMap().keySet().toList()
     }
 
     Map<String, String> getQueryParams() {
-        return Collections.unmodifiableMap(
-            getParameterMap().collectEntries {
+        return (handshake ? handshake.queryString.queryMap: Collections.unmodifiableMap(
+            servlet.getParameterMap().collectEntries {
                 [(it.key): it.value.join(",")]
             }
-        )
+        )) as Map<String, String>
     }
 
     boolean hasQueryParams() {
-        return !getParameterMap().isEmpty()
+        return ! (handshake ? handshake.queryString.replace('?','').trim().empty : servlet.getParameterMap().isEmpty())
     }
 
     // ---------------- SESSION ----------------
+    void setWebSocket(JakartaSession session) {
+        wsSession = session
+    }
 
+    // FIXME: this session won't contain websocket session
     Session session() {
-        String id = getCookies()?.find { it.name == SESSION_ID }?.value
-            ?: UUID.randomUUID().toString()
-        return new Session(id, getSession(true))
+        String id = handshake ?
+            wsSession.id :
+            getCookies()?.find { it.name == SESSION_ID }?.value ?: UUID.randomUUID().toString()
+        return handshake ? new Session(id, wsSession) : new Session(id, servlet.getSession(true))
+    }
+
+    Session getSession() {
+        return session()
     }
 
     Cookie[] getCookies() {
-        return servlet.getCookies()
+        return (handshake ? [] : servlet?.getCookies()) as Cookie[]
     }
 
     // ---------------- BODY ----------------
+
+    long getContentLength() {
+        return servlet?.contentLength ?: 0
+    }
 
     String body() {
         return getBody()
     }
 
     String getBody() {
-        return Bytes.toString(getBodyAsBytes(), getCharacterEncoding() ?: "UTF-8")
+        return Bytes.toString(getBodyAsBytes(), servlet.getCharacterEncoding() ?: "UTF-8")
+    }
+
+    Collection<Part> getParts() {
+        return servlet?.parts ?: []
     }
 
     byte[] getBodyAsBytes() {
+        if(handshake) {
+            Log.w("WebSockets has no body")
+            return new byte[0]
+        }
         try {
-            return IO.readBytes(getInputStream())
+            return IO.readBytes(servlet.getInputStream())
         } catch (Exception e) {
             Log.w("Exception when reading body", e)
             return new byte[0]
@@ -191,6 +255,6 @@ class Request {
     }
 
     String getUserAgent() {
-        return getHeader("User-Agent")
+        return headers("User-Agent")
     }
 }
