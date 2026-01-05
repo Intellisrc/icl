@@ -17,16 +17,16 @@ class WebMessage {
         STRING, MAP, LIST
     }
     protected final Map map
-    protected final String text
+    protected final String raw
     protected final WebMessageType type
     WebMessage(Map data) {
         map = data
-        text = ""
+        raw = ""
         type = MAP
     }
     WebMessage(Collection data) {
         map = [list: data]
-        text = data
+        raw = data
         type = LIST
     }
     WebMessage(String data) {
@@ -56,11 +56,11 @@ class WebMessage {
         }
         map = tmpData
         type = tmpType
-        text = data
+        raw = data
     }
     String toString() {
         return switch (type) {
-            case STRING -> text
+            case STRING -> raw
             case MAP -> JSON.encode(map)
             case LIST -> JSON.encode(map.list)
         }

@@ -65,8 +65,10 @@ abstract class WebSocketService implements ServiciableWebSocket {
                 }
         },
         timeout : timeout,
-        //TODO: check if its the same:
-        identifier : { Request it -> it.session().id }
+        identifier : {
+            Request request ->
+                return getIdentifier(request)
+        }
     )
     @Override
     WebSocketBroadcastService getWebSocketService() {
@@ -89,7 +91,9 @@ abstract class WebSocketService implements ServiciableWebSocket {
      * @return
      */
     protected EventClient getClient(EventClient client) {
-        return clients.find { it.id == client.id }
+        return clients.find {
+            it.session.id == client.session.id
+        }
     }
     /**
      * takes care of incoming messages and replies

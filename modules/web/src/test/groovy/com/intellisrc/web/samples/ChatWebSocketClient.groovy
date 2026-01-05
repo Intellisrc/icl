@@ -1,6 +1,6 @@
 package com.intellisrc.web.samples
 
-
+import com.intellisrc.core.Log
 import com.intellisrc.etc.JSON
 import com.intellisrc.web.WebSocketServiceClient
 import com.intellisrc.web.WebSocketServiceClient.Callable
@@ -15,10 +15,8 @@ import com.intellisrc.web.WebSocketServiceClient.Callable
  * https://docs.api.ai/
  * https://developer.pandorabots.com/ (https://github.com/pandorabots/pb-java)
  * http://www.botmill.io/
- * IDEA: get Q/A from http://www.fanpop.com/clubs/random/answers/date and stackoverflow
  */
 class ChatWebSocketClient {
-    final int QUIT_TIMEOUT = 600
     final int MAX_REPEAT = 30 //Prevent repeating itself
     final String uname
     final WebSocketServiceClient wssc
@@ -78,9 +76,10 @@ class ChatWebSocketClient {
     ChatWebSocketClient(int port, String path, String userName) {
         this.uname = userName
         wssc = new WebSocketServiceClient(
-            hostname: "localhost",
-            port : port,
-            path : path + "?user=$uname"
+            hostname    : "localhost",
+            port        : port,
+            path        : path + "?user=$uname",
+            //async       : false
         )
     }
 
@@ -93,11 +92,13 @@ class ChatWebSocketClient {
     }
 
     boolean sendLoginMessage() {
-        wssc.sendMessage("Yoo Humans!")
+        Log.i("Sending login message...")
+        wssc.sendMessage("Hello World!")
         return true
     }
 
     boolean sendLogoutMessage() {
+        Log.i("Sending logout message")
         wssc.sendMessage("Hmm.. Boring you are. Quiting I am.")
         return true
     }

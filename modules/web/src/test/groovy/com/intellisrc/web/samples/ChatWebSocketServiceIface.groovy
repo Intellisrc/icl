@@ -1,13 +1,17 @@
 package com.intellisrc.web.samples
 
+import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import com.intellisrc.web.service.*
 import groovy.transform.CompileStatic
 
 /**
  * This example uses the interface @see ServiciableWebSocket,
- * @see ChatWebSocketService to see the differences when extending
+ * @see ChatWebSocketService (using 'extend' example)
  * @see WebSocketService (abstract class)
+ *
+ * WebSocketService extends ServiciableWebSocket, so extending WebSocketService is
+ * generally simpler.
  *
  * @since 17/04/19.
  */
@@ -39,8 +43,9 @@ class ChatWebSocketServiceIface implements ServiciableWebSocket {
             },
             onMessageReceived : {
                 EventClient client, WebMessage msg ->
+                    Log.i("Server received message: %s", msg.text)
                     webSocketService.sendTo(client, new WebMessage(
-                        message : "Received : ${msg.toString()}",
+                        message : "Received",
                         list : usersList.keySet(),
                         type : "txt"
                     ))

@@ -249,39 +249,57 @@ class WebServiceTest extends Specification {
     @Unroll
     def "Websocket Test"() {
         setup:
-            def conds = new AsyncConditions()
-            // change to 'true' to test manually WebSocket Clients
-            // and open the browser in /chat.html
+            def connected = new AsyncConditions(1)
+            def received  = new AsyncConditions(1)
+
             def keepalive = false
             def chatPort = LocalHost.freePort
+
             def web = new WebService(
                 port: chatPort,
-                // Resources set as full path because code is executed under /tst/
                 resources: System.getProperty("user.dir") + "/res/public/",
                 cacheTime: 60
             )
-            Log.i("Adding service: %s", serviceName)
+
             web.addService(chatService)
             web.start(!keepalive)
+
         when:
             ChatWebSocketClient cc = new ChatWebSocketClient(chatPort, chatService.path, randomName)
-            cc.handler = {
-                Map msg ->
-                    conds.evaluate {
-                        assert msg.type == "txt" && msg.message.toString() == "Received" && (msg.list as List).size() == 1
+
+            cc.handler = { Map msg ->
+                Log.i("Message replied: %s", msg.message)
+                assert msg.type == "txt"
+                if (msg.message == "Connected") {
+                    connected.evaluate {
+                        assert (msg.list as List).size() == 1
                     }
+                }
+                else if (msg.message == "Received") {
+                    received.evaluate {
+                        assert (msg.list as List).size() == 1
+                    }
+                }
             }
+
         then:
-            assert web.isRunning()
-            assert cc.connect()
-            assert cc.sendLoginMessage()
-            conds.await(Millis.SECOND_10)
-            assert cc.disconnect()
+            assert web.isRunning() : "Web is not running"
+            assert cc.connect() : "Not connected"
+
+        when:
+            connected.await(Millis.SECOND_5)
+            cc.sendLoginMessage()
+
+        then:
+            received.await(Millis.SECOND_5)
+
+        cleanup:
+            cc.disconnect()
             web.stop()
-            assert !web.isRunning()
+
         where:
-            chatService                         | serviceName
-            new ChatWebSocketService()          | "Chat WebSocket extends"
-            new ChatWebSocketServiceIface()     | "Chat WebSocket implements"
+            chatService                     | serviceName
+            new ChatWebSocketService()      | "Chat WebSocket extends"
+            new ChatWebSocketServiceIface() | "Chat WebSocket implements"
     }
 }

@@ -14,12 +14,18 @@ import org.eclipse.jetty.ee10.websocket.jakarta.client.JakartaWebSocketClientCon
 @CompileStatic
 class WebSocketServiceClient {
 
+    boolean async   = true    // Turn off to warranty delivery
+    String protocol = "ws"
+    String hostname = "localhost"
+    String path     = "/"
+    int port        = 8000
+
     protected Callable onMessageReceived
     protected Callable onErrorReceived
 
     protected Session clientSession
     protected JakartaWebSocketClientContainer container
-    protected URI url
+    protected URI uri
 
     /**
      * WebSocket endpoint
@@ -64,22 +70,22 @@ class WebSocketServiceClient {
     }
 
     WebSocketServiceClient(URI uri) {
-        this.url = uri
+        this.uri = uri
     }
 
     WebSocketServiceClient(URL url) {
-        this.url = url.toURI()
+        this.uri = url.toURI()
     }
 
-    WebSocketServiceClient(Map<String, Object> map) {
-        map.protocol  = map.protocol ?: "ws"
-        map.hostname  = map.hostname ?: "localhost"
-        map.port      = map.port ?: 8000
-        map.path      = map.path ?: "/"
+    WebSocketServiceClient() {}
 
-        this.url = new URI(
-            "${map.protocol}://${map.hostname}:${map.port}${map.path}"
-        )
+    URI getURL() {
+        if(! this.uri) {
+            this.uri = new URI(
+                "${protocol}://${hostname}:${port}${path}"
+            )
+        }
+        return this.uri
     }
 
     Session getSession() {
@@ -104,7 +110,7 @@ class WebSocketServiceClient {
         container.connectToServer(
             new WSSocket(),
             config,
-            url
+            getURL()
         )
     }
 
@@ -122,7 +128,15 @@ class WebSocketServiceClient {
 
     void sendMessage(String message) {
         if (message && clientSession?.open) {
-            clientSession.asyncRemote.sendText(message)
+            try {
+                if (async) {
+                    clientSession.asyncRemote.sendText(message)
+                } else {
+                    clientSession.basicRemote.sendText(message)
+                }
+            } catch(Exception e) {
+                Log.w("Unable to send message: %s", e)
+            }
         } else {
             Log.v("WebSocket not connected or empty message")
         }

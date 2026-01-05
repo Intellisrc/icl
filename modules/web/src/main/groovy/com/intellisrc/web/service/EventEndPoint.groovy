@@ -13,8 +13,6 @@ import jakarta.websocket.server.ServerEndpointConfig
 @CompileStatic
 class EventEndPoint extends Endpoint {
     static final List<String> CLOSE_MESSAGES = Config.any.get("websocket.close.list", ["quit", "exit", "close", "bye"])
-    Session session
-    EventClient client
     WebSocketBroadcastService service
 
     static class Configurator extends ServerEndpointConfig.Configurator {
@@ -37,15 +35,16 @@ class EventEndPoint extends Endpoint {
         }
     }
 
-    @OnOpen
+    @Override
     void onOpen(Session jakartaSession, EndpointConfig config) {
         Request request = (Request) config.userProperties["request"]
         request.setWebSocket(jakartaSession)
+
         service = (WebSocketBroadcastService) config.userProperties["service"]
 
         String id = service.identifier.call(request)
 
-        client = new EventClient(
+        EventClient client = new EventClient(
             request,
             id,
             service.timeout,
@@ -55,26 +54,49 @@ class EventEndPoint extends Endpoint {
         service.clientList << client
         service.onClientConnect.call(client)
         service.onClientListUpdated.call(service.clientList.toList())
+
+        jakartaSession.addMessageHandler(String, {
+            String message ->
+                onMessage(jakartaSession, message)
+        } as MessageHandler.Whole<String>)
+        Log.d("Client: %s (%s) connected", client.id, jakartaSession.id)
     }
 
-    @OnMessage
-    void onMessage(String message) {
+    Optional<EventClient> getClient(Session jakartaSession) {
+        return Optional.ofNullable(service.clientList.find { it.session.id == jakartaSession.id })
+    }
+
+    void onMessage(Session session, String message) {
         if (CLOSE_MESSAGES.contains(message.toLowerCase())) {
-            session.close()
-            Log.v("Client disconnected")
-            service.disconnectClient(client)
+            onClose(session, new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, String.format("'%s' message received.", message.toLowerCase())))
         } else {
-            service.onMessageReceived.call(client, new WebMessage(message))
+            Optional<EventClient> optionalEventClient = getClient(session)
+            if(optionalEventClient.present) {
+                service.onMessageReceived.call(optionalEventClient.get(), new WebMessage(message))
+            } else {
+                Log.w("Client: %s not found in client list", session.id)
+            }
         }
     }
 
-    @OnClose
-    void onClose(CloseReason reason) {
-        service.disconnectClient(client)
+    @Override
+    void onClose(Session session, CloseReason reason) {
+        String reasonText = reason.reasonPhrase
+        if(!reasonText && reason.closeCode.code) {
+            reasonText = CloseReason.CloseCodes.getCloseCode(reason.closeCode.code).toString()
+        }
+        Log.d("Client [%s] disconnected. [%d] Reason: %s", session.id, reason.closeCode.code, reasonText)
+        Optional<EventClient> optionalEventClient = getClient(session)
+        if(optionalEventClient.present) {
+            service.clientList.remove(optionalEventClient.get())
+            service.onClientDisconnect.call(optionalEventClient.get())
+        } else {
+            Log.w("Client: %s not found in client list", session.id)
+        }
     }
 
-    @OnError
-    void onError(Throwable cause) {
-        Log.w("WebSocket error", cause)
+    @Override
+    void onError(Session session, Throwable cause) {
+        Log.w("WebSocket error (Client: %s)", cause, session.id)
     }
 }
