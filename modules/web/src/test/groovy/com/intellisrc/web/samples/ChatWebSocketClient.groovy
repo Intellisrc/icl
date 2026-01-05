@@ -1,20 +1,11 @@
 package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
-import com.intellisrc.etc.JSON
 import com.intellisrc.web.WebSocketServiceClient
 import com.intellisrc.web.WebSocketServiceClient.Callable
 
 /**
  * Example of a simple Echo Client.
- * Using:
- * http://program-o.com/ (https://github.com/Program-O/Program-O)
- * https://quotesondesign.com/api-v4-0/
- *
- * Other chat APIs:
- * https://docs.api.ai/
- * https://developer.pandorabots.com/ (https://github.com/pandorabots/pb-java)
- * http://www.botmill.io/
  */
 class ChatWebSocketClient {
     final int MAX_REPEAT = 30 //Prevent repeating itself
@@ -27,43 +18,22 @@ class ChatWebSocketClient {
             String message = msg.message.toString()
             if(msg.type == "txt" && msg.user != uname) {
                 String botsay = ""
-                if(new Random().nextInt(5) < 2) {
-                    if (message.toLowerCase().contains("hi") || message.toLowerCase().contains("hello")) {
-                        botsay = "Do you really think I care about you?"
-                    } else if (message.contains(":)") || message.contains(":D")) {
-                        botsay = "Please don't smile here, nobody is watching!"
-                    } else if (message.contains(":(")) {
-                        botsay = "Poor little thing!"
-                    } else if (message.contains(":|")) {
-                        botsay = "No comments..."
-                    } else if (message.contains(":/")) {
-                        botsay = "So?"
-                    } else if (message.contains(":P")) {
-                        botsay = "Your tongue is dirty, can't you see?"
-                    }
-                }
-                if(botsay.isEmpty() || last_responses.contains(botsay)) {
-                    String toSend = URLEncoder.encode(message.toString(), "UTF-8")
-                    def response = JSON.decode("http://api.program-o.com/v2/chatbot/?bot_id=12&say=$toSend&convo_id=robocup_9999&format=json".toURL().text) as Map
-                    botsay = response.botsay
-                }
-                if (botsay.isEmpty() || last_responses.contains(botsay)) {
-                    if(message.toString().contains("?")) {
-                        botsay = getAnswer()
-                    } else {
-                        botsay = getStatement()
-                    }
-                    //Last resource to prevent repetition:
-                    if(last_responses.contains(botsay)) {
-                        def response = JSON.decode("http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1".toURL().text) as List
-                        Map res = (Map) response.first()
-                        botsay = res.content
-                        if(botsay.isEmpty()) {
-                            botsay = getStatement()
-                        } else {
-                            botsay = botsay.replaceAll(/<.*?>/, '')
-                        }
-                    }
+                if (message.toLowerCase().contains("hi") || message.toLowerCase().contains("hello")) {
+                    botsay = "Do you really think I care about you?"
+                } else if (message.contains(":)") || message.contains(":D")) {
+                    botsay = "Please don't smile here, nobody is watching!"
+                } else if (message.contains(":(")) {
+                    botsay = "Poor little thing!"
+                } else if (message.contains(":|")) {
+                    botsay = "No comments..."
+                } else if (message.contains(":/")) {
+                    botsay = "So?"
+                } else if (message.contains(":P")) {
+                    botsay = "Your tongue is dirty, can't you see?"
+                } else if (message.endsWith("?")) {
+                    botsay = answer
+                } else {
+                    botsay = statement
                 }
                 last_responses << botsay //Keep track of what was replied before
                 if(last_responses.size() > MAX_REPEAT) {
