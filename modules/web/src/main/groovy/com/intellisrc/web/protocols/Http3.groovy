@@ -4,8 +4,9 @@ import com.intellisrc.core.Millis
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http3.server.HTTP3ServerConnectionFactory
-//import org.eclipse.jetty.quic.server.QuicServerConnector <-- Missing (review again when 12.2 is released)
+import org.eclipse.jetty.http3.server.HTTP3ServerQuicConfiguration
 import org.eclipse.jetty.server.AbstractNetworkConnector
+import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.util.ssl.SslContextFactory
 
 /**
@@ -33,6 +34,9 @@ response.setHeader(
  Recommended server layout:
  TCP 443 → HTTP/1.1 + HTTP/2
  UDP 443 → HTTP/3
+
+ Please check the documentation as HTTP/3 require native libraries:
+ https://jetty.org/docs/jetty/12.1/programming-guide/server/http.html#connector-protocol-http3
  */
 @CompileStatic
 class Http3 extends Http {
@@ -72,6 +76,11 @@ class Http3 extends Http {
 
         connector.setPort(server.port)
         connector.setIdleTimeout(idleTimeout)
+        */
+        /* According to documentation: https://jetty.org/docs/jetty/12.1/programming-guide/server/http.html#connector-protocol-http3
+        QuicheServerQuicConfiguration serverQuicConfig = HTTP3ServerQuicConfiguration.configure(new QuicheServerQuicConfiguration(pemWorkDir))
+        QuicheServerConnector connector = new QuicheServerConnector(server, sslContextFactory, serverQuicConfig, new HTTP3ServerConnectionFactory())
+        connector.setPort(843)
         */
         assert isAvailable : "HTTP3 is not yet available in Jetty 12.1"
         return null //connector

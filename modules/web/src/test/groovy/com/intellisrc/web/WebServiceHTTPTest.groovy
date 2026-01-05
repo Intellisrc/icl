@@ -15,10 +15,8 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-import static com.intellisrc.web.protocols.Protocol.HTTP
-import static com.intellisrc.web.protocols.Protocol.HTTP2
-import static java.net.http.HttpClient.Version.HTTP_1_1
-import static java.net.http.HttpClient.Version.HTTP_2
+import static com.intellisrc.web.protocols.Protocol.*
+import static java.net.http.HttpClient.Version.*
 
 /**
  * This tests HTTP, HTTPS and HTTP2
