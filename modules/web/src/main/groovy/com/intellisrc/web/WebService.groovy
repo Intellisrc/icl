@@ -1017,8 +1017,8 @@ class WebService extends WebServiceBase {
     boolean doFilter(ServletRequest servletRequest, ServletResponse servletResponse) {
         boolean commited = false
         boolean reserved = false
-        Request request = servletRequest as Request
-        Response response = servletResponse as Response
+        Request request = new Request(servletRequest)
+        Response response = new Response(servletResponse)
         ServiceOutput out
         if(! request.method || fromString(request.method.trim().toUpperCase()) == null) {
             Log.w("Method not allowed: %s", request.method)
