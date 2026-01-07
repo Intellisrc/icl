@@ -366,7 +366,7 @@ class Log {
     static String getExceptionMessage(Throwable throwable) {
         String msg = throwable.localizedMessage ?: throwable.message
         if(msg) {
-            if(throwable.cause) {
+            if(throwable.cause &&! msg.contains(throwable.cause.message)) {
                 msg += " : " + throwable.cause.message
             }
             msg += " (${throwable.class.simpleName})"
