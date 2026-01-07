@@ -7,9 +7,9 @@ import groovy.transform.CompileStatic
 import jakarta.servlet.ServletContext
 import jakarta.websocket.SendHandler
 import jakarta.websocket.SendResult
+import jakarta.websocket.Session as JakartaSession
 import jakarta.websocket.server.ServerContainer
 import jakarta.websocket.server.ServerEndpointConfig
-import jakarta.websocket.Session as JakartaSession
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
 import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer
 

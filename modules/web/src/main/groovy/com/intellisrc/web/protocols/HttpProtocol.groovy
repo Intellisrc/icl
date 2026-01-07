@@ -2,7 +2,10 @@ package com.intellisrc.web.protocols
 
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
-import org.eclipse.jetty.server.*
+import org.eclipse.jetty.server.AbstractNetworkConnector
+import org.eclipse.jetty.server.Connector
+import org.eclipse.jetty.server.HttpConfiguration
+import org.eclipse.jetty.server.HttpConnectionFactory
 import org.eclipse.jetty.util.ssl.SslContextFactory
 
 /**

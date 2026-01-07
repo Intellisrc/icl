@@ -2,8 +2,6 @@ package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
 import jakarta.servlet.AsyncContext
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.websocket.Session as JakartaSession
 
 /**
  * Client used in WebSockets and ServerSendEvents

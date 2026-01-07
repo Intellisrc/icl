@@ -20,11 +20,11 @@ import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.Part
 import org.apache.commons.io.IOUtils
 import org.codehaus.groovy.runtime.metaclass.MissingMethodExceptionNoStack
-import org.eclipse.jetty.http.HttpMethod
-import org.eclipse.jetty.server.Server
-import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
 import org.eclipse.jetty.ee10.servlet.ServletHolder
+import org.eclipse.jetty.http.HttpMethod
+import org.eclipse.jetty.server.Handler
+import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 import javax.imageio.ImageIO
@@ -43,7 +43,8 @@ import static com.intellisrc.web.protocols.Protocol.HTTP
 import static com.intellisrc.web.service.Compression.NONE
 import static com.intellisrc.web.service.HttpHeader.*
 import static com.intellisrc.web.service.ServiceOutput.Type
-import static com.intellisrc.web.service.WebError.*
+import static com.intellisrc.web.service.WebError.WebErrorTemplate
+import static com.intellisrc.web.service.WebError.getDefaultErrorTemplate
 import static org.eclipse.jetty.http.HttpMethod.*
 import static org.eclipse.jetty.http.HttpStatus.*
 

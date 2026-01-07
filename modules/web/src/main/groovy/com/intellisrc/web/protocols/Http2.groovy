@@ -5,7 +5,6 @@ import com.intellisrc.core.Millis
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
-import org.eclipse.jetty.http2.HTTP2Cipher
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory
 import org.eclipse.jetty.server.*
