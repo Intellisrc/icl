@@ -1,6 +1,7 @@
 package com.intellisrc.web.service
 
 import groovy.transform.CompileStatic
+import groovy.transform.Immutable
 import org.eclipse.jetty.http.HttpStatus
 
 /**
@@ -9,21 +10,37 @@ import org.eclipse.jetty.http.HttpStatus
  */
 @CompileStatic
 class WebException extends Exception {
-    int code
-    String text
+    final int code
+    final Serviciable service
+    final String text
 
     WebException(int code) {
-        this(code, HttpStatus.getCode(code).message)
+        this(code, "")
     }
-
     WebException(int code, Throwable cause) {
-        this(code, HttpStatus.getCode(code).message, cause)
+        this(code, "", cause)
+    }
+    WebException(int code, String text, Throwable cause = null) {
+        this(null, code, text, cause)
+    }
+    WebException(Serviciable sp, int code) {
+        this(sp, code, "")
+    }
+    WebException(Serviciable sp, int code, Throwable cause) {
+        this(sp, code, "", cause)
     }
 
-    WebException(int code, String text, Throwable cause = null) {
+    WebException(Serviciable sp, int code, String text, Throwable cause = null) {
         super(text, cause ?: new Exception(text))
-        this.code = code
-        this.text = text
+        if(cause instanceof WebException) {
+            this.service = cause.service
+            this.code = cause.code
+            this.text = cause.text
+        } else {
+            this.service = sp
+            this.code = code
+            this.text = text ?: HttpStatus.getCode(code).message
+        }
     }
 
     @Override

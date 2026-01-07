@@ -15,7 +15,6 @@ import static com.intellisrc.web.service.HttpHeader.ACCEPT
 import static com.intellisrc.web.service.HttpHeader.UPGRADE
 import static org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400
 import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500
-import static org.eclipse.jetty.http.HttpStatus.getCode
 
 /**
  * @since 2025/12/22.
@@ -44,51 +43,64 @@ class RequestFilter implements Filter {
 
                 try {
                     response.errorTemplate = service.errorTemplate
+                    Log.d("Filtering [%s]...", request.uri())
                     handled = service.doFilter(req, res)
+                    Log.d("[%s] Handled? %s", request.uri(), handled ? "YES" : "NO")
 
-                } catch (WebException we) {
-                    if (!response.redirected) {
-                        boolean display = true
-                        switch (true) {
-                            case we.code >= INTERNAL_SERVER_ERROR_500:
-                                Log.w(
-                                    "[%d] Request: [%s %s]. Exception in web response: %s",
-                                    we.code, request.method, request.uri(), we.message
-                                )
-                                break
-                            case we.code >= BAD_REQUEST_400:
-                                Log.w(
-                                    "[%d] Request: [%s %s]. Exception with the request: %s",
-                                    we.code, request.method, request.uri(), we.message
-                                )
-                                break
-                            default:
-                                display = false
+                } catch (Exception e) {
+                    // WebException may be wrapped (due to not 'throws' specified in Closures), so we need to be sure:
+                    if(e instanceof WebException || e.cause instanceof WebException) {
+                        WebException we = (e instanceof WebException ? e : e.cause) as WebException
+                        response.status(we.code)
+                        if (we.service?.onError) {
+                            handled = we.service.onError.call(we)
                         }
+                        if (!handled) {
+                            if (!response.redirected) {
+                                boolean display = true
+                                switch (true) {
+                                    case we.code >= INTERNAL_SERVER_ERROR_500:
+                                        Log.e(
+                                            "[%d] Request: [%s %s]. Exception in web response: %s",
+                                            we.code, request.method, request.uri(), we.message
+                                        )
+                                        break
+                                    case we.code >= BAD_REQUEST_400:
+                                        Log.w(
+                                            "[%d] Request: [%s %s]. Error with the request: %s",
+                                            we.code, request.method, request.uri(), we.message
+                                        )
+                                        break
+                                    default:
+                                        Log.d(
+                                            "[%d] Request: [%s %s]. Notification with the request: %s",
+                                            we.code, request.method, request.uri(), we.message
+                                        )
+                                        display = false
+                                }
 
-                        if (display) {
-                            if (!we.text) {
-                                we.text = getCode(we.code).message
+                                if (display) {
+                                    WebError webError =
+                                        response.errorTemplate.call(
+                                            we.code, we.text, response.type()
+                                        )
+
+                                    response.type(
+                                        webError.contentType +
+                                            (webError.charSet
+                                                ? "; charset=${webError.charSet}"
+                                                : "")
+                                    )
+                                    response.writer.print(webError.content)
+                                }
+                                response.writer.flush()
+                                response.writer.close()
                             }
-
-                            WebError webError =
-                                response.errorTemplate.call(
-                                    we.code, we.text, response.type()
-                                )
-
-                            response.type(
-                                webError.contentType +
-                                    (webError.charSet
-                                        ? "; charset=${webError.charSet}"
-                                        : "")
-                            )
-                            response.status(we.code)
-                            response.writer.print(webError.content)
-                            response.writer.flush()
-                            response.writer.close()
+                            handled = true
                         }
+                    } else {
+                        Log.e("Unhandled Exception: ", e)
                     }
-                    handled = true
                 }
             }
         }

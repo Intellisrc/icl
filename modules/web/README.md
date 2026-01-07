@@ -225,7 +225,6 @@ new Service(
     allowOrigin         : null,                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.
     acceptType          : "",                    // By default it accepts all mime types, but you can set to accept only specific types like `application/json` (default `*/*`)
     acceptCharset       : "",                    // By default it accepts all charsets
-    cacheExtend         : false,                 // Extend time upon read (similar as sessions)
     cacheTime           : Cache.DISABLED,        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER : forever
     charSet             : "UTF-8",               // Output charset (default: UTF-8)
     compress            : false,                 // Whether to compress or not the output
@@ -542,7 +541,6 @@ class ExampleServices implements ServiciableSingle {
     Service getService() {
         new Service(
             path : "cached/",
-            cacheExtend         : false,  // Extend time upon read
             cacheTime           : Cache.FOREVER, // Seconds to store action
             maxAge              : Secs.HOUR, //Suggest the browser to keep file for some time before checking again
             action : {

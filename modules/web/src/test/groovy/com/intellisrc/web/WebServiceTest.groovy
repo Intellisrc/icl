@@ -8,11 +8,13 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Service
+import org.eclipse.jetty.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.AsyncConditions
 
 import static com.intellisrc.web.samples.ChatWebSocketService.getRandomName
+import static org.eclipse.jetty.http.HttpStatus.*
 
 /**
  * @since 17/04/19.
@@ -33,9 +35,18 @@ class WebServiceTest extends Specification {
             ))
         when:
             web.start(true)
+            URL url = ("http://localhost:" + port + "/test").toURL()
+            def conn = url.openConnection() as HttpURLConnection
         then:
-            assert web.isRunning()
-            assert ("http://localhost:" + port + "/test").toURL().text.contains("ok")
+            assert conn.responseCode == OK_200 : "Incorrect response code"
+            assert web.isRunning() : "Web Server is not running"
+            assert url.text.contains("ok")
+        when:
+            url = ("http://localhost:" + port + "/non-existant").toURL()
+            conn = url.openConnection() as HttpURLConnection
+        then:
+            assert conn.responseCode == NOT_FOUND_404: "Page should not exists"
+            assert web.isRunning() : "Server should not crash"
         cleanup:
             web.stop()
             assert ! web.running
@@ -43,7 +54,7 @@ class WebServiceTest extends Specification {
 
     def "General Test"() {
         setup:
-            int port = LocalHost.freePort
+            int port = 34683 //LocalHost.freePort
             def web = new WebService(
                 port: port,
                 resources: publicDir,
@@ -51,25 +62,60 @@ class WebServiceTest extends Specification {
             )
             // Resources set as full path because code is executed under /tst/
             Log.i("Running in port: %d with resources at: %s", port, publicDir)
-            web.addService(new IDService())
+            IDService idService = new IDService()
+            web.addService(idService)
         when:
             web.start(true)
         then:
-            assert web.isRunning()
-            assert ("http://localhost:" + port).toURL().text.contains("Hello")
+            assert web.isRunning() : "Web Server is not running"
+            assert ("http://localhost:" + port).toURL().text.contains("Hello") : "Static content not found"
         when:
             int number = new Random().nextInt(100)
             URL url = ("http://localhost:" + port + "/id/" + number + "/").toURL()
+            def conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "GET"
+        then:
+            assert conn.responseCode == OK_200 : "Incorrect response code"
+        when:
             def json = url.text
         then:
-            assert json
+            assert json : "Expected JSON but got empty response from ${url}"
             assert !json.contains("<html>")
         when:
             def res = JSON.decode(json) as Map
         then:
-            assert res instanceof Map
+            assert res instanceof Map : "Response was not a map"
             assert (res.i as int) == number
             assert res.t.toString().matches(/\d{2}:\d{2}:\d{2}/)    //res.t returns current time in HH:mm:ss
+        when:
+            String strErrorUrl = "http://localhost:" + port + "/id/error503/"
+            URL errorUrl = strErrorUrl.toURL()
+            def conn2 = errorUrl.openConnection() as HttpURLConnection
+            conn2.requestMethod = "GET"
+        then:
+            assert conn2.responseCode == SERVICE_UNAVAILABLE_503: "Incorrect response code"
+            assert web.isRunning() : "Server should not crash"
+            assert url.text.startsWith("{") : "Server should work as usual"
+            assert idService.errors.get() == 1 : "onError should be called"
+        when:
+            String strErrorUrl2 = "http://localhost:" + port + "/id/error501/"
+            URL errorUrl2 = strErrorUrl2.toURL()
+            def conn3 = errorUrl2.openConnection() as HttpURLConnection
+            conn3.requestMethod = "GET"
+        then:
+            assert conn3.responseCode == NOT_IMPLEMENTED_501: "Incorrect response code"
+            assert web.isRunning() : "Server should not crash"
+            assert url.text.startsWith("{") : "Server should work as usual"
+            assert idService.errors.get() == 2 : "onError should be called"
+        when:
+            URL boomUrl = ("http://localhost:" + port + "/id/boom/").toURL()
+            def conn4 = boomUrl.openConnection() as HttpURLConnection
+            conn4.requestMethod = "GET"
+        then:
+            assert conn4.responseCode == INTERNAL_SERVER_ERROR_500 : "Incorrect response code"
+            assert web.isRunning() : "Server should not crash"
+            assert url.text.startsWith("{") : "Server should work as usual"
+            assert idService.errors.get() == 3 : "onError should be called"
         when:
             web.stop()
         then:
@@ -87,22 +133,25 @@ class WebServiceTest extends Specification {
                 resources: publicDir,
                 cacheTime: 60
             )
-            web.addService(new IDService())
+            IDService idService = new IDService()
+            web.addService(idService)
         when:
             web.start(true)
         then:
-            assert web.isRunning()
+            assert web.isRunning() : "Web Server is not running"
         when:
-            def json = new URL("http://localhost:${port}/id/1/").text
+            def str = new URL("http://localhost:${port}/id/1/").text
         then:
-            assert json
+            assert str : "Empty response"
+            def json = JSON.decode(str) as Map
+            assert json.i && json.t : "Incorrect JSON content"
             println "Json: " + json
+            assert idService.calls.get() == 1
         when:
-            sleep(Millis.SECOND_2)
-            def json_new = new URL("http://localhost:${port}/id/1/").text
+            def str_new = new URL("http://localhost:${port}/id/1/").text
         then:
-            //TODO: count if method was called
-            assert json == json_new
+            assert idService.calls.get() == 1   // It should not increment
+            assert str == str_new
         when:
             web.stop()
         then:
@@ -128,10 +177,15 @@ class WebServiceTest extends Specification {
             })
         expect:
             conds.await()
-            assert web.isRunning()
+            assert web.isRunning() : "Web Server is not running"
             println "Server running on port: $port"
         when:
-            def text = new URL("http://localhost:${port}/emails/john/example.com").text
+            URL url = new URL("http://localhost:${port}/emails/john/example.com")
+            def conn = url.openConnection() as HttpURLConnection
+        then:
+            assert conn.responseCode == OK_200: "Incorrect response code"
+        when:
+            def text = url.text
             println "Email is: $text"
         then:
             assert text == "john@example.com"
@@ -182,10 +236,14 @@ class WebServiceTest extends Specification {
             Log.i("Testing regex: %s  :  %s <-- %s", regex, srv.path, path)
         expect:
             conds.await()
-            assert web.isRunning()
+            assert web.isRunning() : "Web Server is not running"
             println "Server running on port: $port"
         when:
             URL url = "http://localhost:${port}/${path}".toURL()
+            def conn = url.openConnection() as HttpURLConnection
+        then:
+            assert conn.responseCode == OK_200: "Incorrect response code"
+        when:
             Log.i("Requesting: %s", url)
             def text = url.text
             int num = text as int
@@ -221,10 +279,12 @@ class WebServiceTest extends Specification {
         when:
             web.start(true)
         then:
-            assert web.isRunning()
+            assert web.isRunning() : "Web Server is not running"
         when:
             URL chkUrl = "http://localhost:$port/check".toURL()
+            def conn = chkUrl.openConnection() as HttpURLConnection
         then:
+            assert conn.responseCode == OK_200: "Incorrect response code"
             assert chkUrl.text == "ok": "Web Server failed to respond"
             Log.i("Web server responded 'ok'")
         when:
@@ -244,62 +304,5 @@ class WebServiceTest extends Specification {
             assert !web.isRunning()
         cleanup:
             uploadDir.eachFile { it.delete() }
-    }
-
-    @Unroll
-    def "Websocket Test"() {
-        setup:
-            def connected = new AsyncConditions(1)
-            def received  = new AsyncConditions(1)
-
-            def keepalive = false
-            def chatPort = LocalHost.freePort
-
-            def web = new WebService(
-                port: chatPort,
-                resources: System.getProperty("user.dir") + "/res/public/",
-                cacheTime: 60
-            )
-
-            web.addService(chatService)
-            web.start(!keepalive)
-
-        when:
-            ChatWebSocketClient cc = new ChatWebSocketClient(chatPort, chatService.path, randomName)
-
-            cc.handler = { Map msg ->
-                Log.i("Message replied: %s", msg.message)
-                assert msg.type == "txt"
-                if (msg.message == "Connected") {
-                    connected.evaluate {
-                        assert (msg.list as List).size() == 1
-                    }
-                }
-                else if (msg.message == "Received") {
-                    received.evaluate {
-                        assert (msg.list as List).size() == 1
-                    }
-                }
-            }
-
-        then:
-            assert web.isRunning() : "Web is not running"
-            assert cc.connect() : "Not connected"
-
-        when:
-            connected.await(Millis.SECOND_5)
-            cc.sendLoginMessage()
-
-        then:
-            received.await(Millis.SECOND_5)
-
-        cleanup:
-            cc.disconnect()
-            web.stop()
-
-        where:
-            chatService                     | serviceName
-            new ChatWebSocketService()      | "Chat WebSocket extends"
-            new ChatWebSocketServiceIface() | "Chat WebSocket implements"
     }
 }

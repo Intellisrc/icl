@@ -1,7 +1,6 @@
 package com.intellisrc.web.service
 
 import com.intellisrc.etc.Cache
-import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 
@@ -57,9 +56,10 @@ class Service implements Serviciable {
     }
     /**
      * Used to pass errors to client
+     * it should return `true` to disable default action (log)
      */
     static interface ServiceError {
-        boolean call(int code, Exception e)
+        boolean call(WebException we)
     }
     /**
      * Check if client is allowed or not
@@ -86,10 +86,30 @@ class Service implements Serviciable {
         void run(Response response)
     }
 
+    /**
+     * Re-scopes the closure/interface so 'delegate' refers to this Service instance
+     */
+    private Object wire(Object candidate) {
+        if (candidate instanceof Closure) {
+            Closure cloned = (Closure) candidate.clone()
+            cloned.delegate = this
+            // DELEGATE_FIRST allows you to access Service properties
+            // (like 'path' or 'cacheTime') directly inside the closure
+            cloned.resolveStrategy = Closure.DELEGATE_FIRST
+            return cloned
+        }
+        return candidate
+    }
+    // Closures to bind 'delegate' to them (so you can call delegate to refer to the Service instance):
+    private Object _action                      = {}
+    //Object action               = { }                 // Closure that will return an Object (usually Map) to be converted to JSON as response
+
+    void setAction(@DelegatesTo(Service) Object cl) { _action = wire(cl) }
+    Object getAction() { _action }
+
     boolean isPrivate           = false                 // Server Rule: These responses are typically intended for a single user
     boolean noStore             = false                 // Server Rule: If true, response will never cached (as it may contain sensitive information)
     boolean compress            = false                 // Whether to compress or not the output (defaults to WebService value, which is true by default)
-    boolean cacheExtend         = false                 // Extend time upon read (similar as sessions)
     boolean strictPath          = false                 // If true, regex should also match starting '/' character. For example: ~/^\/hello.html?/ instead of: ~/hello.html?/
     int minCompressBytes        = 256                   // Below this length, do not compress (most probably there won't be any gain)
     int cacheTime               = Cache.DISABLED        // Seconds to store action in Server's Cache // 0 = "no-cache" Browser Rule: If true, the client must revalidate ETag to decide if download or not. Cache.FOREVER = forever
@@ -100,7 +120,6 @@ class Service implements Serviciable {
     boolean download            = false                 // Specify if instead of display, show download dialog
     String downloadFileName     = ""                    // Use this name if download is requested
     HttpMethod method           = HttpMethod.GET        // HTTP Method to be used
-    Object action               = { }                   // Closure that will return an Object (usually Map) to be converted to JSON as response
     Allow allow                 = null                  // By default will allow everyone. If a Closure is set, it will be evaluated if the request is allowed or not
     String notAllowedRedirect   = ""                    // If set it will redirect not allowed requests to that URL or path
     String allowOrigin          = null                  // By default only localhost is allowed to perform requests. This will set "Access-Control-Allow-Origin" header.

@@ -4,8 +4,6 @@ import com.intellisrc.core.Log
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletResponse
 
-import java.lang.reflect.Field
-
 /**
  * Jetty 12 compatible Response wrapper with servlet delegation.
  */
@@ -34,6 +32,13 @@ class Response {
     void redirect(String path) {
         redirected = true
         servlet.sendRedirect(path)
+    }
+
+    void sendError(int code) {
+        throw new WebException(code)
+    }
+    void sendError(int code, String msg) {
+        throw new WebException(code, msg)
     }
 
     void type(String type) {
