@@ -16,9 +16,10 @@ import groovy.transform.CompileStatic
  * @since 17/04/19.
  */
 @CompileStatic
-class ChatWebSocketServiceIface implements ServiciableWebSocket {
+class ChatWebSocketServiceIface implements ServiciableWebSocket, ChatWebSocketTestable {
     String path = "/chat"
     Map<String, String> usersList = [:]
+    boolean disconnected = false
 
     WebSocketBroadcastService getWebSocketService() {
         return new WebSocketBroadcastService(
@@ -34,6 +35,7 @@ class ChatWebSocketServiceIface implements ServiciableWebSocket {
             },
             onClientDisconnect : {
                 EventClient client ->
+                    disconnected = true
                     usersList.remove(client.id)
                     webSocketService.sendTo(client, new WebMessage(
                         message : "Disconnected",
@@ -61,5 +63,15 @@ class ChatWebSocketServiceIface implements ServiciableWebSocket {
 
     static String getRandomName() {
         return "Guest "+(new Random().nextInt(100) + 1)
+    }
+
+    // For testing purposes
+    List getClientList() {
+        return usersList.keySet().toList()
+    }
+
+    @Override
+    boolean getDisconnectWasCalled() {
+        return disconnected
     }
 }

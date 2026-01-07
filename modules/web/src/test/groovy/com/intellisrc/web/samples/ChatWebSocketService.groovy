@@ -12,8 +12,9 @@ import groovy.transform.CompileStatic
  * @since 17/04/19.
  */
 @CompileStatic
-class ChatWebSocketService extends WebSocketService {
+class ChatWebSocketService extends WebSocketService implements ChatWebSocketTestable {
     String path = "/chat"
+    boolean disconnected = false
 
     @Override
     String getIdentifier(Request request) {
@@ -44,5 +45,20 @@ class ChatWebSocketService extends WebSocketService {
             list : clients.collect { it.id },
             type : "txt"
         )
+    }
+
+    @Override
+    WebMessage onClientDisconnect(EventClient client) {
+        disconnected = true
+        return super.onClientDisconnect(client)
+    }
+    // For testing purposes
+    List getClientList() {
+        return clients.collect { it.id }
+    }
+
+    @Override
+    boolean getDisconnectWasCalled() {
+        return disconnected
     }
 }

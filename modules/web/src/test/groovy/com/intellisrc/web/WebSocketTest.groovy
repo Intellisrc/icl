@@ -6,6 +6,7 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.ChatWebSocketClient
 import com.intellisrc.web.samples.ChatWebSocketService
 import com.intellisrc.web.samples.ChatWebSocketServiceIface
+import com.intellisrc.web.samples.ChatWebSocketTestable
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.AsyncConditions
@@ -37,7 +38,8 @@ class WebSocketTest extends Specification {
             web.start(!keepalive)
 
         when:
-            ChatWebSocketClient cc = new ChatWebSocketClient(chatPort, chatService.path, randomName)
+            String userId = randomName
+            ChatWebSocketClient cc = new ChatWebSocketClient(chatPort, chatService.path, userId)
             AtomicBoolean connectedSeen = new AtomicBoolean(false)
 
             cc.handler = { Map msg ->
@@ -47,6 +49,7 @@ class WebSocketTest extends Specification {
                     connectedSeen.set(true)
                     connected.evaluate {
                         assert (msg.list as List).size() == 1
+                        assert (msg.list as List).contains(userId)
                     }
                 }
                 if (msg.message == "Received") {
@@ -70,6 +73,10 @@ class WebSocketTest extends Specification {
 
         cleanup:
             cc.disconnect()
+            def test = chatService as ChatWebSocketTestable
+            assert   test.disconnectWasCalled           : "Disconnection was not processed"
+            assert   test.clientList.empty              : "Users were not removed"
+            assert ! test.clientList.contains(userId)   : "User should not be in list"
             web.stop()
 
         where:
