@@ -76,6 +76,7 @@ class WebServiceTest extends Specification {
             def conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
         then:
+            assert conn.getHeaderField("Access-Control-Allow-Origin") == "127.0.0.1"
             assert conn.responseCode == OK_200 : "Incorrect response code"
         when:
             def json = url.text
@@ -184,6 +185,7 @@ class WebServiceTest extends Specification {
             URL url = new URL("http://localhost:${port}/emails/john/example.com")
             def conn = url.openConnection() as HttpURLConnection
         then:
+            assert conn.getHeaderField("Access-Control-Allow-Origin") == "*"
             assert conn.responseCode == OK_200: "Incorrect response code"
         when:
             def text = url.text

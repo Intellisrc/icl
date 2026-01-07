@@ -40,6 +40,7 @@ class IDService extends SingleService {
     Service getService() {
         return new Service(
             path : "/id/:id/",
+            allowOrigin: "127.0.0.1",
             cacheTime: cacheTime,
             /* onError: {   // If set, it will call this one
                 WebException we ->
