@@ -2,6 +2,7 @@ package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
+import com.intellisrc.etc.Cache
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Response
 import com.intellisrc.web.service.Service
@@ -23,6 +24,7 @@ import static org.eclipse.jetty.http.HttpStatus.SERVICE_UNAVAILABLE_503
 class IDService extends SingleService {
     AtomicInteger calls = new AtomicInteger()
     AtomicInteger errors = new AtomicInteger()
+    int cacheTime = 10
 
     @Override
     Service.ServiceError getOnError() {
@@ -38,7 +40,7 @@ class IDService extends SingleService {
     Service getService() {
         return new Service(
             path : "/id/:id/",
-            cacheTime: 10,
+            cacheTime: cacheTime,
             /* onError: {   // If set, it will call this one
                 WebException we ->
                     errors.incrementAndGet()

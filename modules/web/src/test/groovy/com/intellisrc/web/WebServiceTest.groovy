@@ -2,18 +2,19 @@ package com.intellisrc.web
 
 import com.intellisrc.core.Cmd
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
+import com.intellisrc.etc.Cache
 import com.intellisrc.etc.JSON
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.samples.*
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Service
-import org.eclipse.jetty.http.HttpStatus
 import spock.lang.Specification
-import spock.lang.Unroll
 import spock.util.concurrent.AsyncConditions
 
-import static com.intellisrc.web.samples.ChatWebSocketService.getRandomName
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+
 import static org.eclipse.jetty.http.HttpStatus.*
 
 /**
@@ -54,7 +55,7 @@ class WebServiceTest extends Specification {
 
     def "General Test"() {
         setup:
-            int port = 34683 //LocalHost.freePort
+            int port = LocalHost.freePort
             def web = new WebService(
                 port: port,
                 resources: publicDir,
@@ -304,5 +305,35 @@ class WebServiceTest extends Specification {
             assert !web.isRunning()
         cleanup:
             uploadDir.eachFile { it.delete() }
+    }
+
+    def "Test concurrency"() {
+        setup:
+            int port = LocalHost.freePort
+            def web = new WebService(
+                port: port,
+                resources: publicDir
+            )
+            IDService idService = new IDService(cacheTime: Cache.DISABLED)
+            web.addService(idService)
+            AtomicInteger count = new AtomicInteger(0)
+        when:
+            web.start(true)
+            def pool = Executors.newFixedThreadPool(10)
+            (1..50).each {
+                Integer id ->
+                    pool.submit {
+                        String txt = new URL("http://localhost:${port}/id/$id/").text
+                        if(txt.contains("{")) {
+                            count.getAndIncrement()
+                        }
+                    }
+            }
+        then:
+            pool.shutdown()
+            pool.awaitTermination(5, TimeUnit.SECONDS)
+            assert count.get() == 50
+            web.stop()
+            assert !web.isRunning()
     }
 }

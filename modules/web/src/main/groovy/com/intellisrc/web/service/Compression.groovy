@@ -14,6 +14,7 @@ enum Compression {
     BROTLI_COMPRESSED, GZIP_COMPRESSED, DEFLATE_COMPRESSED, NONE
 
     protected static Map<Compression, Boolean> availability = [:]
+    protected static List<Compression> availableCache = []
     /**
      * Compress bytes depending on method
      * @param bytes
@@ -54,23 +55,26 @@ enum Compression {
      * @return
      */
     static List<Compression> getAvailable() {
-        return values().findAll {
-            boolean available = true
-            if (it == BROTLI_COMPRESSED) {
-                if (availability.containsKey(it)) {
-                    available = availability[it]
-                } else {
-                    try {
-                        Class<?> brotli = Class.forName("com.nixxcode.jvmbrotli.common.BrotliLoader")
-                        available = (Boolean) brotli.getMethod("isBrotliAvailable").invoke(null)
-                    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                        Log.v("Brotli was not found: %s", e)
-                        available = false
+        if(availableCache.empty) {
+            availableCache = values().findAll {
+                boolean available = true
+                if (it == BROTLI_COMPRESSED) {
+                    if (availability.containsKey(it)) {
+                        available = availability[it]
+                    } else {
+                        try {
+                            Class<?> brotli = Class.forName("com.nixxcode.jvmbrotli.common.BrotliLoader")
+                            available = (Boolean) brotli.getMethod("isBrotliAvailable").invoke(null)
+                        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                            Log.v("Brotli was not found: %s", e)
+                            available = false
+                        }
+                        availability[it] = available
                     }
-                    availability[it] = available
                 }
+                return available
             }
-            return available
         }
+        return availableCache
     }
 }
