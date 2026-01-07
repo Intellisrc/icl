@@ -104,12 +104,3 @@ docker run --name hsqldb_test \
   -p 127.0.0.1:39001:9001 \
   -d datagrip/hsqldb  # 3years old
 fi
-# Informix
-#  "USER=informix"
-#  "PASSWORD=in4mix"
-if [[ $1 == "" || $1 == "informix" ]]; then
-docker run --name informix_test \
-  -e "LICENSE=accept" \
-  -p 127.0.0.1:39088:9088 \
-  -d ibmcom/informix-developer-database:latest
-fi

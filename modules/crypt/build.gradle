@@ -1,6 +1,6 @@
 dependencies {
     api project(':etc')
-    def bouncyVersion = '1.82'
+    def bouncyVersion = '1.83'
 
     api "org.bouncycastle:bcprov-jdk18on:${bouncyVersion}"
     api "org.bouncycastle:bcpkix-jdk18on:${bouncyVersion}"
