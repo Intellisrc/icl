@@ -15,11 +15,13 @@ import java.util.concurrent.TimeUnit
 class ServerSideEventsTest extends Specification {
     def messages = new CopyOnWriteArrayList<String>()
     def latch = new CountDownLatch(2)
+    def connected = new CountDownLatch(1)
 
     class ServerSSE extends ServerSentEvent {
         String path = "/test"
         OnClientConnect onClientConnect = { ->
             println("Client connected")
+            connected.countDown()
         }
     }
 
@@ -58,15 +60,18 @@ class ServerSideEventsTest extends Specification {
             OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(0, TimeUnit.MILLISECONDS) // Crucial: Don't timeout while reading the stream
-                .build();
+                .build()
 
             Request request = new Request.Builder()
                 .url("http://localhost:${port}/test")
                 .header("Accept", "text/event-stream")
-                .build();
+                .build()
 
             EventSource.Factory factory = EventSources.createFactory(client)
             EventSource eventSource = factory.newEventSource(request, new ClientSSEListener())
+
+        expect:
+            connected.await(2, TimeUnit.SECONDS)
 
         when:
             sse.broadcast("Hello, World!")
@@ -74,7 +79,7 @@ class ServerSideEventsTest extends Specification {
 
         then:
             latch.await(2, TimeUnit.SECONDS)
-            messages == ["Hello, World!", "Another event"]
+            assert messages.toList() == ["Hello, World!", "Another event"]
 
         cleanup:
             eventSource.cancel()

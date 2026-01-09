@@ -2,11 +2,12 @@ package com.intellisrc.web.service
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
+import jakarta.servlet.AsyncContext
+import jakarta.servlet.AsyncListener
+import jakarta.servlet.http.HttpServlet
 import jakarta.servlet.http.HttpServletRequest
-import org.eclipse.jetty.ee10.servlets.EventSource
-import org.eclipse.jetty.ee10.servlets.EventSourceServlet
+import jakarta.servlet.http.HttpServletResponse
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -17,67 +18,56 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @CompileStatic
 abstract class ServerSentEvent implements Serviciable {
-    static int maxSize = Config.any.get("web.sse.max.size", 64) // KB
+    static int maxSize          = Config.any.get("web.sse.max.size", 64) // KB
+    static String contentType   = Config.any.get("web.sse.content.type", "text/event-stream")
+    static String encoding      = Config.any.get("web.sse.encoding", "UTF-8")
 
-    @Override
     abstract String getPath()
-
     interface OnClientConnect { void call() }
-    interface EventCallback<E,D> { void call(E event, D data) }
-
-    private SSEServlet servlet = null
-    SSEServlet getServlet() {
-        if(! this.servlet) {
-            this.servlet = new SSEServlet()
-        }
-        return this.servlet
-    }
-
     OnClientConnect onClientConnect = null
+    private final ConcurrentLinkedQueue<AsyncContext> clients = new ConcurrentLinkedQueue<>()
 
-    final ConcurrentLinkedQueue<EventCallback<String, String>> onMessage = new ConcurrentLinkedQueue<>()
+    HttpServlet servlet = new HttpServlet() {
 
-    class SSEServlet extends EventSourceServlet {
         @Override
-        protected EventSource newEventSource(HttpServletRequest httpServletRequest) {
-            boolean running = true
-            return new EventSource() {
-                @Override
-                void onOpen(EventSource.Emitter emitter) throws IOException {
-                    Log.d("Client connected")
-                    if(onClientConnect) {
-                        onClientConnect.call()
-                    }
-                    EventCallback<String, String> evenCaller = (EventCallback<String, String>) {
-                        String event, String message ->
-                            try {
-                                emitter.event(event, message)
-                            } catch(Exception ignore) {
-                                running = false
-                            }
-                    }
-                    onMessage << evenCaller
-                    Log.d("Clients: %d", onMessage.size())
-                    while(running) {
-                        sleep(Millis.MILLIS_100)
-                    }
-                    onMessage.remove(evenCaller)
-                    Log.d("Client disconnected (remaining: %d)", onMessage.size())
-                }
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+            resp.setStatus(200)
+            resp.setContentType(contentType)
+            resp.setCharacterEncoding(encoding)
+            resp.setHeader("Cache-Control", "no-cache")
+            resp.setHeader("Connection", "keep-alive")
 
-                @Override
-                void onClose() {
-                    running = false
-                }
+            AsyncContext async = req.startAsync()
+            async.setTimeout(0)
+
+            clients.add(async)
+
+            if(onClientConnect) {
+                onClientConnect.call()
             }
+
+            async.addListener([
+                onComplete: { clients.remove(async) },
+                onTimeout : { clients.remove(async) },
+                onError   : { clients.remove(async) }
+            ] as AsyncListener)
         }
     }
 
     void broadcast(WebMessage wm, String event = "message") {
         String msg = wm.toString()
         if(msg.size() <= maxSize) {
-            onMessage.each {
-                it.call(event, msg)
+            clients.each { AsyncContext async ->
+                try {
+                    PrintWriter out = async.response.writer
+                    out.write("event: $event\n")
+                    out.write("data: $msg\n\n")
+                    out.flush()
+                } catch (Exception e) {
+                    clients.remove(async)
+                    async.complete()
+                    Log.d("Exception while broadcasting: %s", e)
+                }
             }
         } else {
             Log.w("Unable to send message. It is too large: %d > %d", msg.size(), maxSize)

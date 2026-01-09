@@ -192,14 +192,10 @@ class WebService extends WebServiceBase {
                                 ServerSentEvent sse = serviciable as ServerSentEvent
                                 Log.v("Adding SSE Service at path: [%s]", sse.path)
 
-                                ServletContextHandler sseContext = new ServletContextHandler(ServletContextHandler.SESSIONS)
-                                sseContext.setContextPath("/")
                                 ServletHolder holder = new ServletHolder(sse.servlet)
                                 holder.initOrder = 0
-                                sseContext.addServlet(holder, sse.path)
-                                sseContext.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
-
-                                handlers.addHandler(sseContext)
+                                holder.setAsyncSupported(true)
+                                contextHandler.addServlet(holder, sse.path)
 
                                 // We set reserved services to prevent other services to use the same path:
                                 prepared = setupService(serviciable, new Service(
