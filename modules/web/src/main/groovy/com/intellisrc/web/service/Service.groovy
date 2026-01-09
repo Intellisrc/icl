@@ -1,6 +1,13 @@
 package com.intellisrc.web.service
 
+import com.intellisrc.core.Log
 import com.intellisrc.etc.Cache
+import com.intellisrc.web.service.routing.PathMatcher
+import com.intellisrc.web.service.routing.ExactMatcher
+import com.intellisrc.web.service.routing.GlobMatcher
+import com.intellisrc.web.service.routing.OptionalMatcher
+import com.intellisrc.web.service.routing.ParamsMatcher
+import com.intellisrc.web.service.routing.RegExMatcher
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http.HttpMethod
 
@@ -149,6 +156,32 @@ class Service implements Serviciable {
 
     // Internally used to setup special rules (automatically assigned)
     ServiceType serviceType = ServiceType.HTTP
+    // Used for path matching
+    protected PathMatcher matcher   = null
+    List<String> samplePaths = []                       // Required for regular expression matching (example URI paths that should match that RegExp)
+
+    PathMatcher getMatcher() {
+        if (!matcher) {
+            // Automatically assign Matcher:
+            matcher = switch (true) {
+                case path.startsWith("~/") -> new RegExMatcher()
+                case path.contains("/:") -> new ParamsMatcher()
+                case path.endsWith("/?") -> new OptionalMatcher()
+                case path.endsWith("*") -> new GlobMatcher()
+                default -> new ExactMatcher()
+            }
+        }
+        if(matcher.pathEmpty) {
+            matcher.path = path
+        }
+        matcher.samples.addAll(samplePaths)
+
+        if(matcher instanceof RegExMatcher && matcher.samples.empty) {
+            Log.w("Regular expression paths may collide with other paths, " +
+                "so it is recommended to set 'samplePaths' property for path: %s", path)
+        }
+        return matcher
+    }
     // The following are used by WebService to set correctly the users intention with compression:
     protected boolean compressIsExplicit = false
     void setCompress(boolean val) {
@@ -179,6 +212,19 @@ class Service implements Serviciable {
         this.path = "~/" + pattern.toString() + "/"
     }
 
+    /**
+     * Checks if two services path collide
+     * @param a
+     * @param other
+     * @return
+     */
+    boolean collides(Service other) {
+        return (method == other.method) &&
+            (serviceType.protocol == other.serviceType.protocol) &&
+            (acceptCharset == other.acceptCharset) &&
+            (acceptType == other.acceptType) &&
+            matcher.overlaps(other.matcher)
+    }
     /**
      * Generate headers according to restraints
      * @return

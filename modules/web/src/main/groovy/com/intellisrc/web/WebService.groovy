@@ -11,6 +11,8 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
+import com.intellisrc.web.service.routing.ParamsMatcher
+import com.intellisrc.web.service.routing.RegExMatcher
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import jakarta.servlet.DispatcherType
@@ -1155,13 +1157,7 @@ class WebService extends WebServiceBase {
 
             // Then check services:
             if (!out) {
-                MatchFilterResult mfr = matchURI(
-                    request.uri(),
-                    fromString(request.method.trim().toUpperCase()),
-                    request.headers(ACCEPT),
-                    request.headers(ACCEPT_CHARSET),
-                    request.getHeader("Upgrade")?.equalsIgnoreCase("websocket") ? "ws" : "http"
-                )
+                MatchFilterResult mfr = matchURI(request)
                 if (mfr.route.present) {
                     request.setPathParameters(mfr.params)   // Inject params to request
                     Service sp = mfr.route.get()
@@ -1344,10 +1340,7 @@ class WebService extends WebServiceBase {
      * @return
      */
     boolean addService(Service service) throws DuplicateException {
-        boolean duplicated = definitions.any {
-            (it.path == service.path && it.method == service.method && it.acceptType == service.acceptType &&
-                it.serviceType.protocol == service.serviceType.protocol) ||
-            matchURI(service.path, service.method, service.acceptType, service.acceptCharset, service.serviceType.protocol).route.present }
+        boolean duplicated = collidesWith(service)
         if (duplicated) {
             Log.w("Warning, duplicated path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
                 service.path, service.method.toString(), service.acceptType, service.serviceType.toString())
@@ -1388,68 +1381,37 @@ class WebService extends WebServiceBase {
         return fullPath
     }
     /**
+     * Check if any service within the web server collides with a service
+     * @param service
+     * @return
+     */
+    protected boolean collidesWith(Service service) {
+        return definitions.any { it.collides(service) }
+    }
+    /**
      * Find the route according to request
      * @param request
      * @return
-     * FIXME: fullPath here is the existing service path, while path is the service we want to add.
-     *        it should check the new path against the existing paths, not the other way around.
      */
-    protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType, String acceptCharset, String protocol) {
-        Map<String,String> params = [:]
+    protected MatchFilterResult matchURI(Request request) {
+        String path = request.uri()
+        HttpMethod method = fromString(request.method.trim().toUpperCase())
+        String acceptType = request.headers(ACCEPT)
+        String acceptCharset = request.headers(ACCEPT_CHARSET)
+        String protocol = request.getHeader("Upgrade")?.equalsIgnoreCase("websocket") ? "ws" : "http"
+
         Service match = definitions.find {
             Service srv ->
-                boolean found = false
-                if(srv.method == method && srv.serviceType.protocol == protocol &&
-                    (srv.acceptType == "*/*" || acceptType.tokenize(",").collect {
-                    it.replaceAll(/;.*$/,"")
-                }.contains(srv.acceptType)) && (! srv.acceptCharset || srv.acceptCharset == acceptCharset)) {
-                    // Match exact path
-                    // Match with regex (e.g. /^path/(admin|control|manager)?$/ )
-                    String fullPath = srv.path
-                    // Append root slash if needed:
-                    if(!  (fullPath.startsWith("/") || fullPath.startsWith("~"))) {
-                        fullPath = "/" + fullPath
-                    }
-                    if (fullPath == path ||
-                        (fullPath.endsWith("/?") && fullPath.replaceAll(/\/\?$/, '') == path.replaceAll(/\/$/, '')) &&
-                        (path.endsWith("/?") && path.replaceAll(/\/\?$/, '') == fullPath.replaceAll(/\/$/, ''))) {
-                        found = true
-                    } else {
-                        // Match with path variables (e.g. /path/:var/)
-                        // Match with glob (e.g. /path/*)
-                        Pattern pattern = null
-                        if (fullPath.contains("/:") || fullPath.contains("*")) {
-                            pattern = Pattern.compile(
-                                fullPath.replaceAll(/\*/, "(?<splat>.*)")
-                                    .replaceAll("/:([^/]*)", '/(?<$1>[^/]*)').replaceAll(/\$$/,'') + '$'
-                                , Pattern.CASE_INSENSITIVE)
-                        } else if (fullPath.startsWith("~/")) {
-                            pattern = Service.toPattern(fullPath)
-                        }
-                        if (pattern) {
-                            // Strict regex should also match the starting '/', otherwise we remove it from the request:
-                            String toMatch = srv.strictPath ? path : (pattern.toString().startsWith("/") ? path : path.replaceFirst(/^\//,''))
-                            Matcher matcher = (toMatch =~ pattern)
-                            if (matcher.find()) {
-                                found = true
-                                if (matcher.hasGroup()) {
-                                    Matcher groupMatcher = Pattern.compile("\\(\\?<(\\w+)>").matcher(pattern.toString())
-                                    while (groupMatcher.find()) {
-                                        String groupName = groupMatcher.group(1)
-                                        if (groupName) {
-                                            params[groupName] = matcher.group(groupName).toString()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return found
+                srv.method == method && srv.serviceType.protocol == protocol &&
+                    (srv.acceptType == "*/*" || acceptType.tokenize(",")
+                        .collect { it.replaceAll(/;.*$/, "") }
+                        .contains(srv.acceptType)) &&
+                    (!srv.acceptCharset || srv.acceptCharset == acceptCharset) &&
+                    srv.matcher.matches(path)
         }
+
         return new MatchFilterResult(
-            Optional.ofNullable(match),
-            params
+            Optional.ofNullable(match)
         )
     }
 
