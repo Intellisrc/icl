@@ -70,6 +70,7 @@ import static org.eclipse.jetty.http.HttpStatus.*
 class WebService extends WebServiceBase {
     static String defaultCharset = Config.any.get("web.charset", "UTF-8")
     static boolean forceFile = Config.any.get("web.upload.force", false) // Throw exception when file is expected and it is empty
+    static boolean failOnCollision = Config.any.get("web.collision.error", true) // Throw exception when same path, method, etc is used: false will only warn
 
     public int threads = 20
     public int minThreads = 2
@@ -113,6 +114,12 @@ class WebService extends WebServiceBase {
 
     static interface StartCallback {
         void call(WebService srv)
+    }
+
+    static class DuplicateException extends Exception {
+        DuplicateException(String msg) {
+            super(msg)
+        }
     }
 
     @TupleConstructor
@@ -167,7 +174,7 @@ class WebService extends WebServiceBase {
      * It will add all specified services into routes
      * and launch the Jetty Server
      */
-    WebService start(boolean background = false, StartCallback onStart = null) {
+    WebService start(boolean background = false, StartCallback onStart = null) throws DuplicateException {
         init()
         try {
             if (LocalHost.isPortAvailable(port, address)) {
@@ -299,6 +306,9 @@ class WebService extends WebServiceBase {
             } else {
                 Log.w("Port %d is already in use", port)
             }
+        } catch(DuplicateException de) {
+            // Should crash on start
+            throw de
         } catch(WebException we) {
             // It should have been handled before here
             Log.w("Not handled: Web service error: %s", we)
@@ -334,7 +344,7 @@ class WebService extends WebServiceBase {
      * @param serviciable
      * @param sp
      */
-    protected boolean setupService(Serviciable serviciable, Service sp) {
+    protected boolean setupService(Serviciable serviciable, Service sp) throws DuplicateException {
         // If Serviciable specifies allowOrigin and the Service doesn't, set it.
         if(serviciable.allowOrigin != null && sp.allowOrigin == null) {
             sp.allowOrigin = serviciable.allowOrigin
@@ -1333,14 +1343,18 @@ class WebService extends WebServiceBase {
      * @param route
      * @return
      */
-    boolean addService(Service service) {
+    boolean addService(Service service) throws DuplicateException {
         boolean duplicated = definitions.any {
             (it.path == service.path && it.method == service.method && it.acceptType == service.acceptType &&
                 it.serviceType.protocol == service.serviceType.protocol) ||
             matchURI(service.path, service.method, service.acceptType, service.acceptCharset, service.serviceType.protocol).route.present }
         if (duplicated) {
-            Log.w("Warning, duplicated path [%s] and method [%s] and acceptType [%s] found.",
-                service.path, service.method.toString(), service.acceptType)
+            Log.w("Warning, duplicated path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
+                service.path, service.method.toString(), service.acceptType, service.serviceType.toString())
+            if(failOnCollision) {
+                throw new DuplicateException(String.format("Duplicated path detected: [ path: %s, method: %s, accept: %s, type: %s ]",
+                    service.path, service.method.toString(), service.acceptType, service.serviceType.toString()))
+            }
             return false
         }
         return definitions.add(service)
@@ -1377,6 +1391,8 @@ class WebService extends WebServiceBase {
      * Find the route according to request
      * @param request
      * @return
+     * FIXME: fullPath here is the existing service path, while path is the service we want to add.
+     *        it should check the new path against the existing paths, not the other way around.
      */
     protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType, String acceptCharset, String protocol) {
         Map<String,String> params = [:]
@@ -1395,7 +1411,8 @@ class WebService extends WebServiceBase {
                         fullPath = "/" + fullPath
                     }
                     if (fullPath == path ||
-                        (fullPath.endsWith("/?") && fullPath.replaceAll(/\/\?$/, '') == path.replaceAll(/\/$/, ''))) {
+                        (fullPath.endsWith("/?") && fullPath.replaceAll(/\/\?$/, '') == path.replaceAll(/\/$/, '')) &&
+                        (path.endsWith("/?") && path.replaceAll(/\/\?$/, '') == fullPath.replaceAll(/\/$/, ''))) {
                         found = true
                     } else {
                         // Match with path variables (e.g. /path/:var/)
