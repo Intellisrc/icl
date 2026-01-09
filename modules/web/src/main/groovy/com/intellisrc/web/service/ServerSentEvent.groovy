@@ -22,6 +22,7 @@ abstract class ServerSentEvent implements Serviciable {
     @Override
     abstract String getPath()
 
+    interface OnClientConnect { void call() }
     interface EventCallback<E,D> { void call(E event, D data) }
 
     private SSEServlet servlet = null
@@ -31,6 +32,8 @@ abstract class ServerSentEvent implements Serviciable {
         }
         return this.servlet
     }
+
+    OnClientConnect onClientConnect = null
 
     final ConcurrentLinkedQueue<EventCallback<String, String>> onMessage = new ConcurrentLinkedQueue<>()
 
@@ -42,6 +45,9 @@ abstract class ServerSentEvent implements Serviciable {
                 @Override
                 void onOpen(EventSource.Emitter emitter) throws IOException {
                     Log.d("Client connected")
+                    if(onClientConnect) {
+                        onClientConnect.call()
+                    }
                     EventCallback<String, String> evenCaller = (EventCallback<String, String>) {
                         String event, String message ->
                             try {

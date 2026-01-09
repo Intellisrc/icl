@@ -76,8 +76,8 @@ class SSEService {
     }
     static void main(String[] args) {
         new WebService(port: port)
-            .add(new SSETestClient())
             .add(new SSETestServer())
+            .add(new SSETestClient())
             .start()
     }
 }

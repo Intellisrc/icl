@@ -84,4 +84,8 @@ class WebSocketTest extends Specification {
             new ChatWebSocketService()      | "Chat WebSocket extends"
             new ChatWebSocketServiceIface() | "Chat WebSocket implements"
     }
+
+    def "Test path collision"() {
+
+    }
 }
