@@ -200,7 +200,7 @@ class WebService extends WebServiceBase {
                                 // We set reserved services to prevent other services to use the same path:
                                 prepared = setupService(serviciable, new Service(
                                     method: GET,
-                                    reserved : true
+                                    serviceType: Service.ServiceType.SSE
                                 ))
                                 break
                             case ServiciableWebSocket:
@@ -211,10 +211,10 @@ class WebService extends WebServiceBase {
                                 // Reserve HTTP paths so no HTTP service collides
                                 prepared = setupService(serviciable, new Service(
                                      method: CONNECT,
-                                     reserved: true
+                                     serviceType: Service.ServiceType.WS
                                 )) && setupService(serviciable, new Service(
                                      method: GET,
-                                     reserved: true
+                                     serviceType: Service.ServiceType.WS
                                 ))
                                 break
                             case ServiciableAuth:
@@ -366,7 +366,7 @@ class WebService extends WebServiceBase {
         if(! sp.onError && serviciable.onError) {
             sp.onError = serviciable.onError
         }
-        Log.v("Adding Service: [%s] with method %s", sp.path, sp.method.toString())
+        Log.v("Adding Service: [%s] with method %s for protocol: %s", sp.path, sp.method.toString(), sp.serviceType.protocol.toUpperCase())
         return addService(sp)
     }
 
@@ -1149,7 +1149,8 @@ class WebService extends WebServiceBase {
                     request.uri(),
                     fromString(request.method.trim().toUpperCase()),
                     request.headers(ACCEPT),
-                    request.headers(ACCEPT_CHARSET)
+                    request.headers(ACCEPT_CHARSET),
+                    request.getHeader("Upgrade")?.equalsIgnoreCase("websocket") ? "ws" : "http"
                 )
                 if (mfr.route.present) {
                     request.setPathParameters(mfr.params)   // Inject params to request
@@ -1158,9 +1159,7 @@ class WebService extends WebServiceBase {
                     if(sp.beforeRequest) {
                         sp.beforeRequest.run(request)
                     }
-                    if(sp.reserved) { // Skip reserved
-                        reserved = true
-                    } else {
+                    if(sp.serviceType.processService) {
                         boolean addToCache = sp.cacheTime && !cacheFull
                         try {
                             if (sp.cacheTime) { // Check if its in Cache
@@ -1175,6 +1174,8 @@ class WebService extends WebServiceBase {
                         } catch (Throwable e) {
                             throw new WebException(sp, INTERNAL_SERVER_ERROR_500, addToCache ? "Cache failure" : "Process Service failure", e)
                         }
+                    } else { // Skip reserved (e.g. WebSockets)
+                        reserved = true
                     }
                     //Call hook:
                     if(sp.beforeResponse) {
@@ -1334,8 +1335,9 @@ class WebService extends WebServiceBase {
      */
     boolean addService(Service service) {
         boolean duplicated = definitions.any {
-            (it.path == service.path && it.method == service.method && it.acceptType == service.acceptType) ||
-            matchURI(service.path, service.method, service.acceptType, service.acceptCharset).route.present }
+            (it.path == service.path && it.method == service.method && it.acceptType == service.acceptType &&
+                it.serviceType.protocol == service.serviceType.protocol) ||
+            matchURI(service.path, service.method, service.acceptType, service.acceptCharset, service.serviceType.protocol).route.present }
         if (duplicated) {
             Log.w("Warning, duplicated path [%s] and method [%s] and acceptType [%s] found.",
                 service.path, service.method.toString(), service.acceptType)
@@ -1376,12 +1378,13 @@ class WebService extends WebServiceBase {
      * @param request
      * @return
      */
-    protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType, String acceptCharset) {
+    protected MatchFilterResult matchURI(String path, HttpMethod method, String acceptType, String acceptCharset, String protocol) {
         Map<String,String> params = [:]
         Service match = definitions.find {
             Service srv ->
                 boolean found = false
-                if(srv.method == method && (srv.acceptType == "*/*" || acceptType.tokenize(",").collect {
+                if(srv.method == method && srv.serviceType.protocol == protocol &&
+                    (srv.acceptType == "*/*" || acceptType.tokenize(",").collect {
                     it.replaceAll(/;.*$/,"")
                 }.contains(srv.acceptType)) && (! srv.acceptCharset || srv.acceptCharset == acceptCharset)) {
                     // Match exact path

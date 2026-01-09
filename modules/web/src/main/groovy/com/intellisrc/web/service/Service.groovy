@@ -15,6 +15,21 @@ import static com.intellisrc.web.service.HttpHeader.CACHE_CONTROL
  */
 @CompileStatic
 class Service implements Serviciable {
+    static enum ServiceType {
+        HTTP, SSE, WS
+        String getProtocol() {
+            return switch (this) {
+                case WS -> "ws"
+                default -> "http"
+            }
+        }
+        boolean getProcessService() {
+            return switch (this) {
+                case HTTP -> true
+                default -> false
+            }
+        }
+    }
     /**
      * Execute an action and return for example, JSON data
      */
@@ -132,8 +147,8 @@ class Service implements Serviciable {
     BeforeResponse beforeResponse   = null
     ServiceError onError = null                         // { int code, Exception original -> } : Used to pass errors on actions
 
-    // Used to skip the service from being processed but reserving the path to prevent collision (e.g. WebSocket)
-    boolean reserved = false
+    // Internally used to setup special rules (automatically assigned)
+    ServiceType serviceType = ServiceType.HTTP
     // The following are used by WebService to set correctly the users intention with compression:
     protected boolean compressIsExplicit = false
     void setCompress(boolean val) {

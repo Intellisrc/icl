@@ -1,7 +1,9 @@
 package com.intellisrc.web
 
+import com.intellisrc.etc.JSON
 import com.intellisrc.net.LocalHost
 import com.intellisrc.web.service.ServerSentEvent
+import com.intellisrc.web.service.WebMessage
 import okhttp3.*
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
@@ -14,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 class ServerSideEventsTest extends Specification {
     def messages = new CopyOnWriteArrayList<String>()
-    def latch = new CountDownLatch(2)
+    def latch = new CountDownLatch(5)
     def connected = new CountDownLatch(1)
 
     class ServerSSE extends ServerSentEvent {
@@ -76,10 +78,19 @@ class ServerSideEventsTest extends Specification {
         when:
             sse.broadcast("Hello, World!")
             sse.broadcast("Another event")
+            sse.broadcast([ hello : "world"])
+            sse.broadcast(["one", "two"])
+            sse.broadcast(new WebMessage("Something"))
 
         then:
             latch.await(2, TimeUnit.SECONDS)
-            assert messages.toList() == ["Hello, World!", "Another event"]
+            assert messages.toList() == [
+                "Hello, World!",
+                "Another event",
+                JSON.encode([ hello : "world"]),
+                JSON.encode(['one','two']),
+                "Something"
+            ]
 
         cleanup:
             eventSource.cancel()
