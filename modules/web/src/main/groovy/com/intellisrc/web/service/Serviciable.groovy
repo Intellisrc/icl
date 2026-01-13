@@ -15,7 +15,7 @@ import static com.intellisrc.web.service.Service.*
  * /foo                             : will work with "/foo", but not "/foo/"
  * /foo/bar                         : subdirectory
  * /foo/:var                        : You can read directory using: request.params(":var")
- * /foo/*_/some/*_/bar              : Array can be get with: request.splat()  (*_ = *)
+ * /foo/*                           : List (split by /) can be get with: request.glob()
  * </code>
  *
  * You can read GET parameters like: request.queryParams("name")

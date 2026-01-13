@@ -1411,7 +1411,8 @@ class WebService extends WebServiceBase {
         }
 
         return new MatchFilterResult(
-            Optional.ofNullable(match)
+            Optional.ofNullable(match),
+            match.matcher.getGroups(path)
         )
     }
 

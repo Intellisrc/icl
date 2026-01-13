@@ -18,23 +18,37 @@ class GlobMatcher extends PathMatcher {
     }
 
     @Override
-    List<String> getSamples() {
+    Set<String> getSamples() {
         String base = normalizedGlob
-        List<String> samples = (1..20).collect {
+        Set<String> samples = []
+        (1..10).each {
             base += it + "/"
-            return base
+            samples << base
+            samples << (base + "file.test")
         }
         return samples
     }
 
     // Remove "*" for comparison
-    String getNormalizedGlob() {
+    private String getNormalizedGlob() {
         return path.replace("*", "")
     }
 
-    String normalizeRequest(String path) {
+    private String normalizeRequest(String path) {
         String normal = super.normalize(path)
         if(! path.endsWith("/")) { normal = normal + "/" }
         return normal
+    }
+
+    @Override
+    Map<String, String> getGroups(String uri) {
+        uri = normalizeRequest(uri)
+        String base = normalizedGlob
+
+        if (! uri.startsWith(base)) {
+            return [:]
+        }
+
+        return [ glob: uri.substring(base.length()) ]
     }
 }

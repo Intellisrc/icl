@@ -373,16 +373,19 @@ new Service(
 )
 ```
 
-You can use `splat`:
+You can use `glob`:
 ```groovy
 new Service(
-    path : "/user/*/panel",
+    path : "/user/*",
     action: {
         Request request ->
-            String splat = request.splat()[0]
-            return "ok"
+            return request.glob()
     }
 )
+```
+if request is: `/user/sam/address.html`, the return value will be:
+```groovy
+["sam", "address.html"]
 ```
 
 Trailing slash can be optional:

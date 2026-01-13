@@ -14,7 +14,7 @@ abstract class PathMatcher {
      * Returns a finite set of representative paths
      * that this matcher would accept.
      */
-    List<String> samples = []
+    Set<String> samples = []
 
     abstract boolean matches(String path)
 

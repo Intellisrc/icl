@@ -30,7 +30,7 @@ class Request {
     protected final InetSocketAddress webSocketAddress
 
     final ConcurrentHashMap<String, String> pathParameters = new ConcurrentHashMap<>()
-    protected String splat = ""
+    protected String glob = ""
 
     Request(ServletRequest request) {
         this.servlet = (HttpServletRequest) request
@@ -138,7 +138,7 @@ class Request {
 
     void setPathParameters(Map<String, String> params) {
         params.each { k, v ->
-            if (k == "splat") splat = v
+            if (k == "glob") glob = v
             else pathParameters.put(k, v)
         }
     }
@@ -163,8 +163,16 @@ class Request {
         return !pathParameters.isEmpty()
     }
 
+    // Alias: backwards compatibility
     List<String> splat() {
-        return splat ? splat.tokenize("/") : []
+        return getGlob()
+    }
+    /**
+     * Returns the last part of an URI which path is like: 'something/*'
+     * @return
+     */
+    List<String> getGlob() {
+        return this.glob ? this.glob.tokenize("/") : []
     }
 
     // ---------------- QUERY PARAMS ----------------

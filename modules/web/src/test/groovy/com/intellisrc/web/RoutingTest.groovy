@@ -29,6 +29,10 @@ class RoutingTest extends Specification {
                 Service service = new Service(path: alias, samplePaths: samples)
                 assert service.matcher.class == matcherType
 
+                if(matcherType != RegExMatcher) {
+                    assert service.matcher.samples.size() > 0
+                }
+
                 (matches).each {
                     println "Matches: ${service.path} vs ${it}"
                     assert service.matcher.matches(it)
@@ -137,7 +141,12 @@ class RoutingTest extends Specification {
 
     def "Regex groups should be captured"() {
         setup:
-            Service service = new Service(path: "(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2}).html")
+            Service service = new Service(path: "(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2}).html", samplePaths: ["2000-01-30"])
+            assert service.matcher.class == RegExMatcher
+            service.matcher.samples.each {
+                println it
+            }
+            assert service.matcher.samples.size() == 1 : "samplePaths should be added to matcher samples"
 
         when:
             Map groups = service.matcher.getGroups("/2000-12-31.html")
@@ -148,4 +157,38 @@ class RoutingTest extends Specification {
             assert groups.day == "31"
     }
 
+    def "Params groups should be captured"() {
+        setup:
+            Service service = new Service(path: "/test/:user/:area/")
+            assert service.matcher.class == ParamsMatcher
+            service.matcher.samples.each {
+                println it
+            }
+            assert service.matcher.samples.size() == 1 : "samples should be generated"
+
+        when:
+            Map groups = service.matcher.getGroups("/test/peter/sports/")
+        then:
+            assert ! groups.isEmpty()
+            assert groups.user == "peter"
+            assert groups.area == "sports"
+    }
+
+    def "Glob group should be captured correctly"() {
+        setup:
+            Service service = new Service(path: "/test/*")
+            assert service.matcher.class == GlobMatcher
+            assert service.matcher.samples.size() > 1 : "samples should be generated"
+
+            service.matcher.samples.each {
+                println it
+            }
+
+        when:
+            Map groups = service.matcher.getGroups("/test/peter/sports/")
+        then:
+            assert ! groups.isEmpty()
+            assert groups.glob == "peter/sports/"
+
+    }
 }

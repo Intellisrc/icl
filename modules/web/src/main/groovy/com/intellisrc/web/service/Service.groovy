@@ -169,15 +169,19 @@ class Service implements Serviciable {
                 case path.endsWith("*") -> new GlobMatcher()
                 default -> new ExactMatcher()
             }
-        }
-        if(matcher.pathEmpty) {
-            matcher.path = path
-        }
-        matcher.samples.addAll(samplePaths)
+            if(matcher.pathEmpty) {
+                matcher.path = path
+            }
+            // Remove Regex from samples:
+            if(matcher instanceof RegExMatcher) {
+                matcher.samples.clear()
+            }
+            matcher.samples.addAll(samplePaths)
 
-        if(matcher instanceof RegExMatcher && matcher.samples.empty) {
-            Log.w("Regular expression paths may collide with other paths, " +
-                "so it is recommended to set 'samplePaths' property for path: %s", path)
+            if(matcher instanceof RegExMatcher && matcher.samples.empty) {
+                Log.w("Regular expression paths may collide with other paths, " +
+                    "so it is recommended to set 'samplePaths' property for path: %s", path)
+            }
         }
         return matcher
     }
