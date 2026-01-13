@@ -15,11 +15,11 @@ import spock.lang.Unroll
 class RoutingTest extends Specification {
     private static void assertMatcher(
         Class matcherType,
-        List<String> aliases = [],
-        List<String> matches = [],
+        List<String> aliases    = [],
+        List<String> matches    = [],
         List<String> notMatches = [],
-        List<String> collides = [],
-        List<String> samples = [] //For Regex
+        List<String> collides   = [],
+        List<String> samples    = [] //For Regex
     ) {
         if(matches.empty) {
             matches = aliases
@@ -46,6 +46,41 @@ class RoutingTest extends Specification {
         }
     }
 
+    private static void assertRegexCollisionCheck(
+        String path,
+        List<String> samples            = [],
+        String collidePath,
+        List<String> collideSamples     = [],
+        String noCollidePath,
+        List<String> noCollideSamples   = []
+    ) {
+        Service service = new Service(path: path, samplePaths: samples)
+        Service collide = new Service(path: collidePath, samplePaths: collideSamples)
+        Service noCollide = new Service(path: noCollidePath, samplePaths: noCollideSamples)
+
+        assert service.matcher.class == RegExMatcher
+        assert collide.matcher.class == RegExMatcher
+        assert noCollide.matcher.class == RegExMatcher
+
+        assert service.collides(collide) : "Should collide with collide service"
+        assert ! service.collides(noCollide) : "Should not collide with noCollide service"
+    }
+
+    private static void assertRegexMatcher(String regex, List<String> match, List<String> noMatch) {
+        println "----------------[ $regex ]------------------------"
+        Service service = new Service(path: regex, samplePaths: [])
+
+        assert service.matcher.class == RegExMatcher
+        match.each {
+            println "Match : ${it}"
+            assert service.matcher.matches(it)
+        }
+        noMatch.each {
+            println "NO Match : ${it}"
+            assert ! service.matcher.matches(it)
+        }
+    }
+
     @Unroll
     def "PathMatcher classes should work properly"() {
         expect:
@@ -66,12 +101,51 @@ class RoutingTest extends Specification {
             ParamsMatcher   | ["test/:param"]       | ["test/1","/test/1"]  | ["test/1/", "/test/1/", "/", "/test/", "test/", "other/1"]                   | ["test/one","/test/two"]                               | []
             ParamsMatcher   | ["test/:param/"]      | ["test/1/","/test/1/"]| ["test/1", "/test/1", "/", "/test/", "test/", "other/1"]                     | ["/test/one/","test/two/"]                             | []
             GlobMatcher     | ["test/*"]            | ["test/1", "test/1/", "test/1/2/", "/test/1", "/test/1/2"] | ["other/", "/", "other/1/"]             | ["/test/one", "test/two/", "test/three", "/test/four/"] | []
-            RegExMatcher    | ["~/[0-9]{3}.jpg/"]    | ["111.jpg","/222.jpg"]| ["0000.jpg","/","/other","test.jpg"]                                        | []                                                      | ["123.jpg", "/123.jpg"]
-            RegExMatcher    | ["~/(?<code>[0-9]{3}).jpg/"] | ["111.jpg","/222.jpg"]| ["0000.jpg","/","/other","test.jpg"]                                  | []                                                      | ["123.jpg", "/123.jpg"]
+            RegExMatcher    | ["~/[0-9]{3}.jpg/"]    | ["111.jpg","/222.jpg"]| ["0000.jpg","/","/other","test.jpg"]                                        | ["/:other"]                                                      | ["123.jpg", "/123.jpg"]
+            RegExMatcher    | ["~/test/(?<code>[0-9]{3}).jpg/"] | ["test/111.jpg","/test/222.jpg"]| ["/test/0000.jpg","/","/other","test.jpg","/test/","test/0000.jpg"] | ["/test/:other"]                      | ["/test/123.jpg"]
     }
 
-    def "Regular Expression advanced testing"() {
+    @Unroll
+    def "Regular Expression collision test"() {
         expect:
-            assert false : "Not implemented yet"
+            assertRegexCollisionCheck(regex, regexSamples, conflict, conflictSamples, noConflict, noConflicSamples)
+
+        where:
+            regex                           | regexSamples                      | conflict             | conflictSamples                | noConflict                 | noConflicSamples
+            /[0-9]{4}(-[a-z]{6})?\.html/    | ["2000-abcdef.html", "2001.html"] | /\w{4,6}\..+/        | ["abc123.jpg","a12345.mp3"]    | /[0-9]{6}\.html/           | ["111222.html"]
+            /^[0-9]{4}(-[a-z]{6})?\.html$/    | ["2000-abcdef.html", "2001.html"] | /\w{4,6}\..+/      | ["abc123.jpg","a12345.mp3"]    | /[0-9]{6}\.html/           | ["111222.html"]
     }
+
+    /**
+     * Full paths are: /^...$/
+     */
+    @Unroll
+    def "Strict regex should match full paths and vice-versa"() {
+        expect:
+            assertRegexMatcher(regex, matches, noMatches)
+
+        where:
+            regex                           | matches                           | noMatches
+            /[0-9]{4}(-[a-z]{6})?\.html/    | ["2000-abcdef.html", "2001.html"] | ["111222.html", "2000-aa.html"]
+            /.*[0-9]{4}(-[a-z]{6})?\.html/  | ["2000-abcdef.html", "2001.html", "20-2000-abcdef.html","111222.html","/test/2000-abcdef.html"] | ["2000-aa.html","200.html","200-abcdef.html"]
+        // ^ and $ are optional as they are always added automatically
+            /^[0-9]{4}(-[a-z]{6})?\.html$/  | ["2000-abcdef.html", "2001.html", "/2000-abcdef.html", "/2001.html"] | ["111222.html", "2000-aa.html","102000-abcdef.html"]
+        // slash "/" at the beginning of a regex should be removed as it is not required:
+            /^\/[0-9]{4}(-[a-z]{6})?\.html$/  | ["2000-abcdef.html", "2001.html", "/2000-abcdef.html", "/2001.html"] | ["111222.html", "2000-aa.html","102000-abcdef.html"]
+            /^\/[0-9]{4}\/$/                  | ["2000/", "/2001/"] | ["111222/", "/2000-aa/","/102000/","/2001","2001"]
+    }
+
+    def "Regex groups should be captured"() {
+        setup:
+            Service service = new Service(path: "(?<year>[0-9]{4})-(?<month>[0-9]{2})-(?<day>[0-9]{2}).html")
+
+        when:
+            Map groups = service.matcher.getGroups("/2000-12-31.html")
+        then:
+            assert ! groups.isEmpty()
+            assert groups.year == "2000"
+            assert groups.month == "12"
+            assert groups.day == "31"
+    }
+
 }

@@ -56,4 +56,12 @@ abstract class PathMatcher {
         // Replace any double slash in the path:
         return path.replaceAll(/\/\//,'/')
     }
+
+    /**
+     * Return groups in path
+     * @return
+     */
+    Map<String, String> getGroups(String uri) {
+        return [:]
+    }
 }

@@ -2,6 +2,9 @@ package com.intellisrc.web.service.routing
 
 import groovy.transform.CompileStatic
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 /**
  * @since 2026/01/09.
  */
@@ -20,23 +23,31 @@ class RegExMatcher extends PathMatcher {
         if(normal.startsWith("~/")) {
             normal = normal.replaceFirst(/^~\//,'')
             normal = normal.replaceFirst(/\/$/,'')
+            normal = normal.replaceFirst(/^\^/,'')
+            normal = normal.replaceFirst(/\$$/,'')
+            normal = normal.replaceFirst(/^\//,'')
             normal = "^\\/" + normal + "\$"
         }
         return normal
     }
-//String toMatch = srv.strictPath ? path : (pattern.toString().startsWith("/") ? path : path.replaceFirst(/^\//,''))
-    /* TODO:
-    Matcher matcher = (toMatch =~ pattern)
-    if (matcher.find()) {
-        found = true
-        if (matcher.hasGroup()) {
-            Matcher groupMatcher = Pattern.compile("\\(\\?<(\\w+)>").matcher(pattern.toString())
-            while (groupMatcher.find()) {
-                String groupName = groupMatcher.group(1)
-                if (groupName) {
-                    params[groupName] = matcher.group(groupName).toString()
+
+    @Override
+    Map<String, String> getGroups(String uri) {
+        Map<String, String> groups = [:]
+        if(matches(uri)) {
+            Matcher matcher = (uri =~ path)
+            if (matcher.find()) {
+                if (matcher.hasGroup()) {
+                    Matcher groupMatcher = Pattern.compile("\\(\\?<(\\w+)>").matcher(path)
+                    while (groupMatcher.find()) {
+                        String groupName = groupMatcher.group(1)
+                        if (groupName) {
+                            groups[groupName] = matcher.group(groupName).toString()
+                        }
+                    }
                 }
             }
         }
-    }*/
+        return groups
+    }
 }
