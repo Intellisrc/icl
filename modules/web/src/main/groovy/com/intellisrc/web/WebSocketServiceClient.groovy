@@ -1,11 +1,17 @@
 package com.intellisrc.web
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import groovy.transform.CompileStatic
 import jakarta.websocket.*
 import jakarta.websocket.ClientEndpointConfig.Configurator
 import org.eclipse.jetty.ee10.websocket.jakarta.client.JakartaWebSocketClientContainer
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 /**
  * WebSocket client (Jetty 12 / Jakarta WebSocket)
@@ -13,6 +19,10 @@ import org.eclipse.jetty.ee10.websocket.jakarta.client.JakartaWebSocketClientCon
  */
 @CompileStatic
 class WebSocketServiceClient {
+    int maxSizeClient = Config.any.get("web.ws.client.max.size", 64) // KB
+    int connectTimeout = Config.any.get("web.ws.client.timeout", Millis.SECOND_5) // ms
+    int idleTimeout = Config.any.get("web.ws.client.idle.timeout", Millis.MINUTE) // ms
+    int sendTimeout = Config.any.get("web.ws.client.send.timeout", Millis.SECOND_10) // ms
 
     boolean async   = true    // Turn off to warranty delivery
     String protocol = "ws"
@@ -22,6 +32,7 @@ class WebSocketServiceClient {
 
     protected Callable onMessageReceived
     protected Callable onErrorReceived
+    CountDownLatch opened = new CountDownLatch(1)
 
     protected Session clientSession
     protected JakartaWebSocketClientContainer container
@@ -34,7 +45,13 @@ class WebSocketServiceClient {
 
         @Override
         void onOpen(Session session, EndpointConfig config) {
+            opened.countDown()
             clientSession = session
+
+            clientSession.asyncRemote.sendTimeout = sendTimeout
+            session.setMaxIdleTimeout(idleTimeout)
+            session.maxTextMessageBufferSize = maxSizeClient * 1024
+            session.maxBinaryMessageBufferSize = maxSizeClient * 1024
 
             session.addMessageHandler(String, (MessageHandler.Whole<String>) {
                 String message ->
@@ -95,7 +112,7 @@ class WebSocketServiceClient {
     /**
      * Connect to WebSocket server
      */
-    void connect(Callable onMessage = null, Callable onError = null) {
+    void connect(Callable onMessage = null, Callable onError = null) throws TimeoutException {
         this.onMessageReceived = onMessage
         this.onErrorReceived = onError
 
@@ -112,6 +129,9 @@ class WebSocketServiceClient {
             config,
             getURL()
         )
+        if (!opened.await(connectTimeout, TimeUnit.MILLISECONDS)) {
+            throw new TimeoutException("WebSocket connect timeout")
+        }
     }
 
     boolean isConnected() {
@@ -143,7 +163,17 @@ class WebSocketServiceClient {
     }
 
     void disconnect() {
-        clientSession?.close()
-        container?.stop()
+        try {
+            if (clientSession?.open) {
+                clientSession.close(
+                    new CloseReason(
+                        CloseReason.CloseCodes.NORMAL_CLOSURE,
+                        "Client disconnect"
+                    )
+                )
+            }
+        } finally {
+            container?.stop()
+        }
     }
 }

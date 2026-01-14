@@ -16,6 +16,8 @@ import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketSe
 @CompileStatic
 class WebSocketBroadcastService implements BroadcastService {
     int maxSize = Config.any.get("web.ws.max.size", 64) // KB
+    int sendTimeout = Config.any.get("web.ws.send.timeout", Millis.SECOND_5) // ms
+    int idleTimeout = Config.any.get("web.ws.idle.timeout", Millis.MINUTE)
     String path = "/"
     ServletContextHandler contextHandler
 
@@ -25,8 +27,7 @@ class WebSocketBroadcastService implements BroadcastService {
             ServletContext sc, ServerContainer container ->
                 container.defaultMaxTextMessageBufferSize = maxSize * 1024
                 container.defaultMaxBinaryMessageBufferSize = maxSize * 1024
-                container.defaultMaxSessionIdleTimeout =
-                    timeout * Millis.SECOND
+                container.defaultMaxSessionIdleTimeout = (timeout ?: idleTimeout) * Millis.SECOND
 
                 container.addEndpoint(
                     ServerEndpointConfig.Builder
@@ -51,6 +52,7 @@ class WebSocketBroadcastService implements BroadcastService {
         JakartaSession session = client?.session?.websocketSession
 
         if (session && session.isOpen()) {
+            session.asyncRemote.sendTimeout = sendTimeout
             session.asyncRemote.sendText(message.toString(), {
                 SendResult result ->
                 if (result.exception) {
