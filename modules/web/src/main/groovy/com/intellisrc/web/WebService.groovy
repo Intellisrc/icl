@@ -3,6 +3,7 @@ package com.intellisrc.web
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
+import com.intellisrc.core.SysClock
 import com.intellisrc.etc.Cache
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
@@ -12,8 +13,6 @@ import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
 import com.intellisrc.web.service.routing.ExactMatcher
-import com.intellisrc.web.service.routing.ParamsMatcher
-import com.intellisrc.web.service.routing.RegExMatcher
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import jakarta.servlet.DispatcherType
@@ -35,11 +34,14 @@ import javax.imageio.ImageWriter
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
 import java.nio.ByteBuffer
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.PathMatcher
 import java.nio.file.StandardCopyOption
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 import static com.intellisrc.web.protocols.Protocol.HTTP
@@ -103,6 +105,9 @@ class WebService extends WebServiceBase {
     protected final ConcurrentLinkedQueue<Service> definitions = new ConcurrentLinkedQueue<>()
     protected Handler.Sequence handlers = new Handler.Sequence()
 
+    protected Map<String, Integer> maxAge = [:]
+    protected Map<String, Integer> cacheRules = [:]
+
     static interface FilePolicy {
         boolean allow(File file)
     }
@@ -163,6 +168,27 @@ class WebService extends WebServiceBase {
                 Log.e("Unable to initialize web service", e)
             }
         }
+    }
+    /**
+     * Set global maxAge for all resources
+     * @param max
+     */
+    void setCache(Map<String, Integer> rules) {
+        cacheRules = rules
+    }
+    /**
+     * Set global maxAge for all resources
+     * @param max
+     */
+    void setMaxAge(Map<String, Integer> rules) {
+        maxAge = rules
+    }
+    /**
+     * Set global maxAge for all resources
+     * @param max
+     */
+    void setMaxAgeDefault(Integer max) {
+        maxAge["*"] = max
     }
     /**
      * start and specify callback "onStart"
@@ -1106,11 +1132,12 @@ class WebService extends WebServiceBase {
                                                     boolean addToCache = staticPath.expireSeconds &&
                                                         (bytes.length / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
                                                     if (addToCache) {
-                                                        out = cache.get(cacheKey, null, onHit)
+                                                        int cacheMax = bestGlobMatch(File.get(fullPath), cacheRules) ?: cacheTime
+                                                        out = cache.get(cacheKey, null, onHit, null, cacheMax)
                                                         if (out != null) {
                                                             out = processServiceNoCache(request, response, { bytes })
                                                             if (out.size) {
-                                                                cache.set(cacheKey, out, onStore)
+                                                                cache.set(cacheKey, out, onStore, cacheMax)
                                                             }
                                                         }
                                                     } else {
@@ -1134,15 +1161,22 @@ class WebService extends WebServiceBase {
                                                         (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
 
                                                     if(addToCache) {
-                                                        out = cache.get(cacheKey, null, onHit)
+                                                        int cacheMax = bestGlobMatch(staticFile, cacheRules) ?: cacheTime
+                                                        out = cache.get(cacheKey, null, onHit, null, cacheMax)
                                                         if(out != null) {
                                                             out = processServiceNoCache(request, response, { staticFile })
                                                             if(out.size) {
-                                                                cache.set(cacheKey, out, onStore)
+                                                                cache.set(cacheKey, out, onStore, cacheMax)
                                                             }
                                                         }
                                                     } else {
                                                         out = processServiceNoCache(request, response, { staticFile })
+                                                    }
+                                                    int age = bestGlobMatch(staticFile, maxAge)
+                                                    if(age > 0) {
+                                                        out.headers["Cache-Control"] = "max-age=${age}".toString()
+                                                        // Expires is for legacy clients (ignored in mother browsers):
+                                                        out.headers["Expires"] = SysClock.now.plusSeconds(age).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.RFC_1123_DATE_TIME)
                                                     }
                                                 }
                                             } else {
@@ -1357,6 +1391,33 @@ class WebService extends WebServiceBase {
         }
         return definitions.add(service)
     }
+
+    /**
+     * Get the lowers age for a resource file
+     * @param file
+     * @param rules
+     * @return
+     */
+    int bestGlobMatch(File file, Map<String, Integer> rules) {
+        StaticPath rootPath = staticPaths.find {
+            file.absolutePath.startsWith(it.path)
+        }
+        if(!StaticPath) return maxAge["*"] ?: 0     //Technically it should never go this path
+        File rootDir = File.get(rootPath.path)
+        Path relative = rootDir.toPath().relativize(file.toPath())
+
+        return rules.findAll {
+            String glob, int age ->
+                PathMatcher matcher =
+                    FileSystems.default.getPathMatcher("glob:" + normalizeGlob(glob))
+                matcher.matches(relative)
+            }.min { it.value }?.value ?: 0
+    }
+    private static String normalizeGlob(String glob) {
+        // remove leading slash so glob matches relative paths
+        glob.startsWith("/") ? glob.substring(1) : glob
+    }
+
     /**
      * Returns the full path including the root path
      * @param rootPath
@@ -1417,7 +1478,7 @@ class WebService extends WebServiceBase {
 
         return new MatchFilterResult(
             Optional.ofNullable(match),
-            match.matcher.getGroups(path)
+            match ? match.matcher.getGroups(path) : [:]
         )
     }
 

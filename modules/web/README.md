@@ -55,7 +55,7 @@ That one-liner will start a web server on port 8080 and serve static files locat
 new WebService(
     // Commonly used:    
     port        : 80,       // Port in which the Web Server will listen
-    resources   : "",       // Path location or File where static resources exists
+    resources   : "",       // Path location(s) or File(s) where static resources exists
     threads     : 20,       // Number of threads that will allow to process at the same time
     // Cache related:    
     cacheTime   : 0,        // Default amount of time to keep in memory requests and resources
@@ -65,9 +65,21 @@ new WebService(
     allowOrigin : "",       // apply by default to all
     // Logging:
     logs        : false,    // Turn to true to save logs
-    
 )
 ```
+`resources` property can be a String, File or a collection of those, to specify multiple static directories:
+
+```groovy
+new WebService(
+    resources   : [         // You can also specify a List<File>
+        "/home/uploads/",
+        "resources/",
+        "/mnt/disk2/public/"
+    ]
+)
+```
+Order is important, as WebService will look for resources in that order. Once it finds a match, will stop looking.
+
 **NOTE** : By default logs are exported to 'log' directory. You can override that directory by setting any of the following:
 
 Via `config.properties` or environment variables:
@@ -83,7 +95,7 @@ web.log.warn="warn.log"
 web.log.notfound="notfound.log"
 ```
 
-Via `WebService` (similar to `resources`, you can specify a path, filename or File object):
+Via `WebService`:
 
 ```groovy
 new WebService(
@@ -577,12 +589,38 @@ Cache can be enabled globally in your `WebService` (it will be used as default b
 ```groovy
 new WebService(
     port        : 80,  
-    resources   : "static/",
-    cacheTime   : Secs.HOUR, //Seconds to keep cache (default value is: `Cache.DISABLED` == 0),
+    resources   : "static/", 
+    // Store resources in server memory:
+    cacheTime   : Secs.HOUR, //Seconds to keep cache (default value is: `Cache.DISABLED` == 0, `Cache.FOREVER` == -1),
     cacheTotalMaxSizeMB : 100, //Do not store more than 100MB of cache (default: unlimited == 0),
-    cacheMaxSizeKB : 1024 // If content is above this value, do not store in cache (default: 256KB)
+    cacheMaxSizeKB : 1024, // If content is above this value, do not store in cache (default: 256KB),
+    cache : [ // specific times for cache (seconds)
+      "*.js"            : 50,
+      "css/*"           : 200,
+      "{jpg,png,gif}"   : 300,
+      // "*"            : Secs.HOUR <-- same as cacheTime
+    ],
+    // Store resources in the browser:
+    maxAgeDefault : 1200, // max-age header, in seconds, (suggestion for the browser) for all resources
+    maxAge : [            // specific rules for maxAge
+        "*.js"          : 100,
+        "css/*"         : 500,
+        "{jpg,png,gif}" : 600,
+        // "*"          : 1200 <-- same as maxAgeDefault
+    ]
 )
 ```
+`maxAge` and `cache` supported keys:
+
+```
+*	any chars except /
+**	any dirs
+?	single char
+*.html	all html files
+{jpg,png}	alternatives
+```
+The total time to keep a resource in cache, will be the minimum time which matches any of the rules.
+
 If you want to keep some content for as long as possible, use `Cache.FOREVER` (or -1).
 
 You can also enable cache for your services, for example:
