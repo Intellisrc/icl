@@ -1124,7 +1124,7 @@ class WebService extends WebServiceBase {
                                         if(uri =~ /\.\w+$/) { // If has extension
                                             response.type(Mime.getType(uri))
                                         }
-                                        if (staticPath.embedded) {
+                                        if (staticPath.embedded) { //TODO: test (maybe fullPath won't match rules)
                                             if (pathPolicy.allow(fullPath)) {
                                                 try {
                                                     InputStream inst = this.class.getResourceAsStream(fullPath)
@@ -1142,6 +1142,12 @@ class WebService extends WebServiceBase {
                                                         }
                                                     } else {
                                                         out = processServiceNoCache(request, response, { bytes })
+                                                    }
+                                                    int age = bestGlobMatch(File.get(fullPath), maxAge)
+                                                    if(age > 0) {
+                                                        out.headers["Cache-Control"] = "max-age=${age}".toString()
+                                                        // Expires is for legacy clients (ignored in mother browsers):
+                                                        out.headers["Expires"] = SysClock.now.plusSeconds(age).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.RFC_1123_DATE_TIME)
                                                     }
                                                 } catch (WebException we) {
                                                     throw we
