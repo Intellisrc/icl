@@ -229,7 +229,7 @@ new Service(
     charSet             : "UTF-8",               // Output charset (default: UTF-8)
     compress            : false,                 // Whether to compress or not the output
     compressSize        : false,                 // If true, when compressed will buffer the output to report size
-    contentType         : "",                    // Content Type, for example: Mime.getType("png") or "image/png". (default : auto)
+    contentType         : "",                    // Content Type, for example: Mime.YAML, Mime.getType("png") or "image/png". (default : auto)
     download            : false,                 // Specify if instead of display, show download dialog
     downloadFileName    : "",                    // Use this name if download is requested
     etag                : { "" } as ETag,        // Method to calculate ETag if its different from default (set it to null, to disable automatic ETag)
@@ -247,114 +247,6 @@ new Service(
     strictPath          : false                  // If you specify the path as RegExp and this flag is true, you need to also include the starting slash (/)
 )
 ```
-
-### Action
-
-`Action` is a group of interfaces with optional return arguments, for example:
-
- * (empty) // The most simple `Action` with no `Request` or `Response` 
- * `Request` request ->
- * `Response` response ->
- * `Request` request, `Response` response ->
- * `FileUpload` file, `Request` request ->
- * `List<FileUpload>` files, `Request` request ->
- * (and many other combinations: in Groovy, the order of the arguments is not relevant)
-
-`Action` return value will be sent to the client. By default, it will expect to return a `Map` or a `Collection` which
-itself is converted into `JSON`. Depending on the object you are returning, you may need to change the `contentType`
-property (it will try to guess it if you don't specify it), for example:
-
-| Object        | Content Type                                         |
-|---------------|------------------------------------------------------|
-| String        | automatic: plain, xml, html, svg, etc                |
-| List / Map    | "text/json" unless "Mime.YAML" is used               |
-| File          | automatic: depending on name and content             |
-| BufferedImage | automatic: JPEG or PNG (if transparency is detected) |
-| URL           | automatic: Will "proxy" content and type from remote |
-| byte[]        | "application/octet-stream"                           |
-| OutputStream  | "application/octet-stream"                           |
-
-If you want to make the `File` downloadable (by the client), you don't need to specify any `contentType`, 
-but you will need to set the property `download` to `true`. Now if you want to "serve" or "stream" a `File`
-(like a video), you may need to specify the `contentType` if `WebService` can not guess it correctly. 
-
-For example: 
-
-```groovy
-// Get the list of users as JSON array:
-new Service(
-    path : "/users/list/",
-    action : {
-        return Users.all().toList() 
-    }
-)
-// Get video file from private location using alias:
-new Service(
-    path : "/videos/intro.mp4",
-    //contentType : Mime.getType("mp4"), <-- not required unless it can not be guessed
-    action : {
-        return File.get("resources", "private", "videos", "vid001.mp4")
-    }
-)
-// Get user information as YAML
-new Service(
-    path : "/user/:id/", 
-    contentType : Mime.getType("yaml"), // Because Map is returned as JSON by default, you need to specify it
-    action : {
-        Request request ->
-            int id = request.params("id") as int
-            User user = Users.get(id)
-            return user.toMap()
-    }
-)
-// Simple "Proxy" mode : download a serve a request from a remote location:
-// It will set contentType and headers automatically
-new Service(
-    path : "/google/",
-    action : {
-        return "https://google.com/".toURL()
-    }    
-)
-// Upload a file
-new Service(
-    path : "/upload",
-    action: {
-        UploadFile file ->
-            // UploadFile extends File with additional fields:
-            Log.i("Uploaded file temporally location is: %s", file.absolutePath)
-            Log.i("Uploaded file original name is : %s", file.originalName)
-            Log.i("HTML input field name used to upload is: %s", file.inputName)
-            // Move file from temporally directory to another location
-            File targetFile = File.get("resources", "upload", file.originalName)
-            file.moveTo(targetFile)
-            return [ uploaded : targetFile.exists() ]
-    } 
-)
-// Upload multiple files at once:
-new Service(
-    path : "/upload/many",
-    // Handle errors after 'action' has returned value to the WebServer:
-    onError : {
-        int code, Exception ex ->
-            if(code >= HttpStatus.INTERNAL_SERVER_ERROR_500) {
-                if(smtp.send(new Email("admin@example.com"), "Service Exception ${code}", ex.message)) {
-                    Log.w("[Error %d] Admin was notified: %s", code, ex)
-                } else {
-                    Log.w("[Error %d] Please notify the administrator: %s", code, ex)
-                }
-            }
-    },
-    action: {
-        List<UploadFile> files ->
-            files.each {
-                UploadFile file -> 
-                    /* ... same as previous example ... */
-            }
-            return [ uploaded : ok ]
-    }
-)
-```
-
 ### Path
 
 `path` can be either a string or a `Pattern` object (RegExp). Paths don't need to start with a slash (is automatically added).
@@ -438,11 +330,191 @@ new Service(
 )
 ```
 
+### Action
+
+`Action` is a group of interfaces with optional return arguments, for example:
+
+ * (empty) // The most simple `Action` with no `Request` or `Response` 
+ * `Request` request ->
+ * `Response` response ->
+ * `Request` request, `Response` response ->
+ * `FileUpload` file, `Request` request ->
+ * `List<FileUpload>` files, `Request` request ->
+ * (and many other combinations: in Groovy, the order of the arguments is not relevant)
+
+`Action` return value will be sent to the client. By default, it will expect to return a `Map` or a `Collection` which
+itself is converted into `JSON`. Depending on the object you are returning, you may need to change the `contentType`
+property (it will try to guess it if you don't specify it), for example:
+
+| Object        | Content Type                                         |
+|---------------|------------------------------------------------------|
+| String        | automatic: plain, xml, html, svg, etc                |
+| List / Map    | "text/json" unless "Mime.YAML" is used               |
+| File          | automatic: depending on name and content             |
+| BufferedImage | automatic: JPEG or PNG (if transparency is detected) |
+| URL           | automatic: Will "proxy" content and type from remote |
+| byte[]        | "application/octet-stream"                           |
+| OutputStream  | "application/octet-stream"                           |
+
+If you want to make the `File` downloadable (by the client), you don't need to specify any `contentType`, 
+but you will need to set the property `download` to `true`. Now if you want to "serve" or "stream" a `File`
+(like a video), you may need to specify the `contentType` if `WebService` can not guess it correctly. 
+
+### Examples:
+
+Get the list of users as JSON array:
+```groovy
+new Service(
+    path : "/users/list/",
+    action : {
+        return Users.all().toList() 
+    }
+)
+```
+
+Get video file from private location using alias:
+```groovy
+new Service(
+    path : "/videos/:id/",
+    //contentType : Mime.MP4, <-- not required unless it can not be guessed
+    action : {
+        Request request ->
+            int id = request.params("id") as int
+            return File.get("resources", "private", "videos", "vid-${id}.mp4")
+    }
+)
+```
+In the above example, the content-type header will be assigned based on the File object. In other words, 
+you don't need to specify any content-type (or any other response headers) if you are returning a File object.
+
+Get user information as YAML
+```groovy
+new Service(
+    path : "/user/:id/", 
+    contentType : Mime.YAML, // Because Map is returned as JSON by default, you need to specify it
+    action : {
+        Request request ->
+            int id = request.params("id") as int
+            User user = Users.get(id)
+            return user.toMap()
+    }
+)
+```
+
+Get user information as YAML (content type set by file name)
+```groovy
+new Service(
+    path : "/user/info.yaml", // We don't need to specify the content-type here as it is taken from the path extension
+    action : {
+        Request request ->
+            int id = request.params("id") as int
+            User user = Users.get(id)
+            return user.toMap() // Will return YAML encoded string
+    }
+)
+```
+
+Be aware that content-type in dynamic file names are not handled based on the name, for example:
+```groovy
+new Service(
+    path : "/meta/:file",
+    action : {
+        Request request ->
+            String fileName = request.params("file")
+            MetaData metaData = new MetaData(fileName) //Dummy class for example
+            return metaData.toMap() 
+    }
+)
+```
+In the above case, if you request `/meta/example.csv`, it **won't** set the content-type header to "text/csv",
+instead, it will set it as JSON (because we are returning a Map). 
+
+If you want to make the content-type dynamic based on file extension, or customize your output, follow this example:
+```groovy
+new Service(
+    path : "/thumb/:size/:img",     // example: /thumb/128/logo.jpg
+    action : {
+        Request request ->
+            String fileName = request.params("img")
+            int size = request.params("size") as int
+            ImageResizer ir = new ImageResizer(fileName, size) //Dummy class for example
+            return new ServiceOutput(
+                content         : ir.binary,
+                contentType     : Mime.get(fileName),
+                compression     : Compression.NONE,     // Disable compression. By default will try to compress output
+                // Other customizable properties:
+                // type        : Type.BINARY, <-- force file type (not recommended). If you need it, see ServiceOutput.Type
+                // fileName    : "download.name", <-- if you want the file to be downloaded (instead of displaying it) with a particular name 
+                // size        : ir.size(), <-- if size can't be calculated automatically
+                // etag        : ir.hash()  <-- if you want to customize the way etag is calculated
+                // charset     : "UTF-16"   <-- for TEXT types. It will set UTF-8 by default
+            )
+    }
+)
+```
+In the example above, if you request `/thumb/img1234.jpg` or `/thumb/img9999.png` the content-type will
+be handled correctly.
+
+Simple "Proxy" mode : download a serve a request from a remote location:
+It will set contentType and headers automatically
+```groovy
+new Service(
+    path : "/google/",
+    action : {
+        return "https://google.com/".toURL()
+    }    
+)
+```
+
+Upload a file
+```groovy
+new Service(
+    path : "/upload",
+    action: {
+        UploadFile file ->
+            // UploadFile extends File with additional fields:
+            Log.i("Uploaded file temporally location is: %s", file.absolutePath)
+            Log.i("Uploaded file original name is : %s", file.originalName)
+            Log.i("HTML input field name used to upload is: %s", file.inputName)
+            // Move file from temporally directory to another location
+            File targetFile = File.get("resources", "upload", file.originalName)
+            file.moveTo(targetFile)
+            return [ uploaded : targetFile.exists() ]
+    } 
+)
+```
+
+Upload multiple files at once:
+```groovy
+new Service(
+    path : "/upload/many/",
+    // Handle errors after 'action' has returned value to the WebServer:
+    onError : {
+        int code, Exception ex ->
+            if(code >= HttpStatus.INTERNAL_SERVER_ERROR_500) {
+                if(smtp.send(new Email("admin@example.com"), "Service Exception ${code}", ex.message)) {
+                    Log.w("[Error %d] Admin was notified: %s", code, ex)
+                } else {
+                    Log.w("[Error %d] Please notify the administrator: %s", code, ex)
+                }
+            }
+    },
+    action: {
+        List<UploadFile> files ->
+            files.each {
+                UploadFile file -> 
+                    /* ... same as previous example ... */
+            }
+            return [ uploaded : ok ]
+    }
+)
+```
+
 ### Downloading files
 
 ```groovy
 new Service(
-    path : "/download/file",
+    path : "/download/last/",
     download : true, // Set this property and `WebService` will handle the rest
     action: {
         return File.get(File.userDir, "resources", "some.file.pdf")
@@ -452,30 +524,6 @@ new Service(
 
 By setting `download` to `true`, the needed headers will be added into the response, for example: 
 `Content-Disposition`, `Content-Encoding`, `Content-Length`, etc
-
-#### Customizing the Output
-
-As in the example above, `WebService` will automatically set the required headers so the file
-can be downloaded (instead of displayed on the browser). But there are some special cases
-in which you may want to customize the name of the file each time (without changing the 
-original file name). In such cases, you can customize the output:
-
-```groovy
-new Service(
-    path : "/download/custom",
-    action : {
-        Request request ->
-            String downloadName = request.queryParams("name") ?: "default.file"
-            File toDownload = File.get(File.userDir, "resources", "last.file")
-            return new ServiceOutput(
-                content     : toDownload.bytes,
-                fileName    : downloadName,
-                size        : toDownload.size(),
-                etag        : toDownload.bytes.md5()
-            )
-    }
-)
-```
 
 ### Compressing the Output
 

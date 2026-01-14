@@ -2,18 +2,14 @@ package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
-import com.intellisrc.etc.Cache
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Response
 import com.intellisrc.web.service.Service
-import com.intellisrc.web.service.Serviciable
 import com.intellisrc.web.service.SingleService
 import com.intellisrc.web.service.WebException
-import org.eclipse.jetty.http3.HTTP3ErrorCode
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import static org.eclipse.jetty.http.HttpStatus.INSUFFICIENT_STORAGE_507
 import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404
 import static org.eclipse.jetty.http.HttpStatus.NOT_IMPLEMENTED_501
 import static org.eclipse.jetty.http.HttpStatus.SERVICE_UNAVAILABLE_503

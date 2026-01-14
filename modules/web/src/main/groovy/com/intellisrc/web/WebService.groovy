@@ -11,6 +11,7 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
+import com.intellisrc.web.service.routing.ExactMatcher
 import com.intellisrc.web.service.routing.ParamsMatcher
 import com.intellisrc.web.service.routing.RegExMatcher
 import groovy.transform.CompileStatic
@@ -388,10 +389,14 @@ class WebService extends WebServiceBase {
      * @param res (response from Service.Action)
      * @param contentType
      */
-    protected static ServiceOutput handleContentType(Object res, String contentType, String charSet, boolean forceBinary, Compression compress) {
+    protected static ServiceOutput handleContentType(Service sp, Object res, String contentType, String charSet, boolean forceBinary, Compression compress) {
         // Skip this if the object is ServiceOutput
         if(res instanceof ServiceOutput) {
             return res
+        }
+        // Automatically assign contentType based on file extension (only ExactMatcher)
+        if (!sp.contentType && sp.matcher instanceof ExactMatcher &&! sp.path.endsWith("/")) {
+            contentType = Mime.getType(sp.path)
         }
         ServiceOutput output = new ServiceOutput(
             contentType: contentType?.toLowerCase() ?: "",
@@ -646,7 +651,7 @@ class WebService extends WebServiceBase {
                             if(res) {
                                 boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                                 //noinspection GroovyUnusedAssignment : IDE mistake
-                                output = handleContentType(res, sp.contentType ?: response.type(), sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
+                                output = handleContentType(sp, res, sp.contentType ?: response.type(), sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                                 if (output.responseCode && output.responseCode >= BAD_REQUEST_400) {
                                     throw new WebException(sp, output.responseCode, String.format("Directory is not writable: %s", tempDir.absolutePath))
                                 }
@@ -675,7 +680,7 @@ class WebService extends WebServiceBase {
                     if (res != null) {
                         boolean forceBinary = outHeaders.containsKey(CONTENT_TRANSFER_ENCODING) && outHeaders[CONTENT_TRANSFER_ENCODING] == "binary"
                         //noinspection GroovyUnusedAssignment : IDE mistake
-                        output = handleContentType(res, sp.contentType ?: response.type(), sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
+                        output = handleContentType(sp, res, sp.contentType ?: response.type(), sp.charSet, forceBinary, getCompression(clientSupportedEncodings, sp.getCompress(compress)))
                         if (output.responseCode && output.responseCode >= BAD_REQUEST_400) {
                             throw new WebException(sp, output.responseCode, "Exception in Service")
                         }
