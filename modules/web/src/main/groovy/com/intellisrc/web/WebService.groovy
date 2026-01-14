@@ -3,7 +3,6 @@ package com.intellisrc.web
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
-import com.intellisrc.core.SysClock
 import com.intellisrc.etc.Cache
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
@@ -1145,9 +1144,7 @@ class WebService extends WebServiceBase {
                                                     }
                                                     int age = bestGlobMatch(File.get(fullPath), maxAge)
                                                     if(age > 0) {
-                                                        out.headers["Cache-Control"] = "max-age=${age}".toString()
-                                                        // Expires is for legacy clients (ignored in mother browsers):
-                                                        out.headers["Expires"] = SysClock.now.plusSeconds(age).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.RFC_1123_DATE_TIME)
+                                                        out.setMaxAge(age)
                                                     }
                                                 } catch (WebException we) {
                                                     throw we
@@ -1180,9 +1177,7 @@ class WebService extends WebServiceBase {
                                                     }
                                                     int age = bestGlobMatch(staticFile, maxAge)
                                                     if(age > 0) {
-                                                        out.headers["Cache-Control"] = "max-age=${age}".toString()
-                                                        // Expires is for legacy clients (ignored in mother browsers):
-                                                        out.headers["Expires"] = SysClock.now.plusSeconds(age).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.RFC_1123_DATE_TIME)
+                                                        out.setMaxAge(age)
                                                     }
                                                 }
                                             } else {

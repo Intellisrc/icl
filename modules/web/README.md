@@ -457,9 +457,11 @@ new Service(
                 // Other customizable properties:
                 // type        : Type.BINARY, <-- force file type (not recommended). If you need it, see ServiceOutput.Type
                 // fileName    : "download.name", <-- if you want the file to be downloaded (instead of displaying it) with a particular name 
-                // size        : ir.size(), <-- if size can't be calculated automatically
-                // etag        : ir.hash()  <-- if you want to customize the way etag is calculated
-                // charset     : "UTF-16"   <-- for TEXT types. It will set UTF-8 by default
+                // size        : ir.size(),  <-- if size can't be calculated automatically
+                // etag        : ir.hash(),  <-- if you want to customize the way etag is calculated
+                // charset     : "UTF-16",   <-- for TEXT types. It will set UTF-8 by default
+                // privacy     : Privacy.PRIVATE,  <-- If private, proxies won't use cache on those resources
+                // onExpire    : ExpirationRule.MUST_REVALIDATE, <-- specify how to handle expiration in the browser
             )
     }
 )

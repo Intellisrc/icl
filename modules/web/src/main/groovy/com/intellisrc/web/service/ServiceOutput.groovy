@@ -1,9 +1,16 @@
 package com.intellisrc.web.service
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 import static com.intellisrc.web.WebService.getDefaultCharset
+import static com.intellisrc.web.service.HttpHeader.CACHE_CONTROL
+import static com.intellisrc.web.service.HttpHeader.EXPIRES
+import static com.intellisrc.web.service.ServiceOutput.ExpirationRule.*
 import static org.eclipse.jetty.http.HttpStatus.NOT_MODIFIED_304
 
 /**
@@ -43,12 +50,25 @@ class ServiceOutput {
             return type
         }
     }
+    // Cache rules for browsers:
+    static enum ExpirationRule {
+        DEFAULT,            // Not specified
+        IMMUTABLE,          // Do no check until it expires
+        MUST_REVALIDATE     // Do not use if it is expired (must check before use)
+    }
+    static enum Privacy {
+        PUBLIC,     // Default: allow cache
+        PRIVATE     // Do not cache on proxies
+    }
+
     Type type           = Type.BINARY
     Object content      = null
     String contentType  = ""
     String charSet      = defaultCharset
     String downloadName = ""
     Compression compression = Compression.available.first()
+    ExpirationRule onExpire = DEFAULT
+    Privacy privacy = Privacy.PUBLIC
 
     // Used by URL
     int responseCode    = 0
@@ -78,6 +98,22 @@ class ServiceOutput {
         outHeaders.each {
             headers.putIfAbsent(it.key, it.value)
         }
+    }
+    /**
+     * Adds max-age headers
+     * @param age
+     * @param pub
+     * @param revalidate
+     */
+    void setMaxAge(int age) {
+        String extra = switch (onExpire) {
+            case DEFAULT -> ""
+            case MUST_REVALIDATE -> ", must-revalidate"
+            case IMMUTABLE -> ", immutable"
+        }
+        headers[CACHE_CONTROL] = "${privacy.toString().toLowerCase()}, max-age=${age}${extra}".toString()
+        // Expires is for legacy clients (ignored in mother browsers):
+        headers[EXPIRES] = SysClock.now.plusSeconds(age).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.RFC_1123_DATE_TIME)
     }
     /**
      * If output was not modified, reset
