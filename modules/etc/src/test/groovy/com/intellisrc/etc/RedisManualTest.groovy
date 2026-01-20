@@ -41,6 +41,17 @@ class RedisManualTest {
         redis3.clear()
         assert redis3.keys.empty
 
+        // In these cases, types will be preserved as List and Map will be stored as YAML
+        Redis redis4 = new Redis("types",".", true)
+        redis4.set("list", [1,2,3,4,5,6])
+        assert redis4.get("list",[]).contains(3)
+
+        redis4.set("map",[ok: false])
+        assert redis4.get("map",[:]).ok == false
+
+        redis4.clear()
+        assert redis4.keys.empty
+
         println "✅ Test finished correctly"
         Redis.quit()
     }

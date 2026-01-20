@@ -15,6 +15,9 @@ import java.time.Duration
  * For simplicity, if you need to connect to more than one redis server, use Jedis directly.
  * The reason is because we use a single instance of RedisClient (to use a pool of connections)
  * and having multiple Redis pool will add complexity to this class (and it is rarely needed).
+ *
+ * This class is not a replacement of Jedis (which depends on), it doesn't implement methods like:
+ * `hget`, `lrange`, etc.
  */
 @CompileStatic
 class Redis extends StringProperties {
@@ -34,12 +37,20 @@ class Redis extends StringProperties {
         jedis = null
     }
 
+    protected preserveTypes = false
+
     /**
      * Constructor
      * @param keyPrefix : If used all keys will be prefixed with it (useful to group keys)
+     * @param keyPrefixSeparator : separator used, for example: redis.set("key","x") will be
+     *                             stored as: prefix.key (if separator is '.')
+     * @param preserveTypes : if true, Map and Collection objects will be stored as YAML.
+     *                        While types will be preserved (not converted into strings),
+     *                        performance will be reduced due to the conversion overhead.
      */
-    Redis(String keyPrefix = "", String keyPrefixSeparator = ".") {
+    Redis(String keyPrefix = "", String keyPrefixSeparator = ".", boolean preserveTypes = false) {
         super(keyPrefix, keyPrefixSeparator)
+        this.preserveTypes = preserveTypes
         if(! running) {
             jedisPool.setTestWhileIdle(true)
             jedisPool.setTestOnBorrow(true)
@@ -82,8 +93,15 @@ class Redis extends StringProperties {
         assert running : "Redis was closed"
         List<String> vals = []
         try {
-            vals = jedis.lrange(getFullKey(key), 0, -1)
-            if(vals.empty) {
+            if(preserveTypes) {
+                String list = jedis.get(getFullKey(key))
+                if(list) {
+                    vals = YAML.decode(list) as List
+                }
+            } else {
+                vals = jedis.lrange(getFullKey(key), 0, -1)
+            }
+            if (vals.empty) {
                 vals = defVal
             }
         } catch (JedisConnectionException jce) {
@@ -97,7 +115,14 @@ class Redis extends StringProperties {
         assert running : "Redis was closed"
         Map<String, String> vals = [:]
         try {
-            vals = jedis.hgetAll(getFullKey(key))
+            if(preserveTypes) {
+                String map = jedis.get(getFullKey(key))
+                if(map) {
+                    vals = YAML.decode(map) as Map
+                }
+            } else {
+                vals = jedis.hgetAll(getFullKey(key))
+            }
             if(vals.keySet().empty) {
                 vals = defVal
             }
@@ -163,8 +188,12 @@ class Redis extends StringProperties {
         boolean ok = false
         try {
             jedis.del(getFullKey(key))
-            list.each {
-                jedis.rpush(getFullKey(key), it.toString())
+            if(preserveTypes) {
+                jedis.set(getFullKey(key), YAML.encode(list))
+            } else {
+                list.each {
+                    jedis.rpush(getFullKey(key), it.toString())
+                }
             }
             ok = true
         } catch (JedisConnectionException jce) {
@@ -185,7 +214,12 @@ class Redis extends StringProperties {
         assert running : "Redis was closed"
         boolean ok = false
         try {
-            ok = jedis.hset(getFullKey(key), map) > 0
+            if(preserveTypes) {
+                jedis.set(getFullKey(key), YAML.encode(map))
+                ok = true
+            } else {
+                ok = jedis.hset(getFullKey(key), map) > 0
+            }
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
