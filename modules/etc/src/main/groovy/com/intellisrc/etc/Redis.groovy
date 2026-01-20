@@ -1,26 +1,59 @@
 package com.intellisrc.etc
 
+import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.props.StringProperties
 import groovy.transform.CompileStatic
-import redis.clients.jedis.Jedis
+import redis.clients.jedis.ConnectionPoolConfig
+import redis.clients.jedis.RedisClient
 import redis.clients.jedis.exceptions.JedisConnectionException
 
+import java.time.Duration
+
+/**
+ * This class simplifies the use of Jedis/Redis when connecting to a single server
+ * For simplicity, if you need to connect to more than one redis server, use Jedis directly.
+ * The reason is because we use a single instance of RedisClient (to use a pool of connections)
+ * and having multiple Redis pool will add complexity to this class (and it is rarely needed).
+ */
 @CompileStatic
 class Redis extends StringProperties {
+    static final int timeBetweenEvictionRuns = Config.any.get("redis.check.interval", 5) //Seconds
+    static final int port = Config.any.get("redis.port", 6379)
+    static final String host = Config.any.get("redis.host", "localhost")
+    static final ConnectionPoolConfig jedisPool = new ConnectionPoolConfig()
+
+    static RedisClient jedis
+    static boolean running = false
+    /**
+     * Close all connections to Redis
+     */
+    static void quit() {
+        jedis?.close()
+        running = false
+        jedis = null
+    }
+
     /**
      * Constructor
      * @param keyPrefix : If used all keys will be prefixed with it (useful to group keys)
      */
     Redis(String keyPrefix = "", String keyPrefixSeparator = ".") {
         super(keyPrefix, keyPrefixSeparator)
+        if(! running) {
+            jedisPool.setTestWhileIdle(true)
+            jedisPool.setTestOnBorrow(true)
+            jedisPool.setTimeBetweenEvictionRuns(Duration.ofSeconds(timeBetweenEvictionRuns))
+            jedis = RedisClient.builder().hostAndPort(host, port).poolConfig(jedisPool).build()
+            running = true
+        }
     }
 
     @Override
     String get(String key, String defVal) {
+        assert running : "Redis was closed"
         String value = ""
         try {
-            Jedis jedis = new Jedis()
             String type = jedis.type(getFullKey(key))
             switch (type) {
                 case "list":
@@ -38,7 +71,6 @@ class Redis extends StringProperties {
             if(value == null) {
                 value = defVal
             }
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
@@ -47,14 +79,13 @@ class Redis extends StringProperties {
 
     @Override
     List get(String key, List defVal) {
+        assert running : "Redis was closed"
         List<String> vals = []
         try {
-            Jedis jedis = new Jedis()
             vals = jedis.lrange(getFullKey(key), 0, -1)
             if(vals.empty) {
                 vals = defVal
             }
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
@@ -63,14 +94,13 @@ class Redis extends StringProperties {
 
     @Override
     Map get(String key, Map defVal) {
+        assert running : "Redis was closed"
         Map<String, String> vals = [:]
         try {
-            Jedis jedis = new Jedis()
             vals = jedis.hgetAll(getFullKey(key))
             if(vals.keySet().empty) {
                 vals = defVal
             }
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
@@ -79,11 +109,10 @@ class Redis extends StringProperties {
 
     @Override
     boolean exists(String key) {
+        assert running : "Redis was closed"
         boolean exists = false
         try {
-            Jedis jedis = new Jedis()
             exists = jedis.exists(getFullKey(key))
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
@@ -92,11 +121,10 @@ class Redis extends StringProperties {
 
     @Override
     Set<String> getKeys() {
+        assert running : "Redis was closed"
         Set<String> vals = []
         try {
-            Jedis jedis = new Jedis()
             vals = jedis.keys((prefix ? prefix + prefixSeparator : "") + "*").toSet()
-            jedis.close()
             if(prefix) {
                 vals = vals.collect {it.substring((prefix + prefixSeparator).length()) }.toSet()
             }
@@ -108,15 +136,14 @@ class Redis extends StringProperties {
 
     @Override
     boolean set(String key, String value) {
+        assert running : "Redis was closed"
         boolean ok = false
         try {
-            Jedis jedis = new Jedis()
             if(value == null) {
                 ok = jedis.del(getFullKey(key)) > 0
             } else {
                 ok = jedis.set(getFullKey(key), value).toLowerCase() == "ok"
             }
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
@@ -132,14 +159,13 @@ class Redis extends StringProperties {
      */
     @Override
     boolean set(String key, Collection list) {
+        assert running : "Redis was closed"
         boolean ok = false
         try {
-            Jedis jedis = new Jedis()
             jedis.del(getFullKey(key))
             list.each {
                 jedis.rpush(getFullKey(key), it.toString())
             }
-            jedis.close()
             ok = true
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
@@ -156,11 +182,10 @@ class Redis extends StringProperties {
      */
     @Override
     boolean set(String key, Map map) {
+        assert running : "Redis was closed"
         boolean ok = false
         try {
-            Jedis jedis = new Jedis()
             ok = jedis.hset(getFullKey(key), map) > 0
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
@@ -174,11 +199,10 @@ class Redis extends StringProperties {
      */
     @Override
     boolean delete(String key) {
+        assert running : "Redis was closed"
         boolean ok = false
         try {
-            Jedis jedis = new Jedis()
             ok = jedis.del(getFullKey(key)) > 0
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
@@ -191,9 +215,9 @@ class Redis extends StringProperties {
      */
     @Override
     boolean clear() {
+        assert running : "Redis was closed"
         boolean deleted = false
         try {
-            Jedis jedis = new Jedis()
             if(prefix) {
                 deleted = keys.every {
                     delete(it)
@@ -201,7 +225,6 @@ class Redis extends StringProperties {
             } else {
                 deleted = jedis.flushAll().toLowerCase() == "ok"
             }
-            jedis.close()
         } catch (JedisConnectionException jce) {
             Log.e("Exception in Jedis connection ", jce)
         }
