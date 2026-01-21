@@ -7,27 +7,29 @@ import groovy.transform.CompileStatic
 import redis.clients.jedis.ConnectionPoolConfig
 import redis.clients.jedis.RedisClient
 import redis.clients.jedis.exceptions.JedisConnectionException
+import redis.clients.jedis.exceptions.JedisDataException
 
 import java.time.Duration
 
 /**
- * This class simplifies the use of Jedis/Redis when connecting to a single server
- * For simplicity, if you need to connect to more than one redis server, use Jedis directly.
- * The reason is because we use a single instance of RedisClient (to use a pool of connections)
- * and having multiple Redis pool will add complexity to this class (and it is rarely needed).
+ * This class simplifies the use of a single server of Redis and implements most common commands (using Jedis).
  *
- * This class is not a replacement of Jedis (which depends on), it doesn't implement methods like:
- * `hget`, `lrange`, etc.
+ * If you need advanced commands (e.g. zadd, scan, zdiff, etc), byte support or to connect to multiple servers, use Jedis directly.
+ *
+ * This implementation use a single instance of RedisClient (to use a pool of connections)
+ * and having multiple Redis pool will add complexity to this class (and it is rarely needed).
  */
 @CompileStatic
 class Redis extends StringProperties {
     static final int timeBetweenEvictionRuns = Config.any.get("redis.check.interval", 5) //Seconds
     static final int port = Config.any.get("redis.port", 6379)
+    static final boolean warn = Config.any.get("redis.warn", true)
     static final String host = Config.any.get("redis.host", "localhost")
     static final ConnectionPoolConfig jedisPool = new ConnectionPoolConfig()
 
     static RedisClient jedis
     static boolean running = false
+    static final String OK = "ok"
     /**
      * Close all connections to Redis
      */
@@ -57,149 +59,134 @@ class Redis extends StringProperties {
             jedisPool.setTimeBetweenEvictionRuns(Duration.ofSeconds(timeBetweenEvictionRuns))
             jedis = RedisClient.builder().hostAndPort(host, port).poolConfig(jedisPool).build()
             running = true
+            if(warn) {
+                Log.w("Using preserveTypes with hget is a performance killer. Disable warning with: redis.warn = false")
+            }
+        }
+    }
+
+    // Redis direct methods:
+    private static <T> T withJedis(Closure<T> action) {
+        assert running : "Redis was closed"
+        try {
+            return action.call()
+        } catch (JedisConnectionException jce) {
+            Log.e("Exception in Jedis connection", jce)
+            return null
+        }
+    }
+
+    // Redis direct methods:
+    private <T> T withJedis(String key, T defaultValue, Closure<T> action) {
+        assert running : "Redis was closed"
+        try {
+            return action.call(getFullKey(key))
+        } catch (JedisConnectionException jce) {
+            Log.e("Exception in Jedis connection (key: %s)", key, jce)
+            return defaultValue
+        } catch (JedisDataException jde) {
+            Log.w("Data Exception on key [%s]", key, jde)
+            return defaultValue
+        }
+    }
+
+    // Special method for mget
+    private <T> T withJedis(List<String> keys, T defaultValue, Closure<T> action) {
+        assert running : "Redis was closed"
+        try {
+            return action.call(keys.collect { getFullKey(it) })
+        } catch (JedisConnectionException jce) {
+            Log.e("Exception in Jedis connection", jce)
+            return defaultValue
         }
     }
 
     @Override
-    String get(String key, String defVal) {
-        assert running : "Redis was closed"
-        String value = ""
-        try {
-            String type = jedis.type(getFullKey(key))
-            switch (type) {
-                case "list":
-                    value = "[" + getList(key).join(",") + "]"
-                    break
-                case "hash":
-                    value = "{" + getMap(key).collect {it.key.toString() + ":" + it.value.toString() }.join(",") +"}"
-                    break
-                case "string":
-                    value = jedis.get(getFullKey(key))
-                    break
-                default:
-                    value = "[$type]"
-            }
-            if(value == null) {
-                value = defVal
-            }
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+    String get(String key, String defVal = "") {
+        withJedis(key, defVal) {
+            String k ->
+                String type = jedis.type(k)
+                String value = switch (type) {
+                    case "list"     -> "[" + getList(k).join(",") + "]"
+                    case "hash"     -> "{" + getMap(k).collect {it.key.toString() + ":" + it.value.toString() }.join(",") +"}"
+                    case "string"   -> jedis.get(k)
+                    default         -> defVal
+                }
+                return value == null ? defVal : value
         }
-        return value
     }
 
     @Override
     List get(String key, List defVal) {
-        assert running : "Redis was closed"
-        List<String> vals = []
-        try {
-            if(preserveTypes) {
-                String list = jedis.get(getFullKey(key))
-                if(list) {
-                    vals = YAML.decode(list) as List
+        withJedis(key, defVal) {
+            String k ->
+                List<String> vals = []
+                if(preserveTypes) {
+                    String list = jedis.get(k)
+                    if(list) {
+                        vals = YAML.decode(list) as List
+                    }
+                } else {
+                    vals = jedis.lrange(k, 0, -1)
                 }
-            } else {
-                vals = jedis.lrange(getFullKey(key), 0, -1)
-            }
-            if (vals.empty) {
-                vals = defVal
-            }
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+                return vals.empty ? defVal : vals
         }
-        return vals
     }
 
     @Override
     Map get(String key, Map defVal) {
-        assert running : "Redis was closed"
-        Map<String, String> vals = [:]
-        try {
-            if(preserveTypes) {
-                String map = jedis.get(getFullKey(key))
-                if(map) {
-                    vals = YAML.decode(map) as Map
+        withJedis(key, defVal) {
+            String k ->
+                Map<String, String> vals = [:]
+                if(preserveTypes) {
+                    String map = jedis.get(k)
+                    if(map) {
+                        vals = YAML.decode(map) as Map
+                    }
+                } else {
+                    vals = jedis.hgetAll(k)
                 }
-            } else {
-                vals = jedis.hgetAll(getFullKey(key))
-            }
-            if(vals.keySet().empty) {
-                vals = defVal
-            }
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+                return vals.isEmpty() ? defVal : vals
         }
-        return vals
-    }
-
-    @Override
-    boolean exists(String key) {
-        assert running : "Redis was closed"
-        boolean exists = false
-        try {
-            exists = jedis.exists(getFullKey(key))
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
-        }
-        return exists
     }
 
     @Override
     Set<String> getKeys() {
-        assert running : "Redis was closed"
-        Set<String> vals = []
-        try {
-            vals = jedis.keys((prefix ? prefix + prefixSeparator : "") + "*").toSet()
+        withJedis {
+            Set<String> vals = jedis.keys((prefix ? prefix + prefixSeparator : "") + "*").toSet()
             if(prefix) {
                 vals = vals.collect {it.substring((prefix + prefixSeparator).length()) }.toSet()
             }
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+            return vals
         }
-        return vals
     }
 
     @Override
     boolean set(String key, String value) {
-        assert running : "Redis was closed"
-        boolean ok = false
-        try {
-            if(value == null) {
-                ok = jedis.del(getFullKey(key)) > 0
-            } else {
-                ok = jedis.set(getFullKey(key), value).toLowerCase() == "ok"
-            }
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+        withJedis(key, false) {
+            String k ->
+                return value == null ?
+                    jedis.del(k) > 0 :
+                    jedis.set(k, value).toLowerCase() == OK
         }
-        return ok
     }
 
     /**
      * This method is different from StringProperties as it doesn't store the whole list
-     * as string, but as a list inside Redis
+     * as string, but as a list inside Redis (if preserveTypes == false [default])
      * @param key
      * @param list
      * @return
      */
     @Override
     boolean set(String key, Collection list) {
-        assert running : "Redis was closed"
-        boolean ok = false
-        try {
-            jedis.del(getFullKey(key))
-            if(preserveTypes) {
-                jedis.set(getFullKey(key), YAML.encode(list))
-            } else {
-                list.each {
-                    jedis.rpush(getFullKey(key), it.toString())
-                }
-            }
-            ok = true
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+        withJedis(key, false) {
+            String k ->
+                jedis.del(k)
+                return preserveTypes ?
+                    jedis.set(k, YAML.encode(list)) == OK :
+                    list.every { jedis.rpush(k, it.toString()) > 0 }
         }
-        return ok
     }
 
     /**
@@ -211,36 +198,12 @@ class Redis extends StringProperties {
      */
     @Override
     boolean set(String key, Map map) {
-        assert running : "Redis was closed"
-        boolean ok = false
-        try {
-            if(preserveTypes) {
-                jedis.set(getFullKey(key), YAML.encode(map))
-                ok = true
-            } else {
-                ok = jedis.hset(getFullKey(key), map) > 0
-            }
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+        withJedis(key, false) {
+            String k ->
+                return preserveTypes ?
+                    jedis.set(k, YAML.encode(map)) == OK :
+                    jedis.hset(k, map) > 0
         }
-        return ok
-    }
-
-    /**
-     * Delete a key
-     * @param key
-     * @return
-     */
-    @Override
-    boolean delete(String key) {
-        assert running : "Redis was closed"
-        boolean ok = false
-        try {
-            ok = jedis.del(getFullKey(key)) > 0
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
-        }
-        return ok
     }
 
     /**
@@ -249,19 +212,226 @@ class Redis extends StringProperties {
      */
     @Override
     boolean clear() {
-        assert running : "Redis was closed"
-        boolean deleted = false
-        try {
-            if(prefix) {
-                deleted = keys.every {
-                    delete(it)
-                }
-            } else {
-                deleted = jedis.flushAll().toLowerCase() == "ok"
-            }
-        } catch (JedisConnectionException jce) {
-            Log.e("Exception in Jedis connection ", jce)
+        withJedis {
+            return prefix ?
+                keys.every {delete(it) } :
+                jedis.flushAll().toLowerCase() == OK
         }
-        return deleted
+    }
+
+    long hset(String key, String field, Object value) {
+        withJedis(key, 0L) {
+            String k ->
+                long ret
+                if (preserveTypes) {
+                    Map map = get(key, [:]) // Internal use, we send "key"
+                    map[field] = value
+                    ret = set(key, map) ? 1 : 0
+                } else {
+                    ret = jedis.hset(k, field, value.toString())
+                }
+                return ret
+        }
+    }
+
+    Object hget(String key, String field) {
+        withJedis(key, "") {
+            String k ->
+                Object ret
+                if(preserveTypes) {
+                    Map map = get(key, [:])
+                    ret = map[field]
+                } else {
+                    ret = jedis.hget(k, field)
+                }
+                return ret ?: ""
+        }
+    }
+    /**
+     * Delete a key
+     * @param key
+     * @return
+     */
+    @Override
+    boolean delete(String key) {
+        withJedis(key, false) { String k -> jedis.del(k) > 0 }
+    }
+
+    @Override
+    boolean exists(String key) {
+        withJedis(key, false) { String k -> jedis.exists(k) }
+    }
+
+    String type(String key) {
+        withJedis(key, "") { String k -> jedis.type(k) }
+    }
+
+    String rename(String key, String newKey) {
+        withJedis(key, "") { String k -> jedis.rename(k, getFullKey(newKey)) }
+    }
+
+    long incr(String key) {
+        withJedis(key, 0L) { String k -> jedis.incr(k) }
+    }
+
+    List lrange(String key, long start, long end) {
+        withJedis(key, [] as List) {
+            String k ->
+                preserveTypes ?
+                    get(key, []).subList(start as int, end as int) :    //internal use, we use "key"
+                    jedis.lrange(k, start, end)
+        }
+    }
+
+    long hdel(String key, String... field) {
+        withJedis(key, 0L) {
+            String k ->
+                long ret = 0L
+                if(preserveTypes) {
+                    Map map = get(key, [:])
+                    field.each {
+                        if(map.containsKey(it)) {
+                            map.remove(it)
+                            ret++
+                        }
+                    }
+                    set(key, map)
+                } else {
+                    ret = jedis.hdel(k, field)
+                }
+                return ret
+        }
+    }
+
+    long expire(String key, long seconds) {
+        withJedis(key, 0L) { String k -> jedis.expire(k, seconds) }
+    }
+
+    long ttl(String key) {
+        withJedis(key, 0L) { String k -> jedis.ttl(k) }
+    }
+
+    long persist(String key) {
+        withJedis(key, 0L) { String k -> jedis.persist(k) }
+    }
+
+    /**
+     * Add an element to a set
+     * NOTE: when using preserveTypes, the return value is the number of unique elements in the member list
+     *       is not the same as in jedis.sadd (which are the number of unique elements added)
+     * @param key
+     * @param members
+     * @return
+     */
+    long sadd(String key, Object... members) {
+        withJedis(key, 0L) {
+            String k ->
+                long ret
+                if(preserveTypes) {
+                    Set uniq = members.toList().unique().toSet()
+                    ret = set(key, uniq) ? uniq.size() : 0
+                } else {
+                    ret = jedis.sadd(k, toStringArray(members))
+                }
+                return ret
+        }
+    }
+
+    Set smembers(String key) {
+        withJedis(key, [] as Set) {
+            String k ->
+                return preserveTypes ? get(key, []).toSet() : jedis.smembers(k)
+        }
+    }
+
+    boolean sismember(String key, Object member) {
+        withJedis(key, false) {
+            String k ->
+                return preserveTypes ? get(key, []).contains(member) : jedis.sismember(k, member.toString())
+        }
+    }
+
+    List<String> mget(List<String> keys) {
+        withJedis(keys, [] as List<String>) { List<String> ks ->
+            String[] kk = ks.toArray(new String[ks.size()])
+            return jedis.mget(kk)
+        }
+    }
+
+    long lpush(String key, Object... items) {
+        withJedis(key, 0L) {
+            String k ->
+                long ret
+                if(preserveTypes) {
+                    List list = get(key, [])
+                    list.addAll(0, items)
+                    set(key, list)
+                    ret = items.length
+                } else {
+                    ret = jedis.lpush(k, toStringArray(items))
+                }
+                return ret
+        }
+    }
+
+    long rpush(String key, Object... items) {
+        withJedis(key, 0L) {
+            String k ->
+                long ret
+                if(preserveTypes) {
+                    List list = get(key, [])
+                    list.addAll(items)
+                    set(key, list)
+                    ret = items.length
+                } else {
+                    ret = jedis.rpush(k, toStringArray(items))
+                }
+                return ret
+        }
+    }
+
+    Object lpop(String key) {
+        withJedis(key, "") {
+            String k ->
+                Object ret = ""
+                if(preserveTypes) {
+                    List list = get(key, [])
+                    if(!list.empty) {
+                        ret = list.pop()
+                        set(key, list)
+                    }
+                } else {
+                    ret = jedis.lpop(k)
+                }
+                return ret
+        }
+    }
+
+    Object rpop(String key) {
+        withJedis(key, "") {
+            String k ->
+                Object ret = ""
+                if(preserveTypes) {
+                    List list = get(key, [])
+                    if(!list.empty) {
+                        ret = list.removeLast()
+                        set(key, list)
+                    }
+                } else {
+                    ret = jedis.rpop(k)
+                }
+                return ret
+        }
+    }
+
+    private static String[] toStringArray(Object... args) {
+        if (args instanceof String[]) {
+            return (String[]) args
+        }
+        String[] out = new String[args.length]
+        for (int i = 0; i < args.length; i++) {
+            out[i] = (String) args[i]   // fails fast if not String
+        }
+        return out
     }
 }
