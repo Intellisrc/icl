@@ -14,7 +14,7 @@ import java.time.Duration
 /**
  * This class simplifies the use of a single server of Redis and implements most common commands (using Jedis).
  *
- * If you need advanced commands (e.g. zadd, scan, zdiff, etc), byte support or to connect to multiple servers, use Jedis directly.
+ * If you need advanced commands (e.g. scan, zadd, rpushx, etc), byte support or to connect to multiple servers, use Jedis directly.
  *
  * This implementation use a single instance of RedisClient (to use a pool of connections)
  * and having multiple Redis pool will add complexity to this class (and it is rarely needed).
@@ -274,6 +274,39 @@ class Redis extends StringProperties {
         withJedis(key, 0L) { String k -> jedis.incr(k) }
     }
 
+    long incrBy(String key, long by) {
+        withJedis(key, 0L) { String k -> jedis.incrBy(k, by) }
+    }
+    double incrBy(String key, double by) {
+        withJedis(key, 0d) { String k -> jedis.incrByFloat(k, by) }
+    }
+
+    long llen(String key) {
+        withJedis(key, 0L) {
+            String k ->
+                preserveTypes ? get(key, []).size() : jedis.llen(k)
+        }
+    }
+    long hlen(String key) {
+        withJedis(key, 0L) {
+            String k ->
+                preserveTypes ? get(key, [:]).keySet().size() : jedis.hlen(k)
+        }
+    }
+    String ltrim(String key, int start, int stop) {
+        withJedis(key, 0L) {
+            String k ->
+                String ret
+                if(preserveTypes) {
+                    List list = get(key, [])
+                    List sub = list.subList(start, [stop, list.size()].min())
+                    set(key, sub)
+                } else {
+                    ret = jedis.ltrim(k, start, stop)
+                }
+                return ret
+        }
+    }
     List lrange(String key, long start, long end) {
         withJedis(key, [] as List) {
             String k ->
