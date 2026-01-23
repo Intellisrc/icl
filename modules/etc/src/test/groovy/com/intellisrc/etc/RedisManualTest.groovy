@@ -11,26 +11,35 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class RedisManualTest {
     static void main(String[] args) {
+        Redis redis1 = new Redis("test",":")
+        Redis redis2 = new Redis("test")
+        Redis redis3 = new Redis("adv", ":")
+        Redis redis4 = new Redis("types",".", true)
+
+        [redis1, redis2, redis3, redis4].each {
+            it.clear()
+            assert it.keys.empty
+        }
         // Super simple test:
-        Redis redis = new Redis("test",":")
-        redis.set("hello", "world")
-        assert redis.get("hello") == "world"
+        redis1.set("hello", "world")
+        redis1.set("bye", "virtual")
+        assert redis1.get("hello") == "world"
+        assert redis1.get(["hello", "bye"]).size() == 2 //similar to mget
 
         // Test that other instance with the same prefix should access the same key:
-        Redis redis2 = new Redis("test")
         redis2.delete("hello")
         assert ! redis2.exists("hello")
 
         // Test other cases:
-        Redis redis3 = new Redis("adv", ":")
         redis3.set("list", [1,2,3,4,5,6])
+        assert redis3.len("list") == 6
         assert redis3.lrange("list", 2,3).contains('3')
         assert redis3.lpush("list", "0")
         assert redis3.lpop("list") == '0'
         assert redis3.rpush("list", "9")
         assert redis3.rpop("list") == '9'
 
-        redis.clear() // Previous prefix (should not affect "adv" prefix (note we are calling 'redis' and not 'redis3')
+        redis1.clear() // Previous prefix (should not affect "adv" prefix (note we are calling 'redis' and not 'redis3')
         assert redis3.get("list",[]).collect { it as int }.contains(3)
         redis3.rename("list","array")
         assert redis3.exists("array")
@@ -43,6 +52,7 @@ class RedisManualTest {
         assert redis3.type("map") == "hash" //Stored as hash
         // Adding with hset:
         assert redis3.hset("map", "good",  true)
+        assert redis3.len("map") == 2
         assert redis3.hget("map", "good") == "true"
         assert redis3.hdel("map", "good")
         assert redis3.hget("map", "good") == ""
@@ -53,18 +63,24 @@ class RedisManualTest {
         redis3.set("num", 30000)
         assert redis3.get("num", 0) == 30000
         assert redis3.incr("num") == 30001
+        assert redis3.incrBy("num", 10) == 30011
+        assert redis3.incrBy("num", 4.5d) == 30015.5d
 
         redis3.set("dbl", 100.4d)
         assert redis3.get("dbl", 0d) == 100.4d
 
         assert redis3.keys.size() == 5
-        redis3.clear()
-        assert redis3.keys.empty
+
+        redis3.set("set", [1,1,2,2,3,3] as Set)
+        assert redis3.len("set") == 3
+        assert redis3.get("set", [] as Set).contains('2')
+        assert redis3.exists("set", '3')
+        assert ! redis3.exists("set", '4')
 
         ///////// With preserveTypes ON ////////////////
         // In these cases, types will be preserved as List and Map will be stored as YAML
-        Redis redis4 = new Redis("types",".", true)
         redis4.set("list", [1,2,3,4,5,6])
+        assert redis4.len("list") == 6
         assert redis4.get("list",[]).contains(3)
         assert redis4.lrange("list", 2,3).contains(3)
         assert redis4.lpush("list", 0)
@@ -80,27 +96,36 @@ class RedisManualTest {
         redis4.hset("map", "name", "Wong")
         assert redis4.hget("map","score") == 100
         assert redis4.hget("map","name") == "Wong"
+        assert redis4.len("map") == 3
         assert redis4.hdel("map", "name")
+        assert redis4.len("map") == 2
         assert redis4.hget("map", "name") == ""
 
+        redis4.set("set", [1,1,2,2,3,3] as Set)
+        assert redis4.len("set") == 3
+        assert redis4.get("set", []).contains(2)
+        assert redis4.exists("set", 3)
+        assert ! redis4.exists("set", 4)
+
         ////// Expiration /////////////
-        redis.set("boom", "later")
-        redis.set("ping", "pong")
-        assert redis.expire("boom", 3)
-        assert redis.expire("ping", 3)
-        assert redis.ttl("boom") == 3
-        assert redis.get("boom") == "later"
-        assert redis.get("ping") == "pong"
-        assert redis.persist("ping")
+        redis1.set("boom", "later")
+        redis1.set("ping", "pong")
+        assert redis1.expire("boom", 3)
+        assert redis1.expire("ping", 3)
+        assert redis1.ttl("boom") == 3
+        assert redis1.get("boom") == "later"
+        assert redis1.get("ping") == "pong"
+        assert redis1.persist("ping")
 
         print "Waiting 5 seconds to expire..."
         sleep(Millis.SECOND_5)
-        assert redis.get("boom") == ""
-        assert redis.get("ping") == "pong"
+        assert redis1.get("boom") == ""
+        assert redis1.get("ping") == "pong"
 
-        redis4.clear()
-        assert redis4.keys.empty
-
+        [redis1, redis2, redis3, redis4].each {
+            it.clear()
+            assert it.keys.empty
+        }
         println "✅ Test finished correctly"
         Redis.quit()
     }

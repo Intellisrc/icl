@@ -101,6 +101,13 @@ class Redis extends StringProperties {
         }
     }
 
+    List<String> get(List<String> keys) {
+        withJedis(keys, [] as List<String>) { List<String> ks ->
+            String[] kk = ks.toArray(new String[ks.size()])
+            return jedis.mget(kk)
+        }
+    }
+
     @Override
     String get(String key, String defVal = "") {
         withJedis(key, defVal) {
@@ -120,7 +127,7 @@ class Redis extends StringProperties {
     List get(String key, List defVal) {
         withJedis(key, defVal) {
             String k ->
-                List<String> vals = []
+                List vals = []
                 if(preserveTypes) {
                     String list = jedis.get(k)
                     if(list) {
@@ -128,6 +135,23 @@ class Redis extends StringProperties {
                     }
                 } else {
                     vals = jedis.lrange(k, 0, -1)
+                }
+                return vals.empty ? defVal : vals
+        }
+    }
+
+    @Override
+    Set get(String key, Set defVal) {
+        withJedis(key, defVal) {
+            String k ->
+                Set vals = []
+                if(preserveTypes) {
+                    String list = jedis.get(k)
+                    if(list) {
+                        vals = YAML.decode(list) as Set
+                    }
+                } else {
+                    vals = jedis.smembers(k)
                 }
                 return vals.empty ? defVal : vals
         }
@@ -185,7 +209,10 @@ class Redis extends StringProperties {
                 jedis.del(k)
                 return preserveTypes ?
                     jedis.set(k, YAML.encode(list)) == OK :
-                    list.every { jedis.rpush(k, it.toString()) > 0 }
+                    switch (list) {
+                        case Set  -> jedis.sadd(k, listToArray(list))
+                        default   -> list.sum { jedis.rpush(k, it.toString()) }
+                    }
         }
     }
 
@@ -281,32 +308,34 @@ class Redis extends StringProperties {
         withJedis(key, 0d) { String k -> jedis.incrByFloat(k, by) }
     }
 
-    long llen(String key) {
+    long len(String key) {
         withJedis(key, 0L) {
             String k ->
-                preserveTypes ? get(key, []).size() : jedis.llen(k)
-        }
-    }
-    long hlen(String key) {
-        withJedis(key, 0L) {
-            String k ->
-                preserveTypes ? get(key, [:]).keySet().size() : jedis.hlen(k)
-        }
-    }
-    String ltrim(String key, int start, int stop) {
-        withJedis(key, 0L) {
-            String k ->
-                String ret
                 if(preserveTypes) {
-                    List list = get(key, [])
-                    List sub = list.subList(start, [stop, list.size()].min())
-                    set(key, sub)
-                } else {
-                    ret = jedis.ltrim(k, start, stop)
+                    Object data = YAML.decode(jedis.get(k))
+                    if(data) {
+                        return switch (data) {
+                            case Set    -> (data as Set).size()
+                            case List   -> (data as List).size()
+                            case Map    -> (data as Map).keySet().size()
+                            default -> 1L
+                        }
+                    } else {
+                        return 0L
+                    }
                 }
-                return ret
+                return switch (type(key)) {
+                    case "set"  -> jedis.scard(k)
+                    case "list" -> jedis.llen(k)
+                    case "hash" -> jedis.hlen(k)
+                    case "none" -> 0L
+                    // "string", et al.
+                    default -> 1L
+                }
+
         }
     }
+
     List lrange(String key, long start, long end) {
         withJedis(key, [] as List) {
             String k ->
@@ -348,46 +377,26 @@ class Redis extends StringProperties {
         withJedis(key, 0L) { String k -> jedis.persist(k) }
     }
 
-    /**
-     * Add an element to a set
-     * NOTE: when using preserveTypes, the return value is the number of unique elements in the member list
-     *       is not the same as in jedis.sadd (which are the number of unique elements added)
-     * @param key
-     * @param members
-     * @return
-     */
-    long sadd(String key, Object... members) {
-        withJedis(key, 0L) {
-            String k ->
-                long ret
-                if(preserveTypes) {
-                    Set uniq = members.toList().unique().toSet()
-                    ret = set(key, uniq) ? uniq.size() : 0
-                } else {
-                    ret = jedis.sadd(k, toStringArray(members))
-                }
-                return ret
-        }
-    }
-
-    Set smembers(String key) {
-        withJedis(key, [] as Set) {
-            String k ->
-                return preserveTypes ? get(key, []).toSet() : jedis.smembers(k)
-        }
-    }
-
-    boolean sismember(String key, Object member) {
+    boolean exists(String key, Object member) {
         withJedis(key, false) {
             String k ->
-                return preserveTypes ? get(key, []).contains(member) : jedis.sismember(k, member.toString())
-        }
-    }
-
-    List<String> mget(List<String> keys) {
-        withJedis(keys, [] as List<String>) { List<String> ks ->
-            String[] kk = ks.toArray(new String[ks.size()])
-            return jedis.mget(kk)
+                if(preserveTypes) {
+                    Object data = YAML.decode(jedis.get(k))
+                    return switch (data) {
+                        case Set    -> (data as Set).contains(member)
+                        case List   -> (data as List).contains(member)
+                        case Map    -> (data as Map).containsKey(member)
+                        default     -> false
+                    }
+                } else {
+                    return switch (type(key)) {
+                        case "list" -> jedis.lpos(k, member.toString()) !== null
+                        case "set"  -> jedis.sismember(k, member.toString())
+                        case "hash" -> jedis.hexists(k, member.toString())
+                        case "none" -> false
+                        default -> jedis.exists(key)
+                    }
+                }
         }
     }
 
@@ -466,5 +475,9 @@ class Redis extends StringProperties {
             out[i] = (String) args[i]   // fails fast if not String
         }
         return out
+    }
+
+    private static String[] listToArray(Collection list) {
+        return list.collect { it.toString() }.toArray(new String[0]) as String[]
     }
 }
