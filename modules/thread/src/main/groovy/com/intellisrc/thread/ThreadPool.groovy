@@ -449,6 +449,7 @@ class ThreadPool extends ThreadPoolExecutor {
         items.each {
             Log.v("[%s] Exiting...", it.info.name)
             it.info.task.cancel()
+            it.info.task.onCancel()
             it.thread?.interrupt()
             it.future?.cancel(true)
         }

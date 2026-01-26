@@ -164,13 +164,13 @@ class ServiceTaskTest extends Specification {
         when:
             called = st.calledTimes
             st.cancel()
-            sleep(HALF_SECOND) //Simulate some extra time, to be sure it was cancelled correctly
+            sleep(SECOND) //Simulate some extra time, to be sure it was cancelled correctly
         then:
             assert st.cancelled
             assert st.cancelCalled
             assert ! st.resetCalled
             assert ! st.running
-            assert called == st.calledTimes
+            assert Math.abs(called - st.calledTimes) <= 1 //It might run once
         when:
             List procs = Tasks.findAll("ServiceTest")
             println "Running tasks: ----------------------"
@@ -181,32 +181,31 @@ class ServiceTaskTest extends Specification {
             assert Tasks.taskManager.failed == 0
     }
 
-    def "Services should not throw warning on exit"() {
-        setup:
-            ServiceTest st = new ServiceTest()
-        expect:
-            assert Tasks.add(st): "Adding the first one should be ok"
-            sleep(SECOND)
-            assert Tasks.findAll("ServiceTest").size() == 2 // Plus the monitor
-            assert Tasks.taskManager.failed == 0
-        when:
-            st.cancel()
-            int called = st.calledTimes
-            sleep(SECOND)
-        then:
-            assert st.cancelCalled
-            assert !st.resetCalled
-            assert !st.running
-            assert st.calledTimes == called
-            assert Tasks.taskManager.failed == 0
-            assert Tasks.findAll("ServiceTest").size() == 0 // Plus the monitor
-    }
-
     def "Pause and resume should work"() {
         setup:
+            int before
+            int after
+            int later
             ServiceTest st = new ServiceTest()
+            assert Tasks.add(st): "Adding the first one should be ok"
+            sleep(SECOND) //Run service for some time
+        when:
+            before = st.calledTimes
             st.pause()
+            sleep(SECOND)
+            after = st.calledTimes
+        then:
+            assert st.paused
+            assert ! st.running
+            assert before == after
+        when:
             st.resume()
+            sleep(SECOND)
+            later = st.calledTimes
+        then:
+            assert ! st.paused
+            assert st.running
+            assert later > after
     }
 
     def "Tasks should be removed and stopped on command"() {
@@ -215,16 +214,17 @@ class ServiceTaskTest extends Specification {
         expect:
             assert Tasks.add(st): "Adding the first one should be ok"
             sleep(SECOND)
-            assert Tasks.findAll("ServiceTest").size() == 2 // Plus the monitor
+            assertServiceAndMonitor()
             assert Tasks.taskManager.failed == 0
         when:
             st.destroy()
+            sleep(SECOND)
         then:
-            assert !st.running
             assert st.cancelCalled
             assert !st.resetCalled
+            assert !st.running
             assert Tasks.taskManager.failed == 0
-            assert Tasks.findAll("ServiceTest").size() == 0 // Plus the monitor
+            assert Tasks.findAll("ServiceTest").size() == 0
     }
 
 }

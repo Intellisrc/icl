@@ -94,7 +94,7 @@ class TaskManager {
                             ServiceTask serviceTask = taskInfo.task as ServiceTask
                             serviceTask.monitor = new ServiceMonitorTask(serviceTask, {
                                 if(running) {
-                                    if(serviceTask.paused) {
+                                    if(serviceTask.paused && taskInfo.state != TaskInfo.State.PAUSED) {
                                         Log.i("[%s] Task was paused", serviceTask.taskName)
                                         taskInfo.state = TaskInfo.State.PAUSED
                                     } else if(taskInfo.state == TaskInfo.State.PAUSED &&! serviceTask.paused) { //resume

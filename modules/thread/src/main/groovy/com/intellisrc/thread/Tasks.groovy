@@ -357,9 +357,6 @@ class Tasks {
         boolean removed = false
         TaskPool taskPool = get(name)
         if(taskPool) {
-            taskPool.tasks.each {
-                it.task.cancel() //FIXME: what if we need it to be async? (like: cancel(Callback) )
-            }
             taskPool.executor.purge()
             taskPool.executor.shutdownNow()
             removed = taskManager.remove(taskPool)
