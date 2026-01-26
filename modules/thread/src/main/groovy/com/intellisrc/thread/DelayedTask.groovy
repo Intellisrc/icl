@@ -7,7 +7,7 @@ import groovy.transform.CompileStatic
  * @since 2019/09/18.
  */
 @CompileStatic
-abstract class DelayedTask extends Task implements TaskCancellable {
+abstract class DelayedTask extends Task {
     abstract Runnable process() throws InterruptedException
 
     DelayedTask(int delayedMillis) {

@@ -16,7 +16,7 @@ import static com.intellisrc.core.Millis.*
  * @since 2019/09/09.
  */
 @CompileStatic
-abstract class IntervalTask extends Task implements TaskCancellable {
+abstract class IntervalTask extends Task {
     public boolean warnOnSkip = true //Turn to off to disable warning about unable to execute Task
 
     IntervalTask(long maxExecutionMillis, int sleepMillis) {

@@ -10,6 +10,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 
 import static com.intellisrc.core.AnsiColor.*
 import static com.intellisrc.core.Millis.*
@@ -85,7 +86,7 @@ class Tasks {
         }
     }
     /**
-     * Class to keep track of 1 reset per day
+     * Class to keep track of 1 reset per day (reset counters)
      */
     static class TaskReset extends IntervalTask {
         LocalDate lastReset
@@ -179,6 +180,22 @@ class Tasks {
      */
     static boolean runLater(Runnable delayedProcess, String name, int afterMillis) {
         taskManager.add(DelayedTask.create(delayedProcess, name, afterMillis))
+    }
+    /**
+     * Get first task with name..
+     * @param name
+     * @return
+     */
+    static TaskPool get(String name) {
+        return taskManager.pools.find { it.name == name }
+    }
+    /**
+     * Get all tasks with name..
+     * @param name
+     * @return
+     */
+    static List<TaskPool> findAll(String name) {
+        return taskManager.pools.findAll { it.name.contains(name) }
     }
     /**
      * Get Log date
@@ -309,7 +326,7 @@ class Tasks {
     static String getRow(TaskLoggable item) {
         //boolean changed = changedTask && item.task.taskName == changedTask.taskName
         boolean changed = logUpdatedList.any { it == item.name }
-        boolean isPool = item instanceof TaskPool
+        boolean isPool = (item instanceof TaskPool)
         TaskPool pool = isPool ? (item as TaskPool) : null
         
         TaskSummary summ = isPool ? summary.find { it.key == item.name } : null
@@ -331,6 +348,32 @@ class Tasks {
     
     static String dangerColor(long value, long warnValue, long dangerValue) {
         return RESET + ((value >= dangerValue ? RED : (value >= warnValue ? YELLOW : "")) + SysClock.millisToString(value).padRight(5)) + RESET
+    }
+    /**
+     * Exit and remove task by name
+     * @param name
+     */
+    static boolean remove(String name) {
+        boolean removed = false
+        TaskPool taskPool = get(name)
+        if(taskPool) {
+            taskPool.tasks.each {
+                it.task.cancel() //FIXME: what if we need it to be async? (like: cancel(Callback) )
+            }
+            taskPool.executor.purge()
+            taskPool.executor.shutdownNow()
+            removed = taskManager.remove(taskPool)
+        } else {
+            Log.w("%s was requested to be removed but it didn't exists", name)
+        }
+        return removed
+    }
+    /**
+     * Exit and remove task
+     * @param name
+     */
+    static boolean remove(Task task) {
+        return remove(task.taskName)
     }
     /**
      * Exit all tasks

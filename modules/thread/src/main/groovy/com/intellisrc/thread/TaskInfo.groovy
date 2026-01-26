@@ -25,6 +25,9 @@ class TaskInfo implements TaskLoggable {
     LocalDateTime waitTime
     LocalDateTime startTime
     LocalDateTime failTime
+    LocalDateTime cancelTime
+    LocalDateTime pausedTime
+    LocalDateTime resumedTime
     LocalDateTime doneTime
     protected State threadState = State.NEW
     protected StateChangeCallback onStateChange = {} as StateChangeCallback
@@ -44,6 +47,7 @@ class TaskInfo implements TaskLoggable {
         WAITING,        // Waiting for pool queue to become available
         DONE,           // Task done
         RUNNING,        // Task is being executed
+        PAUSED,         // Task was paused
         CANCELLED,      // Task was cancelled
         TERMINATED,     // Task finalized in exception / error
         //---------- Only to display in Tasks:
@@ -85,6 +89,7 @@ class TaskInfo implements TaskLoggable {
             case ServiceTask: indicator     = GREEN + "S"; break
             case BlockingTask: indicator    = RED + "B"; break
             case DelayedTask: indicator     = CYAN + "D"; break
+            case ServiceMonitorTask: indicator = WHITE + "M"; break
             default: indicator = " "; break
         }
         return indicator + RESET

@@ -17,7 +17,7 @@ import static com.intellisrc.core.Millis.*
  * @since 2019/09/09.
  */
 @CompileStatic
-abstract class ParallelTask extends Task implements TaskCancellable {
+abstract class ParallelTask extends Task {
     ParallelTask(int threads, long maxExecutionMillis = 0, boolean waitToEnd = false) {
         minThreads = 1
         maxThreads = threads

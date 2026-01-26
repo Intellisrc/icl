@@ -59,10 +59,10 @@ class TaskManager {
                     Log.e("Unable to create pool", e)
                     return false
                 }
-                // Add the pool to the list
-                taskPools.add(taskPool)
                 // Add the task to the pool
                 taskPool.add(taskInfo)
+                // Add the pool to the list
+                taskPools.add(taskPool)
                 if(Tasks.debug) {
                     Log.v("[%s] Adding to task monitor", taskInfo.fullName)
                 }
@@ -90,23 +90,39 @@ class TaskManager {
                         Log.w("[%s] Trying to add a ServiceTask when there is one already running", taskInfo.name)
                     } else {
                         added = (taskPool.executor.execute(taskInfo))
-                        IntervalTask monitor = IntervalTask.create({
-                            if(running) {
-                                //If its a service, run it again
-                                if (taskInfo.state == TaskInfo.State.DONE) {
-                                    Log.w("[%s] Service exited unexpectedly. Use Tasks.exit() to quit, or return false in reset()", taskInfo.name)
-                                    if(taskInfo.task.reset()) {
-                                        taskInfo.state = TaskInfo.State.TERMINATED
-                                        failedCount.incrementAndGet()
+                        if(added) {
+                            ServiceTask serviceTask = taskInfo.task as ServiceTask
+                            serviceTask.monitor = new ServiceMonitorTask(serviceTask, {
+                                if(running) {
+                                    if(serviceTask.paused) {
+                                        Log.i("[%s] Task was paused", serviceTask.taskName)
+                                        taskInfo.state = TaskInfo.State.PAUSED
+                                    } else if(taskInfo.state == TaskInfo.State.PAUSED &&! serviceTask.paused) { //resume
+                                        Log.i("[%s] Task was resumed",serviceTask.taskName)
+                                        taskInfo.state = TaskInfo.State.RUNNING
+                                    } else if(serviceTask.cancelled) {
+                                        Log.i("[%s] Service was cancelled", serviceTask.taskName)
+                                        taskInfo.state = TaskInfo.State.CANCELLED
+                                        serviceTask.onCancel()
+                                        serviceTask.monitor.cancel()
+                                        serviceTask.monitor.destroy()
+                                    } else {
+                                        //If its a service, run it again
+                                        if (taskInfo.state == TaskInfo.State.DONE) {
+                                            Log.w("[%s] Service exited unexpectedly. Use task.cancel(), Tasks.exit() to quit, or return false in reset()", taskInfo.name)
+                                            if (serviceTask.reset()) {
+                                                taskInfo.state = TaskInfo.State.TERMINATED
+                                                failedCount.incrementAndGet()
+                                            }
+                                        }
+                                        if (taskInfo.state == TaskInfo.State.TERMINATED) {
+                                            added = taskPool.retry(taskInfo)
+                                        }
                                     }
                                 }
-                                if (taskInfo.state == TaskInfo.State.TERMINATED) {
-                                    added = taskPool.retry(taskInfo)
-                                }
-                            }
-                        }, taskInfo.name + "-monitor", 500, 150)
-                        monitor.warnOnSkip = false
-                        add(monitor)
+                            }, 500, 150)
+                            add(serviceTask.monitor)
+                        }
                     }
                     break
                 case IntervalTask:
@@ -114,11 +130,17 @@ class TaskManager {
                     Log.i("[%s] Will run under schedule", taskInfo.name)
                     IntervalTask intervalTask = (taskInfo.task as IntervalTask)
                     future = scheduledExecutorService.scheduleAtFixedRate({
-                        if(intervalTask.cancelled) {
-                            Log.v("Task %s was cancelled", task.taskName)
+                        if(intervalTask.paused) {
+                            Log.i("[%s] Task was paused", intervalTask.taskName)
+                            taskInfo.state = TaskInfo.State.PAUSED
+                        } else if(taskInfo.state == TaskInfo.State.PAUSED &&! intervalTask.paused) { //resume
+                            Log.i("[%s] Task was resumed", intervalTask.taskName)
+                            taskInfo.state = TaskInfo.State.RUNNING
+                        } else if(intervalTask.cancelled) {
+                            Log.v("Task %s was cancelled", intervalTask.taskName)
                             future.cancel(true)
                             taskInfo.state = TaskInfo.State.CANCELLED
-                            task.reset()
+                            intervalTask.onCancel()
                         } else if (running) {
                             if (!taskPool.executor.execute(taskInfo)) {
                                 if(intervalTask.warnOnSkip) {
@@ -131,25 +153,44 @@ class TaskManager {
                     added = true
                     break
                 case ParallelTask:
+                    ParallelTask parallelTask = (taskInfo.task as ParallelTask)
                     if(Tasks.debug) {
                         Log.v("[%s] Will run in multiple threads", taskInfo.name)
                     }
-                    added = taskPool.executor.executeParallel(taskInfo)
+                    if(parallelTask.cancelled) {
+                        parallelTask.onCancel()
+                    } else {
+                        added = taskPool.executor.executeParallel(taskInfo)
+                    }
                     break
                 case BlockingTask:
+                    BlockingTask blockingTask = (taskInfo.task as BlockingTask)
                     if(Tasks.debug) {
                         Log.v("[%s] Will block", taskInfo.name)
                     }
-                    added = taskPool.executor.executeBlocking(taskInfo)
+                    if(blockingTask.cancelled) {
+                        blockingTask.onCancel()
+                    } else {
+                        added = taskPool.executor.executeBlocking(taskInfo)
+                    }
                     break
                 case DelayedTask:
+                    DelayedTask delayedTask = (taskInfo.task as DelayedTask)
                     if(Tasks.debug) {
                         Log.v("[%s] Will be executed after %d ms", taskInfo.name, taskInfo.sleep)
                     }
-                    added = taskPool.executor.executeLater(taskInfo)
+                    if(delayedTask.cancelled) {
+                        delayedTask.onCancel()
+                    } else {
+                        added = taskPool.executor.executeLater(taskInfo)
+                    }
                     break
                 default:
-                    added = taskPool.executor.execute(taskInfo)
+                    if(taskInfo.task.cancelled) {
+                        taskInfo.task.onCancel()
+                    } else {
+                        added = taskPool.executor.execute(taskInfo)
+                    }
                     break
             }
             if (!added) {
@@ -159,6 +200,17 @@ class TaskManager {
             Log.e("Task was null")
         }
         return added
+    }
+    /**
+     * Remove a taskPool (it must not be running)
+     * @param taskPool
+     * @return
+     */
+    protected boolean remove(TaskPool taskPool) {
+        if(taskPool.running &&! taskPool.cancelled) {
+            Log.w("TaskPool %s was running but was removed from pools.", taskPool.fullName)
+        }
+        return taskPools.remove(taskPool)
     }
     
     /**
