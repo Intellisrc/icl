@@ -27,6 +27,7 @@ class Tasks {
     static int maxPoolSize = Config.any.get("tasks.pool.max", 30)
     static int bufferMillis = Config.any.get("tasks.buffer", SECOND)
     static int timeout = Config.any.getInt("tasks.timeout")
+    static int cancelTimeout = Config.any.get("tasks.timeout.cancel", SECOND_5)
     static boolean printOnScreen = Config.any.getBool("tasks.print")
     static boolean logToFile = Config.any.getBool("tasks.log")
     static boolean debug = Config.any.getBool("tasks.debug")

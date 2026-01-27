@@ -104,7 +104,6 @@ class TaskManager {
                                         Log.i("[%s] Service was cancelled", serviceTask.taskName)
                                         taskInfo.state = TaskInfo.State.CANCELLED
                                         serviceTask.onCancel()
-                                        serviceTask.monitor.cancel()
                                         serviceTask.monitor.destroy()
                                     } else {
                                         //If its a service, run it again
@@ -208,7 +207,7 @@ class TaskManager {
      */
     protected boolean remove(TaskPool taskPool) {
         if(taskPool.running &&! taskPool.cancelled) {
-            Log.w("TaskPool %s was running but was removed from pools.", taskPool.fullName)
+            Log.w("TaskPool [%s] was running but was removed from pools.", taskPool.fullName)
         }
         return taskPools.remove(taskPool)
     }

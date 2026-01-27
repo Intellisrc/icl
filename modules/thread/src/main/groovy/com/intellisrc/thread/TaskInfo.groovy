@@ -115,7 +115,7 @@ class TaskInfo implements TaskLoggable {
      */
     @Override
     boolean isRunning() {
-        return state != State.TERMINATED
+        return ! [State.TERMINATED, State.CANCELLED].contains(state)
     }
     /**
      * Return true if the task is new

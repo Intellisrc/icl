@@ -221,6 +221,6 @@ class TaskPool implements TaskLoggable {
     
     @Override
     boolean isRunning() {
-        return taskList.empty || taskList.any { it.state != TaskInfo.State.TERMINATED }
+        return taskList.empty || taskList.any { it.running }
     }
 }

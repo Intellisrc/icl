@@ -9,6 +9,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.*
 
 import static com.intellisrc.core.Millis.MILLIS_10
+import static com.intellisrc.core.Millis.MILLIS_10
 import static com.intellisrc.core.Millis.getMILLIS_10
 import static com.intellisrc.core.Millis.getSECOND
 
@@ -446,12 +447,26 @@ class ThreadPool extends ThreadPoolExecutor {
      */
     @Override
     protected void terminated() {
+        CountDownLatch shuttingDown = new CountDownLatch(1)
         items.each {
-            Log.v("[%s] Exiting...", it.info.name)
-            it.info.task.cancel()
-            it.info.task.onCancel()
-            it.thread?.interrupt()
-            it.future?.cancel(true)
+            ExecutorItem ei ->
+                Log.v("[%s] Exiting...", ei.info.name)
+                ei.info.task.cancel()
+                ei.info.task.onCancel()
+                try {
+                    Thread.start({
+                        while (ei.info.running) {
+                            sleep(MILLIS_10)
+                        }
+                        shuttingDown.countDown()
+                    })
+                    // Waiting for clean closure
+                    shuttingDown.await(Tasks.cancelTimeout, TimeUnit.MILLISECONDS)
+                } catch (InterruptedException ignore) {
+                    Log.w("Cancel timeout for [%s]", ei.info.name)
+                }
+                ei.thread?.interrupt()
+                ei.future?.cancel(true)
         }
         items.clear()
     }

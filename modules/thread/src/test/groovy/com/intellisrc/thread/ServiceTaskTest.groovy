@@ -151,6 +151,7 @@ class ServiceTaskTest extends Specification {
     }
 
     // In case of cancel, we should not restart the service
+    // And should not throw a warning (issue #62)
     def "Services should not recover from Cancel"() {
         setup:
             ServiceTest st = new ServiceTest()
