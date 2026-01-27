@@ -62,11 +62,18 @@ class DelayedTaskTest extends Specification {
     }
     class DelayedTest extends DelayedTask {
         boolean called = false
+        boolean onPauseCalled = false
         String taskName = "DelayTest"
 
         DelayedTest(int delayedMillis) {
             super(delayedMillis)
         }
+
+        @Override
+        void onPause() {
+            onPauseCalled = true
+        }
+
         @Override
         Runnable process() throws InterruptedException {
             return {
@@ -88,6 +95,31 @@ class DelayedTaskTest extends Specification {
             sleep(SECOND)
             assert !delayedTest.called : "Ending: it should have been cancelled"
             assert delayedTest.cancelled
+        cleanup:
+            Tasks.printOnScreen = true
+            Tasks.printStatus()
+            Tasks.exit()
+    }
+    def "Pause a delayed process before execution"() {
+        setup:
+            DelayedTest delayedTest = new DelayedTest(SECOND)
+            Tasks.add(delayedTest)
+        expect:
+            assert !delayedTest.called : "Starting, it should not be called"
+        when:
+            delayedTest.pause()
+            sleep(SECOND + HALF_SECOND)
+        then:
+            assert delayedTest.paused
+            assert delayedTest.onPauseCalled
+            assert !delayedTest.called : "Should not be called"
+            assert !delayedTest.cancelled
+        when:
+            delayedTest.resume()
+            sleep(HALF_SECOND)
+        then:
+            assert !delayedTest.paused
+            assert delayedTest.called : "Should be called now"
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
