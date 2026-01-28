@@ -7,13 +7,11 @@ import com.intellisrc.web.service.Services
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.web.service.Service.ActionRequest
+import static org.eclipse.jetty.http.HttpMethod.POST
 
 /**
  * @since 17/04/19.
  */
-
-import static org.eclipse.jetty.http.HttpMethod.POST
-
 @CompileStatic
 /**
  * @since 17/04/03.

@@ -1,7 +1,6 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import spock.lang.Retry
 import spock.lang.Specification
 

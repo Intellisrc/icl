@@ -7,7 +7,6 @@ import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
-import java.sql.SQLSyntaxErrorException
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import static com.intellisrc.db.ColumnType.*

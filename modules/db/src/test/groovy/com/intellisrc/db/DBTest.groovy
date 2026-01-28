@@ -5,7 +5,6 @@ import com.intellisrc.db.jdbc.SQLite
 import com.intellisrc.log.CommonLogger
 import com.intellisrc.log.PrintLogger
 import org.slf4j.event.Level
-import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class DBTest extends Specification {

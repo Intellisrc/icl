@@ -6,7 +6,9 @@ import com.intellisrc.net.LocalHost
 import com.intellisrc.web.service.ServerSentEvent
 import com.intellisrc.web.service.Service
 import com.intellisrc.web.service.WebMessage
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources

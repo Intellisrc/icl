@@ -3,7 +3,6 @@ package com.intellisrc.db.jdbc
 import com.intellisrc.core.Config
 import groovy.transform.CompileStatic
 
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
 
 /**

@@ -2,9 +2,6 @@ package com.intellisrc.web.service.routing
 
 import groovy.transform.CompileStatic
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 /**
  * Matcher for parametrized paths:
  *

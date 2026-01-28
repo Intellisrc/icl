@@ -3,9 +3,6 @@ package com.intellisrc.thread
 import com.intellisrc.core.Log
 import spock.lang.Specification
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-
 import static com.intellisrc.core.Millis.*
 
 /**

@@ -5,7 +5,9 @@ import com.intellisrc.core.Log
 import com.intellisrc.etc.Cache
 import com.intellisrc.etc.JSON
 import com.intellisrc.net.LocalHost
-import com.intellisrc.web.samples.*
+import com.intellisrc.web.samples.EmailService
+import com.intellisrc.web.samples.IDService
+import com.intellisrc.web.samples.UploadService
 import com.intellisrc.web.service.Request
 import com.intellisrc.web.service.Service
 import spock.lang.Specification

@@ -7,7 +7,6 @@ import com.intellisrc.web.samples.ChatWebSocketClient
 import com.intellisrc.web.samples.ChatWebSocketService
 import com.intellisrc.web.samples.ChatWebSocketServiceIface
 import com.intellisrc.web.samples.ChatWebSocketTestable
-import com.intellisrc.web.samples.IDService
 import com.intellisrc.web.service.Service
 import spock.lang.Specification
 import spock.lang.Unroll

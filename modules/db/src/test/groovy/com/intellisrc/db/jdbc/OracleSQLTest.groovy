@@ -2,7 +2,7 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.db.DB
 
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
 
 /**
  * @since 18/06/15.

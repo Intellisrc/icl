@@ -1,19 +1,12 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import spock.lang.Retry
 import spock.lang.Specification
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 import static com.intellisrc.core.Millis.*
-import static com.intellisrc.core.Millis.HALF_SECOND
-import static com.intellisrc.core.Millis.HALF_SECOND
-import static com.intellisrc.core.Millis.MILLIS_200
-import static com.intellisrc.core.Millis.MILLIS_800
-
 
 /**
  * @since 2019/09/18.

@@ -1,11 +1,7 @@
 package com.intellisrc.web
 
 import com.intellisrc.web.service.Service
-import com.intellisrc.web.service.routing.ExactMatcher
-import com.intellisrc.web.service.routing.GlobMatcher
-import com.intellisrc.web.service.routing.OptionalMatcher
-import com.intellisrc.web.service.routing.ParamsMatcher
-import com.intellisrc.web.service.routing.RegExMatcher
+import com.intellisrc.web.service.routing.*
 import spock.lang.Specification
 import spock.lang.Unroll
 

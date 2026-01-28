@@ -1,11 +1,7 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import com.intellisrc.core.SysClock
 import spock.lang.Specification
-
-import java.time.LocalDateTime
 
 import static com.intellisrc.core.Millis.*
 

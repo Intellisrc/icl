@@ -1,9 +1,9 @@
 package com.intellisrc.thread
 
-import com.intellisrc.core.Millis
+
 import groovy.transform.CompileStatic
 
-import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.SECOND
 
 /**
  * Extend this class for processes which are intent

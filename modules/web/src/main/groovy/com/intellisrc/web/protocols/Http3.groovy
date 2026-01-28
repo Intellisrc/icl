@@ -4,9 +4,7 @@ import com.intellisrc.core.Millis
 import com.intellisrc.web.WebService
 import groovy.transform.CompileStatic
 import org.eclipse.jetty.http3.server.HTTP3ServerConnectionFactory
-import org.eclipse.jetty.http3.server.HTTP3ServerQuicConfiguration
 import org.eclipse.jetty.server.AbstractNetworkConnector
-import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.util.ssl.SslContextFactory
 
 /**

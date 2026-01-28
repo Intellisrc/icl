@@ -1,9 +1,4 @@
 package com.intellisrc.db.jdbc
-
-import com.intellisrc.db.DB
-import com.intellisrc.term.TableMaker
-import spock.lang.IgnoreIf
-
 /**
  * @since 18/06/15.
  */

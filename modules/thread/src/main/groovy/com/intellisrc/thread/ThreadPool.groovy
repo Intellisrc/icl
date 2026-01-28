@@ -1,7 +1,6 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import groovy.transform.CompileStatic
 
@@ -9,9 +8,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.*
 
 import static com.intellisrc.core.Millis.MILLIS_10
-import static com.intellisrc.core.Millis.MILLIS_10
-import static com.intellisrc.core.Millis.getMILLIS_10
-import static com.intellisrc.core.Millis.getSECOND
+import static com.intellisrc.core.Millis.SECOND
 
 /**
  * A ThreadPoolExecutor which interact with TaskInfo objects

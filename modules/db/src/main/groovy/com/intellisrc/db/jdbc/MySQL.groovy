@@ -20,10 +20,7 @@ import java.util.regex.Matcher
 
 import static com.intellisrc.db.auto.Relational.ColumnDB
 import static com.intellisrc.db.auto.Relational.getColumnName
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.BOOLEAN
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.CHAR
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * MySQL Database

@@ -1,7 +1,6 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.AnsiColor
-import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 /**

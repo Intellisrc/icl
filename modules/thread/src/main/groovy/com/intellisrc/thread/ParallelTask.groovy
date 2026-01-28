@@ -1,12 +1,9 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 
-import java.util.concurrent.CancellationException
-
-import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.SECOND
 
 /**
  * Extend this class for process to be run

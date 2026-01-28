@@ -2,17 +2,11 @@ package com.intellisrc.web.samples
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
-import com.intellisrc.web.service.Request
-import com.intellisrc.web.service.Response
-import com.intellisrc.web.service.Service
-import com.intellisrc.web.service.SingleService
-import com.intellisrc.web.service.WebException
+import com.intellisrc.web.service.*
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404
-import static org.eclipse.jetty.http.HttpStatus.NOT_IMPLEMENTED_501
-import static org.eclipse.jetty.http.HttpStatus.SERVICE_UNAVAILABLE_503
+import static org.eclipse.jetty.http.HttpStatus.*
 
 /**
  * @since 17/04/19.

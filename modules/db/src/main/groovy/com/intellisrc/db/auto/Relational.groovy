@@ -26,8 +26,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.concurrent.ConcurrentHashMap
 
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
-
 /**
  * @since 2023/05/30.
  */

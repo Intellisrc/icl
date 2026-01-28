@@ -3,7 +3,7 @@ package com.intellisrc.db
 import com.intellisrc.db.jdbc.SQLite
 import spock.lang.Specification
 
-import static com.intellisrc.db.Query.Action.*
+import static com.intellisrc.db.Query.Action.SELECT
 
 /**
  * @since 2021/07/19.
