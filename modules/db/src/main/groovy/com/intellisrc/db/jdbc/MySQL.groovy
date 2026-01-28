@@ -2,6 +2,7 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
@@ -52,18 +53,20 @@ class MySQL extends JDBCServer implements AutoJDBC {
     Map getParameters() {
         return Config.any.get("db.mysql.params", [
             allowMultiQueries       : false,
-            connectTimeout          : 0,
+            connectTimeout          : DB.connectionTimeout * Millis.SECOND,
             socketTimeout           : 0,
             useCompression          : compression,
             useSSL                  : ssl,
             verifyServerCertificate : ! trustCert,
-            autoReconnect           : true,
             //UTF-8 enable:
             useUnicode              : true,
             characterEncoding       : "UTF-8",
             characterSetResults     : "utf8",
             connectionCollation     : "utf8_general_ci",
-            allowPublicKeyRetrieval : ! ssl     //
+            allowPublicKeyRetrieval : ! ssl
+
+            // https://dev.mysql.com/doc/c-api/8.4/en/c-api-auto-reconnect.html
+            // autoReconnect           : false, //Not recommended (deprecated)
 
             // These properties are not compatible with MariaDB:
             //emptyStringsConvertToZero : true,

@@ -6,6 +6,7 @@ import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
 import com.intellisrc.db.Data
 import com.intellisrc.db.Database
+import com.intellisrc.db.DatabaseConnectionException
 import com.intellisrc.net.LocalHost
 import com.intellisrc.term.TableMaker
 import spock.lang.IgnoreIf
@@ -58,14 +59,14 @@ abstract class JDBCTest extends Specification {
     String getTableCreateMultiplePK(String name) { return "" }
 
     def setup() {
-        DB db = getDB().connect()
-        if(db.openIfClosed()) {
+        try {
+            DB db = getDB().connect()
             db.dropAllTables()
             db.clearCache()
-        } else {
-            Log.w("Connection failed")
+            db.close()
+        } catch(DatabaseConnectionException dce) {
+            Log.w("Connection failed: %s", dce)
         }
-        db.close()
     }
 
     @IgnoreIf({ instance.shouldSkip() })

@@ -5,6 +5,7 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
+import com.intellisrc.db.DatabaseConnectionException
 import com.intellisrc.db.JDBCConnector
 import com.intellisrc.db.Query
 import groovy.transform.CompileStatic
@@ -12,6 +13,7 @@ import org.reflections.Reflections
 
 import java.lang.reflect.Field
 import java.sql.Connection
+import java.sql.SQLNonTransientConnectionException
 
 /**
  * Minimum JDBC information to connect to any database
@@ -244,8 +246,10 @@ abstract class JDBC {
      * Return new connection
      * @return
      */
-    DB connect() {
-        return new DB(new JDBCConnector(this))
+    DB connect() throws DatabaseConnectionException {
+        DB db = new DB(new JDBCConnector(this))
+        db.openIfClosed()
+        return db
     }
 
     //----------- STATIC ----------------

@@ -2,6 +2,7 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
@@ -51,8 +52,8 @@ class Oracle extends JDBCServer implements AutoJDBC {
     Map getParameters() {
         return Config.any.get("db.oracle.params", [
             BatchPerformanceWorkaround : false,
-            LoginTimeout : 0,
-            ConnectionRetryCount : 0,
+            LoginTimeout : DB.connectionTimeout * Millis.SECOND,
+            ConnectionRetryCount : 3,
             ConnectionRetryDelay : 3,
             // Added:
             Boolean : false

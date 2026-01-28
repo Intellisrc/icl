@@ -1,6 +1,8 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
+import com.intellisrc.core.Millis
+import com.intellisrc.db.DB
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
@@ -33,12 +35,14 @@ class SQLServer extends JDBCServer {
     boolean strict = false // Only if secure = true
     // https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15
     // You may add more parameters as needed (values shown below are default values)
+    // Note about loginTimeout: It may drop earlier if can't reach the port so a timeout of 10, may return within 1 second
+    //      in tests, it seems more like 1/5 of the time
     @Override
     Map getParameters() {
         return Config.any.get("db.sqlserver.params", [
             encrypt : secure && strict ? "strict" : secure.toString(),
             integratedSecurity : useWinLogin,
-            loginTimeout : 15,
+            loginTimeout : DB.connectionTimeout, //Seconds
             trustServerCertificate : trustCert,
         ] + params)
     }

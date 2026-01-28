@@ -1,7 +1,6 @@
 package com.intellisrc.db
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
@@ -22,7 +21,6 @@ import static java.sql.Types.NULL
  * @author Alberto Lepe
  */
 class JDBCConnector implements Connector {
-	protected static int TIMEOUT = Millis.SECOND
 	protected Connection connection
 	protected JDBC jdbc = new Dummy()
 	LocalDateTime lastUsed
@@ -68,6 +66,8 @@ class JDBCConnector implements Connector {
 				)*/
 			}
 			rs.close()
+		} catch(SQLNonTransientConnectionException | ConnectException ce) {
+			onError(new DatabaseConnectionException(ce))
 		} catch (Exception e) {
 			Log.w("Unable to get tables via JDBC")
 			onError(e)
@@ -80,10 +80,12 @@ class JDBCConnector implements Connector {
 	 * @param prop
 	 * @return
 	 */
-	protected static String getColumnPropertyString(ResultSet rs, String prop) {
+	protected String getColumnPropertyString(ResultSet rs, String prop) {
 		String s = ""
 		try {
 			s = rs.getString(prop)
+		} catch(SQLNonTransientConnectionException | ConnectException ce) {
+			onError(new DatabaseConnectionException(ce))
 		} catch (Exception e) {
 			Log.w("Unable to get property: ", e)
 		}
@@ -95,10 +97,12 @@ class JDBCConnector implements Connector {
 	 * @param prop
 	 * @return
 	 */
-	protected static int getColumnPropertyInt(ResultSet rs, String prop) {
+	protected int getColumnPropertyInt(ResultSet rs, String prop) {
 		int i = 0
 		try {
 			i = rs.getInt(prop)
+		} catch(SQLNonTransientConnectionException | ConnectException ce) {
+			onError(new DatabaseConnectionException(ce))
 		} catch (Exception e) {
 			Log.w("Unable to get property: ", e)
 		}
@@ -147,6 +151,8 @@ class JDBCConnector implements Connector {
 			} else {
 				Log.w("Connection was null")
 			}
+		} catch(SQLNonTransientConnectionException | ConnectException ce) {
+			onError(new DatabaseConnectionException(ce))
 		} catch(Exception e) {
 			Log.w("Unable to get columns of table: [%s] via JDBC", table)
 			onError(e)
@@ -168,28 +174,34 @@ class JDBCConnector implements Connector {
 	 * @return
 	 */
 	@Override
-	boolean open() {
+	boolean open() throws DatabaseConnectionException {
 		boolean connected = false
 		String conn = "unset"
 		try {
 			conn = jdbc.connectionString
-			if(!conn.toLowerCase().startsWith("jdbc")) {
+			if (!conn.toLowerCase().startsWith("jdbc")) {
 				conn = "jdbc:$conn"
 			}
 			// Be sure that the driver is loaded
-			if(jdbc.driver) {
+			if (jdbc.driver) {
 				Class.forName(jdbc.driver)
+				DriverManager.setLoginTimeout(DB.connectionTimeout)
 				connection = (jdbc.user || jdbc.password) ?
 					DriverManager.getConnection(conn, jdbc.user, jdbc.password) :
 					DriverManager.getConnection(conn)
-				Log.v( "Connected to DB: %s (%s)", jdbc.dbname ?: jdbc.toString())
+				Log.v("Connected to DB: %s (%s)", jdbc.dbname ?: jdbc.toString())
 				connected = true
 			} else {
 				Log.w("Driver was not specified for database (%s)", conn)
 			}
-		} catch (SQLException e) {
-			Log.w( "Connection failed: %s", conn)
-			onError(e)
+		} catch (Exception e) {
+			Log.d("Connection failed: Database connection string: %s", conn)
+			DatabaseConnectionException dce = new DatabaseConnectionException("Failed to connect to: ${conn}", e)
+			if(DB.handleConnectionExceptions) {
+				onError(dce)
+			} else {
+				throw dce
+			}
 		}
 		return connected
 	}
@@ -212,6 +224,8 @@ class JDBCConnector implements Connector {
             if(connection != null) {
                 open = !connection.isClosed()
             }
+		} catch(SQLNonTransientConnectionException | ConnectException ce) {
+			onError(new DatabaseConnectionException(ce))
 		} catch (Exception e) {
 			Log.w( "DB was closed")
 			onError(e)
@@ -294,30 +308,30 @@ class JDBCConnector implements Connector {
 	@Override
 	ResultStatement execute(Query query, boolean silent) {
 		try {
-			assert query.toString() : "Query can not be empty"
+			assert query.toString(): "Query can not be empty"
 			final PreparedStatement st = query.isIdentityUpdate ?
-				 connection.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS) :
-				 connection.prepareStatement(query.toString())
-			st.setQueryTimeout(TIMEOUT)
+				connection.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS) :
+				connection.prepareStatement(query.toString())
+			st.setQueryTimeout(DB.queryTimeout)
 			setValues(st, query.args)
 			boolean updaction = query.isSetQuery
 			int countUpdated = 0
 			//noinspection GroovyFallthrough
-			if(updaction) {
+			if (updaction) {
 				try {
 					countUpdated = st.executeUpdate()
-					if(updaction) {
+					if (updaction) {
 						Log.v("Rows affected: %d", countUpdated)
 					}
-				} catch(SQLException syntaxError) {
-					if(silent) {
+				} catch (SQLException syntaxError) {
+					if (silent) {
 						Log.w("SQL Exception: %s", syntaxError)
 					} else {
 						onError(syntaxError)
 					}
 					return null
-				} catch(Exception e) {
-					if(silent) {
+				} catch (Exception e) {
+					if (silent) {
 						Log.w("Unable to set statement for query [%s]: %s", query.toString(), e)
 					} else {
 						onError(e)
@@ -328,16 +342,18 @@ class JDBCConnector implements Connector {
 			final ResultSet rs = updaction ? (query.isIdentityUpdate ? st.getGeneratedKeys() : null) : st.executeQuery()
 			final ResultSetMetaData rm = updaction ? null : rs.getMetaData()
 			return new DBStatement(jdbc, this, st, rs, rm, countUpdated)
+		} catch(SQLNonTransientConnectionException | ConnectException ce) {
+			onError(new DatabaseConnectionException(ce))
 		} catch (SQLException ex) {
 			if(!silent) {
-				Log.w("Statement failed")
-				onError(ex)
+				Log.w("Statement failed: %s", ex)
 			}
+			onError(ex)
 		} catch (AssertionError ae) {
-			Log.w("Invalid query")
+			Log.w("Invalid query: %s", ae)
 			onError(ae)
 		} catch (Exception e) {
-			Log.w("Unexpected error while processing request")
+			Log.w("Unexpected error while processing request: %s", e)
 			onError(e)
 		}
 		clear(connection)

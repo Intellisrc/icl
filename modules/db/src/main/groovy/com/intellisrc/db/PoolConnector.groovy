@@ -5,6 +5,7 @@ import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.sql.Connection
+import java.sql.SQLNonTransientConnectionException
 import java.time.LocalDateTime
 
 @CompileStatic
@@ -48,23 +49,23 @@ class PoolConnector implements Connector {
 
 	@Override
 	List<String> getTables() {
-		return open() ? currentConnector.tables : []
+		return isOpen() ? currentConnector.tables : []
 	}
 
 	@Override
 	List<ColumnInfo> getColumns(String table) {
-		return open() ? currentConnector.getColumns(table) : []
+		return isOpen() ? currentConnector.getColumns(table) : []
 	}
 
 	@Override
-	boolean open() {
+	boolean open() throws DatabaseConnectionException {
 		boolean isopen = isOpen()
         if(!isopen) {
             currentConnector = pool?.getConnectionFromPool()
 			Log.v( "DB got from Pool")
             try {
 				isopen = isOpen() //Test again as currentConnector changed
-				if(! isopen) {
+				if (!isopen) {
 					if (currentConnector.open()) {
 						Log.v("DB was opened")
 						isopen = true
@@ -73,7 +74,9 @@ class PoolConnector implements Connector {
 						close() // Return connection if it fails to connect
 					}
 				}
-            } catch (e) {
+			} catch (DatabaseConnectionException dce) {
+				throw dce
+            } catch (Exception e) {
                 Log.e( "Unable to get connection :", e)
             }
         }
@@ -100,12 +103,12 @@ class PoolConnector implements Connector {
 
 	@Override
 	ResultStatement execute(Query query, boolean silent) {
-		return open() ? currentConnector.execute(query, silent) : null
+		return isOpen() ? currentConnector.execute(query, silent) : null
 	}
 
     @Override
     boolean commit(Collection<Query> queries) {
-        return open() ? currentConnector.commit(queries) : false
+        return isOpen() ? currentConnector.commit(queries) : false
     }
 
 	@Override

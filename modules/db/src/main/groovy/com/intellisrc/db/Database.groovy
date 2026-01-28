@@ -7,6 +7,7 @@ import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.db.jdbc.JDBC.ErrorHandler
 import groovy.transform.CompileStatic
 
+import java.sql.SQLNonTransientConnectionException
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -25,8 +26,10 @@ class Database {
         pool = new DBPool()
         pool.init(type ?: JDBC.fromSettings(), timeout, expire)
     }
-    DB connect() {
-        return new PoolConnector(pool).getDB()
+    DB connect() throws DatabaseConnectionException {
+        DB db = new PoolConnector(pool).getDB()
+        db.openIfClosed() //Force connection here so we can throw the Exception
+        return db
     }
     int getConnections() {
         return pool?.active ?: 0
@@ -37,28 +40,34 @@ class Database {
     /**
      * Wait for database to be ready
      * @param milliRetry
-     * @param milliTimeout
+     * @param milliMaxWait : General time to wait until we can connect. This is
+     *                      different from DB.connectionTimeout as that is the
+     *                      time we wait in each attempt.
      */
-    void waitForConnection(int milliRetry = Millis.SECOND, int milliTimeout = 0) {
+    void waitForConnection(int milliRetry = Millis.SECOND, int milliMaxWait = 0) {
         boolean connected = false
         boolean timedOut = false
         LocalDateTime start = SysClock.now
+
         Log.i("Waiting for database [%s] to become ready...", pool.jdbc.name)
         while(!connected &&! timedOut) {
-            DB db = connect()
-            connected = db.openIfClosed()
+            try {
+                connected = new PoolConnector(pool).open()
+            } catch(DatabaseConnectionException ignore) {
+                Log.v("Connection failed. Retrying...")
+                pool.clear()
+            }
             if(! connected) {
                 if(milliRetry) {
                     sleep(milliRetry)
                 }
             }
-            db.close()
-            if(milliTimeout) {
-                timedOut = ChronoUnit.MILLIS.between(start, SysClock.now) < milliTimeout
+            if(milliMaxWait) {
+                timedOut = ChronoUnit.MILLIS.between(start, SysClock.now) > milliMaxWait
             }
         }
         if(timedOut) {
-            Log.w("Database was not ready for connections. Waited: %d ms", milliTimeout)
+            Log.w("Database was not ready for connections. Waited: %d ms", milliMaxWait)
         }
         if(connected) {
             Log.i("Connected to database: %s", pool.jdbc.name)
@@ -78,7 +87,10 @@ class Database {
         }
         return defaultDB
     }
-    static void defaultInit(JDBC type = null, int timeout = 0) {
-        defaultDB = new Database(type, timeout)
+
+    // timeout: Time before a connection is discarded if it is not returned to the pool (usually it means close() is missing)
+    // expiration: Expiration time of a connection without being used. Once it expires, a new connection should be created.
+    static void defaultInit(JDBC type = null, int timeout = 0, int expiration = 0) throws SQLNonTransientConnectionException {
+        defaultDB = new Database(type, timeout, expiration)
     }
 }

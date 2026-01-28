@@ -2,11 +2,14 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
+import com.intellisrc.core.Secs
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
+import java.sql.SQLNonTransientConnectionException
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import static com.intellisrc.db.ColumnType.*
@@ -25,8 +28,11 @@ class DB {
     static protected Cache<List<ColumnInfo>> colsInfo = new Cache<List<ColumnInfo>>(extend: false, quiet: true)
     static protected ConcurrentLinkedQueue<String> tableList = new ConcurrentLinkedQueue<>()
     static boolean enableCache = Config.any.get("db.cache", true) // By default, enabled
+    static boolean handleConnectionExceptions = Config.any.get("db.connect.fail.catch", false) // If true, will send DatabaseConnectionExceptions to onError()
     static int cache = Config.any.get("db.cache.get", 0) // time in seconds to keep cache (for GET)
     static boolean clearCache = Config.any.get("db.cache.clear", false) // if true, will clear cache on table update
+    static int connectionTimeout = Config.any.get("db.timeout.connect", Secs.SECOND_10) // Seconds
+    static int queryTimeout = Config.any.get("db.timeout.query", Secs.MINUTE) // Seconds
 
     protected Connector dbConnector
     protected String table = ""
@@ -50,7 +56,7 @@ class DB {
 	/**
 	 * Reconnect in case it is not connected
 	 */
-	boolean openIfClosed() {
+	boolean openIfClosed() throws DatabaseConnectionException {
         boolean isopen = opened
         if(!isopen) {
             if(returned) {
@@ -132,7 +138,7 @@ class DB {
     List<String> getTables(boolean useCache) {
         List<String> list = []
         if(tableList.empty ||! useCache) {
-            if (openIfClosed()) {
+            if (opened) {
                 String tablesQuery = jdbc.getTablesQuery()
                 if (!tablesQuery.empty) {
                     list = getSQL(tablesQuery).toList().collect { it.toString() }
@@ -854,8 +860,7 @@ class DB {
             }
             String cacheKey = cache && query.tableStr ? query.tableStr + "." + (qryStr + query.args?.join(",")).md5() : ""
             data = dataCache.get(cacheKey, {
-                // Connect if its not connected
-                if (openIfClosed()) {
+                if (opened) {
                     List<Map> rows = []
                     try {
                         ResultStatement st = dbConnector.execute(query, false)
@@ -937,7 +942,7 @@ class DB {
         query.isSetQuery = true
         String qryStr = query.toString()
         if(! qryStr.empty) {
-            if (openIfClosed()) {
+            if (opened) {
                 Log.v("SET ::: " + qryStr)
                 query.args.each {
                     Log.v(" --> " + it)

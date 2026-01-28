@@ -2,6 +2,7 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
@@ -50,10 +51,10 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
         return Config.any.get("db.postgresql.params", [
             binaryTransfer      : true,
             cleanupSavepoints   : false,
-            connectTimeout      : 0,
-            loginTimeout        : 0,
+            connectTimeout      : DB.connectionTimeout, //Seconds
+            loginTimeout        : DB.connectionTimeout, //Seconds
+            socketTimeout       : 0,    // Timeout for Queries
             readOnly            : readOnly,
-            socketTimeout       : 0,
             ssl                 : ssl,
             tcpKeepAlive        : false,
         ] + params)

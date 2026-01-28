@@ -4,6 +4,7 @@ import com.intellisrc.core.*
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
+import java.sql.SQLNonTransientConnectionException
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -138,11 +139,10 @@ class DBPool {
             Log.v( "DB added to pool")
         }
     }
-
-    /**
-     * Close all connections
-     */
-	synchronized void quit() {
+	/**
+	 * Clear all current connections
+	 */
+	synchronized void clear() {
 		while (!availableConnections.isEmpty()) {
 			Connector c = availableConnections.poll()
 			c.close()
@@ -151,6 +151,13 @@ class DBPool {
 			Connector c = currentConnections.poll()
 			c.close()
 		}
+	}
+
+    /**
+     * Close all connections
+     */
+	synchronized void quit() {
+		clear()
 		Log.i( "Database has closed all connections")
 	}
 

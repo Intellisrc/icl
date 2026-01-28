@@ -61,7 +61,7 @@ Features
 To connect and query a database is easy:
 
 ```groovy
-DB db = Database.default.connect() // Get connection from "default" pool
+DB db = Database.default.connect() // Get connection from "default" pool (using config.properties)
 String passwordHash = db.table("users").field("password").get(userId).toString()
 db.close() // Return connection to the pool
 ```
@@ -81,7 +81,7 @@ DB db = new Oracle(
             pass : "secret",        // 'password' is an alias
             host : "server.remote", // 'hostname' is an alias
             //... check the class source code for more parameters ...
-        ).connect()
+        ).connect() // May throw DatabaseConnectionException
 //... do something ...
 db.close()
 ```
@@ -123,23 +123,50 @@ the database server). The connections will be released automatically.
 
 ### Handling Exceptions
 
+When you call the `connect()` method, for example: `Database.default.connect()` it 
+might throw a `DatabaseConnectionException` that you can catch to handle gracefully.
+You can use `waitForConnection` if you want to be sure the connection is established
+before proceeding (connection exceptions will be handled silently). 
+That exception will only be thrown during initialization (or the first
+time you call `connect`). The reason is that the database uses a connection pool 
+and `connect()` will return one connection from the pool if exists. In other words, 
+you can safely call `connect()` many times reusing an active connection without
+actually performing a full connection procedure.
+
+It is recommended to `try/catch` your `connect()` calls:
+
+```groovy
+try {
+    DB db = Database.default.connect()
+    String passwordHash = db.table("users").field("password").get(userId).toString()
+    db.close()
+} catch(DatabaseConnectionException ignore) {
+    Log.i("Try again later...")
+}
+```
+
 Either you are using a single connection or a pool of connections, by default,
-all database related exceptions are caught and logged. For example, if you
-want to retrieve many rows from the database (as a `List` object), but your
-have a mistake in your parameters or there is an exception thrown, it will 
-be reported into your logs, but it will return an empty list. In that way, you 
+all database related exceptions (except during initial connection) are caught and logged. 
+For example, if you want to retrieve many rows from the database (as a `List` object), 
+but you have a mistake in your parameters or there is an exception thrown, it will 
+be reported into your logs, but it will return an empty `List`. In that way, you 
 don't need to catch those exceptions in your code. Still, there may be cases
 in which you want to handle such exceptions in your code, you can do it like this:
 
 ```groovy
+import java.sql.SQLNonTransientConnectionException
+
 ErrorHandler handler = {
   Throwable th ->
     // Handle the exception or error:
     switch (th) {
-      case SQLException: break // errors during connection, prepare, etc.
+      case DatabaseConnectionException: break // errors during connection (you must enable 'db.connect.fail.catch' in config.properties)
+      case SQLException: break // errors during prepare, etc.
       case SQLSyntaxErrorException: break // syntax errors
       case Exception: break // other exceptions
       case AssertionError: break // validations from this library
+      // This exception and DatabaseConnectionException may show up if the database server loses connectivity on active pool connections
+      case SQLNonTransientConnectionException: break 
     }
 } as ErrorHandler
 
@@ -157,6 +184,11 @@ mysql.onError = handler
 Database oracle = new Database(new Oracle(/* ... */))
 oracle.onError = handler
 ```
+
+The default behavior is to throw `DatabaseConnectionException` if the code fails to connect/login, 
+but if you want to handle it inside the `onError` method (shown above) you need to enable it in 
+`config.properties` by adding: `db.connect.fail.catch=true`. In that case, you don't need to `try/catch`
+your `connect()` calls.
 
 ### Common Examples
 

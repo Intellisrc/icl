@@ -1,6 +1,8 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
+import com.intellisrc.core.Millis
+import com.intellisrc.db.DB
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.BOOLEAN
@@ -25,17 +27,19 @@ class MariaDB extends MySQL {
     Map getParameters() {
         return Config.any.get("db.mariadb.params", [
             allowMultiQueries       : false,
-            connectTimeout          : 0,
+            connectTimeout          : DB.connectionTimeout * Millis.SECOND,
             socketTimeout           : 0,
             useCompression          : compression,
             useSsl                  : ssl,
             verifyServerCertificate : ! trustCert,
-            autoReconnect           : true,
             //UTF-8 enable:
             useUnicode              : true,
             characterEncoding       : "UTF-8",
             characterSetResults     : "utf8",
             ////connectionCollation     : "utf8_general_ci", <-- setting this will cause exception in more recent drivers
+
+            //https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j
+            //autoReconnect           : false, <-- Not available in 3.x+ (by design) :
 
             // These properties are not compatible with MySQL:
             //dumpQueriesOnException  : false,
