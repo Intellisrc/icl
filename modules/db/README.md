@@ -190,6 +190,22 @@ but if you want to handle it inside the `onError` method (shown above) you need 
 `config.properties` by adding: `db.connect.fail.catch=true`. In that case, you don't need to `try/catch`
 your `connect()` calls.
 
+To implement automatic reconnection:
+
+```groovy
+Database database = Database.default //Or any other way 
+database.onError = {
+    Throwable th ->
+        switch (th) {
+            case DatabaseConnectionException:
+                database.waitForConnection(Millis.SECOND, Millis.SECOND_30)
+                break
+            default:
+                Log.w("Received error: %s", th)
+        }
+} as JDBC.ErrorHandler
+```
+
 ### Common Examples
 
 ```groovy
