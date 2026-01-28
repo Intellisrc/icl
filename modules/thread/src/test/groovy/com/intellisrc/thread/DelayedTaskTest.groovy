@@ -2,7 +2,11 @@ package com.intellisrc.thread
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
+import spock.lang.Retry
 import spock.lang.Specification
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 import static com.intellisrc.core.Millis.*
 import static com.intellisrc.core.Millis.HALF_SECOND
@@ -64,6 +68,8 @@ class DelayedTaskTest extends Specification {
         boolean called = false
         boolean onPauseCalled = false
         String taskName = "DelayTest"
+        CountDownLatch pausedLatch = new CountDownLatch(1)
+        CountDownLatch executedLatch = new CountDownLatch(1)
 
         DelayedTest(int delayedMillis) {
             super(delayedMillis)
@@ -72,12 +78,14 @@ class DelayedTaskTest extends Specification {
         @Override
         void onPause() {
             onPauseCalled = true
+            pausedLatch.countDown()
         }
 
         @Override
         Runnable process() throws InterruptedException {
             return {
                 called = true
+                executedLatch.countDown()
                 Log.i("Method was executed")
             }
         }
@@ -108,15 +116,17 @@ class DelayedTaskTest extends Specification {
             assert !delayedTest.called : "Starting, it should not be called"
         when:
             delayedTest.pause()
-            sleep(SECOND + HALF_SECOND)
         then:
             assert delayedTest.paused
+        when:
+            delayedTest.pausedLatch.await(HALF_SECOND, TimeUnit.MILLISECONDS)
+        then:
             assert delayedTest.onPauseCalled
             assert !delayedTest.called : "Should not be called"
             assert !delayedTest.cancelled
         when:
             delayedTest.resume()
-            sleep(HALF_SECOND)
+            delayedTest.executedLatch.await(SECOND, TimeUnit.MILLISECONDS)
         then:
             assert !delayedTest.paused
             assert delayedTest.called : "Should be called now"

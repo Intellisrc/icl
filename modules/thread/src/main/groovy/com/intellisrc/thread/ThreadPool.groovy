@@ -126,30 +126,39 @@ class ThreadPool extends ThreadPoolExecutor {
     boolean executeLater(final TaskInfo taskInfo) {
         assert taskInfo.task instanceof DelayedTask : "Provided Task is not DelayedTask"
         DelayedTask delayedTask = taskInfo.task as DelayedTask
-        boolean scheduled = false
-        ScheduledExecutorService ses = Executors.newScheduledThreadPool(1)
+        ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor()
         taskInfo.state = TaskInfo.State.WAITING
-        try {
-            ses.schedule({
-                if(taskInfo.task.cancelled) {
-                    throw new CancellationException() // Interrupt schedule //TODO: test
-                }
-                while(delayedTask.paused) {
-                    taskInfo.state = TaskInfo.State.PAUSED
-                    sleep(delayedTask.sleepTime ?: MILLIS_10)
+        ses.execute {
+            long remaining = taskInfo.sleep
+            long lastTick = System.currentTimeMillis()
+            try {
+                while (remaining > 0) {
+                    if (taskInfo.task.cancelled) {
+                        taskInfo.state = TaskInfo.State.CANCELLED
+                        return
+                    }
+
+                    if (delayedTask.paused) {
+                        taskInfo.state = TaskInfo.State.PAUSED
+                        sleep(delayedTask.sleepTime ?: MILLIS_10)
+                        lastTick = System.currentTimeMillis()
+                        continue
+                    }
+
+                    long now = System.currentTimeMillis()
+                    long elapsed = now - lastTick
+                    remaining -= elapsed
+                    lastTick = now
+
+                    sleep(Math.min(remaining, MILLIS_10))
                 }
                 taskInfo.state = TaskInfo.State.RUNNING
                 execute(taskInfo)
-            }, taskInfo.sleep, TimeUnit.MILLISECONDS)
-            scheduled = true
-        } catch(CancellationException ignored) {
-            taskInfo.state = TaskInfo.State.CANCELLED
-        } catch(RejectedExecutionException ignored) {
-            taskInfo.state = TaskInfo.State.TERMINATED
-            Log.w("[%s] was rejected", taskInfo.name)
+            } finally {
+                ses.shutdown()
+            }
         }
-        ses.shutdown()
-        return scheduled
+        return true // As execute is Asynchronous, at this time we just know we scheduled it.
     }
     
     /**
@@ -447,27 +456,29 @@ class ThreadPool extends ThreadPoolExecutor {
      */
     @Override
     protected void terminated() {
-        CountDownLatch shuttingDown = new CountDownLatch(1)
-        items.each {
-            ExecutorItem ei ->
-                Log.v("[%s] Exiting...", ei.info.name)
-                ei.info.task.cancel()
-                ei.info.task.onCancel()
-                try {
-                    Thread.start({
-                        while (ei.info.running) {
-                            sleep(MILLIS_10)
-                        }
-                        shuttingDown.countDown()
-                    })
-                    // Waiting for clean closure
-                    shuttingDown.await(Tasks.cancelTimeout, TimeUnit.MILLISECONDS)
-                } catch (InterruptedException ignore) {
-                    Log.w("Cancel timeout for [%s]", ei.info.name)
-                }
-                ei.thread?.interrupt()
-                ei.future?.cancel(true)
+        if(!items.empty) {
+            CountDownLatch shuttingDown = new CountDownLatch(items.size())
+            items.each {
+                ExecutorItem ei ->
+                    Log.v("[%s] Exiting...", ei.info.name)
+                    ei.info.task.cancel()
+                    ei.info.task.onCancel()
+                    try {
+                        Thread.start({
+                            while (ei.info.running) {
+                                sleep(MILLIS_10)
+                            }
+                            shuttingDown.countDown()
+                        })
+                        // Waiting for clean closure
+                        shuttingDown.await(Tasks.cancelTimeout, TimeUnit.MILLISECONDS)
+                    } catch (InterruptedException ignore) {
+                        Log.w("Cancel timeout for [%s]", ei.info.name)
+                    }
+                    ei.future?.cancel(true)
+                    ei.thread?.interrupt()
+            }
+            items.clear()
         }
-        items.clear()
     }
 }

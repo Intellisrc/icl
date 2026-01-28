@@ -153,7 +153,7 @@ class TaskPool implements TaskLoggable {
             case TaskInfo.State.DONE:
                 executedVal++
                 info.doneTime = doneTime = SysClock.dateTime
-                taskList.remove (info)
+                //taskList.remove (info)
                 info.done = true
                 break
             case TaskInfo.State.PAUSED:
@@ -166,7 +166,7 @@ class TaskPool implements TaskLoggable {
                 break
             case TaskInfo.State.CANCELLED:
                 info.cancelTime = cancelTime = SysClock.dateTime
-                taskList.remove (info)
+                //taskList.remove (info)
                 info.done = true
                 break
         }

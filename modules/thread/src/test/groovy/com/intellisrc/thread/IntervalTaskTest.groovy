@@ -1,7 +1,11 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
+import com.intellisrc.core.SysClock
 import spock.lang.Specification
+
+import java.time.LocalDateTime
 
 import static com.intellisrc.core.Millis.*
 
@@ -185,5 +189,52 @@ class IntervalTaskTest extends Specification {
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
+    }
+
+    static class UpdatableIntervalTask extends IntervalTask {
+        int called = 0
+
+        UpdatableIntervalTask(int timing = MILLIS_100) {
+            super(timing, timing)
+        }
+
+        boolean reset() {
+            called = 0
+        }
+
+        @Override
+        Runnable process() throws InterruptedException {
+            return {
+                Log.i("Pong...")
+                called++
+            }
+        }
+    }
+
+    /*
+     * Addressing part of issue #25, it is not possible to modify "sleepTime" at runtime
+     * because we use `scheduledExecutorService.scheduleAtFixedRate` which has no option to modify such value.
+     * The "easiest" way is to cancel and re-run the task
+     */
+    def "It should be able to modify sleepTime and executionTime at runtime"() {
+        setup:
+            UpdatableIntervalTask uit = new UpdatableIntervalTask()
+            Tasks.add(uit)
+        when:
+            sleep(SECOND)
+        then:
+            assert uit.called >= 10
+        when:
+            println "-------------------- RESET ----------------------"
+            uit.destroy()
+            uit = new UpdatableIntervalTask(HALF_SECOND)
+            Tasks.add(uit)
+            sleep(SECOND)
+            def list = Tasks.findAll("UpdatableIntervalTask")
+            println "-------------------------------------------------"
+            list.each { println it.name }
+        then:
+            assert uit.called < 5
+            assert list.size() == 2 // Including timeout
     }
 }

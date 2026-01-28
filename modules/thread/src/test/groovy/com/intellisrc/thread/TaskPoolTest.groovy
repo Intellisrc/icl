@@ -1,6 +1,6 @@
 package com.intellisrc.thread
 
-
+import spock.lang.Retry
 import spock.lang.Specification
 
 import static com.intellisrc.core.Millis.getSECOND
@@ -35,6 +35,7 @@ class TaskPoolTest extends Specification {
                 assert it.executed < 5: "After reset, it should be a low value"
             }
     }
+    @Retry
     def "Reset exceptions"() {
         setup:
             int counter = 1

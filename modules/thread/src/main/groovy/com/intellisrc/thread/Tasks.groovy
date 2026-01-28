@@ -11,6 +11,7 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 import static com.intellisrc.core.AnsiColor.*
 import static com.intellisrc.core.Millis.*
@@ -358,6 +359,26 @@ class Tasks {
         boolean removed = false
         TaskPool taskPool = get(name)
         if(taskPool) {
+            // This is different than purge() because that one is ThreadPool.items
+            if(! taskPool.tasks.empty) {
+                CountDownLatch shuttingDown = new CountDownLatch(taskPool.tasks.size())
+                taskPool.tasks.each {
+                    it.task.cancel()
+                    it.task.onCancel()
+                    try {
+                        Thread.start({
+                            while (taskPool.running) {
+                                sleep(MILLIS_10)
+                            }
+                            shuttingDown.countDown()
+                        })
+                        // Waiting for clean closure
+                        shuttingDown.await(cancelTimeout, TimeUnit.MILLISECONDS)
+                    } catch (InterruptedException ignore) {
+                        Log.w("Cancel timeout for [%s]", taskPool.name)
+                    }
+                }
+            }
             taskPool.executor.purge()
             taskPool.executor.shutdownNow()
             removed = taskManager.remove(taskPool)
