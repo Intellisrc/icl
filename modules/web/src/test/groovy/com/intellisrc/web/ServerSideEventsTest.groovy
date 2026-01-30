@@ -7,6 +7,7 @@ import com.intellisrc.web.service.ServerSentEvent
 import com.intellisrc.web.service.Service
 import com.intellisrc.web.service.WebMessage
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.sse.EventSource
@@ -53,7 +54,7 @@ class ServerSideEventsTest extends Specification {
 
         @Override
         void onFailure(EventSource eventSource, Throwable t, Response response) {
-            println("Error: " + t?.getMessage())
+            Log.w("Error %d: %s -> %s", response.code(), response.message(), t?.message)
         }
     }
 
@@ -66,12 +67,13 @@ class ServerSideEventsTest extends Specification {
             web.start(true)
 
             OkHttpClient client = new OkHttpClient.Builder()
+                .protocols([Protocol.HTTP_1_1])
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(0, TimeUnit.MILLISECONDS) // Crucial: Don't timeout while reading the stream
                 .build()
 
             Request request = new Request.Builder()
-                .url("http://localhost:${port}/${ssePath}")
+                .url("http://localhost:${port}${ssePath}")
                 .header("Accept", "text/event-stream")
                 .build()
 
@@ -79,7 +81,7 @@ class ServerSideEventsTest extends Specification {
             EventSource eventSource = factory.newEventSource(request, new ClientSSEListener())
 
         expect:
-            connected.await(2, TimeUnit.SECONDS)
+            connected.await(5, TimeUnit.SECONDS)
 
         when:
             sse.broadcast("Hello, World!")

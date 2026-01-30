@@ -153,6 +153,7 @@ class WebService extends WebServiceBase {
                 jettyServer = multiThread ? new Server(new QueuedThreadPool(threads, minThreads, timeout)) : new Server()
                 jettyServer.addConnector(httpProtocol.connector)
                 contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS)
+                contextHandler.setContextPath("/")
                 contextHandler.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
                 handlers.addHandler(contextHandler)
                 jettyServer.setHandler(handlers)
