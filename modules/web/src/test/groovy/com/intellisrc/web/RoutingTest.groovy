@@ -103,6 +103,7 @@ class RoutingTest extends Specification {
             GlobMatcher     | ["test/*"]            | ["test/1", "test/1/", "test/1/2/", "/test/1", "/test/1/2"] | ["other/", "/", "other/1/"]             | ["/test/one", "test/two/", "test/three", "/test/four/"] | []
             RegExMatcher    | ["~/[0-9]{3}.jpg/"]    | ["111.jpg","/222.jpg"]| ["0000.jpg","/","/other","test.jpg"]                                        | ["/:other"]                                                      | ["123.jpg", "/123.jpg"]
             RegExMatcher    | ["~/test/(?<code>[0-9]{3}).jpg/"] | ["test/111.jpg","/test/222.jpg"]| ["/test/0000.jpg","/","/other","test.jpg","/test/","test/0000.jpg"] | ["/test/:other"]                      | ["/test/123.jpg"]
+            GlobParamsMatcher | ["test/:param/*"]   | ["test/user/something", "test/user/", "/test/user/other/path/", "/test/user/do.html"] | ["/test/user", "test/user", "/", "/test"] | ["/test/user/", "test/user/list/"] | ["/test/id/any/thing.html", "test/action/"]
     }
 
     @Unroll

@@ -1374,10 +1374,12 @@ class WebService extends WebServiceBase {
      * @return
      */
     boolean addService(Service service) throws DuplicateException {
-        boolean duplicated = collidesWith(service)
+        Service duplicated = collidesWith(service)
         if (duplicated) {
             Log.w("Warning, duplicated path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
                 service.path, service.method.toString(), service.acceptType, service.serviceType.toString())
+            Log.w("Duplicated (existing) is: path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
+                duplicated.path, duplicated.method.toString(), duplicated.acceptType, duplicated.serviceType.toString())
             if(failOnCollision) {
                 throw new DuplicateException(String.format("Duplicated path detected: [ path: %s, method: %s, accept: %s, type: %s ]",
                     service.path, service.method.toString(), service.acceptType, service.serviceType.toString()))
@@ -1446,8 +1448,8 @@ class WebService extends WebServiceBase {
      * @param service
      * @return
      */
-    protected boolean collidesWith(Service service) {
-        return definitions.any { it.collides(service) }
+    protected Service collidesWith(Service service) {
+        return definitions.find { it.collides(service) }
     }
     /**
      * Find the route according to request

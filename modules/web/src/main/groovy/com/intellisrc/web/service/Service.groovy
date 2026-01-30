@@ -151,34 +151,38 @@ class Service implements Serviciable {
     // Internally used to setup special rules (automatically assigned)
     ServiceType serviceType = ServiceType.HTTP
     // Used for path matching
-    protected PathMatcher matcher   = null
+    protected PathMatcher pathMatcher = null
     List<String> samplePaths = []                       // Required for regular expression matching (example URI paths that should match that RegExp)
 
     PathMatcher getMatcher() {
-        if (!matcher) {
+        if (!pathMatcher) {
             // Automatically assign Matcher:
-            matcher = switch (true) {
+            pathMatcher = switch (true) {
                 case path.startsWith("~/") -> new RegExMatcher()
+                case path.contains("/:") && path.endsWith("*") -> new GlobParamsMatcher()
                 case path.contains("/:") -> new ParamsMatcher()
-                case path.endsWith("/?") -> new OptionalMatcher()
                 case path.endsWith("*") -> new GlobMatcher()
+                case path.endsWith("/?") -> new OptionalMatcher()
                 default -> new ExactMatcher()
             }
-            if(matcher.pathEmpty) {
-                matcher.path = path
+            if(pathMatcher.pathEmpty) {
+                pathMatcher.path = path
+            }
+            if(pathMatcher instanceof ExactMatcher && path.contains("*")) {
+                Log.w("Glob matches only allowed at the end in path: [%s], you can use parameter instead") //TODO
             }
             // Remove Regex from samples:
-            if(matcher instanceof RegExMatcher) {
-                matcher.samples.clear()
+            if(pathMatcher instanceof RegExMatcher) {
+                pathMatcher.samples.clear()
             }
-            matcher.samples.addAll(samplePaths)
+            pathMatcher.samples.addAll(samplePaths)
 
-            if(matcher instanceof RegExMatcher && matcher.samples.empty) {
+            if(pathMatcher instanceof RegExMatcher && pathMatcher.samples.empty) {
                 Log.w("Regular expression paths may collide with other paths, " +
                     "so it is recommended to set 'samplePaths' property for path: %s", path)
             }
         }
-        return matcher
+        return pathMatcher
     }
     // The following are used by WebService to set correctly the users intention with compression:
     protected boolean compressIsExplicit = false
