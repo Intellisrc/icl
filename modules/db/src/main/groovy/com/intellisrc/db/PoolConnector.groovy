@@ -48,8 +48,13 @@ class PoolConnector implements Connector {
 	}
 
 	@Override
-	List<String> getTables() {
-		return isOpen() ? currentConnector.tables : []
+	Set<String> getTables() {
+		return isOpen() ? currentConnector.tables : [] as Set<String>
+	}
+
+	@Override
+	Map<String, Boolean> getRelationsWithTypes() {
+		return isOpen() ? currentConnector.relationsWithTypes : [:]
 	}
 
 	@Override

@@ -120,7 +120,7 @@ class DB {
      * Return tables using cache
      * @return
      */
-    List<String> getTables() {
+    Set<String> getTables() {
         return getTables(true)
     }
     /**
@@ -135,22 +135,22 @@ class DB {
      * Get all tables in database
      * @return
      */
-    List<String> getTables(boolean useCache) {
-        List<String> list = []
+    Set<String> getTables(boolean useCache) {
+        Set<String> list = []
         if(tableList.empty ||! useCache) {
             if (opened) {
                 String tablesQuery = jdbc.getTablesQuery()
-                if (!tablesQuery.empty) {
-                    list = getSQL(tablesQuery).toList().collect { it.toString() }
-                } else {
+                if (tablesQuery.empty) {
                     list = dbConnector.tables
+                } else {
+                    list = getSQL(tablesQuery).toList().collect { it.toString() }.toSet()
                 }
             }
             if(! list.empty) {
                 tableList.addAll(list)
             }
         } else {
-            list = tableList.toList()
+            list = tableList.toSet()
         }
         return list
     }
@@ -407,21 +407,28 @@ class DB {
     boolean drop() {
         boolean ok = false
         if(table) {
-            Log.i("Dropping table: %s", table)
-            String before = jdbc.getBeforeDropTableQuery(table)
-            if(before) {
-                dbConnector.execute(new Query(before), true)
-            }
-            query.setAction(DROP_TABLE)
-            ok = execSet()
-            if(ok) {
-                String after = jdbc.getBeforeDropTableQuery(table)
-                if(after) {
-                    dbConnector.execute(new Query(after), true)
+            boolean isView = dbConnector.relationsWithTypes[table] ?: false
+            if(isView) {
+                Log.i("Dropping view: %s", table)
+                query.setAction(DROP_VIEW)
+                ok = execSet()
+            } else {
+                Log.i("Dropping table: %s", table)
+                String before = jdbc.getBeforeDropTableQuery(table)
+                if (before) {
+                    dbConnector.execute(new Query(before), true)
+                }
+                query.setAction(DROP_TABLE)
+                ok = execSet()
+                if (ok) {
+                    String after = jdbc.getBeforeDropTableQuery(table)
+                    if (after) {
+                        dbConnector.execute(new Query(after), true)
+                    }
                 }
             }
         } else {
-            Log.w("Can not drop: No table specified")
+            Log.w("Can not drop: No table/view specified")
         }
         clearCache()
         return ok
@@ -1080,7 +1087,9 @@ class DB {
      * @return
      */
     List<String> getPKs(String tbl = table) {
-        info()
+        // Do not use cache if the object already exists:
+        boolean useCache = colsInfo.contains(jdbc.dbname + "." + tbl)
+        info(useCache)
         return !colsInfo.isEmpty() ? colsInfo.get(jdbc.dbname + "." + tbl)?.findAll { it.primaryKey }?.collect { it.name } ?: [] : []
     }
     /**

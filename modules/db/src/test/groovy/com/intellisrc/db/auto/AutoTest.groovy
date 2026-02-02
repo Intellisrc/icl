@@ -30,10 +30,10 @@ class AutoTest extends Specification {
     static File derbyTmp = File.get(File.tempDir, "derby.db")
 
     static Map<String, Integer> ports = [
-        mysql : 33006,
-        mariadb : 33007,
-        postgres : 35432,
-        oracle : 31521
+        mysql       : 33006,
+        mariadb     : 33007,
+        postgres    : 35432,
+        oracle      : 31521
     ]
 
     static class User extends Model {
@@ -107,12 +107,12 @@ class AutoTest extends Specification {
     //FIXME: Some tests fails when two or more databases are tested at the same time
     //       until it is fixed, test one by one before releasing (leave Derby for fast test)
     static List<JDBC> getTestable(boolean update = false) {
-        boolean testDerby       = true
+        boolean testDerby       = false
         boolean testSQLite      = false
         boolean testMariaDB     = false
         boolean testMySQL       = false
         boolean testPostgres    = false
-        boolean testOracle      = false
+        boolean testOracle      = true
 
         List<JDBC> dbs = []
         if(testDerby) {

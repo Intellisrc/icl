@@ -4,7 +4,20 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
-    id 'net.saliman.properties' version '1.5.1'
+}
+
+final int javaVersion = 21
+
+// Load local overrides
+def localPropsFile = file('gradle-local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { stream ->
+        Properties props = new Properties()
+        props.load(stream)
+        props.each { key, value ->
+            project.ext.set(key.toString(), value)
+        }
+    }
 }
 
 allprojects {
@@ -112,7 +125,7 @@ nexusPublishing {
 }
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(javaVersion)
     }
 }
 
@@ -148,12 +161,10 @@ subprojects {
 
 		documentation "com.github.javaparser:javaparser-core:3.26.2"
     }
-	groovydoc {
-		classpath += project.configurations.documentation
-	}
+    tasks.withType(Groovydoc).configureEach {
+        classpath += project.configurations.documentation
+    }
     java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
         if(!isDev || publishDev) {
             withSourcesJar()
             withJavadocJar()
@@ -168,10 +179,10 @@ subprojects {
                group "com.intellisrc"
 
                pom {
-                   name = projectName + " : " + project.name.capitalize() + " Module"
-                   description = getProjectDescription(project.name) ?: projectDescription
-                   url = projectURL
-                   inceptionYear = projectSince
+                   name = project.projectName + " : " + project.name.capitalize() + " Module"
+                   description = getProjectDescription(project.name) ?: project.projectDescription
+                   url = project.projectURL
+                   inceptionYear = project.projectSince
                    licenses {
                        license {
                            name = 'GNU General Public License v3.0'
@@ -181,15 +192,15 @@ subprojects {
                    }
                    developers {
                        developer {
-                           id = authorId
-                           name = authorName
-                           email = authorEmail
+                           id    = project.authorId
+                           name  = project.authorName
+                           email = project.authorEmail
                        }
                    }
                    scm {
-                       url = projectURL
-                       connection = "scm:git:${projectURL}.git"
-                       developerConnection = "scm:git:${projectDevURL}"
+                       url = project.projectURL
+                       connection = "scm:git:${project.projectURL}.git"
+                       developerConnection = "scm:git:${project.projectDevURL}"
                    }
                }
            }
@@ -200,8 +211,8 @@ subprojects {
             sign publishing.publications.mavenJava
         }
     }
-    tasks.withType(JavaCompile) {
-        options.release = 17 // Ensures bytecode compatibility with Java 17
+    tasks.withType(JavaCompile).configureEach {
+        options.release.set(javaVersion) // Ensures bytecode compatibility with Java
     }
     tasks.named('test') {
         // Use JUnit Platform for unit tests.

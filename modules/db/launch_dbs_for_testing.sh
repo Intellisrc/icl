@@ -31,8 +31,8 @@ docker run --name oracle_test \
   -e "APP_USER=test" \
   -e "APP_USER_PASSWORD=test" \
   -p 127.0.0.1:31521:1521 \
-  -d gvenzl/oracle-xe:21-slim #<-- old version
-  #-d gvenzl/oracle-free:23-slim #<-- use this one when oracle 23 driver can be used
+  -d gvenzl/oracle-free:23-slim #<-- use this one when oracle 23 driver can be used
+  #-d gvenzl/oracle-xe:21-slim #<-- old version
 echo "Oracle may take a few minutes to be available. You can check the logs with:"
 echo "docker logs -f oracle_test"
 fi
@@ -74,10 +74,10 @@ docker run --name sqlserver_test \
   -e "ACCEPT_EULA=Y" \
   -e "SA_PASSWORD=o2Aksm.A23asl" \
   -p 127.0.0.1:31433:1433 \
-  -d mcr.microsoft.com/mssql/server:2019-latest
+  -d mcr.microsoft.com/mssql/server:2022-latest
   echo "Waiting to SQL Server to start ...."
   sleep 30 # Wait until they are up
-  while ! docker exec -it sqlserver_test /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "o2Aksm.A23asl" -Q "CREATE DATABASE test"
+  while ! docker exec -it sqlserver_test /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "o2Aksm.A23asl" -C -Q "CREATE DATABASE test"
   do
     sleep 10
   done
@@ -90,7 +90,7 @@ docker run --name firebird_test \
   -e "FIREBIRD_USER=test" \
   -e "FIREBIRD_PASSWORD=test" \
   -p 127.0.0.1:33050:3050 \
-  -d jacobalberty/firebird:3.0
+  -d firebirdsql/firebird:5-noble
 fi
 # HyperSQL (no needed for testing)
 if [[ $1 == "hsqldb" ]]; then

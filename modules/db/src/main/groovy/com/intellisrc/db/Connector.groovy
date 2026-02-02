@@ -26,6 +26,7 @@ interface Connector {
 
     LocalDateTime getCreationTime()
     void setCreationTime(LocalDateTime time)
-    List<String> getTables()
+    Set<String> getTables()
+    Map<String,Boolean> getRelationsWithTypes()
     List<ColumnInfo> getColumns(String table)
 }

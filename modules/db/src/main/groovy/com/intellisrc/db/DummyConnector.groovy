@@ -74,8 +74,13 @@ class DummyConnector implements Connector {
     }
 
     @Override
-    List<String> getTables() {
-        return ["dummy"]
+    Set<String> getTables() {
+        return ["dummy"].toSet()
+    }
+
+    @Override
+    Map<String, Boolean> getRelationsWithTypes() {
+        return ["dummy" : false]
     }
 
     @Override

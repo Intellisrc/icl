@@ -9,14 +9,14 @@ class PostgreSQLTest extends JDBCTest {
 
     List<String> getTableCreateMulti(String name) {
         return [
-            "CREATE SEQUENCE IF NOT EXISTS ${name}_seq",
-            "CREATE TABLE IF NOT EXISTS $name (" +
+            "CREATE SEQUENCE IF NOT EXISTS ${name}_seq".toString(),
+            ("CREATE TABLE IF NOT EXISTS $name (" +
                 "id INTEGER PRIMARY KEY DEFAULT NEXTVAL ('${name}_seq'), " +
                 "name VARCHAR(10) NOT NULL CONSTRAINT ${name}_name_uk UNIQUE, " +
                 "version FLOAT, " +
                 "active BOOLEAN, " +
                 "updated DATE" +
-            ")"
+            ")").toString()
         ]
     }
 
@@ -26,7 +26,7 @@ class PostgreSQLTest extends JDBCTest {
                   gid INTEGER NOT NULL,
                   name VARCHAR(30) NOT NULL,
                   PRIMARY KEY (gid,uid)
-        )"""
+        )""".toString()
     }
 
     @Override

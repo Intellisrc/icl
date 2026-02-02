@@ -1,7 +1,6 @@
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
-import com.intellisrc.core.Millis
 import com.intellisrc.db.DB
 import groovy.transform.CompileStatic
 
@@ -25,7 +24,7 @@ class SQLServer extends JDBCServer {
     // SQLServer specific parameters:
     // Most common:
     boolean useWinLogin = false
-    boolean trustCert = false
+    boolean trustCert = false   // In production not recommended to turn 'true'
     boolean supportsJSON = true
     BooleanHandle booleanHandle = NUMBER
 

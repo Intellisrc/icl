@@ -39,6 +39,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     String hostname = "localhost"
     int port = 5432
     String driver = "org.postgresql.Driver"
+    String schemaSearchName = "public"
     // Most common:
     boolean readOnly = false
     boolean ssl = false

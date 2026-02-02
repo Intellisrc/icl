@@ -90,9 +90,11 @@ abstract class JDBCTest extends Specification {
         then:
             assert db : "Unable to connect"
         then:
-            assert getTableCreate(table) || getTableCreateMulti(table) : "Missing table create"
+            String createQuery = getTableCreate(table)
+            List<String> createList = getTableCreateMulti(table)
+            assert createQuery ||! createList.empty : "Missing table create"
         then: "Create table"
-            assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table)) : "Unable to create table"
+            assert (createQuery ? db.setSQL(createQuery) : db.setSQL(createList)) : "Unable to create table"
         then: "List tables"
             assert ! db.tables.empty : "Tables not found"
         then: "Must be open"
@@ -211,14 +213,20 @@ abstract class JDBCTest extends Specification {
             }
         then: "Match order and group"
             assert listOfMaps.size() == 2
+            //noinspection GroovyFallthrough
             switch (jdbc.booleanHandle) {
                 case BOOLEAN:
                     assert listOfMaps.first().active == false
                     assert listOfMaps.last().active == true
                     break
                 case NUMBER:
-                    assert Data.parseInt(listOfMaps.first().active.toString()) == 0
-                    assert Data.parseInt(listOfMaps.last().active.toString()) == 1
+                    def first = listOfMaps.first().active
+                    def second = listOfMaps.last().active
+                    assert switch (first) {
+                        case Number -> Data.parseInt(first) == 0 && Data.parseInt(second) == 1
+                        case Boolean -> !first && second
+                        default -> false // It should not go here
+                    }
                     break
                 case CHAR:
                     assert listOfMaps.first().active.toString() == "n"
@@ -442,13 +450,10 @@ abstract class JDBCTest extends Specification {
         then: "Delete"
             assert db.table(table).delete([[1,1] , [2,1]])
             assert db.table(table).get().toListMap().size() == 8
-        when: "Drop tables"
-            db.dropAllTables()
-        then:
-            assert db.tables.empty
         cleanup:
             db?.dropAllTables() //In case of exceptions
             clean(db, table)
+            assert db?.tables?.empty
             db?.close()
     }
 }

@@ -65,7 +65,7 @@ class PoolConnectorTest extends Specification {
         when:
             DB db = null
             try {
-                database.connect()
+                db = database.connect()
             } catch(DatabaseConnectionException dce) {
                 Log.w("Failed to connect to Database: %s", dce)
             }

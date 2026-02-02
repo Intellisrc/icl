@@ -10,7 +10,7 @@ class SQLServerTest extends JDBCTest {
                 id INT IDENTITY(1,1) PRIMARY KEY,
                 name VARCHAR(10) NOT NULL UNIQUE,
                 version FLOAT,
-                active VARCHAR(5) CHECK (active IN('true','false')),
+                active BIT NOT NULL,
                 updated DATE
         )"""
     }

@@ -3,7 +3,7 @@ dependencies {
 
     def reflections= "0.10.2"
 
-    def derby       = '10.17.1.0'       // After 10.16.1.1 it is compiled with Java 17
+    def derby       = '10.17.1.0'       // After 10.16.1.1 it is compiled with Java 19
     def firebird    = '6.0.4'           // firebird 6.0+ requires Java 17
     def h2          = '2.4.240'
     def hypersql    = '2.7.4'

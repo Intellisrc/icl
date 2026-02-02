@@ -52,18 +52,18 @@ class JDBCConnector implements Connector {
 	 * Get tables via JDBC
 	 * @return
 	 */
-	List<String> getTables() {
-		List<String> list = []
+	Set<String> getTables() {
+		Set<String> list = []
 		try {
-			ResultSet rs = connection.metaData.getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", "TABLE", "VIEW")
+			ResultSet rs = connection.metaData.getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", ["TABLE", "VIEW"] as String[])
 			while (rs.next()) {
 				list << (jdbc.convertToLowerCase ? rs.getString("TABLE_NAME")?.toLowerCase() : rs.getString("TABLE_NAME"))
-				/*Log.v("Cat: %s, Sch: %s, Name: %s, Type: %s",
+				Log.v("Cat: %s, Sch: %s, Name: %s, Type: %s",
 					rs.getString("TABLE_CAT"),
 					rs.getString("TABLE_SCHEM"),
 					rs.getString("TABLE_NAME"),
 					rs.getString("TABLE_TYPE")
-				)*/
+				)
 			}
 			rs.close()
 		} catch(SQLNonTransientConnectionException | ConnectException ce) {
@@ -73,6 +73,29 @@ class JDBCConnector implements Connector {
 			onError(e)
 		}
 		return jdbc.filterTables(list)
+	}
+	/**
+	 * Return tables and views, in which views have "true" as value.
+	 * getTables() only returns names, but you may not know if it is a view or not.
+	 * @return
+	 */
+	Map<String, Boolean> getRelationsWithTypes() {
+		Map<String, Boolean> types = [:]
+		try {
+			ResultSet rs = connection.metaData.getTables(jdbc.catalogSearchName, jdbc.schemaSearchName, "%", "TABLE", "VIEW")
+			while (rs.next()) {
+				String name = (jdbc.convertToLowerCase ? rs.getString("TABLE_NAME")?.toLowerCase() : rs.getString("TABLE_NAME"))
+				types[name] = rs.getString("TABLE_TYPE")?.equalsIgnoreCase("view") ?: false
+			}
+			rs.close()
+		} catch(SQLNonTransientConnectionException | ConnectException ce) {
+			onError(new DatabaseConnectionException(ce))
+		} catch (Exception e) {
+			Log.w("Unable to get tables via JDBC")
+			onError(e)
+		}
+		Set<String> filtered = jdbc.filterTables(types.keySet())
+		return types.findAll { k, v -> k in filtered }
 	}
 	/**
 	 * To handle exceptions coming from JDBC driver

@@ -35,7 +35,11 @@ abstract class JDBC {
         void call(Throwable e)
     }
     static enum BooleanHandle {
-        BOOLEAN, NUMBER, CHAR, ENUM
+        BOOLEAN,    // DB stores and read booleans as booleans
+        NUMBER,     // DB uses 0 and 1 (no boolean alternative)
+        //BIT,        // DB stores 0 and 1, but returns true / false
+        CHAR,       // DB only uses string, so we store "y" or "n"
+        ENUM        // DB can use ENUM("true","false")
     }
     /**
      * Override this method for custom classes
@@ -119,7 +123,7 @@ abstract class JDBC {
     String getCatalogSearchName() { return dbname }
     String getSchemaSearchName() { return "" }
     String getTableSearchName(String table) { return table }
-    List<String> filterTables(List<String> tables) { return tables }
+    Set<String> filterTables(Set<String> tables) { return tables }
     String getFieldForQuery(String field) { return fieldsQuotation + (convertToLowerCase ? field.toLowerCase() : field) + fieldsQuotation }
     String getTableForQuery(String table) { return tablesQuotation + table + tablesQuotation }
     /*
