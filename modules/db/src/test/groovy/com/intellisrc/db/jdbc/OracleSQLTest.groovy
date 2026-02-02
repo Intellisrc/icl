@@ -12,17 +12,15 @@ class OracleSQLTest extends JDBCTest {
 
     // Requires Oracle 12c+
     List<String> getTableCreateMulti(String name) {
-        boolean num = getDB().booleanHandle == NUMBER
-        // Oracle doesn't support ENUM nor BOOLEAN
         return [
-"CREATE SEQUENCE ${name}_seq",
+"CREATE SEQUENCE ${name}_seq".toString(),
 """CREATE TABLE $name (
     "id" NUMBER(10,0) DEFAULT ${name}_seq.nextval PRIMARY KEY,
     "name" VARCHAR2(10) NOT NULL UNIQUE,
     "version" NUMBER(2,1), 
-    "active" ${ num ? 'NUMBER(1,0)' : 'CHAR(1)'},
+    "active" BOOLEAN,
     "updated" DATE
-)"""
+)""".toString()
         ]
         // Can also be used, but sequence table name is random:
         //return "CREATE TABLE $name (id NUMBER(10) generated as identity, name VARCHAR2(10) NOT NULL)"
@@ -35,7 +33,7 @@ class OracleSQLTest extends JDBCTest {
           "gid" INT NOT NULL,
           "name" VARCHAR2(30) NOT NULL,
           PRIMARY KEY ("uid","gid")
-        )"""
+        )""".toString()
     }
 
     @Override
@@ -66,8 +64,8 @@ class OracleSQLTest extends JDBCTest {
             port    : 31521,
             user    : "test",
             password: "test",
-            //dbname  : "FREEPDB1" // v23 docker
-            dbname  : "XEPDB1" // PDB name (or SID)
+            dbname  : "FREEPDB1" // v23 docker
+            //dbname  : "XEPDB1" // v21 PDB name (or SID)
             // For docker XE lower than 18 :
             // dbname  : "XE"
             // If you don't have `tnsnames.ora` set, you may need to specify: XEPDB1.localdomain (Specially Oracle 12)

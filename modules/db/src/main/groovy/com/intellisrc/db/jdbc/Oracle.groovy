@@ -43,7 +43,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
     int port = 1521 // ssl port: 2484
     String driver = "oracle.jdbc.driver.OracleDriver"
     boolean supportsJSON = true
-    BooleanHandle booleanHandle = parameters.Boolean ? BOOLEAN : NUMBER //Oracle 23+ supports BOOLEAN
+    BooleanHandle booleanHandle = BOOLEAN //Oracle 23+ supports BOOLEAN
 
     // Oracle specific parameters:
     // https://docs.oracle.com/cd/E13222_01/wls/docs81/jdbc_drivers/oracle.html#1066413
@@ -56,7 +56,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
             ConnectionRetryCount : 3,
             ConnectionRetryDelay : 3,
             // Added:
-            Boolean : false
+            Boolean : true
         ] + params)
     }
 
@@ -161,7 +161,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
 
     @Override
     String getBeforeDropTableQuery(String table) {
-        return "DROP SEQUENCE ${table}_seq"
+        return "" //"DROP SEQUENCE ${table}_seq" <-- It seems it is not needed in Oracle 23+
     }
     /*
      * In Oracle setting the columns or table names with double quotes makes it case sensitive, but any name can be used.

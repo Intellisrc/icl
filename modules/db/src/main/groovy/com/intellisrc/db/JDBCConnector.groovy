@@ -151,6 +151,7 @@ class JDBCConnector implements Connector {
 				while (rsCols.next()) {
 					String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
 					int decimals = getColumnPropertyInt(rsCols,"DECIMAL_DIGITS")
+					String columnDef = getColumnPropertyString(rsCols, "COLUMN_DEF")
 
 					ColumnInfo col = new ColumnInfo(
 						name: colName,
@@ -161,8 +162,8 @@ class JDBCConnector implements Connector {
 						bufferLength: getColumnPropertyInt(rsCols,"BUFFER_LENGTH"),
 						decimalDigits: decimals,
 						nullable: getColumnPropertyString(rsCols,"IS_NULLABLE") == "YES",
-						defaultValue: getColumnPropertyString(rsCols, "COLUMN_DEF"),
-						autoIncrement: getColumnPropertyString(rsCols,"IS_AUTOINCREMENT") == "YES" || (getColumnPropertyString(rsCols,"COLUMN_DEF") ?: "").contains("NEXTVAL"), // For Oracle
+						defaultValue: columnDef,
+						autoIncrement: getColumnPropertyString(rsCols,"IS_AUTOINCREMENT") == "YES" || (columnDef ?: "").contains("NEXTVAL"), // For Oracle
 						generated: getColumnPropertyString(rsCols,"IS_GENERATEDCOLUMN") == "YES",
 						unique: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
 						primaryKey: pks.contains(colName)
