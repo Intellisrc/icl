@@ -161,7 +161,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
 
     @Override
     String getBeforeDropTableQuery(String table) {
-        return "" //"DROP SEQUENCE ${table}_seq" <-- It seems it is not needed in Oracle 23+
+        return "DROP SEQUENCE ${table.toLowerCase()}_seq"
     }
     /*
      * In Oracle setting the columns or table names with double quotes makes it case sensitive, but any name can be used.

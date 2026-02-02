@@ -161,8 +161,8 @@ class AutoTest extends Specification {
                 user: "test",
                 hostname: "127.0.0.1",
                 password: "test",
-                //dbname: "FREEPDB1", //v.23 docker
-                dbname: "XEPDB1",
+                dbname: "FREEPDB1", //v.23 docker
+                //dbname: "XEPDB1", //v.21
                 port: ports.oracle
             )
         }
