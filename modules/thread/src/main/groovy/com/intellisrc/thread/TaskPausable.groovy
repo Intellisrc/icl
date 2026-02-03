@@ -12,11 +12,9 @@ trait TaskPausable {
 
     final void pause() {
         this.paused = true
-        onPause()
     }
     final void resume() {
         this.paused = false
-        onResume()
     }
     boolean isPaused() {
         return paused

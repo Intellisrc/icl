@@ -143,6 +143,8 @@ class TaskPool implements TaskLoggable {
                                 Log.w("[%s] Timed out (Took: %d ms)", info.name, timed)
                                 info.task.onFailure()
                                 info.state = TaskInfo.State.TIMEOUT
+                                failedVal++
+                                info.failTime = failTime = SysClock.dateTime
                                 executor.kill(info)
                                 break //Run once
                             }
@@ -166,7 +168,6 @@ class TaskPool implements TaskLoggable {
                 break
             case TaskInfo.State.CANCELLED:
                 info.cancelTime = cancelTime = SysClock.dateTime
-                //taskList.remove (info)
                 info.done = true
                 break
         }

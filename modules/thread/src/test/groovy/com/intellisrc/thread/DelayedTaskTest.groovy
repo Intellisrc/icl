@@ -1,10 +1,12 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
+import com.intellisrc.core.Millis
 import spock.lang.Specification
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 import static com.intellisrc.core.Millis.*
 
@@ -60,6 +62,7 @@ class DelayedTaskTest extends Specification {
     class DelayedTest extends DelayedTask {
         boolean called = false
         boolean onPauseCalled = false
+        boolean onResumeCalled = false
         String taskName = "DelayTest"
         CountDownLatch pausedLatch = new CountDownLatch(1)
         CountDownLatch executedLatch = new CountDownLatch(1)
@@ -72,6 +75,12 @@ class DelayedTaskTest extends Specification {
         void onPause() {
             onPauseCalled = true
             pausedLatch.countDown()
+        }
+
+        @Override
+        void onResume() {
+            Log.i("Resuming..")
+            onResumeCalled = true
         }
 
         @Override
@@ -108,24 +117,31 @@ class DelayedTaskTest extends Specification {
         expect:
             assert !delayedTest.called : "Starting, it should not be called"
         when:
+            sleep(MILLIS_100)
             delayedTest.pause()
-        then:
-            assert delayedTest.paused
-        when:
             delayedTest.pausedLatch.await(HALF_SECOND, TimeUnit.MILLISECONDS)
         then:
             assert delayedTest.onPauseCalled
+            assert delayedTest.paused
             assert !delayedTest.called : "Should not be called"
             assert !delayedTest.cancelled
         when:
+            sleep(waitTime)
             delayedTest.resume()
-            delayedTest.executedLatch.await(SECOND, TimeUnit.MILLISECONDS)
+            delayedTest.executedLatch.await(SECOND_3, TimeUnit.MILLISECONDS)
         then:
+            assert delayedTest.onResumeCalled
             assert !delayedTest.paused
             assert delayedTest.called : "Should be called now"
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
             Tasks.exit()
+        where:
+            // When it is shorter than delay time, it should resume without taking more time
+            // otherwise, it should wait until resume() is called
+            waitTime    | unused
+            MILLIS_100  | false
+            SECOND_2    | false
     }
 }

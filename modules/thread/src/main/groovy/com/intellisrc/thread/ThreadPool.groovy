@@ -137,8 +137,11 @@ class ThreadPool extends ThreadPoolExecutor {
 
                     if (delayedTask.paused) {
                         taskInfo.state = TaskInfo.State.PAUSED
-                        sleep(delayedTask.sleepTime ?: MILLIS_10)
-                        lastTick = System.currentTimeMillis()
+                        delayedTask.onPause()
+                        while(delayedTask.paused) {
+                            sleep(MILLIS_10)
+                        }
+                        delayedTask.onResume()
                         continue
                     }
 
@@ -332,6 +335,7 @@ class ThreadPool extends ThreadPoolExecutor {
                             }
                         }
                     }
+                    //noinspection GroovyFallthrough
                     switch (throwable) {
                         case TimeoutException:
                             Log.w("[%s] timed out", taskInfo.fullName)
@@ -347,6 +351,7 @@ class ThreadPool extends ThreadPoolExecutor {
                             Log.w("[%s] was cancelled", taskInfo.fullName)
                             break
                         case ThreadDeath:
+                        case ExecutionException:
                             taskInfo.state = TaskInfo.State.TERMINATED
                             Log.w("[%s] was killed", taskInfo.fullName)
                             break
@@ -416,7 +421,9 @@ class ThreadPool extends ThreadPoolExecutor {
                     sleep(MILLIS_10)
                     Log.i("[%s] Killing thread", info.fullName)
                     //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
-                    item.thread.stop() //Force it to finish
+                    try {
+                        item.thread.stop() //Force it to finish
+                    } catch(Exception ignore) {}
                 }
                 killed = true
             } else {

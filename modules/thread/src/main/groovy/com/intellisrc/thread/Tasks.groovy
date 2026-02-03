@@ -221,6 +221,7 @@ class Tasks {
                 summary << summ
                 changedTask.task.summary = summ
             }
+            //noinspection GroovyFallthrough
             switch (changedTask.state) {
                 case TaskInfo.State.DONE:
                     if (changedTask.startTime && changedTask.doneTime) {
@@ -235,6 +236,7 @@ class Tasks {
                     }
                     break
                 case TaskInfo.State.TERMINATED:
+                case TaskInfo.State.CANCELLED:
                     if (changedTask.startTime && changedTask.failTime) {
                         summ.add(ChronoUnit.MILLIS.between(changedTask.startTime, changedTask.failTime))
                     } else if(debug) {
