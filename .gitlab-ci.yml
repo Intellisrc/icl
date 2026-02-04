@@ -6,7 +6,7 @@ before_script:
 
 build:
   stage: build
-  image: gradle:jdk11
+  image: gradle:jdk21
   script: gradle --build-cache assemble
   cache:
     key: "$CI_COMMIT_REF_NAME"
@@ -17,7 +17,7 @@ build:
 
 test:
   stage: test
-  image: gradle:jdk11
+  image: gradle:jdk21
   script: gradle check
   cache:
     key: "$CI_COMMIT_REF_NAME"
