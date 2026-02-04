@@ -1,8 +1,54 @@
 # Main Changes
 
-## 2.9 Main
+## 2.10 Main : Jetty 12, Java 21
 
-### 2.9.0 (status : Stable)
+### 2.10.0 
+* Updated project and dependencies to Java 21
+* [web] Updated to Jetty v.12 (and improved code around it like routing, websockets, etc)
+* [db] Updated TableUpdater
+* [crypt] Added KeyStoreGenerator
+* [web] Improved WebException logic and handling
+* [web] Fixed issue #76: Path extension overwriting content-type
+* [web] Implemented #68 and #69: cache and max-age header
+* [etc] Improved Redis class
+* [db] Fixed #84: Improved database connection exceptions
+
+## 2.9 (branch: j11) : Jetty 11, Java 11
+
+### 2.9.3 (status : Stable)
+* [net] Fixed FTPS and improved FTPClient
+* [db] Added support for JSON datatype
+* [db] Implemented Model for Oracle
+* [db] Added native support for booleans
+* [etc] JSON decode improved (added decodeFast)
+* [web] Added "notAllowedRedirect" to Service and Serviciable
+
+### 2.9.2
+* [db] Added *Record* methods to speed-up access to tables when no Model conversion is needed
+* [db] Added convertModel argument as an alternative when child conversion is needed
+* [db] Added JDBCConfig class to be more specific than a Map when initializing a JDBC connection
+* [core] Cmd added onSuccess to make things clear
+* [core] improved ToMap to handle other types
+* [web] Added WebClient
+* [term] Added Cell into TableMaker to improve Formatter usability
+* [net] Added getNetwork in NetFace
+
+### 2.9.1
+* Improved Serial by adding timeout (serial)
+* Added faster way to get image size (img)
+* Added automatic format detection (img)
+* Improved ConfigAuto import/export methods
+* Fixed LocalName returning IP address sometimes (web)
+* Fixed Request reporting incorrect host and port (web)
+* Improved exception handling (log, web)
+* SSE re-coded to fix performance issue (web)
+* Improved Email validation regex (net)
+* Added "*ByPK" methods in DB (db)
+* Improved ServiciableAuth as it was confusing (web)
+* Removed toMap() from objects and created ToMap interface/trait (core)
+* Performance: Always caching table information and added argument to disable it (db)
+
+### 2.9.0 
 * Web module no longer uses [Spark](https://sparkjava.com/). Now it uses [Jetty](https://www.eclipse.org/jetty/) directly (web) ** Breaking change **
 * Updated Jetty to version 11 (web)
 * Accept multiple resource directories (web)

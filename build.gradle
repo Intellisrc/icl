@@ -22,7 +22,7 @@ if (localPropsFile.exists()) {
 
 allprojects {
     group = groupName
-    version = "2.9.4-SNAPSHOT"
+    version = "2.10.0-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
