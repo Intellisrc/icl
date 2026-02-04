@@ -107,12 +107,12 @@ class AutoTest extends Specification {
     //FIXME: Some tests fails when two or more databases are tested at the same time
     //       until it is fixed, test one by one before releasing (leave Derby for fast test)
     static List<JDBC> getTestable(boolean update = false) {
-        boolean testDerby       = false
+        boolean testDerby       = true
         boolean testSQLite      = false
         boolean testMariaDB     = false
         boolean testMySQL       = false
         boolean testPostgres    = false
-        boolean testOracle      = true
+        boolean testOracle      = false
 
         List<JDBC> dbs = []
         if(testDerby) {

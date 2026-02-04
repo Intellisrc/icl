@@ -37,7 +37,6 @@ abstract class JDBC {
     static enum BooleanHandle {
         BOOLEAN,    // DB stores and read booleans as booleans
         NUMBER,     // DB uses 0 and 1 (no boolean alternative)
-        //BIT,        // DB stores 0 and 1, but returns true / false
         CHAR,       // DB only uses string, so we store "y" or "n"
         ENUM        // DB can use ENUM("true","false")
     }
