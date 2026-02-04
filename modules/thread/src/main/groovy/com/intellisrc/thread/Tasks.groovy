@@ -369,7 +369,7 @@ class Tasks {
                     it.task.onCancel()
                     try {
                         Thread.start({
-                            while (taskPool.running) {
+                            while (taskPool.running &&! Thread.currentThread().isInterrupted()) {
                                 sleep(MILLIS_10)
                             }
                             shuttingDown.countDown()
@@ -406,7 +406,7 @@ class Tasks {
      * Block while taskManager is running
      */
     static void block() {
-        while (taskManager.running) {
+        while (taskManager.running &&! Thread.currentThread().isInterrupted()) {
             sleep(MILLIS_100)
         }
     }

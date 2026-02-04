@@ -136,15 +136,12 @@ class TaskPool implements TaskLoggable {
                 //Do not timeout monitors:
                 if(!info.name.endsWith("-monitor") && info.task.maxExecutionTime) {
                     Tasks.add({
-                        while(!(info.done || (info.doneTime && info.startTime <= info.doneTime))) {
+                        while(!(info.done || (info.doneTime && info.startTime <= info.doneTime)) &&! Thread.currentThread().isInterrupted()) {
                             sleep(MILLIS_10)
                             long timed = ChronoUnit.MILLIS.between(info.startTime, SysClock.dateTime)
                             if (timed > info.task.maxExecutionTime) {
                                 Log.w("[%s] Timed out (Took: %d ms)", info.name, timed)
-                                info.task.onFailure()
                                 info.state = TaskInfo.State.TIMEOUT
-                                failedVal++
-                                info.failTime = failTime = SysClock.dateTime
                                 executor.kill(info)
                                 break //Run once
                             }
@@ -163,6 +160,7 @@ class TaskPool implements TaskLoggable {
                 break
             case TaskInfo.State.TERMINATED:
                 failedVal++
+                info.task.onFailure()
                 info.failTime = failTime = SysClock.dateTime
                 info.done = true
                 break

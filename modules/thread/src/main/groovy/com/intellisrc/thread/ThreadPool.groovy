@@ -68,7 +68,7 @@ class ThreadPool extends ThreadPoolExecutor {
     boolean submit(ExecutorItem executorItem) {
         boolean submitted = false
         boolean rejected = false
-        while(!(submitted || rejected)) {
+        while(!(submitted || rejected) &&! Thread.currentThread().isInterrupted()) {
             try {
                 executorItem.future = submit(executorItem.runnable)
                 submitted = true
@@ -129,7 +129,7 @@ class ThreadPool extends ThreadPoolExecutor {
             long remaining = taskInfo.sleep
             long lastTick = System.currentTimeMillis()
             try {
-                while (remaining > 0) {
+                while (remaining > 0 &&! Thread.currentThread().isInterrupted()) {
                     if (taskInfo.task.cancelled) {
                         taskInfo.state = TaskInfo.State.CANCELLED
                         return
@@ -138,10 +138,11 @@ class ThreadPool extends ThreadPoolExecutor {
                     if (delayedTask.paused) {
                         taskInfo.state = TaskInfo.State.PAUSED
                         delayedTask.onPause()
-                        while(delayedTask.paused) {
+                        while(delayedTask.paused &&! Thread.currentThread().isInterrupted()) {
                             sleep(MILLIS_10)
                         }
                         delayedTask.onResume()
+                        taskInfo.state = TaskInfo.State.RUNNING
                         continue
                     }
 
@@ -184,10 +185,14 @@ class ThreadPool extends ThreadPoolExecutor {
                     } else {
                         it.future.get()
                     }
-                    while(parallelTask.paused) {
-                        taskInfo.state = TaskInfo.State.PAUSED
+                    while(parallelTask.paused &&! Thread.currentThread().isInterrupted()) {
+                        if(taskInfo.state != TaskInfo.State.PAUSED) {
+                            parallelTask.onPause()
+                            taskInfo.state = TaskInfo.State.PAUSED
+                        }
                         sleep(parallelTask.sleepTime ?: MILLIS_10)
                     }
+                    parallelTask.onResume()
                     taskInfo.state = TaskInfo.State.RUNNING
                 }
             }
@@ -246,7 +251,7 @@ class ThreadPool extends ThreadPoolExecutor {
     protected void beforeExecute(final Thread future, final Runnable runnable) {
         ExecutorItem item = null
         int breaker = -10
-        while(!item && breaker++ < 0) {
+        while(!item && breaker++ < 0 &&! Thread.currentThread().isInterrupted()) {
             item = items.find {
                 it.hashID == runnable.hashCode()
             }
@@ -340,9 +345,8 @@ class ThreadPool extends ThreadPoolExecutor {
                         case TimeoutException:
                             Log.w("[%s] timed out", taskInfo.fullName)
                             if(item.info.task instanceof TaskKillable) {
-                                (item.info.task as TaskKillable).kill()
-                                //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
-                                item.thread.stop()
+                                (item.info.task as TaskKillable).onKill()
+                                item.thread.interrupt()
                             }
                             taskInfo.state = TaskInfo.State.TIMEOUT
                             break
@@ -402,33 +406,46 @@ class ThreadPool extends ThreadPoolExecutor {
         if(item) {
             if(item.future) {
                 if(Tasks.debug) {
-                    Log.v("[%s] Cancelling task", info.fullName)
+                    Log.d("[%s] Cancelling task", info.fullName)
                 }
-                killed = item.future.cancel(true)
-                sleep(MILLIS_10)
+                if(!item.future.cancel(true) && Tasks.debug) {
+                    Log.d("[%s] Future cancel failed", info.fullName)
+                }
             } else {
-                if(Tasks.debug) {
-                    Log.v("[%s] Unable to find future to cancel", info.fullName)
+                if (Tasks.debug) {
+                    Log.d("[%s] Unable to find future to cancel", info.fullName)
                 }
             }
-            if(item.thread) {
-                if(Tasks.debug) {
-                    Log.v("[%s] Interrupting thread", info.fullName)
-                }
-                item.thread.interrupt()
+            Thread thread = item.thread
+            if(thread) {
                 if(item.info.task instanceof TaskKillable) {
-                    (item.info.task as TaskKillable).kill()
-                    sleep(MILLIS_10)
-                    Log.i("[%s] Killing thread", info.fullName)
-                    //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
                     try {
-                        item.thread.stop() //Force it to finish
-                    } catch(Exception ignore) {}
+                        (item.info.task as TaskKillable).onKill()
+                    } catch(Exception e) {
+                        Log.w("[%s] onKill() failed: %s", info.fullName, e)
+                    }
                 }
-                killed = true
+                if(Tasks.debug) {
+                    Log.d("[%s] Interrupting thread", info.fullName)
+                }
+                thread.interrupt() //Send interrupt signal (it might not kill the thread if it is not prepared to handle interruptions)
+                try {
+                    thread.join(SECOND) // give 1 second to finish
+                } catch (InterruptedException ignore) {
+                    // If we we InterruptException (parent thread) while waiting the task to be interrupted, it means
+                    // that we need to terminate this thread as well
+                    Thread.currentThread().interrupt()
+                    return false
+                }
+                killed = ! thread.isAlive()
+                if(! killed) {
+                    if (Tasks.debug) {
+                        Log.w("Unable to interrupt [%s]. Be sure that the process can be interrupted.", info.fullName)
+                    }
+                }
             } else {
                 if(Tasks.debug) {
-                    Log.v("[%s] Unable to find thread to stop", info.fullName)
+                    Log.w("[%s] Unable to find thread to stop", info.fullName)
                 }
             }
         } else {
@@ -469,7 +486,7 @@ class ThreadPool extends ThreadPoolExecutor {
                     ei.info.task.onCancel()
                     try {
                         Thread.start({
-                            while (ei.info.running) {
+                            while (ei.info.running &&! Thread.currentThread().isInterrupted()) {
                                 sleep(MILLIS_10)
                             }
                             shuttingDown.countDown()

@@ -13,6 +13,11 @@ class IntervalTaskTest extends Specification {
         Tasks.resetManager()
         Tasks.printOnChange = true
         Tasks.logToFile = false
+        Tasks.debug = true
+    }
+    def cleanup() {
+        Tasks.exit()
+        sleep(SECOND) //Wait for all tasks to finish before continue
     }
     class ProcessTest extends IntervalTask {
         int callTimes = 0
@@ -86,11 +91,9 @@ class IntervalTaskTest extends Specification {
         Runnable process() {
             return {
                 Log.d("Processing... (%d)", ++callTimes)
-                //new File("/dev/random").text
                 final fid = ++frozenId
-                //while(threadState != State.TERMINATED) {
-                for(int i = 0;; i++) {
-                    Log.i("[%s] <%d> Looping (%d) ...", Thread.currentThread().name, fid, i)
+                while (! killed) {
+                    Log.i(" Hanging process [%s] FID:<%d> ...", taskName, fid)
                     sleep(MILLIS_100)
                 }
             }
@@ -104,7 +107,7 @@ class IntervalTaskTest extends Specification {
         }
     
         @Override
-        void kill() {
+        void onKill() {
             Log.i("Task was killed")
         }
     }
@@ -122,9 +125,7 @@ class IntervalTaskTest extends Specification {
             FrozenIntervalTest ft = new FrozenIntervalTest(maxExec, sleepMillis)
             assert Tasks.add(ft)
             sleep(sleepMillis)
-            TaskPool pool = Tasks.taskManager.pools.find {
-                it.name == "FrozenIntervalTest"
-            }
+            TaskPool pool = Tasks.get("FrozenIntervalTest")
         expect:
             assert pool : "Pool not found"
         when:

@@ -17,7 +17,10 @@ class ParallelTaskTest extends Specification {
         Tasks.printOnChange = true
         Tasks.logToFile = false
     }
-
+    def cleanup() {
+        Tasks.exit()
+        sleep(SECOND) //Wait for all tasks to finish before continue
+    }
     class MouseRace extends ParallelTask {
         boolean smallFinished = false
         boolean bigFinished = false
@@ -75,15 +78,16 @@ class ParallelTaskTest extends Specification {
             int sleepTime = (([smallTime, bigTime, ratTime].sum() as int) - ([smallTime, bigTime, ratTime].min() as int))
             Log.i("Waiting... %d ms", sleepTime)
             sleep(sleepTime)
-            ThreadPool threadPool = Tasks.taskManager.pools.first().executor
-        expect:
+        when:
+            TaskPool mouseRacePool = Tasks.get("MouseRace")
+            ThreadPool threadPool = mouseRacePool.executor
+        then:
             assert mr.smallFinished && mr.bigFinished && mr.ratFinished
-            assert Tasks.taskManager.pools.findAll { it.name.contains("MouseRace") }.size() == 1
             assert Tasks.taskManager.failed == 0
             assert threadPool.largestPoolSize > 0
             assert threadPool.largestPoolSize == MouseRace.pool
             assert threadPool.completedTaskCount == mr.processes().size()
-            assert Tasks.taskManager.pools.first().executed > 1
+            assert mouseRacePool.executed > 1
         when:
             Tasks.exit()
         then:

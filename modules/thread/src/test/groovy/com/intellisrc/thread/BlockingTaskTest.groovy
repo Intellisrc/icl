@@ -14,6 +14,10 @@ class BlockingTaskTest extends Specification {
         Tasks.printOnChange = true
         Tasks.logToFile = false
     }
+    def cleanup() {
+        Tasks.exit()
+        sleep(SECOND) //Wait for all tasks to finish before continue
+    }
     def "blocking tasks"() {
         setup:
             int times = 5

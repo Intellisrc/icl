@@ -13,6 +13,10 @@ class TaskPoolTest extends Specification {
         Tasks.resetManager()
         Tasks.logToFile = false
     }
+    def cleanup() {
+        Tasks.exit()
+        sleep(SECOND) //Wait for all tasks to finish before continue
+    }
     def "Reset counters"() {
         setup:
             Tasks.add(IntervalTask.create({
@@ -20,18 +24,18 @@ class TaskPoolTest extends Specification {
             }, "Printer", SECOND, 10))
             sleep(SECOND)
         expect:
-            Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {
+            Tasks.findAll("Printer").each {
                 assert it.executed > 40: "Executed times must be executed several times"
             }
         when:
             Tasks.printStatus()
             println "Resetting........."
-            Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {
+            Tasks.findAll("Printer").each {
                 it.resetCounters()
             }
             Tasks.printStatus()
         then:
-            Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {
+            Tasks.findAll("Printer").each {
                 assert it.executed < 5: "After reset, it should be a low value"
             }
     }
@@ -49,7 +53,7 @@ class TaskPoolTest extends Specification {
             sleep(SECOND)
             counter = 0 //disable exceptions
         expect:
-            Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {
+            Tasks.findAll("Printer").each {
                 assert it.executed > 40: "Executed times must be executed several times"
                 if(it.name == "Printer") {
                     assert it.failed > 10: "Failed must be reported several times"
@@ -58,12 +62,12 @@ class TaskPoolTest extends Specification {
         when:
             Tasks.printStatus()
             println "Resetting........."
-            Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {
+            Tasks.findAll("Printer").each {
                 it.resetCounters()
             }
             Tasks.printStatus()
         then:
-            Tasks.taskManager.pools.findAll { it.name.contains("Printer") }.each {
+            Tasks.findAll("Printer").each {
                 println "After reset: ${it.executed}"
                 assert it.executed < 10: "After reset, it should be a low value"
                 if(it.name == "Printer") {

@@ -19,6 +19,10 @@ class DelayedTaskTest extends Specification {
         Tasks.printOnChange = true
         Tasks.logToFile = false
     }
+    def cleanup() {
+        Tasks.exit()
+        sleep(SECOND) //Wait for all tasks to finish before continue
+    }
     def "Delay some process"() {
         setup:
             boolean called = false

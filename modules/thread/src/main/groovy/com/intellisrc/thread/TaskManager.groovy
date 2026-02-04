@@ -96,9 +96,13 @@ class TaskManager {
                                 if(running) {
                                     if(serviceTask.paused && taskInfo.state != TaskInfo.State.PAUSED) {
                                         Log.i("[%s] Task was paused", serviceTask.taskName)
-                                        taskInfo.state = TaskInfo.State.PAUSED
+                                        if(taskInfo.state != TaskInfo.State.PAUSED) {
+                                            serviceTask.onPause()
+                                            taskInfo.state = TaskInfo.State.PAUSED
+                                        }
                                     } else if(taskInfo.state == TaskInfo.State.PAUSED &&! serviceTask.paused) { //resume
                                         Log.i("[%s] Task was resumed",serviceTask.taskName)
+                                        taskInfo.task.onResume()
                                         taskInfo.state = TaskInfo.State.RUNNING
                                     } else if(serviceTask.cancelled) {
                                         Log.i("[%s] Service was cancelled", serviceTask.taskName)
@@ -131,10 +135,14 @@ class TaskManager {
                     future = scheduledExecutorService.scheduleAtFixedRate({
                         if(intervalTask.paused) {
                             Log.i("[%s] Task was paused", intervalTask.taskName)
-                            taskInfo.state = TaskInfo.State.PAUSED
+                            if(taskInfo.state != TaskInfo.State.PAUSED) {
+                                intervalTask.onPause()
+                                taskInfo.state = TaskInfo.State.PAUSED
+                            }
                         } else if(taskInfo.state == TaskInfo.State.PAUSED &&! intervalTask.paused) { //resume
                             Log.i("[%s] Task was resumed", intervalTask.taskName)
                             taskInfo.state = TaskInfo.State.RUNNING
+                            intervalTask.onResume()
                         } else if(intervalTask.cancelled) {
                             Log.v("Task %s was cancelled", intervalTask.taskName)
                             future.cancel(true)

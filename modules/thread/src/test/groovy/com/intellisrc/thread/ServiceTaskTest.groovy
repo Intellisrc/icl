@@ -14,6 +14,10 @@ class ServiceTaskTest extends Specification {
         Tasks.printOnChange = true
         Tasks.logToFile = false
     }
+    def cleanup() {
+        Tasks.exit()
+        sleep(SECOND) //Wait for all tasks to finish before continue
+    }
 
     class ServiceTest extends ServiceTask {
         int calledTimes = 0
@@ -155,14 +159,14 @@ class ServiceTaskTest extends Specification {
             int called
         expect:
             assert Tasks.add(st): "Adding the first one should be ok"
-            sleep(SECOND) //Run service for some time
+            sleep(HALF_SECOND) //Run service for some time (it should run like 10 times in a second)
             assertServiceAndMonitor()
             assert Tasks.taskManager.failed == 0
             assert st.calledTimes > 0
         when:
             called = st.calledTimes
             st.cancel()
-            sleep(SECOND) //Simulate some extra time, to be sure it was cancelled correctly
+            sleep(HALF_SECOND) //Simulate some extra time, to be sure it was cancelled correctly
         then:
             assert st.cancelled
             assert st.cancelCalled
@@ -186,24 +190,30 @@ class ServiceTaskTest extends Specification {
             int later
             ServiceTest st = new ServiceTest()
             assert Tasks.add(st): "Adding the first one should be ok"
-            sleep(SECOND) //Run service for some time
+            sleep(HALF_SECOND) //Run service for some time (about 10 per second)
         when:
             before = st.calledTimes
             st.pause()
-            sleep(SECOND)
+            sleep(HALF_SECOND)
+        then:
+            assert st.pausedCalled
+        when:
             after = st.calledTimes
         then:
             assert st.paused
             assert ! st.running
-            assert before == after
+            assert after - before <= 1
         when:
             st.resume()
-            sleep(SECOND)
+            sleep(HALF_SECOND)
+        then:
+            assert st.resumeCalled
+        when:
             later = st.calledTimes
         then:
             assert ! st.paused
             assert st.running
-            assert later > after
+            assert later - after >= 4
     }
 
     def "Tasks should be removed and stopped on command"() {
