@@ -22,8 +22,10 @@ class Cache<V> {
     static public final int FOREVER = -1
     static protected int defaultGCInterval = Config.any.get("cache.gc", Secs.MIN_2) //seconds
     static protected int defaultTimeout = Config.any.get("cache.timeout", FOREVER) //seconds
-    interface NotFound {
-        V call()
+    // We can specify (optional) the exception that getting the object (not from cache) may throw to
+    // prevent Groovy from wrapping that exception
+    interface NotFound<E extends Exception> {
+        V call() throws E
     }
     static interface CacheAccess {
         void call(String key)
@@ -115,7 +117,7 @@ class Cache<V> {
 	 * @param default_val
 	 * @return
 	 */
-    V get(final String key, NotFound notFound = null, int time = timeout) {
+    <E extends Exception> V get(final String key, NotFound notFound = null, int time = timeout) throws E {
         return get(key, notFound, null, null, time)
     }
     /**
@@ -127,7 +129,7 @@ class Cache<V> {
      * @param time
      * @return
      */
-    V get(final String key, NotFound notFound, CacheAccess onHit, CacheAccess onStore = null, int time = timeout) {
+    <E extends Exception> V get(final String key, NotFound notFound, CacheAccess onHit, CacheAccess onStore = null, int time = timeout) throws E {
         V ret = null
         if(key && time) {
             if (contains(key)) {
