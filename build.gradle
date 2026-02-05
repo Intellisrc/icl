@@ -22,7 +22,7 @@ final int javaVersion = 11
 
 allprojects {
     group = groupName
-    version = "2.9.4"
+    version = "2.9.5"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -173,7 +173,7 @@ subprojects {
             register("mavenJava", MavenPublication) {
                 from(components["java"] as SoftwareComponent)
 
-                artifactId = name
+                artifactId = project.name
                 groupId = groupName
 
                 pom {
