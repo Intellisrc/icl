@@ -158,8 +158,6 @@ subprojects {
         testImplementation "org.spockframework:spock-core:${spock}"
         // Fixes "The automatic loading of test framework implementation dependencies has been deprecated." for Gradle 9
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-		documentation "com.github.javaparser:javaparser-core:3.26.2"
     }
     tasks.withType(Groovydoc).configureEach {
         classpath += project.configurations.documentation
