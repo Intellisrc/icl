@@ -22,7 +22,7 @@
 <html>
 <head>
 
-<title>com.intellisrc.web.service (web 2.9.3 API)</title>
+<title>com.intellisrc.web.service (web 2.10.0 API)</title>
 <meta name="keywords" content="com.intellisrc.web.service package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css" title="Style">
@@ -31,7 +31,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.intellisrc.web.service (web 2.9.3 API)";
+    parent.document.title="com.intellisrc.web.service (web 2.10.0 API)";
 }
 </script>
 <noscript>
@@ -154,8 +154,8 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="ServerSentEvent.EventCallback.html" title="class in com/intellisrc/web/service">
-                                    ServerSentEvent.EventCallback
+                                <strong><a href="ServerSentEvent.OnClientConnect.html" title="class in com/intellisrc/web/service">
+                                    ServerSentEvent.OnClientConnect
                                 </a></strong>
                             </td>
                             <td></td>
@@ -222,7 +222,8 @@ function windowTitle()
                                     Service.ServiceError
                                 </a></strong>
                             </td>
-                            <td>Used to pass errors to client</td>
+                            <td>Used to pass errors to client
+ it should return `true` to disable default action (log)</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -391,6 +392,22 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="EventEndPoint.html" title="class in com/intellisrc/web/service">
+                                    EventEndPoint
+                                </a></strong>
+                            </td>
+                            <td></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="EventEndPoint.Configurator.html" title="class in com/intellisrc/web/service">
+                                    EventEndPoint.Configurator
+                                </a></strong>
+                            </td>
+                            <td></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="HttpHeader.html" title="class in com/intellisrc/web/service">
                                     HttpHeader
                                 </a></strong>
@@ -421,15 +438,15 @@ function windowTitle()
                                     Request
                                 </a></strong>
                             </td>
-                            <td> <DL><DT><B>Since:</B></DT><DD>2023/05/19.</DD></DL></td>
+                            <td></td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="RequestHandle.html" title="class in com/intellisrc/web/service">
-                                    RequestHandle
+                                <strong><a href="RequestFilter.html" title="class in com/intellisrc/web/service">
+                                    RequestFilter
                                 </a></strong>
                             </td>
-                            <td>Handle the request from Jetty, including sessions</td>
+                            <td> <DL><DT><B>Since:</B></DT><DD>2025/12/22.</DD></DL></td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -437,7 +454,7 @@ function windowTitle()
                                     Response
                                 </a></strong>
                             </td>
-                            <td> <DL><DT><B>Since:</B></DT><DD>2023/05/19.</DD></DL></td>
+                            <td>Jetty 12 compatible Response wrapper with servlet delegation.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -450,16 +467,8 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="ServerSentEvent.SSEServlet.html" title="class in com/intellisrc/web/service">
-                                    ServerSentEvent.SSEServlet
-                                </a></strong>
-                            </td>
-                            <td></td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="ServerSentEvent.SSEServlet.1.html" title="class in com/intellisrc/web/service">
-                                    ServerSentEvent.SSEServlet.1
+                                <strong><a href="ServerSentEvent.1.html" title="class in com/intellisrc/web/service">
+                                    ServerSentEvent.1
                                 </a></strong>
                             </td>
                             <td></td>
@@ -527,7 +536,9 @@ function windowTitle()
                                     WebMessage
                                 </a></strong>
                             </td>
-                            <td>Simple class to convert data to String</td>
+                            <td>Automatic wrap messages to handle Map, Collection and String messages
+ When the code auto-detects a JSON object, 'data' property will be assigned.
+ </td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -535,15 +546,7 @@ function windowTitle()
                                     WebSocketBroadcastService
                                 </a></strong>
                             </td>
-                            <td>Extension of JettyWebSocketServlet.</td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="WebSocketBroadcastService.EventEndpoint.html" title="class in com/intellisrc/web/service">
-                                    WebSocketBroadcastService.EventEndpoint
-                                </a></strong>
-                            </td>
-                            <td>This class is applied to a single client</td>
+                            <td></td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -584,11 +587,43 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="Service.ServiceType.html" title="class in com/intellisrc/web/service">
+                                    Service.ServiceType
+                                </a></strong>
+                            </td>
+                            <td></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="ServiceOutput.ExpirationRule.html" title="class in com/intellisrc/web/service">
+                                    ServiceOutput.ExpirationRule
+                                </a></strong>
+                            </td>
+                            <td></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="ServiceOutput.Privacy.html" title="class in com/intellisrc/web/service">
+                                    ServiceOutput.Privacy
+                                </a></strong>
+                            </td>
+                            <td></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="ServiceOutput.Type.html" title="class in com/intellisrc/web/service">
                                     ServiceOutput.Type
                                 </a></strong>
                             </td>
                             <td>Output types used in getOutput</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="WebMessage.WebMessageType.html" title="class in com/intellisrc/web/service">
+                                    WebMessage.WebMessageType
+                                </a></strong>
+                            </td>
+                            <td></td>
                         </tr>
 
                     </tbody>

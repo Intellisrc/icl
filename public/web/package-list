@@ -1,5 +1,6 @@
 com.intellisrc.web
 com.intellisrc.web.protocols
 com.intellisrc.web.service
+com.intellisrc.web.service.routing
 com.intellisrc.web.services
 com.intellisrc.web.tools
