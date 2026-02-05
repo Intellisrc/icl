@@ -1076,7 +1076,9 @@ class DB {
      * @return
      */
     List<String> getPKs(String tbl = table) {
-        info()
+        // Do not use cache if the object already exists:
+        boolean useCache = colsInfo.contains(jdbc.dbname + "." + tbl)
+        info(useCache)
         return !colsInfo.isEmpty() ? colsInfo.get(jdbc.dbname + "." + tbl)?.findAll { it.primaryKey }?.collect { it.name } ?: [] : []
     }
     /**
