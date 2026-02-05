@@ -69,7 +69,7 @@ class ParallelTaskTest extends BaseTaskTest {
         }
     }
 
-    @Retry
+    @Retry(delay = 1000)
     @Unroll
     def "All need to get to the goal"() {
         setup:
@@ -86,7 +86,7 @@ class ParallelTaskTest extends BaseTaskTest {
             sleep(sleepTime)
             println "\nRace finished ---------------------------------------------"
         when:
-            TaskPool mouseRacePool = Tasks.get("MouseRace")
+            TaskPool mouseRacePool = Tasks.get(mr.class.simpleName)
             ThreadPool threadPool = mouseRacePool.executor
         then:
             assert mr.smallFinished && mr.bigFinished && mr.ratFinished
@@ -106,7 +106,7 @@ class ParallelTaskTest extends BaseTaskTest {
      * increasing the sleep time was causing stack overflow exception.
      * That was fixed in 2.7.4
      */
-    @Retry
+    @Retry(delay = 1000)
     def "ParallelTask should not expire before time"() {
         setup :
             AtomicInteger times = new AtomicInteger()
@@ -138,7 +138,7 @@ class ParallelTaskTest extends BaseTaskTest {
      *
      * @return
      */
-    @Retry
+    @Retry(delay = 1000)
     def "If task is cancelled, it should not execute pending threads"() {
         setup :
             AtomicInteger times = new AtomicInteger()
