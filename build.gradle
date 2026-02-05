@@ -214,7 +214,7 @@ subprojects {
     tasks.withType(JavaCompile).configureEach {
         options.release.set(javaVersion) // Ensures bytecode compatibility with Java
     }
-    tasks.named('test') {
+    tasks.withType(Test).configureEach {
         // Use JUnit Platform for unit tests.
         useJUnitPlatform()
     }

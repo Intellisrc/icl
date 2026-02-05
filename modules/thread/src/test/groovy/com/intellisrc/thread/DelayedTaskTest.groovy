@@ -1,28 +1,16 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import spock.lang.Specification
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 
 import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/18.
  */
-class DelayedTaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
-    def cleanup() {
-        Tasks.exit()
-        sleep(SECOND) //Wait for all tasks to finish before continue
-    }
+class DelayedTaskTest extends BaseTaskTest {
     def "Delay some process"() {
         setup:
             boolean called = false
@@ -35,8 +23,6 @@ class DelayedTaskTest extends Specification {
             assert !called
             sleep(SECOND)
             assert called
-        cleanup:
-            Tasks.exit()
     }
     def "Multiple delayed processes"() {
         setup:
@@ -60,8 +46,6 @@ class DelayedTaskTest extends Specification {
             sleep(SECOND_3)
             Log.i("All must be done")
             assert called == times : "At the end all should have been called"
-        cleanup:
-            Tasks.exit()
     }
     class DelayedTest extends DelayedTask {
         boolean called = false
@@ -112,7 +96,6 @@ class DelayedTaskTest extends Specification {
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
-            Tasks.exit()
     }
     def "Pause a delayed process before execution"() {
         setup:
@@ -140,7 +123,6 @@ class DelayedTaskTest extends Specification {
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
-            Tasks.exit()
         where:
             // When it is shorter than delay time, it should resume without taking more time
             // otherwise, it should wait until resume() is called

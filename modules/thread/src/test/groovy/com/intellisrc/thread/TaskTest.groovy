@@ -1,9 +1,6 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import spock.lang.Retry
-import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -12,16 +9,7 @@ import static com.intellisrc.core.Millis.*
 /**
  * @since 2019/09/11.
  */
-class TaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
-    def cleanup() {
-        Tasks.exit()
-        sleep(SECOND) //Wait for all tasks to finish before continue
-    }
+class TaskTest extends BaseTaskTest {
     class FrozenSimpleTest extends Task implements TaskKillable {
         int callTimes = 0
         long maxExecutionTime = HALF_SECOND
@@ -85,8 +73,6 @@ class TaskTest extends Specification {
             assert taskPool.executed == 0
             assert taskSummary.average > 0
             assert taskSummary.max > 0
-        cleanup:
-            Tasks.exit()
     }
     
     /**
@@ -123,8 +109,6 @@ class TaskTest extends Specification {
             assert Tasks.taskManager.pools.first().executor.largestPoolSize > 0
             assert Tasks.taskManager.pools.first().executor.largestPoolSize <= Tasks.taskManager.pools.first().executor.maximumPoolSize
             //assert Tasks.taskManager.pools.first().tasks.findAll { it.state != TaskInfo.State.DONE }.empty FIXME: not always correct
-        cleanup:
-            Tasks.exit()
     }
     
     def "Adding several Tasks with same name, should run them in parallel without waiting"() {
@@ -141,8 +125,5 @@ class TaskTest extends Specification {
         expect:
             assert Tasks.taskManager.failed == 0
             assert Tasks.taskManager.pools.first().executor.completedTaskCount == tasks
-        cleanup:
-            Tasks.exit()
-            
     }
 }

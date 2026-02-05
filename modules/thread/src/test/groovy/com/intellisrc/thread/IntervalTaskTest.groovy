@@ -1,24 +1,13 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import spock.lang.Specification
 
 import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/10.
  */
-class IntervalTaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-        Tasks.debug = true
-    }
-    def cleanup() {
-        Tasks.exit()
-        sleep(SECOND) //Wait for all tasks to finish before continue
-    }
+class IntervalTaskTest extends BaseTaskTest {
     class ProcessTest extends IntervalTask {
         int callTimes = 0
         int processTimeMilliSec = 0
@@ -73,8 +62,6 @@ class IntervalTaskTest extends Specification {
             assert pt.setupCalled
             assert ! pt.resetCalled
             assert Tasks.taskManager.failed == 0
-        cleanup:
-            Tasks.exit()
     }
     
     class FrozenIntervalTest extends IntervalTask implements TaskKillable {
@@ -145,8 +132,6 @@ class IntervalTaskTest extends Specification {
             //Even if there is an exception is accounted inside Executor
             assert Math.abs(Tasks.taskManager.failed - ft.frozenId) <= 1 //The last task might be still running
             assert Math.abs(Tasks.taskManager.pools.first().executor.completedTaskCount - ft.frozenId) <= 1
-        cleanup:
-            Tasks.exit()
     }
     
     def "It should report only those cases in which was actually executed"() {
@@ -162,8 +147,6 @@ class IntervalTaskTest extends Specification {
         expect:
             assert Tasks.taskManager.pools.findAll { it.name.contains("Interval") }.size() == 2 // + 1 Timeout
             assert Tasks.taskManager.pools.find { it.name.contains("Interval") }.executed < 3
-        cleanup:
-            Tasks.exit()
     }
 
     def "Should cancel interval"() {

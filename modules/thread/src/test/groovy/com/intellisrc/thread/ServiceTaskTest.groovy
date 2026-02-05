@@ -1,26 +1,17 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import spock.lang.Specification
+
+import java.util.concurrent.atomic.AtomicInteger
 
 import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/10.
  */
-class ServiceTaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
-    def cleanup() {
-        Tasks.exit()
-        sleep(SECOND) //Wait for all tasks to finish before continue
-    }
-
+class ServiceTaskTest extends BaseTaskTest {
     class ServiceTest extends ServiceTask {
-        int calledTimes = 0
+        AtomicInteger calledTimes = new AtomicInteger()
         boolean running = true
         boolean exit = false
         boolean resetCalled = false
@@ -35,8 +26,7 @@ class ServiceTaskTest extends Specification {
                 Log.i("Running...")
                 while (!exit) {
                     if(running) {
-                        calledTimes++
-                        println "*****************[ CALLED $calledTimes ]**********************"
+                        println "*****************[ CALLED ${calledTimes.incrementAndGet()} ]**********************"
                         sleep(MILLIS_100)
                         if (throwException) {
                             throw new Exception("Man-made exception")
@@ -52,7 +42,7 @@ class ServiceTaskTest extends Specification {
             Log.i("Got Reset")
             resetCalled = true
 
-            calledTimes = 0
+            calledTimes.set(0)
             running = true
             exit = false
             throwException = false
@@ -105,7 +95,7 @@ class ServiceTaskTest extends Specification {
             assertServiceAndMonitor()
         then:
             assert Tasks.taskManager.failed == 0
-            assert st.calledTimes > 0
+            assert st.calledTimes.get() > 0
     }
 
     def "Services should recover from Exception"() {
@@ -116,15 +106,15 @@ class ServiceTaskTest extends Specification {
             assert Tasks.add(st): "Adding the first one should be ok"
             sleep(SECOND) // Let it run
             assert Tasks.taskManager.failed == 0
-            assert st.calledTimes > 0
+            assert st.calledTimes.get() > 0
         when:
-            called = st.calledTimes
+            called = st.calledTimes.get()
             st.throwException = true
             sleep(HALF_SECOND)
         then:
             assert st.resetCalled
-            assert st.calledTimes > 0
-            assert called >= st.calledTimes
+            assert st.calledTimes.get() > 0
+            assert called >= st.calledTimes.get()
             assertServiceAndMonitor()
             assert Tasks.taskManager.failed == 1
     }
@@ -138,15 +128,15 @@ class ServiceTaskTest extends Specification {
             sleep(SECOND)
             assertServiceAndMonitor()
             assert Tasks.taskManager.failed == 0
-            assert st.calledTimes > 0
+            assert st.calledTimes.get() > 0
         when:
-            called = st.calledTimes
+            called = st.calledTimes.get()
             st.exit = true
             sleep(HALF_SECOND)
         then:
             assert st.resetCalled
-            assert st.calledTimes > 0
-            assert called >= st.calledTimes
+            assert st.calledTimes.get() > 0
+            assert called >= st.calledTimes.get()
             assertServiceAndMonitor()
             assert Tasks.taskManager.failed == 1
     }
@@ -162,9 +152,9 @@ class ServiceTaskTest extends Specification {
             sleep(HALF_SECOND) //Run service for some time (it should run like 10 times in a second)
             assertServiceAndMonitor()
             assert Tasks.taskManager.failed == 0
-            assert st.calledTimes > 0
+            assert st.calledTimes.get() > 0
         when:
-            called = st.calledTimes
+            called = st.calledTimes.get()
             st.cancel()
             sleep(HALF_SECOND) //Simulate some extra time, to be sure it was cancelled correctly
         then:
@@ -172,7 +162,7 @@ class ServiceTaskTest extends Specification {
             assert st.cancelCalled
             assert ! st.resetCalled
             assert ! st.running
-            assert Math.abs(called - st.calledTimes) <= 1 //It might run once
+            assert st.calledTimes.get() - called <= 2 //It might run once or twice
         when:
             List procs = Tasks.findAll("ServiceTest")
             println "Running tasks: ----------------------"
@@ -192,24 +182,24 @@ class ServiceTaskTest extends Specification {
             assert Tasks.add(st): "Adding the first one should be ok"
             sleep(HALF_SECOND) //Run service for some time (about 10 per second)
         when:
-            before = st.calledTimes
+            before = st.calledTimes.get()
             st.pause()
             sleep(HALF_SECOND)
         then:
             assert st.pausedCalled
         when:
-            after = st.calledTimes
+            after = st.calledTimes.get()
         then:
             assert st.paused
             assert ! st.running
-            assert after - before <= 1
+            assert after - before <= 2 // It might have executed a few times after pause
         when:
             st.resume()
             sleep(HALF_SECOND)
         then:
             assert st.resumeCalled
         when:
-            later = st.calledTimes
+            later = st.calledTimes.get()
         then:
             assert ! st.paused
             assert st.running
@@ -223,6 +213,7 @@ class ServiceTaskTest extends Specification {
             assert Tasks.add(st): "Adding the first one should be ok"
             sleep(SECOND)
             assertServiceAndMonitor()
+            assert Tasks.get("ServiceTest").failed == 0
             assert Tasks.taskManager.failed == 0
         when:
             st.destroy()

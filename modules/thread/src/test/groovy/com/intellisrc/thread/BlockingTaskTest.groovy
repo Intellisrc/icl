@@ -1,23 +1,13 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import spock.lang.Specification
 
 import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/17.
  */
-class BlockingTaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
-    def cleanup() {
-        Tasks.exit()
-        sleep(SECOND) //Wait for all tasks to finish before continue
-    }
+class BlockingTaskTest extends BaseTaskTest {
     def "blocking tasks"() {
         setup:
             int times = 5
@@ -32,8 +22,6 @@ class BlockingTaskTest extends Specification {
             }
         expect:
             assert called == times
-        cleanup:
-            Tasks.exit()
     }
     def "task with same name should be executed"() {
         setup:
