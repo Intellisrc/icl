@@ -173,7 +173,7 @@ subprojects {
            register("mavenJava", MavenPublication) {
                from(components["java"] as SoftwareComponent)
 
-               artifactId = name
+               artifactId = project.name
                groupId = groupName
 
                pom {
