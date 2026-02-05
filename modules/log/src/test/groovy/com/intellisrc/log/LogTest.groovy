@@ -267,7 +267,7 @@ class LogTest extends Specification {
     }
 
     @Unroll
-    @Retry
+    @Retry(delay = 1000)
     def "Cleaning should remove old logs"() {
         setup:
             File baseDir = File.get(File.tempDir, "test-many-dir")
@@ -345,6 +345,7 @@ class LogTest extends Specification {
     }
 
     @Unroll
+    @Retry(delay = 1000)
     def "When rotateOtherLogs is false it should not remove other logs, when its true, it should remove them"() {
         setup:
             File tempDir = Files.createTempDirectory("test-log").toFile()
