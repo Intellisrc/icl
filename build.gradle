@@ -6,8 +6,6 @@ plugins {
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
-final int javaVersion = 21
-
 // Load local overrides
 def localPropsFile = file('gradle-local.properties')
 if (localPropsFile.exists()) {
@@ -19,6 +17,8 @@ if (localPropsFile.exists()) {
         }
     }
 }
+
+final int javaVersion = 21
 
 allprojects {
     group = groupName
@@ -135,15 +135,15 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
-    boolean isDev = version.contains("SNAPSHOT")
-    boolean publishDev = ! version.contains("DEBUG")
+    boolean isDev = version.toString().contains("SNAPSHOT")
+    boolean publishDev = ! version.toString().contains("DEBUG")
 
 	configurations {
 		documentation
 	}
     dependencies {
         def groovyVer = "4.0.30" // Also in module etc
-        def groovyExt = "4.0.23.14"
+        def groovyExt = "4.0.30.14"
         def spock = "2.4-M4-groovy-4.0"
 
         //Link it so we can choose version
@@ -170,17 +170,17 @@ subprojects {
     }
     publishing {
        publications {
-           mavenJava(MavenPublication) {
-               from components.java
+           register("mavenJava", MavenPublication) {
+               from(components["java"] as SoftwareComponent)
 
-               artifactId = project.name
-               group = "com.intellisrc"
+               artifactId = name
+               groupId = groupName
 
                pom {
-                   name = project.projectName + " : " + project.name.capitalize() + " Module"
-                   description = getProjectDescription(project.name) ?: project.projectDescription
-                   url = project.projectURL
-                   inceptionYear = project.projectSince
+                   name.set(projectName.toString() + " : " + project.name.capitalize() + " Module")
+                   description.set(getProjectDescription(project.name) ?: projectDescription.toString())
+                   url.set(projectURL.toString())
+                   inceptionYear.set(projectSince.toString())
                    licenses {
                        license {
                            name = 'GNU General Public License v3.0'
@@ -190,15 +190,15 @@ subprojects {
                    }
                    developers {
                        developer {
-                           id    = project.authorId
-                           name  = project.authorName
-                           email = project.authorEmail
+                           id.set(authorId.toString())
+                           name.set(authorName.toString())
+                           email.set(authorEmail.toString())
                        }
                    }
                    scm {
-                       url = project.projectURL
-                       connection = "scm:git:${project.projectURL}.git"
-                       developerConnection = "scm:git:${project.projectDevURL}"
+                       url.set(projectURL.toString())
+                       connection.set("scm:git:${projectURL}.git")
+                       developerConnection.set("scm:git:${projectDevURL}")
                    }
                }
            }
