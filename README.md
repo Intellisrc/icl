@@ -17,7 +17,7 @@ With this library you can:
 
 - Simplify your code by using [GroovyExtend](https://gitlab.com/intellisrc/groovy-extend) library (already included)
 - Use configuration files easily, log and rotate logs, start your application in a more elegant way and more ([core module](#core) and [log module](#log))
-- Set up back-end web services (HTTP or WebSockets, using Spark-Java Web Framework) ([web module](#web))
+- Set up back-end web services (HTTP/HTTPS, SSE or WebSockets, using Jetty) ([web module](#web))
 - Create specialized threads, analyze them and manage them easily ([thread module](#thread))
 - Manage databases using only Java objects or interact with them using a simple fluid SQL query builder (using JDBC) ([db module](#db))
 - Send emails with attachments through SMTP, create FTP, UDP or TCP servers and clients ([net module](#net))
