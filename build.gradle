@@ -22,7 +22,7 @@ final int javaVersion = 11
 
 allprojects {
     group = groupName
-    version = "2.9.5"
+    version = "2.9.6-SNAPSHOT"
     repositories {
         mavenLocal()
         mavenCentral()
