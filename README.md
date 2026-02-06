@@ -344,43 +344,58 @@ Includes : core
 
 Starting from 2.8, this library no longer includes some dependencies, so you need to 
 add them separately as you need. This was done to make this library more flexible by allowing
-you to choose your library versions, reduce the compilation time and your project jar size. 
+you to choose and update your libraries versions, reduce the compilation time and your project jar size. 
 
-Below each module, I'm including the recommended version (the one used during compilation).
+These are an example of the libraries you may need to add to your project (versions are not
+included here. Please look for the latest version in [maven repository](https://mvnrepository.com))
 
 * `core` : Groovy version is now up to you (required by any module). 
-    * `org.codehaus.groovy:groovy-all:4.0.23`
-* `db`   : Database drivers need to be included (Choose the one(s) which match(es) your database(s)):
-    * `com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11`
-    * `com.oracle.database.jdbc:ojdbc11:21.9.0.0`
-    * `mysql:mysql-connector-java:9.0.0`
-    * `org.apache.derby:derby:10.15.2.0` // After 10.16.1.1 requires Java 17
-    * `org.firebirdsql.jdbc:jaybird:5.0.5.java11`
-    * `org.mariadb.jdbc:mariadb-java-client:3.4.1`
-    * `org.postgresql:postgresql:42.7.4`
-    * `org.xerial:sqlite-jdbc:3.46.1.3`
+    * Groovy : `org.codehaus.groovy:groovy-all`
+* `db`   : Database drivers that may need to be included
+    * SQLite : `org.xerial:sqlite-jdbc`
+    * MySQL : `mysql:mysql-connector-java`
+    * MariaDB : `org.mariadb.jdbc:mariadb-java-client`
+    * PostgreSQL : `org.postgresql:postgresql`
+    * Oracle : `com.oracle.database.jdbc:ojdbc11`
+    * SQL Server : `com.microsoft.sqlserver:mssql-jdbc`
+    * Derby : `org.apache.derby:derby`
+    * Firebird : `org.firebirdsql.jdbc:jaybird`
+    * HSQL : `org.hsqldb:hsqldb`
+    * H2 : `com.h2database:h2`
+* `web`
+  * Brotli (compression):
+    * `com.nixxcode.jvmbrotli:jvmbrotli`
+    * `com.nixxcode.jvmbrotli:jvmbrotli-<os>-<arch>` // os: win32, darwin, linux; arch: x86, amd64
+
+The following modules are already included in the specified modules (no need to add them):
+
 * `etc`  :
-  * Jedis (`redis.clients:jedis:5.2.0`)
-  * BerkeleyDB (`com.sleepycat:je:18.3.12`)
-
-The following modules are already included in the specified modules:
-
+  * Jedis : `redis.clients:jedis`
+  * BerkeleyDB : `com.sleepycat:je`
 * `crypt`  
-  * Bounty Castle (`org.bouncycastle:bcprov-jdk15on:1.78.1`, `org.bouncycastle:bcpg-jdk15on:1.70`, `org.bouncycastle:bcprov-ext-jdk15on:1.78.1`)
-* `net`    
-  * Apache Common Net (`commons-net:commons-net:3.11.1`) 
-  * JavaX Mail(`com.sun.mail:javax.mail:2.0.1`)
+  * Bounty Castle :
+    * `org.bouncycastle:bcprov-jdk18on`
+    * `org.bouncycastle:bcpkix-jdk18on`
+    * `org.bouncycastle:bcpg-jdk18on`
+* `net`
+  * Apache Common Net : `commons-net:commons-net`
+  * JavaX Mail : `com.sun.mail:javax.mail`
 * `serial` 
-  * JSSC library (`org.scream3r:jssc:2.8.0`) 
+  * JSSC library : `org.scream3r:jssc`
 * `term`   
-  * JLine library (`org.jline:jline:3.27.0`)
-* `web`    
-  * Brotli (`com.nixxcode.jvmbrotli:jvmbrotli:0.2.0`, `com.nixxcode.jvmbrotli:jvmbrotli-<os>-<arch>:0.2.0`) // os: win32, darwin, linux; arch: x86, amd64
+  * JLine library : `org.jline:jline`
+* `web`
+  * Jetty:
+    * `org.eclipse.jetty:jetty-server`
+    * `org.eclipse.jetty.http2:http2-server`
+    * `org.eclipse.jetty:jetty-alpn-server`
+    * `org.eclipse.jetty:jetty-alpn-conscrypt-server`
+    * `org.eclipse.jetty.websocket:websocket-jetty-server`
+    * `org.eclipse.jetty.websocket:websocket-jetty-client`
+    * `org.eclipse.jetty.websocket:websocket-servlet`
+    * `org.eclipse.jetty:jetty-webapp`
+    * `org.eclipse.jetty:jetty-servlets`
 
 ## Recommendations
 
 If you need a library to build your web-based user interfaces (using javascript), check [M2D2](https://gitlab.com/intellisrc/m2d2)
-
-## Acknowledgments
-
-Developed with IntelliJ Ultimate Edition. I would like to thank [JetBrains](https://jb.gg/OpenSource) for their support.
