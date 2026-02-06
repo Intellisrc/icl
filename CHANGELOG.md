@@ -12,8 +12,15 @@
 * [web] Implemented #68 and #69: cache and max-age header
 * [etc] Improved Redis class
 * [db] Fixed #84: Improved database connection exceptions
+* [thread] Improved statistics, failure handling, finding tasks and added Pause/Resume
 
 ## 2.9 (branch: j11) : Jetty 11, Java 11
+
+### 2.9.4 (bad release) / 2.9.5
+(due to a mistake in buld.gradle the 2.9.4 version was replaced with 2.9.5)
+* [db] Updated TableUpdater
+* [crypt] Added KeyStoreGenerator
+* [etc] Improved Redis class
 
 ### 2.9.3 (status : Stable)
 * [net] Fixed FTPS and improved FTPClient
