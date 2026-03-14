@@ -8,12 +8,12 @@ dependencies {
     def h2          = '2.4.240'
     def hypersql    = '2.7.4'
     def mariadb     = '3.5.7'
-    def mysql       = '9.5.0'
-    def oracle      = '23.26.0.0.0' //'21.9.0.0'        // test container is 21
+    def mysql       = '9.6.0'
+    def oracle      = '23.26.1.0.0' //'21.9.0.0'        // test container is 21
     //def oracle      = '23.3.0.23.09' <-- not ready (failing tests). May need code changes
-    def postgresql  = '42.7.9'
-    def sqlite      = '3.51.1.0'
-    def sqlserver   = '13.2.1.jre11'
+    def postgresql  = '42.7.10'
+    def sqlite      = '3.51.2.0'
+    def sqlserver   = '13.4.0.jre11'
 
     api "org.reflections:reflections:${reflections}"
     // We set connectors as optional because most likely only one will be used and
