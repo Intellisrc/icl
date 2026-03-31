@@ -11,6 +11,7 @@ import org.apache.commons.net.util.TrustManagerUtils
 import javax.imageio.ImageIO
 import java.awt.image.BufferedImage
 import java.nio.file.Files
+import java.time.Duration
 
 /**
  * FTP client class (wrapper around apache commons FTPClient)
@@ -18,7 +19,9 @@ import java.nio.file.Files
  */
 @CompileStatic
 class FtpClient {
-    static boolean active = Config.any.getBool("ftp.active") //By default will be "passive"
+    int connectionTimeout = Config.any.get("ftp.timeout.connect", Millis.SECOND_10)
+    int dataTimeout = Config.any.get("ftp.timeout.data", Millis.MINUTE)
+
     final String hostname
     final InetAddress ip
     final int port
@@ -27,6 +30,7 @@ class FtpClient {
     String path
     String cwd = "/"
     final boolean secure
+    boolean active = Config.any.get("ftp.active", false)
     boolean verifyHost = false // Only if encrypted is true, will check certificate against host name
     final FTPClient client
 
@@ -57,13 +61,14 @@ class FtpClient {
      *      Port 990:
      *          Implicit SSL/TLS: The client connects to port 990, and the entire session (control and data connections) is encrypted from the start, without the need for an AUTH TLS command.
      */
-    FtpClient(InetAddress ip, int port, String user, String pass, String path, boolean secure, String hostToVerify = "", Protocol protocol = Protocol.TLS, boolean implicit = false) {
+    FtpClient(InetAddress ip, int port, String user, String pass, String path, boolean secure, String hostToVerify = "", Protocol protocol = Protocol.TLS, boolean implicit = false, boolean active = false) {
         this.ip = ip
         this.port = port ?: (secure && implicit ? 990 : 21)
         this.user = user
         this.pass = pass
         this.path = path.replaceAll(/\/$/, '') // Remove trailing slash if present
         this.secure = secure
+        this.active = active
         this.hostname = hostToVerify
         this.verifyHost = secure &&! hostToVerify.empty
         client = secure ? new FTPSClient(protocol.toString(), implicit) : new FTPClient()
@@ -71,8 +76,8 @@ class FtpClient {
     /**
        Constructor with automatic port
      */
-    FtpClient(InetAddress ip, String user, String pass, String path, boolean secure, String hostToVerify = "", Protocol protocol = Protocol.TLS, boolean implicit = false) {
-        this(ip, 0, user, pass, path, secure, hostToVerify, protocol, implicit)
+    FtpClient(InetAddress ip, String user, String pass, String path, boolean secure, String hostToVerify = "", Protocol protocol = Protocol.TLS, boolean implicit = false, boolean active = false) {
+        this(ip, 0, user, pass, path, secure, hostToVerify, protocol, implicit, active)
     }
 
     /**
@@ -122,7 +127,8 @@ class FtpClient {
         boolean connected = false
         try {
             Log.i("Connecting to server : %s", ip.hostAddress)
-            client.setConnectTimeout(Millis.SECOND_10)
+            client.setConnectTimeout(connectionTimeout)
+			client.setDataTimeout(Duration.ofMillis(dataTimeout))
             if(port) {
                 Log.i("Setting port: %d", port)
                 client.setDefaultPort(port)
