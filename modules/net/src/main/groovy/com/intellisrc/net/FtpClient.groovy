@@ -158,12 +158,6 @@ class FtpClient {
             }
             client.connect(ip)
             if (FTPReply.isPositiveCompletion(client.replyCode)) {
-                Log.v("Setting %s mode", active ? "ACTIVE" : "PASSIVE")
-                if (active) {
-                    client.enterLocalActiveMode()
-                } else {
-                    client.enterLocalPassiveMode()
-                }
                 Log.i("Logging in...")
                 boolean login = client.login(user, pass)
                 if (login) {
@@ -171,6 +165,12 @@ class FtpClient {
                     if(secure) {
                         secureClient.execPBSZ(0)
                         secureClient.execPROT("P")
+                    }
+                    Log.v("Setting %s mode", active ? "ACTIVE" : "PASSIVE")
+                    if (active) {
+                        client.enterLocalActiveMode()
+                    } else {
+                        client.enterLocalPassiveMode()
                     }
                     Log.i("Connection was successful : %s", active ? "ACTIVE" : "PASSIVE")
                     cd(path)
