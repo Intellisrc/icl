@@ -194,6 +194,13 @@ class FtpClient {
         return connected
     }
     /**
+     * Set only a single port for active mode
+     * @param port
+     */
+    void setActivePort(int port) {
+        activeMinPort = activeMaxPort = port
+    }
+    /**
      * Change current working directory
      * @param directory
      */
