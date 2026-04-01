@@ -33,6 +33,8 @@ class FtpClient {
     boolean active = Config.any.get("ftp.active", false)
     boolean verifyHost = false // Only if encrypted is true, will check certificate against host name
     final FTPClient client
+    int activeMinPort = 0
+    int activeMaxPort = 0
 
     // Enable FTP Debug
     static {
@@ -168,6 +170,10 @@ class FtpClient {
                     }
                     Log.v("Setting %s mode", active ? "ACTIVE" : "PASSIVE")
                     if (active) {
+                        if(activeMinPort == 0 && activeMaxPort == 0) {
+                            activeMinPort = activeMaxPort = port - 1
+                        }
+                        client.setActivePortRange(activeMinPort, activeMaxPort)
                         client.enterLocalActiveMode()
                     } else {
                         client.enterLocalPassiveMode()
