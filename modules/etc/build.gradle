@@ -3,7 +3,7 @@ dependencies {
     def jvmbrotli = "0.2.0"
     def tika      = "3.2.3"
     def reflections= "0.10.2"
-    def jedis     = "7.2.1"
+    def jedis     = "7.4.0"
     def sleepycat = "18.3.12"
 
     api project(':core')
