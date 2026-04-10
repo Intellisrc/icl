@@ -684,7 +684,7 @@ class WebService extends WebServiceBase {
                             throw new WebException(sp, INTERNAL_SERVER_ERROR_500, "Upload failed", e)
                         }
                         uploadFiles.each {
-                            if (it.exists()) {
+                            if (it?.exists()) {
                                 it.delete()
                             }
                         }
