@@ -25,12 +25,13 @@ class Log {
         "java.lang",
         "java.util",
         "jdk.internal",
+        "jdk.proxy2",
         "com.sun.proxy",
         "groovy.lang",
         "org.codehaus.groovy",
         "org.spockframework",
         "org.junit",
-        "org.gradle"
+        "org.gradle",
     ])
     /**
      * No instance
