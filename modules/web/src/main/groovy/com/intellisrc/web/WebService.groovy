@@ -893,28 +893,29 @@ class WebService extends WebServiceBase {
      * @param response
      * @return
      */
-    protected static Object callAction(final Object action, final Request request, final Response response, final List<UploadFile> upload = null, boolean forceUpload = false) {
+    protected static Object callAction(final Object action, final Request request, final Response response, final List<UploadFile> upload = [], boolean forceUpload = false) {
         Object returned = null
-        if (action instanceof Service.Action) {
-            returned = action.run()
-        } else if (action instanceof Service.ActionRequest) {
+        if (action instanceof Service.ActionRequest) {
             returned = action.run(request)
         } else if (action instanceof Service.ActionResponse) {
             returned = action.run(request, response)
         } else if (action instanceof Service.Upload) {
-            returned = action.run(upload.first())
+            returned = action.run(!upload.empty ? upload.first() : null)
         } else if (action instanceof Service.UploadRequest) {
-            returned = action.run(upload.first(), request)
+            returned = action.run(!upload.empty ? upload.first() : null, request)
         } else if (action instanceof Service.UploadResponse) {
-            returned = action.run(upload.first(), request, response)
+            returned = action.run(!upload.empty ? upload.first() : null, request, response)
         } else if (action instanceof Service.Uploads) {
             returned = action.run(upload)
         } else if (action instanceof Service.UploadsRequest) {
             returned = action.run(upload, request)
         } else if (action instanceof Service.UploadsResponse) {
             returned = action.run(upload, request, response)
+        } else if (action instanceof Service.Action) { // This should be the last as all of the above extends Action
+            returned = action.run()
         } else if (action instanceof Closure) {
             if (upload || forceUpload) {
+                if(upload.empty) { upload << null }
                 switch (true) {
                     case tryCall(action, { returned = it }, upload, request, response): break
                     case tryCall(action, { returned = it }, upload.first(), request, response): break
