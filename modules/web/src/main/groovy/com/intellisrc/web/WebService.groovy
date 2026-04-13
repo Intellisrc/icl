@@ -1162,7 +1162,7 @@ class WebService extends WebServiceBase {
                                                     if(addToCache) {
                                                         int cacheMax = bestGlobMatch(staticFile, cacheRules) ?: cacheTime
                                                         out = cache.get(cacheKey, null, onHit, null, cacheMax)
-                                                        if(out != null) {
+                                                        if(out == null) {
                                                             out = processServiceNoCache(request, response, { staticFile })
                                                             if(out.size) {
                                                                 cache.set(cacheKey, out, onStore, cacheMax)
