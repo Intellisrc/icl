@@ -296,8 +296,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @param field
      * @return
      */
-    static String getColumnName(final Field field, boolean addId = true) {
-        String fname = cleanFieldName(field).toSnakeCase()
+    static String getColumnName(final Field field, boolean addId = true, boolean snakeCase = true) {
+        String fname = cleanFieldName(field)
+        if(snakeCase) {
+            fname = fname.toSnakeCase()
+        }
         if(addId) {
             switch (field.type) {
                 case Model:
