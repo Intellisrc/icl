@@ -2,10 +2,13 @@ package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
 import com.intellisrc.core.ext.ToMap
+import com.intellisrc.core.ext.ToMapConverter
 import com.intellisrc.db.annot.Column
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Field
+
+import static com.intellisrc.db.auto.Relational.*
 
 @CompileStatic
 abstract class Model implements ToMap {
@@ -42,8 +45,8 @@ abstract class Model implements ToMap {
      */
     String getTableName() {
         String name
-        if(Relational.tableModelRel.containsValue(this.class)) {
-            name = Relational.getTableOrView(this).tableName
+        if(tableModelRel.containsValue(this.class)) {
+            name = getTableOrView(this).tableName
         } else {
             Log.w("Unable to find table for Model. Be sure that Table class has the generic Model type specified: 'extends Table<%s>'", this.class.simpleName)
             name = (this.class.simpleName + "s").toSnakeCase()
@@ -82,7 +85,7 @@ abstract class Model implements ToMap {
      * @return
      */
     Map<String, Object> toDB() {
-        return Relational.getTableOrView(this).convertToDB(asMap()) // We don't use toMap() here as it may be override
+        return getTableOrView(this).convertToDB(asMap()) // We don't use toMap() here as it may be override
     }
     /**
      * Convert Model fields to Map preserving types
@@ -92,8 +95,22 @@ abstract class Model implements ToMap {
     protected Map<String, Object> asMap() {
         Map<String, Object> map = fields.collectEntries {
             Field field ->
-                [(Table.getColumnName(field)) : this[field.name]]
+                [(getTableOrView(this).getColumnName(field)): this[field.name]]
         }
         return map
+    }
+    /**
+     * Convert to Map (similar to ToMap trait but modified to work with Auto fields)
+     * @return
+     */
+    @Override
+    Map<String,Object> toMap() {
+        return this.class.declaredFields.findAll {
+            ! it.synthetic
+        }.collectEntries {
+            Object value = ToMapConverter.convert(this[it.name]) //Here we don't convert name as we need it raw
+            String name = getColumnName(it, false)  //<-- here is the difference (we need to use getColumnName)
+            return [(name): value]
+        }
     }
 }

@@ -14,7 +14,6 @@ import com.intellisrc.etc.Instanciable
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
-import javassist.Modifier
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
@@ -112,17 +111,14 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<Field> getFields() {
-        int index = 0
-        return getParametrizedInstance(index).class.declaredFields.findAll {
-            boolean inc = false
-            if(!it.synthetic && it.isAnnotationPresent(Column)) {
-                inc = true
-                it.setAccessible(true)
-                if (Modifier.isPrivate(it.modifiers)) {
-                    Modifier.setPublic(it.modifiers)
-                }
+        M instance = getParametrizedInstance(0)
+        Class clazz = instance.class
+        return clazz.declaredFields.findAll { Field field ->
+            if (field.synthetic || !field.isAnnotationPresent(Column)) {
+                return false
             }
-            return inc
+            field.accessible = true
+            return true
         }.toList()
     }
     /**
@@ -159,14 +155,9 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
             //noinspection GroovyMissingReturnStatement
             map.each {
                 String origName = it.key.toString().toCamelCase()
-                Field field = getFields().find { it.name == origName }
-                // Look for Type ID
-                if (!field && it.key.toString().endsWith("_id")) {
-                    origName = (it.key.toString().replaceAll(/_id$/, '')).toCamelCase()
-                    field = getFields().find { it.name == origName }
-                }
+                Field field = getFields().find { getColumnName(it).toCamelCase() == origName }
                 if (field) {
-                    model[origName] = fromDB(field, it.value, convertModel)
+                    model[field.name] = fromDB(field, it.value, convertModel) //we don't convert the field.name as model is the instance and we want to place the property as it is
                 } else {
                     Log.w("Field not found: %s", origName)
                 }
@@ -181,7 +172,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     Map<String, Object> getMap(Model model) {
         Map<String, Object> map = fields.collectEntries {
-            Object val = model[it.name]
+            Object val = model[it.name] // Do not modify the name here. It is raw
             [(getColumnName(it)) : val]
         }
         return convertToDB(map)
@@ -284,16 +275,35 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     }
 
     /**
+     * field clean name (for example: com_example_app_MyClass__field -> field)
+     * @param name
+     * @return
+     */
+    static String cleanFieldName(final Field field) {
+        String name = field.name
+        if(name.contains("__")) {
+            List<String> validNames = field.declaringClass.metaClass.properties.collect { it.name }
+            String validName = validNames.find { name.endsWith("__${it}") }
+            if(validName) {
+                name = validName
+            }
+        }
+        return name
+    }
+
+    /**
      * Returns the column name in the database
      * @param field
      * @return
      */
-    static String getColumnName(final Field field) {
-        String fname = field.name.toSnakeCase()
-        switch (field.type) {
-            case Model:
-                fname += "_id"
-                break
+    static String getColumnName(final Field field, boolean addId = true) {
+        String fname = cleanFieldName(field).toSnakeCase()
+        if(addId) {
+            switch (field.type) {
+                case Model:
+                    fname += "_id"
+                    break
+            }
         }
         return fname
     }
@@ -334,7 +344,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                 pk = fields.collect { getColumnName(it) }
             } else {
                 // By default, search for "id"
-                if (getFields().find { it.name == "id" }) {
+                if (getFields().find { getColumnName(it) == "id" }) {
                     pk = ["id"]
                 }
             }
