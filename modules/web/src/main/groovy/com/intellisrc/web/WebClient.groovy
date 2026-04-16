@@ -1,5 +1,6 @@
 package com.intellisrc.web
 
+import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import com.intellisrc.etc.JSON
 import com.intellisrc.etc.Mime
@@ -25,7 +26,8 @@ class WebClient {
     String charset = "UTF-8"
     int timeout = Millis.SECOND_10
     Output eachLine = null
-    protected boolean getAsBody = true
+    protected boolean getParamsAsBody = false
+    Map<String, String> headers = [:]
 
     static interface Output {
         void call(String out)
@@ -44,35 +46,64 @@ class WebClient {
      * Call url with a query
      * @param query
      */
-    void get(Map query, Output onResponse = null, boolean asBody = true, Map<String, String> headers = [:]) {
-        this.getAsBody = asBody
-        request(query, onResponse, HttpMethod.GET, headers)
+    void get(Map query, Output onResponse = null, boolean sendParamsAsBody = false) {
+        this.getParamsAsBody = sendParamsAsBody
+        request(query, onResponse, HttpMethod.GET)
     }
     /**
      * POST using plain text body
      * @param data
      */
-    void post(String data, Output onResponse = null, Map<String, String> headers = [:]) {
-        request(data, onResponse, HttpMethod.POST, headers)
+    void post(String data, Output onResponse = null) {
+        request(data, onResponse, HttpMethod.POST)
     }
     /**
      * POST using JSON data
      * @param data
      */
-    void post(Map data, Output onResponse = null, Map<String, String> headers = [:]) {
-        request(data, onResponse, HttpMethod.POST, headers)
+    void post(Map data, Output onResponse = null) {
+        request(data, onResponse, HttpMethod.POST)
     }
-
+    /**
+     * PUT using JSON data
+     * @param data
+     * @param onResponse
+     */
+    void put(Map data, Output onResponse = null) {
+        request(data, onResponse, HttpMethod.PUT)
+    }
+    /**
+     * DELETE using JSON data
+     * @param data
+     * @param onResponse
+     */
+    void delete(Map data, Output onResponse = null) {
+        request(data, onResponse, HttpMethod.DELETE)
+    }
     /**
      * Perform the request
      * @param data
      * @param onResponse
      * @param method
      */
-    void request(Object data, Output onResponse = null, HttpMethod method, Map<String, String> headers = [:]) {
-        if(method == HttpMethod.GET &&! getAsBody) {
+    void request(Object data, Output onResponse = null, HttpMethod method) {
+        if(method == HttpMethod.GET &&! getParamsAsBody) {
+            String uriStr = url.toExternalForm()
+            switch (data) {
+                case Map:
+                    uriStr += (uriStr.contains("?") ? "&" : "?") + (data as Map).toQueryString()
+                    break
+                default:
+                    if(data.toString().contains("=")) { // Query String
+                        uriStr +=  (uriStr.contains("?") ? "&" : "?") + data.toString()
+                    } else {
+                        Log.w("Not sure what to do with the arguments specified in the GET request: %s. Ignored", uriStr)
+                    }
+                    break
+            }
+            URI uri = uriStr.toURI()
             HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(url.toURI())
+                .uri(uri)
                 .timeout(Duration.ofMillis(timeout))
                 .method(method.toString(), HttpRequest.BodyPublishers.noBody())
             if(! headers.isEmpty()) {
@@ -88,7 +119,7 @@ class WebClient {
                         (onResponse as JsonOutput).call(JSON.decode(response.body()) as Map)
                         break
                     default:
-                        onResponse.call(response.toString())
+                        onResponse.call(response.body())
                         break
                 }
             }
