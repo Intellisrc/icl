@@ -680,6 +680,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     Map findRecord(Map criteria) {
         criteria = convertToDB(criteria)
         DB db = connect()
+        if(pk) { db.keys(pks) }
         Map map = db.get(criteria)?.toMap() ?: [:]
         db.close()
         return map
@@ -784,6 +785,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     List<Map> findRecords(Map criteria, Map options = [:]) {
         criteria = convertToDB(criteria)
         DB db = connect()
+        if(pk) { db.keys(pks) }
         if(! options.isEmpty()) {
             if(options.limit) {
                 db.limit(options.limit as int, (options.offset ?: "0") as int)
@@ -845,6 +847,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     int count() {
         DB db = connect()
+        if(pk) { db.keys(pks) }
         int c = db.count().get().toInt()
         db.close()
         return c
@@ -863,6 +866,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     int count(Map criteria) {
         DB db = connect()
+        if(pk) { db.keys(pks) }
         int c = db.count().get(convertToDB(criteria)).toInt()
         db.close()
         return c
@@ -875,6 +879,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     int count(String where, Object... params) {
         DB db = connect()
+        if(pk) { db.keys(pks) }
         int c = db.count().where(where, params).get().toInt()
         db.close()
         return c
@@ -923,6 +928,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     boolean drop(boolean view = false) {
         DB db = connect()
+        if(pk) { db.keys(pks) }
         boolean dropped = view ? db.dropView() : db.drop()
         db.close()
         return dropped
