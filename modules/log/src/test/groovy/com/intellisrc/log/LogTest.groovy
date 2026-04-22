@@ -111,6 +111,8 @@ class LogTest extends Specification {
             assert stringLogger.content.contains("What ???... nooo wait!!!") && stringLogger.clear()
             Log.e("Upps! too late! its now: %s", SysClock.now)
             assert stringLogger.content.contains("Upps! too late! its now: 2021-08-11 14:44:32") && stringLogger.clear()
+            Log.e("Arrays should be handled correctly: %s,%s,%s", ["Hello","World","!"] as String[], null) //Throwable is null
+            assert stringLogger.content.contains("Arrays should be handled correctly: Hello,World,!") && stringLogger.clear()
         then:
             notThrown Exception
         cleanup:
