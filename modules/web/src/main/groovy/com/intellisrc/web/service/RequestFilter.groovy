@@ -61,8 +61,8 @@ class RequestFilter implements Filter {
                                 switch (true) {
                                     case we.code >= INTERNAL_SERVER_ERROR_500:
                                         Log.e(
-                                            "[%d] Request: [%s %s]. Exception in web response: %s",
-                                            we.code, request.method, request.uri(), we.message
+                                            "[%d] Request: [%s %s]. Exception in web response: ",
+                                            we.code, request.method, request.uri(), we
                                         )
                                         break
                                     case we.code >= BAD_REQUEST_400:
