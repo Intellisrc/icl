@@ -1,5 +1,6 @@
 package com.intellisrc.web.service.routing
 
+import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 /**
@@ -12,6 +13,8 @@ import groovy.transform.CompileStatic
  * /some/:param is not the same as: /some/:param/ , for example:
  *
  * /img/logo.jpg  vs  /img/uploads/
+ *
+ * However, /some/:param/? may be used as well
  *
  * @since 2026/01/09.
  */
@@ -35,10 +38,18 @@ class ParamsMatcher extends PathMatcher {
     Map<String, String> getGroups(String uri) {
         uri = normalize(uri)
 
-        List<String> pathSegs = path.tokenize("/")
+        // Allow optional matcher:
+        String srvPath = path
+        if(srvPath.endsWith('/?')) {
+            OptionalMatcher om = new OptionalMatcher(path : path)
+            srvPath = om.normalized()
+        }
+
+        List<String> pathSegs = srvPath.tokenize("/")
         List<String> uriSegs  = uri.tokenize("/")
 
         if (pathSegs.size() != uriSegs.size()) {
+            Log.w("Path sections don't match target sections: (%s) vs (%s)", pathSegs.join(","), uriSegs.join(","))
             return [:]
         }
 

@@ -20,6 +20,10 @@ class OptionalMatcher extends PathMatcher {
         return path == other
     }
 
+    String normalized() {
+        return normalize(path)
+    }
+
     @Override
     String normalize(String path) {
         String normal = super.normalize(path)

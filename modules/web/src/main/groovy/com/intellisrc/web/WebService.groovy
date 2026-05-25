@@ -263,7 +263,7 @@ class WebService extends WebServiceBase {
                                 throw new Exception("Interface not implemented: ${serviciable.class.simpleName}")
                         }
                         if (!prepared) {
-                            Log.w("Failed to prepare one or more services")
+                            Log.w("Failed to prepare service: %s (path: %s)", serviciable.class.simpleName, serviciable.path)
                         }
                         switch (serviciable) {
                             case ServiciableAuth:
@@ -1378,15 +1378,19 @@ class WebService extends WebServiceBase {
     boolean addService(Service service) throws DuplicateException {
         Service duplicated = collidesWith(service)
         if (duplicated) {
-            Log.w("Warning, duplicated path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
-                service.path, service.method.toString(), service.acceptType, service.serviceType.toString())
-            Log.w("Duplicated (existing) is: path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
-                duplicated.path, duplicated.method.toString(), duplicated.acceptType, duplicated.serviceType.toString())
-            if(failOnCollision) {
-                throw new DuplicateException(String.format("Duplicated path detected: [ path: %s, method: %s, accept: %s, type: %s ]",
-                    service.path, service.method.toString(), service.acceptType, service.serviceType.toString()))
+            if(service.path.endsWith("*")) { //Assume "Catch-all service"
+                Log.i("Wildcard path [%s] may collide with: [%s]", service.path, duplicated.path)
+            } else {
+                Log.w("Warning, duplicated path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
+                    service.path, service.method.toString(), service.acceptType, service.serviceType.toString())
+                Log.w("Duplicated (existing) is: path [%s] , method [%s] , acceptType [%s] and type [%s] found.",
+                    duplicated.path, duplicated.method.toString(), duplicated.acceptType, duplicated.serviceType.toString())
+                if (failOnCollision) {
+                    Log.i("You can turn exception off by setting [web.collision.error = false]")
+                    throw new DuplicateException(String.format("Duplicated path detected: [ path: %s, method: %s, accept: %s, type: %s ]",
+                        service.path, service.method.toString(), service.acceptType, service.serviceType.toString()))
+                }
             }
-            return false
         }
         return definitions.add(service)
     }
