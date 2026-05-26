@@ -1,5 +1,5 @@
 dependencies {
-    def groovyVer = "4.0.30"
+    def groovyVer = "4.0.32"
     def jvmbrotli = "0.2.0"
     def tika      = "3.3.0"
     def reflections= "0.10.2"
