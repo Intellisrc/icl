@@ -4,21 +4,18 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
 import static com.intellisrc.db.auto.Relational.ColumnDB
-import static com.intellisrc.db.auto.Relational.getColumnName
 import static com.intellisrc.db.jdbc.Derby.SubProtocol.*
 
 /**
@@ -351,21 +348,13 @@ class Derby extends JDBCServer implements AutoJDBC {
         String indices = ""
         if(useFK) {
             Log.w("Warning: Derby won't update correctly when using foreign keys (because they can not be turned off).")
-            switch (column.type) {
-                case Model:
-                    Constructor<?> ctor = column.type.getConstructor()
-                    Model refType = (ctor.newInstance() as Model)
-                    String joinTable = refType.tableName
-                    String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                    indices = "FOREIGN KEY (${column.name}) " +
-                        "REFERENCES ${joinTable}(${getColumnName(refType.pk)}) ON DELETE ${action}"
-                    break
-            }
+            indices = AutoJDBC.super.getForeignKey(tableName, column)
         } else {
             Log.w("Foreign keys are OFF. This makes automatic updates possible, but you will need to remove references manually.")
         }
         return indices
     }
+
     @Override
     boolean renameTable(final DB db, String from, String to) {
         return set(db, "RENAME TABLE ${from} TO ${to}")

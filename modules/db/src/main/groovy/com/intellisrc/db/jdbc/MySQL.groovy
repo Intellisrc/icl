@@ -4,14 +4,12 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -19,11 +17,7 @@ import java.time.LocalTime
 import java.util.regex.Matcher
 
 import static com.intellisrc.db.auto.Relational.ColumnDB
-import static com.intellisrc.db.auto.Relational.getColumnName
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.BOOLEAN
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.CHAR
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * MySQL Database
@@ -336,26 +330,5 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 }
         }
         return type
-    }
-
-    /**
-     * Get FK
-     * @param field
-     * @return
-     */
-    @Override
-    String getForeignKey(String tableName, final ColumnDB column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "FOREIGN KEY (`${column.name}`) " +
-                    "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action} ON UPDATE CASCADE"
-                break
-        }
-        return indices
     }
 }
