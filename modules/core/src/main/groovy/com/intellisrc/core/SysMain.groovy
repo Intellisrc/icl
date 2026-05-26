@@ -39,23 +39,10 @@ abstract class SysMain {
         Version.mainClass = main.class
         //Process args before starting
         main.args.addAll(args.toList())
-        if(main.args.empty) {
+        // Use the helper to attempt dynamic invocation
+        if (!invokeActionMethod(main, main.args)) {
+            // Fallback if args were empty or the method didn't exist
             main.onStart()
-        } else {
-            String action = main.args.first()
-            try {
-                Method m = main.class.getDeclaredMethod("on" + action.capitalize())
-                try {
-                    if (main.args.size() > 0) {
-                        main.args.poll()
-                    }
-                    m.invoke(main)
-                } catch (Exception e) {
-                    Log.e("Exception in method: on${action.capitalize()}", e)
-                }
-            } catch (NoSuchMethodException ignore) {
-                main.onStart()
-            }
         }
         //When onStart() finish, call onStop(), then exit
         exit(0)
@@ -68,6 +55,34 @@ abstract class SysMain {
             System.exit(code)
         }
     }
+
+    /**
+     * Attempts to dynamically invoke a public 'onAction' method on an instance.
+     * If the method exists, the action argument is consumed and the method is executed.
+     * * @return true if a method was found and executed; false if NoSuchMethodException occurred.
+     */
+    static boolean invokeActionMethod(Object instance, Queue<String> args) {
+        if (args.isEmpty()) return false
+
+        String action = args.first()
+        String methodName = "on" + action.capitalize()
+
+        try {
+            // Looks up public methods in the target class AND all superclasses
+            Method m = instance.class.getMethod(methodName)
+
+            // Consume the action name from arguments before execution
+            args.poll()
+            m.invoke(instance)
+            return true
+        } catch (NoSuchMethodException ignore) {
+            return false // Let the caller fall back to default behavior (e.g., onStart())
+        } catch (Exception e) {
+            Log.e("Exception in method: ${methodName}", e)
+            return true // The method existed but crashed; we consider it handled
+        }
+    }
+
     //------------------------------ NON STATIC ---------------------------------
     public final Queue<String> args = [] as Queue<String>
     /**
