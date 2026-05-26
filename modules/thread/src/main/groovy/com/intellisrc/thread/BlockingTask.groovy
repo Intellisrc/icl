@@ -6,8 +6,7 @@ import groovy.transform.CompileStatic
  * This is a Task that will be executing in the main thread
  * The reason of this class is to allow Tasks to monitor and track the code inside
  *
- * NOTE: This Task can not be cancelled, just interrupted (which may leave it in an unknown state)
- * In order to cancel it, you need to implement you own logic.
+ * In order to cancel this task, you need to implement you own logic `onCancel()`.
  *
  * @since 2019/09/17.
  */

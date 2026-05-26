@@ -1,25 +1,16 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import spock.lang.Specification
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 import static com.intellisrc.core.Millis.*
-import static com.intellisrc.core.Millis.HALF_SECOND
-import static com.intellisrc.core.Millis.HALF_SECOND
-import static com.intellisrc.core.Millis.MILLIS_200
-import static com.intellisrc.core.Millis.MILLIS_800
-
 
 /**
  * @since 2019/09/18.
  */
-class DelayedTaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
+class DelayedTaskTest extends BaseTaskTest {
     def "Delay some process"() {
         setup:
             boolean called = false
@@ -32,8 +23,6 @@ class DelayedTaskTest extends Specification {
             assert !called
             sleep(SECOND)
             assert called
-        cleanup:
-            Tasks.exit()
     }
     def "Multiple delayed processes"() {
         setup:
@@ -57,20 +46,36 @@ class DelayedTaskTest extends Specification {
             sleep(SECOND_3)
             Log.i("All must be done")
             assert called == times : "At the end all should have been called"
-        cleanup:
-            Tasks.exit()
     }
     class DelayedTest extends DelayedTask {
         boolean called = false
+        boolean onPauseCalled = false
+        boolean onResumeCalled = false
         String taskName = "DelayTest"
+        CountDownLatch pausedLatch = new CountDownLatch(1)
+        CountDownLatch executedLatch = new CountDownLatch(1)
 
         DelayedTest(int delayedMillis) {
             super(delayedMillis)
         }
+
+        @Override
+        void onPause() {
+            onPauseCalled = true
+            pausedLatch.countDown()
+        }
+
+        @Override
+        void onResume() {
+            Log.i("Resuming..")
+            onResumeCalled = true
+        }
+
         @Override
         Runnable process() throws InterruptedException {
             return {
                 called = true
+                executedLatch.countDown()
                 Log.i("Method was executed")
             }
         }
@@ -91,6 +96,38 @@ class DelayedTaskTest extends Specification {
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
-            Tasks.exit()
+    }
+    def "Pause a delayed process before execution"() {
+        setup:
+            DelayedTest delayedTest = new DelayedTest(SECOND)
+            Tasks.add(delayedTest)
+        expect:
+            assert !delayedTest.called : "Starting, it should not be called"
+        when:
+            sleep(MILLIS_100)
+            delayedTest.pause()
+            delayedTest.pausedLatch.await(HALF_SECOND, TimeUnit.MILLISECONDS)
+        then:
+            assert delayedTest.onPauseCalled
+            assert delayedTest.paused
+            assert !delayedTest.called : "Should not be called"
+            assert !delayedTest.cancelled
+        when:
+            sleep(waitTime)
+            delayedTest.resume()
+            delayedTest.executedLatch.await(SECOND_3, TimeUnit.MILLISECONDS)
+        then:
+            assert delayedTest.onResumeCalled
+            assert !delayedTest.paused
+            assert delayedTest.called : "Should be called now"
+        cleanup:
+            Tasks.printOnScreen = true
+            Tasks.printStatus()
+        where:
+            // When it is shorter than delay time, it should resume without taking more time
+            // otherwise, it should wait until resume() is called
+            waitTime    | unused
+            MILLIS_100  | false
+            SECOND_2    | false
     }
 }

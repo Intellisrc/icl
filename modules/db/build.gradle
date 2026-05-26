@@ -8,13 +8,13 @@ dependencies {
     def h2          = '2.4.240'
     def hypersql    = '2.7.4'
     def informix    = '4.50.12'         // Untested: 15.0.X (is next to 4.50.X)
-    def mariadb     = '3.5.6'
-    def mysql       = '9.5.0'
+    def mariadb     = '3.5.8'
+    def mysql       = '9.7.0'
     def oracle      = '21.9.0.0'        // test container is 21
     //def oracle      = '23.3.0.23.09' <-- not ready (failing tests). May need code changes
-    def postgresql  = '42.7.8'          // 42.7.5 ~ 42.7.7 are not creating tables (failing tests)
-    def sqlite      = '3.50.3.0'
-    def sqlserver   = '13.2.1.jre11'
+    def postgresql  = '42.7.11'          // 42.7.5 ~ 42.7.7 are not creating tables (failing tests)
+    def sqlite      = '3.53.1.0'
+    def sqlserver   = '13.4.0.jre11'
 
     api "org.reflections:reflections:${reflections}"
     // We set connectors as optional because most likely only one will be used and

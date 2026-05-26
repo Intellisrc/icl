@@ -349,6 +349,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             exclude.each {
                 map.remove(it)
             }
+            if(pk) { db.keys(pks) }
             ok = db.replace(map)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
@@ -364,6 +365,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     boolean replace(Collection<M> models) {
         DB db = connect()
+        if(pk) { db.keys(pks) }
         boolean ok = db.replace(models.collect { it.toDB() })
         db.close()
         return ok
@@ -453,6 +455,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     boolean deleteAll(Map<String, Object> criteria = [:]) {
         DB db = connect()
+        if(pk) { db.keys(pks) }
         boolean ok = criteria.isEmpty() ? (db.truncate() ?: db.clear()) : db.delete(criteria.collectEntries {
             boolean isModel = it.value instanceof Model
             return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).uniqueId : it.value)]
@@ -481,6 +484,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             if(map.containsKey(ai) && map[ai] == 0) {
                 map.remove(ai)
             }
+            if(pk) { db.keys(pks) }
             boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
@@ -505,6 +509,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     boolean insert(Collection<M> models) {
         DB db = connect()
+        if(pk) { db.keys(pks) }
         boolean ok = db.insert(models.collect { it.toDB() })
         db.close()
         return ok

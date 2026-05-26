@@ -7,8 +7,8 @@ import groovy.transform.CompileStatic
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.*
 
-import static com.intellisrc.core.Millis.getMILLIS_10
-import static com.intellisrc.core.Millis.getSECOND
+import static com.intellisrc.core.Millis.MILLIS_10
+import static com.intellisrc.core.Millis.SECOND
 
 /**
  * A ThreadPoolExecutor which interact with TaskInfo objects
@@ -68,7 +68,7 @@ class ThreadPool extends ThreadPoolExecutor {
     boolean submit(ExecutorItem executorItem) {
         boolean submitted = false
         boolean rejected = false
-        while(!(submitted || rejected)) {
+        while(!(submitted || rejected) &&! Thread.currentThread().isInterrupted()) {
             try {
                 executorItem.future = submit(executorItem.runnable)
                 submitted = true
@@ -106,6 +106,8 @@ class ThreadPool extends ThreadPoolExecutor {
             wasExecuted = true
             taskInfo.executed++
             taskInfo.state = TaskInfo.State.DONE
+        } catch(CancellationException ignored) {
+            taskInfo.state = TaskInfo.State.CANCELLED
         } catch(Exception | Error e) {
             Log.e("Error in thread: %s", TaskInfo.name, e)
             taskInfo.state = TaskInfo.State.TERMINATED
@@ -120,19 +122,44 @@ class ThreadPool extends ThreadPoolExecutor {
      */
     boolean executeLater(final TaskInfo taskInfo) {
         assert taskInfo.task instanceof DelayedTask : "Provided Task is not DelayedTask"
-        boolean scheduled = false
-        ScheduledExecutorService ses = Executors.newScheduledThreadPool(1)
+        DelayedTask delayedTask = taskInfo.task as DelayedTask
+        ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor()
         taskInfo.state = TaskInfo.State.WAITING
-        try {
-            ses.schedule({
+        ses.execute {
+            long remaining = taskInfo.sleep
+            long lastTick = System.currentTimeMillis()
+            try {
+                while (remaining > 0 &&! Thread.currentThread().isInterrupted()) {
+                    if (taskInfo.task.cancelled) {
+                        taskInfo.state = TaskInfo.State.CANCELLED
+                        return
+                    }
+
+                    if (delayedTask.paused) {
+                        taskInfo.state = TaskInfo.State.PAUSED
+                        delayedTask.onPause()
+                        while(delayedTask.paused &&! Thread.currentThread().isInterrupted()) {
+                            sleep(MILLIS_10)
+                        }
+                        delayedTask.onResume()
+                        taskInfo.state = TaskInfo.State.RUNNING
+                        continue
+                    }
+
+                    long now = System.currentTimeMillis()
+                    long elapsed = now - lastTick
+                    remaining -= elapsed
+                    lastTick = now
+
+                    sleep(Math.min(remaining, MILLIS_10))
+                }
+                taskInfo.state = TaskInfo.State.RUNNING
                 execute(taskInfo)
-            }, taskInfo.sleep, TimeUnit.MILLISECONDS)
-            scheduled = true
-        } catch(RejectedExecutionException ignored) {
-            Log.w("[%s] was rejected", taskInfo.name)
+            } finally {
+                ses.shutdown()
+            }
         }
-        ses.shutdown()
-        return scheduled
+        return true // As execute is Asynchronous, at this time we just know we scheduled it.
     }
     
     /**
@@ -142,30 +169,43 @@ class ThreadPool extends ThreadPoolExecutor {
      */
     boolean executeParallel(final TaskInfo taskInfo) {
         assert taskInfo.task instanceof ParallelTask : "Provided Task is not ParallelTask"
+        ParallelTask parallelTask = taskInfo.task as ParallelTask
         boolean executed = false
         try {
-            List<Runnable> runnables = (taskInfo.task as ParallelTask).processes()
+            List<Runnable> runnables = parallelTask.processes()
             runnables.each {
                 ExecutorItem ei = new ExecutorItem(taskInfo, it)
                 submit(ei)
                 items << ei
             }
-            if (taskInfo.task.waitResponse) {
+            if (parallelTask.waitResponse) {
                 items.each {
-                    if(taskInfo.task.maxExecutionTime) {
-                        it.future.get(taskInfo.task.maxExecutionTime, TimeUnit.MILLISECONDS)
+                    if(parallelTask.maxExecutionTime) {
+                        it.future.get(parallelTask.maxExecutionTime, TimeUnit.MILLISECONDS)
                     } else {
                         it.future.get()
                     }
+                    while(parallelTask.paused &&! Thread.currentThread().isInterrupted()) {
+                        if(taskInfo.state != TaskInfo.State.PAUSED) {
+                            parallelTask.onPause()
+                            taskInfo.state = TaskInfo.State.PAUSED
+                        }
+                        sleep(parallelTask.sleepTime ?: MILLIS_10)
+                    }
+                    parallelTask.onResume()
+                    taskInfo.state = TaskInfo.State.RUNNING
                 }
             }
             executed = true
         } catch(InterruptedException ignored) {
+            taskInfo.state = TaskInfo.State.TERMINATED
             //Task was interrupted
         } catch(CancellationException ignored) {
+            taskInfo.state = TaskInfo.State.CANCELLED
             //Task was cancelled
         } catch(Exception | Error e) {
             Log.e("Error in thread: ", e)
+            taskInfo.state = TaskInfo.State.TERMINATED
             //It should have been reported inside ThreadPool
         }
         return executed
@@ -193,6 +233,8 @@ class ThreadPool extends ThreadPoolExecutor {
                 }
                 items << ei
             }
+        } catch(CancellationException ignored) {
+            taskInfo.state = TaskInfo.State.CANCELLED
         } catch(Exception | Error e) {
             Log.e("Error in thread: %s", e)
             //It should have been reported inside ThreadPool
@@ -209,7 +251,7 @@ class ThreadPool extends ThreadPoolExecutor {
     protected void beforeExecute(final Thread future, final Runnable runnable) {
         ExecutorItem item = null
         int breaker = -10
-        while(!item && breaker++ < 0) {
+        while(!item && breaker++ < 0 &&! Thread.currentThread().isInterrupted()) {
             item = items.find {
                 it.hashID == runnable.hashCode()
             }
@@ -219,9 +261,11 @@ class ThreadPool extends ThreadPoolExecutor {
         }
         if (item) {
             boolean cancelled = false
-            if(item.info.task instanceof TaskCancellable) {
-                cancelled = (item.info.task as TaskCancellable).cancelled
+            TaskCancellable cancellable = item.info.task as TaskCancellable
+            if(cancellable) {
+                cancelled = cancellable.cancelled
                 if(cancelled) {
+                    cancellable.onCancel()
                     item.future.cancel(true)
                     item.info.state = TaskInfo.State.CANCELLED
                     item.info.task.reset()
@@ -296,22 +340,27 @@ class ThreadPool extends ThreadPoolExecutor {
                             }
                         }
                     }
+                    //noinspection GroovyFallthrough
                     switch (throwable) {
                         case TimeoutException:
                             Log.w("[%s] timed out", taskInfo.fullName)
                             if(item.info.task instanceof TaskKillable) {
-                                (item.info.task as TaskKillable).kill()
-                                //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
-                                item.thread.stop()
+                                (item.info.task as TaskKillable).onKill()
+                                item.thread.interrupt()
                             }
+                            taskInfo.state = TaskInfo.State.TIMEOUT
                             break
                         case CancellationException:
+                            taskInfo.state = TaskInfo.State.CANCELLED
                             Log.w("[%s] was cancelled", taskInfo.fullName)
                             break
                         case ThreadDeath:
+                        case ExecutionException:
+                            taskInfo.state = TaskInfo.State.TERMINATED
                             Log.w("[%s] was killed", taskInfo.fullName)
                             break
                         case InterruptedException:
+                            taskInfo.state = TaskInfo.State.TERMINATED
                             Log.w("[%s] was interrupted", taskInfo.fullName)
                             break
                         default:
@@ -357,31 +406,46 @@ class ThreadPool extends ThreadPoolExecutor {
         if(item) {
             if(item.future) {
                 if(Tasks.debug) {
-                    Log.v("[%s] Cancelling task", info.fullName)
+                    Log.d("[%s] Cancelling task", info.fullName)
                 }
-                killed = item.future.cancel(true)
-                sleep(MILLIS_10)
+                if(!item.future.cancel(true) && Tasks.debug) {
+                    Log.d("[%s] Future cancel failed", info.fullName)
+                }
             } else {
-                if(Tasks.debug) {
-                    Log.v("[%s] Unable to find future to cancel", info.fullName)
+                if (Tasks.debug) {
+                    Log.d("[%s] Unable to find future to cancel", info.fullName)
                 }
             }
-            if(item.thread) {
-                if(Tasks.debug) {
-                    Log.v("[%s] Interrupting thread", info.fullName)
-                }
-                item.thread.interrupt()
+            Thread thread = item.thread
+            if(thread) {
                 if(item.info.task instanceof TaskKillable) {
-                    (item.info.task as TaskKillable).kill()
-                    sleep(MILLIS_10)
-                    Log.i("[%s] Killing thread", info.fullName)
-                    //noinspection GrDeprecatedAPIUsage : Only way to do really kill thread
-                    item.thread.stop() //Force it to finish
+                    try {
+                        (item.info.task as TaskKillable).onKill()
+                    } catch(Exception e) {
+                        Log.w("[%s] onKill() failed: %s", info.fullName, e)
+                    }
                 }
-                killed = true
+                if(Tasks.debug) {
+                    Log.d("[%s] Interrupting thread", info.fullName)
+                }
+                thread.interrupt() //Send interrupt signal (it might not kill the thread if it is not prepared to handle interruptions)
+                try {
+                    thread.join(SECOND) // give 1 second to finish
+                } catch (InterruptedException ignore) {
+                    // If we we InterruptException (parent thread) while waiting the task to be interrupted, it means
+                    // that we need to terminate this thread as well
+                    Thread.currentThread().interrupt()
+                    return false
+                }
+                killed = ! thread.isAlive()
+                if(! killed) {
+                    if (Tasks.debug) {
+                        Log.w("Unable to interrupt [%s]. Be sure that the process can be interrupted.", info.fullName)
+                    }
+                }
             } else {
                 if(Tasks.debug) {
-                    Log.v("[%s] Unable to find thread to stop", info.fullName)
+                    Log.w("[%s] Unable to find thread to stop", info.fullName)
                 }
             }
         } else {
@@ -413,12 +477,29 @@ class ThreadPool extends ThreadPoolExecutor {
      */
     @Override
     protected void terminated() {
-        items.each {
-            Log.v("[%s] Exiting...", it.info.name)
-            it.info.task.quit()
-            it.thread?.interrupt()
-            it.future?.cancel(true)
+        if(!items.empty) {
+            CountDownLatch shuttingDown = new CountDownLatch(items.size())
+            items.each {
+                ExecutorItem ei ->
+                    Log.v("[%s] Exiting...", ei.info.name)
+                    ei.info.task.cancel()
+                    ei.info.task.onCancel()
+                    try {
+                        Thread.start({
+                            while (ei.info.running &&! Thread.currentThread().isInterrupted()) {
+                                sleep(MILLIS_10)
+                            }
+                            shuttingDown.countDown()
+                        })
+                        // Waiting for clean closure
+                        shuttingDown.await(Tasks.cancelTimeout, TimeUnit.MILLISECONDS)
+                    } catch (InterruptedException ignore) {
+                        Log.w("Cancel timeout for [%s]", ei.info.name)
+                    }
+                    ei.future?.cancel(true)
+                    ei.thread?.interrupt()
+            }
+            items.clear()
         }
-        items.clear()
     }
 }

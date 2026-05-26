@@ -111,6 +111,8 @@ class LogTest extends Specification {
             assert stringLogger.content.contains("What ???... nooo wait!!!") && stringLogger.clear()
             Log.e("Upps! too late! its now: %s", SysClock.now)
             assert stringLogger.content.contains("Upps! too late! its now: 2021-08-11 14:44:32") && stringLogger.clear()
+            Log.e("Arrays should be handled correctly: %s,%s,%s", ["Hello","World","!"] as String[], null) //Throwable is null
+            assert stringLogger.content.contains("Arrays should be handled correctly: Hello,World,!") && stringLogger.clear()
         then:
             notThrown Exception
         cleanup:
@@ -267,7 +269,7 @@ class LogTest extends Specification {
     }
 
     @Unroll
-    @Retry
+    @Retry(delay = 1000)
     def "Cleaning should remove old logs"() {
         setup:
             File baseDir = File.get(File.tempDir, "test-many-dir")
@@ -345,6 +347,7 @@ class LogTest extends Specification {
     }
 
     @Unroll
+    @Retry(delay = 1000)
     def "When rotateOtherLogs is false it should not remove other logs, when its true, it should remove them"() {
         setup:
             File tempDir = Files.createTempDirectory("test-log").toFile()

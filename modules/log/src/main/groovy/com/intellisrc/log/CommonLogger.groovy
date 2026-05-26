@@ -2,6 +2,7 @@ package com.intellisrc.log
 
 import com.intellisrc.core.*
 import groovy.transform.CompileStatic
+import org.codehaus.groovy.runtime.DefaultGroovyMethods
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import org.slf4j.helpers.MarkerIgnoringBase
@@ -93,6 +94,27 @@ class CommonLogger extends MarkerIgnoringBase {
     }
 
     /**
+     * Always get a List no matter the input (used for formatAndLog)
+     * @param input
+     * @return
+     */
+    protected static List<Object> toList(Object input) {
+        return switch (input) {
+            case null -> []
+            case List -> (List<Object>) input
+            case Collection -> ((Collection) input).toList()
+            default -> {
+                if (input.getClass().isArray()) {
+                    yield (input instanceof Object[]) ?
+                        Arrays.asList((Object[]) input) :
+                        DefaultGroovyMethods.toList(input)
+                }
+                yield [input]
+            }
+        }
+    }
+
+    /**
      * Package access allows only {@link CommonLoggerFactory} to instantiate
      * CommonLogger instances.
      */
@@ -160,22 +182,24 @@ class CommonLogger extends MarkerIgnoringBase {
 
     @Override
     void trace(String format, Object arg) {
-        formatAndLog(Level.TRACE, format, arg)
+        formatAndLog(Level.TRACE, format, toList(arg))
     }
 
     @Override
     void trace(String format, Object arg1, Object arg2) {
-        formatAndLog(Level.TRACE, format, arg1, arg2)
+        arg2 instanceof Throwable ?
+            formatAndLog(Level.TRACE, format, toList(arg1), arg2 as Throwable) :
+            formatAndLog(Level.TRACE, format, toList([arg1,arg2]))
     }
 
     @Override
     void trace(String format, Object... arguments) {
-        formatAndLog(Level.TRACE, format, arguments)
+        formatAndLog(Level.TRACE, format, arguments.toList())
     }
 
     @Override
     void trace(String msg, Throwable t) {
-        formatAndLog(Level.TRACE, msg, t)
+        formatAndLog(Level.TRACE, msg, [], t)
     }
     /** Are {@code debug} messages currently enabled? */
     boolean isDebugEnabled() {
@@ -189,22 +213,24 @@ class CommonLogger extends MarkerIgnoringBase {
 
     @Override
     void debug(String format, Object arg) {
-        formatAndLog(Level.DEBUG, format, arg)
+        formatAndLog(Level.DEBUG, format, toList(arg))
     }
 
     @Override
     void debug(String format, Object arg1, Object arg2) {
-        formatAndLog(Level.DEBUG, format, arg1, arg2)
+        arg2 instanceof Throwable ?
+            formatAndLog(Level.DEBUG, format, toList(arg1), arg2 as Throwable) :
+            formatAndLog(Level.DEBUG, format, toList([arg1,arg2]))
     }
 
     @Override
     void debug(String format, Object... arguments) {
-        formatAndLog(Level.DEBUG, format, arguments)
+        formatAndLog(Level.DEBUG, format, arguments.toList())
     }
 
     @Override
     void debug(String msg, Throwable t) {
-        formatAndLog(Level.DEBUG, msg, t)
+        formatAndLog(Level.DEBUG, msg, [], t)
     }
     /** Are {@code info} messages currently enabled? */
     boolean isInfoEnabled() {
@@ -218,22 +244,24 @@ class CommonLogger extends MarkerIgnoringBase {
 
     @Override
     void info(String format, Object arg) {
-        formatAndLog(Level.INFO, format, arg)
+        formatAndLog(Level.INFO, format, toList(arg))
     }
 
     @Override
     void info(String format, Object arg1, Object arg2) {
-        formatAndLog(Level.INFO, format, arg1, arg2)
+        arg2 instanceof Throwable ?
+            formatAndLog(Level.INFO, format, toList(arg1), arg2 as Throwable) :
+            formatAndLog(Level.INFO, format, toList([arg1,arg2]))
     }
 
     @Override
     void info(String format, Object... arguments) {
-        formatAndLog(Level.INFO, format, arguments)
+        formatAndLog(Level.INFO, format, arguments.toList())
     }
 
     @Override
     void info(String msg, Throwable t) {
-        formatAndLog(Level.INFO, msg, t)
+        formatAndLog(Level.INFO, msg, [], t)
     }
 
     /** Are {@code warn} messages currently enabled? */
@@ -248,22 +276,24 @@ class CommonLogger extends MarkerIgnoringBase {
 
     @Override
     void warn(String format, Object arg) {
-        formatAndLog(Level.WARN, format, arg)
+        formatAndLog(Level.WARN, format, toList(arg))
     }
 
     @Override
     void warn(String format, Object... arguments) {
-        formatAndLog(Level.WARN, format, arguments)
+        formatAndLog(Level.WARN, format, arguments.toList())
     }
 
     @Override
     void warn(String format, Object arg1, Object arg2) {
-        formatAndLog(Level.WARN, format, arg1, arg2)
+        arg2 instanceof Throwable ?
+            formatAndLog(Level.WARN, format, toList(arg1), arg2 as Throwable) :
+            formatAndLog(Level.WARN, format, toList([arg1,arg2]))
     }
 
     @Override
     void warn(String msg, Throwable t) {
-        formatAndLog(Level.WARN, msg, t)
+        formatAndLog(Level.WARN, msg, [], t)
 
     }
     /** Are {@code error} messages currently enabled? */
@@ -278,22 +308,24 @@ class CommonLogger extends MarkerIgnoringBase {
 
     @Override
     void error(String format, Object arg) {
-        formatAndLog(Level.ERROR, format, arg)
+        formatAndLog(Level.ERROR, format, toList(arg))
     }
 
     @Override
     void error(String format, Object arg1, Object arg2) {
-        formatAndLog(Level.ERROR, format, arg1, arg2)
+        arg2 instanceof Throwable ?
+            formatAndLog(Level.ERROR, format, toList(arg1), arg2 as Throwable) :
+            formatAndLog(Level.ERROR, format, toList([arg1,arg2]))
     }
 
     @Override
     void error(String format, Object... arguments) {
-        formatAndLog(Level.ERROR, format, arguments)
+        formatAndLog(Level.ERROR, format, arguments.toList())
     }
 
     @Override
     void error(String msg, Throwable t) {
-        formatAndLog(Level.ERROR, msg, t)
+        formatAndLog(Level.ERROR, msg, [], t)
     }
 
     /**
@@ -304,10 +336,9 @@ class CommonLogger extends MarkerIgnoringBase {
      * @param arguments
      *            a list of 3 ore more arguments
      */
-    protected void formatAndLog(Level level, String format, Object... arguments) {
+    protected void formatAndLog(Level level, String format, List arguments = [], Throwable t = null) {
         String formatted = format
-        Throwable t = null
-        LinkedList args = arguments.toList() as LinkedList
+        LinkedList args = arguments as LinkedList
         if (!args.empty) {
             if (args.first instanceof Object[]) {
                 args = args.first as LinkedList

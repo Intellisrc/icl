@@ -242,6 +242,7 @@ class Mime {
      * @return
      */
     static String getType(final String fileNameOrExt) {
+        if(fileNameOrExt.empty) return ""
         String fileName
         if(fileNameOrExt.contains(".")) {
             fileName = fileNameOrExt

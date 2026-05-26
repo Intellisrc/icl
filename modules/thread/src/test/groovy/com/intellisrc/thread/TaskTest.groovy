@@ -1,34 +1,28 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
-import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicInteger
+
+import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/11.
  */
-class TaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
+class TaskTest extends BaseTaskTest {
     class FrozenSimpleTest extends Task implements TaskKillable {
         int callTimes = 0
-        long maxExecutionTime = 500
+        long maxExecutionTime = HALF_SECOND
         int frozenId = 0
+        boolean killed = false
         @Override
         Runnable process() {
             return {
                 Log.d("Processing... (%d)", ++callTimes)
-                //new File("/dev/random").text
                 final fid = ++frozenId
-                //while(threadState != State.TERMINATED) {
-                for(;;) {
+                while(!killed) {
                     Log.i("[%s - %d] Looping ...", taskName, fid)
-                    sleep(100)
+                    sleep(MILLIS_100)
                 }
             }
         }
@@ -41,17 +35,18 @@ class TaskTest extends Specification {
         }
     
         @Override
-        void kill() {
+        void onKill() {
             Log.i("Killed")
+            killed = true
         }
     }
-    
+
     def "Frozen case"() {
         setup:
             //Turn off detection for this test:
             FrozenSimpleTest ft = new FrozenSimpleTest()
             assert Tasks.add(ft)
-            sleep(100)
+            sleep(MILLIS_100)
             TaskPool pool = Tasks.taskManager.pools.find {
                 it.name == "FrozenSimpleTest"
             }
@@ -65,20 +60,19 @@ class TaskTest extends Specification {
             assert ft.callTimes == 1
         when:
             Log.i("sleeping... ")
-            int waitTime = Millis.SECOND
-            sleep(waitTime)
+            int waitTime = SECOND
+            sleep(waitTime) //TIMEOUT
         then:
             Log.i("[%s] Status: %s", info.name, info.state)
+            TaskPool taskPool = Tasks.taskManager.pools.find { it.name == "FrozenSimpleTest" }
+            Tasks.TaskSummary taskSummary = Tasks.summary.find { it.key == "FrozenSimpleTest" }
             assert ft.frozenId == 1
-            assert ft.callTimes == 0    //Got Reset
+            assert ft.killed
             assert Tasks.taskManager.failed == 1
-            assert Tasks.taskManager.pools.find { it.name == "FrozenSimpleTest" }.failed == 1
-            //Even if there is an exception is accounted inside Executor
-            assert Tasks.taskManager.pools.find { it.name == "FrozenSimpleTest" }.executor.completedTaskCount == 1
-            assert Tasks.summary.find { it.key == "FrozenSimpleTest" }.average > 0
-            assert Tasks.summary.find { it.key == "FrozenSimpleTest" }.max > 0
-        cleanup:
-            Tasks.exit()
+            assert taskPool.failed == 1
+            assert taskPool.executed == 0
+            assert taskSummary.average > 0
+            assert taskSummary.max > 0
     }
     
     /**
@@ -115,8 +109,6 @@ class TaskTest extends Specification {
             assert Tasks.taskManager.pools.first().executor.largestPoolSize > 0
             assert Tasks.taskManager.pools.first().executor.largestPoolSize <= Tasks.taskManager.pools.first().executor.maximumPoolSize
             //assert Tasks.taskManager.pools.first().tasks.findAll { it.state != TaskInfo.State.DONE }.empty FIXME: not always correct
-        cleanup:
-            Tasks.exit()
     }
     
     def "Adding several Tasks with same name, should run them in parallel without waiting"() {
@@ -133,8 +125,5 @@ class TaskTest extends Specification {
         expect:
             assert Tasks.taskManager.failed == 0
             assert Tasks.taskManager.pools.first().executor.completedTaskCount == tasks
-        cleanup:
-            Tasks.exit()
-            
     }
 }
