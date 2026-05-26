@@ -14,6 +14,8 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 abstract class ServiceTask extends Task {
+    ServiceMonitorTask monitor = null   //Will be automatically assigned by TaskManager
+
     ServiceTask() {
         maxExecutionTime = 0
         sleepTime = 0
@@ -56,4 +58,10 @@ abstract class ServiceTask extends Task {
     
     @Override
     abstract boolean reset()
+
+    @Override
+    void destroy() {
+        monitor.destroy()
+        super.destroy()
+    }
 }

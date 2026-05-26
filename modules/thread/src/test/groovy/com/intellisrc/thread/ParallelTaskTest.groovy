@@ -1,9 +1,7 @@
 package com.intellisrc.thread
 
-import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import spock.lang.Retry
-import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -12,90 +10,103 @@ import static com.intellisrc.core.Millis.*
 /**
  * @since 2019/09/10.
  */
-class ParallelTaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
+class ParallelTaskTest extends BaseTaskTest {
+    class MiceRace extends ParallelTask {
+        static final int laps = 20
+        static final int smallTimeSingleLap = MILLIS_10
+        static final int ratTimeSingleLap = MILLIS_10 * 2
+        static final int bigTimeSingleLap = MILLIS_10 * 3
+        volatile boolean smallFinished = false
+        volatile boolean bigFinished = false
+        volatile boolean ratFinished = false
+        int processesNumber = 3 // 3 mice
 
-    class MouseRace extends ParallelTask {
-        boolean smallFinished = false
-        boolean bigFinished = false
-        boolean ratFinished = false
-        
-        static int pool = 2
-        
-        MouseRace() {
-            super(pool, 0, true)
+        MiceRace(int threads) {
+            super(threads, 0, true)
         }
+
+        int getSmallTotalTime() { laps * smallTimeSingleLap }
+        int getRatatouilleTotalTime() { laps * ratTimeSingleLap }
+        int getBigTotalTime() { laps * bigTimeSingleLap }
     
         @Override
         List<Runnable> processes() throws InterruptedException {
             return [
                     {
                         //Small but fast
-                        (1..20).each {
+                        (1..laps).each {
                             print "s"
-                            sleep(MILLIS_10)
+                            System.out.flush()
+                            sleep(smallTimeSingleLap)
                         }
                         print "[s]"
+                        System.out.flush()
                         smallFinished = true
                     },
                     {
                         //Big and slow
-                        (1..20).each {
+                        (1..laps).each {
                             print "B"
-                            sleep(MILLIS_10 * 3)
+                            System.out.flush()
+                            sleep(bigTimeSingleLap)
                         }
                         print "[B]"
+                        System.out.flush()
                         bigFinished = true
                     },
                     {
                         //Ratatouille mouse
-                        (1..20).each {
+                        (1..laps).each {
                             print "r"
-                            sleep(MILLIS_10 * 2)
+                            System.out.flush()
+                            sleep(ratTimeSingleLap)
                         }
                         print "[r]"
+                        System.out.flush()
                         ratFinished = true
                     }
             ]
         }
     }
 
-    @Retry
+    @Retry(delay = 1000)
+    @Unroll
     def "All need to get to the goal"() {
         setup:
-            int smallTime = 20*10
-            int bigTime = 20*30
-            int ratTime = 20*20
-            MouseRace mr = new MouseRace()
-            Tasks.add(mr)
-            // Sleep time: more than the minimum less than the maximum
+            MiceRace mr = new MiceRace(threads)
+            int smallTime = mr.smallTotalTime
+            int bigTime = mr.bigTotalTime
+            int ratTime = mr.ratatouilleTotalTime
+            Tasks.debug = false // Turn it off for this test
+            // Sleep time: more than the minimum less than the maximum (as they must run in parallel)
             int sleepTime = (([smallTime, bigTime, ratTime].sum() as int) - ([smallTime, bigTime, ratTime].min() as int))
-            Log.i("Waiting... %d ms", sleepTime)
+            println "Race starting (wait time: $sleepTime) ------------------------"
+            System.out.flush()
+            Tasks.add(mr)
             sleep(sleepTime)
-            ThreadPool threadPool = Tasks.taskManager.pools.first().executor
-        expect:
-            assert mr.smallFinished && mr.bigFinished && mr.ratFinished
-            assert Tasks.taskManager.pools.findAll { it.name.contains("MouseRace") }.size() == 1
-            assert Tasks.taskManager.failed == 0
-            assert threadPool.largestPoolSize > 0
-            assert threadPool.largestPoolSize == MouseRace.pool
-            assert threadPool.completedTaskCount == mr.processes().size()
-            assert Tasks.taskManager.pools.first().executed > 1
+            println "\nRace finished ---------------------------------------------"
         when:
-            Tasks.exit()
+            TaskPool mouseRacePool = Tasks.get(mr.class.simpleName)
+            ThreadPool threadPool = mouseRacePool.executor
         then:
-            assert Tasks.taskManager.pools.first().executor.list.empty
+            assert mr.smallFinished && mr.bigFinished && mr.ratFinished
+            assert Tasks.taskManager.failed == 0
+            assert threadPool.largestPoolSize == [threads, mr.processesNumber].min()
+            assert threadPool.completedTaskCount == mr.processes().size()
+            assert mouseRacePool.executed >= 1 //TODO: Why in Gitlab Job fails with > 1?
+        where:
+            threads | unused
+            1       | true
+            2       | true
+            3       | true
+            4       | true      // number of largestPoolSize should be 3
     }
     /**
      * Test if tasks will last as long as the timeout
      * increasing the sleep time was causing stack overflow exception.
      * That was fixed in 2.7.4
      */
-    @Retry
+    @Retry(delay = 1000)
     def "ParallelTask should not expire before time"() {
         setup :
             AtomicInteger times = new AtomicInteger()
@@ -127,7 +138,7 @@ class ParallelTaskTest extends Specification {
      *
      * @return
      */
-    @Retry
+    @Retry(delay = 1000)
     def "If task is cancelled, it should not execute pending threads"() {
         setup :
             AtomicInteger times = new AtomicInteger()

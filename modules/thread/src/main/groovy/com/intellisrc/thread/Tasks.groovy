@@ -10,6 +10,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 import static com.intellisrc.core.AnsiColor.*
 import static com.intellisrc.core.Millis.*
@@ -26,6 +28,7 @@ class Tasks {
     static int maxPoolSize = Config.any.get("tasks.pool.max", 30)
     static int bufferMillis = Config.any.get("tasks.buffer", SECOND)
     static int timeout = Config.any.getInt("tasks.timeout")
+    static int cancelTimeout = Config.any.get("tasks.timeout.cancel", SECOND_5)
     static boolean printOnScreen = Config.any.getBool("tasks.print")
     static boolean logToFile = Config.any.getBool("tasks.log")
     static boolean debug = Config.any.getBool("tasks.debug")
@@ -85,7 +88,7 @@ class Tasks {
         }
     }
     /**
-     * Class to keep track of 1 reset per day
+     * Class to keep track of 1 reset per day (reset counters)
      */
     static class TaskReset extends IntervalTask {
         LocalDate lastReset
@@ -181,6 +184,22 @@ class Tasks {
         taskManager.add(DelayedTask.create(delayedProcess, name, afterMillis))
     }
     /**
+     * Get first task with name..
+     * @param name
+     * @return
+     */
+    static TaskPool get(String name) {
+        return taskManager.pools.find { it.name == name }
+    }
+    /**
+     * Get all tasks with name..
+     * @param name
+     * @return
+     */
+    static List<TaskPool> findAll(String name) {
+        return taskManager.pools.findAll { it.name.contains(name) }
+    }
+    /**
      * Get Log date
      * @param time
      * @return
@@ -202,6 +221,7 @@ class Tasks {
                 summary << summ
                 changedTask.task.summary = summ
             }
+            //noinspection GroovyFallthrough
             switch (changedTask.state) {
                 case TaskInfo.State.DONE:
                     if (changedTask.startTime && changedTask.doneTime) {
@@ -216,6 +236,7 @@ class Tasks {
                     }
                     break
                 case TaskInfo.State.TERMINATED:
+                case TaskInfo.State.CANCELLED:
                     if (changedTask.startTime && changedTask.failTime) {
                         summ.add(ChronoUnit.MILLIS.between(changedTask.startTime, changedTask.failTime))
                     } else if(debug) {
@@ -309,7 +330,7 @@ class Tasks {
     static String getRow(TaskLoggable item) {
         //boolean changed = changedTask && item.task.taskName == changedTask.taskName
         boolean changed = logUpdatedList.any { it == item.name }
-        boolean isPool = item instanceof TaskPool
+        boolean isPool = (item instanceof TaskPool)
         TaskPool pool = isPool ? (item as TaskPool) : null
         
         TaskSummary summ = isPool ? summary.find { it.key == item.name } : null
@@ -333,6 +354,49 @@ class Tasks {
         return RESET + ((value >= dangerValue ? RED : (value >= warnValue ? YELLOW : "")) + SysClock.millisToString(value).padRight(5)) + RESET
     }
     /**
+     * Exit and remove task by name
+     * @param name
+     */
+    static boolean remove(String name) {
+        boolean removed = false
+        TaskPool taskPool = get(name)
+        if(taskPool) {
+            // This is different than purge() because that one is ThreadPool.items
+            if(! taskPool.tasks.empty) {
+                CountDownLatch shuttingDown = new CountDownLatch(taskPool.tasks.size())
+                taskPool.tasks.each {
+                    it.task.cancel()
+                    it.task.onCancel()
+                    try {
+                        Thread.start({
+                            while (taskPool.running &&! Thread.currentThread().isInterrupted()) {
+                                sleep(MILLIS_10)
+                            }
+                            shuttingDown.countDown()
+                        })
+                        // Waiting for clean closure
+                        shuttingDown.await(cancelTimeout, TimeUnit.MILLISECONDS)
+                    } catch (InterruptedException ignore) {
+                        Log.w("Cancel timeout for [%s]", taskPool.name)
+                    }
+                }
+            }
+            taskPool.executor.purge()
+            taskPool.executor.shutdownNow()
+            removed = taskManager.remove(taskPool)
+        } else {
+            Log.w("%s was requested to be removed but it didn't exists", name)
+        }
+        return removed
+    }
+    /**
+     * Exit and remove task
+     * @param name
+     */
+    static boolean remove(Task task) {
+        return remove(task.taskName)
+    }
+    /**
      * Exit all tasks
      */
     static void exit() {
@@ -342,7 +406,7 @@ class Tasks {
      * Block while taskManager is running
      */
     static void block() {
-        while (taskManager.running) {
+        while (taskManager.running &&! Thread.currentThread().isInterrupted()) {
             sleep(MILLIS_100)
         }
     }

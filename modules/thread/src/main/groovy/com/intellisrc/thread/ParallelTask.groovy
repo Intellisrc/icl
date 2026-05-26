@@ -1,12 +1,9 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import groovy.transform.CompileStatic
 
-import java.util.concurrent.CancellationException
-
-import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.SECOND
 
 /**
  * Extend this class for process to be run
@@ -17,7 +14,7 @@ import static com.intellisrc.core.Millis.*
  * @since 2019/09/09.
  */
 @CompileStatic
-abstract class ParallelTask extends Task implements TaskCancellable {
+abstract class ParallelTask extends Task {
     ParallelTask(int threads, long maxExecutionMillis = 0, boolean waitToEnd = false) {
         minThreads = 1
         maxThreads = threads

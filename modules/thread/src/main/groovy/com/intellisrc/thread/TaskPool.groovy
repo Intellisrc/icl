@@ -44,6 +44,9 @@ class TaskPool implements TaskLoggable {
     LocalDateTime waitTime
     LocalDateTime startTime
     LocalDateTime failTime
+    LocalDateTime cancelTime
+    LocalDateTime pausedTime
+    LocalDateTime resumedTime
     LocalDateTime doneTime
 
     TaskPool(String name, int minThreads = 0, int maxThreads = 5, long timeout = SECOND, ErrorCallback onError = {}) {
@@ -87,10 +90,23 @@ class TaskPool implements TaskLoggable {
      * @param info
      */
     boolean retry(final TaskInfo info) {
-        taskList.remove(info)
-        taskList.add(info)
-        executor.purge()
-        return executor.execute(info)
+        boolean retried = false
+        if(! cancelled) {
+            taskList.remove(info)
+            taskList.add(info)
+            executor.purge()
+            retried = executor.execute(info)
+        }
+        return retried
+    }
+
+    /**
+     * Check if a task was cancelled
+     * @param info
+     * @return
+     */
+    boolean isCancelled() {
+        return currStatus == TaskInfo.State.CANCELLED
     }
     
     /**
@@ -112,17 +128,19 @@ class TaskPool implements TaskLoggable {
                 info.waitTime = waitTime = SysClock.dateTime
                 break
             case TaskInfo.State.RUNNING:
+                if(prevStatus == TaskInfo.State.PAUSED) {
+                    info.resumedTime = resumedTime = SysClock.dateTime
+                }
                 info.startTime = startTime = SysClock.dateTime
                 //----------- TIME OUT -------------
                 //Do not timeout monitors:
                 if(!info.name.endsWith("-monitor") && info.task.maxExecutionTime) {
                     Tasks.add({
-                        while(!(info.done || (info.doneTime && info.startTime <= info.doneTime))) {
+                        while(!(info.done || (info.doneTime && info.startTime <= info.doneTime)) &&! Thread.currentThread().isInterrupted()) {
                             sleep(MILLIS_10)
                             long timed = ChronoUnit.MILLIS.between(info.startTime, SysClock.dateTime)
                             if (timed > info.task.maxExecutionTime) {
                                 Log.w("[%s] Timed out (Took: %d ms)", info.name, timed)
-                                info.task.onFailure()
                                 info.state = TaskInfo.State.TIMEOUT
                                 executor.kill(info)
                                 break //Run once
@@ -131,15 +149,23 @@ class TaskPool implements TaskLoggable {
                     }, info.name + "-timeout", Task.Priority.MIN, 0) //maxExecute must be 0 or it will overload
                 }
                 break
-            case TaskInfo.State.TERMINATED:
-                failedVal++
-                info.failTime = failTime = SysClock.dateTime
-                info.done = true
-                break
             case TaskInfo.State.DONE:
                 executedVal++
                 info.doneTime = doneTime = SysClock.dateTime
-                taskList.remove (info)
+                //taskList.remove (info)
+                info.done = true
+                break
+            case TaskInfo.State.PAUSED:
+                info.pausedTime = pausedTime = SysClock.dateTime
+                break
+            case TaskInfo.State.TERMINATED:
+                failedVal++
+                info.task.onFailure()
+                info.failTime = failTime = SysClock.dateTime
+                info.done = true
+                break
+            case TaskInfo.State.CANCELLED:
+                info.cancelTime = cancelTime = SysClock.dateTime
                 info.done = true
                 break
         }
@@ -194,6 +220,6 @@ class TaskPool implements TaskLoggable {
     
     @Override
     boolean isRunning() {
-        return taskList.empty || taskList.any { it.state != TaskInfo.State.TERMINATED }
+        return taskList.empty || taskList.any { it.running }
     }
 }

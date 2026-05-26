@@ -1,19 +1,13 @@
 package com.intellisrc.thread
 
 import com.intellisrc.core.Log
-import spock.lang.Specification
 
 import static com.intellisrc.core.Millis.*
 
 /**
  * @since 2019/09/10.
  */
-class IntervalTaskTest extends Specification {
-    def setup() {
-        Tasks.resetManager()
-        Tasks.printOnChange = true
-        Tasks.logToFile = false
-    }
+class IntervalTaskTest extends BaseTaskTest {
     class ProcessTest extends IntervalTask {
         int callTimes = 0
         int processTimeMilliSec = 0
@@ -68,8 +62,6 @@ class IntervalTaskTest extends Specification {
             assert pt.setupCalled
             assert ! pt.resetCalled
             assert Tasks.taskManager.failed == 0
-        cleanup:
-            Tasks.exit()
     }
     
     class FrozenIntervalTest extends IntervalTask implements TaskKillable {
@@ -86,11 +78,9 @@ class IntervalTaskTest extends Specification {
         Runnable process() {
             return {
                 Log.d("Processing... (%d)", ++callTimes)
-                //new File("/dev/random").text
                 final fid = ++frozenId
-                //while(threadState != State.TERMINATED) {
-                for(int i = 0;; i++) {
-                    Log.i("[%s] <%d> Looping (%d) ...", Thread.currentThread().name, fid, i)
+                while (! killed) {
+                    Log.i(" Hanging process [%s] FID:<%d> ...", taskName, fid)
                     sleep(MILLIS_100)
                 }
             }
@@ -104,7 +94,7 @@ class IntervalTaskTest extends Specification {
         }
     
         @Override
-        void kill() {
+        void onKill() {
             Log.i("Task was killed")
         }
     }
@@ -122,9 +112,7 @@ class IntervalTaskTest extends Specification {
             FrozenIntervalTest ft = new FrozenIntervalTest(maxExec, sleepMillis)
             assert Tasks.add(ft)
             sleep(sleepMillis)
-            TaskPool pool = Tasks.taskManager.pools.find {
-                it.name == "FrozenIntervalTest"
-            }
+            TaskPool pool = Tasks.get("FrozenIntervalTest")
         expect:
             assert pool : "Pool not found"
         when:
@@ -144,8 +132,6 @@ class IntervalTaskTest extends Specification {
             //Even if there is an exception is accounted inside Executor
             assert Math.abs(Tasks.taskManager.failed - ft.frozenId) <= 1 //The last task might be still running
             assert Math.abs(Tasks.taskManager.pools.first().executor.completedTaskCount - ft.frozenId) <= 1
-        cleanup:
-            Tasks.exit()
     }
     
     def "It should report only those cases in which was actually executed"() {
@@ -161,8 +147,6 @@ class IntervalTaskTest extends Specification {
         expect:
             assert Tasks.taskManager.pools.findAll { it.name.contains("Interval") }.size() == 2 // + 1 Timeout
             assert Tasks.taskManager.pools.find { it.name.contains("Interval") }.executed < 3
-        cleanup:
-            Tasks.exit()
     }
 
     def "Should cancel interval"() {
@@ -185,5 +169,52 @@ class IntervalTaskTest extends Specification {
         cleanup:
             Tasks.printOnScreen = true
             Tasks.printStatus()
+    }
+
+    static class UpdatableIntervalTask extends IntervalTask {
+        int called = 0
+
+        UpdatableIntervalTask(int timing = MILLIS_100) {
+            super(timing, timing)
+        }
+
+        boolean reset() {
+            called = 0
+        }
+
+        @Override
+        Runnable process() throws InterruptedException {
+            return {
+                Log.i("Pong...")
+                called++
+            }
+        }
+    }
+
+    /*
+     * Addressing part of issue #25, it is not possible to modify "sleepTime" at runtime
+     * because we use `scheduledExecutorService.scheduleAtFixedRate` which has no option to modify such value.
+     * The "easiest" way is to cancel and re-run the task
+     */
+    def "It should be able to modify sleepTime and executionTime at runtime"() {
+        setup:
+            UpdatableIntervalTask uit = new UpdatableIntervalTask()
+            Tasks.add(uit)
+        when:
+            sleep(SECOND)
+        then:
+            assert uit.called >= 10
+        when:
+            println "-------------------- RESET ----------------------"
+            uit.destroy()
+            uit = new UpdatableIntervalTask(HALF_SECOND)
+            Tasks.add(uit)
+            sleep(SECOND)
+            def list = Tasks.findAll("UpdatableIntervalTask")
+            println "-------------------------------------------------"
+            list.each { println it.name }
+        then:
+            assert uit.called < 5
+            assert list.size() == 2 // Including timeout
     }
 }

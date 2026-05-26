@@ -16,15 +16,14 @@ import groovy.transform.CompileStatic
  *
  * NOTE: Tasks share pool with tasks with the same name
  *
- * NOTE: This Task can not be cancelled, just interrupted (which may leave it in an unknown state)
- * In order to cancel it, you need to implement you own logic
+ * In order to cancel this task, you need to implement you own logic `onCancel()`.
  * or use any of the implementations which implements TaskCancellable
  *
  * @since 2019/08/26.
  *
  */
 @CompileStatic
-abstract class Task {
+abstract class Task implements TaskCancellable, TaskPausable {
     public boolean retry    = false //retry on fail (like queue full)
     public boolean waitResponse = false
     
@@ -34,7 +33,7 @@ abstract class Task {
     protected int sleepTime = 0
     protected Priority priority = Priority.NORMAL
 
-    Tasks.TaskSummary summary = new Tasks.TaskSummary(taskName) //To be filled later
+    Tasks.TaskSummary summary = null //To be filled later
     StateUpdater taskState = (StateUpdater) {} //To be used by TaskInfo
     static interface StateUpdater {
         void update(TaskInfo.State State)
@@ -138,9 +137,11 @@ abstract class Task {
      */
     abstract Runnable process() throws InterruptedException
     /**
-     * Close process
+     * This method will stop this task and remove it from Tasks
      */
-    void quit() {}
+    void destroy() {
+        Tasks.remove(taskName)
+    }
     //--------------------- OPTIONAL (Override if needed) -------------------
     /**
      * Override this method to execute some code when Tasks was unable

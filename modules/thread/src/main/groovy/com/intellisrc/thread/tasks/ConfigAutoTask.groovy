@@ -1,11 +1,12 @@
 package com.intellisrc.thread.tasks
 
-import com.intellisrc.core.Millis
+
 import com.intellisrc.etc.config.ConfigAuto
 import com.intellisrc.thread.IntervalTask
 import groovy.transform.CompileStatic
 
-import static com.intellisrc.core.Millis.*
+import static com.intellisrc.core.Millis.MILLIS_100
+import static com.intellisrc.core.Millis.SECOND
 
 /**
  * This Task is to update ConfigAuto from etc module.
