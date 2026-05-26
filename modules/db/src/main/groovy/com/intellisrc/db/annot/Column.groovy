@@ -6,6 +6,7 @@ import java.lang.annotation.Retention
 import java.lang.annotation.Target
 
 import static com.intellisrc.db.annot.DeleteActions.RESTRICT
+import static com.intellisrc.db.annot.UpdateActions.NO_ACTION
 import static java.lang.annotation.ElementType.FIELD
 import static java.lang.annotation.RetentionPolicy.RUNTIME
 
@@ -23,6 +24,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME
     String type() default ""                    // Override field type, for example: DECIMAL(5,2)
     String uniqueGroup() default ""             // Used together with "unique" to add multi-column constraints by name
     DeleteActions ondelete() default RESTRICT   // Action to follow when deleting a FK
+    UpdateActions onupdate() default NO_ACTION  // Action to follow when updating a FK (Not recommended). Also, not supported by Oracle
     int length() default 0                      // Override type length (specially numbers)
 
     // NOTE: Setting any of the following, may not work correctly if database type changes (use only in extreme cases):

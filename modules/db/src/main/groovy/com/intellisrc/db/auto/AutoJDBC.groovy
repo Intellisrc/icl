@@ -4,12 +4,17 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Data
 import com.intellisrc.db.Query
+import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.DeleteActions
+import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.lang.annotation.Annotation
+import java.lang.reflect.Constructor
 
 import static com.intellisrc.db.auto.Relational.ColumnDB
+import static com.intellisrc.db.auto.Relational.getColumnName
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
@@ -224,5 +229,28 @@ trait AutoJDBC {
      * @return
      */
     abstract String getColumnDefinition(final ColumnDB column)
-    abstract String getForeignKey(String tableName, final ColumnDB column)
+    /**
+     * Default way to return foreign keys declaration
+     * @param tableName
+     * @param column
+     * @return
+     */
+    String getForeignKey(String tableName, ColumnDB column) {
+        String indices = ""
+        switch (column.type) {
+            case Model:
+                Constructor<?> ctor = column.type.getConstructor()
+                Model refType = (ctor.newInstance() as Model)
+                String joinTable = refType.tableName
+                DeleteActions ondelete = (column.annotation ? column.annotation.ondelete() : Column.class.getMethod("ondelete").defaultValue) as DeleteActions
+                UpdateActions onupdate = (column.annotation ? column.annotation.onupdate() : Column.class.getMethod("onupdate").defaultValue) as UpdateActions
+                indices = "FOREIGN KEY (${column.name}) " +
+                    "REFERENCES ${joinTable}(${getColumnName(refType.pk)}) ON DELETE ${ondelete.toString()}"
+                if(onupdate != UpdateActions.NO_ACTION) {
+                    indices += " ON UPDATE ${onupdate.toString()}"
+                }
+                break
+        }
+        return indices
+    }
 }

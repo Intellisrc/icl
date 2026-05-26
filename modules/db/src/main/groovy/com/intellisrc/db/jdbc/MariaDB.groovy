@@ -4,7 +4,6 @@ import com.intellisrc.core.Config
 import groovy.transform.CompileStatic
 
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.BOOLEAN
-import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
 
 /**
  * MariaDB Database

@@ -22,7 +22,7 @@ final int javaVersion = 11
 
 allprojects {
     group = groupName
-    version = "2.9.6"
+    version = "2.9.7"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -143,7 +143,7 @@ subprojects {
     }
     dependencies {
         def groovyVer = "4.0.32" // Also in module etc
-        def groovyExt = "4.0.23.14" //4.0.30+ uses Java17
+        def groovyExt = "4.0.32.15-java11"
         def spock = "2.4-M4-groovy-4.0"
 
         //Link it so we can choose version
@@ -211,6 +211,14 @@ subprojects {
     }
     tasks.withType(JavaCompile).configureEach {
         options.release.set(javaVersion) // Ensures bytecode compatibility with Java
+    }
+    // Add this to force Groovy compilation compatibility
+    tasks.withType(Groovydoc).configureEach {
+        classpath += project.configurations.documentation
+    }
+    tasks.withType(GroovyCompile).configureEach {
+        sourceCompatibility = javaVersion.toString()
+        targetCompatibility = javaVersion.toString()
     }
     tasks.withType(Test).configureEach {
         // Use JUnit Platform for unit tests.

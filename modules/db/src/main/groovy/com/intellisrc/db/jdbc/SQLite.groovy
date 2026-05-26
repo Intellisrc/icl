@@ -4,22 +4,18 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
-import com.intellisrc.db.auto.Relational
 import com.intellisrc.db.auto.Relational.ColumnDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.auto.Table.getColumnName
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
 
 /**
@@ -254,21 +250,5 @@ class SQLite extends JDBC implements AutoJDBC {
                 }
         }
         return type
-    }
-
-    @Override
-    String getForeignKey(String tableName, ColumnDB column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "FOREIGN KEY (`${column.name}`) " +
-                    "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action}"
-                break
-        }
-        return indices
     }
 }

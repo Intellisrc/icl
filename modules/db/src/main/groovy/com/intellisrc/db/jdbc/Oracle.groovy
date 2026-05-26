@@ -5,6 +5,8 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
+import com.intellisrc.db.annot.DeleteActions
+import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import com.intellisrc.db.auto.Relational
@@ -374,14 +376,17 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 Constructor<?> ctor = column.type.getConstructor()
                 Model refType = (ctor.newInstance() as Model)
                 String joinTable = refType.tableName
-                String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                String onDelete = switch (action.toLowerCase()) {
+                DeleteActions action = (column.annotation ? column.annotation.ondelete() : Column.class.getMethod("ondelete").defaultValue) as DeleteActions
+                String onDelete = switch (action.toString().toLowerCase()) {
                     case "restrict" -> ""
                     default -> "ON DELETE ${action}"
                 }
-
                 indices = "CONSTRAINT fk_${column.name} FOREIGN KEY (\"${column.name}\") " +
                     "REFERENCES ${joinTable}(\"${getColumnName(refType.pk)}\") ${onDelete}"
+                UpdateActions onupdate = (column.annotation ? column.annotation.onupdate() : Column.class.getMethod("onupdate").defaultValue) as UpdateActions
+                if(onupdate == UpdateActions.CASCADE) {
+                    Log.w("Oracle doesn't support ON UPDATE CASCADE. Attempting to change a PK, will fail.")
+                }
                 break
         }
         return indices

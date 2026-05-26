@@ -114,17 +114,9 @@ abstract class SysService {
                 service.onStatus(lockFile.exists())
                 break
             default:
-                try {
-                    Method m = service.class.getDeclaredMethod("on" + action.capitalize())
-                    try {
-                        if(sysSrv.args.size() > 0) {
-                            sysSrv.args.poll()
-                        }
-                        m.invoke(sysSrv)
-                    } catch (Exception e) {
-                        Log.e("Exception in method: on${action.capitalize()}", e)
-                    }
-                } catch (NoSuchMethodException ignore) {
+                // Try executing the custom action method dynamically
+                if (!SysMain.invokeActionMethod(sysSrv, sysSrv.args)) {
+                    // Fallback to default start behavior if method is missing
                     started = true
                     sysSrv.onStart()
                 }

@@ -36,10 +36,11 @@ class BuffImgTools {
      * @param size
      * @return
      */
-    static BufferedImage resize(BufferedImage image, int size) {
+    static BufferedImage resize(BufferedImage image, int width, int height = 0) {
         assert image : "Image was empty"
-        assert size : "Size was zero"
-        return Thumbnails.of(image).size(size, size).asBufferedImage()
+        assert width : "Width was zero"
+        if(!height) { height = width }
+        return Thumbnails.of(image).size(width, height).asBufferedImage()
     }
     /**
      * Resize BufferedImage centering on the image and cropping extra parts
@@ -47,10 +48,11 @@ class BuffImgTools {
      * @param size
      * @return
      */
-    static BufferedImage resizeCentered(BufferedImage image, int size) {
+    static BufferedImage resizeCentered(BufferedImage image, int width, int height = 0) {
         assert image: "Image was empty"
-        assert size : "Size was zero"
-        return Thumbnails.of(image).size(size, size).crop(Positions.CENTER).asBufferedImage()
+        assert width : "Width was zero"
+        if(!height) { height = width }
+        return Thumbnails.of(image).size(width, height).crop(Positions.CENTER).asBufferedImage()
     }
     /**
      * Resize BufferedImage without centering (keeping 0,0)
@@ -58,10 +60,11 @@ class BuffImgTools {
      * @param size
      * @return
      */
-    static BufferedImage resizeTopLeft(BufferedImage image, int size) {
+    static BufferedImage resizeTopLeft(BufferedImage image, int width, int height = 0) {
         assert image: "Image was empty"
-        assert size : "Size was zero"
-        return Thumbnails.of(image).size(size, size).crop(Positions.TOP_LEFT).asBufferedImage()
+        assert width : "Width was zero"
+        if(!height) { height = width }
+        return Thumbnails.of(image).size(width, height).crop(Positions.TOP_LEFT).asBufferedImage()
     }
     /**
      * Resize BufferedImage based on Width
