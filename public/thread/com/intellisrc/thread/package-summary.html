@@ -22,7 +22,7 @@
 <html>
 <head>
 
-<title>com.intellisrc.thread (thread 2.9.5 API)</title>
+<title>com.intellisrc.thread (thread 2.9.6 API)</title>
 <meta name="keywords" content="com.intellisrc.thread package">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel ="stylesheet" TYPE="text/css" HREF="../../../stylesheet.css" title="Style">
@@ -31,7 +31,7 @@
 <script type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="com.intellisrc.thread (thread 2.9.5 API)";
+    parent.document.title="com.intellisrc.thread (thread 2.9.6 API)";
 }
 </script>
 <noscript>
@@ -104,14 +104,6 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="TaskKillable.html" title="class in com/intellisrc/thread">
-                                    TaskKillable
-                                </a></strong>
-                            </td>
-                            <td> <DL><DT><B>Since:</B></DT><DD>2019/09/17.</DD></DL></td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
                                 <strong><a href="TaskLoggable.html" title="class in com/intellisrc/thread">
                                     TaskLoggable
                                 </a></strong>
@@ -151,7 +143,26 @@ function windowTitle()
                                     TaskCancellable
                                 </a></strong>
                             </td>
-                            <td>This interface is for those task which allow to be canceled after execution</td>
+                            <td>This interface is for those task which allow to be canceled.
+ </td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="TaskKillable.html" title="class in com/intellisrc/thread">
+                                    TaskKillable
+                                </a></strong>
+                            </td>
+                            <td>This class is for those Tasks that are expected to be killed (check `isKilled()`) as a way to interrupt their process
+ NOTE: There is no kill() method (as cancel() in TaskCancellable) because it is not designed to be called on command,
+ that is what cancel() is for. </td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="TaskPausable.html" title="class in com/intellisrc/thread">
+                                    TaskPausable
+                                </a></strong>
+                            </td>
+                            <td>This interface is for those task which allow to be paused</td>
                         </tr>
 
                     </tbody>
@@ -249,6 +260,14 @@ function windowTitle()
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
+                                <strong><a href="ServiceMonitorTask.html" title="class in com/intellisrc/thread">
+                                    ServiceMonitorTask
+                                </a></strong>
+                            </td>
+                            <td> <DL><DT><B>Since:</B></DT><DD>2026/01/14.</DD></DL></td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
                                 <strong><a href="ServiceTask.html" title="class in com/intellisrc/thread">
                                     ServiceTask
                                 </a></strong>
@@ -320,7 +339,7 @@ function windowTitle()
                                     Tasks.TaskReset
                                 </a></strong>
                             </td>
-                            <td>Class to keep track of 1 reset per day</td>
+                            <td>Class to keep track of 1 reset per day (reset counters)</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
