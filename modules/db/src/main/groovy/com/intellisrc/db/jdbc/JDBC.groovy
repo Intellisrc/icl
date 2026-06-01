@@ -6,12 +6,9 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
 import com.intellisrc.db.Data
-import com.intellisrc.db.DatabaseConnectionException
-import com.intellisrc.db.JDBCConnector
 import com.intellisrc.db.Query
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.TableDefinition
-import com.intellisrc.db.Volatile
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import org.reflections.Reflections
@@ -90,15 +87,18 @@ abstract class JDBC {
 
     // This will be set in case it is set directly
     protected String connectionURI = ""
+    boolean initialized = false
 
-    // Store DB object for singleConnections
-    protected DB singleConnection
     /**
      * Some databases does not support JSON datatype
      * @return
      */
     boolean supportsJSON = false
 
+    /**
+     * Initialize additional functionality
+     */
+    void initialize(DB db) {}
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):
@@ -263,20 +263,11 @@ abstract class JDBC {
      * Return new connection
      * @return
      */
-    DB connect() throws DatabaseConnectionException {
-        if(this instanceof Volatile && (this as Volatile).memory) {
-            if(! singleConnection) {
-                singleConnection = new DB(new JDBCConnector(this))
-                singleConnection.alwaysOpen = true
-                singleConnection.openIfClosed()
-            }
-            return singleConnection
-        } else {
-            DB db = new DB(new JDBCConnector(this))
-            db.openIfClosed()
-            return db
-        }
-    }
+    /*DB connect() throws DatabaseConnectionException {
+        DB db = new DB(new JDBCConnector(this))
+        db.openIfClosed()
+        return db
+    }*/
 
     //----------- STATIC ----------------
     /**
@@ -402,46 +393,6 @@ abstract class JDBC {
         return jdbc
     }
 
-    ///////////////////// PREVIOUSLY IN AUTOJDBC ///////////////////////////
-    /**
-     * Shortcut for db.set
-     * @param db
-     * @param qry
-     * @return
-     */
-    boolean set(String qry) {
-        DB db = connect()
-        boolean ok = db.set(new Query(qry))
-        db.close()
-        return ok
-    }
-    /**
-     * Shortcut for db.get
-     * @param db
-     * @param qry
-     * @return
-     */
-    Data get(String qry) {
-        DB db = connect()
-        Data data = db.get(new Query(qry))
-        db.close()
-        return data
-    }
-    /**
-     * Create a table
-     * @param db
-     * @param tableName
-     * @param charset
-     * @param engine
-     * @param version : definedVersion (in Model code)
-     * @param fields
-     * @return
-     */
-    boolean createTable(String tableName, TableDefinition columns = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
-        //DB db = connect()
-        //db.close()
-        return false
-    }
     /**
      * Get default statement using minimum information
      * @param val
@@ -510,100 +461,6 @@ abstract class JDBC {
         }
     }
     /**
-     * Converts type to default possible value in database (using ColumnInfo)
-     * For example, String should be ''
-     * @param type
-     * @return
-     * @param column
-     * @return
-     */
-    String getDefaultForType(ColumnDefinition column) {
-        return getDefaultValue(column.defaultValue)
-    }
-    /**
-     * Copy table structure and data
-     * @param db
-     * @param from
-     * @param to
-     * @return
-     */
-    boolean cloneTable(String from, String to, TableDefinition columns = [] as TableDefinition) {
-        return copyTableStructure(from, to) && copyTableData(from, to, columns)
-    }
-    /**
-     * Copy a table with all constraints
-     * @param db
-     * @param from
-     * @param to
-     * @param columns
-     * @return
-     */
-    // Changed for createTable with a name instead
-    boolean copyTableStructure(String from, String to) { false }
-    /**
-     * Copy table data
-     * @return
-     */
-    boolean copyTableData(String from, String to, TableDefinition columns = [] as TableDefinition) {
-        return set("INSERT INTO $to SELECT * FROM $from")
-    }
-    /**
-     * Reset serial / identity / auto-increment if needed
-     * @param db
-     * @param from
-     * @param to
-     * @return
-     */
-    boolean resetAutoIncrement(String tableName) {
-        Log.w("Reset auto increment not implemented for database: %s", dbname)
-        return false
-    }
-    /**
-     * Copy auto increment / identity or serial to another table (usually backup table)
-     * @param tableFrom
-     * @param tableTo
-     * @return
-     */
-    boolean copyAutoIncrement(String tableFrom, String tableTo, String columnName) {
-        Log.w("Copy auto increment not implemented for database: %s", dbname)
-        return false
-    }
-    /**
-     * Rename table
-     * @param from
-     * @param to
-     * @return
-     *
-     * WARNING: renaming a table which is referenced may leave incorrect references
-     */
-    boolean renameTable(String from, String to) {
-        return set("ALTER TABLE ${from} RENAME TO ${to}")
-    }
-    /**
-     * Turn Foreign Keys ON
-     * @return
-     */
-    boolean turnFK(boolean on) {
-        return true
-    }
-    /**
-     * Add version to table
-     * @param table
-     * @param comment
-     * @return
-     */
-    boolean setVersion(String dbname, String table, int version) {
-        return true
-    }
-    /**
-     * Get version from table
-     * @param table
-     * @return
-     */
-    int getVersion(String dbname, String table) {
-        return 1
-    }
-    /**
      * This method will consider customType and fallout to getColumnDefinition if not found
      * @param column
      * @return
@@ -619,6 +476,148 @@ abstract class JDBC {
      */
     String getColumnDefinition(final ColumnDefinition column) {
         Log.w("Column Definition is not available for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Converts type to default possible value in database (using ColumnInfo)
+     * For example, String should be ''
+     * @param type
+     * @return
+     * @param column
+     * @return
+     */
+    String getDefaultForType(ColumnDefinition column) {
+        return getDefaultValue(column.defaultValue)
+    }
+    /**
+     * Get if table exists query
+     * @param tableName
+     * @return
+     */
+    String getTableExistsSQL(String tableName) {
+        return "" //Warn not needed as JDBC may already include it
+    }
+    /**
+     * Get SQL to create a table
+     * @param tableName
+     * @param definitions
+     * @param charset
+     * @param engine
+     * @param version
+     * @return
+     */
+    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
+        Log.w("SQL: Create table not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Get SQL to update indices if needed
+     * As some databases can set indices during the CREATE TABLE query,
+     * this is optional
+     * @param tableName
+     * @param columns
+     * @return
+     */
+    List<String> getUpdateIndicesSQL(String tableName, List<String> columns) {
+        return []
+    }
+    /**
+     * Return the SQL to copy a table with all constraints
+     * @param db
+     * @param from
+     * @param to
+     * @param columns
+     * @return
+     */
+    // Changed for createTable with a name instead
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        Log.w("SQL: Copy table structure not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Return the SQL to copy table data
+     * @return
+     */
+    String getCopyTableDataSQL(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        return "INSERT INTO $to SELECT * FROM $from"
+    }
+    /**
+     * Get SQL to reset serial / identity / auto-increment if needed
+     * @param db
+     * @param from
+     * @param to
+     * @return
+     */
+    String getResetAutoIncrementSQL(String tableName) {
+        Log.w("SQL: Reset auto increment not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Get SQL to retrieve auto-increment value
+     * @param tableFrom
+     * @param tableTo
+     * @return
+     */
+    String getAutoIncrementSQL(String table, String columnName) {
+        Log.w("SQL: Get auto increment not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Get SQL to update an auto-increment value
+     * @param table
+     * @param columnName
+     * @return
+     */
+    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {
+        Log.w("SQL: Update auto increment not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Get SQL to rename table
+     * @param from
+     * @param to
+     * @return
+     *
+     * WARNING: renaming a table which is referenced may leave incorrect references
+     */
+    String getRenameTable(String from, String to) {
+        return "ALTER TABLE ${from} RENAME TO ${to}"
+    }
+    /**
+     * Get SQL to turn Foreign Keys ON/OFF
+     * @return
+     */
+    String getTurnFK(boolean on) {
+        Log.w("SQL: turn foreign keys not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Add version to table
+     * @param table
+     * @param comment
+     * @return
+     */
+    String getVersionUpdate(String table, int version) {
+        Log.w("SQL: setting version not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Get version from table
+     * @param table
+     * @return
+     */
+    String getVersionRead(String table) {
+        Log.w("SQL: getting version not implemented for database: %s", dbname)
+        return ""
+    }
+    /**
+     * Default way to return foreign keys declaration
+     * @param tableName
+     * @param column
+     * @return
+     */
+    String getForeignKey(String tableName, ColumnDefinition column) {
+        Log.w("Getting foreign keys from table: %s is not supported", tableName)
         return ""
     }
 }

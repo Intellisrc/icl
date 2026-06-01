@@ -302,7 +302,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
                 Constructor<?> ctor = column.type.getConstructor()
                 Model refType = (ctor.newInstance() as Model)
                 String joinTable = refType.tableName
-                String action = column.ondelete.toString()
+                String action = column.onDelete.toString()
                 indices = "FOREIGN KEY (\"${column.name}\") " +
                     "REFERENCES \"${joinTable}\"(\"${getColumnName(refType.primaryKey)}\") ON DELETE ${action}"
                 break

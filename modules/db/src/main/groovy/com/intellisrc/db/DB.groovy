@@ -9,6 +9,7 @@ import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.regex.Matcher
 
 import static com.intellisrc.db.ColumnType.*
 import static com.intellisrc.db.Query.Action.*
@@ -409,12 +410,20 @@ class DB {
      * @param charset
      * @return
      */
-    boolean create(TableDefinition definition, String engine, String charset = "UTF8") {
+    boolean createTable(TableDefinition definition, String engine = "", String charset = "UTF8") {
         boolean ok = false
         if(table) {
-            Log.i("Creating table: %s", table)
-            int version = jdbc.getVersion(jdbc.database, table) ?: 1
-            ok = jdbc.createTable(table, definition, charset, engine, version)
+            Log.i("Creating table: %s (version: %d)", table, definition.version)
+            String createTableSQL = jdbc.getCreateTableSQL(table, definition, charset, engine)
+            if(createTableSQL) {
+                ok = setSQL(createTableSQL)
+                if(ok) {
+                    List<String> setIndicesSQL = jdbc.getUpdateIndicesSQL(table, definition.findAll { it.index }.collect { it.name })
+                    if(! setIndicesSQL.empty) {
+                        ok = setSQL(setIndicesSQL)
+                    }
+                }
+            }
         } else {
             Log.w("Can not create table: No table specified")
         }
@@ -492,6 +501,125 @@ class DB {
         Log.i("Dropping database")
         return setSQL(jdbc.dropDatabaseQuery)
     }
+    //----------------------- Previously in Auto -------------------
+
+    /**
+     * Turn FK on/off
+     * @param on
+     * @return
+     */
+    boolean turnFK(boolean on) {
+        String turnSQL = jdbc.getTurnFK(on)
+        return turnSQL && setSQL(turnSQL)
+    }
+    /**
+     * Rename a table
+     * @param oldName
+     * @param newName
+     * @return
+     */
+    boolean renameTable(String oldName, String newName) {
+        String renameSQL = jdbc.getRenameTable(oldName, newName)
+        return renameSQL && setSQL(renameSQL)
+    }
+    /**
+     * Copy table structure and data
+     * NOTE: in some cases a database may be able to copy structure and data at once,
+     * so only one of the two should be enough (that is why copyTableStructure and copyTableData return true even if the query is empty).
+     * @param db
+     * @param from
+     * @param to
+     * @return
+     */
+    boolean cloneTable(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        return copyTableStructure(from, to, columns) && copyTableData(from, to, columns)
+    }
+    /**
+     * Copy table structure
+     * @param from
+     * @param to
+     * @param columns
+     * @return
+     */
+    boolean copyTableStructure(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        String copyStructureSQL = jdbc.getCopyTableStructureSQL(from, to, columns)
+        return copyStructureSQL ? setSQL(copyStructureSQL) : true
+    }
+    /**
+     * Copy table data
+     * @param from
+     * @param to
+     * @param columns
+     * @return
+     */
+    boolean copyTableData(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        String copyDataSQL = jdbc.getCopyTableDataSQL(from, to, columns)
+        return copyDataSQL ? setSQL(copyDataSQL) : true
+    }
+
+    /**
+     * Copy auto-increment from one table to another
+     * @param databaseName
+     * @param table
+     * @param referenceTable
+     * @param primaryKey
+     * @return
+     */
+    boolean copyAutoIncrement(String table, String referenceTable, String primaryKey) {
+        String sourceSQL = jdbc.getAutoIncrementSQL(table, primaryKey)
+        if(! sourceSQL) {
+            Log.w("Trying to copy auto-increment but SQL to read it is empty")
+            return false
+        }
+        long curr = getSQL(sourceSQL).toLong()
+        String targetSQL = jdbc.getAutoIncrementUpdateSQL(referenceTable, primaryKey, curr)
+        if(! targetSQL) {
+            Log.w("Trying to copy auto-increment but SQL to write it is empty")
+            return false
+        }
+        return setSQL(targetSQL)
+    }
+    /**
+     * Reset Autoincrement for a table
+     * @param table
+     * @return
+     */
+    boolean resetAutoIncrement(String table) {
+        String resetSQL = jdbc.getResetAutoIncrementSQL(table)
+        return resetSQL && setSQL(resetSQL)
+    }
+    /**
+     * Set table's version
+     * @param databaseName
+     * @param table
+     * @param version
+     * @return
+     */
+    boolean setVersion(String table, int version) {
+        String versionSQL = jdbc.getVersionUpdate(table, version)
+        return versionSQL && setSQL(versionSQL)
+    }
+    /**
+     * Reads table version
+     * @param databaseName
+     * @param table
+     * @return
+     */
+    int getVersion(String table) {
+        String versionSQL = jdbc.getVersionRead(table)
+        int version = 1
+        if(versionSQL) {
+            String versionStr = getSQL(versionSQL).toString()
+            if(versionStr) {
+                Matcher matcher = (versionStr =~ /(\d+)/)
+                if(matcher.find()) {
+                    version = matcher.group(1) as int
+                }
+            }
+        }
+        return version
+    }
+
     //------------------------------ RAW set -------------------------------
     /** Executes a query with arguments directly
      * @param query
@@ -528,11 +656,11 @@ class DB {
     /** Checks if a table exists or not
 	 * @return boolean **/
     boolean exists() {
-        boolean exists = false
-        if(table) {
-            exists = hasTable(table)
-        }
-        return exists
+        if (!table) { return false }
+        if (hasTable(table)) { return true }
+
+        String existsSQL = jdbc.getTableExistsSQL(table)
+        return existsSQL && getSQL(existsSQL).toBool()
     }
     /**
      * Return column Info using cache

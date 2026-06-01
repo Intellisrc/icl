@@ -28,6 +28,11 @@ class Database {
     }
     DB connect() throws DatabaseConnectionException {
         DB db = new PoolConnector(pool).getDB()
+        // Initialize once if needed:
+        if(!db.jdbc.initialized) {
+            db.jdbc.initialize(db)
+            db.jdbc.initialized = true
+        }
         db.openIfClosed() //Force connection here so we can throw the Exception
         return db
     }

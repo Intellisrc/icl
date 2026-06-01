@@ -15,27 +15,4 @@ trait AutoJDBC {
      * AutoJDBC uses CreateTable so we need to store annotation
      */
     Annotation meta
-    /**
-     * Initialize additional functionality
-     */
-    void autoInit() {}
-    /**
-     * Create table
-     * @param db
-     * @param info
-     * @return
-     */
-    boolean createTable(Table table, String copyName) {
-        return table.createTable(copyName)
-    }
-    /**
-     * Default way to return foreign keys declaration
-     * @param tableName
-     * @param column
-     * @return
-     */
-    String getForeignKey(String tableName, ColumnDefinition column) {
-        Log.w("Getting foreign keys from table: %s is not supported", tableName)
-        return ""
-    }
 }

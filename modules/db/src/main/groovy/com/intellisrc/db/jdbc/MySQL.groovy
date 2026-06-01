@@ -4,7 +4,6 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
 import com.intellisrc.db.DB
-import com.intellisrc.db.Query
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.annot.UpdateActions
@@ -18,7 +17,6 @@ import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.regex.Matcher
 
 import static com.intellisrc.db.ColumnDefinition.*
 import static com.intellisrc.db.auto.Relational.getColumnName
@@ -112,11 +110,12 @@ class MySQL extends JDBCServer implements AutoJDBC {
      * @return
      */
     @Override
-    boolean createTable(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
+    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "") {
         List<String> defs = []
         List<String> keys = []
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
+        int version = definitions.version
 
         // Process columns
         definitions.each {
@@ -179,50 +178,39 @@ class MySQL extends JDBCServer implements AutoJDBC {
             defs.join(",\n") +
             "\n) ${enginePart}CHARACTER SET=${charset}\nCOMMENT='v.${version}'"
 
-        DB db = connect()
-        boolean ok = db.set(new Query(createSQL))
-        if (!ok) {
-            Log.v(createSQL)
-            Log.e("Unable to create table.")
-        }
-        db.close()
-        return ok
+        return createSQL
     }
 
-    /////////////////////////////// AUTO ////////////////////////
+    @Override
+    String getTurnFK(boolean on) {
+        return String.format("SET FOREIGN_KEY_CHECKS=%d", on ? 1 : 0)
+    }
 
     @Override
-    boolean turnFK(boolean on) {
-        return set(String.format("SET FOREIGN_KEY_CHECKS=%d", on ? 1 : 0))
+    String getCopyTableStructure(String from, String to) {
+        return "CREATE TABLE $to LIKE $from"
     }
+
     @Override
-    boolean copyTableStructure(String from, String to) {
-        return set("CREATE TABLE $to LIKE $from") //&& copyTableData(db, from, to, [])
+    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
+        return "INSERT IGNORE INTO $to SELECT * FROM $from"
     }
+
     @Override
-    boolean copyTableData(String from, String to, TableDefinition columns) {
-        return set("INSERT IGNORE INTO $to SELECT * FROM $from")
+    String getVersionUpdate(String table, int version) {
+        return "ALTER TABLE ${table} COMMENT = 'v.${version}'"
     }
+
     @Override
-    boolean setVersion(String dbname, String table, int version) {
-        return set("ALTER TABLE ${table} COMMENT = 'v.${version}'")
+    String getVersionRead(String table) {
+        return "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='${dbname}' AND table_name='${table}'"
     }
+
     @Override
-    int getVersion(String dbname, String table) {
-        String verStr = get("SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='${dbname}' AND table_name='${table}'").toString()
-        int version = 1
-        if(verStr) {
-            Matcher matcher = (verStr =~ /(\d+)/)
-            if(matcher.find()) {
-                version = matcher.group(1) as int
-            }
-        }
-        return version
+    String getResetAutoIncrementSQL(String tableName) {
+        return "ALTER TABLE ${tableName} AUTO_INCREMENT = 1"
     }
-    @Override
-    boolean resetAutoIncrement(String table) {
-        return "ALTER TABLE ${table} AUTO_INCREMENT = 1"
-    }
+
     /**
      * Copy increment value to a different table
      * @param tableFrom
@@ -230,21 +218,11 @@ class MySQL extends JDBCServer implements AutoJDBC {
      * @return
      */
     @Override
-    boolean copyAutoIncrement(String tableFrom, String tableTo, String columnName) {
-        DB db = connect()
-        boolean ok = false
-        // 1. Fetch the exact next auto_increment pointer assigned to the source table
-        String sql = "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES " +
+    String getAutoIncrementSQL(String tableFrom, String tableTo, String columnName) {
+        return "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES " +
             "WHERE TABLE_SCHEMA = '${dbname}' AND TABLE_NAME = '${tableFrom}'"
-        long nextVal = db.get(new Query(sql)).toLong()
-
-        if (nextVal) {
-            // 2. Align the target table's engine to match the identical index pointer
-            ok = db.set(new Query("ALTER TABLE `${tableTo}` AUTO_INCREMENT = ${nextVal}"))
-        }
-        db.close()
-        return ok
     }
+
     /**
      * Return SQL column definition for a field
      * @param field
@@ -385,9 +363,9 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 Model refType = (ctor.newInstance() as Model)
                 String joinTable = refType.tableName
                 indices = "FOREIGN KEY (${column.name}) " +
-                    "REFERENCES ${joinTable}(${getColumnName(refType.primaryKey)}) ON DELETE ${column.ondelete.toString()}"
-                if(column.onupdate != UpdateActions.NO_ACTION) {
-                    indices += " ON UPDATE ${column.onupdate.toString()}"
+                    "REFERENCES ${joinTable}(${getColumnName(refType.primaryKey)}) ON DELETE ${column.onDelete.toString()}"
+                if(column.onUpdate != UpdateActions.NO_ACTION) {
+                    indices += " ON UPDATE ${column.onUpdate.toString()}"
                 }
                 break
         }

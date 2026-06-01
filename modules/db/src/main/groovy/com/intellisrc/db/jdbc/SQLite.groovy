@@ -3,22 +3,20 @@ package com.intellisrc.db.jdbc
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
-import com.intellisrc.db.Query
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.Volatile
+import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.auto.Table.getColumnName
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
 
 /**
@@ -88,13 +86,14 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     }
 
     //////////////////////// AUTO ////////////////////////////
-    boolean exists(String tableName) {
-        return get("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='${tableName.toUpperCase()}'").toBool()
+    @Override
+    String getTableExistsSQL(String tableName) {
+        return "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='${tableName.toUpperCase()}'"
     }
     @Override
-    void autoInit() {
-        if(useVersion &&! exists(tableMeta)) {
-            createTable(tableMeta, [
+    void initialize(DB db) {
+        if(useVersion &&! db.table(tableMeta).exists()) {
+            db.table(tableMeta).createTable([
                 new ColumnDefinition(
                     name: "table_name",
                     type: String,
@@ -113,9 +112,8 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     }
 
     @Override
-    boolean createTable(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
+    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
         List<String> defs = []
-        List<String> keys = []
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
 
@@ -148,10 +146,6 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
                 }
 
                 defs << parts.join(' ')
-                // Collect indexes to run as separate queries later
-                if (col.index) {
-                    keys << ("CREATE INDEX IF NOT EXISTS `${tableName}_${col.name}_index` ON `${tableName}` (`${col.name}`)").toString()
-                }
         }
 
         if (isMultiplePks) {
@@ -174,55 +168,34 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
         if (engine) {
             Log.w("SQLite doesn't support engines (trying to set: %s)", engine)
         }
-        String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n" + defs.join(",\n") + "\n)"
+        return ("CREATE TABLE IF NOT EXISTS `${tableName}` (\n" + defs.join(",\n") + "\n)").toString()
+    }
 
-        DB db = connect()
-        boolean ok = db.set(new Query(createSQL))
-        if (ok) {
-            // Execute independent index creation queries safely if the table was created
-            keys.each {
-                String indexSql ->
-                    if (!db.set(new Query(indexSql))) {
-                        Log.w("Failed to create index: %s", indexSql)
-                    }
-            }
-        } else {
-            Log.v(createSQL)
-            Log.e("Unable to create table.")
+    @Override
+    List<String> getUpdateIndicesSQL(String tableName, List<String> columns) {
+        return columns.collect {
+            ("CREATE INDEX IF NOT EXISTS `${tableName}_${it}_index` ON `${tableName}` (`${it}`)").toString()
         }
-        db.close()
-        return ok
     }
 
     @Override
-    boolean turnFK(boolean on) {
-        return set(String.format("PRAGMA foreign_keys = %s", on ? "ON" : "OFF"))
+    String getTurnFK(boolean on) {
+        return String.format("PRAGMA foreign_keys = %s", on ? "ON" : "OFF")
     }
     @Override
-    boolean copyTableStructure(String from, String to) {
-        String qry = get("SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'").toString()
-        return set(qry.replaceAll(/CREATE TABLE `?${from}`?/, "CREATE TABLE `${to}`"))
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        String qry = "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'".toString()
+        return qry.replaceAll(/CREATE TABLE `?${from}`?/, "CREATE TABLE `${to}`")
     }
     @Override
-    boolean setVersion(String dbname, String table, int version) {
+    String getVersionUpdate(String table, int version) {
         useVersion = true
-        DB db = connect()
-        boolean ok = db.table(tableMeta).replace([
-            table_name : table,
-            version : version
-        ])
-        db.close()
-        return ok
+        return "REPLACE INTO ${tableMeta} (table_name, version) VALUES(${table},${version})".toString()
     }
     @Override
-    int getVersion(String dbname, String table) {
-        int ver = 1
-        if(useVersion) {
-            DB db = connect()
-            ver = db.table(tableMeta).field("version").get(table_name: table).toInt()
-            db.close()
-        }
-        return ver
+    String getVersionRead(String table) {
+        return useVersion ?
+            "SELECT version FROM ${tableMeta} WHERE table_name = ${table} LIMIT 1".toString() : ""
     }
 
     @Override
@@ -296,37 +269,23 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     }
 
     @Override
-    boolean copyAutoIncrement(String tableFrom, String tableTo, String columnName) {
-        DB db = connect()
-        // Returns true if tableFrom had zero inserts (and hence no auto-increment entries exist yet)
-        boolean ok = true
-        // 1. Fetch the absolute increment counter sequence logged for the source table
-        String sql = "SELECT seq FROM sqlite_sequence WHERE name = '${tableFrom}'"
-        long currentSeqValue = db.get(new Query(sql)).toLong()
+    String getAutoIncrementSQL(String table, String columnName) {
+        return "SELECT seq FROM sqlite_sequence WHERE name = '${table}'"
+    }
 
-        if (currentSeqValue) {
-            // 2. Enforce safety using an UPSERT command inside the system tracking sequence table
-            String syncSql = "INSERT INTO sqlite_sequence (name, seq) VALUES ('${tableTo}', ${currentSeqValue}) " +
+    @Override
+    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {
+        return "INSERT INTO sqlite_sequence (name, seq) VALUES ('${table}', ${value}) " +
                 "ON CONFLICT(name) DO UPDATE SET seq = excluded.seq"
-            ok = db.set(new Query(syncSql))
-        }
-        db.close()
-        return ok
     }
 
     @Override
     String getForeignKey(String tableName, ColumnDefinition column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.ondelete
-                indices = "FOREIGN KEY (`${column.name}`) " +
-                    "REFERENCES `${joinTable}`(`${getColumnName(refType.primaryKey)}`) ON DELETE ${action}"
-                break
+        if (!column.isForeignKey) return ""
+        String sql = "FOREIGN KEY (`${column.name}`) REFERENCES `${column.referenceTable}`(`${column.referenceColumn}`) ON DELETE ${column.onDelete}"
+        if (column.onUpdate && column.onUpdate != UpdateActions.NO_ACTION) {
+            sql += " ON UPDATE ${column.onUpdate}"
         }
-        return indices
+        return sql
     }
 }

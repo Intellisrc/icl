@@ -25,8 +25,7 @@ class PoolConnector implements Connector {
 
 	DB getDB() {
 		if(pool.initialized) {
-			boolean inMemory = pool.jdbc instanceof Volatile && (pool.jdbc as Volatile).memory
-			return inMemory ? pool.jdbc.connect() : new DB(this)
+			return new DB(this)
 		} else {
 			Log.e( "Pool has not been initialized")
 			return null

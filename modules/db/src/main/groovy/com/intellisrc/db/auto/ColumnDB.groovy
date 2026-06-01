@@ -30,8 +30,8 @@ class ColumnDB implements NormalizedColumn {
             name: this.name,
             uniqueGroup: annotation.uniqueGroup(),
             customType: hasCustomDef ? annotation.columnDefinition() : "",
-            ondelete: this.annotation.ondelete(),
-            onupdate: this.annotation.onupdate(),
+            onDelete: this.annotation.ondelete(),
+            onUpdate: this.annotation.onupdate(),
             type: this.type,
             defaultValue: this.defaultVal
         )

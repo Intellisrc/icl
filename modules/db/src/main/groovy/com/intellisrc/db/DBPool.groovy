@@ -29,6 +29,8 @@ class DBPool {
 	// Turn it true to debug connections
 	protected String debugTimeoutPackage = Config.any.get("db.timeout.debug")
 	protected boolean initialized = false
+	// For databases which are only in memory
+	protected inMemory = false
 	ConcurrentLinkedQueue<Connector> availableConnections = new ConcurrentLinkedQueue<>()
 	ConcurrentLinkedQueue<Connector> currentConnections = new ConcurrentLinkedQueue<>()
 	List<TimeoutTrace> connTrace = []
@@ -48,6 +50,7 @@ class DBPool {
 	synchronized void init(JDBC jdbcObj, int timeout = 0, int expiration = 0) {
 		if(!initialized) {
 			jdbc = jdbcObj
+			inMemory = jdbc instanceof Volatile && (jdbc as Volatile).memory
 			timeoutSeconds = timeout ?: timeoutSeconds
 			expireSeconds = expiration ?: expireSeconds
 			if(expireSeconds < timeoutSeconds) {

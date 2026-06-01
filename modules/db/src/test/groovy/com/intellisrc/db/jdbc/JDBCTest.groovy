@@ -46,7 +46,7 @@ abstract class JDBCTest extends Specification {
     }
 
     boolean createTable(DB db, String table) {
-        return db.table(table).create([
+        return db.table(table).createTable([
             new ColumnDefinition(
                 name: "id",
                 primaryKey: true,
@@ -79,7 +79,7 @@ abstract class JDBCTest extends Specification {
 
     boolean createTablePK(DB db, String table) {
         println "Creating table (Multiple PK): $table ..."
-        return db.table(table).create([
+        return db.table(table).createTable([
             new ColumnDefinition(
                 name: "uid",
                 nullable: false,

@@ -57,11 +57,11 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                 case AutoJDBC:
                     // Initialize Auto
                     DB conn = connect()
-                    (jdbc as AutoJDBC).autoInit()
+                    (jdbc as AutoJDBC).initialize(conn)
                     boolean exists = conn.exists()
                     if (exists) {
                         if(autoUpdate) {
-                            int version = TableUpdater.getTableVersion(conn, tableName.toString())
+                            int version = conn.getVersion(tableName.toString())
                             if (definedVersion != version) {
                                 updateTable()
                             } else {
@@ -153,7 +153,8 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                 }
             }
             TableDefinition definition = columns.collect { it.normalized } as TableDefinition
-            ok = jdbc.createTable(tableNameToCreate, definition, charset, engine, definedVersion)
+            definition.version = definedVersion
+            ok = db.table(tableNameToCreate).createTable(definition, engine, charset)
         }
         db.close()
         return ok
@@ -456,7 +457,10 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @return
      */
     boolean resetAutoIncrement() {
-        return jdbc.resetAutoIncrement(name)
+        DB db = connect()
+        boolean ok = db.resetAutoIncrement(name)
+        db.close()
+        return ok
     }
     /**
      * Insert a model

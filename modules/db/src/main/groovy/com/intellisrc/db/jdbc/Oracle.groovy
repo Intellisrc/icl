@@ -408,7 +408,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 Constructor<?> ctor = column.type.getConstructor()
                 Model refType = (ctor.newInstance() as Model)
                 String joinTable = refType.tableName
-                String action = column.ondelete.toString()
+                String action = column.onDelete.toString()
                 String onDelete = switch (action.toLowerCase()) {
                     case "restrict" -> ""
                     default -> "ON DELETE ${action}"

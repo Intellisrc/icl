@@ -75,8 +75,8 @@ class ColumnInfo implements NormalizedColumn {
             name: this.name,
             uniqueGroup: this.uniqueGroup,
             customType: this.customType,
-            ondelete: this.ondelete,
-            onupdate: this.onupdate,
+            onDelete: this.ondelete,
+            onUpdate: this.onupdate,
             type: this.type.javaClass,
             defaultValue: this.defaultValue
         )

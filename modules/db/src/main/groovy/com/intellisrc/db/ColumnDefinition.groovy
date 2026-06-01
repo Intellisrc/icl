@@ -23,8 +23,13 @@ class ColumnDefinition {
     String name             = ""
     String uniqueGroup      = null   // Can be null
     String customType       = ""
-    DeleteActions ondelete  = DeleteActions.RESTRICT
-    UpdateActions onupdate  = UpdateActions.NO_ACTION
+    DeleteActions onDelete  = DeleteActions.RESTRICT
+    UpdateActions onUpdate  = UpdateActions.NO_ACTION
     Class<?> type           = null
     Object defaultValue     = null
+
+    // Foreign Key info:
+    boolean isForeignKey    = false
+    String referenceTable   = ""
+    String referenceColumn  = ""
 }
