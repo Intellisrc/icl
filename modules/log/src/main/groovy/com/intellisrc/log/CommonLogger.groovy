@@ -361,7 +361,7 @@ class CommonLogger extends MarkerIgnoringBase {
      * @param t
      */
     protected void log(Level level, String message, Throwable t) {
-        if(!initialized) { initialize() }
+        initialize()
         if (!isLevelEnabled(level)) {
             return
         }
@@ -535,6 +535,7 @@ class CommonLogger extends MarkerIgnoringBase {
      * @return
      */
     FileLogger getFileLogger() {
+        initialize()
         return printers.find { it instanceof FileLogger } as FileLogger
     }
     /**
@@ -542,6 +543,7 @@ class CommonLogger extends MarkerIgnoringBase {
      * @return
      */
     PrintLogger getPrintLogger() {
+        initialize()
         return printers.find { it instanceof PrintLogger } as PrintLogger
     }
     /**
@@ -550,6 +552,7 @@ class CommonLogger extends MarkerIgnoringBase {
      * @return
      */
     LoggableOutputLevels getLoggable(Class type) {
+        initialize()
         return printers.find { type.isInstance(it) } as LoggableOutputLevels
     }
     /**
@@ -558,6 +561,7 @@ class CommonLogger extends MarkerIgnoringBase {
      * @return
      */
     BaseLogger getLogger(Class type) {
+        initialize()
         return printers.find { type.isInstance(it) } as BaseLogger
     }
 }

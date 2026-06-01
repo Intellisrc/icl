@@ -4,13 +4,14 @@ import com.intellisrc.core.SysClock
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.jdbc.*
+import spock.lang.IgnoreIf
 
 import java.time.LocalDate
 
 /**
  * @since 2023/05/30.
  */
-class ViewTest extends AutoTest {
+abstract class ViewTest extends AutoTest {
     static class TestModel extends Model {
         @Column
         id
@@ -34,25 +35,21 @@ class ViewTest extends AutoTest {
             return sql
         }
     }
+
+    String getCreateViewSQL() {
+        return """CREATE VIEW test_view AS SELECT u.id, u.name, u.age, a.added
+                  FROM users u LEFT JOIN aliases a ON(u.id = a.user_id)"""
+    }
+
+    @IgnoreIf({ instance.shouldSkip() })
     def "Should create view"() {
         setup:
-            Database database = new Database(jdbc)
+            Database database = new Database(connJdbc)
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
             aliases.clear()
             users.clear()
-            TestView.sql = ""
-            //noinspection GroovyFallthrough
-            switch (jdbc) {
-                case Derby:
-                case SQLite:
-                case MySQL:
-                case MariaDB:
-                case PostgreSQL:
-                    TestView.sql = """CREATE VIEW test_view AS SELECT u.id, u.name, u.age, a.added 
-                             FROM users u LEFT JOIN aliases a ON(u.id = a.user_id)"""
-                    break
-            }
+            TestView.sql = createViewSQL
             assert TestView.sql : "SQL not specified"
             TestView view = new TestView("test_view", database)
 
@@ -77,8 +74,7 @@ class ViewTest extends AutoTest {
             assert view.getAll().first().age == u.age
             assert view.getAll().first().added == alias.added
         cleanup:
-             view.drop()
-        where:
-            jdbc << testable
+            view.drop()
+            database.quit()
     }
 }

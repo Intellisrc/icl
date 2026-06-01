@@ -2,31 +2,16 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.db.DB
 
+import java.sql.DriverManager
+import java.sql.SQLException
+
 /**
  * @since 18/06/15.
  */
 class DerbyTest extends JDBCTest {
-    File derbyLog = File.get("derby.log")
-
-    String getTableCreate(String name) {
-        return """CREATE TABLE $name (
-                id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-                name VARCHAR(10) NOT NULL UNIQUE,
-                version FLOAT,
-                active BOOLEAN,
-                updated DATE
-        )"""
-    }
-
-    String getTableCreateMultiplePK(String name) {
-        return """CREATE TABLE ${name} (
-                  uid INT NOT NULL,
-                  gid INT NOT NULL,
-                  name VARCHAR(30) NOT NULL,
-                  PRIMARY KEY (gid,uid)
-        )"""
-    }
-
+    final static File derbyLog = File.get("derby.log")
+    // We don't use create directory here or Derby will fail the first test:
+    final static File dbDir = File.get(File.tempDir, "derby-" + System.currentTimeMillis())
     /**
      * Launch test:
      * (Nothing is needed as it will run in memory).
@@ -38,13 +23,24 @@ class DerbyTest extends JDBCTest {
     JDBC getDB() {
         return new Derby(
             create  : true,
-            memory  : true
+            dbname  : dbDir.absolutePath,
         )
     }
 
     def cleanup() {
+        // Shut down the specific database to release file locks
+        try {
+            if(dbDir.exists()) {
+                DriverManager.getConnection("jdbc:derby:${dbDir.absolutePath};shutdown=true")
+            }
+        } catch (SQLException ignored) {
+            // Derby always throws an SQL State 08006 or XJ015 on successful shutdown
+        }
         if(derbyLog.exists()) {
             derbyLog.delete()
+        }
+        if(dbDir.exists()) {
+            dbDir.deleteDir()
         }
     }
 
@@ -55,8 +51,8 @@ class DerbyTest extends JDBCTest {
             DB db = jdbc.connect()
             println "Creating table 'login' ..."
             db.setSQL("""CREATE TABLE login (
-                userlogin VARCHAR(10) NOT NULL,
-                pass VARCHAR(64) NOT NULL
+                "userlogin" VARCHAR(10) NOT NULL,
+                "pass" VARCHAR(64) NOT NULL
             )""")
         expect:
             assert db.table("login").insert([
@@ -72,11 +68,11 @@ class DerbyTest extends JDBCTest {
             println "Creating table 'front' ..."
             db.setSQL("""
             CREATE TABLE front (
-                id INTEGER GENERATED ALWAYS AS IDENTITY CONSTRAINT front_pk PRIMARY KEY,
-                name VARCHAR(10),
-                port INT DEFAULT 0,
-                mode VARCHAR(255),
-                extra CLOB DEFAULT '[]'
+                "id" INTEGER GENERATED ALWAYS AS IDENTITY CONSTRAINT front_pk PRIMARY KEY,
+                "name" VARCHAR(10),
+                "port" INT DEFAULT 0,
+                "mode" VARCHAR(255),
+                "extra" CLOB DEFAULT '[]'
             )""")
         expect:
             assert db.table("front").exists()

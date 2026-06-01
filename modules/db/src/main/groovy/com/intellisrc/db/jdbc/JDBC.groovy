@@ -5,15 +5,21 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnInfo
 import com.intellisrc.db.DB
+import com.intellisrc.db.Data
 import com.intellisrc.db.DatabaseConnectionException
 import com.intellisrc.db.JDBCConnector
 import com.intellisrc.db.Query
+import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.TableDefinition
+import com.intellisrc.db.Volatile
+import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import org.reflections.Reflections
 
 import java.lang.reflect.Field
 import java.sql.Connection
-import java.sql.SQLNonTransientConnectionException
+
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * Minimum JDBC information to connect to any database
@@ -84,6 +90,14 @@ abstract class JDBC {
 
     // This will be set in case it is set directly
     protected String connectionURI = ""
+
+    // Store DB object for singleConnections
+    protected DB singleConnection
+    /**
+     * Some databases does not support JSON datatype
+     * @return
+     */
+    boolean supportsJSON = false
 
     // QUERY BUILDING -------------------------------
     /**
@@ -161,7 +175,7 @@ abstract class JDBC {
      * In all the following methods, "table" is already quoted, if needed (added by Query)
      */
     String getCreateDatabaseQuery() {
-        return "CREATE DATABASE $dbname"
+        return "CREATE DATABASE $dbname" //FIXME: charset is missing
     }
     String getDropDatabaseQuery() {
         return "DROP DATABASE $dbname"
@@ -250,9 +264,18 @@ abstract class JDBC {
      * @return
      */
     DB connect() throws DatabaseConnectionException {
-        DB db = new DB(new JDBCConnector(this))
-        db.openIfClosed()
-        return db
+        if(this instanceof Volatile && (this as Volatile).memory) {
+            if(! singleConnection) {
+                singleConnection = new DB(new JDBCConnector(this))
+                singleConnection.alwaysOpen = true
+                singleConnection.openIfClosed()
+            }
+            return singleConnection
+        } else {
+            DB db = new DB(new JDBCConnector(this))
+            db.openIfClosed()
+            return db
+        }
     }
 
     //----------- STATIC ----------------
@@ -377,5 +400,225 @@ abstract class JDBC {
         jdbc.user = userName
         jdbc.password = pwd.toString()
         return jdbc
+    }
+
+    ///////////////////// PREVIOUSLY IN AUTOJDBC ///////////////////////////
+    /**
+     * Shortcut for db.set
+     * @param db
+     * @param qry
+     * @return
+     */
+    boolean set(String qry) {
+        DB db = connect()
+        boolean ok = db.set(new Query(qry))
+        db.close()
+        return ok
+    }
+    /**
+     * Shortcut for db.get
+     * @param db
+     * @param qry
+     * @return
+     */
+    Data get(String qry) {
+        DB db = connect()
+        Data data = db.get(new Query(qry))
+        db.close()
+        return data
+    }
+    /**
+     * Create a table
+     * @param db
+     * @param tableName
+     * @param charset
+     * @param engine
+     * @param version : definedVersion (in Model code)
+     * @param fields
+     * @return
+     */
+    boolean createTable(String tableName, TableDefinition columns = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
+        //DB db = connect()
+        //db.close()
+        return false
+    }
+    /**
+     * Get default statement using minimum information
+     * @param val
+     * @param column
+     * @param supportsNull
+     * @param supportBool
+     * @return
+     */
+    String getDefaultQuery(Object defValue, boolean autoIncrement, boolean nullable, boolean useParenthesis) {
+        String definition = ""
+        Object val = defValue
+        if(! autoIncrement) {
+            String dv = getDefaultValue(defValue)
+            if (val != null) { // When default value is null, it will be set as nullable
+                boolean isNum = val.toString().isNumber()
+                boolean isBool = val instanceof Boolean
+                if(isBool) {
+                    switch (booleanHandle) {
+                        case NUMBER:
+                            val = Data.booleanAsInt(val as boolean)
+                            isNum = true
+                            isBool = false
+                            break
+                        case ENUM:
+                            val = val.toString().toUpperCase()
+                            isBool = false
+                            isNum = false
+                            break
+                        case CHAR:
+                            val = Data.booleanAsChar(val as boolean, trueChar, falseChar)
+                            isBool = false
+                            break
+                    }
+                }
+                dv = (isNum || isBool) ? val.toString().toUpperCase() : "'${val}'".toString()
+            }
+            String notNull = nullable ? "" : "NOT NULL"
+            definition = [notNull, useParenthesis ? "DEFAULT ($dv)" : "DEFAULT $dv"].join(" ")
+        }
+        return definition
+    }
+    /**
+     * Get default statement using ColumnInfo
+     * @param val
+     * @param column
+     * @param supportsNull
+     * @param supportBool
+     * @return
+     */
+    String getDefaultQuery(ColumnDefinition column, boolean useParenthesis = false) {
+        return getDefaultQuery(column.defaultValue, column.autoIncrement, column.nullable, useParenthesis)
+    }
+    /**
+     * Converts type to default possible value in database
+     * For example, String should be ''
+     * @param type
+     * @return
+     */
+    String getDefaultValue(Object defaultValue) {
+        return switch (defaultValue) {
+            case Collection -> (defaultValue as Collection).empty ? "'[]'" : "'" + YAML.encode(defaultValue as Collection) + "'"
+            case Map -> (defaultValue as Map).isEmpty() ? "'{}'" : "'" + YAML.encode(defaultValue as Map) + "'"
+            case Boolean, boolean, int, short, Integer, BigInteger, long, Long, float, Float, double, Double, BigDecimal -> defaultValue.toString()
+            case String, Character, char -> "'${defaultValue.toString()}'"
+            default -> "NULL"
+        }
+    }
+    /**
+     * Converts type to default possible value in database (using ColumnInfo)
+     * For example, String should be ''
+     * @param type
+     * @return
+     * @param column
+     * @return
+     */
+    String getDefaultForType(ColumnDefinition column) {
+        return getDefaultValue(column.defaultValue)
+    }
+    /**
+     * Copy table structure and data
+     * @param db
+     * @param from
+     * @param to
+     * @return
+     */
+    boolean cloneTable(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        return copyTableStructure(from, to) && copyTableData(from, to, columns)
+    }
+    /**
+     * Copy a table with all constraints
+     * @param db
+     * @param from
+     * @param to
+     * @param columns
+     * @return
+     */
+    // Changed for createTable with a name instead
+    boolean copyTableStructure(String from, String to) { false }
+    /**
+     * Copy table data
+     * @return
+     */
+    boolean copyTableData(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        return set("INSERT INTO $to SELECT * FROM $from")
+    }
+    /**
+     * Reset serial / identity / auto-increment if needed
+     * @param db
+     * @param from
+     * @param to
+     * @return
+     */
+    boolean resetAutoIncrement(String tableName) {
+        Log.w("Reset auto increment not implemented for database: %s", dbname)
+        return false
+    }
+    /**
+     * Copy auto increment / identity or serial to another table (usually backup table)
+     * @param tableFrom
+     * @param tableTo
+     * @return
+     */
+    boolean copyAutoIncrement(String tableFrom, String tableTo, String columnName) {
+        Log.w("Copy auto increment not implemented for database: %s", dbname)
+        return false
+    }
+    /**
+     * Rename table
+     * @param from
+     * @param to
+     * @return
+     *
+     * WARNING: renaming a table which is referenced may leave incorrect references
+     */
+    boolean renameTable(String from, String to) {
+        return set("ALTER TABLE ${from} RENAME TO ${to}")
+    }
+    /**
+     * Turn Foreign Keys ON
+     * @return
+     */
+    boolean turnFK(boolean on) {
+        return true
+    }
+    /**
+     * Add version to table
+     * @param table
+     * @param comment
+     * @return
+     */
+    boolean setVersion(String dbname, String table, int version) {
+        return true
+    }
+    /**
+     * Get version from table
+     * @param table
+     * @return
+     */
+    int getVersion(String dbname, String table) {
+        return 1
+    }
+    /**
+     * This method will consider customType and fallout to getColumnDefinition if not found
+     * @param column
+     * @return
+     */
+    protected String getColumnDefinitionCustom(final ColumnDefinition column) {
+        return column.customType ? column.customType : getColumnDefinition(column)
+    }
+    /**
+     * Get representation of a field in the database
+     * @param field
+     * @param column
+     * @return
+     */
+    String getColumnDefinition(final ColumnDefinition column) {
+        Log.w("Column Definition is not available for database: %s", dbname)
+        return ""
     }
 }

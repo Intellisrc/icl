@@ -53,9 +53,9 @@ class TableUpdater {
             switch (db.jdbc) {
                 case AutoJDBC:
                     AutoJDBC auto = db.jdbc as AutoJDBC
-                    auto.autoInit(db)
+                    auto.autoInit()
 
-                    if(auto.turnFK(db, false)) {
+                    if(db.jdbc.turnFK(false)) {
                         ok = tables.every {
                             // It will stop if some table fails to create
                             TableInfo info ->
@@ -66,10 +66,10 @@ class TableUpdater {
                                 }
                                 if(ok2) {
                                     records = db.table(info.name).count().get().toInt()
-                                    if (auto.cloneTable(db, info.name, info.backName, info.table.columns)) {
+                                    if (db.jdbc.cloneTable(info.name, info.backName, info.table.definition)) {
                                         ok2 = db.table(info.name).drop()
                                     } else {
-                                        ok2 = auto.renameTable(db, info.name, info.backName)
+                                        ok2 = db.jdbc.renameTable(info.name, info.backName)
                                     }
                                 } else {
                                     Log.w("Failed to drop backup table: %s", info.backName)
@@ -79,13 +79,13 @@ class TableUpdater {
                                     if(recordsAfterBackup != records) {
                                         Log.w("Data was not successfully backed up (%d vs %d records), aborting", records, recordsAfterBackup)
                                         db.table(info.name).drop()
-                                        auto.renameTable(db, info.backName, info.name)
+                                        db.jdbc.renameTable(info.backName, info.name)
                                         return false
                                     } else {
-                                        if (!auto.createTable(db, info.table, info.name)) { //Creating new table
+                                        if (!auto.createTable(info.table, info.name)) { //Creating new table
                                             Log.w("Unable to copy table. Reverting")
                                             db.table(info.name).drop()
-                                            auto.renameTable(db, info.backName, info.name)
+                                            db.jdbc.renameTable(info.backName, info.name)
                                             return false //failed
                                         }
                                     }
@@ -100,10 +100,10 @@ class TableUpdater {
                                     int version = getTableVersion(db, info.name)
                                     if (info.table.execOnUpdate(db.table(info.backName), version, info.table.definedVersion)) {
                                         List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
-                                        ok = db.table(info.name).insert(newData) && auto.resetAutoIncrement(db, info.table, info.name, info.backName)
+                                        ok = db.table(info.name).insert(newData) && db.jdbc.copyAutoIncrement(info.table.name, info.backName, info.table.primaryKey)
                                     } else {
-                                        boolean dataCopied = auto.copyTableData(db, info.backName, info.name, info.table.columns)
-                                        boolean resetSequence = dataCopied && auto.resetAutoIncrement(db, info.table, info.name, info.backName)
+                                        boolean dataCopied = db.jdbc.copyTableData(info.backName, info.name, info.table.definition)
+                                        boolean resetSequence = dataCopied && db.jdbc.copyAutoIncrement(info.table.name, info.backName, info.table.primaryKey)
                                         boolean countMatch = resetSequence && db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
                                         ok = countMatch
                                         if (!ok) {
@@ -149,7 +149,7 @@ class TableUpdater {
                                 TableInfo info ->
                                     db.table(info.backName).drop()
                                     // Replace the table version:
-                                    auto.setVersion(db, db.jdbc.dbname, info.name, info.table.definedVersion)
+                                    db.jdbc.setVersion(db.jdbc.dbname, info.name, info.table.definedVersion)
                             }
                         } else {
                             Log.w("Update failed!. Rolled back.")
@@ -157,14 +157,14 @@ class TableUpdater {
                                 TableInfo info ->
                                     if(db.table(info.backName).exists()) {
                                         db.table(info.name).drop()
-                                        if (!auto.renameTable(db, info.backName, info.name)) {
+                                        if (!db.jdbc.renameTable(info.backName, info.name)) {
                                             Log.w("Unable to rollback update. Please check table: [%s] manually.", info.name)
                                             Log.w("    a backup of original table may exists with name: ", info.backName)
                                         }
                                     }
                             }
                         }
-                        auto.turnFK(db, true)
+                        db.jdbc.turnFK(true)
                     }
                     break
                 default:
@@ -186,6 +186,6 @@ class TableUpdater {
      * @return
      */
     static int getTableVersion(DB db, String table) {
-        return (db.jdbc as AutoJDBC).getVersion(db, db.jdbc.dbname, table) ?: 1
+        return db.jdbc.getVersion(db.jdbc.dbname, table) ?: 1
     }
 }

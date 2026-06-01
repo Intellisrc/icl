@@ -8,7 +8,9 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 import java.sql.SQLException
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
@@ -189,11 +191,31 @@ class DBStatement implements ResultStatement {
     }
 
     @Override
-    LocalDateTime columnDate(int index) {
+    LocalTime columnTime(int index) {
+        try {
+            return resultSet.getTimestamp(index).toLocalTime()
+        } catch (SQLException ex) {
+            Log.w( "column Time failed for index: %d", index)
+            conn.onError(ex)
+            return null
+        }
+    }
+    @Override
+    LocalDate columnDate(int index) {
+        try {
+            return resultSet.getTimestamp(index).toLocalDate()
+        } catch (SQLException ex) {
+            Log.w( "column Date failed for index: %d", index)
+            conn.onError(ex)
+            return null
+        }
+    }
+    @Override
+    LocalDateTime columnDateTime(int index) {
         try {
             return resultSet.getTimestamp(index).toLocalDateTime()
         } catch (SQLException ex) {
-            Log.w( "column Date failed for index: %d", index)
+            Log.w( "column DateTime failed for index: %d", index)
             conn.onError(ex)
             return null
         }

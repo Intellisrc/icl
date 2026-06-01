@@ -2,14 +2,12 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.core.Secs
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
-import java.sql.SQLNonTransientConnectionException
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import static com.intellisrc.db.ColumnType.*
@@ -41,6 +39,8 @@ class DB {
     protected Query queryBuilder = null
     // Flag to mark connections which were returned already
     protected boolean returned = false
+    // When true, it will never close a connection (specific usages)
+    boolean alwaysOpen = false
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
@@ -402,6 +402,24 @@ class DB {
         }
         return ok
     }
+    /**
+     * Create database
+     * @param definition
+     * @param engine
+     * @param charset
+     * @return
+     */
+    boolean create(TableDefinition definition, String engine, String charset = "UTF8") {
+        boolean ok = false
+        if(table) {
+            Log.i("Creating table: %s", table)
+            int version = jdbc.getVersion(jdbc.database, table) ?: 1
+            ok = jdbc.createTable(table, definition, charset, engine, version)
+        } else {
+            Log.w("Can not create table: No table specified")
+        }
+        return ok
+    }
     /** Drops the current table
 	 * @return true on success **/
     boolean drop() {
@@ -566,7 +584,7 @@ class DB {
                 }
             }
         } else {
-            Log.v("Table name was not specified")
+            Log.w("Table name was not specified")
         }
         return columns
     }
@@ -580,6 +598,7 @@ class DB {
     }
     /** Quit **/
     boolean close() {
+        if(alwaysOpen) return true
 		Log.v( "Closing connection...")
         returned = true
     	return dbConnector.close()
@@ -879,8 +898,12 @@ class DB {
                                     if (!st.isColumnNull(i)) {
                                         String column = jdbc.convertToLowerCase ? st?.columnName(i)?.toLowerCase() : st?.columnName(i)
                                         ColumnType type = st?.columnType(i)
+                                        //noinspection GroovyFallthrough
                                         switch (type) {
                                             case TEXT:
+                                            case VARCHAR:
+                                            case CHAR:
+                                            case CLOB:
                                                 String val = st.columnStr(i).trim()
                                                 if(["true","false"].contains(val.toLowerCase())) {
                                                     row.put(column, st.columnBool(i))
@@ -892,6 +915,10 @@ class DB {
                                                 row.put(column, st.columnBool(i))
                                                 break
                                             case INTEGER:
+                                            case TINYINT:
+                                            case SMALLINT:
+                                            case BIGINT:
+                                            case DECIMAL:
                                                 // Oracle does not report decimals when using functions like: MAX()
                                                 if(jdbc.checkDecimals && st.columnInt(i) != st.columnDbl(i)) {
                                                     row.put(column, st.columnDbl(i))
@@ -906,13 +933,25 @@ class DB {
                                                 row.put(column, st.columnDbl(i))
                                                 break
                                             case BLOB:
+                                            case VARBINARY:
+                                            case BINARY:
                                                 row.put(column, st.columnBlob(i))
+                                                break
+                                            case TIME:
+                                                row.put(column, st.columnTime(i))
                                                 break
                                             case DATE:
                                                 row.put(column, st.columnDate(i))
                                                 break
-                                            default:
+                                            case TIMESTAMP:
+                                            case TIMESTAMP_TZ: //TODO: should it be columnZonedDateTime ?
+                                                row.put(column, st.columnDateTime(i))
+                                                break
+                                            case NULL:
                                                 Log.w("Type was NULL")
+                                                break
+                                            default:
+                                                Log.w("Type was not handled: %s", type.toString())
                                                 break
                                         }
                                     }
@@ -1013,7 +1052,7 @@ class DB {
                 if (st) {
                     try {
                         st.next()
-                        if (query.isIdentityUpdate) {
+                        if (query.isIdentityUpdate && query.table) {
                             List<String> pks = getPKs()
                             if(pks.size() == 1 && info(pks.first())?.autoIncrement) {
                                 String id = st.columnStr(1)

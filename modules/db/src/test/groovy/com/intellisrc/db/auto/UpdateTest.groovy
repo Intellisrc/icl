@@ -6,11 +6,12 @@ import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import static com.intellisrc.db.Query.SortOrder.DESC
 
-class UpdateTest extends AutoTest {
+abstract class UpdateTest extends ViewTest {
 
     /**
      * Model used to update table
@@ -55,12 +56,11 @@ class UpdateTest extends AutoTest {
         DB.clearCache()
     }
 
-    @Unroll
+    @IgnoreIf({ instance.shouldSkip() })
     def "Simple Update without data"() {
         setup:
             String tableName = "users"
-            Log.i("Initializing test for: %s", jdbc)
-            Database database = new Database(jdbc)
+            Database database = new Database(connJdbc)
             Users users = new Users(tableName, database)
             UserExtras extras = new UserExtras(database)
         when:
@@ -96,17 +96,14 @@ class UpdateTest extends AutoTest {
             Log.i("Cleaning database...")
             extras?.drop()
             users?.drop()
-            users?.quit()
-        where:
-            jdbc << getTestable(true)
+            database.quit()
     }
 
-    @Unroll
+    @IgnoreIf({ instance.shouldSkip() })
     def "Update with data"() {
         setup:
-            Log.i("Initializing test for: %s", jdbc)
             String tableName = "users"
-            Database database = new Database(jdbc)
+            Database database = new Database(connJdbc)
             Users users = new Users(tableName, database)
         when:
             int rows = 10
@@ -157,8 +154,6 @@ class UpdateTest extends AutoTest {
         cleanup:
             Log.i("Cleaning database...")
             users?.drop()
-            users?.quit()
-        where:
-            jdbc << getTestable(true)
+            database.quit()
     }
 }

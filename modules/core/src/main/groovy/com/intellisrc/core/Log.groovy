@@ -26,6 +26,7 @@ class Log {
         "java.util",
         "jdk.internal",
         "jdk.proxy2",
+        "jdk.proxy3",
         "com.sun.proxy",
         "groovy.lang",
         "org.codehaus.groovy",

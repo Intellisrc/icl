@@ -63,7 +63,7 @@ abstract class View<M extends Model> extends Relational<M> implements Instanciab
                 case AutoJDBC:
                     // Initialize Auto
                     DB conn = connect()
-                    (jdbc as AutoJDBC).autoInit(conn)
+                    (jdbc as AutoJDBC).autoInit()
                     boolean exists = conn.exists()
                     if (exists && recreate) {
                         drop()
@@ -92,7 +92,7 @@ abstract class View<M extends Model> extends Relational<M> implements Instanciab
             case AutoJDBC:
                 // Initialize Auto
                 DB conn = connect()
-                (jdbc as AutoJDBC).autoInit(conn)
+                (jdbc as AutoJDBC).autoInit()
                 boolean exists = conn.exists()
                 if (exists) {
                     dropped = drop(true)

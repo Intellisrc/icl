@@ -141,13 +141,46 @@ class JDBCConnector implements Connector {
 		try {
 			if(connection) {
 				DatabaseMetaData meta = connection.getMetaData()
+				String catalog = jdbc.catalogSearchName
+				String schema = jdbc.schemaSearchName
+				String searchTable = jdbc.getTableSearchName(table)
+
+				// 1. Fetch Primary Keys
 				List<String> pks = []
-				ResultSet rsPk = meta.getPrimaryKeys(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table))
+				ResultSet rsPk = meta.getPrimaryKeys(catalog, schema, searchTable)
 				while (rsPk.next()) {
-					pks << (jdbc.convertToLowerCase ? rsPk.getString("COLUMN_NAME").toLowerCase() : rsPk.getString("COLUMN_NAME"))
+					String pkCol = rsPk.getString("COLUMN_NAME")
+					pks << (jdbc.convertToLowerCase ? pkCol.toLowerCase() : pkCol)
 				}
 				rsPk.close()
-				ResultSet rsCols = meta.getColumns(jdbc.catalogSearchName, jdbc.schemaSearchName, jdbc.getTableSearchName(table), "%")
+
+				// 2. Fetch Indexes & Unique Constraints
+				Set<String> indexedColumns = [] as Set
+				Set<String> uniqueColumns = [] as Set
+
+				try {
+					// The last two booleans: uniqueOnly = false, approximate = false
+					ResultSet rsIdx = meta.getIndexInfo(catalog, schema, searchTable, false, false)
+					while (rsIdx.next()) {
+						String idxColName = rsIdx.getString("COLUMN_NAME")
+						if (idxColName != null) { // Index info can include table statistics with null column names
+							idxColName = jdbc.convertToLowerCase ? idxColName.toLowerCase() : idxColName
+
+							indexedColumns << idxColName
+
+							// rsIdx.getBoolean("NON_UNIQUE") returns false if the index is UNIQUE
+							if (!rsIdx.getBoolean("NON_UNIQUE")) {
+								uniqueColumns << idxColName
+							}
+						}
+					}
+					rsIdx.close()
+				} catch (Exception e) {
+					Log.w("Unable to fetch index details for table: [%s]. Proceeding without index markers.", table, e)
+				}
+
+				// 3. Fetch Columns
+				ResultSet rsCols = meta.getColumns(catalog, schema, searchTable, "%")
 				while (rsCols.next()) {
 					String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
 					int decimals = getColumnPropertyInt(rsCols,"DECIMAL_DIGITS")
@@ -161,14 +194,14 @@ class JDBCConnector implements Connector {
 						charLength: getColumnPropertyInt(rsCols,"CHAR_OCTET_LENGTH"),
 						bufferLength: getColumnPropertyInt(rsCols,"BUFFER_LENGTH"),
 						decimalDigits: decimals,
-						nullable: getColumnPropertyString(rsCols,"IS_NULLABLE") == "YES",
-						defaultValue: columnDef,
+						nullable: getColumnPropertyString(rsCols,"IS_NULLABLE") == "YES" &&! pks.contains(colName),
+						defaultValue: columnDef == "NULL" ? null : columnDef,
 						autoIncrement: getColumnPropertyString(rsCols,"IS_AUTOINCREMENT") == "YES" || (columnDef ?: "").contains("NEXTVAL"), // For Oracle
-						generated: getColumnPropertyString(rsCols,"IS_GENERATEDCOLUMN") == "YES",
-						unique: pks.contains(colName), //Through JDBC there is no easy way to identify if column is unique (unique is only used for information at the moment)
-						primaryKey: pks.contains(colName)
+						generated: getColumnPropertyString(rsCols,"IS_GENERATEDCOLUMN") == "YES", // Like calculated or using some function
+						unique: uniqueColumns.contains(colName) || pks.contains(colName), // PKs are always unique by nature
+						primaryKey: pks.contains(colName),
+						index: indexedColumns.contains(colName)
 					)
-					//FIXME: autoincrement in Oracle
 					columns << col
 				}
 				rsCols.close()

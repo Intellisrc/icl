@@ -18,21 +18,21 @@ abstract class Model implements ToMap {
     int getUniqueId() {
         int i = 0
         //noinspection GroovyFallthrough
-        switch (pk?.type) {
+        switch (primaryKey?.type) {
             case short:
             case int:
             case long:
             case Integer:
             case Long:
             case BigInteger:
-                i = this[pk.name] as int
+                i = this[primaryKey.name] as int
                 break
             case Model:
-                i = (this[pk.name] as Model).uniqueId as int
+                i = (this[primaryKey.name] as Model).uniqueId as int
                 break
             default:
-                if(pk?.type) {
-                    Log.w("Primary Key must be of type INTEGER or MODEL in table: %s, found: %s", tableName, pk.type.simpleName)
+                if(primaryKey?.type) {
+                    Log.w("Primary Key must be of type INTEGER or MODEL in table: %s, found: %s", tableName, primaryKey.type.simpleName)
                 }
         }
         return i
@@ -55,7 +55,7 @@ abstract class Model implements ToMap {
      * Get Primary Name field
      * @return
      */
-    Field getPk() {
+    Field getPrimaryKey() {
         Field primary = pkField ?: fields.find {
             it.getAnnotation(Column)?.primary()
         }

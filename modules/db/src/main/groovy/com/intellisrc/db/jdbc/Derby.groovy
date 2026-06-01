@@ -4,20 +4,20 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
+import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.TableDefinition
+import com.intellisrc.db.Volatile
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.annotation.Annotation
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.auto.Relational.ColumnDB
 import static com.intellisrc.db.auto.Relational.getColumnName
 import static com.intellisrc.db.jdbc.Derby.SubProtocol.*
 
@@ -35,7 +35,7 @@ import static com.intellisrc.db.jdbc.Derby.SubProtocol.*
  * db.derby.params = [:]
  */
 @CompileStatic
-class Derby extends JDBCServer implements AutoJDBC {
+class Derby extends JDBCServer implements AutoJDBC, Volatile {
     static enum SubProtocol {
         SERVER, DIRECTORY, MEMORY, CLASSPATH, JAR
     }
@@ -50,6 +50,7 @@ class Derby extends JDBCServer implements AutoJDBC {
     boolean embedded = Config.any.get("db.derby.embedded", false)
     boolean create = memory ?: Config.any.get("db.derby.create", false) //If in memory it will create automatically
     boolean useFK = Config.any.get("db.derby.fk", false)
+    boolean useVersion = false
     String tableMeta = Config.any.get("db.derby.meta", "sys_meta")
     SubProtocol subProtocol = DIRECTORY
 
@@ -57,7 +58,10 @@ class Derby extends JDBCServer implements AutoJDBC {
     // Query parameters
     String catalogSearchName = "%"
     String schemaSearchName = "%"
+    String fieldsQuotation = '"'
     boolean supportsReplace = false
+
+    protected boolean notifiedFkWarning = false
 
     // Derby specific parameters:
     // https://db.apache.org/derby/docs/10.0/manuals/reference/sqlj238.html#HDRSII-ATTRIB-24612
@@ -129,122 +133,153 @@ class Derby extends JDBCServer implements AutoJDBC {
         return table.toUpperCase()
     }
     ////////////////////////////// AUTO ////////////////////////////////////
-    boolean exists(DB db, String tableName) {
-        return get(db, "SELECT TRUE FROM SYS.SYSTABLES WHERE TABLENAME = '${tableName.toUpperCase()}' AND TABLETYPE = 'T'").toBool()
+    boolean exists(String tableName) {
+        return get("SELECT TRUE FROM SYS.SYSTABLES WHERE TABLENAME = '${getTableSearchName(tableName)}' AND TABLETYPE = 'T'").toBool()
     }
     @Override
-    void autoInit(DB db) {
-        if(! exists(db, tableMeta)) {
-            db.set(new Query("CREATE TABLE $tableMeta (" +
-                "table_name VARCHAR(50) PRIMARY KEY," +
-                "version INT NOT NULL DEFAULT 1" +
-                ")"))
+    void autoInit() {
+        if(useVersion &&! exists(tableMeta)) {
+            createTable(tableMeta, [
+                new ColumnDefinition(
+                    name: "table_name",
+                    type: String,
+                    index: true,
+                    nullable: false,
+                    length: 255
+                ),
+                new ColumnDefinition(
+                    name: "version",
+                    type: Integer,
+                    nullable: false,
+                    defaultValue: 1
+                ),
+            ] as TableDefinition)
         }
     }
-    @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta) {
-        boolean ok = false
-        if(! exists(db, tableName)) {
-            String createSQL = "CREATE TABLE ${tableName} (\n"
-            List<String> defs = []
-            List<String> keys = []
-            Map<String, List<String>> uniqueGroups = [:]
-            List<ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
-            if(pks.size() > 1) {
-                pks.each { it.multipleKey = true }
-            }
-            columns.each {
-                ColumnDB column ->
-                    List<String> parts = ["${column.name}".toString()]
-                    if (column.annotation.columnDefinition()) {
-                        String colDef = column.annotation.columnDefinition()
-                        int len = column.annotation.length()
-                        if(len &&! colDef.contains("(")) {
-                            colDef += "(${len})".toString()
-                        }
-                        parts << colDef
-                    } else {
-                        String type = getColumnDefinition(column).replace("_pk", tableName + "_pk" + "_v" + version)
-                        parts << type
-                        // Default value
-                        parts << getDefaultQuery(column)
 
-                        List<String> extra = []
-                        if (column.annotation.unique() || column.annotation.uniqueGroup()) {
-                            if (column.annotation.uniqueGroup()) {
-                                if (!uniqueGroups.containsKey(column.annotation.uniqueGroup())) {
-                                    uniqueGroups[column.annotation.uniqueGroup()] = []
-                                }
-                                uniqueGroups[column.annotation.uniqueGroup()] << column.name
-                            } else {
-                                extra << "UNIQUE"
-                            }
-                        }
-                        if (!extra.empty) {
-                            parts.addAll(extra)
-                        }
-                    }
-                    defs << parts.join(' ')
-            }
-            if (!keys.empty) {
-                defs.addAll(keys)
-            }
-            if (pks.size() > 1) {
-                defs << ("PRIMARY KEY (" + (pks.collect {"${ it.name }" }).join(",") + ")")
-            }
-            if (!uniqueGroups.keySet().empty) {
-                uniqueGroups.each {
-                    defs << "UNIQUE (${it.value.join(', ')})".toString()
+    @Override
+    boolean createTable(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
+        List<String> defs = []
+        List<ColumnDefinition> pks = definitions.pks
+        boolean isMultiplePks = definitions.hasMultiplePk()
+
+        // 1. Process Columns
+        definitions.each {
+            ColumnDefinition col ->
+                List<String> parts = ["\"${col.name}\"".toString(), getColumnDefinitionCustom(col)]
+
+                // Derby Identity (Auto-Increment) logic
+                if (col.autoIncrement) {
+                    parts << "GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)"
                 }
-            }
-            String fks = columns.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
-            if (fks) {
-                defs << fks
-            }
-            createSQL += defs.join(",\n") + "\n)"
-            ok = db.set(new Query(createSQL))
-            if (!ok) {
-                Log.v(createSQL)
-                Log.e("Unable to create table.")
+
+                // Inline Primary Key for a single PK column
+                if (col.primaryKey && !isMultiplePks) {
+                    parts << "PRIMARY KEY"
+                }
+
+                // Not null
+                if (col.primaryKey || col.unique || (col.uniqueGroup && !col.uniqueGroup.trim().empty)) {
+                    parts << "NOT NULL"
+                } else if (!col.nullable) {
+                    parts << "NOT NULL"
+                }
+
+                if (col.defaultValue) {
+                    // Derby prefers default constraints enclosed in parenthesis for expressions, false for literals
+                    parts << getDefaultQuery(col, false)
+                }
+
+                // Derby requires NOT NULL for ANY unique column
+                boolean isPartofUniqueGroup = (col.uniqueGroup != null && !col.uniqueGroup.trim().empty)
+                if (col.unique && !isPartofUniqueGroup) {
+                    parts << "UNIQUE"
+                }
+
+                defs << parts.join(' ')
+        }
+
+        // 2. Append Composite Primary Key Constraints (if any)
+        if (isMultiplePks) {
+            defs << "PRIMARY KEY (" + pks.collect { "\"${it.name}\"" }.join(",") + ")"
+        }
+
+        // 3. Append Composite Unique Group Constraints
+        Map<String, List<String>> uniqueGroups = definitions.uniqueGroups
+        if (!uniqueGroups.empty) {
+            uniqueGroups.each { String groupName, List<String> columns ->
+                // In Derby, you name table constraints using the CONSTRAINT keyword
+                defs << "CONSTRAINT \"${groupName}\" UNIQUE (\"${columns.join('\", \"')}\")".toString()
             }
         }
+
+        // 4. Append Foreign Keys
+        String fks = definitions.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
+        if (fks) {
+            defs << fks
+        }
+
+        // 5. Assemble Final Statement (No Engine, Charset, or Comment suffixes)
+        String createSQL = "CREATE TABLE \"${getTableSearchName(tableName)}\" (\n" + defs.join(",\n") + "\n)"
+
+        DB db = connect()
+        boolean ok = db.set(new Query(createSQL))
+        if (!ok) {
+            Log.v(createSQL)
+            Log.e("Unable to create table.")
+        }
+        db.close()
         return ok
     }
 
+    /**
+     * Derby uses double-quotes `"` for escaping instead of backticks `` ` ``
+     */
+
     @Override
-    boolean turnFK(final DB db, boolean on) {
+    boolean turnFK(boolean on) {
         return true //Not supported: https://www.mail-archive.com/derby-user@db.apache.org/msg05345.html
     }
 
     @Override
-    boolean copyTableStructure(final DB db, String from, String to) {
+    boolean copyTableStructure(String from, String to) {
         return false // set(db, "CREATE TABLE ${to} AS SELECT * FROM ${from} WITH NO DATA")
     }
     @Override
-    boolean copyTableData(DB db, String from, String to, Collection<ColumnDB> columns) {
-        boolean ok = set(db, "INSERT INTO ${to} SELECT * FROM ${from}")
-        ColumnDB ai = columns.find { it.annotation.autoincrement() }
+    boolean copyTableData(String from, String to, TableDefinition columns) {
+        boolean ok = set("INSERT INTO ${to} SELECT * FROM ${from}")
+        ColumnDefinition ai = columns.find { it.autoIncrement }
         if(ai) {
-            int max = get(db, "SELECT (MAX(${ai.name}) + 1) AS m FROM ${from}").toInt()
-            set(db, "ALTER TABLE ${to} ALTER COLUMN ${ai.name} RESTART WITH ${max ?: 1}")
+            int max = get("SELECT (MAX(${ai.name}) + 1) AS m FROM ${from}").toInt()
+            set("ALTER TABLE ${to} ALTER COLUMN ${ai.name} RESTART WITH ${max ?: 1}")
         }
         return ok
     }
     @Override
-    boolean setVersion(final DB db, String dbname, String table, int version) {
-        return db.table(tableMeta).replace([
+    boolean setVersion(String dbname, String table, int version) {
+        useVersion = true
+        DB db = connect()
+        boolean ok = db.table(tableMeta).replace([
             table_name : table,
             version : version
         ])
+        db.close()
+        return ok
     }
     @Override
-    int getVersion(final DB db, String dbname, String table) {
-        return db.table(tableMeta).field("version").get(table_name : table).toInt()
+    int getVersion(String dbname, String table) {
+        int ver = 1
+        if(useVersion) {
+            DB db = connect()
+            ver = db.table(tableMeta).field("version").get(table_name: table).toInt()
+            db.close()
+        }
+        return ver
     }
 
 
     @Override
-    String getColumnDefinition(ColumnDB column) {
+    String getColumnDefinition(final ColumnDefinition column) {
         String type = ""
         //noinspection GroovyFallthrough
         switch (column.type) {
@@ -257,7 +292,7 @@ class Derby extends JDBCServer implements AutoJDBC {
                 type = "CHAR"
                 break
             case char[]:
-                int len = column.annotation.length()
+                int len = column.length
                 if(!len) {
                     Log.w("Column: %s is char array but has no length. Setting 2 as length.", column.name)
                     len = 2
@@ -265,26 +300,24 @@ class Derby extends JDBCServer implements AutoJDBC {
                 type = "CHAR($len)"
                 break
             case String:
-                type = column.annotation.length() > 32672 ? "CLOB" : "VARCHAR(${column.annotation.length() ?: 255})"
+                type = column.length > 32672 ? "CLOB" : "VARCHAR(${column.length ?: 255})"
                 break
                 // All numeric values share unsigned/autoincrement and primary instructions:
             case byte:
+            case Byte:
             case short:
+            case Short:
                 type = type ?: "SMALLINT"
+                break
             case int:
             case Integer:
             case Model: //Another Model
                 type = type ?: "INT"
+                break
             case BigInteger:
             case long:
             case Long:
                 type = type ?: "BIGINT"
-                int len = column.annotation.length()
-                String length = len ? "(${len})" : ""
-                List<String> extra = [type, length]
-                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "GENERATED BY DEFAULT AS IDENTITY" : "")
-                extra << (! column.multipleKey && column.annotation.primary() ? "PRIMARY KEY" : "")
-                type = extra.findAll {it }.join(" ")
                 break
             case float:
             case Float:
@@ -303,17 +336,17 @@ class Derby extends JDBCServer implements AutoJDBC {
                 type = "TIME"
                 break
             case Inet4Address:
-                type = "VARCHAR(${column.annotation.length() ?: 15})"
+                type = "VARCHAR(${column.length ?: 15})"
                 break
             case Inet6Address:
             case InetAddress:
-                type = "VARCHAR(${column.annotation.length() ?: 45})"
+                type = "VARCHAR(${column.length ?: 45})"
                 break
             case URL:
             case URI:
             case Collection:
             case Map:
-                type = column.annotation.key() || column.annotation.unique() || (column.annotation.length() ?: 256) <= 255 ? "VARCHAR(${column.annotation.length() ?: 255})" : "CLOB"
+                type = column.index || column.unique || (column.length ?: 256) <= 255 ? "VARCHAR(${column.length ?: 255})" : "CLOB"
                 break
             case Enum:
                 int maxLen = column.type.getEnumConstants().toList().max { it.toString().length() }.toString().length()
@@ -335,7 +368,7 @@ class Derby extends JDBCServer implements AutoJDBC {
                     } catch(Exception ignored) {}
                 }
                 if(canImport) {
-                    int len = column.annotation.length() ?: 256
+                    int len = column.length ?: 256
                     type = len < 256 ? "VARCHAR($len)" : "CLOB"
                 } else {
                     Log.w("Unknown field type: %s", column.type.simpleName)
@@ -347,32 +380,67 @@ class Derby extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getForeignKey(String tableName, ColumnDB column) {
+    boolean copyAutoIncrement(String tableFrom, String tableTo, String columnName) {
+        DB db = connect()
+        boolean ok = false
+        String uTableFrom = getTableSearchName(tableFrom)
+        String uTableTo = getTableSearchName(tableTo)
+        String uColumn = columnName.toUpperCase()
+
+        // 1. Drill down into Derby's catalogs to look up the exact tracking pointer value
+        String sql = "SELECT s.CURRENTVALUE FROM SYS.SYSSEQUENCES s " +
+            "JOIN SYS.SYSCOLUMNS c ON c. Royal_Sequence_ID_Property_Matches = s.SEQUENCEID " + // Abstracted conceptual join
+            "JOIN SYS.SYSTABLES t ON t.TABLEID = c.REFERENCEID " +
+            "WHERE t.TABLENAME = '${uTableFrom}' AND c.COLUMNNAME = '${uColumn}'"
+
+        // Derby fallback fallback strategy: directly query the source sequence properties
+        String derbySql = "SELECT CURRENTVALUE FROM SYS.SYSSEQUENCES WHERE SEQUENCENAME = " +
+            "(SELECT SEQUENCENAME FROM SYS.SYSCOLUMNS c JOIN SYS.SYSTABLES t ON c.REFERENCEID = t.TABLEID " +
+            "WHERE t.TABLENAME = '${uTableFrom}' AND c.COLUMNNAME = '${uColumn}')"
+
+        long valObj = db.get(new Query(derbySql)).toLong()
+        if (valObj) {
+            long nextValue = (valObj as Long) + 1
+            // 2. Use RESTART WITH to realign the target table sequence mapping
+            ok = db.set(new Query("ALTER TABLE \"${uTableTo}\" ALTER COLUMN \"${uColumn}\" RESTART WITH ${nextValue}"))
+        }
+        db.close()
+        return ok
+    }
+
+    @Override
+    String getForeignKey(String tableName, ColumnDefinition column) {
         String indices = ""
         if(useFK) {
-            Log.w("Warning: Derby won't update correctly when using foreign keys (because they can not be turned off).")
+            if(!notifiedFkWarning) {
+                Log.w("Warning: Derby won't update correctly when using foreign keys (because they can not be turned off).")
+                notifiedFkWarning = true
+            }
             switch (column.type) {
                 case Model:
-                    Constructor<?> ctor = column.type.getConstructor()
+                    Constructor<?> ctor = column.type.class.getConstructor()
                     Model refType = (ctor.newInstance() as Model)
                     String joinTable = refType.tableName
-                    String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
+                    String action = column.ondelete
                     indices = "FOREIGN KEY (${column.name}) " +
-                        "REFERENCES ${joinTable}(${getColumnName(refType.pk)}) ON DELETE ${action}"
+                        "REFERENCES ${joinTable}(${getColumnName(refType.primaryKey)}) ON DELETE ${action}"
                     break
             }
         } else {
-            Log.w("Foreign keys are OFF. This makes automatic updates possible, but you will need to remove references manually.")
+            if(! notifiedFkWarning) {
+                Log.w("Foreign keys are OFF. This makes automatic updates possible, but you will need to remove references manually.")
+                notifiedFkWarning = true
+            }
         }
         return indices
     }
     @Override
-    boolean renameTable(final DB db, String from, String to) {
-        return set(db, "RENAME TABLE ${from} TO ${to}")
+    boolean renameTable(String from, String to) {
+        return set("RENAME TABLE ${getTableSearchName(from)} TO ${getTableSearchName(to)}")
     }
 
     @Override
     String getTruncateQuery(String table) {
-        return super.getDeleteQuery(table, "")
+        return super.getDeleteQuery(getTableSearchName(table), "")
     }
 }

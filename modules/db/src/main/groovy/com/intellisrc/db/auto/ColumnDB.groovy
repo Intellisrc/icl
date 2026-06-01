@@ -1,0 +1,39 @@
+package com.intellisrc.db.auto
+
+import com.intellisrc.db.NormalizedColumn
+import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.annot.Column
+import groovy.transform.CompileStatic
+
+/**
+ * Information about a Field that will be used as column in a DB
+ * @see com.intellisrc.db.annot.Column
+ */
+@CompileStatic
+class ColumnDB implements NormalizedColumn {
+    String name
+    Class<?> type
+    Object defaultVal
+    Column annotation
+
+    @Override
+    ColumnDefinition getNormalized() {
+        boolean hasCustomDef = ! annotation.columnDefinition().empty
+
+        return new ColumnDefinition(
+            autoIncrement: this.annotation.autoincrement(),
+            index: annotation.key(),
+            nullable: this.annotation.nullable(),
+            primaryKey: annotation.primary(),
+            unique: annotation.unique(),
+            length: this.annotation.length(),
+            name: this.name,
+            uniqueGroup: annotation.uniqueGroup(),
+            customType: hasCustomDef ? annotation.columnDefinition() : "",
+            ondelete: this.annotation.ondelete(),
+            onupdate: this.annotation.onupdate(),
+            type: this.type,
+            defaultValue: this.defaultVal
+        )
+    }
+}

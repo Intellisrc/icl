@@ -2,7 +2,9 @@ package com.intellisrc.db
 
 import groovy.transform.CompileStatic
 
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 /**
  * @since 2022/08/09.
@@ -24,7 +26,10 @@ interface ResultStatement {
     Double columnDbl(int index)
     Float columnFloat(int index)
 
-    LocalDateTime columnDate(int index)
+    LocalTime columnTime(int index)
+    LocalDate columnDate(int index)
+    LocalDateTime columnDateTime(int index)
+
     byte[] columnBlob(int index)
     boolean isColumnNull(int index)
 }
