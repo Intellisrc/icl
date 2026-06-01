@@ -29,14 +29,14 @@ import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 abstract class JDBCTest extends Specification {
     static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
 
-    abstract JDBC getDB()
+    abstract JDBC getJdbConnector()
 
     String engine = ""
     String charSet = "UTF8"
 
     @SuppressWarnings('unused')
     boolean shouldSkip() {
-        JDBC jdbc = this.getDB()
+        JDBC jdbc = this.jdbConnector
         boolean skip = jdbc instanceof JDBCServer
             && (ci || ((jdbc as JDBCServer).hostname &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)))
         if(skip) {
@@ -103,12 +103,16 @@ abstract class JDBCTest extends Specification {
 
     void clean(DB db, String table) {}
 
+    DB connect() {
+        return new Database(jdbConnector).connect()
+    }
+
     def setup() {
         try {
             Log.i("Initializing Test...")
             PrintLogger printLogger = CommonLogger.default.printLogger
             printLogger.setLevel(Level.TRACE)
-            DB db = getDB().connect()
+            DB db = connect()
             db.dropAllTables()
             db.clearCache()
             db.close()
@@ -122,11 +126,11 @@ abstract class JDBCTest extends Specification {
         setup:
             String table = "linux"
         when:
-            JDBC jdbc = getDB()
+            JDBC jdbc = getJdbConnector()
         then:
             assert jdbc : "JDBC object is empty"
         when:
-            DB db = jdbc.connect()
+            DB db = connect()
             Object setDate = {
                 String d ->
                     return jdbc.supportsDate ? d.toDate() : d
@@ -354,7 +358,7 @@ abstract class JDBCTest extends Specification {
     @IgnoreIf({ instance.shouldSkip() })
     def "Connection with Pool"() {
         setup:
-            JDBC jdbc = getDB()
+            JDBC jdbc = getJdbConnector()
             Database database = new Database(jdbc)
             String table = "linux"
             Object setDate = {
@@ -393,8 +397,7 @@ abstract class JDBCTest extends Specification {
     @IgnoreIf({ instance.shouldSkip() })
     def "Test Drop all tables"() {
         setup:
-            JDBC jdbc = getDB()
-            DB db = jdbc.connect()
+            DB db = connect()
             String table = "linux"
         when: "Create table"
             int numTables = 5
@@ -422,8 +425,8 @@ abstract class JDBCTest extends Specification {
     @IgnoreIf({ instance.shouldSkip() })
     def "Test NULL"() {
         setup:
-            JDBC jdbc = getDB()
-            DB db = jdbc.connect()
+            JDBC jdbc = getJdbConnector()
+            DB db = connect()
             String table = "nullable"
             Object setDate = {
                 String d ->
@@ -456,8 +459,7 @@ abstract class JDBCTest extends Specification {
     @IgnoreIf({ instance.shouldSkip() })
     def "Multiple key support"() {
         setup:
-            JDBC jdbc = getDB()
-            DB db = jdbc.connect()
+            DB db = connect()
             String table = "mulpk"
         expect: "No tables"
             assert db.tables.empty

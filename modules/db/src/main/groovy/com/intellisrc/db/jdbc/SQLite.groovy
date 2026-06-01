@@ -93,7 +93,7 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     @Override
     void initialize(DB db) {
         if(useVersion &&! db.table(tableMeta).exists()) {
-            db.table(tableMeta).createTable([
+            TableDefinition tableDefinition = [
                 new ColumnDefinition(
                     name: "table_name",
                     type: String,
@@ -106,8 +106,8 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
                     type: Integer,
                     nullable: false,
                     defaultValue: 1
-                ),
-            ] as TableDefinition)
+                )] as TableDefinition
+            db.table(tableMeta).createTable(tableDefinition)
         }
     }
 

@@ -54,7 +54,7 @@ class OracleSQLTest extends JDBCTest {
      * @return
      */
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         /*  Manual way:
             CREATE USER test IDENTIFIED BY test;
             GRANT ALL PRIVILEGES TO test;

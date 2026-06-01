@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @CompileStatic
 class TableDefinition extends ConcurrentLinkedQueue<ColumnDefinition> {
-    int version = 1
+    int version = 0
 
     boolean hasMultiplePk() {
         return this.count { it.primaryKey } > 1

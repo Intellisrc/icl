@@ -5,7 +5,7 @@ package com.intellisrc.db.jdbc
  */
 class SQLiteMemTest extends SQLiteTest {
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         return new SQLite(
             memory: true
         )

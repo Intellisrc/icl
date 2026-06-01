@@ -29,7 +29,7 @@ class PostgreSQLTest extends JDBCTest {
      * @return
      */
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         return new PostgreSQL(
             user    : "test",
             hostname: "127.0.0.1",

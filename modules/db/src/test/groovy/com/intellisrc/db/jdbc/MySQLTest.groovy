@@ -32,7 +32,7 @@ class MySQLTest extends JDBCTest {
      * @return
      */
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         return new MySQL(
             user    : "test",
             hostname: "127.0.0.1",

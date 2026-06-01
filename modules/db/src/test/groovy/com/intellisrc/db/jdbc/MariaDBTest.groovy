@@ -13,7 +13,7 @@ class MariaDBTest extends JDBCTest {
      * @return
      */
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         return new MariaDB(
             user    : "test",
             hostname: "127.0.0.1",

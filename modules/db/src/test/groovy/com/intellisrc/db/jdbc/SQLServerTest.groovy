@@ -39,7 +39,7 @@ class SQLServerTest extends JDBCTest {
      * @return
      */
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         return new SQLServer(
             user    : "sa",
             hostname: "127.0.0.1",

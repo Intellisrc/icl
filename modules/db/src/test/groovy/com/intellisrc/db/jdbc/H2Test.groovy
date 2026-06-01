@@ -33,7 +33,7 @@ class H2Test extends JDBCTest {
      * @return
      */
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         return new H2(
             dbname: File.get(File.tempDir, "h2").absolutePath,
             user: "sa",

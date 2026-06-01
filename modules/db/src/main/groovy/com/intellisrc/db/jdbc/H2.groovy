@@ -62,9 +62,10 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
     }
 
     @Override
-    String getConnectionString() {
-        return connectionURI ?: "jdbc:h2:" + (memory ? "mem:$dbname" : (hostname ? "tcp://$hostname:$port/$dbname" + "?" +
-            parameters.toQueryString() : "$dbname"))
+    String getConnectionString() {                                                                                                                                                                                   
+        String memDelay = memory ? ";DB_CLOSE_DELAY=-1" : ""                                                                                                                                                         
+        return connectionURI ?: "jdbc:h2:" + (memory ? "mem:$dbname$memDelay" : (hostname ? "tcp://$hostname:$port/$dbname" + "?" +                                                                                  
+            parameters.toQueryString() : "$dbname"))                                                                                                                                                                 
     }
 
     // QUERY BUILDING & AUTO-DDL -------------------------
@@ -244,5 +245,28 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
                 }
         }
         return type
+    }
+
+	@Override                                                                                                                                                                                                        
+    String getVersionUpdate(String table, int version) {                                                                                                                                                             
+        return "COMMENT ON TABLE ${table} IS 'v.${version}'"                                                                                                                                                         
+    }                                                                                                                                                                                                                
+                                                                                                                                                                                                                     
+    @Override                                                                                                                                                                                                        
+    String getAutoIncrementSQL(String table, String columnName) {                                                                                                                                                    
+        // H2 uses sequences internally for IDENTITY columns                                                                                                                                                         
+        return "SELECT current_value FROM information_schema.sequences WHERE sequence_name LIKE 'SYSTEM_SEQUENCE_%' AND sequence_schema = 'PUBLIC'"                                                                  
+    }                                                                                                                                                                                                                
+                                                                                                                                                                                                                     
+    @Override                                                                                                                                                                                                        
+    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {                                                                                                                                  
+        return "ALTER TABLE ${table} ALTER COLUMN ${columnName ?: 'ID'} RESTART WITH ${value}"                                                                                                                       
+    }                                                                                                                                                                                                                
+                                                                                                                                                                                                                     
+    @Override                                                                                                                                                                                                        
+    String getForeignKey(String tableName, ColumnDefinition column) {                                                                                                                                                
+        if (!column.isForeignKey) return ""                                                                                                                                                                          
+        String sql = "FOREIGN KEY (`${column.name}`) REFERENCES `${column.referenceTable}`(`${column.referenceColumn}`) ON DELETE ${column.onDelete}"                                                                
+        return sql
     }
 }

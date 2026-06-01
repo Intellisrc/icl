@@ -8,7 +8,7 @@ import com.intellisrc.db.DB
 class SQLiteTest extends JDBCTest {
     final static File dbFile = File.createTempFile("sqlite-",".db")
     @Override
-    JDBC getDB() {
+    JDBC getJdbConnector() {
         return new SQLite(
             dbname: dbFile.absolutePath
         )

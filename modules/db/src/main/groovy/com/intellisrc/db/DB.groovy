@@ -422,7 +422,7 @@ class DB {
                     if(! setIndicesSQL.empty) {
                         ok = setSQL(setIndicesSQL)
                     }
-                    if(ok) {
+                    if(ok && definition.version) {
                         ok = setVersion(table, definition.version)
                     }
                 }
