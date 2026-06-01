@@ -1,11 +1,7 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.ColumnInfo
-import com.intellisrc.db.ColumnType
-import com.intellisrc.db.DB
-import com.intellisrc.db.Database
-import com.intellisrc.db.TableDefinition
+import com.intellisrc.db.*
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
@@ -57,7 +53,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                 case AutoJDBC:
                     // Initialize Auto
                     DB conn = connect()
-                    (jdbc as AutoJDBC).initialize(conn)
+                    jdbc.initialize(conn)
                     boolean exists = conn.exists()
                     if (exists) {
                         if(autoUpdate) {

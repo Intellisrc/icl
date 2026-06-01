@@ -3,10 +3,7 @@ dependencies {
 
     def reflections= "0.10.2"
 
-    def derby       = '10.17.1.0'       // After 10.16.1.1 it is compiled with Java 19
-    def firebird    = '6.0.5'           // firebird 6.0+ requires Java 17
     def h2          = '2.4.240'
-    def hypersql    = '2.7.4'
     def mariadb     = '3.5.8'
     def mysql       = '9.7.0'
     def oracle      = '23.26.2.0.0' //'21.9.0.0'        // test container is 21
@@ -19,11 +16,7 @@ dependencies {
     // We set connectors as optional because most likely only one will be used and
     // depending on which server its being used, another version may be required.
 
-    //compileOnly "org.apache.derby:derbyclient:${derby}" // This one includes only the JDBC client driver
-    compileOnly "org.apache.derby:derby:${derby}" // This one includes also the database engine
-    compileOnly "org.firebirdsql.jdbc:jaybird:${firebird}"
     compileOnly "com.h2database:h2:${h2}"
-    compileOnly "org.hsqldb:hsqldb:${hypersql}"
     compileOnly "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
     compileOnly "com.mysql:mysql-connector-j:${mysql}"
     compileOnly "com.oracle.database.jdbc:ojdbc11:${oracle}"
@@ -35,10 +28,7 @@ dependencies {
     testImplementation project(':net')
     testImplementation project(':term')
     testImplementation project(':log')
-    testImplementation "org.apache.derby:derby:${derby}" // This one includes also the database engine
-    testImplementation "org.firebirdsql.jdbc:jaybird:${firebird}"
     testImplementation "com.h2database:h2:${h2}"
-    testImplementation "org.hsqldb:hsqldb:${hypersql}"
     testImplementation "org.mariadb.jdbc:mariadb-java-client:${mariadb}"
     testImplementation "com.mysql:mysql-connector-j:${mysql}"
     testImplementation "com.oracle.database.jdbc:ojdbc11:${oracle}"

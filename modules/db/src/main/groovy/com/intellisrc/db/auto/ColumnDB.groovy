@@ -1,7 +1,7 @@
 package com.intellisrc.db.auto
 
-import com.intellisrc.db.NormalizedColumn
 import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.NormalizedColumn
 import com.intellisrc.db.annot.Column
 import groovy.transform.CompileStatic
 

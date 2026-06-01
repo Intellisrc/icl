@@ -2,9 +2,8 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB
-import com.intellisrc.db.Query
 import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.DB
 import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
@@ -16,7 +15,6 @@ import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.regex.Matcher
 
 import static com.intellisrc.db.auto.Relational.getColumnName
 
@@ -83,9 +81,8 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    boolean createTable(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
+    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "") {
         List<String> defs = []
-        List<String> keys = [] // Holds independent index queries
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
 
@@ -120,11 +117,6 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
                 }
 
                 defs << parts.join(' ')
-
-                // Collect index definitions to run as separate queries later
-                if (col.index) {
-                    keys << ("CREATE INDEX IF NOT EXISTS \"${tableName}_${col.name}_idx\" ON \"${tableName}\" (\"${col.name}\")").toString()
-                }
         }
 
         // 2. Append Composite Primary Key Constraints
@@ -147,31 +139,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
         }
 
         // 5. Assemble Main Creation Query (Supports standard IF NOT EXISTS natively)
-        String createSQL = "CREATE TABLE IF NOT EXISTS \"${tableName}\" (\n" + defs.join(",\n") + "\n)"
-
-        DB db = connect()
-        boolean ok = db.set(new Query(createSQL))
-
-        if (ok) {
-            // Execute table indices sequentially upon successful table validation
-            keys.each {
-                String indexSql ->
-                    if (!db.set(new Query(indexSql))) {
-                        Log.w("Failed to create PostgreSQL index: %s", indexSql)
-                    }
-            }
-
-            // Optional: Apply schema version tracking as a standard table COMMENT
-            if (version > 0) {
-                String commentSql = "COMMENT ON TABLE \"${tableName}\" IS 'v.${version}'"
-                db.set(new Query(commentSql))
-            }
-        } else {
-            Log.v(createSQL)
-            Log.e("Unable to create PostgreSQL table.")
-        }
-        db.close()
-        return ok
+        return "CREATE TABLE IF NOT EXISTS \"${tableName}\" (\n" + defs.join(",\n") + "\n)"
     }
 
     @Override
@@ -311,62 +279,37 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    boolean turnFK(boolean on) {
-        return set(String.format("SET session_replication_role = '%s'", on ? "origin" : "replica"))
+    List<String> getUpdateIndicesSQL(String tableName, List<String> columns) {
+        return columns.collect {
+            ("CREATE INDEX IF NOT EXISTS \"${tableName}_${it}_idx\" ON \"${tableName}\" (\"${it}\")").toString()
+        }
+    }
+
+    @Override
+    String getTurnFK(boolean on) {
+        return String.format("SET session_replication_role = '%s'", on ? "origin" : "replica")
     }
     @Override
-    boolean copyTableStructure(String from, String to) {
+    String getCopyTableStructureSQL(String from, String to) {
         return false //set(db, "CREATE TABLE \"$to\" (LIKE \"$from\" INCLUDING ALL)")
     }
     @Override
-    boolean copyTableData(String from, String to, TableDefinition columns) {
-        return set("INSERT INTO \"${to}\" (SELECT * FROM ${from})")
-    }
-    @Override
-    boolean resetAutoIncrement(String field) {
-        // 1. Identify the current maximum ID inside the newly populated table
-        int maxId = get("SELECT COALESCE(MAX(\"${field}\"), 0) FROM \"${name}\"").toInt()
-        // 2. The next auto-increment value should pick up exactly at max + 1
-        int nextValue = maxId + 1
-        // 3. Reset the standard identity tracker directly using a simple DDL alteration
-        return set("ALTER TABLE \"${name}\" ALTER COLUMN \"${field}\" RESTART WITH ${nextValue}")
+    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
+        return "INSERT INTO \"${to}\" (SELECT * FROM ${from})"
     }
 
     @Override
-    boolean copyAutoIncrement(String tableFrom, String tableTo, String columnName) {
-        DB db = connect()
-        boolean ok = false
-        // 1. Resolve the sequence name tracking the source table
-        String seqFromQry = "SELECT pg_get_serial_sequence('\"${tableFrom}\"', '${columnName}')"
-        String seqFrom = db.get(new Query(seqFromQry)).toString()
-
-        if (seqFrom && seqFrom != "null") {
-            // 2. Fetch the last value that the sequence generated
-            long currentVal = db.get(new Query("SELECT last_value FROM ${seqFrom}")).toLong()
-            boolean isCalled = db.get(new Query("SELECT is_called FROM ${seqFrom}")).toBool()
-
-            // 3. Resolve the target sequence and sync the value state perfectly
-            String seqToQry = "SELECT pg_get_serial_sequence('\"${tableTo}\"', '${columnName}')"
-            String seqTo = db.get(new Query(seqToQry)).toString()
-            ok = db.set(new Query("SELECT setval('${seqTo}', ${currentVal}, ${isCalled})"))
-        }
-        db.close()
-        return ok
+    String getVersionRead(String table) {
+        return "SELECT obj_description(to_regclass('public.${table}'))"
     }
+
     @Override
-    boolean setVersion(String dbname, String table, int version) {
-        return set("COMMENT ON TABLE \"${table}\" IS 'v.${version}'")
+    String getAutoIncrementSQL(String table, String columnName) {
+        return "SELECT COALESCE(MAX(\"${columnName}\"), 0) FROM \"${table}\""
     }
+
     @Override
-    int getVersion(String dbname, String table) {
-        String verStr = get("SELECT obj_description(to_regclass('public.${table}'))").toString()
-        int version = 1
-        if(verStr && verStr != "null") {
-            Matcher matcher = (verStr =~ /(\d+)/)
-            if(matcher.find()) {
-                version = matcher.group(1) as int
-            }
-        }
-        return version
+    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {
+        return "ALTER TABLE \"${name}\" ALTER COLUMN \"${columnName}\" RESTART WITH ${value}"
     }
 }

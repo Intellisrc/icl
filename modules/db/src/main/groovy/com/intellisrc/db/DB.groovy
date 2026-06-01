@@ -422,6 +422,9 @@ class DB {
                     if(! setIndicesSQL.empty) {
                         ok = setSQL(setIndicesSQL)
                     }
+                    if(ok) {
+                        ok = setVersion(table, definition.version)
+                    }
                 }
             }
         } else {
@@ -532,7 +535,15 @@ class DB {
      * @return
      */
     boolean cloneTable(String from, String to, TableDefinition columns = [] as TableDefinition) {
-        return copyTableStructure(from, to, columns) && copyTableData(from, to, columns)
+        boolean ok = copyTableStructure(from, to, columns)
+                ok &= copyTableData(from, to, columns)
+
+        // Copy PK:
+        String pk = columns.pks.size() == 1 ? columns.pks.first().name : ""
+        if(pk) {
+            ok &= copyAutoIncrement(from, to, pk)
+        }
+        return ok
     }
     /**
      * Copy table structure

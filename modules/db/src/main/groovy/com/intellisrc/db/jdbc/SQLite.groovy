@@ -2,8 +2,8 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB
 import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.DB
 import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.Volatile
 import com.intellisrc.db.annot.UpdateActions

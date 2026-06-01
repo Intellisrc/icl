@@ -5,7 +5,6 @@ import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.sql.Connection
-import java.sql.SQLNonTransientConnectionException
 import java.time.LocalDateTime
 
 @CompileStatic

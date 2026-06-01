@@ -3,12 +3,7 @@ package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.db.ColumnInfo
-import com.intellisrc.db.DB
-import com.intellisrc.db.Data
-import com.intellisrc.db.Query
-import com.intellisrc.db.ColumnDefinition
-import com.intellisrc.db.TableDefinition
+import com.intellisrc.db.*
 import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import org.reflections.Reflections
@@ -598,8 +593,8 @@ abstract class JDBC {
      * @return
      */
     String getVersionUpdate(String table, int version) {
-        Log.w("SQL: setting version not implemented for database: %s", dbname)
-        return ""
+        table = getTableForQuery(table)
+        return "COMMENT ON TABLE ${table} IS 'v.${version}'"
     }
     /**
      * Get version from table

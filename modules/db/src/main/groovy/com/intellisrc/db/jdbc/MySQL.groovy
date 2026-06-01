@@ -3,8 +3,8 @@ package com.intellisrc.db.jdbc
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
-import com.intellisrc.db.DB
 import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.DB
 import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.auto.AutoJDBC
@@ -12,14 +12,12 @@ import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.ColumnDefinition.*
-import static com.intellisrc.db.auto.Relational.getColumnName
+import static com.intellisrc.db.ColumnDefinition.UNLIMITED
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
@@ -187,7 +185,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getCopyTableStructure(String from, String to) {
+    String getCopyTableStructureSQL(String from, String to) {
         return "CREATE TABLE $to LIKE $from"
     }
 
@@ -208,19 +206,18 @@ class MySQL extends JDBCServer implements AutoJDBC {
 
     @Override
     String getResetAutoIncrementSQL(String tableName) {
-        return "ALTER TABLE ${tableName} AUTO_INCREMENT = 1"
+        return getAutoIncrementUpdateSQL(tableName, "", 1)
     }
 
-    /**
-     * Copy increment value to a different table
-     * @param tableFrom
-     * @param tableTo
-     * @return
-     */
     @Override
-    String getAutoIncrementSQL(String tableFrom, String tableTo, String columnName) {
+    String getAutoIncrementSQL(String table, String columnName) {
         return "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES " +
-            "WHERE TABLE_SCHEMA = '${dbname}' AND TABLE_NAME = '${tableFrom}'"
+            "WHERE TABLE_SCHEMA = '${dbname}' AND TABLE_NAME = '${table}'"
+    }
+
+    @Override
+    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {
+        return "ALTER TABLE ${table} AUTO_INCREMENT = ${value}"
     }
 
     /**
@@ -356,19 +353,11 @@ class MySQL extends JDBCServer implements AutoJDBC {
 
     @Override
     String getForeignKey(String tableName, ColumnDefinition column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                indices = "FOREIGN KEY (${column.name}) " +
-                    "REFERENCES ${joinTable}(${getColumnName(refType.primaryKey)}) ON DELETE ${column.onDelete.toString()}"
-                if(column.onUpdate != UpdateActions.NO_ACTION) {
-                    indices += " ON UPDATE ${column.onUpdate.toString()}"
-                }
-                break
+        if (!column.isForeignKey) return ""
+        String sql = "FOREIGN KEY (`${column.name}`) REFERENCES `${column.referenceTable}`(`${column.referenceColumn}`) ON DELETE ${column.onDelete}"
+        if (column.onUpdate && column.onUpdate != UpdateActions.NO_ACTION) {
+            sql += " ON UPDATE ${column.onUpdate}"
         }
-        return indices
+        return sql
     }
 }

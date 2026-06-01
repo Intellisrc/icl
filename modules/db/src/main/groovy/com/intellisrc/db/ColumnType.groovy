@@ -1,11 +1,12 @@
 package com.intellisrc.db
 
+import groovy.transform.CompileStatic
+
 import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZonedDateTime
-import groovy.transform.CompileStatic
 
 /**
  * @since 2022/01/25.

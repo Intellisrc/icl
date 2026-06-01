@@ -1,11 +1,7 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB
-import com.intellisrc.db.Data
-import com.intellisrc.db.Database
-import com.intellisrc.db.Query
-import com.intellisrc.db.TableDefinition
+import com.intellisrc.db.*
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.DeleteActions
 import com.intellisrc.db.annot.TableMeta

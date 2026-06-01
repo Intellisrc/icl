@@ -20,7 +20,7 @@ class JDBCStaticTest extends Specification {
         when:
             // These settings are using aliases for "database", "username", "password" and "hostname"
             JDBC jdbc = JDBC.fromSettings([
-                type : "derby",
+                type : "h2",
                 name : "mydb",
                 user : "someuser",
                 pass : "somepass",
@@ -32,7 +32,7 @@ class JDBCStaticTest extends Specification {
             assert jdbc.password == "somepass"
             assert jdbc.username == "someuser"
             assert (jdbc as JDBCServer).hostname == "myhostname"
-            assert jdbc instanceof Derby
-            assert (jdbc as Derby).memory
+            assert jdbc instanceof H2
+            assert (jdbc as H2).memory
     }
 }

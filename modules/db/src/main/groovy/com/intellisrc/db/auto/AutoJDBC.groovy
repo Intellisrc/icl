@@ -1,8 +1,8 @@
 package com.intellisrc.db.auto
 
-import com.intellisrc.core.Log
-import com.intellisrc.db.ColumnDefinition
+
 import groovy.transform.CompileStatic
+
 import java.lang.annotation.Annotation
 
 /**
