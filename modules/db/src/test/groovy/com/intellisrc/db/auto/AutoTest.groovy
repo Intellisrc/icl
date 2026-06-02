@@ -8,6 +8,7 @@ import com.intellisrc.db.Database
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.DeleteActions
+import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
 import com.intellisrc.log.PrintLogger
@@ -54,7 +55,7 @@ abstract class AutoTest extends Specification {
     static class Alias extends Model {
         @Column(primary = true, autoincrement = true)
         int id
-        @Column(ondelete = DeleteActions.CASCADE)
+        @Column(ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         User user
         @Column
         String name
@@ -70,16 +71,16 @@ abstract class AutoTest extends Specification {
     }
 
     static class Inbox extends Model {
-        @Column(primary = true)
+        @Column(primary = true, ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         User user
-        @Column(primary = true)
+        @Column(primary = true, ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         UserEmail email
         @Column
         boolean enabled = true
     }
 
     static class Address extends Model {
-        @Column(primary = true)
+        @Column(primary = true, ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         User user
         @Column(nullable = false)
         String address
@@ -111,16 +112,17 @@ abstract class AutoTest extends Specification {
     def setup() {
         Log.i("Setting up Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
-        printLogger.setLevel(Level.TRACE)
+        printLogger.setLevel(Level.DEBUG)
         DB.clearCache()
     }
 
     def cleanup() {
-        File derbyLog = File.get("derby.log")
-        if(derbyLog.exists()) {
-            derbyLog.delete()
-        }
         DB.clearCache()
+        Database database = new Database(connJdbc)
+        DB db = database.connect()
+        db.dropAllTables()
+        db.close()
+        Log.i("AutoTest Cleanup completed")
     }
 
     @IgnoreIf({ instance.shouldSkip() })
@@ -134,7 +136,7 @@ abstract class AutoTest extends Specification {
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
             aliases.clear()
-            users.clear()
+            users.clear(true) //TRUNCATE fails if it has FK in it
         when:
             User u = new User(
                 name : "Benjamin",
@@ -211,8 +213,8 @@ abstract class AutoTest extends Specification {
             try {
                 aliases.reset()
                 users.reset()
-                aliases.drop()
-                users.drop()
+                aliases.drop(true)
+                users.drop(true)
                 database.quit()
             } catch(Exception ignore) {}
     }
@@ -225,8 +227,8 @@ abstract class AutoTest extends Specification {
             Emails emails = new Emails(database)
             Inboxes inboxes = new Inboxes(database)
             inboxes.clear()
-            emails.clear()
-            users.clear()
+            emails.clear(true)
+            users.clear(true)
         when:
             int rows = 3
             (1..rows).each {
@@ -259,7 +261,7 @@ abstract class AutoTest extends Specification {
         then:
             [inboxes, users, emails].each {
                 Table t ->
-                    assert t.deleteAll()
+                    assert t.clear(true)
                     assert t.all.size() == 0
             }
         cleanup:
@@ -277,7 +279,7 @@ abstract class AutoTest extends Specification {
             Users users = new Users(database)
             Addresses addresses = new Addresses(database)
             addresses.clear()
-            users.clear()
+            users.clear(true)
             assert ! addresses.primaryKeys.empty
         when:
             int rows = 3
@@ -326,7 +328,7 @@ abstract class AutoTest extends Specification {
         cleanup:
             addresses.reset()
             [addresses, users].each {
-                it?.drop()
+                it?.drop(true)
             }
             database.quit()
     }
@@ -336,7 +338,7 @@ abstract class AutoTest extends Specification {
         setup:
             Database database = new Database(connJdbc)
             Emails emails = new Emails(database)
-            emails.clear()
+            emails.clear(true)
             assert ! emails.primaryKeys.empty
         when:
             int rows = 500
@@ -398,7 +400,7 @@ abstract class AutoTest extends Specification {
             assert emails.update(newEmailList)
             assert emails.delete(newEmailList)
             assert emails.count() == 0
-            assert emails.clear()
+            assert emails.clear(true)
             assert emails.count() == 0
             assert few.size() == 10
             assert few.first().id as int == 490
@@ -409,7 +411,7 @@ abstract class AutoTest extends Specification {
         cleanup:
             emails.reset()
             [emails].each {
-                it?.drop()
+                it?.drop(true)
             }
             database.quit()
     }

@@ -33,7 +33,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     protected final Database database
     @SuppressWarnings('GrFinalVariableAccess')
     protected final JDBC jdbc
-    protected final String name
+    protected final String name //table or view Name
     protected int cache = 0
     protected boolean clearCache = false
     protected int chunkSize = 100
@@ -888,10 +888,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * Get a new connection and set default settings.
      * @return
      */
-    protected synchronized DB connect() {
+    protected synchronized DB connect(boolean softFail = false) {
         DB db = database.connect().table(tableName)
         db.cache = cache
         db.clearCache = clearCache
+        db.errorAsWarn = softFail
         return db
     }
     /**
@@ -911,13 +912,28 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         database.quit()
     }
     /**
-     * Drops the table
+     * If Relational is a View...
+     * @return
      */
-    boolean drop(boolean view = false) {
+    boolean isView() {
+        return this instanceof View
+    }
+    /**
+     * Drops the table
+     * @param force: when true, it will disable FK first
+     */
+    boolean drop(boolean force = false) {
         DB db = connect().keys(primaryKeys)
-        boolean dropped = view ? db.dropView() : db.drop()
+        boolean isView = isView()
+        if(force &&! isView) {
+            db.turnFK(false)
+        }
+        boolean dropped = isView ? db.dropView() : db.drop()
         if(dropped) {
             primaryKeyList.clear()
+        }
+        if(force &&! isView) {
+            db.turnFK(true)
         }
         db.close()
         return dropped

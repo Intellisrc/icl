@@ -1,9 +1,9 @@
 package com.intellisrc.db.auto
 
+import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
-import com.intellisrc.db.jdbc.*
 import spock.lang.IgnoreIf
 
 import java.time.LocalDate
@@ -36,6 +36,10 @@ abstract class ViewTest extends AutoTest {
         }
     }
 
+    def cleanup() {
+        Log.i("ViewTest completed")
+    }
+
     String getCreateViewSQL() {
         return """CREATE VIEW test_view AS SELECT u.id, u.name, u.age, a.added
                   FROM users u LEFT JOIN aliases a ON(u.id = a.user_id)"""
@@ -48,7 +52,7 @@ abstract class ViewTest extends AutoTest {
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
             aliases.clear()
-            users.clear()
+            users.clear(true)
             TestView.sql = createViewSQL
             assert TestView.sql : "SQL not specified"
             TestView view = new TestView("test_view", database)
@@ -75,6 +79,7 @@ abstract class ViewTest extends AutoTest {
             assert view.getAll().first().added == alias.added
         cleanup:
             view.drop()
+            users.clear(true)
             database.quit()
     }
 }

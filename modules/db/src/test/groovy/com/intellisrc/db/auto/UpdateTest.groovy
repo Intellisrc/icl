@@ -7,7 +7,6 @@ import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
 import spock.lang.IgnoreIf
-import spock.lang.Unroll
 
 import static com.intellisrc.db.Query.SortOrder.DESC
 
@@ -31,16 +30,18 @@ abstract class UpdateTest extends ViewTest {
         @Column
         URL webpage = null
     }
+
+    static boolean onUpdateCalled = false
     static class UsersV2 extends Table<UserV2>{
-        boolean execFired = false
         UsersV2(String name, Database database) { super(name, database) }
 
         @Override
         boolean execOnUpdate(DB table, int prevVersion, int currVersion) {
-            execFired = true
+            onUpdateCalled = true
             return false
         }
     }
+
     static class UserExtra extends Model {
         @Column(primary = true)
         AutoTest.User user
@@ -56,6 +57,10 @@ abstract class UpdateTest extends ViewTest {
         DB.clearCache()
     }
 
+    def cleanup() {
+        Log.i("UpdateTest completed")
+    }
+
     @IgnoreIf({ instance.shouldSkip() })
     def "Simple Update without data"() {
         setup:
@@ -66,7 +71,6 @@ abstract class UpdateTest extends ViewTest {
         when:
             UsersV2 users2 = new UsersV2(tableName, database)
             assert users2.empty
-            users2.updateTable() // Update it manually
             UserV2 u = new UserV2(
                 name : "Benjamin",
                 age : 22,
@@ -94,8 +98,8 @@ abstract class UpdateTest extends ViewTest {
             assert uid2 == 2
         cleanup:
             Log.i("Cleaning database...")
-            extras?.drop()
-            users?.drop()
+            extras?.drop(true)
+            users?.drop(true)
             database.quit()
     }
 
@@ -118,6 +122,7 @@ abstract class UpdateTest extends ViewTest {
             users.insert(userList)
         then:
             assert users.count() == rows : "Number of rows failed before updating"
+            assert users.identityValue == rows : "Auto increment value is wrong"
             assert users.getAll(5).size() == 5 : "Limit failed"
             assert users.getAll("age", DESC).first().uniqueId == rows : "Limit failed"
             assert users.getAll("age", DESC, 5).last().uniqueId == rows - 5 + 1 : "Sort with limit failed"
@@ -136,11 +141,11 @@ abstract class UpdateTest extends ViewTest {
             assert ageList.size() == rows // Checking for duplicated
             assert ageList.unique().size() == rows // No duplication
         when:
-            UsersV2 users2 = new UsersV2(tableName, database)
-            users2.updateTable() // Update it manually
+            UsersV2 users2 = new UsersV2(tableName, database) // This will trigger updateTable()
         then:
-            assert users2.execFired : "execOnUpdate was not fired"
-            assert users.count() == rows : "Number of rows failed after updating"
+            assert onUpdateCalled : "execOnUpdate was not fired"
+            assert users2.count() == rows : "Number of rows failed after updating"
+            assert users.identityValue == users2.identityValue : "Auto-increment value should be the same"
         when:
             UserV2 u = new UserV2(
                 name : "Benjamin",
@@ -153,7 +158,7 @@ abstract class UpdateTest extends ViewTest {
             assert users.table.field("webpage").get(uid).toString().startsWith("http")
         cleanup:
             Log.i("Cleaning database...")
-            users?.drop()
+            users?.drop(true)
             database.quit()
     }
 }

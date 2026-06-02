@@ -76,53 +76,6 @@ class Oracle extends JDBCServer implements AutoJDBC {
         return table.toUpperCase()
     }
 
-    /*
-     * Must return:
-     *      position, column, type, length, default, notnull, primary
-     *
-     * JDBC is unable to get this information
-     *
-     * NOTE: We did not include constraint_type 'C' (NOT NULL) as they are not needed here.
-     * NOTE: Returning at.data_default won't work as it is LONG inside Oracle and its really
-     *       complicated to get that from the DB.
-     *
-     * @param table
-     * @return
-     *
-    @Override
-    String getInfoQuery(String table) {
-        return """
-            SELECT 
-                at.column_id AS "position",
-                LOWER(at.column_name) as "column",
-                LOWER(at.data_type) as "type",
-                '' as "default",
-            CASE at.nullable
-                WHEN 'N' THEN 0
-                WHEN 'Y' THEN 1
-            END AS "nullable",
-            CASE
-                WHEN cc.constraint_type = 'P' THEN 1
-                ELSE 0
-            END AS "autoinc",
-            CASE
-                WHEN cc.constraint_type = 'P' THEN 1
-                ELSE 0
-            END AS "primary",
-            CASE
-                WHEN cc.constraint_type = 'U' THEN 1
-                ELSE 0
-            END AS "unique"
-            FROM all_tab_columns at
-            LEFT JOIN all_cons_columns ac 
-              ON (at.owner = ac.owner
-                AND at.table_name = ac.table_name 
-                AND at.column_name = ac.column_name)
-            LEFT JOIN all_constraints cc 
-              ON (ac.constraint_name = cc.constraint_name)    
-            WHERE cc.constraint_type != 'C' AND LOWER(at.table_name) = LOWER('${table}')"""
-    }*/
-
     /**
      * FIXME: JDBC is unable to get last ID (returning some sequence string id instead, like: 'AAATPDAAHAAAALDAAB')
      *   https://community.oracle.com/tech/developers/discussion/338591/why-does-getgeneratedkeys-return-a-rowid-with-no-numeric-value
@@ -163,7 +116,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
      * In Oracle setting the columns or table names with double quotes makes it case sensitive, but any name can be used.
      */
     @Override
-    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "") {
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
         List<String> defs = []
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
@@ -226,6 +179,11 @@ class Oracle extends JDBCServer implements AutoJDBC {
 
         // 5. Assemble Creation Query using Oracle 23+ IF NOT EXISTS syntax
         return "CREATE TABLE IF NOT EXISTS \"${uTableName}\" (\n" + defs.join(",\n") + "\n)"
+    }
+
+    @Override
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
+        return "CREATE TABLE \"${to.toUpperCase()}\" AS SELECT * FROM \"${from.toUpperCase()}\" WHERE 1=0"
     }
 
     @Override
@@ -351,8 +309,35 @@ class Oracle extends JDBCServer implements AutoJDBC {
     }
 
     @Override
+    String getIdentitySQL(String table, String columnName) {
+        return "SELECT s.last_number FROM user_sequences s JOIN user_tab_identity_cols i ON s.sequence_name = i.sequence_name WHERE i.table_name = '${table}'"
+    }
+
+    @Override
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "ALTER TABLE ${columnName} MODIFY ${columnName} GENERATED ALWAYS AS IDENTITY (RESTART START WITH ${value + 1})"
+    }
+
+    @Override
+    String getTurnFK(boolean on) {
+        return """BEGIN
+            FOR c IN (
+                SELECT table_name, constraint_name
+                FROM user_constraints
+                WHERE constraint_type = 'R'
+            )
+            LOOP
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE "' || c.table_name ||
+                    '" ${on ? 'ENABLE' : 'DISABLE'} CONSTRAINT "' || c.constraint_name || '"';
+            END LOOP;
+        END;
+/"""
+    }
+
+    @Override
     String getVersionRead(String table) {
-        return ""
+        return "SELECT comments FROM user_tab_comments WHERE table_name = '${table}'"
     }
 
     @Override

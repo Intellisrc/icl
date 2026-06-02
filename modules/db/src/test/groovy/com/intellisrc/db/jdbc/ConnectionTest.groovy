@@ -23,7 +23,7 @@ class ConnectionTest extends Specification {
     def setup() {
         Log.i("Setting up Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
-        printLogger.setLevel(Level.TRACE)
+        printLogger.setLevel(Level.DEBUG)
     }
 
     def "Must handle nicely connection issues using Default"() {

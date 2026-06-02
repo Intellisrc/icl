@@ -8,8 +8,13 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * @since 2026/05/27.
  */
 @CompileStatic
-class TableDefinition extends ConcurrentLinkedQueue<ColumnDefinition> {
+class TableDefinition {
     int version = 0
+    String charset = ""
+    String engine = ""
+
+    @Delegate
+    ConcurrentLinkedQueue<ColumnDefinition> columns = [] as ConcurrentLinkedQueue<ColumnDefinition>
 
     boolean hasMultiplePk() {
         return this.count { it.primaryKey } > 1

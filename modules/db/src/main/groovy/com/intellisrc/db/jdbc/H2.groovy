@@ -25,6 +25,7 @@ import static com.intellisrc.db.ColumnDefinition.UNLIMITED
  * db.h2H2.
  */
 @CompileStatic
+@SuppressWarnings('GetterMethodCouldBeProperty')
 class H2 extends JDBCServer implements AutoJDBC, Volatile {
     // Absolute path to database
     String dbname = ""
@@ -71,7 +72,7 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
     // QUERY BUILDING & AUTO-DDL -------------------------
 
     @Override
-    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "") {
+    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition) {
         List<String> defs = []
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
@@ -140,20 +141,11 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
     }
 
     @Override
-    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
-        return "INSERT INTO `${to}` SELECT * FROM `${from}`"
-    }
-
-    @Override
     String getVersionRead(String table) {
         return "SELECT REMARKS FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='PUBLIC' AND TABLE_NAME='${table.toUpperCase()}'"
     }
 
-    @Override
-    String getResetAutoIncrementSQL(String tableName) {
-        return "ALTER TABLE `${tableName}` ALTER COLUMN ID RESTART WITH 1"
-    }
-
+    @SuppressWarnings('GroovyFallthrough')
     @Override
     String getColumnDefinition(ColumnDefinition column) {
         String type = ""
@@ -247,26 +239,14 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
         return type
     }
 
-	@Override                                                                                                                                                                                                        
-    String getVersionUpdate(String table, int version) {                                                                                                                                                             
-        return "COMMENT ON TABLE ${table} IS 'v.${version}'"                                                                                                                                                         
-    }                                                                                                                                                                                                                
-                                                                                                                                                                                                                     
-    @Override                                                                                                                                                                                                        
-    String getAutoIncrementSQL(String table, String columnName) {                                                                                                                                                    
+    @Override
+    String getIdentitySQL(String table, String columnName) {
         // H2 uses sequences internally for IDENTITY columns                                                                                                                                                         
         return "SELECT current_value FROM information_schema.sequences WHERE sequence_name LIKE 'SYSTEM_SEQUENCE_%' AND sequence_schema = 'PUBLIC'"                                                                  
     }                                                                                                                                                                                                                
                                                                                                                                                                                                                      
     @Override                                                                                                                                                                                                        
-    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {                                                                                                                                  
-        return "ALTER TABLE ${table} ALTER COLUMN ${columnName ?: 'ID'} RESTART WITH ${value}"                                                                                                                       
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "ALTER TABLE ${table} ALTER COLUMN ${columnName ?: 'ID'} RESTART WITH ${value + 1}"
     }                                                                                                                                                                                                                
-                                                                                                                                                                                                                     
-    @Override                                                                                                                                                                                                        
-    String getForeignKey(String tableName, ColumnDefinition column) {                                                                                                                                                
-        if (!column.isForeignKey) return ""                                                                                                                                                                          
-        String sql = "FOREIGN KEY (`${column.name}`) REFERENCES `${column.referenceTable}`(`${column.referenceColumn}`) ON DELETE ${column.onDelete}"                                                                
-        return sql
-    }
 }

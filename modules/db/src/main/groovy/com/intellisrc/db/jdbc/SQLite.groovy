@@ -1,3 +1,4 @@
+//file:noinspection GetterMethodCouldBeProperty
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
@@ -6,7 +7,6 @@ import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
 import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.Volatile
-import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
@@ -112,7 +112,7 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     }
 
     @Override
-    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "", int version = 1) {
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
         List<String> defs = []
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
@@ -165,10 +165,15 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
         if (fks) {
             defs << fks
         }
-        if (engine) {
-            Log.w("SQLite doesn't support engines (trying to set: %s)", engine)
+        if (definitions.engine) {
+            Log.w("SQLite doesn't support engines (trying to set: %s)", definitions.engine)
         }
         return ("CREATE TABLE IF NOT EXISTS `${tableName}` (\n" + defs.join(",\n") + "\n)").toString()
+    }
+
+    @Override
+    String getAutoIncrementBindSQL() {
+        return "AUTOINCREMENT"
     }
 
     @Override
@@ -184,8 +189,9 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     }
     @Override
     String getCopyTableStructureSQL(String from, String to, TableDefinition columns = [] as TableDefinition) {
-        String qry = "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'".toString()
-        return qry.replaceAll(/CREATE TABLE `?${from}`?/, "CREATE TABLE `${to}`")
+        //String qry = "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'".toString()
+        //return qry.replaceAll(/CREATE TABLE `?${from}`?/, "CREATE TABLE `${to}`")
+        return "CREATE TABLE `${to}` AS SELECT * FROM `${from}` WHERE 1=0"
     }
     @Override
     String getVersionUpdate(String table, int version) {
@@ -269,23 +275,13 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     }
 
     @Override
-    String getAutoIncrementSQL(String table, String columnName) {
+    String getIdentitySQL(String table, String columnName) {
         return "SELECT seq FROM sqlite_sequence WHERE name = '${table}'"
     }
 
     @Override
-    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {
-        return "INSERT INTO sqlite_sequence (name, seq) VALUES ('${table}', ${value}) " +
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "INSERT INTO sqlite_sequence (name, seq) VALUES ('${table}', ${value ?: 1}) " +
                 "ON CONFLICT(name) DO UPDATE SET seq = excluded.seq"
-    }
-
-    @Override
-    String getForeignKey(String tableName, ColumnDefinition column) {
-        if (!column.isForeignKey) return ""
-        String sql = "FOREIGN KEY (`${column.name}`) REFERENCES `${column.referenceTable}`(`${column.referenceColumn}`) ON DELETE ${column.onDelete}"
-        if (column.onUpdate && column.onUpdate != UpdateActions.NO_ACTION) {
-            sql += " ON UPDATE ${column.onUpdate}"
-        }
-        return sql
     }
 }

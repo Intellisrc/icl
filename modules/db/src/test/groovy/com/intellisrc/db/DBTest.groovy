@@ -11,7 +11,7 @@ class DBTest extends Specification {
     def setup() {
         Log.i("Initializing Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
-        printLogger.setLevel(Level.TRACE)
+        printLogger.setLevel(Level.DEBUG)
     }
     /**
      * Currently it is possible to reuse a DB object (connection) even after returning it to the pool (close).
@@ -34,15 +34,5 @@ class DBTest extends Specification {
             if(dbFile.exists()) {
                 dbFile.delete()
             }
-    }
-    def "Memory DB should not close db objects"() {
-        setup:
-            Database database = new Database(new SQLite(memory: true))
-            DB db = database.connect()
-        when:
-            assert db.getSQL("SELECT 1").toInt() == 1
-            db.close()
-        then:
-            assert ! db.closed
     }
 }

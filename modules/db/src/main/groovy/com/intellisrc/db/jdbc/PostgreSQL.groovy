@@ -10,13 +10,10 @@ import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-
-import static com.intellisrc.db.auto.Relational.getColumnName
 
 /**
  * PostgreSQL Database
@@ -39,6 +36,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     boolean readOnly = false
     boolean ssl = false
     boolean supportsJSON = true
+
     // PostgreSQL specific parameters:
     // https://jdbc.postgresql.org/documentation/head/connect.html
     // You may add more parameters as needed (values shown below are default values)
@@ -81,7 +79,7 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "") {
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
         List<String> defs = []
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
@@ -263,22 +261,6 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getForeignKey(String tableName, ColumnDefinition column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.onDelete.toString()
-                indices = "FOREIGN KEY (\"${column.name}\") " +
-                    "REFERENCES \"${joinTable}\"(\"${getColumnName(refType.primaryKey)}\") ON DELETE ${action}"
-                break
-        }
-        return indices
-    }
-
-    @Override
     List<String> getUpdateIndicesSQL(String tableName, List<String> columns) {
         return columns.collect {
             ("CREATE INDEX IF NOT EXISTS \"${tableName}_${it}_idx\" ON \"${tableName}\" (\"${it}\")").toString()
@@ -289,13 +271,10 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     String getTurnFK(boolean on) {
         return String.format("SET session_replication_role = '%s'", on ? "origin" : "replica")
     }
+
     @Override
-    String getCopyTableStructureSQL(String from, String to) {
-        return false //set(db, "CREATE TABLE \"$to\" (LIKE \"$from\" INCLUDING ALL)")
-    }
-    @Override
-    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
-        return "INSERT INTO \"${to}\" (SELECT * FROM ${from})"
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
+        return "CREATE TABLE \"$to\" (LIKE \"$from\" INCLUDING ALL)"
     }
 
     @Override
@@ -304,12 +283,18 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getAutoIncrementSQL(String table, String columnName) {
-        return "SELECT COALESCE(MAX(\"${columnName}\"), 0) FROM \"${table}\""
+    String getIdentitySQL(String table, String columnName) {
+        String cleanTable = table.replace('"', '').toLowerCase()
+        String cleanCol = columnName.replace('"', '').toLowerCase()
+
+        // We extract the sequence name using pg_get_serial_sequence,
+        // then look it up in pg_sequences to get the true last_value or start_value
+        return """SELECT COALESCE(s.last_value) FROM pg_sequences s
+        WHERE s.sequencename = substring(pg_get_serial_sequence('"${cleanTable}"', '${cleanCol}') from '[^.]+\$')""".stripIndent()
     }
 
     @Override
-    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {
-        return "ALTER TABLE \"${name}\" ALTER COLUMN \"${columnName}\" RESTART WITH ${value}"
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "ALTER TABLE \"${table}\" ALTER COLUMN \"${columnName}\" RESTART WITH ${value + 1}"
     }
 }

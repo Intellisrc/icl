@@ -46,7 +46,8 @@ abstract class JDBCTest extends Specification {
     }
 
     boolean createTable(DB db, String table) {
-        return db.table(table).createTable([
+        TableDefinition tableDefinition = new TableDefinition(engine: engine, charset: charSet)
+        tableDefinition.addAll([
             new ColumnDefinition(
                 name: "id",
                 primaryKey: true,
@@ -73,13 +74,14 @@ abstract class JDBCTest extends Specification {
             new ColumnDefinition(
                 name: "updated",
                 type: LocalDate
-            )
-        ] as TableDefinition, engine, charSet)
+            )])
+        return db.table(table).createTable(tableDefinition)
     }
 
     boolean createTablePK(DB db, String table) {
         println "Creating table (Multiple PK): $table ..."
-        return db.table(table).createTable([
+        TableDefinition tableDefinition = new TableDefinition(engine: engine, charset: charSet)
+        tableDefinition.addAll([
             new ColumnDefinition(
                 name: "uid",
                 nullable: false,
@@ -98,7 +100,8 @@ abstract class JDBCTest extends Specification {
                 length: 30,
                 nullable: false
             )
-        ] as TableDefinition, engine, charSet)
+        ])
+        return db.table(table).createTable(tableDefinition)
     }
 
     void clean(DB db, String table) {}
@@ -111,7 +114,7 @@ abstract class JDBCTest extends Specification {
         try {
             Log.i("Initializing Test...")
             PrintLogger printLogger = CommonLogger.default.printLogger
-            printLogger.setLevel(Level.TRACE)
+            printLogger.setLevel(Level.DEBUG)
             DB db = connect()
             db.dropAllTables()
             db.clearCache()
@@ -119,6 +122,14 @@ abstract class JDBCTest extends Specification {
         } catch(DatabaseConnectionException dce) {
             Log.w("Connection failed: %s", dce)
         }
+    }
+
+    def cleanup() {
+        DB db = connect()
+        db.dropAllTables()
+        db.clearCache()
+        db.close()
+        Log.i("JDBCTest completed")
     }
 
     @IgnoreIf({ instance.shouldSkip() })
@@ -349,6 +360,7 @@ abstract class JDBCTest extends Specification {
         then: "truncate"
             assert db.table(table).truncate()
             assert db.table(table).count().get().toInt() == 0
+            assert db.autoIncrementValue > 0 : "Auto-increment value should not be MAX()"
         cleanup:
             db?.dropAllTables()
             clean(db, table)

@@ -23,14 +23,20 @@ class ColumnInfo implements NormalizedColumn {
     Object defaultValue = null
     String uniqueGroup = null
     String customType = null
+    String referenceTable = ""
+    String referenceColumn = ""
     boolean primaryKey = false
     boolean index = false
     boolean autoIncrement = false
     boolean nullable = true
     boolean generated = false   //like functions
     boolean unique = false
-    DeleteActions ondelete = DeleteActions.RESTRICT
-    UpdateActions onupdate = UpdateActions.NO_ACTION
+    DeleteActions onDelete = DeleteActions.RESTRICT
+    UpdateActions onUpdate = UpdateActions.NO_ACTION
+
+    boolean isForeignKey() {
+        return referenceTable && referenceColumn
+    }
 
     String toString() {
         return "$position | " +
@@ -75,10 +81,13 @@ class ColumnInfo implements NormalizedColumn {
             name: this.name,
             uniqueGroup: this.uniqueGroup,
             customType: this.customType,
-            onDelete: this.ondelete,
-            onUpdate: this.onupdate,
+            onDelete: this.onDelete,
+            onUpdate: this.onUpdate,
             type: this.type.javaClass,
-            defaultValue: this.defaultValue
+            defaultValue: this.defaultValue,
+            isForeignKey: foreignKey,
+            referenceTable: referenceTable,
+            referenceColumn: referenceColumn
         )
     }
 }

@@ -95,7 +95,7 @@ abstract class View<M extends Model> extends Relational<M> implements Instanciab
                 jdbc.initialize(conn)
                 boolean exists = conn.exists()
                 if (exists) {
-                    dropped = drop(true)
+                    dropped = super.drop()
                 }
                 conn.close()
                 break

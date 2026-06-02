@@ -43,7 +43,6 @@ class MariaDB extends MySQL {
 
             // These properties are not compatible with MySQL:
             //dumpQueriesOnException  : false,
-            //log                     : false,
             //maxIdleTime             : 600,
             //trustServerCertificate  : false,
         ] + params)

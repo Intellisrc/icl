@@ -1,3 +1,4 @@
+//file:noinspection GetterMethodCouldBeProperty
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
@@ -6,7 +7,6 @@ import com.intellisrc.core.Millis
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
 import com.intellisrc.db.TableDefinition
-import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
@@ -108,7 +108,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
      * @return
      */
     @Override
-    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "") {
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
         List<String> defs = []
         List<String> keys = []
         List<ColumnDefinition> pks = definitions.pks
@@ -171,12 +171,17 @@ class MySQL extends JDBCServer implements AutoJDBC {
         if (fks) defs << fks
 
         // Assemble Final Statement
-        String enginePart = engine ? "ENGINE=${engine} " : ""
+        String enginePart = definitions.engine ? "ENGINE=${definitions.engine} " : ""
         String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n" +
             defs.join(",\n") +
-            "\n) ${enginePart}CHARACTER SET=${charset}\nCOMMENT='v.${version}'"
+            "\n) ${enginePart}CHARACTER SET=${definitions.charset}\nCOMMENT='v.${version}'"
 
         return createSQL
+    }
+
+    @Override
+    String getAutoIncrementBindSQL() {
+        return "AUTO_INCREMENT"
     }
 
     @Override
@@ -185,13 +190,8 @@ class MySQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getCopyTableStructureSQL(String from, String to) {
-        return "CREATE TABLE $to LIKE $from"
-    }
-
-    @Override
-    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
-        return "INSERT IGNORE INTO $to SELECT * FROM $from"
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
+        return "CREATE TABLE `${to}` LIKE `${from}`"
     }
 
     @Override
@@ -205,19 +205,14 @@ class MySQL extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getResetAutoIncrementSQL(String tableName) {
-        return getAutoIncrementUpdateSQL(tableName, "", 1)
-    }
-
-    @Override
-    String getAutoIncrementSQL(String table, String columnName) {
-        return "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES " +
+    String getIdentitySQL(String table, String columnName) {
+        return "SELECT (AUTO_INCREMENT - 1) FROM INFORMATION_SCHEMA.TABLES " +
             "WHERE TABLE_SCHEMA = '${dbname}' AND TABLE_NAME = '${table}'"
     }
 
     @Override
-    String getAutoIncrementUpdateSQL(String table, String columnName, long value) {
-        return "ALTER TABLE ${table} AUTO_INCREMENT = ${value}"
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "ALTER TABLE ${table} AUTO_INCREMENT = ${value + 1}"
     }
 
     /**
@@ -349,15 +344,5 @@ class MySQL extends JDBCServer implements AutoJDBC {
             }
         }
         return type
-    }
-
-    @Override
-    String getForeignKey(String tableName, ColumnDefinition column) {
-        if (!column.isForeignKey) return ""
-        String sql = "FOREIGN KEY (`${column.name}`) REFERENCES `${column.referenceTable}`(`${column.referenceColumn}`) ON DELETE ${column.onDelete}"
-        if (column.onUpdate && column.onUpdate != UpdateActions.NO_ACTION) {
-            sql += " ON UPDATE ${column.onUpdate}"
-        }
-        return sql
     }
 }

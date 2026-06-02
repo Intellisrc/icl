@@ -4,26 +4,6 @@ package com.intellisrc.db.jdbc
  * @since 18/06/15.
  */
 class SQLServerTest extends JDBCTest {
-
-    String getTableCreate(String name) {
-        return """CREATE TABLE $name (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                name VARCHAR(10) NOT NULL UNIQUE,
-                version FLOAT,
-                active BIT NOT NULL,
-                updated DATE
-        )"""
-    }
-
-    String getTableCreateMultiplePK(String name) {
-        return """CREATE TABLE ${name} (
-                  uid INT NOT NULL,
-                  gid INT NOT NULL,
-                  name VARCHAR(30) NOT NULL,
-                  PRIMARY KEY (gid,uid)
-        )"""
-    }
-
     /**
      * Launch test:
      * NOTE: requires strong password

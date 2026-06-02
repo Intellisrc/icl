@@ -148,9 +148,9 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                     charset = meta.properties.charset.toString()
                 }
             }
-            TableDefinition definition = columns.collect { it.normalized } as TableDefinition
-            definition.version = definedVersion
-            ok = db.table(tableNameToCreate).createTable(definition, engine, charset)
+            TableDefinition definition = new TableDefinition(engine: engine, charset: charset, version: definedVersion)
+            definition.addAll(columns.collect { it.normalized })
+            ok = db.table(tableNameToCreate).createTable(definition)
         }
         db.close()
         return ok
@@ -258,7 +258,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * Returns the autoincrement field
      * @return
      */
-    String getAutoIncrement() {
+    String getIdentityField() {
         String ai = ""
         Field field = getFields().find {
             it.getAnnotation(Column)?.autoincrement()
@@ -266,6 +266,16 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
         if(field) {
             ai = getColumnName(field)
         }
+        return ai
+    }
+    /**
+     * Get auto-increment value or last inserted
+     * @return
+     */
+    int getIdentityValue() {
+        DB db = connect()
+        int ai = db.getAutoIncrementValue()
+        db.close()
         return ai
     }
     /**
@@ -430,31 +440,39 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * Delete all rows which match a criteria. If there is no criteria,
      * it will delete all rows in a table
      * @param criteria
+     * @param force: when true, it will turn FK off before deleting all records
      * @return
      */
-    boolean deleteAll(Map<String, Object> criteria = [:]) {
+    boolean deleteAll(Map<String, Object> criteria = [:], boolean force = false) {
         DB db = connect().keys(primaryKeys)
+        if(force) {
+            db.turnFK(false)
+        }
         boolean ok = criteria.isEmpty() ? (db.truncate() ?: db.clear()) : db.delete(criteria.collectEntries {
             boolean isModel = it.value instanceof Model
             return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).uniqueId : it.value)]
         })
+        if(force) {
+            db.turnFK(true)
+        }
         db.close()
         return ok
     }
     /**
      * Alias for deleteAll without criteria
+     * @param force: when true, it will turn FK off before deleting all records
      * @return
      */
-    boolean clear() {
-        return deleteAll()
+    boolean clear(boolean force = false) {
+        return deleteAll([:], force)
     }
     /**
      * Reset autoincrement
      * @return
      */
-    boolean resetAutoIncrement() {
+    boolean setAutoIncrement(int value = 1) {
         DB db = connect()
-        boolean ok = db.resetAutoIncrement(name)
+        boolean ok = db.setAutoIncrement(name, identityField, value)
         db.close()
         return ok
     }
@@ -464,7 +482,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @return
      */
     int insert(M model) {
-        String ai = getAutoIncrement()
+        String ai = getIdentityField()
         int lastId = 0
         DB db = connect()
         try {

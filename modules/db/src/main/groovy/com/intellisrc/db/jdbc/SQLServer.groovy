@@ -1,3 +1,4 @@
+//file:noinspection GetterMethodCouldBeProperty
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
@@ -5,20 +6,17 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
 import com.intellisrc.db.TableDefinition
-import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
 import static com.intellisrc.db.ColumnDefinition.UNLIMITED
-import static com.intellisrc.db.auto.Relational.getColumnName
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
 
 /**
@@ -83,7 +81,7 @@ class SQLServer extends JDBCServer implements AutoJDBC {
     // AUTO-DDL & AUTO-JDBC -------------------------
 
     @Override
-    String getCreateTableSQL(String tableName, TableDefinition definitions = [] as TableDefinition, String charset = "", String engine = "") {
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
         List<String> defs = []
         List<ColumnDefinition> pks = definitions.pks
         boolean isMultiplePks = definitions.hasMultiplePk()
@@ -135,19 +133,29 @@ class SQLServer extends JDBCServer implements AutoJDBC {
     }
 
     @Override
+    String getAutoIncrementBindSQL() {
+        return "IDENTITY(1,1)"
+    }
+
+    @Override
     String getTurnFK(boolean on) {
         // SQL Server disables/enables constraints per table or globally via sp_MSforeachtable
         return String.format("EXEC sp_MSforeachtable 'ALTER TABLE ? %s CONSTRAINT ALL'", on ? "CHECK" : "NOCHECK")
     }
 
     @Override
-    String getCopyTableStructureSQL(String from, String to) {
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
         return "SELECT * INTO \"${to}\" FROM \"${from}\" WHERE 1=0"
     }
 
     @Override
-    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
-        return "INSERT INTO \"${to}\" SELECT * FROM \"${from}\""
+    String getIdentitySQL(String table, String columnName) {
+        return "SELECT IDENT_CURRENT('${table}')"
+    }
+
+    @Override
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "DBCC CHECKIDENT ('${table}', RESEED, ${value ?: 1})"
     }
 
     @Override
@@ -163,11 +171,7 @@ class SQLServer extends JDBCServer implements AutoJDBC {
         return "SELECT CAST(value AS VARCHAR(255)) FROM fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', '${table}', NULL, NULL)"
     }
 
-    @Override
-    String getResetAutoIncrementSQL(String tableName) {
-        return "DBCC CHECKIDENT ('${tableName}', RESEED, 0)"
-    }
-
+    @SuppressWarnings('GroovyFallthrough')
     @Override
     String getColumnDefinition(ColumnDefinition column) {
         String type = ""

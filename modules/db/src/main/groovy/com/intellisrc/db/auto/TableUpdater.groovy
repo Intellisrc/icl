@@ -21,6 +21,8 @@ import groovy.transform.CompileStatic
 class TableUpdater {
     protected static class TableInfo {
         Table table
+        int autoIncrement = 0
+        String pkKey
         String getName() {
             return table.name
         }
@@ -46,9 +48,11 @@ class TableUpdater {
         boolean ok = false
         List<TableInfo> tables = []
         tableList.each {
-            DB db = it.connect()
+            DB db = it.connect(true)
             tables << new TableInfo(
-                table: it
+                table: it,
+                autoIncrement: it.identityValue,
+                pkKey: it.identityField
             )
             switch (db.jdbc) {
                 case AutoJDBC:
@@ -58,56 +62,70 @@ class TableUpdater {
                             TableInfo info ->
                                 boolean ok2 = true
                                 int records = 0
+                                // Be sure we don't have garbage:
                                 if (db.hasTable(info.backName)) {
                                     ok2 = db.table(info.backName).drop()
                                 }
                                 if(ok2) {
                                     records = db.table(info.name).count().get().toInt()
-                                    if (db.cloneTable(info.name, info.backName, info.table.definition)) {
+                                    // We copy the data into our back table (and create)
+                                    if (db.cloneTable(info.name, info.backName, info.table.definition, false)) {
+                                        // If all went fine, we drop the 'old' version table
                                         ok2 = db.table(info.name).drop()
                                     } else {
+                                        // in case it exists, drop the backup table to prevent name collision:
+                                        db.table(info.backName).drop()
+                                        // If we were unable to copy it, we rename it instead:
                                         ok2 = db.renameTable(info.name, info.backName)
                                     }
                                 } else {
                                     Log.w("Failed to drop backup table: %s", info.backName)
+                                    // we continue, as it is possible that we can use the back table (otherwise it will fail the record's count below)
                                 }
                                 if(ok2) {
                                     int recordsAfterBackup = db.table(info.backName).count().get().toInt()
+                                    // Verify that both tables have the same number of records:
                                     if(recordsAfterBackup != records) {
                                         Log.w("Data was not successfully backed up (%d vs %d records), aborting", records, recordsAfterBackup)
                                         db.table(info.name).drop()
                                         db.renameTable(info.backName, info.name)
+                                        db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
                                         return false
-                                    } else {
+                                    } else { // Record cound is the same, create the new table or abort:
                                         if (! info.table.createTable(info.name)) { //Creating new table
                                             Log.w("Unable to copy table. Reverting")
                                             db.table(info.name).drop()
                                             db.renameTable(info.backName, info.name)
+                                            db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
                                             return false //failed
-                                        }
+                                        } // else, keep going...
                                     }
                                 } else {
                                     Log.w("Failed to create backup table of: %s", info.name)
                                 }
-                                return db.table(info.backName).exists()
+                                return db.table(info.backName).exists() // Be sure that all back tables exists
                         }
                         if (ok) {
                             tables.each {
                                 TableInfo info ->
                                     int version = db.getVersion(info.name)
+                                    // Execute custom code before updating (it must return true):
                                     if (info.table.execOnUpdate(db.table(info.backName), version, info.table.definedVersion)) {
                                         List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
-                                        ok = db.table(info.name).insert(newData) && db.copyAutoIncrement(info.table.name, info.backName, info.table.primaryKey)
+                                        // Insert data and copy auto-increment from back table:
+                                        ok = db.table(info.name).insert(newData)
+                                        ok &= db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
                                     } else {
+                                        // Try to copy over the data we have in the back table:
                                         boolean dataCopied = db.copyTableData(info.backName, info.name, info.table.definition)
-                                        boolean resetSequence = dataCopied && db.copyAutoIncrement(info.table.name, info.backName, info.table.primaryKey)
-                                        boolean countMatch = resetSequence && db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
+                                        // Be sure that we have the same number of rows:
+                                        boolean countMatch = dataCopied && db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
                                         ok = countMatch
-                                        if (!ok) {
-                                            // Probably column mismatch (using row by row method):
+                                        if (!ok) { // Probably column mismatch (using row by row method):
+                                            Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
                                             List<String> columnsOld = db.table(info.backName).info(false).collect { it.name }
                                             List<String> columnsNew = db.table(info.name).info(false).collect { it.name }
-                                            Log.v("Old columns: %d, New columns: %d", columnsOld.size(), columnsNew.size())
+                                            Log.i("Old columns: %d, New columns: %d", columnsOld.size(), columnsNew.size())
                                             columnsNew = db.table(info.name).info(false).collect { it.name }
                                             if(! columnsNew.empty) {
                                                 List<String> columnsAdded = columnsNew - columnsOld
@@ -126,7 +144,6 @@ class TableUpdater {
                                                         }
                                                         return row
                                                 }
-                                                Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
                                                 ok = newData.empty ?: db.table(info.name).insert(newData) &&
                                                      db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
                                                 if (ok) {
@@ -138,9 +155,12 @@ class TableUpdater {
                                                 Log.w("Unable to create new table.")
                                             }
                                         }
+                                        // Copy the old auto-increment value to the new table:
+                                        ok &= db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
                                     }
                             }
                         }
+                        // Finally, drop back tables:
                         if (ok) {
                             tables.each {
                                 TableInfo info ->

@@ -1,5 +1,6 @@
 package com.intellisrc.db.auto
 
+import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.NormalizedColumn
 import com.intellisrc.db.annot.Column
@@ -19,7 +20,18 @@ class ColumnDB implements NormalizedColumn {
     @Override
     ColumnDefinition getNormalized() {
         boolean hasCustomDef = ! annotation.columnDefinition().empty
-
+        boolean fk = type && Model.isAssignableFrom(type)
+        String refTable = ""
+        String refColumn = ""
+        if (fk) {                                                                                                                                                                                                    
+            try {                                                                                                                                                                                                    
+                Model refModel = (Model) type.getDeclaredConstructor().newInstance()                                                                                                                                 
+                refTable = refModel.tableName                                                                                                                                                                        
+                refColumn = Relational.getColumnName(refModel.primaryKey)                                                                                                                                            
+            } catch (Exception e) {                                                                                                                                                                                  
+                Log.e("Failed to resolve foreign key for field: " + name, e)
+            }                                                                                                                                                                                                        
+        }  
         return new ColumnDefinition(
             autoIncrement: this.annotation.autoincrement(),
             index: annotation.key(),
@@ -33,7 +45,10 @@ class ColumnDB implements NormalizedColumn {
             onDelete: this.annotation.ondelete(),
             onUpdate: this.annotation.onupdate(),
             type: this.type,
-            defaultValue: this.defaultVal
+            defaultValue: this.defaultVal,
+            isForeignKey: fk,
+            referenceTable: refTable,
+            referenceColumn: refColumn
         )
     }
 }
