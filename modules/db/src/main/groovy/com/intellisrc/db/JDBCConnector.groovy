@@ -402,16 +402,23 @@ class JDBCConnector implements Connector {
 		} catch(SQLNonTransientConnectionException | ConnectException ce) {
 			onError(new DatabaseConnectionException(ce))
 		} catch (SQLException ex) {
-			if(!silent) {
+			if(silent) {
 				Log.w("Statement failed: %s", ex)
+			} else {
+				onError(ex)
 			}
-			onError(ex)
 		} catch (AssertionError ae) {
-			Log.w("Invalid query: %s", ae)
-			onError(ae)
+			if(silent) {
+				Log.w("Invalid query: %s", ae)
+			} else {
+				onError(ae)
+			}
 		} catch (Exception e) {
-			Log.w("Unexpected error while processing request: %s", e)
-			onError(e)
+			if(silent) {
+				Log.w("Unexpected error while processing request: %s", e)
+			} else {
+				onError(e)
+			}
 		}
 		clear(connection)
 		return null

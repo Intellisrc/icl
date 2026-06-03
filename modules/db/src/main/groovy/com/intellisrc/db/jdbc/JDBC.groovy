@@ -84,7 +84,6 @@ abstract class JDBC {
 
     // This will be set in case it is set directly
     protected String connectionURI = ""
-    boolean initialized = false
 
     /**
      * Some databases does not support JSON datatype
@@ -92,10 +91,6 @@ abstract class JDBC {
      */
     boolean supportsJSON = false
 
-    /**
-     * Initialize additional functionality
-     */
-    void initialize(DB db) {}
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):

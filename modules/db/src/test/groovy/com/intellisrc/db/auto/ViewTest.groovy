@@ -4,7 +4,6 @@ import com.intellisrc.core.Log
 import com.intellisrc.core.SysClock
 import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
-import spock.lang.IgnoreIf
 
 import java.time.LocalDate
 
@@ -45,7 +44,6 @@ abstract class ViewTest extends AutoTest {
                   FROM users u LEFT JOIN aliases a ON(u.id = a.user_id)"""
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Should create view"() {
         setup:
             Database database = new Database(connJdbc)

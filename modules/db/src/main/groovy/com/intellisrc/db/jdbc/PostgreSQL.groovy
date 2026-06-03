@@ -89,14 +89,12 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
             ColumnDefinition col ->
                 List<String> parts = ["\"${col.name}\"".toString(), getColumnDefinitionCustom(col)]
 
-                if (!col.nullable && !col.primaryKey) {
-                    parts << "NOT NULL"
-                }
-
                 if (col.defaultValue) {
                     // PostgreSQL evaluates defaults natively. If expressions require parenthesis,
                     // your getDefaultQuery handle should manage it. Passing false is standard for literals.
                     parts << getDefaultQuery(col, false)
+                } else if (!col.nullable && !col.primaryKey) {
+                    parts << "NOT NULL"
                 }
 
                 // Handle auto-increment via SQL Standard Identity columns
@@ -289,8 +287,9 @@ class PostgreSQL extends JDBCServer implements AutoJDBC {
 
         // We extract the sequence name using pg_get_serial_sequence,
         // then look it up in pg_sequences to get the true last_value or start_value
-        return """SELECT COALESCE(s.last_value) FROM pg_sequences s
-        WHERE s.sequencename = substring(pg_get_serial_sequence('"${cleanTable}"', '${cleanCol}') from '[^.]+\$')""".stripIndent()
+       /* return """SELECT COALESCE(s.last_value) FROM pg_sequences s
+        WHERE s.sequencename = substring(pg_get_serial_sequence('"${cleanTable}"', '${cleanCol}') from '[^.]+\$')""".stripIndent()*/
+        return """SELECT CASE WHEN is_called THEN last_value ELSE last_value - 1 END FROM ${cleanTable}_${cleanCol}_seq"""
     }
 
     @Override

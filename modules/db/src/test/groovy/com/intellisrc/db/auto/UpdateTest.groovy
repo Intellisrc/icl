@@ -6,7 +6,6 @@ import com.intellisrc.db.Database
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
-import spock.lang.IgnoreIf
 
 import static com.intellisrc.db.Query.SortOrder.DESC
 
@@ -61,7 +60,6 @@ abstract class UpdateTest extends ViewTest {
         Log.i("UpdateTest completed")
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Simple Update without data"() {
         setup:
             String tableName = "users"
@@ -103,7 +101,6 @@ abstract class UpdateTest extends ViewTest {
             database.quit()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Update with data"() {
         setup:
             String tableName = "users"
@@ -120,7 +117,11 @@ abstract class UpdateTest extends ViewTest {
                 )
             }
             users.insert(userList)
+            List<User> dbList = users.all
+            User lastUser = dbList.max { it.id }
         then:
+            assert dbList.size() == rows : "Total records should match"
+            assert lastUser.id == rows : "Id should match"
             assert users.count() == rows : "Number of rows failed before updating"
             assert users.identityValue == rows : "Auto increment value is wrong"
             assert users.getAll(5).size() == 5 : "Limit failed"
@@ -146,6 +147,7 @@ abstract class UpdateTest extends ViewTest {
             assert onUpdateCalled : "execOnUpdate was not fired"
             assert users2.count() == rows : "Number of rows failed after updating"
             assert users.identityValue == users2.identityValue : "Auto-increment value should be the same"
+            assert users2.identityValue == rows: "Auto-increment value should be the same"
         when:
             UserV2 u = new UserV2(
                 name : "Benjamin",

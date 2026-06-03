@@ -2,28 +2,30 @@ package com.intellisrc.db.auto
 
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.db.jdbc.SQLite
+import org.slf4j.event.Level
 
 class AutoSQLiteTest extends UpdateTest {
-    static File sqliteTmp = File.createTempFile("sqlite-", ".db")
+    final static File dbFile = File.get(File.tempDir, "sqlite.db")
+    Level logLevel = Level.TRACE
 
     @Override
     JDBC getConnJdbc() {
         return new SQLite(
-            dbname: sqliteTmp.absolutePath
+            dbname: dbFile.absolutePath
         )
     }
 
     @Override
     def setup() {
-        if(sqliteTmp.exists()) {
-            sqliteTmp.deleteDir()
+        if(dbFile.exists()) {
+            dbFile.deleteDir()
         }
     }
 
     @Override
     def cleanup() {
-        if(sqliteTmp.exists()) {
-            sqliteTmp.deleteDir()
+        if(dbFile.exists()) {
+            dbFile.deleteDir()
         }
     }
 }

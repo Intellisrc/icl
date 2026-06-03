@@ -129,13 +129,11 @@ class Oracle extends JDBCServer implements AutoJDBC {
             String uColName = col.name.toUpperCase()
             List<String> parts = ["\"${uColName}\"".toString(), getColumnDefinitionCustom(col)]
 
-            if (!col.nullable && !col.primaryKey) {
-                parts << "NOT NULL"
-            }
-
             if (col.defaultValue) {
                 // Oracle parses default values as literal configurations. Passing false is standard.
                 parts << getDefaultQuery(col, false)
+            } else if (!col.nullable && !col.primaryKey) {
+                parts << "NOT NULL"
             }
 
             // Native Identity Column for modern Auto-Increment tracking

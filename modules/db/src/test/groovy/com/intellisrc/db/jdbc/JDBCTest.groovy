@@ -14,8 +14,8 @@ import com.intellisrc.log.PrintLogger
 import com.intellisrc.net.LocalHost
 import com.intellisrc.term.TableMaker
 import org.slf4j.event.Level
-import spock.lang.IgnoreIf
 import spock.lang.Specification
+import org.junit.jupiter.api.Assumptions
 
 import java.time.LocalDate
 
@@ -33,6 +33,7 @@ abstract class JDBCTest extends Specification {
 
     String engine = ""
     String charSet = "UTF8"
+    boolean tested = false
 
     @SuppressWarnings('unused')
     boolean shouldSkip() {
@@ -105,16 +106,21 @@ abstract class JDBCTest extends Specification {
     }
 
     void clean(DB db, String table) {}
+    Level getLogLevel() {
+        return Level.DEBUG
+    }
 
     DB connect() {
         return new Database(jdbConnector).connect()
     }
 
     def setup() {
+        Assumptions.assumeTrue(! shouldSkip(), "Condition not met, skipping.")
+        tested = true
         try {
             Log.i("Initializing Test...")
             PrintLogger printLogger = CommonLogger.default.printLogger
-            printLogger.setLevel(Level.DEBUG)
+            printLogger.setLevel(logLevel)
             DB db = connect()
             db.dropAllTables()
             db.clearCache()
@@ -125,14 +131,15 @@ abstract class JDBCTest extends Specification {
     }
 
     def cleanup() {
-        DB db = connect()
-        db.dropAllTables()
-        db.clearCache()
-        db.close()
-        Log.i("JDBCTest completed")
+        if(tested) {
+            DB db = connect()
+            db.dropAllTables()
+            db.clearCache()
+            db.close()
+            Log.i("JDBCTest completed")
+        }
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Simple Connection"() {
         setup:
             String table = "linux"
@@ -357,17 +364,24 @@ abstract class JDBCTest extends Specification {
         then: "delete using String IDs"
             assert db.table(table).key("name").delete("RedHat","Slackware")
             assert db.table(table).count().get().toInt() == 3
+            assert db.identityValue > 1 : "Auto-increment value should be set"
         then: "truncate"
             assert db.table(table).truncate()
             assert db.table(table).count().get().toInt() == 0
-            assert db.autoIncrementValue > 0 : "Auto-increment value should not be MAX()"
+            assert db.insert([ name : "CentOS", active: false, updated: setDate("2024-04-15"), version: 8.2 ])
+            assert db.lastID <= 2
+            assert db.identityValue <= 2 : "Auto-increment should clear after truncate"
+        then: "identity change"
+            assert db.setIdentity(100)
+            assert db.insert([ name : "PuppyLinux", active: false, updated: setDate("2022-12-01"), version: 1.9 ])
+            assert db.lastID >= 100
+            assert db.identityValue >= 100 : "Auto-increment value was not changed"
         cleanup:
             db?.dropAllTables()
             clean(db, table)
             db?.close()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Connection with Pool"() {
         setup:
             JDBC jdbc = getJdbConnector()
@@ -406,7 +420,6 @@ abstract class JDBCTest extends Specification {
             database?.quit()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Test Drop all tables"() {
         setup:
             DB db = connect()
@@ -434,7 +447,6 @@ abstract class JDBCTest extends Specification {
             db?.close()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Test NULL"() {
         setup:
             JDBC jdbc = getJdbConnector()
@@ -468,7 +480,6 @@ abstract class JDBCTest extends Specification {
             db?.close()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Multiple key support"() {
         setup:
             DB db = connect()

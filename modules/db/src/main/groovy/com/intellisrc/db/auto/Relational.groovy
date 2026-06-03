@@ -892,7 +892,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         DB db = database.connect().table(tableName)
         db.cache = cache
         db.clearCache = clearCache
-        db.errorAsWarn = softFail
+        db.softFail = softFail
         return db
     }
     /**

@@ -52,8 +52,11 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             switch (jdbc) {
                 case AutoJDBC:
                     // Initialize Auto
+                    if(!(jdbc as AutoJDBC).initialize()) {
+                        Log.w("Unable to initialize: %s", jdbc.name)
+                        break
+                    }
                     DB conn = connect()
-                    jdbc.initialize(conn)
                     boolean exists = conn.exists()
                     if (exists) {
                         if(autoUpdate) {
@@ -274,7 +277,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     int getIdentityValue() {
         DB db = connect()
-        int ai = db.getAutoIncrementValue()
+        int ai = db.getIdentityValue()
         db.close()
         return ai
     }
@@ -472,7 +475,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     boolean setAutoIncrement(int value = 1) {
         DB db = connect()
-        boolean ok = db.setAutoIncrement(name, identityField, value)
+        boolean ok = db.setIdentity(name, identityField, value)
         db.close()
         return ok
     }

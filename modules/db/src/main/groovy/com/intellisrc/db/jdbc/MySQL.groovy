@@ -120,12 +120,10 @@ class MySQL extends JDBCServer implements AutoJDBC {
             ColumnDefinition col ->
                 List<String> parts = ["`${col.name}`".toString(), getColumnDefinitionCustom(col)]
 
-                if (!col.nullable &&! col.primaryKey) {
-                    parts << "NOT NULL"
-                }
-
                 if (col.defaultValue) {
                     parts << getDefaultQuery(col)
+                } else if (!col.nullable &&! col.primaryKey) {
+                    parts << "NOT NULL"
                 }
 
                 if(col.autoIncrement) {

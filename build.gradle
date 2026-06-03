@@ -158,6 +158,13 @@ subprojects {
         testImplementation "org.spockframework:spock-core:${spock}"
         // Fixes "The automatic loading of test framework implementation dependencies has been deprecated." for Gradle 9
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    }
+    test { //This fixes test failing when testing the whole directory:
+        // Run each test class in its own JVM process
+        forkEvery = 1
+        // Maximize parallel execution if desired
+        maxParallelForks = Runtime.runtime.availableProcessors()
     }
     tasks.withType(Groovydoc).configureEach {
         classpath += project.configurations.documentation

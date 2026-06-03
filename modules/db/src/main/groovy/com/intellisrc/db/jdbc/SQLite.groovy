@@ -5,8 +5,8 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
+import com.intellisrc.db.Database
 import com.intellisrc.db.TableDefinition
-import com.intellisrc.db.Volatile
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
@@ -27,14 +27,13 @@ import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
  * db.sqlite.memory = false
  */
 @CompileStatic
-class SQLite extends JDBC implements AutoJDBC, Volatile {
+class SQLite extends JDBC implements AutoJDBC {
     String dbname = ""
     String user = ""
     String password = ""
     String driver = "org.sqlite.JDBC"
     String tableMeta = Config.any.get("db.sqlite.meta", "_meta")
     boolean fkEnabled = Config.any.get("db.sqlite.fk", true) // ON By default
-    boolean useVersion = false
     BooleanHandle booleanHandle = ENUM
 
     // SQLite specific parameters:
@@ -88,16 +87,30 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     //////////////////////// AUTO ////////////////////////////
     @Override
     String getTableExistsSQL(String tableName) {
-        return "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='${tableName.toUpperCase()}'"
+        return "SELECT name FROM sqlite_schema WHERE type='table' AND name='${tableName}'"
     }
     @Override
-    void initialize(DB db) {
-        if(useVersion &&! db.table(tableMeta).exists()) {
-            TableDefinition tableDefinition = [
+    boolean initialize() {
+        boolean ok = true
+        if(memory) {
+            /*
+                The reason is because we need to use a single connection
+                everywhere and the _meta table gets destroyed after db.close().
+                Although it is possible to make it work using an static connection
+                it is better to use H2 in Memory (it works fine) instead.
+             */
+            Log.w("Auto functionality does not work in Memory")
+            return false
+        }
+        //Be sure we start a new connection:
+        DB db = new Database(this).connect()
+        if(! db.table(tableMeta).exists()) {
+            TableDefinition tableDefinition = new TableDefinition(version: 0) // 0 == Do not set
+            tableDefinition.addAll([
                 new ColumnDefinition(
                     name: "table_name",
                     type: String,
-                    index: true,
+                    primaryKey: true,
                     nullable: false,
                     length: 255
                 ),
@@ -106,9 +119,11 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
                     type: Integer,
                     nullable: false,
                     defaultValue: 1
-                )] as TableDefinition
-            db.table(tableMeta).createTable(tableDefinition)
+                )])
+            ok = db.table(tableMeta).createTable(tableDefinition)
         }
+        db.close()
+        return ok
     }
 
     @Override
@@ -124,12 +139,10 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
 
                 List<String> parts = ["`${col.name}`".toString(), typeDef]
 
-                if (!col.nullable &&! col.primaryKey) {
-                    parts << "NOT NULL"
-                }
-
                 if (col.defaultValue) {
                     parts << getDefaultQuery(col)
+                } else if (!col.nullable &&! col.primaryKey) {
+                    parts << "NOT NULL"
                 }
 
                 if(col.primaryKey) {
@@ -195,13 +208,11 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
     }
     @Override
     String getVersionUpdate(String table, int version) {
-        useVersion = true
-        return "REPLACE INTO ${tableMeta} (table_name, version) VALUES(${table},${version})".toString()
+        return "REPLACE INTO ${tableMeta} (table_name, version) VALUES('${table}',${version})".toString()
     }
     @Override
     String getVersionRead(String table) {
-        return useVersion ?
-            "SELECT version FROM ${tableMeta} WHERE table_name = ${table} LIMIT 1".toString() : ""
+        return "SELECT version FROM ${tableMeta} WHERE table_name = '${table}' LIMIT 1".toString()
     }
 
     @Override
@@ -281,7 +292,7 @@ class SQLite extends JDBC implements AutoJDBC, Volatile {
 
     @Override
     String getIdentityUpdateSQL(String table, String columnName, int value) {
-        return "INSERT INTO sqlite_sequence (name, seq) VALUES ('${table}', ${value ?: 1}) " +
-                "ON CONFLICT(name) DO UPDATE SET seq = excluded.seq"
+        return value <= 1 ? "DELETE FROM sqlite_sequence WHERE name = '${table}'" :
+              "UPDATE sqlite_sequence SET seq = ${value} WHERE name = '${table}'"
     }
 }

@@ -55,7 +55,7 @@ class ConnectionTest extends Specification {
             )
         when:
             println "Opening connection:"
-            jdbc.connect()
+            new Database(jdbc).connect()
         then:
             thrown(DatabaseConnectionException)
             long duration = Math.round((System.currentTimeMillis() - startTime) / 1000d)

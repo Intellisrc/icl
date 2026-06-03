@@ -89,14 +89,14 @@ class TableUpdater {
                                         Log.w("Data was not successfully backed up (%d vs %d records), aborting", records, recordsAfterBackup)
                                         db.table(info.name).drop()
                                         db.renameTable(info.backName, info.name)
-                                        db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
+                                        db.setIdentity(info.name, info.pkKey, info.autoIncrement)
                                         return false
                                     } else { // Record cound is the same, create the new table or abort:
                                         if (! info.table.createTable(info.name)) { //Creating new table
                                             Log.w("Unable to copy table. Reverting")
                                             db.table(info.name).drop()
                                             db.renameTable(info.backName, info.name)
-                                            db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
+                                            db.setIdentity(info.name, info.pkKey, info.autoIncrement)
                                             return false //failed
                                         } // else, keep going...
                                     }
@@ -114,18 +114,21 @@ class TableUpdater {
                                         List<Map> newData = info.table.onUpdate(db.table(info.backName).get().toListMap())
                                         // Insert data and copy auto-increment from back table:
                                         ok = db.table(info.name).insert(newData)
-                                        ok &= db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
+                                        ok &= db.setIdentity(info.name, info.pkKey, info.autoIncrement)
                                     } else {
-                                        // Try to copy over the data we have in the back table:
-                                        boolean dataCopied = db.copyTableData(info.backName, info.name, info.table.definition)
-                                        // Be sure that we have the same number of rows:
-                                        boolean countMatch = dataCopied && db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
+                                        List<String> columnsOld = db.table(info.backName).info(false).collect { it.name }
+                                        List<String> columnsNew = db.table(info.name).info(false).collect { it.name }
+                                        boolean countMatch = false
+                                        if(columnsOld == columnsNew) {
+                                            Log.i("Trying fast way to import data...")
+                                            // Try to copy over the data we have in the back table:
+                                            boolean dataCopied = db.copyTableData(info.backName, info.name, info.table.definition)
+                                            // Be sure that we have the same number of rows:
+                                            countMatch = dataCopied && db.table(info.name).count().get().toInt() == db.table(info.backName).count().get().toInt()
+                                        }
                                         ok = countMatch
                                         if (!ok) { // Probably column mismatch (using row by row method):
-                                            Log.i("(Fast import failed) Trying alternative way to import data (it may take some time)...")
-                                            List<String> columnsOld = db.table(info.backName).info(false).collect { it.name }
-                                            List<String> columnsNew = db.table(info.name).info(false).collect { it.name }
-                                            Log.i("Old columns: %d, New columns: %d", columnsOld.size(), columnsNew.size())
+                                            Log.i("Trying alternative way to import data (it may take some time)...")
                                             columnsNew = db.table(info.name).info(false).collect { it.name }
                                             if(! columnsNew.empty) {
                                                 List<String> columnsAdded = columnsNew - columnsOld
@@ -156,7 +159,7 @@ class TableUpdater {
                                             }
                                         }
                                         // Copy the old auto-increment value to the new table:
-                                        ok &= db.setAutoIncrement(info.name, info.pkKey, info.autoIncrement)
+                                        ok &= db.setIdentity(info.name, info.pkKey, info.autoIncrement)
                                     }
                             }
                         }

@@ -62,8 +62,11 @@ abstract class View<M extends Model> extends Relational<M> implements Instanciab
             switch (jdbc) {
                 case AutoJDBC:
                     // Initialize Auto
+                    if(!(jdbc as AutoJDBC).initialize()) {
+                        Log.w("Unable to initialize: %s", jdbc.name)
+                        break
+                    }
                     DB conn = connect()
-                    jdbc.initialize(conn)
                     boolean exists = conn.exists()
                     if (exists && recreate) {
                         drop()
@@ -90,9 +93,7 @@ abstract class View<M extends Model> extends Relational<M> implements Instanciab
         boolean dropped = false
         switch (jdbc) {
             case AutoJDBC:
-                // Initialize Auto
                 DB conn = connect()
-                jdbc.initialize(conn)
                 boolean exists = conn.exists()
                 if (exists) {
                     dropped = super.drop()

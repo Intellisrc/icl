@@ -1,5 +1,7 @@
 package com.intellisrc.db.jdbc
 
+import org.slf4j.event.Level
+
 /**
  * @since 18/06/15.
  */
@@ -12,6 +14,7 @@ class H2MemTest extends JDBCTest {
      *
      * @return
      */
+    Level logLevel = Level.TRACE
     @Override
     JDBC getJdbConnector() {
         return new H2(

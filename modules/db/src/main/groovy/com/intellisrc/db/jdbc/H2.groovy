@@ -4,7 +4,6 @@ import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.TableDefinition
-import com.intellisrc.db.Volatile
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
@@ -20,13 +19,15 @@ import static com.intellisrc.db.ColumnDefinition.UNLIMITED
 /**
  * H2 Database
  * @since 2022/12/5.
+ * To access the console:
+ *  java -cp h2-*.jar org.h2.tools.Server
  *
  * Additional settings:
  * db.h2H2.
  */
 @CompileStatic
 @SuppressWarnings('GetterMethodCouldBeProperty')
-class H2 extends JDBCServer implements AutoJDBC, Volatile {
+class H2 extends JDBCServer implements AutoJDBC {
     // Absolute path to database
     String dbname = ""
     String user = "sa"
@@ -37,7 +38,7 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
     String driver = "org.h2.Driver"
     boolean supportsReplace = true
     String catalogSearchName = null
-    String schemaSearchName = null
+    String schemaSearchName = "PUBLIC"
     String fieldsQuotation = '`'
     String tablesQuotation = '`'
 
@@ -63,10 +64,14 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
     }
 
     @Override
-    String getConnectionString() {                                                                                                                                                                                   
-        String memDelay = memory ? ";DB_CLOSE_DELAY=-1" : ""                                                                                                                                                         
-        return connectionURI ?: "jdbc:h2:" + (memory ? "mem:$dbname$memDelay" : (hostname ? "tcp://$hostname:$port/$dbname" + "?" +                                                                                  
-            parameters.toQueryString() : "$dbname"))                                                                                                                                                                 
+    String getConnectionString() {
+        return connectionURI ?: "jdbc:h2:" + (memory ? "mem:${dbname ?: 'default'};DB_CLOSE_DELAY=-1" :
+            (hostname ? "tcp://$hostname:$port/$dbname" + "?" + parameters.toQueryString() : "$dbname"))
+    }
+
+    @Override
+    String getDropTableQuery(String table) {
+        return "DROP TABLE $table CASCADE"
     }
 
     // QUERY BUILDING & AUTO-DDL -------------------------
@@ -80,12 +85,10 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
         definitions.each { ColumnDefinition col ->
             List<String> parts = ["`${col.name}`".toString(), getColumnDefinitionCustom(col)]
 
-            if (!col.nullable && !col.primaryKey) {
-                parts << "NOT NULL"
-            }
-
             if (col.defaultValue) {
                 parts << getDefaultQuery(col)
+            } else if (!col.nullable && !col.primaryKey) {
+                parts << "NOT NULL"
             }
 
             if (col.autoIncrement && !isMultiplePks) {
@@ -132,7 +135,7 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
 
     @Override
     String getTurnFK(boolean on) {
-        return String.format("SET REFERENTIAL_INTEGRAL %s", on ? "TRUE" : "FALSE")
+        return String.format("SET REFERENTIAL_INTEGRITY %s", on ? "TRUE" : "FALSE")
     }
 
     @Override
@@ -241,12 +244,14 @@ class H2 extends JDBCServer implements AutoJDBC, Volatile {
 
     @Override
     String getIdentitySQL(String table, String columnName) {
-        // H2 uses sequences internally for IDENTITY columns                                                                                                                                                         
-        return "SELECT current_value FROM information_schema.sequences WHERE sequence_name LIKE 'SYSTEM_SEQUENCE_%' AND sequence_schema = 'PUBLIC'"                                                                  
-    }                                                                                                                                                                                                                
-                                                                                                                                                                                                                     
-    @Override                                                                                                                                                                                                        
+        String cleanTable = table.replace('`', '').toUpperCase()
+
+        return """SELECT (IDENTITY_BASE - 1) AS CURRENT_IDENTITY_VALUE FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE IS_IDENTITY = 'YES' AND TABLE_NAME = '${cleanTable}'""".stripIndent()
+    }
+
+    @Override
     String getIdentityUpdateSQL(String table, String columnName, int value) {
         return "ALTER TABLE ${table} ALTER COLUMN ${columnName ?: 'ID'} RESTART WITH ${value + 1}"
-    }                                                                                                                                                                                                                
+    }
 }

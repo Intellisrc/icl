@@ -15,8 +15,8 @@ import com.intellisrc.log.PrintLogger
 import com.intellisrc.net.Email
 import com.intellisrc.net.LocalHost
 import com.intellisrc.term.TableMaker
+import org.junit.jupiter.api.Assumptions
 import org.slf4j.event.Level
-import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -28,13 +28,15 @@ import java.time.temporal.ChronoUnit
  */
 abstract class AutoTest extends Specification {
     static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
+    boolean tested = false
 
     @SuppressWarnings('unused')
     boolean shouldSkip() {
-        boolean skip = connJdbc instanceof JDBCServer
-            && (ci || ((connJdbc as JDBCServer).hostname &&! LocalHost.hasOpenPort((connJdbc as JDBCServer).port)))
+        JDBC conn = connJdbc
+        boolean skip = conn instanceof JDBCServer
+            && (ci || ((conn as JDBCServer).hostname &&! LocalHost.hasOpenPort((conn as JDBCServer).port)))
         if(skip) {
-            Log.w("Test skipped for : %s (environment not ready)", connJdbc.class.simpleName)
+            Log.w("Test skipped for : %s (environment not ready)", conn.class.simpleName)
         }
         return skip
     }
@@ -108,27 +110,36 @@ abstract class AutoTest extends Specification {
     }
 
     abstract JDBC getConnJdbc()
+    Level getLogLevel() {
+        return Level.DEBUG
+    }
 
     def setup() {
+        Assumptions.assumeTrue(! shouldSkip(), "Condition not met, skipping.")
+        tested = true
         Log.i("Setting up Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
-        printLogger.setLevel(Level.DEBUG)
+        printLogger.setLevel(logLevel)
         DB.clearCache()
     }
 
     def cleanup() {
-        DB.clearCache()
-        Database database = new Database(connJdbc)
-        DB db = database.connect()
-        db.dropAllTables()
-        db.close()
-        Log.i("AutoTest Cleanup completed")
+        if(tested) {
+            DB.clearCache()
+            JDBC conn = connJdbc
+            Database database = new Database(conn)
+            DB db = database.connect()
+            db.dropAllTables()
+            db.close()
+            database.quit()
+            Log.i("AutoTest Cleanup completed")
+        }
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Create table model"() {
         setup:
-            Database database = new Database(connJdbc)
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
             DB db = database.connect()
             db.dropAllTables()
             db.close()
@@ -158,7 +169,7 @@ abstract class AutoTest extends Specification {
             assert users.insert(w) == 3
             assert users.count() == 3
             assert users.count(age : v.age) == 1
-            assert users.count(connJdbc.getFieldForQuery("age") + " > ?", 80) == 2
+            assert users.count(jdbc.getFieldForQuery("age") + " > ?", 80) == 2
         when:
             Alias alias = new Alias(
                 user : u,
@@ -219,10 +230,10 @@ abstract class AutoTest extends Specification {
             } catch(Exception ignore) {}
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Multi-column Primary Key should work fine"() {
         setup:
-            Database database = new Database(connJdbc)
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
             Users users = new Users(database)
             Emails emails = new Emails(database)
             Inboxes inboxes = new Inboxes(database)
@@ -272,10 +283,10 @@ abstract class AutoTest extends Specification {
             database.quit()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Primary Key is Model"() {
         setup:
-            Database database = new Database(connJdbc)
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
             Users users = new Users(database)
             Addresses addresses = new Addresses(database)
             addresses.clear()
@@ -333,10 +344,10 @@ abstract class AutoTest extends Specification {
             database.quit()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Insert, update and delete in bulk"() {
         setup:
-            Database database = new Database(connJdbc)
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
             Emails emails = new Emails(database)
             emails.clear(true)
             assert ! emails.primaryKeys.empty

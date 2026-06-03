@@ -93,12 +93,10 @@ class SQLServer extends JDBCServer implements AutoJDBC {
                 parts << "IDENTITY(1,1)"
             }
 
-            if (!col.nullable && !col.primaryKey) {
-                parts << "NOT NULL"
-            }
-
             if (col.defaultValue) {
                 parts << getDefaultQuery(col)
+            } else if (!col.nullable && !col.primaryKey) {
+                parts << "NOT NULL"
             }
 
             if (col.primaryKey && !isMultiplePks) {

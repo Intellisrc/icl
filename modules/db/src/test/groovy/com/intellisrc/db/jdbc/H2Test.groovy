@@ -1,9 +1,12 @@
 package com.intellisrc.db.jdbc
 
+import org.slf4j.event.Level
+
 /**
  * @since 18/06/15.
  */
 class H2Test extends JDBCTest {
+    static File h2Tmp = File.get(File.tempDir, "h2.db")
     /**
      * Launch test:
      * docker run h2_test
@@ -12,10 +15,12 @@ class H2Test extends JDBCTest {
      *
      * @return
      */
+    Level logLevel = Level.TRACE
+
     @Override
     JDBC getJdbConnector() {
         return new H2(
-            dbname: File.get(File.tempDir, "h2").absolutePath,
+            dbname: h2Tmp.absolutePath,
             user: "sa",
             password: ""
         )

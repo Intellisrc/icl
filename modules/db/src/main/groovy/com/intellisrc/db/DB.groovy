@@ -41,7 +41,7 @@ class DB {
     // Flag to mark connections which were returned already
     protected boolean returned = false
     // Print Errors as warnings (known exceptions, for example while updating)
-    protected boolean errorAsWarn = false
+    boolean softFail = false
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
@@ -398,6 +398,13 @@ class DB {
             Log.i("Truncating table: %s", table)
             query.setAction(TRUNCATE)
             ok = execSet()
+            if(ok) {
+                dataCache.clear() // clear query caches
+                int ai = getIdentityValue(table)
+                if(ai > 1) {
+                    setIdentity(0)
+                }
+            }
         } else {
             Log.w("Can not truncate: No table specified")
         }
@@ -418,7 +425,7 @@ class DB {
             if(createTableSQL) {
                 ok = setSQL(createTableSQL)
                 if(ok) {
-                    List<String> setIndicesSQL = jdbc.getUpdateIndicesSQL(table, definition.findAll { it.index }.collect { it.name })
+                    List<String> setIndicesSQL = jdbc.getUpdateIndicesSQL(table, definition.findAll { it.index &&! it.primaryKey }.collect { it.name })
                     if(! setIndicesSQL.empty) {
                         ok = setSQL(setIndicesSQL)
                     }
@@ -534,16 +541,16 @@ class DB {
      * @param to
      * @return
      */
-    boolean cloneTable(String from, String to, TableDefinition columns, boolean updateAutoIncrement = true) {
+    boolean cloneTable(String from, String to, TableDefinition columns, boolean updateIdentity = true) {
         boolean ok = copyTableStructure(from, to, columns)
                 ok &= copyTableData(from, to, columns)
 
         // Copy AutoIncrement:
-        if(updateAutoIncrement) {
+        if(updateIdentity) {
             String pk = columns.find { it.autoIncrement }
             if(pk) {
-                int ai = getAutoIncrementValue(from)
-                ok &= setAutoIncrement(to, pk, ai)
+                int ai = getIdentityValue(from)
+                ok &= setIdentity(to, pk, ai)
             }
         }
         return ok
@@ -572,10 +579,26 @@ class DB {
     }
 
     /**
+     * Retrieves identity field for a table
+     * @return
+     */
+    String getIdentityField() {
+        List<ColumnInfo> columns = info(false)
+        String field = "id"
+        if(columns) {
+            ColumnInfo ci = columns.find { it.autoIncrement }
+            if (ci) {
+                field = ci.name
+            }
+        }
+        return field
+    }
+
+    /**
      * Get the auto-increment value from the table (not MAX)
      * @return
      */
-    int getAutoIncrementValue(String tableName = table) {
+    int getIdentityValue(String tableName = table) {
         int ai = 0
         // Force load column info if cache is empty or missing this table
         List<ColumnInfo> columns = info(false)
@@ -586,21 +609,30 @@ class DB {
                 if(sql) {
                     ai = getSQL(sql).toInt()
                 } else {
-                    Log.w("Auto-increment SQL to read it was empty")
+                    Log.w("Identity SQL to read it was empty")
                 }
             }
         }
         if(!ai) {
-            Log.d("Auto-increment value returned zero")
+            Log.d("Identity value returned zero")
         }
         return ai
     }
     /**
-     * Reset Autoincrement for a table
+     * set Autoincrement for a table (automatically getting the column name)
+     * @param table
+     * @param value
+     * @return
+     */
+    boolean setIdentity(int value = 0) {
+        return setIdentity(table, identityField, value)
+    }
+    /**
+     * set Autoincrement for a table
      * @param table
      * @return
      */
-    boolean setAutoIncrement(String table, String columnName, int value = 1) {
+    boolean setIdentity(String table, String columnName, int value = 0) {
         String resetSQL = jdbc.getIdentityUpdateSQL(table, columnName, value)
         return resetSQL && setSQL(resetSQL)
     }
@@ -676,7 +708,7 @@ class DB {
         if (hasTable(table)) { return true }
 
         String existsSQL = jdbc.getTableExistsSQL(table)
-        return existsSQL && getSQL(existsSQL).toBool()
+        return existsSQL && (getSQL(existsSQL)?.toBool() ?: false)
     }
     /**
      * Return column Info using cache
@@ -744,7 +776,7 @@ class DB {
     boolean close() {
 		Log.v( "Closing connection...")
         returned = true
-        errorAsWarn = false // Revert to default
+        softFail = false // Revert to default
     	return dbConnector.close()
     }
     /**
@@ -1169,7 +1201,7 @@ class DB {
                 ResultStatement st
                 try {
                     boolean upsert = ! replaceData.isEmpty()
-                    st = dbConnector.execute(query, errorAsWarn ?: upsert)
+                    st = dbConnector.execute(query, softFail ?: upsert)
                     if (upsert && st && st.updatedCount() == 0) {
                         try {
                             // Copy query:
