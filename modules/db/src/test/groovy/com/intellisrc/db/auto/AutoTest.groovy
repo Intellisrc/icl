@@ -111,7 +111,7 @@ abstract class AutoTest extends Specification {
 
     abstract JDBC getConnJdbc()
     Level getLogLevel() {
-        return Level.DEBUG
+        return Level.TRACE
     }
 
     def setup() {

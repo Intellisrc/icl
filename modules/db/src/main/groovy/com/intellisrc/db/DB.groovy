@@ -397,7 +397,16 @@ class DB {
         if(table) {
             Log.i("Truncating table: %s", table)
             query.setAction(TRUNCATE)
+            boolean fail = softFail
+            softFail = true
             ok = execSet()
+            if(! ok) {
+                softFail = fail
+                Log.i("Truncate failed, deleting rows and resetting identity... (table : %s)", table)
+                query.setAction(DELETE) //Alternative
+                ok = execSet()
+                fail}
+            softFail = fail
             if(ok) {
                 dataCache.clear() // clear query caches
                 int ai = getIdentityValue(table)
