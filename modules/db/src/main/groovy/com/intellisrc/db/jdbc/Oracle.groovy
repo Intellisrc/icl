@@ -16,6 +16,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
+import static com.intellisrc.db.annot.DeleteActions.*
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
@@ -332,14 +333,20 @@ class Oracle extends JDBCServer implements AutoJDBC {
             LOOP
                 EXECUTE IMMEDIATE
                     'ALTER TABLE "' || c.table_name ||
-                    '" ${on ? 'ENABLE' : 'DISABLE'} CONSTRAINT "' || c.constraint_name || '"';
+                    '" ${on ? 'ENABLE NOVALIDATE' : 'DISABLE'} CONSTRAINT "' || c.constraint_name || '"';
             END LOOP;
         END;"""
     }
 
     @Override
     String getVersionRead(String table) {
-        return "SELECT comments FROM user_tab_comments WHERE table_name = '${table}'"
+        String uTable = table.replace(fieldsQuotation, "").toUpperCase()
+        return "SELECT comments FROM user_tab_comments WHERE table_name = '${uTable}'"
+    }
+
+    @Override
+    String getDropTableQuery(String table) {
+        return "DROP TABLE \"${table.toUpperCase()}\" CASCADE CONSTRAINTS"
     }
 
     @Override
@@ -348,7 +355,12 @@ class Oracle extends JDBCServer implements AutoJDBC {
         String refTable = column.referenceTable.toUpperCase()
         String refCol = column.referenceColumn.toUpperCase()
         String colName = column.name.toUpperCase()
-        String sql = "CONSTRAINT fk_${column.name} FOREIGN KEY (\"${colName}\") REFERENCES `${refTable}`(`${refCol}`) ON DELETE ${column.onDelete}"
-        return sql
+        String onDeleteClause = ""
+        if (column.onDelete) {
+            if (column.onDelete != RESTRICT) {
+                onDeleteClause = " ON DELETE " + column.onDelete.toString()
+            }
+        }
+        return "CONSTRAINT fk_${column.name} FOREIGN KEY (\"${colName}\") REFERENCES \"${refTable}\"(\"${refCol}\")${onDeleteClause}"
     }
 }
