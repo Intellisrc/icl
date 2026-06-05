@@ -212,9 +212,11 @@ class SQLServer extends JDBCServer implements AutoJDBC {
                 break
             case double:
             case Double:
-            case BigDecimal:
                 type = "FLOAT"
                 break
+            case BigDecimal:
+				type = "DECIMAL(38,18)"
+				break
             case LocalDate:
                 type = "DATE"
                 break
