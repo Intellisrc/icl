@@ -107,7 +107,7 @@ abstract class JDBCTest extends Specification {
 
     void clean(DB db, String table) {}
     Level getLogLevel() {
-        return Level.DEBUG
+        return Level.TRACE
     }
 
     DB connect() {
@@ -176,14 +176,14 @@ abstract class JDBCTest extends Specification {
         then: "Primary key must be auto-increment"
             assert info.find { it.primaryKey }.autoIncrement
         then: "Primary key and name must not be nullable"
-            assert info.findAll { ! it.nullable }.collect { it.name } == ["id","name"]
+            assert info.findAll { ! it.nullable }.collect { it.name.toLowerCase() }.sort() == ["id","name"]
         then: "Primary key and name must be unique"
-            assert info.findAll { it.unique }.collect { it.name } == ["id","name"]
+            assert info.findAll { it.unique }.collect { it.name.toLowerCase() }.sort() == ["id","name"]
         then: "Name must not have default value" // In case of ID, depending on database it may contain serial information
-            assert info.find { it.name == "name" }.defaultValue == null
+            assert info.find { it.name.toLowerCase() == "name" }.defaultValue == null
         then: "It must have default values"
-            assert info.find { it.name == "version" }.defaultValue as int == 1
-            assert info.find { it.name == "active" }.defaultValue as boolean
+            assert info.find { it.name.toLowerCase() == "version" }.defaultValue as int == 1
+            assert info.find { it.name.toLowerCase() == "active" }.defaultValue as boolean
         then: "Table must exists"
             assert db.table(table).exists()
         then: "Insert first"

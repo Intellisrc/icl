@@ -8,7 +8,6 @@ import org.slf4j.event.Level
  */
 class SQLiteTest extends JDBCTest {
     final static File dbFile = File.get(File.tempDir, "sqlite.db")
-    Level logLevel = Level.TRACE
     @Override
     JDBC getJdbConnector() {
         return new SQLite(

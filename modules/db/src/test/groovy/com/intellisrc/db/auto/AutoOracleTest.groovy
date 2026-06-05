@@ -12,7 +12,8 @@ class AutoOracleTest extends UpdateTest {
             password: "test",
             dbname: "FREEPDB1", //v.23 docker
             //dbname: "XEPDB1", //v.21
-            port: 31521
+            port: 31521,
+            convertToLowerCase: true
         )
     }
 }

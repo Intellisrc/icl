@@ -1,4 +1,7 @@
 package com.intellisrc.db.jdbc
+
+import org.slf4j.event.Level
+
 /**
  * @since 18/06/15.
  */
@@ -10,6 +13,8 @@ class MySQLTest extends JDBCTest {
      * You can use the `launch_dbs_for_testing.sh` script located in /modules/db/ to launch it.
      * @return
      */
+    Level logLevel = Level.DEBUG
+
     @Override
     JDBC getJdbConnector() {
         return new MySQL(

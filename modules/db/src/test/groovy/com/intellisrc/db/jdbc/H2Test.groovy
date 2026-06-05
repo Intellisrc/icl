@@ -15,7 +15,6 @@ class H2Test extends JDBCTest {
      *
      * @return
      */
-    Level logLevel = Level.TRACE
 
     @Override
     JDBC getJdbConnector() {

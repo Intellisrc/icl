@@ -14,7 +14,6 @@ class H2MemTest extends JDBCTest {
      *
      * @return
      */
-    Level logLevel = Level.TRACE
     @Override
     JDBC getJdbConnector() {
         return new H2(

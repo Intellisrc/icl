@@ -185,7 +185,20 @@ class JDBCConnector implements Connector {
 					String colName = jdbc.convertToLowerCase ? rsCols.getString("COLUMN_NAME").toLowerCase() : rsCols.getString("COLUMN_NAME")
 					int decimals = getColumnPropertyInt(rsCols,"DECIMAL_DIGITS")
 					String columnDef = getColumnPropertyString(rsCols, "COLUMN_DEF")
-
+					if (columnDef != null) {
+						// Only strip parentheses if they wrap a number, boolean, or system function.
+						// This preserves string literals like "('(AA)')" or "('(value)')"
+						while (columnDef.startsWith("(") && columnDef.endsWith(")")) {
+							String inner = columnDef.substring(1, columnDef.length() - 1)
+							// If the inner content starts with a single quote, it's a string literal.
+							// We stop stripping to preserve any parentheses inside the string (e.g., '(AA)').
+							if (inner.startsWith("'")) {
+								columnDef = inner
+								break
+							}
+							columnDef = inner
+						}
+					}
 					ColumnInfo col = new ColumnInfo(
 						name: colName,
 						type: ColumnType.fromJavaSQL(getColumnPropertyInt(rsCols,"DATA_TYPE"), decimals),
