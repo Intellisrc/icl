@@ -148,6 +148,21 @@ class SQLServer extends JDBCServer implements AutoJDBC {
     }
 
     @Override
+    String getBeforeDropTableQuery(String table) {
+        String uTable = table.replace(fieldsQuotation, "").toUpperCase()
+        return """DECLARE @sql NVARCHAR(MAX) = N'';
+        SELECT @sql += 'ALTER TABLE ' + QUOTENAME(cs.name) + '.' + QUOTENAME(ct.name)
+                      + ' DROP CONSTRAINT ' + QUOTENAME(fk.name) + ';'
+        FROM sys.foreign_keys fk
+        INNER JOIN sys.tables rt ON fk.referenced_object_id = rt.object_id
+        INNER JOIN sys.tables ct ON fk.parent_object_id = ct.object_id
+        INNER JOIN sys.schemas cs ON ct.schema_id = cs.schema_id
+        WHERE rt.name = '${uTable}';
+        EXEC sp_executesql @sql;
+        """.stripIndent()
+    }
+
+    @Override
     String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
         return "SELECT * INTO \"${to}\" FROM \"${from}\" WHERE 1=0"
     }

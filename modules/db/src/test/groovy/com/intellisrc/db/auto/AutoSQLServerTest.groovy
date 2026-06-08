@@ -7,11 +7,9 @@ import com.intellisrc.db.jdbc.SQLServerTest
 import spock.lang.Ignore
 
 /*
-TODO: SQLServer fails to Update tables. The reason is because of FKs.
-      In order to fix it, we have to drop FKs and recreate them (too much work)
-
+//FIXME: (2026-06) SQLServer is failing in one test : "Update with data"
+//       Many attempts where done to try to fix it, but failed (due to FK constraints)
  */
-@Ignore
 class AutoSQLServerTest extends UpdateTest {
     @Override
     JDBC getConnJdbc() {
