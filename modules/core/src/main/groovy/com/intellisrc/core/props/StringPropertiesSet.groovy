@@ -4,7 +4,9 @@ import com.intellisrc.core.Log
 import groovy.transform.CompileStatic
 
 import java.lang.reflect.Field
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 /**
  * This class is a partial implementation
