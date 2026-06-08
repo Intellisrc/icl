@@ -6,6 +6,7 @@ import com.intellisrc.core.Log
 import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
 import com.intellisrc.db.TableDefinition
+import com.intellisrc.db.annot.DeleteActions
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
@@ -78,6 +79,11 @@ class SQLServer extends JDBCServer implements AutoJDBC {
         return (hasOrder ? "" : "ORDER BY 1 ") + "OFFSET $offset ROWS" + (limit > 0 ? " FETCH NEXT $limit ROWS ONLY" : "")
     }
 
+    @Override
+    String getRenameTable(String from, String to) {
+        return "EXEC sp_rename '${from}', '${to}', 'OBJECT'"
+    }
+
     // AUTO-DDL & AUTO-JDBC -------------------------
 
     @Override
@@ -147,6 +153,11 @@ class SQLServer extends JDBCServer implements AutoJDBC {
     }
 
     @Override
+    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
+        return "" //CopyTableStructure copy also data
+    }
+
+    @Override
     String getIdentitySQL(String table, String columnName) {
         return "SELECT IDENT_CURRENT('${table}')"
     }
@@ -167,6 +178,19 @@ class SQLServer extends JDBCServer implements AutoJDBC {
     @Override
     String getVersionRead(String table) {
         return "SELECT CAST(value AS VARCHAR(255)) FROM fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', '${table}', NULL, NULL)"
+    }
+
+    @Override
+    String getForeignKey(String tableName, ColumnDefinition column) {
+        if (!column.isForeignKey) return ""
+        String onDeleteClause = ""
+        if (column.onDelete) {
+            // SQL Server does not support RESTRICT
+            if (column.onDelete != DeleteActions.RESTRICT) {
+                onDeleteClause = " ON DELETE " + column.onDelete.toString()
+            }
+        }
+        return "CONSTRAINT fk_${tableName}_${column.name} FOREIGN KEY (\"${column.name}\") REFERENCES \"${column.referenceTable}\"(\"${column.referenceColumn}\")${onDeleteClause}"
     }
 
     @SuppressWarnings('GroovyFallthrough')

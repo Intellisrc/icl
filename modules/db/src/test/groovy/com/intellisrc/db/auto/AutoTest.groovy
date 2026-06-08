@@ -11,6 +11,7 @@ import com.intellisrc.db.annot.DeleteActions
 import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
+import com.intellisrc.log.FileLogger
 import com.intellisrc.log.PrintLogger
 import com.intellisrc.net.Email
 import com.intellisrc.net.LocalHost
@@ -119,7 +120,12 @@ abstract class AutoTest extends Specification {
         tested = true
         Log.i("Setting up Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
+        FileLogger fileLogger = CommonLogger.default.fileLogger
         printLogger.setLevel(logLevel)
+        fileLogger.setLevel(logLevel)
+        File queryLog = File.get("log/query.log")
+        DB.queryLog = Optional.ofNullable(queryLog)
+        if(queryLog.exists()) { queryLog.delete() }
         DB.clearCache()
     }
 

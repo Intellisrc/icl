@@ -3,6 +3,7 @@ package com.intellisrc.db
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Secs
+import com.intellisrc.core.SysInfo
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
@@ -32,6 +33,7 @@ class DB {
     static boolean clearCache = Config.any.get("db.cache.clear", false) // if true, will clear cache on table update
     static int connectionTimeout = Config.any.get("db.timeout.connect", Secs.SECOND_10) // Seconds
     static int queryTimeout = Config.any.get("db.timeout.query", Secs.MINUTE) // Seconds
+    static Optional<File> queryLog = Config.any.getFile("db.query.log")
 
     protected Connector dbConnector
     protected String table = ""
@@ -551,15 +553,17 @@ class DB {
      * @return
      */
     boolean cloneTable(String from, String to, TableDefinition columns, boolean updateIdentity = true) {
-        boolean ok = copyTableStructure(from, to, columns)
-                ok &= copyTableData(from, to, columns)
-
-        // Copy AutoIncrement:
-        if(updateIdentity) {
-            String pk = columns.find { it.autoIncrement }
-            if(pk) {
-                int ai = getIdentityValue(from)
-                ok &= setIdentity(to, pk, ai)
+        boolean ok1 = copyTableStructure(from, to, columns)
+        boolean ok2 = copyTableData(from, to, columns)
+        boolean ok = ok1 || ok2
+        if(ok) {
+            // Copy AutoIncrement:
+            if (updateIdentity) {
+                String pk = columns.find { it.autoIncrement }
+                if (pk) {
+                    int ai = getIdentityValue(from)
+                    ok &= setIdentity(to, pk, ai)
+                }
             }
         }
         return ok
@@ -573,7 +577,7 @@ class DB {
      */
     boolean copyTableStructure(String from, String to, TableDefinition columns) {
         String copyStructureSQL = jdbc.getCopyTableStructureSQL(from, to, columns)
-        return copyStructureSQL ? setSQL(copyStructureSQL) : true
+        return copyStructureSQL ? copyStructureSQL.tokenize(";").every { setSQL(it) } : false
     }
     /**
      * Copy table data
@@ -584,7 +588,7 @@ class DB {
      */
     boolean copyTableData(String from, String to, TableDefinition columns) {
         String copyDataSQL = jdbc.getCopyTableDataSQL(from, to, columns)
-        return copyDataSQL ? setSQL(copyDataSQL) : true
+        return copyDataSQL ? copyDataSQL.tokenize(";").every { setSQL(it) } : false
     }
 
     /**
@@ -1066,6 +1070,9 @@ class DB {
         Data data
         if(! qryStr.empty) {
             Log.v("GET ::: " + qryStr)
+            if(queryLog.present) {
+                queryLog.get() << (qryStr + " [" + query.args.join(",") + "]" + SysInfo.newLine)
+            }
             query.args.each {
                 Log.v(" --> " + it)
             }
@@ -1174,6 +1181,9 @@ class DB {
         if(! qryStr.empty) {
             if (opened) {
                 Log.v("SET ::: " + qryStr)
+                if(queryLog.present) {
+                    queryLog.get() << (qryStr + " [" + query.args.join(",") + "]" + SysInfo.newLine)
+                }
                 query.args.each {
                     Log.v(" --> " + it)
                 }

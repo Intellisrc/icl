@@ -323,7 +323,11 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             multiPk = primaryKeys.size() > 1
         }
         boolean ok = db.update(models.collect {
-            it.toDB()
+            Map record = it.toDB()
+            if(primaryKey) {
+                record.remove(primaryKey)
+            }
+            return record
         }, models.collect {
             return singlePk ? [(primaryKey): it.toDB().get(primaryKey)] :
                 (multiPk ? it.toDB().subMap(primaryKeys) : [])
