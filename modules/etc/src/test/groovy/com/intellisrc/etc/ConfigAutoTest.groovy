@@ -3,9 +3,10 @@ package com.intellisrc.etc
 import com.intellisrc.core.SysClock
 import com.intellisrc.etc.config.AutoConfig
 import spock.lang.Specification
+
 import java.time.LocalDateTime
 
-import static com.intellisrc.etc.config.ConfigAuto.*
+import static com.intellisrc.etc.config.ConfigAuto.BasicStorage
 
 /**
  * @since 2021/12/20.
