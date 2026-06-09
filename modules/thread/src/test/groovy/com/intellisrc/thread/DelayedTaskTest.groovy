@@ -13,16 +13,27 @@ import static com.intellisrc.core.Millis.*
 class DelayedTaskTest extends BaseTaskTest {
     def "Delay some process"() {
         setup:
-            boolean called = false
+            CountDownLatch latch = new CountDownLatch(1)
+            long startTime = System.currentTimeMillis()
+            long executionTime = 0
+
             Tasks.runLater({
-                called = true
+                executionTime = System.currentTimeMillis() - startTime
+                latch.countDown()
             }, "TestLater", SECOND)
         expect:
-            assert !called
+            // 1. Verify it hasn't run prematurely
             sleep(MILLIS_100)
-            assert !called
-            sleep(SECOND)
-            assert called
+            assert latch.count == 1 : "Should not execute prematurely"
+
+            // 2. Wait up to 3 seconds for the execution to complete
+            boolean completed = latch.await(SECOND * 3, TimeUnit.MILLISECONDS)
+            assert completed : "Task failed to execute within timeout"
+
+            // 3. Assert that the delay was reasonably accurate.
+            // On a slow CI, we allow a small scheduling overhead buffer (e.g., 300ms)
+            assert executionTime >= SECOND : "Executed too early: ${executionTime}ms"
+            assert executionTime < SECOND + MILLIS_300 : "Executed too late: ${executionTime}ms"
     }
     def "Multiple delayed processes"() {
         setup:
