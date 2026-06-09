@@ -29,7 +29,17 @@ class TaskPoolTest extends BaseTaskTest {
             Tasks.findAll("Printer").each {
                 assert it.executed >= targetExecutions: "Executed times must be executed several times"
             }
-            // ... rest of the test remains the same ...
+        when:
+            Tasks.printStatus()
+            println "Resetting........."
+            Tasks.findAll("Printer").each {
+                it.resetCounters()
+            }
+            Tasks.printStatus()
+        then:
+            Tasks.findAll("Printer").each {
+                assert it.executed < targetExecutions: "After reset, it should be a low value"
+            }
     }
     def "Reset exceptions"() {
         setup:
@@ -55,6 +65,14 @@ class TaskPoolTest extends BaseTaskTest {
             TaskPool printer = Tasks.get("Printer")
             assert printer.executed >= halfTime: "Executed times must be executed several times"
             assert printer.failed >= 1: "Failed must be reported"
-            // ... rest of the test remains the same ...
+        when:
+            Tasks.printStatus()
+            println "Resetting........."
+            printer.resetCounters()
+            Tasks.printStatus()
+        then:
+            println "After reset: ${printer.executed}"
+            assert printer.executed < halfTime: "After reset, it should be a low value"
+            assert printer.failed == 0: "Failed must have been reset"
     }
 }
