@@ -75,11 +75,11 @@ abstract class Model implements ToMap {
     }
 
     /**
-     * Get all fields
+     * Get all fields annotated with @Column (ignore any not annotated)
      * @return
      */
     List<Field> getFields() {
-        return this.class.declaredFields.findAll {!it.synthetic }.toList()
+        return this.class.declaredFields.findAll {!it.synthetic && it.isAnnotationPresent(Column) }.toList()
     }
     /**
      * Convert Type to Map suitable for database operations
@@ -119,9 +119,7 @@ abstract class Model implements ToMap {
      * @return
      */
     Map<String,Object> toMap(boolean snakeCase) {
-        return this.class.declaredFields.findAll {
-            ! it.synthetic
-        }.collectEntries {
+        return fields.collectEntries {
             Object value = ToMapConverter.convert(this[it.name]) //Here we don't convert name as we need it raw
             String name = relational.getColumnName(it, false, snakeCase)  //<-- here is the difference (we need to use getColumnName)
             return [(name): value]
