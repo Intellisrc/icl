@@ -1,9 +1,23 @@
+//file:noinspection GetterMethodCouldBeProperty
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
+import com.intellisrc.core.Log
+import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
+import com.intellisrc.db.TableDefinition
+import com.intellisrc.db.annot.DeleteActions
+import com.intellisrc.db.auto.AutoJDBC
+import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
+import javassist.Modifier
 
+import java.lang.reflect.Method
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+
+import static com.intellisrc.db.ColumnDefinition.UNLIMITED
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
 
 /**
@@ -14,7 +28,7 @@ import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.NUMBER
  * db.sqlserver.params = [:]
  */
 @CompileStatic
-class SQLServer extends JDBCServer {
+class SQLServer extends JDBCServer implements AutoJDBC {
     String dbname = ""
     String user = "sa"
     String password = ""
@@ -22,20 +36,14 @@ class SQLServer extends JDBCServer {
     int port = 1433
     String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
     // SQLServer specific parameters:
-    // Most common:
     boolean useWinLogin = false
     boolean trustCert = false   // In production not recommended to turn 'true'
     boolean supportsJSON = true
     BooleanHandle booleanHandle = NUMBER
 
-    //encrypt : true // for drivers 10.2 and below
-    //encrypt : "strict" // For drivers 11.2 or above
     boolean secure = false
     boolean strict = false // Only if secure = true
-    // https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15
-    // You may add more parameters as needed (values shown below are default values)
-    // Note about loginTimeout: It may drop earlier if can't reach the port so a timeout of 10, may return within 1 second
-    //      in tests, it seems more like 1/5 of the time
+
     @Override
     Map getParameters() {
         return Config.any.get("db.sqlserver.params", [
@@ -48,7 +56,7 @@ class SQLServer extends JDBCServer {
 
     @Override
     String getConnectionString() {
-        return connectionURI ?: "sqlserver://$hostname:$port;" +
+        return connectionURI ?: "jdbc:sqlserver://$hostname:$port;" +
             (dbname ? "database=$dbname;" : "" ) +
             parameters.collect {
                 "${it.key}=${it.value}"
@@ -56,8 +64,8 @@ class SQLServer extends JDBCServer {
     }
 
     // QUERY BUILDING -------------------------
-    // Query parameters
     String fieldsQuotation = '"'
+    String tablesQuotation = '"'
     String schemaSearchName = "dbo"
     boolean supportsReplace = false
 
@@ -69,5 +77,231 @@ class SQLServer extends JDBCServer {
     @Override
     String getLimitQuery(int limit, int offset, boolean hasOrder) {
         return (hasOrder ? "" : "ORDER BY 1 ") + "OFFSET $offset ROWS" + (limit > 0 ? " FETCH NEXT $limit ROWS ONLY" : "")
+    }
+
+    @Override
+    String getRenameTable(String from, String to) {
+        return "EXEC sp_rename '${from}', '${to}', 'OBJECT'"
+    }
+
+    // AUTO-DDL & AUTO-JDBC -------------------------
+
+    @Override
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
+        List<String> defs = []
+        List<ColumnDefinition> pks = definitions.pks
+        boolean isMultiplePks = definitions.hasMultiplePk()
+
+        definitions.each { ColumnDefinition col ->
+            List<String> parts = ["\"${col.name}\"".toString(), getColumnDefinitionCustom(col)]
+
+            if (col.autoIncrement && !isMultiplePks) {
+                parts << "IDENTITY(1,1)"
+            }
+
+            if (col.defaultValue) {
+                parts << getDefaultQuery(col)
+            } else if (!col.nullable && !col.primaryKey) {
+                parts << "NOT NULL"
+            }
+
+            if (col.primaryKey && !isMultiplePks) {
+                parts << "PRIMARY KEY"
+            }
+
+            if (col.unique && !col.uniqueGroup) {
+                parts << "UNIQUE"
+            }
+            defs << parts.join(' ')
+        }
+
+        if (isMultiplePks) {
+            defs << "PRIMARY KEY (" + pks.collect { "\"${it.name}\"" }.join(",") + ")"
+        }
+
+        // Composite Unique Groups
+        Map<String, List<String>> uniqueGroups = definitions.uniqueGroups
+        if (!uniqueGroups.isEmpty()) {
+            uniqueGroups.each { String groupName, List<String> columns ->
+                defs << "CONSTRAINT \"${tableName}_${groupName}\" UNIQUE (${columns.collect { "\"${it}\"" }.join(',')})".toString()
+            }
+        }
+
+        // Foreign Keys
+        String fks = definitions.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
+        if (fks) {
+            defs << fks
+        }
+
+        return "CREATE TABLE \"${tableName}\" (\n" + defs.join(",\n") + "\n)"
+    }
+
+    @Override
+    String getAutoIncrementBindSQL() {
+        return "IDENTITY(1,1)"
+    }
+
+    @Override
+    String getTurnFK(boolean on) {
+        // SQL Server disables/enables constraints per table or globally via sp_MSforeachtable
+        return String.format("EXEC sp_MSforeachtable 'ALTER TABLE ? %s CONSTRAINT ALL'", on ? "CHECK" : "NOCHECK")
+    }
+
+    @Override
+    String getBeforeDropTableQuery(String table) {
+        String uTable = table.replace(fieldsQuotation, "").toUpperCase()
+        return """DECLARE @sql NVARCHAR(MAX) = N'';
+        SELECT @sql += 'ALTER TABLE ' + QUOTENAME(cs.name) + '.' + QUOTENAME(ct.name)
+                      + ' DROP CONSTRAINT ' + QUOTENAME(fk.name) + ';'
+        FROM sys.foreign_keys fk
+        INNER JOIN sys.tables rt ON fk.referenced_object_id = rt.object_id
+        INNER JOIN sys.tables ct ON fk.parent_object_id = ct.object_id
+        INNER JOIN sys.schemas cs ON ct.schema_id = cs.schema_id
+        WHERE rt.name = '${uTable}';
+        EXEC sp_executesql @sql;
+        """.stripIndent()
+    }
+
+    @Override
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
+        return "SELECT * INTO \"${to}\" FROM \"${from}\" WHERE 1=0"
+    }
+
+    @Override
+    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
+        return "" //CopyTableStructure copy also data
+    }
+
+    @Override
+    String getIdentitySQL(String table, String columnName) {
+        return "SELECT IDENT_CURRENT('${table}')"
+    }
+
+    @Override
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "DBCC CHECKIDENT ('${table}', RESEED, ${value ?: 1})"
+    }
+
+    @Override
+    String getVersionUpdate(String table, int version) {
+        // Uses SQL Server Extended Properties to store table version
+        return "IF NOT EXISTS (SELECT 1 FROM fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', '${table}', NULL, NULL)) " +
+        "EXEC sp_addextendedproperty 'MS_Description', 'v.${version}', 'SCHEMA', 'dbo', 'TABLE', '${table}' " +
+            "ELSE EXEC sp_updateextendedproperty 'MS_Description', 'v.${version}', 'SCHEMA', 'dbo', 'TABLE', '${table}'"
+    }
+
+    @Override
+    String getVersionRead(String table) {
+        return "SELECT CAST(value AS VARCHAR(255)) FROM fn_listextendedproperty('MS_Description', 'SCHEMA', 'dbo', 'TABLE', '${table}', NULL, NULL)"
+    }
+
+    @Override
+    String getForeignKey(String tableName, ColumnDefinition column) {
+        if (!column.isForeignKey) return ""
+        String onDeleteClause = ""
+        if (column.onDelete) {
+            // SQL Server does not support RESTRICT
+            if (column.onDelete != DeleteActions.RESTRICT) {
+                onDeleteClause = " ON DELETE " + column.onDelete.toString()
+            }
+        }
+        return "CONSTRAINT fk_${tableName}_${column.name} FOREIGN KEY (\"${column.name}\") REFERENCES \"${column.referenceTable}\"(\"${column.referenceColumn}\")${onDeleteClause}"
+    }
+
+    @SuppressWarnings('GroovyFallthrough')
+    @Override
+    String getColumnDefinition(ColumnDefinition column) {
+        String type = ""
+        switch (column.type) {
+            case boolean:
+            case Boolean:
+                type = "BIT"
+                break
+            case char:
+            case Character:
+                type = "CHAR(1)"
+                break
+            case char[]:
+                type = "CHAR(${column.length ?: 2})"
+                break
+            case String:
+                type = column.length == UNLIMITED ? "NVARCHAR(MAX)" : "NVARCHAR(${column.length ?: 255})"
+                break
+            case byte:
+            case Byte:
+                type = "TINYINT"
+                break
+            case short:
+            case Short:
+                type = "SMALLINT"
+                break
+            case int:
+            case Integer:
+            case Model:
+                type = "INT"
+                break
+            case BigInteger:
+            case long:
+            case Long:
+                type = "BIGINT"
+                break
+            case float:
+            case Float:
+                type = "REAL"
+                break
+            case double:
+            case Double:
+                type = "FLOAT"
+                break
+            case BigDecimal:
+				type = "DECIMAL(38,18)"
+				break
+            case LocalDate:
+                type = "DATE"
+                break
+            case LocalDateTime:
+                type = "DATETIME2"
+                break
+            case LocalTime:
+                type = "TIME"
+                break
+            case Inet4Address:
+            case Inet6Address:
+            case InetAddress:
+                type = "VARCHAR(${column.length ?: 45})"
+                break
+            case URL:
+            case URI:
+                type = "VARCHAR(${column.length ?: 255})"
+                break
+            case Collection:
+            case Map:
+                type = "NVARCHAR(MAX)" // SQL Server stores JSON as NVARCHAR
+                break
+            case Enum:
+                // SQL Server doesn't have native ENUM; we use VARCHAR with CHECK constraint or just VARCHAR
+                type = "VARCHAR(255)"
+                break
+            case byte[]:
+                type = "VARBINARY(MAX)"
+                break
+            default:
+                boolean canImport = false
+                try {
+                    column.type.getConstructor(String.class)
+                    canImport = true
+                } catch(Exception ignore) {
+                    try {
+                        Method method = column.type.getDeclaredMethod("fromString", String.class)
+                        canImport = Modifier.isStatic(method.modifiers) && method.returnType == column.type
+                    } catch(Exception ignored) {}
+                }
+                if(canImport) {
+                    type = "NVARCHAR(${column.length ?: 255})"
+                } else {
+                    Log.w("Unknown field type: %s", column.type.simpleName)
+                }
+        }
+        return type
     }
 }

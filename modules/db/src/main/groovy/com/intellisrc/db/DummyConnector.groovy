@@ -6,7 +6,9 @@ import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
 import java.sql.Connection
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @CompileStatic
@@ -17,7 +19,9 @@ import java.time.format.DateTimeFormatter
  * @since 17/03/02.
  */
 class DummyConnector implements Connector {
-    static String datePattern = "yyyy-MM-dd HH:mm:ss"
+    static String dateTimePattern = "yyyy-MM-dd HH:mm:ss"
+    static String datePattern = "yyyy-MM-dd"
+    static String timePattern = "HH:mm:ss"
     private connected = false
     private opened = false
     LocalDateTime lastUsed
@@ -172,8 +176,18 @@ class DummyConnector implements Connector {
         }
 
         @Override
-        LocalDateTime columnDate(int index) {
-            return LocalDateTime.parse(columnStr(index), DateTimeFormatter.ofPattern(datePattern))
+        LocalTime columnTime(int index) {
+            return LocalTime.parse(columnStr(index), DateTimeFormatter.ofPattern(timePattern))
+        }
+
+        @Override
+        LocalDate columnDate(int index) {
+            return LocalDate.parse(columnStr(index), DateTimeFormatter.ofPattern(datePattern))
+        }
+
+        @Override
+        LocalDateTime columnDateTime(int index) {
+            return LocalDateTime.parse(columnStr(index), DateTimeFormatter.ofPattern(dateTimePattern))
         }
 
         @Override

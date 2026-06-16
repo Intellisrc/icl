@@ -22,7 +22,7 @@ final int javaVersion = 21
 
 allprojects {
     group = groupName
-    version = "2.10.2"
+    version = "2.10.4"
     repositories {
         mavenLocal()
         mavenCentral()
@@ -142,8 +142,8 @@ subprojects {
 		documentation
 	}
     dependencies {
-        def groovyVer = "4.0.30" // Also in module etc
-        def groovyExt = "4.0.30.14"
+        def groovyVer = "4.0.32" // Also in module etc
+        def groovyExt = "4.0.32.15"
         def spock = "2.4-M4-groovy-4.0"
 
         //Link it so we can choose version
@@ -158,6 +158,13 @@ subprojects {
         testImplementation "org.spockframework:spock-core:${spock}"
         // Fixes "The automatic loading of test framework implementation dependencies has been deprecated." for Gradle 9
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    }
+    test { //This fixes test failing when testing the whole directory:
+        // Run each test class in its own JVM process
+        forkEvery = 1
+        // Maximize parallel execution if desired
+        maxParallelForks = Runtime.runtime.availableProcessors()
     }
     tasks.withType(Groovydoc).configureEach {
         classpath += project.configurations.documentation

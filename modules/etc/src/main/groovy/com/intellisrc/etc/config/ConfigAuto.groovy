@@ -341,6 +341,12 @@ class ConfigAuto {
             }
         }
         if (ok) {
+            // Force class initialization to ensure static fields are initialized
+            try {
+                Class.forName(field.declaringClass.name, true, field.declaringClass.classLoader)
+            } catch (Throwable t) {
+                Log.w("Unable to initialize class: %s", field.declaringClass.name, t)
+            }
             field.setAccessible(true)
             if (Modifier.isPrivate(field.modifiers)) {
                 Modifier.setPublic(field.modifiers)

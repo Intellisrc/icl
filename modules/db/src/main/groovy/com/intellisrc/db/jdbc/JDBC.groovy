@@ -1,19 +1,19 @@
 //file:noinspection GrMethodMayBeStatic
+//file:noinspection GetterMethodCouldBeProperty
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.db.ColumnInfo
-import com.intellisrc.db.DB
-import com.intellisrc.db.DatabaseConnectionException
-import com.intellisrc.db.JDBCConnector
-import com.intellisrc.db.Query
+import com.intellisrc.db.*
+import com.intellisrc.db.annot.UpdateActions
+import com.intellisrc.etc.YAML
 import groovy.transform.CompileStatic
 import org.reflections.Reflections
 
 import java.lang.reflect.Field
 import java.sql.Connection
-import java.sql.SQLNonTransientConnectionException
+
+import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
  * Minimum JDBC information to connect to any database
@@ -85,6 +85,12 @@ abstract class JDBC {
     // This will be set in case it is set directly
     protected String connectionURI = ""
 
+    /**
+     * Some databases does not support JSON datatype
+     * @return
+     */
+    boolean supportsJSON = false
+
     // QUERY BUILDING -------------------------------
     /**
      * Query must return (empty when not available):
@@ -142,7 +148,7 @@ abstract class JDBC {
     // In cases como Oracle which MAX(column) does not include the digits, we force to check:
     boolean getCheckDecimals() { return false }
     // How do boolean will be stored in Database? (BOOLEAN == native support)
-    BooleanHandle getBooleanHandle() { return BooleanHandle.BOOLEAN }
+    BooleanHandle getBooleanHandle() { return BOOLEAN }
     // True char in case booleanHandle == CHAR
     char getTrueChar() { return 'y' as char }
     // False char in case booleanHandle == CHAR
@@ -161,7 +167,7 @@ abstract class JDBC {
      * In all the following methods, "table" is already quoted, if needed (added by Query)
      */
     String getCreateDatabaseQuery() {
-        return "CREATE DATABASE $dbname"
+        return "CREATE DATABASE $dbname" //FIXME: charset is missing
     }
     String getDropDatabaseQuery() {
         return "DROP DATABASE $dbname"
@@ -243,16 +249,6 @@ abstract class JDBC {
     @Override
     String toString() {
         return this.class.simpleName.toLowerCase()
-    }
-
-    /**
-     * Return new connection
-     * @return
-     */
-    DB connect() throws DatabaseConnectionException {
-        DB db = new DB(new JDBCConnector(this))
-        db.openIfClosed()
-        return db
     }
 
     //----------- STATIC ----------------
@@ -363,7 +359,7 @@ abstract class JDBC {
      */
     static JDBC fromURI(String uri, String userName = "", char[] pwd = []) {
         String type = uri.tokenize(":").first()
-        JDBC jdbc = fromType(type) ?: new JDBC() {
+        JDBC jdbc = fromType(type) ?: new Dummy() {
             String dbname = ""
             String user = ""
             String password = ""
@@ -377,5 +373,269 @@ abstract class JDBC {
         jdbc.user = userName
         jdbc.password = pwd.toString()
         return jdbc
+    }
+
+    /**
+     * Get default statement using minimum information
+     * @param val
+     * @param column
+     * @param supportsNull
+     * @param supportBool
+     * @return
+     */
+    String getDefaultQuery(Object defValue, boolean autoIncrement, boolean nullable, boolean useParenthesis) {
+        String definition = ""
+        Object val = defValue
+        if(! autoIncrement) {
+            String dv = getDefaultValue(defValue)
+            if (val != null) { // When default value is null, it will be set as nullable
+                boolean isNum = val.toString().isNumber()
+                boolean isBool = val instanceof Boolean
+                if(isBool) {
+                    switch (booleanHandle) {
+                        case NUMBER:
+                            val = Data.booleanAsInt(val as boolean)
+                            isNum = true
+                            isBool = false
+                            break
+                        case ENUM:
+                            val = val.toString().toUpperCase()
+                            isBool = false
+                            isNum = false
+                            break
+                        case CHAR:
+                            val = Data.booleanAsChar(val as boolean, trueChar, falseChar)
+                            isBool = false
+                            break
+                    }
+                }
+                dv = (isNum || isBool) ? val.toString().toUpperCase() : "'${val}'".toString()
+            }
+            String notNull = nullable ? "" : "NOT NULL"
+            definition = [notNull, useParenthesis ? "DEFAULT ($dv)" : "DEFAULT $dv"].join(" ")
+        }
+        return definition
+    }
+    /**
+     * Get default statement using ColumnInfo
+     * @param val
+     * @param column
+     * @param supportsNull
+     * @param supportBool
+     * @return
+     */
+    String getDefaultQuery(ColumnDefinition column, boolean useParenthesis = false) {
+        return getDefaultQuery(column.defaultValue, column.autoIncrement, column.nullable, useParenthesis)
+    }
+    /**
+     * Converts type to default possible value in database
+     * For example, String should be ''
+     * @param type
+     * @return
+     */
+    String getDefaultValue(Object defaultValue) {
+        return switch (defaultValue) {
+            case Collection -> (defaultValue as Collection).empty ? "'[]'" : "'" + YAML.encode(defaultValue as Collection) + "'"
+            case Map -> (defaultValue as Map).isEmpty() ? "'{}'" : "'" + YAML.encode(defaultValue as Map) + "'"
+            case Boolean, boolean, int, short, Integer, BigInteger, long, Long, float, Float, double, Double, BigDecimal -> defaultValue.toString()
+            case String, Character, char -> "'${defaultValue.toString()}'"
+            default -> "NULL"
+        }
+    }
+    /**
+     * This method will consider customType and fallout to getColumnDefinition if not found
+     * @param column
+     * @return
+     */
+    protected String getColumnDefinitionCustom(final ColumnDefinition column) {
+        return column.customType ? column.customType : getColumnDefinition(column)
+    }
+    /**
+     * Get representation of a field in the database
+     * @param field
+     * @param column
+     * @return
+     */
+    abstract String getColumnDefinition(final ColumnDefinition column)
+    /**
+     * Converts type to default possible value in database (using ColumnInfo)
+     * For example, String should be ''
+     * @param type
+     * @return
+     * @param column
+     * @return
+     */
+    String getDefaultForType(ColumnDefinition column) {
+        return getDefaultValue(column.defaultValue)
+    }
+    /**
+     * Get if table exists query
+     * @param tableName
+     * @return
+     */
+    String getTableExistsSQL(String tableName) {
+        return "" //Warn not needed as JDBC may already include it
+    }
+    /**
+     * Get SQL to create a table
+     * @param tableName
+     * @param definitions
+     * @param charset
+     * @param engine
+     * @param version
+     * @return
+     */
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
+        List<String> defs = []
+        List<ColumnDefinition> pks = definitions.pks
+        boolean isMultiplePks = definitions.hasMultiplePk()
+
+        String fq = getFieldsQuotation()
+        String tq = getTablesQuotation()
+
+        definitions.each { ColumnDefinition col ->
+            List<String> parts = ["${fq}${col.name}${fq}".toString(), getColumnDefinitionCustom(col)]
+
+            if (col.autoIncrement && !isMultiplePks) {
+                parts << getAutoIncrementBindSQL() // Dialect-specific (e.g., "IDENTITY(1,1)")
+            }
+            if (!col.nullable && !col.primaryKey) {
+                parts << "NOT NULL"
+            }
+            if (col.defaultValue) {
+                parts << getDefaultQuery(col)
+            }
+            if (col.primaryKey && !isMultiplePks) {
+                parts << "PRIMARY KEY"
+            }
+            if (col.unique && !col.uniqueGroup) {
+                parts << "UNIQUE"
+            }
+            defs << parts.join(' ')
+        }
+
+        if (isMultiplePks) {
+            defs << "PRIMARY KEY (" + pks.collect { "${fq}${it.name}${fq}" }.join(",") + ")"
+        }
+
+        // Composite Unique Groups
+        Map<String, List<String>> uniqueGroups = definitions.uniqueGroups
+        if (!uniqueGroups.isEmpty()) {
+            uniqueGroups.each { String groupName, List<String> columns ->
+                defs << "CONSTRAINT ${fq}${tableName}_${groupName}${fq} UNIQUE (${columns.collect { "${fq}${it}${fq}" }.join(',')})".toString()
+            }
+        }
+
+        // Foreign Keys
+        String fks = definitions.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
+        if (fks) defs << fks
+
+        return "CREATE TABLE IF NOT EXISTS ${tq}${tableName}${tq} (\n" + defs.join(",\n") + "\n)"
+    }
+
+    /**
+     * Auto-increment column specification
+     * @return
+     */
+    String getAutoIncrementBindSQL() {
+        return "GENERATED BY DEFAULT AS IDENTITY"
+    }
+    /**
+     * Get SQL to update indices if needed
+     * As some databases can set indices during the CREATE TABLE query,
+     * this is optional
+     * @param tableName
+     * @param columns
+     * @return
+     */
+    List<String> getUpdateIndicesSQL(String tableName, List<String> columns) {
+        return []
+    }
+    /**
+     * Return the SQL to copy a table with all constraints
+     * @param db
+     * @param from
+     * @param to
+     * @param columns
+     * @return
+     */
+    // Changed for createTable with a name instead
+    abstract String getCopyTableStructureSQL(String from, String to, TableDefinition columns)
+    /**
+     * Return the SQL to copy table data
+     * @return
+     */
+    String getCopyTableDataSQL(String from, String to, TableDefinition columns) {
+        String tq = getTablesQuotation()
+        return "INSERT INTO ${tq}${to}${tq} SELECT * FROM ${tq}${from}${tq}"
+    }
+    /**
+     * Get SQL to retrieve auto-increment value
+     * NOTE: this method will return the last ID (not the nextID)
+     * so databases like MySQL/MariaDB will adjust their queries
+     * @param tableFrom
+     * @param tableTo
+     * @return
+     */
+    abstract String getIdentitySQL(String table, String columnName)
+    /**
+     * Get SQL to update an auto-increment value
+     * @param table
+     * @param columnName
+     * @param value : The maximum number set in the table
+     * NOTE: For MySQL/MariaDB this value will be automatically increased by 1
+     * @return
+     */
+    abstract String getIdentityUpdateSQL(String table, String columnName, int value)
+    /**
+     * Get SQL to rename table
+     * @param from
+     * @param to
+     * @return
+     *
+     * WARNING: renaming a table which is referenced may leave incorrect references
+     */
+    String getRenameTable(String from, String to) {
+        return "ALTER TABLE ${from} RENAME TO ${to}"
+    }
+    /**
+     * Get SQL to turn Foreign Keys ON/OFF
+     * @return
+     */
+    abstract String getTurnFK(boolean on)
+    /**
+     * Add version to table
+     * @param table
+     * @param comment
+     * @return
+     */
+    String getVersionUpdate(String table, int version) {
+        table = getTableForQuery(table)
+        return "COMMENT ON TABLE ${table} IS 'v.${version}'"
+    }
+    /**
+     * Get version from table
+     * @param table
+     * @return
+     */
+    abstract String getVersionRead(String table)
+    /**
+     * Default way to return foreign keys declaration
+     * @param tableName
+     * @param column
+     * @return
+     */
+    String getForeignKey(String tableName, ColumnDefinition column) {
+        if (!column.isForeignKey) return ""
+
+        String fq = getFieldsQuotation()
+        String tq = getTablesQuotation()
+
+        String sql = """FOREIGN KEY (${fq}${column.name}${fq}) REFERENCES
+        ${tq}${column.referenceTable}${tq}(${fq}${column.referenceColumn}${fq}) ON DELETE ${column.onDelete}"""
+        if (column.onUpdate && column.onUpdate != UpdateActions.NO_ACTION) {
+            sql += " ON UPDATE ${column.onUpdate}"
+        }
+        return sql
     }
 }

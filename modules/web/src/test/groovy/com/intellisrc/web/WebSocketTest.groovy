@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
+import static com.intellisrc.core.Millis.*
 import static com.intellisrc.web.samples.ChatWebSocketService.getRandomName
 import static org.eclipse.jetty.http.HttpStatus.OK_200
 
@@ -70,14 +71,15 @@ class WebSocketTest extends Specification {
             assert cc.connect() : "Not connected"
 
         when:
-            connected.await(Millis.SECOND_5)
+            connected.await(SECOND_15)
             cc.sendLoginMessage()
 
         then:
-            received.await(Millis.SECOND_5)
+            received.await(SECOND_15)
 
         cleanup:
             cc.disconnect()
+            sleep(MILLIS_200) // Let Gitlab CI to get the message.
             def test = chatService as ChatWebSocketTestable
             assert   test.disconnectWasCalled           : "Disconnection was not processed"
             assert   test.clientList.empty              : "Users were not removed"

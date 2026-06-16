@@ -1,24 +1,22 @@
+//file:noinspection GetterMethodCouldBeProperty
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
+import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
-import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
+import com.intellisrc.db.Database
+import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
-import com.intellisrc.db.auto.Relational.ColumnDB
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.annotation.Annotation
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.auto.Table.getColumnName
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.ENUM
 
 /**
@@ -40,6 +38,7 @@ class SQLite extends JDBC implements AutoJDBC {
 
     // SQLite specific parameters:
     boolean memory = Config.any.get("db.sqlite.memory", false)
+
     @Override
     String getConnectionString() {
         return  connectionURI ?: "sqlite:" + (memory ? ":memory:" : dbname) + (parameters.isEmpty() ? "" : "?" + parameters.toQueryString())
@@ -87,106 +86,137 @@ class SQLite extends JDBC implements AutoJDBC {
 
     //////////////////////// AUTO ////////////////////////////
     @Override
-    void autoInit(DB db) {
-        db.set(new Query("CREATE TABLE IF NOT EXISTS `$tableMeta` (" +
-            "table_name TEXT KEY NOT NULL UNIQUE," +
-            "version INTEGER NOT NULL DEFAULT 1" +
-        ")"))
+    String getTableExistsSQL(String tableName) {
+        return "SELECT name FROM sqlite_schema WHERE type='table' AND name='${tableName}'"
     }
-
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta) {
-        boolean ok
-        this.meta = meta
-        String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
-        List<String> defs = []
-        List<String> keys = []
-        Map<String, List<String>> uniqueGroups = [:]
-        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
-        if(pks.size() > 1) {
-            pks.each { it.multipleKey = true }
+    boolean initialize() {
+        boolean ok = true
+        if(memory) {
+            /*
+                The reason is because we need to use a single connection
+                everywhere and the _meta table gets destroyed after db.close().
+                Although it is possible to make it work using an static connection
+                it is better to use H2 in Memory (it works fine) instead.
+             */
+            Log.w("Auto functionality does not work in Memory")
+            return false
         }
-        columns.each {
-            ColumnDB column ->
-                List<String> parts = ["`${column.name}`".toString()]
-                if (column.annotation.columnDefinition()) {
-                    String colDef = column.annotation.columnDefinition()
-                    int len = column.annotation.length()
-                    if(len &&! colDef.contains("(")) {
-                        colDef += "(${len})".toString()
-                    }
-                    parts << colDef
-                } else {
-                    String type = getColumnDefinition(column) +
-                                  (column.annotation.key() ? " KEY" : "")
-                    parts << type
-
-                    if (column.defaultVal) {
-                        parts << getDefaultQuery(column, true)
-                    }
-
-                    List<String> extra = []
-                    if (column.annotation.unique() || column.annotation.uniqueGroup()) {
-                        if (column.annotation.uniqueGroup()) {
-                            if (!uniqueGroups.containsKey(column.annotation.uniqueGroup())) {
-                                uniqueGroups[column.annotation.uniqueGroup()] = []
-                            }
-                            uniqueGroups[column.annotation.uniqueGroup()] << column.name
-                        } else {
-                            extra << "UNIQUE"
-                        }
-                    }
-                    if (!extra.empty) {
-                        parts.addAll(extra)
-                    }
-                }
-                defs << parts.join(' ')
+        //Be sure we start a new connection:
+        DB db = new Database(this).connect()
+        if(! db.table(tableMeta).exists()) {
+            TableDefinition tableDefinition = new TableDefinition(version: 0) // 0 == Do not set
+            tableDefinition.addAll([
+                new ColumnDefinition(
+                    name: "table_name",
+                    type: String,
+                    primaryKey: true,
+                    nullable: false,
+                    length: 255
+                ),
+                new ColumnDefinition(
+                    name: "version",
+                    type: Integer,
+                    nullable: false,
+                    defaultValue: 1
+                )])
+            ok = db.table(tableMeta).createTable(tableDefinition)
         }
-        if (!keys.empty) {
-            defs.addAll(keys)
-        }
-        if (pks.size() > 1) {
-            defs << ("PRIMARY KEY (" + (pks.collect {"`${ it.name }`" }).join(",") + ")")
-        }
-        String fks = columns.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
-        if (fks) {
-            defs << fks
-        }
-        if (engine) {
-            Log.w("SQLite doesn't support engines (trying to set: %s)", engine)
-        }
-        createSQL += defs.join(",\n") + "\n)"
-        ok = db.set(new Query(createSQL))
-        if(! ok) {
-            Log.v(createSQL)
-            Log.e("Unable to create table.")
-        }
+        db.close()
         return ok
     }
 
     @Override
-    boolean turnFK(final DB db, boolean on) {
-        return set(db, String.format("PRAGMA foreign_keys = %s", on ? "ON" : "OFF"))
-    }
-    @Override
-    boolean copyTableStructure(final DB db, String from, String to) {
-        String qry = get(db, "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'").toString()
-        return set(db, qry.replaceAll(/CREATE TABLE `?${from}`?/, "CREATE TABLE `${to}`"))
-    }
-    @Override
-    boolean setVersion(final DB db, String dbname, String table, int version) {
-        return db.table(tableMeta).replace([
-            table_name : table,
-            version : version
-        ])
-    }
-    @Override
-    int getVersion(final DB db, String dbname, String table) {
-        return db.table(tableMeta).field("version").get(table_name : table).toInt()
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
+        List<String> defs = []
+        List<ColumnDefinition> pks = definitions.pks
+        boolean isMultiplePks = definitions.hasMultiplePk()
+
+        definitions.each {
+            ColumnDefinition col ->
+                // SQLite Requirement: Auto-increment MUST be defined on an 'INTEGER' type inline
+                String typeDef = col.autoIncrement && !isMultiplePks ? "INTEGER" : getColumnDefinitionCustom(col)
+
+                List<String> parts = ["`${col.name}`".toString(), typeDef]
+
+                if (col.defaultValue) {
+                    parts << getDefaultQuery(col)
+                } else if (!col.nullable &&! col.primaryKey) {
+                    parts << "NOT NULL"
+                }
+
+                if(col.primaryKey) {
+                    if(! isMultiplePks) {
+                        parts << "PRIMARY KEY"
+                        if(col.autoIncrement) {
+                            parts << "AUTOINCREMENT"
+                        }
+                    }
+                }
+
+                if (col.unique &&! col.uniqueGroup) {
+                    parts << "UNIQUE"
+                }
+
+                defs << parts.join(' ')
+        }
+
+        if (isMultiplePks) {
+            defs << ("PRIMARY KEY (" + (pks.collect {"`${ it.name }`" }).join(",") + ")")
+        }
+
+        // Append Composite Unique Groups
+        Map<String, List<String>> uniqueGroups = definitions.uniqueGroups
+        if (!uniqueGroups.empty) {
+            uniqueGroups.each { String groupName, List<String> columns ->
+                defs << "UNIQUE (" + columns.collect { "`${it}`" }.join(",") + ")"
+            }
+        }
+
+        // Append Foreign Keys
+        String fks = definitions.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
+        if (fks) {
+            defs << fks
+        }
+        if (definitions.engine) {
+            Log.w("SQLite doesn't support engines (trying to set: %s)", definitions.engine)
+        }
+        return ("CREATE TABLE IF NOT EXISTS `${tableName}` (\n" + defs.join(",\n") + "\n)").toString()
     }
 
     @Override
-    String getColumnDefinition(ColumnDB column) {
+    String getAutoIncrementBindSQL() {
+        return "AUTOINCREMENT"
+    }
+
+    @Override
+    List<String> getUpdateIndicesSQL(String tableName, List<String> columns) {
+        return columns.collect {
+            ("CREATE INDEX IF NOT EXISTS `${tableName}_${it}_index` ON `${tableName}` (`${it}`)").toString()
+        }
+    }
+
+    @Override
+    String getTurnFK(boolean on) {
+        return String.format("PRAGMA foreign_keys = %s", on ? "ON" : "OFF")
+    }
+    @Override
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns = [] as TableDefinition) {
+        //String qry = "SELECT sql FROM sqlite_master WHERE type='table' AND name='${from}'".toString()
+        //return qry.replaceAll(/CREATE TABLE `?${from}`?/, "CREATE TABLE `${to}`")
+        return "CREATE TABLE `${to}` AS SELECT * FROM `${from}` WHERE 1=0"
+    }
+    @Override
+    String getVersionUpdate(String table, int version) {
+        return "REPLACE INTO ${tableMeta} (table_name, version) VALUES('${table}',${version})".toString()
+    }
+    @Override
+    String getVersionRead(String table) {
+        return "SELECT version FROM ${tableMeta} WHERE table_name = '${table}' LIMIT 1".toString()
+    }
+
+    @Override
+    String getColumnDefinition(final ColumnDefinition column) {
         String type = ""
         //noinspection GroovyFallthrough
         switch (column.type) {
@@ -209,7 +239,9 @@ class SQLite extends JDBC implements AutoJDBC {
                 type = "TEXT"
                 break
             case byte:
+            case Byte:
             case short:
+            case Short:
             case int:
             case Integer:
             case BigInteger:
@@ -218,8 +250,6 @@ class SQLite extends JDBC implements AutoJDBC {
             case Model: //Another Model
                 type = "INTEGER"
                 List<String> extra = [type]
-                extra << (! column.multipleKey && column.annotation.primary() ? "PRIMARY KEY" : "")
-                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "AUTOINCREMENT" : "") //Autoincrement is after Primary Key
                 type = extra.findAll {it }.join(" ")
                 break
             case float:
@@ -256,18 +286,13 @@ class SQLite extends JDBC implements AutoJDBC {
     }
 
     @Override
-    String getForeignKey(String tableName, ColumnDB column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "FOREIGN KEY (`${column.name}`) " +
-                    "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action}"
-                break
-        }
-        return indices
+    String getIdentitySQL(String table, String columnName) {
+        return "SELECT seq FROM sqlite_sequence WHERE name = '${table}'"
+    }
+
+    @Override
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return value <= 1 ? "DELETE FROM sqlite_sequence WHERE name = '${table}'" :
+              "UPDATE sqlite_sequence SET seq = ${value} WHERE name = '${table}'"
     }
 }

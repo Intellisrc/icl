@@ -1,26 +1,23 @@
+//file:noinspection GetterMethodCouldBeProperty
 package com.intellisrc.db.jdbc
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
+import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
-import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
+import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.annotation.Annotation
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.regex.Matcher
 
-import static com.intellisrc.db.auto.Relational.ColumnDB
-import static com.intellisrc.db.auto.Relational.getColumnName
+import static com.intellisrc.db.ColumnDefinition.UNLIMITED
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
@@ -99,111 +96,121 @@ class MySQL extends JDBCServer implements AutoJDBC {
         return "SELECT LAST_INSERT_ID() as lastid"
     }
 
-    /////////////////////////////// AUTO ////////////////////////
+    ////////////// SHARED (FLUID & AUTO) /////////////////////
+    /**
+     * Create table using TableColumnDefinition
+     * @param db
+     * @param tableName
+     * @param charset
+     * @param engine
+     * @param version
+     * @param definitions
+     * @return
+     */
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<ColumnDB> columns, Annotation meta) {
-        boolean ok
-        this.meta = meta
-        String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n"
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
         List<String> defs = []
         List<String> keys = []
-        Map<String, List<String>> uniqueGroups = [:]
-        List<ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
-        if(pks.size() > 1) {
-            pks.each { it.multipleKey = true }
-        }
-        columns.each {
-            ColumnDB column ->
-                List<String> parts = ["`${column.name}`".toString()]
-                if (column.annotation.columnDefinition()) {
-                    String colDef = column.annotation.columnDefinition()
-                    int len = column.annotation.length()
-                    if(len &&! colDef.contains("(")) {
-                        colDef += "(${len})".toString()
-                    }
-                    parts << colDef
-                } else {
-                    String type = getColumnDefinition(column)
-                    parts << type
+        List<ColumnDefinition> pks = definitions.pks
+        boolean isMultiplePks = definitions.hasMultiplePk()
+        int version = definitions.version
 
-                    if (column.defaultVal) {
-                        parts << getDefaultQuery(column)
-                    }
+        // Process columns
+        definitions.each {
+            ColumnDefinition col ->
+                List<String> parts = ["`${col.name}`".toString(), getColumnDefinitionCustom(col)]
 
-                    List<String> extra = []
-                    if (column.annotation.unique() || column.annotation.uniqueGroup()) {
-                        if (column.annotation.uniqueGroup()) {
-                            if (!uniqueGroups.containsKey(column.annotation.uniqueGroup())) {
-                                uniqueGroups[column.annotation.uniqueGroup()] = []
-                            }
-                            uniqueGroups[column.annotation.uniqueGroup()] << column.name
-                        } else {
-                            extra << "UNIQUE"
-                        }
-                    }
-                    if (!extra.empty) {
-                        parts.addAll(extra)
+                if (col.defaultValue) {
+                    parts << getDefaultQuery(col)
+                } else if (!col.nullable &&! col.primaryKey) {
+                    parts << "NOT NULL"
+                }
+
+                if(col.autoIncrement) {
+                    parts << "AUTO_INCREMENT"
+                }
+
+                if(col.primaryKey) {
+                    if(! isMultiplePks) {
+                        parts << "PRIMARY KEY"
                     }
                 }
-                if (column.annotation.key()) {
-                    keys << "KEY `${tableName}_${column.name}_key_index` (`${column.name}`)".toString()
+
+                if (col.unique &&! col.uniqueGroup) {
+                    parts << "UNIQUE"
                 }
                 defs << parts.join(' ')
+
+                if (col.index) {
+                    keys << "KEY `${tableName}_${col.name}_key_index` (`${col.name}`)".toString()
+                }
         }
+
+        // Append secondary keys
         if (!keys.empty) {
             defs.addAll(keys)
         }
-        if (pks.size() > 1) {
-            defs << ("PRIMARY KEY (" + (pks.collect {"`${ it.name }`" }).join(",") + ")")
+
+        // Append Composite Primary Key Constraints (if any)
+        if (isMultiplePks) {
+            defs << "PRIMARY KEY (" + pks.collect { "`${it.name}`" }.join(",") + ")"
         }
-        if (!uniqueGroups.keySet().empty) {
-            uniqueGroups.each {
-                defs << "UNIQUE KEY `${tableName}_${it.key}` (`${it.value.join('`, `')}`)".toString()
+
+        // Append Composite Unique Group Constraints
+        Map<String, List<String>> uniqueGroups = definitions.uniqueGroups
+        if (!uniqueGroups.isEmpty()) {
+            uniqueGroups.each { String groupName, List<String> columns ->
+                defs << "UNIQUE KEY `${tableName}_${groupName}` (`${columns.join('`, `')}`)".toString()
             }
         }
-        String fks = columns.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
-        if (fks) {
-            defs << fks
-        }
-        if (engine) {
-            engine = "ENGINE=${engine}"
-        }
-        createSQL += defs.join(",\n") + "\n) ${engine} CHARACTER SET=${charset}\nCOMMENT='v.${version}'"
-        ok = db.set(new Query(createSQL))
-        if(!ok) {
-            Log.v(createSQL)
-            Log.e("Unable to create table.")
-        }
-        return ok
+
+        // Append Foreign Keys
+        String fks = definitions.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
+        if (fks) defs << fks
+
+        // Assemble Final Statement
+        String enginePart = definitions.engine ? "ENGINE=${definitions.engine} " : ""
+        String createSQL = "CREATE TABLE IF NOT EXISTS `${tableName}` (\n" +
+            defs.join(",\n") +
+            "\n) ${enginePart}CHARACTER SET=${definitions.charset}\nCOMMENT='v.${version}'"
+
+        return createSQL
     }
 
     @Override
-    boolean turnFK(final DB db, boolean on) {
-        return set(db, String.format("SET FOREIGN_KEY_CHECKS=%d", on ? 1 : 0))
+    String getAutoIncrementBindSQL() {
+        return "AUTO_INCREMENT"
     }
+
     @Override
-    boolean copyTableStructure(final DB db, String from, String to) {
-        return set(db, "CREATE TABLE $to LIKE $from") //&& copyTableData(db, from, to, [])
+    String getTurnFK(boolean on) {
+        return String.format("SET FOREIGN_KEY_CHECKS=%d", on ? 1 : 0)
     }
+
     @Override
-    boolean copyTableData(final DB db, String from, String to, Collection<ColumnDB> columns) {
-        return set(db, "INSERT IGNORE INTO $to SELECT * FROM $from")
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
+        return "CREATE TABLE `${to}` LIKE `${from}`"
     }
+
     @Override
-    boolean setVersion(final DB db, String dbname, String table, int version) {
-        return set(db, "ALTER TABLE ${table} COMMENT = 'v.${version}'")
+    String getVersionUpdate(String table, int version) {
+        return "ALTER TABLE ${table} COMMENT = 'v.${version}'"
     }
+
     @Override
-    int getVersion(final DB db, String dbname, String table) {
-        String verStr = get(db, "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='${dbname}' AND table_name='${table}'").toString()
-        int version = 1
-        if(verStr) {
-            Matcher matcher = (verStr =~ /(\d+)/)
-            if(matcher.find()) {
-                version = matcher.group(1) as int
-            }
-        }
-        return version
+    String getVersionRead(String table) {
+        return "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='${dbname}' AND table_name='${table}'"
+    }
+
+    @Override
+    String getIdentitySQL(String table, String columnName) {
+        return "SELECT (AUTO_INCREMENT - 1) FROM INFORMATION_SCHEMA.TABLES " +
+            "WHERE TABLE_SCHEMA = '${dbname}' AND TABLE_NAME = '${table}'"
+    }
+
+    @Override
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        return "ALTER TABLE ${table} AUTO_INCREMENT = ${value + 1}"
     }
 
     /**
@@ -213,7 +220,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
      * @return
      */
     @Override
-    String getColumnDefinition(ColumnDB column) {
+    String getColumnDefinition(ColumnDefinition column) {
         String type = ""
         //noinspection GroovyFallthrough
         switch (column.type) {
@@ -231,7 +238,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 type = "CHAR"
                 break
             case char[]:
-                int len = column.annotation.length()
+                int len = column.length
                 if(!len) {
                     Log.w("Column: %s is char array but has no length. Setting 2 as length.", column.name)
                     len = 2
@@ -239,28 +246,26 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 type = "CHAR($len)"
                 break
             case String:
-                type = column.annotation.unlimited() ? "TEXT" : "VARCHAR(${column.annotation.length() ?: 255})"
+                type = column.length == UNLIMITED ? "TEXT" : "VARCHAR(${column.length ?: 255})"
                 break
             // All numeric values share unsigned/autoincrement and primary instructions:
             case byte:
+            case Byte:
                 type = type ?: "TINYINT" //no break
+                break
             case short:
+            case Short:
                 type = type ?: "SMALLINT"
+                break
             case int:
             case Integer:
             case Model: //Another Model
                 type = type ?: "INT"
+                break
             case BigInteger:
             case long:
             case Long:
                 type = type ?: "BIGINT"
-                int len = column.annotation.length()
-                String length = len ? "(${len})" : ""
-                List<String> extra = [type, length]
-                extra << (column.annotation.unsigned() ? "UNSIGNED" : "")
-                extra << (column.annotation.primary() && column.annotation.autoincrement() ? "AUTO_INCREMENT" : "")
-                extra << (! column.multipleKey && column.annotation.primary() ? "PRIMARY KEY" : "")
-                type = extra.findAll {it }.join(" ")
                 break
             case float:
             case Float:
@@ -281,32 +286,28 @@ class MySQL extends JDBCServer implements AutoJDBC {
                 type = "TIME"
                 break
             case Inet4Address:
-                type = "VARCHAR(${column.annotation.length() ?: 15})"
+                type = "VARCHAR(${column.length ?: 15})"
                 break
             case Inet6Address:
             case InetAddress:
-                type = "VARCHAR(${column.annotation.length() ?: 45})"
+                type = "VARCHAR(${column.length ?: 45})"
                 break
             case URL:
             case URI:
-                boolean isIndex = column.annotation.key() || column.annotation.unique()
-                boolean isShort = (column.annotation.length() ?: 256) <= 255
-                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
-                type = (isIndex || isShort) ? varChar : "TEXT"
+                boolean isUrlShort = (column.length ?: 256) <= 255
+                type = (column.index || column.unique || isUrlShort) ? "VARCHAR(${column.length ?: 255})" : "TEXT"
                 break
             case Collection:
             case Map:
-                boolean isIndex = column.annotation.key() || column.annotation.unique()
-                boolean isShort = (column.annotation.length() ?: 256) <= 255
+                boolean isCollShort = (column.length ?: 256) <= 255
                 boolean json = supportsJSON && meta && meta.hasProperty("useJson") && meta.class.getMethod("useJson").invoke(meta)
-                String varChar = "VARCHAR(${column.annotation.length() ?: 255})"
-                type = isIndex ? varChar : (json ? "JSON" : (isShort ? varChar : "TEXT"))
+                type = (column.index || column.unique) ? "VARCHAR(${column.length ?: 255})" : (json ? "JSON" : (isCollShort ? "VARCHAR(${column.length ?: 255})" : "TEXT"))
                 break
             case Enum:
                 type = "ENUM('" + column.type.getEnumConstants().join("','") + "')"
                 break
             case byte[]:
-                int len = column.annotation.length() ?: 65535
+                int len = column.length ?: 65535
                 switch (true) {
                     case len < 256      : type = "TINYBLOB"; break
                     case len < 65536    : type = "BLOB"; break
@@ -327,7 +328,7 @@ class MySQL extends JDBCServer implements AutoJDBC {
                     } catch(Exception ignored) {}
                 }
                 if(canImport) {
-                    int len = column.annotation.length() ?: 256
+                    int len = column.length ?: 256
                     type = len < 256 ? "VARCHAR($len)" : "TEXT"
                 } else {
                     Log.w("Unknown field type: %s", column.type.simpleName)
@@ -335,27 +336,11 @@ class MySQL extends JDBCServer implements AutoJDBC {
                         "as static method or set a constructor which accepts `String`", column.type.simpleName)
                 }
         }
-        return type
-    }
-
-    /**
-     * Get FK
-     * @param field
-     * @return
-     */
-    @Override
-    String getForeignKey(String tableName, final ColumnDB column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                indices = "FOREIGN KEY (`${column.name}`) " +
-                    "REFERENCES `${joinTable}`(`${getColumnName(refType.pk)}`) ON DELETE ${action} ON UPDATE CASCADE"
-                break
+        if (column.unsigned) {
+            if (type in ["TINYINT", "SMALLINT", "INT", "BIGINT"]) {
+                type += " UNSIGNED"
+            }
         }
-        return indices
+        return type
     }
 }

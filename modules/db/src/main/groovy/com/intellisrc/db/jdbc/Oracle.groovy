@@ -3,23 +3,20 @@ package com.intellisrc.db.jdbc
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
 import com.intellisrc.core.Millis
+import com.intellisrc.db.ColumnDefinition
 import com.intellisrc.db.DB
-import com.intellisrc.db.Query
-import com.intellisrc.db.annot.Column
+import com.intellisrc.db.TableDefinition
 import com.intellisrc.db.auto.AutoJDBC
 import com.intellisrc.db.auto.Model
-import com.intellisrc.db.auto.Relational
 import groovy.transform.CompileStatic
 import javassist.Modifier
 
-import java.lang.annotation.Annotation
-import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-import static com.intellisrc.db.auto.Relational.getColumnName
+import static com.intellisrc.db.annot.DeleteActions.*
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 
 /**
@@ -76,57 +73,15 @@ class Oracle extends JDBCServer implements AutoJDBC {
     String getSchemaSearchName() {
         return user.toUpperCase()
     }
+    @Override
     String getTableSearchName(String table) {
         return table.toUpperCase()
     }
-
-    /*
-     * Must return:
-     *      position, column, type, length, default, notnull, primary
-     *
-     * JDBC is unable to get this information
-     *
-     * NOTE: We did not include constraint_type 'C' (NOT NULL) as they are not needed here.
-     * NOTE: Returning at.data_default won't work as it is LONG inside Oracle and its really
-     *       complicated to get that from the DB.
-     *
-     * @param table
-     * @return
-     *
     @Override
-    String getInfoQuery(String table) {
-        return """
-            SELECT 
-                at.column_id AS "position",
-                LOWER(at.column_name) as "column",
-                LOWER(at.data_type) as "type",
-                '' as "default",
-            CASE at.nullable
-                WHEN 'N' THEN 0
-                WHEN 'Y' THEN 1
-            END AS "nullable",
-            CASE
-                WHEN cc.constraint_type = 'P' THEN 1
-                ELSE 0
-            END AS "autoinc",
-            CASE
-                WHEN cc.constraint_type = 'P' THEN 1
-                ELSE 0
-            END AS "primary",
-            CASE
-                WHEN cc.constraint_type = 'U' THEN 1
-                ELSE 0
-            END AS "unique"
-            FROM all_tab_columns at
-            LEFT JOIN all_cons_columns ac 
-              ON (at.owner = ac.owner
-                AND at.table_name = ac.table_name 
-                AND at.column_name = ac.column_name)
-            LEFT JOIN all_constraints cc 
-              ON (ac.constraint_name = cc.constraint_name)    
-            WHERE cc.constraint_type != 'C' AND LOWER(at.table_name) = LOWER('${table}')"""
-    }*/
-
+    String getFieldForQuery(String field) {
+        // Oracle expects uppercase identifiers when quoted
+        return fieldsQuotation + field.toUpperCase() + fieldsQuotation
+    }
     /**
      * FIXME: JDBC is unable to get last ID (returning some sequence string id instead, like: 'AAATPDAAHAAAALDAAB')
      *   https://community.oracle.com/tech/developers/discussion/338591/why-does-getgeneratedkeys-return-a-rowid-with-no-numeric-value
@@ -138,8 +93,9 @@ class Oracle extends JDBCServer implements AutoJDBC {
      */
     @Override
     String getLastIdQuery(String table, String pk) {
-        table = table.replace(fieldsQuotation, "")
-        return "SELECT ${table}_seq.currval lastId FROM dual"
+        String uTable = table.replace(fieldsQuotation, "").toUpperCase()
+        String uPk = (pk ?: "id").replace(fieldsQuotation, "").toUpperCase()
+        return "SELECT COALESCE(MAX(\"${uPk}\"), 0) as lastId FROM \"${uTable}\""
     }
     /**
      * This will create a schema (user)
@@ -159,97 +115,80 @@ class Oracle extends JDBCServer implements AutoJDBC {
         return "DROP USER $user CASCADE"
     }
 
-    @Override
-    String getBeforeDropTableQuery(String table) {
-        return "DROP SEQUENCE ${table.toLowerCase()}_seq"
-    }
     /*
      * In Oracle setting the columns or table names with double quotes makes it case sensitive, but any name can be used.
      */
     @Override
-    boolean createTable(DB db, String tableName, String charset, String engine, int version, Collection<Relational.ColumnDB> columns, Annotation meta) {
-        boolean ok
-        this.meta = meta
-        boolean hasAutoIncrement = columns.any { it.annotation.autoincrement() }
-        if(hasAutoIncrement) {
-            String seqSQL = "CREATE SEQUENCE ${tableName}_seq"
-            db.set(new Query(seqSQL))
-        }
-        String createSQL = "CREATE TABLE ${tableName} (\n"
+    String getCreateTableSQL(String tableName, TableDefinition definitions) {
         List<String> defs = []
-        List<String> keys = []
-        Map<String, List<String>> uniqueGroups = [:]
-        List<Relational.ColumnDB> pks = columns.findAll { it.annotation.primary() }.toList()
-        if(pks.size() > 1) {
-            pks.each { it.multipleKey = true }
-        }
-        columns.each {
-            Relational.ColumnDB column ->
-                List<String> parts = ["\"${column.name}\"".toString()]
-                if (column.annotation.columnDefinition()) {
-                    String colDef = column.annotation.columnDefinition()
-                    int len = column.annotation.length()
-                    if(len &&! colDef.contains("(")) {
-                        colDef += "(${len})".toString()
-                    }
-                    parts << colDef
-                } else {
-                    String type = getColumnDefinition(column)
-                    type = type.replaceAll("TABLE_NAME", tableName) //Only applies to Oracle
-                    parts << type
+        List<ColumnDefinition> pks = definitions.pks
+        boolean isMultiplePks = definitions.hasMultiplePk()
 
-                    if (column.defaultVal) {
-                        parts << getDefaultQuery(column)
-                    }
+        // Oracle prefers uppercase identifiers for seamless data dictionary indexing
+        String uTableName = tableName.toUpperCase()
 
-                    List<String> extra = []
-                    if (column.annotation.unique() || column.annotation.uniqueGroup()) {
-                        if (column.annotation.uniqueGroup()) {
-                            if (!uniqueGroups.containsKey(column.annotation.uniqueGroup())) {
-                                uniqueGroups[column.annotation.uniqueGroup()] = []
-                            }
-                            uniqueGroups[column.annotation.uniqueGroup()] << column.name
-                        } else {
-                            extra << "UNIQUE"
-                        }
-                    }
-                    if (!extra.empty) {
-                        parts.addAll(extra)
-                    }
-                }
-                if (column.annotation.key()) {
-                    keys << "KEY ${tableName}_${column.name}_key_index (\"${column.name}\")".toString()
-                }
-                defs << parts.join(' ')
+        // 1. Process Columns
+        definitions.each { ColumnDefinition col ->
+            String uColName = col.name.toUpperCase()
+            List<String> parts = ["\"${uColName}\"".toString(), getColumnDefinitionCustom(col)]
+
+            if (col.defaultValue) {
+                // Oracle parses default values as literal configurations. Passing false is standard.
+                parts << getDefaultQuery(col, false)
+            } else if (!col.nullable && !col.primaryKey) {
+                parts << "NOT NULL"
+            }
+
+            // Native Identity Column for modern Auto-Increment tracking
+            if (col.autoIncrement) {
+                parts << "GENERATED BY DEFAULT AS IDENTITY (NOCACHE)"
+            }
+
+            // Inline Primary Key for a single key table
+            if (col.primaryKey && !isMultiplePks) {
+                parts << "PRIMARY KEY"
+            }
+
+            // Inline Unique declarations
+            if (col.unique && (col.uniqueGroup == null || col.uniqueGroup.trim().empty)) {
+                parts << "UNIQUE"
+            }
+
+            defs << parts.join(' ')
         }
-        if (!keys.empty) {
-            defs.addAll(keys)
+
+        // 2. Append Composite Primary Key Constraints
+        if (isMultiplePks) {
+            defs << "PRIMARY KEY (" + pks.collect { "\"${it.name.toUpperCase()}\"" }.join(",") + ")"
         }
-        if (pks.size() > 1) {
-            defs << ("PRIMARY KEY (" + (pks.collect {"\"${ it.name }\"" }).join(",") + ")")
-        }
-        if (!uniqueGroups.keySet().empty) {
-            uniqueGroups.each {
-                defs << "UNIQUE KEY ${tableName}_${it.key} (\"${it.value.join('\", \"')}\")".toString()
+
+        // 3. Append Composite Unique Group Constraints
+        Map<String, List<String>> uniqueGroups = definitions.uniqueGroups
+        if (!uniqueGroups.empty) {
+            uniqueGroups.each { String groupName, List<String> columns ->
+                String uGroupName = groupName.toUpperCase()
+                String colsString = columns.collect { "\"${it.toUpperCase()}\"" }.join(", ")
+                defs << "CONSTRAINT \"${uGroupName}\" UNIQUE (${colsString})".toString()
             }
         }
-        String fks = columns.collect { getForeignKey(tableName, it) }.findAll { it }.join(",\n")
+
+        // 4. Append Foreign Keys
+        String fks = definitions.collect { getForeignKey(uTableName, it) }.findAll { it }.join(",\n")
         if (fks) {
             defs << fks
         }
-        createSQL += defs.join(",\n") + "\n)"
-        ok = db.set(new Query(createSQL))
-        if(ok) {
-            db.set(new Query("COMMENT ON TABLE ${tableName} IS 'v.${version}'"))
-        } else {
-            Log.v(createSQL)
-            Log.e("Unable to create table.")
-        }
-        return ok
+
+        // 5. Assemble Creation Query using Oracle 23+ IF NOT EXISTS syntax
+        return "CREATE TABLE IF NOT EXISTS \"${uTableName}\" (\n" + defs.join(",\n") + "\n)"
     }
 
     @Override
-    String getColumnDefinition(Relational.ColumnDB column) {
+    String getCopyTableStructureSQL(String from, String to, TableDefinition columns) {
+        return "CREATE TABLE \"${to.toUpperCase()}\" AS SELECT * FROM \"${from.toUpperCase()}\" WHERE 1=0"
+    }
+
+    @Override
+    String getColumnDefinition(ColumnDefinition column) {
         String type = ""
         //noinspection GroovyFallthrough
         switch (column.type) {
@@ -259,7 +198,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
                     case BOOLEAN -> "BOOLEAN"
                     case NUMBER -> "NUMBER(1,0)"
                     case CHAR -> "CHAR"
-                    case ENUM -> "VARCHAR2(5) CHECK (${column.name} IN ('true','false'))"
+                    case ENUM -> "VARCHAR2(5) CHECK (${column.name} IN ('TRUE','FALSE'))"
                 }
                 break
             case char:
@@ -267,7 +206,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 type = "CHAR(1)"
                 break
             case char[]:
-                int len = column.annotation.length()
+                int len = column.length
                 if(!len) {
                     Log.w("Column: %s is char array but has no length. Setting 2 as length.", column.name)
                     len = 2
@@ -275,28 +214,29 @@ class Oracle extends JDBCServer implements AutoJDBC {
                 type = "CHAR($len)"
                 break
             case String:
-                type = "VARCHAR2(${column.annotation.length() ?: 255})"
+                type = "VARCHAR2(${column.length ?: 255})"
                 break
                 // All numeric values share unsigned/autoincrement and primary instructions:
             case byte:
-                type = "NUMBER"
+            case Byte:
+                type = "NUMBER(3)"
+                break
             case short:
+            case Short:
                 type = type ?: "NUMBER(5)"
+                break
             case int:
             case Integer:
             case Model: //Another Model
                 type = type ?: "NUMBER(10)"
+                break
             case long:
             case Long:
                 type = type ?: "NUMBER(19)"
+                break
             case BigInteger:
+            case BigDecimal:
                 type = type ?: "NUMBER"
-                int len = column.annotation.length()
-                String length = len ? "(${len})" : ""
-                List<String> extra = [type, length]
-                String autoInc = column.annotation.autoincrement() ? " DEFAULT TABLE_NAME_seq.nextval" : "" //TABLE_NAME will be replaced
-                extra << (! column.multipleKey && column.annotation.primary() ? "${autoInc} PRIMARY KEY".toString() : "")
-                type = extra.findAll {it }.join(" ")
                 break
             case float:
             case Float:
@@ -306,35 +246,30 @@ class Oracle extends JDBCServer implements AutoJDBC {
             case Double:
                 type = "DOUBLE PRECISION"
                 break
-            case BigDecimal:
-                type = "NUMBER"
-                break
             case LocalDate:
             case LocalDateTime:
-            case LocalTime:
                 type = "DATE"
                 break
+            case LocalTime:
+                type = "TIMESTAMP"
+                break
             case Inet4Address:
-                type = "VARCHAR2(${column.annotation.length() ?: 15})"
+                type = "VARCHAR2(${column.length ?: 15})"
                 break
             case Inet6Address:
             case InetAddress:
-                type = "VARCHAR2(${column.annotation.length() ?: 45})"
+                type = "VARCHAR2(${column.length ?: 45})"
                 break
             case URL:
             case URI:
-                boolean isIndex = column.annotation.key() || column.annotation.unique()
-                boolean isShort = (column.annotation.length() ?: 256) <= 255
-                String varChar = "VARCHAR2(${column.annotation.length() ?: 255})"
-                type = (isIndex || isShort) ? varChar : "NCLOB"
+                boolean isUrlShort = (column.length ?: 256) <= 255
+                type = (column.index || column.unique || isUrlShort) ? "VARCHAR2(${column.length ?: 255})" : "NCLOB"
                 break
             case Collection:
             case Map:
-                boolean isIndex = column.annotation.key() || column.annotation.unique()
-                boolean isShort = (column.annotation.length() ?: 256) <= 255
-                boolean json = supportsJSON && meta.hasProperty("useJson") && meta.class.getMethod("useJson").invoke(meta)
-                String varChar = "VARCHAR2(${column.annotation.length() ?: 255})"
-                type = isIndex ? varChar : (json ? "JSON" : (isShort ? varChar : "NCLOB"))
+                boolean isCollShort = (column.length ?: 256) <= 255
+                boolean json = supportsJSON && meta && meta.hasProperty("useJson") && meta.class.getMethod("useJson").invoke(meta)
+                type = (column.index || column.unique) ? "VARCHAR2(${column.length ?: 255})" : (json ? "JSON" : (isCollShort ? "VARCHAR2(${column.length ?: 255})" : "NCLOB"))
                 break
             case Enum:
                 List<String> constants = column.type.getEnumConstants().collect { it.toString().toUpperCase() }
@@ -356,7 +291,7 @@ class Oracle extends JDBCServer implements AutoJDBC {
                     } catch(Exception ignored) {}
                 }
                 if(canImport) {
-                    int len = column.annotation.length() ?: 256
+                    int len = column.length ?: 256
                     type = len < 256 ? "VARCHAR2($len)" : "CLOB"
                 } else {
                     Log.w("Unknown field type: %s", column.type.simpleName)
@@ -368,23 +303,64 @@ class Oracle extends JDBCServer implements AutoJDBC {
     }
 
     @Override
-    String getForeignKey(String tableName, Relational.ColumnDB column) {
-        String indices = ""
-        switch (column.type) {
-            case Model:
-                Constructor<?> ctor = column.type.getConstructor()
-                Model refType = (ctor.newInstance() as Model)
-                String joinTable = refType.tableName
-                String action = column.annotation ? column.annotation.ondelete().toString() : Column.class.getMethod("ondelete").defaultValue.toString()
-                String onDelete = switch (action.toLowerCase()) {
-                    case "restrict" -> ""
-                    default -> "ON DELETE ${action}"
-                }
-
-                indices = "CONSTRAINT fk_${column.name} FOREIGN KEY (\"${column.name}\") " +
-                    "REFERENCES ${joinTable}(\"${getColumnName(refType.pk)}\") ${onDelete}"
-                break
+    List<String> getUpdateIndicesSQL(String tableName, List<String> columns) {
+        return columns.collect {
+            ("CREATE INDEX IF NOT EXISTS \"${tableName}_${it}_IDX\" ON \"${tableName}\" (\"${it}\")").toString()
         }
-        return indices
+    }
+
+    @Override
+    String getIdentitySQL(String table, String columnName) {
+        String uTable = table.replace(fieldsQuotation, "").toUpperCase()
+        return "SELECT (s.last_number - 1) FROM user_sequences s JOIN user_tab_identity_cols i ON s.sequence_name = i.sequence_name WHERE i.table_name = '${uTable}'"
+    }
+
+    @Override
+    String getIdentityUpdateSQL(String table, String columnName, int value) {
+        String uTable = table.replace(fieldsQuotation, "").toUpperCase()
+        String uCol = columnName.replace(fieldsQuotation, "").toUpperCase()
+        return "ALTER TABLE \"${uTable}\" MODIFY \"${uCol}\" GENERATED BY DEFAULT AS IDENTITY (RESTART START WITH ${value + 1})"
+    }
+
+    @Override
+    String getTurnFK(boolean on) {
+        return """BEGIN
+            FOR c IN (
+                SELECT table_name, constraint_name
+                FROM user_constraints
+                WHERE constraint_type = 'R'
+            )
+            LOOP
+                EXECUTE IMMEDIATE
+                    'ALTER TABLE "' || c.table_name ||
+                    '" ${on ? 'ENABLE NOVALIDATE' : 'DISABLE'} CONSTRAINT "' || c.constraint_name || '"';
+            END LOOP;
+        END;"""
+    }
+
+    @Override
+    String getVersionRead(String table) {
+        String uTable = table.replace(fieldsQuotation, "").toUpperCase()
+        return "SELECT comments FROM user_tab_comments WHERE table_name = '${uTable}'"
+    }
+
+    @Override
+    String getDropTableQuery(String table) {
+        return "DROP TABLE \"${table.toUpperCase()}\" CASCADE CONSTRAINTS"
+    }
+
+    @Override
+    String getForeignKey(String tableName, ColumnDefinition column) {
+        if (!column.isForeignKey) return ""
+        String refTable = column.referenceTable.toUpperCase()
+        String refCol = column.referenceColumn.toUpperCase()
+        String colName = column.name.toUpperCase()
+        String onDeleteClause = ""
+        if (column.onDelete) {
+            if (column.onDelete != RESTRICT) {
+                onDeleteClause = " ON DELETE " + column.onDelete.toString()
+            }
+        }
+        return "CONSTRAINT fk_${column.name} FOREIGN KEY (\"${colName}\") REFERENCES \"${refTable}\"(\"${refCol}\")${onDeleteClause}"
     }
 }

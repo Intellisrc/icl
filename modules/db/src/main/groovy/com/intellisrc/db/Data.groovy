@@ -155,21 +155,28 @@ class Data {
      * @return
      */
     Integer toInt() {
-        int val = 0
+        return toLong() as int
+    }
+    /**
+     * Returns the first column of the first row as long
+     * @return
+     */
+    Long toLong() {
+        long val = 0
         if(!data.isEmpty()) {
             Map map = data.get(0)
             if(!map.isEmpty()) {
-				Object o = getFirstElement(map)
+                Object o = getFirstElement(map)
                 switch(o) {
-				    case Long:
-    					val = ((Long) o).intValue()
+                    case Long:
+                        val = o as long
                         break
                     case Double:
-					    val = ((Double) o).intValue()
+                        val = ((Double) o).longValue()
                         break
-				    default:
-    	                val = (o ?: 0) as int
-				}
+                    default:
+                        val = (o ?: 0) as long
+                }
             }
         }
         return val

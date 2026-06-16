@@ -4,7 +4,6 @@ import com.intellisrc.core.*
 import com.intellisrc.db.jdbc.JDBC
 import groovy.transform.CompileStatic
 
-import java.sql.SQLNonTransientConnectionException
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentLinkedQueue
 

@@ -751,7 +751,7 @@ to ensure the basic usage compatibility.
 | Feature                   | ICL (this library)                                                                                                                             | Hibernate                                                                                                            | jOOQ (free)                                                                                                         |
 |---------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | SQL Mode                  | Automatic / Fluid / Raw Query                                                                                                                  | Automatic / Raw Query                                                                                                | Fluid / Raw Query                                                                                                   |
-| Supported Databases       | MySQL / MariaDB / Percona <br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>Derby Apache (JavaDB)<br>HSQLDB (HyperSQL)<br>H2<br>Firebird SQL | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQLDB<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
+| Supported Databases       | MySQL / MariaDB / Percona <br>PostgreSQL<br>Oracle<br>SQL Server<br>SQLite<br>H2 | MySQL / MariaDB<br>PostgreSQL<br>Oracle<br>SQL Server<br>Sybase SQL<br>Informix<br>FrontBase<br>HSQLDB<br>DB2/NT<br> | MySQL / MariaDB<br>PostgreSQL<br>SQLite<br>Firebird SQL<br>Derby Apache<br>H2<br>HSQLDB<br>YugabyteDB<br>Ignite<br> |
 | Dependencies              | None (simple JDBC)                                                                                                                             | Spring Framework                                                                                                     | None (simple JDBC)                                                                                                  |                                                                                                        |  
 | Clean Database identities | Yes                                                                                                                                            | No                                                                                                                   | Yes                                                                                                                 |
 | SQL Injection protection  | Yes                                                                                                                                            | Yes                                                                                                                  | Yes                                                                                                                 |
@@ -764,15 +764,14 @@ to ensure the basic usage compatibility.
 | MySQL / MariaDB | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Fast          |
 | PostgreSQL      | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Very Fast     |
 | SQLite          | Yes   | Yes           | No              | Yes        | No                  | Yes          | No                    | Fast          |
-| Derby           | Yes * | Yes           | Yes             | Yes        | Yes                 | Yes          | Yes                   | Very Fast     |
 | Oracle          | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Slow          |
-| HSQLDB          | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
-| H2              | No    | Yes           | Yes             | Yes        | No                  | No           | No                    | Very Fast     |
-| SQLServer       | No    | Yes           | Yes             | No         | No                  | No           | No                    | Fast          |
-| Firebird        | No    | Yes           | Yes             | No         | No                  | No           | No                    | Very Slow     |
+| H2              | Yes   | Yes           | Yes             | Yes        | Yes                 | Yes          | Yes                   | Very Fast     |
+| SQLServer       | Yes   | Yes           | Yes             | No         | No                  | No           | No                    | Fast          |
 
-> NOTE: As Derby doesn't allow to turn off `Foreign keys`, it can not be used together with `AutoUpdate`,
-> which means, you have to decide if you will update manually your tables, or you want to use `Foreign keys`.
+> NOTE: Since 2.10.3 support was dropped for Firebird, HSQLDB and Derby.  
+> With small modifications it is not complicated to support such databases. However, to reduce code of this library
+> and speedup deployments, support was dropped. If you want support for those or other SQL databases, contact me, 
+> and I can send you their basic implementation. From that version (2.10.3) SQLServer and H2 have `Model` support.
 
 > NOTE: Performance was decided based on elapsed time to finish unit tests in the development environment. 
 > It might not reflect the performance in a production environment.

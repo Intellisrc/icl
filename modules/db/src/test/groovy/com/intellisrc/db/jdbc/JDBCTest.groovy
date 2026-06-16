@@ -7,10 +7,17 @@ import com.intellisrc.db.DB
 import com.intellisrc.db.Data
 import com.intellisrc.db.Database
 import com.intellisrc.db.DatabaseConnectionException
+import com.intellisrc.db.ColumnDefinition
+import com.intellisrc.db.TableDefinition
+import com.intellisrc.log.CommonLogger
+import com.intellisrc.log.PrintLogger
 import com.intellisrc.net.LocalHost
 import com.intellisrc.term.TableMaker
-import spock.lang.IgnoreIf
+import org.slf4j.event.Level
 import spock.lang.Specification
+import org.junit.jupiter.api.Assumptions
+
+import java.time.LocalDate
 
 import static com.intellisrc.db.Query.SortOrder.ASC
 import static com.intellisrc.db.Query.SortOrder.DESC
@@ -22,11 +29,15 @@ import static com.intellisrc.db.jdbc.JDBC.BooleanHandle.*
 abstract class JDBCTest extends Specification {
     static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
 
-    abstract JDBC getDB()
+    abstract JDBC getJdbConnector()
+
+    String engine = ""
+    String charSet = "UTF8"
+    boolean tested = false
 
     @SuppressWarnings('unused')
     boolean shouldSkip() {
-        JDBC jdbc = this.getDB()
+        JDBC jdbc = this.jdbConnector
         boolean skip = jdbc instanceof JDBCServer
             && (ci || ((jdbc as JDBCServer).hostname &&! LocalHost.hasOpenPort((jdbc as JDBCServer).port)))
         if(skip) {
@@ -35,32 +46,82 @@ abstract class JDBCTest extends Specification {
         return skip
     }
 
+    boolean createTable(DB db, String table) {
+        TableDefinition tableDefinition = new TableDefinition(engine: engine, charset: charSet)
+        tableDefinition.addAll([
+            new ColumnDefinition(
+                name: "id",
+                primaryKey: true,
+                autoIncrement: true,
+                type: Integer
+            ),
+            new ColumnDefinition(
+                name: "name",
+                type: String,
+                length: 10,
+                nullable: false,
+                unique: true
+            ),
+            new ColumnDefinition(
+                name: "version",
+                type: Float,
+                defaultValue: 1
+            ),
+            new ColumnDefinition(
+                name: "active",
+                type: Boolean,
+                defaultValue: true
+            ),
+            new ColumnDefinition(
+                name: "updated",
+                type: LocalDate
+            )])
+        return db.table(table).createTable(tableDefinition)
+    }
+
+    boolean createTablePK(DB db, String table) {
+        println "Creating table (Multiple PK): $table ..."
+        TableDefinition tableDefinition = new TableDefinition(engine: engine, charset: charSet)
+        tableDefinition.addAll([
+            new ColumnDefinition(
+                name: "uid",
+                nullable: false,
+                type: Short,
+                primaryKey: true
+            ),
+            new ColumnDefinition(
+                name: "gid",
+                nullable: false,
+                type: Short,
+                primaryKey: true
+            ),
+            new ColumnDefinition(
+                name: "name",
+                type: String,
+                length: 30,
+                nullable: false
+            )
+        ])
+        return db.table(table).createTable(tableDefinition)
+    }
+
     void clean(DB db, String table) {}
-    /**
-     * Create a table:
-     *      id      : int auto-increment
-     *      name    : varchar
-     *      version : float / double
-     *      active  : boolean
-     *      updated : datetime
-     * @param name
-     * @return
-     */
-    String getTableCreate(String nam) { return "" }
-    List<String> getTableCreateMulti(String name) { [] }
-    /**
-     * Create a table with multiple columns as Primary key
-     *      uid     : int not null primary
-     *      gid     : int not null primary
-     *      name    : varchar not null
-     * @param name
-     * @return
-     */
-    String getTableCreateMultiplePK(String name) { return "" }
+    Level getLogLevel() {
+        return Level.TRACE
+    }
+
+    DB connect() {
+        return new Database(jdbConnector).connect()
+    }
 
     def setup() {
+        Assumptions.assumeTrue(! shouldSkip(), "Condition not met, skipping.")
+        tested = true
         try {
-            DB db = getDB().connect()
+            Log.i("Initializing Test...")
+            PrintLogger printLogger = CommonLogger.default.printLogger
+            printLogger.setLevel(logLevel)
+            DB db = connect()
             db.dropAllTables()
             db.clearCache()
             db.close()
@@ -69,16 +130,25 @@ abstract class JDBCTest extends Specification {
         }
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
+    def cleanup() {
+        if(tested) {
+            DB db = connect()
+            db.dropAllTables()
+            db.clearCache()
+            db.close()
+            Log.i("JDBCTest completed")
+        }
+    }
+
     def "Simple Connection"() {
         setup:
             String table = "linux"
         when:
-            JDBC jdbc = getDB()
+            JDBC jdbc = getJdbConnector()
         then:
             assert jdbc : "JDBC object is empty"
         when:
-            DB db = jdbc.connect()
+            DB db = connect()
             Object setDate = {
                 String d ->
                     return jdbc.supportsDate ? d.toDate() : d
@@ -89,12 +159,8 @@ abstract class JDBCTest extends Specification {
             }
         then:
             assert db : "Unable to connect"
-        then:
-            String createQuery = getTableCreate(table)
-            List<String> createList = getTableCreateMulti(table)
-            assert createQuery ||! createList.empty : "Missing table create"
         then: "Create table"
-            assert (createQuery ? db.setSQL(createQuery) : db.setSQL(createList)) : "Unable to create table"
+            assert createTable(db, table) : "Table creation failed"
         then: "List tables"
             assert ! db.tables.empty : "Tables not found"
         then: "Must be open"
@@ -107,6 +173,17 @@ abstract class JDBCTest extends Specification {
             assert ! info.empty : "No information found"
         then: "Must have a primary key"
             assert info.find { it.primaryKey }
+        then: "Primary key must be auto-increment"
+            assert info.find { it.primaryKey }.autoIncrement
+        then: "Primary key and name must not be nullable"
+            assert info.findAll { ! it.nullable }.collect { it.name.toLowerCase() }.sort() == ["id","name"]
+        then: "Primary key and name must be unique"
+            assert info.findAll { it.unique }.collect { it.name.toLowerCase() }.sort() == ["id","name"]
+        then: "Name must not have default value" // In case of ID, depending on database it may contain serial information
+            assert info.find { it.name.toLowerCase() == "name" }.defaultValue == null
+        then: "It must have default values"
+            assert info.find { it.name.toLowerCase() == "version" }.defaultValue as int == 1
+            assert info.find { it.name.toLowerCase() == "active" }.defaultValue as boolean
         then: "Table must exists"
             assert db.table(table).exists()
         then: "Insert first"
@@ -287,19 +364,27 @@ abstract class JDBCTest extends Specification {
         then: "delete using String IDs"
             assert db.table(table).key("name").delete("RedHat","Slackware")
             assert db.table(table).count().get().toInt() == 3
+            assert db.identityValue > 1 : "Auto-increment value should be set"
         then: "truncate"
             assert db.table(table).truncate()
             assert db.table(table).count().get().toInt() == 0
+            assert db.insert([ name : "CentOS", active: false, updated: setDate("2024-04-15"), version: 8.2 ])
+            assert db.lastID <= 2
+            assert db.identityValue <= 2 : "Auto-increment should clear after truncate"
+        then: "identity change"
+            assert db.setIdentity(100)
+            assert db.insert([ name : "PuppyLinux", active: false, updated: setDate("2022-12-01"), version: 1.9 ])
+            assert db.lastID >= 100
+            assert db.identityValue >= 100 : "Auto-increment value was not changed"
         cleanup:
             db?.dropAllTables()
             clean(db, table)
             db?.close()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Connection with Pool"() {
         setup:
-            JDBC jdbc = getDB()
+            JDBC jdbc = getJdbConnector()
             Database database = new Database(jdbc)
             String table = "linux"
             Object setDate = {
@@ -308,10 +393,8 @@ abstract class JDBCTest extends Specification {
             }
         when: "Create connection"
             DB db = database.connect()
-        then:
-            assert getTableCreate(table) || getTableCreateMulti(table) : "Missing table create"
         then: "Create table"
-            assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table))
+            assert createTable(db, table)
         then : "Be sure the table is there"
             assert db.tables.size() == 1
             assert db.hasTable(table)
@@ -337,18 +420,14 @@ abstract class JDBCTest extends Specification {
             database?.quit()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Test Drop all tables"() {
         setup:
-            JDBC jdbc = getDB()
-            DB db = jdbc.connect()
+            DB db = connect()
             String table = "linux"
-            boolean isSingleStm = getTableCreate(table) != ""
-            int numTables = 5
         when: "Create table"
+            int numTables = 5
             (1..numTables).each {
-                println "Creating ${table}${it}..."
-                assert isSingleStm ? db.setSQL(getTableCreate("${table}${it}")) : db.setSQL(getTableCreateMulti("${table}${it}"))
+                assert createTable(db, table + it)
             }
         then: "Be sure we have all tables"
             List<String> tables = db.tables.collect { it.toLowerCase() }
@@ -368,19 +447,17 @@ abstract class JDBCTest extends Specification {
             db?.close()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Test NULL"() {
         setup:
-            JDBC jdbc = getDB()
-            DB db = jdbc.connect()
+            JDBC jdbc = getJdbConnector()
+            DB db = connect()
             String table = "nullable"
             Object setDate = {
                 String d ->
                     return jdbc.supportsDate ? d.toDate() : d
             }
         when: "Create table"
-            println "Creating table: $table ..."
-            assert getTableCreate(table) ? db.setSQL(getTableCreate(table)) : db.setSQL(getTableCreateMulti(table))
+            assert createTable(db, table)
         then: "Insert values"
             assert db.table(table).insert([
                 [ name : "RedHat",      active: false,   updated: null,     version: 3.3 ],
@@ -403,17 +480,14 @@ abstract class JDBCTest extends Specification {
             db?.close()
     }
 
-    @IgnoreIf({ instance.shouldSkip() })
     def "Multiple key support"() {
         setup:
-            JDBC jdbc = getDB()
-            DB db = jdbc.connect()
+            DB db = connect()
             String table = "mulpk"
         expect: "No tables"
             assert db.tables.empty
         when: "Create table"
-            println "Creating table: $table ..."
-            assert db.setSQL(getTableCreateMultiplePK(table))
+            assert createTablePK(db, table)
         then : "Be sure the table is there"
             assert db.tables.size() == 1
             assert db.hasTable(table)

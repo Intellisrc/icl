@@ -8,14 +8,17 @@ import com.intellisrc.db.Database
 import com.intellisrc.db.Query
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.DeleteActions
+import com.intellisrc.db.annot.UpdateActions
 import com.intellisrc.db.jdbc.*
 import com.intellisrc.log.CommonLogger
+import com.intellisrc.log.FileLogger
 import com.intellisrc.log.PrintLogger
 import com.intellisrc.net.Email
 import com.intellisrc.net.LocalHost
+import com.intellisrc.term.TableMaker
+import org.junit.jupiter.api.Assumptions
 import org.slf4j.event.Level
 import spock.lang.Specification
-import spock.lang.Unroll
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -24,17 +27,20 @@ import java.time.temporal.ChronoUnit
 /**
  * @since 2022/07/08.
  */
-class AutoTest extends Specification {
+abstract class AutoTest extends Specification {
     static boolean ci = Config.env.get("gitlab.ci", Config.any.get("github.actions", false))
-    static File sqliteTmp = File.get(File.tempDir, "sqlite.db")
-    static File derbyTmp = File.get(File.tempDir, "derby.db")
+    boolean tested = false
 
-    static Map<String, Integer> ports = [
-        mysql       : 33006,
-        mariadb     : 33007,
-        postgres    : 35432,
-        oracle      : 31521
-    ]
+    @SuppressWarnings('unused')
+    boolean shouldSkip() {
+        JDBC conn = connJdbc
+        boolean skip = conn instanceof JDBCServer
+            && (ci || ((conn as JDBCServer).hostname &&! LocalHost.hasOpenPort((conn as JDBCServer).port)))
+        if(skip) {
+            Log.w("Test skipped for : %s (environment not ready)", conn.class.simpleName)
+        }
+        return skip
+    }
 
     static class User extends Model {
         @Column(primary = true, autoincrement = true)
@@ -52,7 +58,7 @@ class AutoTest extends Specification {
     static class Alias extends Model {
         @Column(primary = true, autoincrement = true)
         int id
-        @Column(ondelete = DeleteActions.CASCADE)
+        @Column(ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         User user
         @Column
         String name
@@ -68,16 +74,16 @@ class AutoTest extends Specification {
     }
 
     static class Inbox extends Model {
-        @Column(primary = true)
+        @Column(primary = true, ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         User user
-        @Column(primary = true)
+        @Column(primary = true, ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         UserEmail email
         @Column
         boolean enabled = true
     }
 
     static class Address extends Model {
-        @Column(primary = true)
+        @Column(primary = true, ondelete = DeleteActions.CASCADE, onupdate = UpdateActions.CASCADE)
         User user
         @Column(nullable = false)
         String address
@@ -104,105 +110,50 @@ class AutoTest extends Specification {
         Addresses(Database database) { super(database) }
     }
 
-    //FIXME: Some tests fails when two or more databases are tested at the same time
-    //       until it is fixed, test one by one before releasing (leave Derby for fast test)
-    static List<JDBC> getTestable(boolean update = false) {
-        boolean testDerby       = true
-        boolean testSQLite      = false
-        boolean testMariaDB     = false
-        boolean testMySQL       = false
-        boolean testPostgres    = false
-        boolean testOracle      = false
-
-        List<JDBC> dbs = []
-        if(testDerby) {
-            dbs << new Derby(
-                create: true,
-                memory: true,
-                useFK: !update
-                //dbname  : derbyTmp.absolutePath
-            )
-        }
-        //now = "CURRENT DATE"
-        if(testSQLite) {
-            dbs << new SQLite(
-                dbname: sqliteTmp.absolutePath
-            )
-        }
-        if(testMariaDB &&! ci && LocalHost.hasOpenPort(ports.mariadb)) {
-            dbs << new MariaDB(
-                user: "test",
-                hostname: "127.0.0.1",
-                password: "test",
-                dbname: "test",
-                port: ports.mariadb
-            )
-        }
-        if(testMySQL &&! ci && LocalHost.hasOpenPort(ports.mysql)) {
-            dbs << new MySQL(
-                user: "test",
-                hostname: "127.0.0.1",
-                password: "test",
-                dbname: "test",
-                port: ports.mysql
-            )
-        }
-        if(testPostgres &&! ci && LocalHost.hasOpenPort(ports.postgres)) {
-            dbs << new PostgreSQL(
-                user: "test",
-                hostname: "127.0.0.1",
-                password: "test",
-                dbname: "test",
-                port: ports.postgres
-            )
-        }
-        if(testOracle &&! ci && LocalHost.hasOpenPort(ports.oracle)) {
-            dbs << new Oracle(
-                user: "test",
-                hostname: "127.0.0.1",
-                password: "test",
-                dbname: "FREEPDB1", //v.23 docker
-                //dbname: "XEPDB1", //v.21
-                port: ports.oracle
-            )
-        }
-        assert ! dbs.empty : "None of the databases are available or selected"
-        return dbs
+    abstract JDBC getConnJdbc()
+    Level getLogLevel() {
+        return Level.TRACE
     }
 
     def setup() {
+        Assumptions.assumeTrue(! shouldSkip(), "Condition not met, skipping.")
+        tested = true
         Log.i("Setting up Test...")
         PrintLogger printLogger = CommonLogger.default.printLogger
-        printLogger.setLevel(Level.TRACE)
-        if(sqliteTmp.exists()) { sqliteTmp.delete() }
+        FileLogger fileLogger = CommonLogger.default.fileLogger
+        printLogger.setLevel(logLevel)
+        fileLogger.setLevel(logLevel)
+        File queryLog = File.get("log/query.log")
+        DB.queryLog = Optional.ofNullable(queryLog)
+        if(queryLog.exists()) { queryLog.delete() }
         DB.clearCache()
     }
 
     def cleanup() {
-        if(sqliteTmp.exists()) {
-            sqliteTmp.delete()
-        }
-        if(derbyTmp.exists()) {
-            derbyTmp.deleteDir()
-        }
-        File derbyLog = File.get("derby.log")
-        if(derbyLog.exists()) {
-            derbyLog.delete()
-        }
-    }
-
-    @Unroll
-    def "Create table model"() {
-        setup:
-            Log.i("Initializing test for: %s", type)
-            Database database = new Database(type)
+        if(tested) {
+            DB.clearCache()
+            JDBC conn = connJdbc
+            Database database = new Database(conn)
             DB db = database.connect()
             db.dropAllTables()
             db.close()
+            database.quit()
+            Log.i("AutoTest Cleanup completed")
+        }
+    }
+
+    def "Create table model"() {
+        setup:
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
+            DB db = database.connect()
+            db.dropAllTables()
+            db.close()
+
             Users users = new Users(database)
             Aliases aliases = new Aliases(database)
             aliases.clear()
-            users.clear()
+            users.clear(true) //TRUNCATE fails if it has FK in it
         when:
             User u = new User(
                 name : "Benjamin",
@@ -224,7 +175,7 @@ class AutoTest extends Specification {
             assert users.insert(w) == 3
             assert users.count() == 3
             assert users.count(age : v.age) == 1
-            assert users.count(type.getFieldForQuery("age") + " > ?", 80) == 2
+            assert users.count(jdbc.getFieldForQuery("age") + " > ?", 80) == 2
         when:
             Alias alias = new Alias(
                 user : u,
@@ -279,27 +230,22 @@ class AutoTest extends Specification {
             try {
                 aliases.reset()
                 users.reset()
-                aliases.drop()
-                users.drop()
-                aliases.quit()
-                users.quit()
+                aliases.drop(true)
+                users.drop(true)
+                database.quit()
             } catch(Exception ignore) {}
-        where:
-            type << testable
     }
 
-    //FIXME: This test is failing if besides Derby any other two databases are enabled for testing
-    @Unroll
     def "Multi-column Primary Key should work fine"() {
         setup:
-            Log.i("Initializing test for: %s", type)
-            Database database = new Database(type)
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
             Users users = new Users(database)
             Emails emails = new Emails(database)
             Inboxes inboxes = new Inboxes(database)
             inboxes.clear()
-            emails.clear()
-            users.clear()
+            emails.clear(true)
+            users.clear(true)
         when:
             int rows = 3
             (1..rows).each {
@@ -332,29 +278,26 @@ class AutoTest extends Specification {
         then:
             [inboxes, users, emails].each {
                 Table t ->
-                    assert t.deleteAll()
+                    assert t.clear(true)
                     assert t.all.size() == 0
             }
         cleanup:
             [inboxes, users, emails].each {
                 it?.reset()
                 it?.drop()
-                it?.quit()
             }
-        where:
-            type << testable
+            database.quit()
     }
 
-    @Unroll
     def "Primary Key is Model"() {
         setup:
-            Log.i("Initializing test for: %s", type)
-            Database database = new Database(type)
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
             Users users = new Users(database)
             Addresses addresses = new Addresses(database)
             addresses.clear()
-            users.clear()
-            assert ! addresses.pks.empty
+            users.clear(true)
+            assert ! addresses.primaryKeys.empty
         when:
             int rows = 3
             (1..rows).each {
@@ -379,6 +322,10 @@ class AutoTest extends Specification {
             address.zip = "444444"
         then:
             assert addresses.update(address)
+        when:
+            List<Address> info = addresses.all
+            new TableMaker(info.collect { it.toMap() }).print()
+        then:
             assert addresses.find("user", user).zip == address.zip
             assert addresses.findRecord("zip", address.zip).containsKey("user_id")
         when:
@@ -398,21 +345,18 @@ class AutoTest extends Specification {
         cleanup:
             addresses.reset()
             [addresses, users].each {
-                it?.drop()
-                it?.quit()
+                it?.drop(true)
             }
-        where:
-            type << testable
+            database.quit()
     }
 
-    @Unroll
     def "Insert, update and delete in bulk"() {
         setup:
-            Log.i("Initializing test for: %s", type)
-            Database database = new Database(type)
+            JDBC jdbc = connJdbc
+            Database database = new Database(jdbc)
             Emails emails = new Emails(database)
-            emails.clear()
-            assert ! emails.pks.empty
+            emails.clear(true)
+            assert ! emails.primaryKeys.empty
         when:
             int rows = 500
             List<UserEmail> emailList = []
@@ -473,7 +417,7 @@ class AutoTest extends Specification {
             assert emails.update(newEmailList)
             assert emails.delete(newEmailList)
             assert emails.count() == 0
-            assert emails.clear()
+            assert emails.clear(true)
             assert emails.count() == 0
             assert few.size() == 10
             assert few.first().id as int == 490
@@ -484,10 +428,8 @@ class AutoTest extends Specification {
         cleanup:
             emails.reset()
             [emails].each {
-                it?.drop()
-                it?.quit()
+                it?.drop(true)
             }
-        where:
-            type << testable
+            database.quit()
     }
 }

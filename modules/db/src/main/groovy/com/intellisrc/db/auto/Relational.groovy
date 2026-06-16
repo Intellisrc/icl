@@ -1,10 +1,7 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.DB
-import com.intellisrc.db.Data
-import com.intellisrc.db.Database
-import com.intellisrc.db.Query
+import com.intellisrc.db.*
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.DeleteActions
 import com.intellisrc.db.annot.TableMeta
@@ -36,13 +33,13 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
     protected final Database database
     @SuppressWarnings('GrFinalVariableAccess')
     protected final JDBC jdbc
-    protected final String name
+    protected final String name //table or view Name
     protected int cache = 0
     protected boolean clearCache = false
-    protected List<String> primaryKey = []
     protected int chunkSize = 100
     protected final Annotation meta
 
+    private List<String> primaryKeyList = []
     /**
      * When using `getAllByChunks` it will use this interface to return as it goes
      */
@@ -54,17 +51,6 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         void call(List<Map> rows)
     }
 
-    /**
-     * Information about a Field that will be used as column in a DB
-     * @see com.intellisrc.db.annot.Column
-     */
-    static class ColumnDB {
-        String name
-        Class<?> type
-        Object defaultVal
-        Column annotation
-        boolean multipleKey = false // Filled automatically
-    }
     /**
      * Constructor. A Database object can be passed
      * when using multiple databases.
@@ -127,6 +113,13 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     List<ColumnDB> getColumns() {
         return fields.collect { getColumnDB(it) }
+    }
+    /**
+     * Get fields as TableDefinition
+     * @return
+     */
+    TableDefinition getDefinition() {
+        return columns.collect { it.normalized } as TableDefinition
     }
     /**
      * Convert Field to ColumnDB
@@ -330,16 +323,16 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * Return first column marked as Primary Key
      * @return
      */
-    String getPk() {
-        return pks.empty ? "" : pks.first()
+    String getPrimaryKey() {
+        return primaryKeys.empty ? "" : primaryKeys.first()
     }
     /**
      * Returns Primary Key column(s)
      * @return
      */
-    List<String> getPks() {
+    List<String> getPrimaryKeys() {
         List<String> pk = []
-        if(primaryKey.empty) {
+        if(primaryKeyList.empty) {
             List<Field> fields = getFields().toList().findAll {
                 it.getAnnotation(Column)?.primary()
             }
@@ -351,9 +344,9 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                     pk = ["id"]
                 }
             }
-            primaryKey = pk
+            primaryKeyList = pk
         } else {
-            pk = primaryKey
+            pk = primaryKeyList
         }
         return pk
     }
@@ -375,8 +368,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     Map getRecord(int id) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         Map map = db.get(id)?.toMap() ?: [:]
         db.close()
         return map
@@ -402,8 +394,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     List<Map> getRecords(Collection<Integer> ids) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         List<Map> list = db.get(ids).toListMap()
         db.close()
         return list
@@ -679,8 +670,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     Map findRecord(Map criteria) {
         criteria = convertToDB(criteria)
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         Map map = db.get(criteria)?.toMap() ?: [:]
         db.close()
         return map
@@ -784,8 +774,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      */
     List<Map> findRecords(Map criteria, Map options = [:]) {
         criteria = convertToDB(criteria)
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         if(! options.isEmpty()) {
             if(options.limit) {
                 db.limit(options.limit as int, (options.offset ?: "0") as int)
@@ -846,8 +835,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     int count() {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         int c = db.count().get().toInt()
         db.close()
         return c
@@ -865,8 +853,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     int count(Map criteria) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         int c = db.count().get(convertToDB(criteria)).toInt()
         db.close()
         return c
@@ -878,8 +865,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * @return
      */
     int count(String where, Object... params) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         int c = db.count().where(where, params).get().toInt()
         db.close()
         return c
@@ -902,10 +888,11 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * Get a new connection and set default settings.
      * @return
      */
-    protected synchronized DB connect() {
+    protected synchronized DB connect(boolean softFail = false) {
         DB db = database.connect().table(tableName)
         db.cache = cache
         db.clearCache = clearCache
+        db.softFail = softFail
         return db
     }
     /**
@@ -921,15 +908,33 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
      * Close all connections (in all threads) to the database
      */
     void quit() {
+        primaryKeyList.clear()
         database.quit()
     }
     /**
-     * Drops the table
+     * If Relational is a View...
+     * @return
      */
-    boolean drop(boolean view = false) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
-        boolean dropped = view ? db.dropView() : db.drop()
+    boolean isView() {
+        return this instanceof View
+    }
+    /**
+     * Drops the table
+     * @param force: when true, it will disable FK first
+     */
+    boolean drop(boolean force = false) {
+        DB db = connect().keys(primaryKeys)
+        boolean isView = isView()
+        if(force &&! isView) {
+            db.turnFK(false)
+        }
+        boolean dropped = isView ? db.dropView() : db.drop()
+        if(dropped) {
+            primaryKeyList.clear()
+        }
+        if(force &&! isView) {
+            db.turnFK(true)
+        }
         db.close()
         return dropped
     }
@@ -951,6 +956,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
             try {
                 //noinspection GroovyFallthrough
                 switch (field.type) {
+                    case Short:
                     case short:
                         retVal = value as short
                         break
@@ -984,7 +990,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                         break
                     case boolean:
                     case Boolean:
-                        retVal = Data.toBoolean(value, jdbc.booleanHandle, jdbc.trueChar)
+                        retVal = value instanceof Boolean ? value : Data.toBoolean(value, jdbc.booleanHandle, jdbc.trueChar)
                         break
                     case Collection:
                         try {
@@ -1070,7 +1076,7 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
                             retVal = rel.getNew()
                             try {
                                 //retVal.pk.setInt(retVal, value as int)
-                                retVal[rel.pk] = value as int
+                                retVal[rel.primaryKey] = value as int
                             } catch(Exception e) {
                                 Log.v("Unable to find primary key in object", e)
                             }

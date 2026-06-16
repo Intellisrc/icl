@@ -2,15 +2,15 @@ package com.intellisrc.db
 
 import com.intellisrc.core.Config
 import com.intellisrc.core.Log
-import com.intellisrc.core.Millis
 import com.intellisrc.core.Secs
+import com.intellisrc.core.SysInfo
 import com.intellisrc.db.jdbc.Dummy
 import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Cache
 import groovy.transform.CompileStatic
 
-import java.sql.SQLNonTransientConnectionException
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.regex.Matcher
 
 import static com.intellisrc.db.ColumnType.*
 import static com.intellisrc.db.Query.Action.*
@@ -33,6 +33,7 @@ class DB {
     static boolean clearCache = Config.any.get("db.cache.clear", false) // if true, will clear cache on table update
     static int connectionTimeout = Config.any.get("db.timeout.connect", Secs.SECOND_10) // Seconds
     static int queryTimeout = Config.any.get("db.timeout.query", Secs.MINUTE) // Seconds
+    static Optional<File> queryLog = Config.any.getFile("db.query.log")
 
     protected Connector dbConnector
     protected String table = ""
@@ -41,6 +42,8 @@ class DB {
     protected Query queryBuilder = null
     // Flag to mark connections which were returned already
     protected boolean returned = false
+    // Print Errors as warnings (known exceptions, for example while updating)
+    boolean softFail = false
 
     /////////////////////////// Constructors /////////////////////////////
     DB(Connector connector) {
@@ -391,14 +394,59 @@ class DB {
      * Truncate a table (in some cases it will reset autoincrement ids as well)
      * @return
      */
-    boolean truncate(boolean silent = true) {
+    boolean truncate() {
         boolean ok = false
         if(table) {
             Log.i("Truncating table: %s", table)
             query.setAction(TRUNCATE)
-            ok = execSet(silent)
+            boolean fail = softFail
+            softFail = true
+            ok = execSet()
+            if(! ok) {
+                softFail = fail
+                Log.i("Truncate failed, deleting rows and resetting identity... (table : %s)", table)
+                query.setAction(DELETE) //Alternative
+                ok = execSet()
+                fail}
+            softFail = fail
+            if(ok) {
+                dataCache.clear() // clear query caches
+                int ai = getIdentityValue(table)
+                if(ai > 1) {
+                    setIdentity(0)
+                }
+            }
         } else {
             Log.w("Can not truncate: No table specified")
+        }
+        return ok
+    }
+    /**
+     * Create database
+     * @param definition
+     * @param engine
+     * @param charset
+     * @return
+     */
+    boolean createTable(TableDefinition definition) {
+        boolean ok = false
+        if(table) {
+            Log.i("Creating table: %s (version: %d)", table, definition.version)
+            String createTableSQL = jdbc.getCreateTableSQL(table, definition)
+            if(createTableSQL) {
+                ok = setSQL(createTableSQL)
+                if(ok) {
+                    List<String> setIndicesSQL = jdbc.getUpdateIndicesSQL(table, definition.findAll { it.index &&! it.primaryKey }.collect { it.name })
+                    if(! setIndicesSQL.empty) {
+                        ok = setSQL(setIndicesSQL)
+                    }
+                    if(ok && definition.version) {
+                        ok = setVersion(table, definition.version)
+                    }
+                }
+            }
+        } else {
+            Log.w("Can not create table: No table specified")
         }
         return ok
     }
@@ -474,6 +522,165 @@ class DB {
         Log.i("Dropping database")
         return setSQL(jdbc.dropDatabaseQuery)
     }
+    //----------------------- Previously in Auto -------------------
+
+    /**
+     * Turn FK on/off
+     * @param on
+     * @return
+     */
+    boolean turnFK(boolean on) {
+        String turnSQL = jdbc.getTurnFK(on)
+        return turnSQL && setSQL(turnSQL)
+    }
+    /**
+     * Rename a table
+     * @param oldName
+     * @param newName
+     * @return
+     */
+    boolean renameTable(String oldName, String newName) {
+        String renameSQL = jdbc.getRenameTable(oldName, newName)
+        return renameSQL && setSQL(renameSQL)
+    }
+    /**
+     * Copy table structure and data
+     * NOTE: in some cases a database may be able to copy structure and data at once,
+     * so only one of the two should be enough (that is why copyTableStructure and copyTableData return true even if the query is empty).
+     * @param db
+     * @param from
+     * @param to
+     * @return
+     */
+    boolean cloneTable(String from, String to, TableDefinition columns, boolean updateIdentity = true) {
+        boolean ok1 = copyTableStructure(from, to, columns)
+        boolean ok2 = copyTableData(from, to, columns)
+        boolean ok = ok1 || ok2
+        if(ok) {
+            // Copy AutoIncrement:
+            if (updateIdentity) {
+                String pk = columns.find { it.autoIncrement }
+                if (pk) {
+                    int ai = getIdentityValue(from)
+                    ok &= setIdentity(to, pk, ai)
+                }
+            }
+        }
+        return ok
+    }
+    /**
+     * Copy table structure
+     * @param from
+     * @param to
+     * @param columns
+     * @return
+     */
+    boolean copyTableStructure(String from, String to, TableDefinition columns) {
+        String copyStructureSQL = jdbc.getCopyTableStructureSQL(from, to, columns)
+        return copyStructureSQL ? copyStructureSQL.tokenize(";").every { setSQL(it) } : false
+    }
+    /**
+     * Copy table data
+     * @param from
+     * @param to
+     * @param columns
+     * @return
+     */
+    boolean copyTableData(String from, String to, TableDefinition columns) {
+        String copyDataSQL = jdbc.getCopyTableDataSQL(from, to, columns)
+        return copyDataSQL ? copyDataSQL.tokenize(";").every { setSQL(it) } : false
+    }
+
+    /**
+     * Retrieves identity field for a table
+     * @return
+     */
+    String getIdentityField() {
+        List<ColumnInfo> columns = info(false)
+        String field = "id"
+        if(columns) {
+            ColumnInfo ci = columns.find { it.autoIncrement }
+            if (ci) {
+                field = ci.name
+            }
+        }
+        return field
+    }
+
+    /**
+     * Get the auto-increment value from the table (not MAX)
+     * @return
+     */
+    int getIdentityValue(String tableName = table) {
+        int ai = 0
+        // Force load column info if cache is empty or missing this table
+        List<ColumnInfo> columns = info(false)
+        if(columns) {
+            ColumnInfo ci = columns.find { it.autoIncrement }
+            if(ci) {
+                String sql = jdbc.getIdentitySQL(tableName, ci.name)
+                if(sql) {
+                    ai = getSQL(sql).toInt()
+                } else {
+                    Log.w("Identity SQL to read it was empty")
+                }
+            }
+        }
+        if(!ai) {
+            Log.d("Identity value returned zero")
+        }
+        return ai
+    }
+    /**
+     * set Autoincrement for a table (automatically getting the column name)
+     * @param table
+     * @param value
+     * @return
+     */
+    boolean setIdentity(int value = 0) {
+        return setIdentity(table, identityField, value)
+    }
+    /**
+     * set Autoincrement for a table
+     * @param table
+     * @return
+     */
+    boolean setIdentity(String table, String columnName, int value = 0) {
+        String resetSQL = jdbc.getIdentityUpdateSQL(table, columnName, value)
+        return resetSQL && setSQL(resetSQL)
+    }
+    /**
+     * Set table's version
+     * @param databaseName
+     * @param table
+     * @param version
+     * @return
+     */
+    boolean setVersion(String table, int version) {
+        String versionSQL = jdbc.getVersionUpdate(table, version)
+        return versionSQL && setSQL(versionSQL)
+    }
+    /**
+     * Reads table version
+     * @param databaseName
+     * @param table
+     * @return
+     */
+    int getVersion(String table) {
+        String versionSQL = jdbc.getVersionRead(table)
+        int version = 1
+        if(versionSQL) {
+            String versionStr = getSQL(versionSQL).toString()
+            if(versionStr) {
+                Matcher matcher = (versionStr =~ /(\d+)/)
+                if(matcher.find()) {
+                    version = matcher.group(1) as int
+                }
+            }
+        }
+        return version
+    }
+
     //------------------------------ RAW set -------------------------------
     /** Executes a query with arguments directly
      * @param query
@@ -489,7 +696,7 @@ class DB {
      * @return
      */
     boolean setSQL(Collection<String> queries) {
-        return queries.every { return setSQL(it)}
+        return queries.every { return setSQL(it, [])}
     }
     /**
      * Execute multiple queries with arguments
@@ -497,7 +704,7 @@ class DB {
      * @return
      */
     boolean setSQL(Map<String, Collection> queriesWithArgs) {
-        return queriesWithArgs.every { return setSQL(it.key, it.value )}
+        return queriesWithArgs.every { return setSQL(it.key, it.value)}
     }
     // -------------------------------- Tools -------------------------------
     /** Get last inserted ID (a INTEGER PRIMARY KEY column must exists)
@@ -510,11 +717,11 @@ class DB {
     /** Checks if a table exists or not
 	 * @return boolean **/
     boolean exists() {
-        boolean exists = false
-        if(table) {
-            exists = hasTable(table)
-        }
-        return exists
+        if (!table) { return false }
+        if (hasTable(table)) { return true }
+
+        String existsSQL = jdbc.getTableExistsSQL(table)
+        return existsSQL && (getSQL(existsSQL)?.toBool() ?: false)
     }
     /**
      * Return column Info using cache
@@ -566,7 +773,7 @@ class DB {
                 }
             }
         } else {
-            Log.v("Table name was not specified")
+            Log.w("Table name was not specified")
         }
         return columns
     }
@@ -582,6 +789,7 @@ class DB {
     boolean close() {
 		Log.v( "Closing connection...")
         returned = true
+        softFail = false // Revert to default
     	return dbConnector.close()
     }
     /**
@@ -862,6 +1070,9 @@ class DB {
         Data data
         if(! qryStr.empty) {
             Log.v("GET ::: " + qryStr)
+            if(queryLog.present) {
+                queryLog.get() << (qryStr + " [" + query.args.join(",") + "]" + SysInfo.newLine)
+            }
             query.args.each {
                 Log.v(" --> " + it)
             }
@@ -879,8 +1090,12 @@ class DB {
                                     if (!st.isColumnNull(i)) {
                                         String column = jdbc.convertToLowerCase ? st?.columnName(i)?.toLowerCase() : st?.columnName(i)
                                         ColumnType type = st?.columnType(i)
+                                        //noinspection GroovyFallthrough
                                         switch (type) {
                                             case TEXT:
+                                            case VARCHAR:
+                                            case CHAR:
+                                            case CLOB:
                                                 String val = st.columnStr(i).trim()
                                                 if(["true","false"].contains(val.toLowerCase())) {
                                                     row.put(column, st.columnBool(i))
@@ -892,6 +1107,10 @@ class DB {
                                                 row.put(column, st.columnBool(i))
                                                 break
                                             case INTEGER:
+                                            case TINYINT:
+                                            case SMALLINT:
+                                            case BIGINT:
+                                            case DECIMAL:
                                                 // Oracle does not report decimals when using functions like: MAX()
                                                 if(jdbc.checkDecimals && st.columnInt(i) != st.columnDbl(i)) {
                                                     row.put(column, st.columnDbl(i))
@@ -906,13 +1125,25 @@ class DB {
                                                 row.put(column, st.columnDbl(i))
                                                 break
                                             case BLOB:
+                                            case VARBINARY:
+                                            case BINARY:
                                                 row.put(column, st.columnBlob(i))
+                                                break
+                                            case TIME:
+                                                row.put(column, st.columnTime(i))
                                                 break
                                             case DATE:
                                                 row.put(column, st.columnDate(i))
                                                 break
-                                            default:
+                                            case TIMESTAMP:
+                                            case TIMESTAMP_TZ: //TODO: should it be columnZonedDateTime ?
+                                                row.put(column, st.columnDateTime(i))
+                                                break
+                                            case NULL:
                                                 Log.w("Type was NULL")
+                                                break
+                                            default:
+                                                Log.w("Type was not handled: %s", type.toString())
                                                 break
                                         }
                                     }
@@ -940,10 +1171,9 @@ class DB {
 
     /**
      * Executes Query (Final stop for write queries)
-     * @param silent : when true, it will minimize error reporting
      * @return true on success
      */
-    protected boolean execSet(boolean silent = false) {
+    protected boolean execSet() {
 		boolean ok = false
         Map<String,Object> replaceData = [:]
         query.isSetQuery = true
@@ -951,6 +1181,9 @@ class DB {
         if(! qryStr.empty) {
             if (opened) {
                 Log.v("SET ::: " + qryStr)
+                if(queryLog.present) {
+                    queryLog.get() << (qryStr + " [" + query.args.join(",") + "]" + SysInfo.newLine)
+                }
                 query.args.each {
                     Log.v(" --> " + it)
                 }
@@ -987,8 +1220,7 @@ class DB {
                 ResultStatement st
                 try {
                     boolean upsert = ! replaceData.isEmpty()
-                    silent = silent ?: upsert
-                    st = dbConnector.execute(query, silent)
+                    st = dbConnector.execute(query, softFail ?: upsert)
                     if (upsert && st && st.updatedCount() == 0) {
                         try {
                             // Copy query:
@@ -1013,7 +1245,7 @@ class DB {
                 if (st) {
                     try {
                         st.next()
-                        if (query.isIdentityUpdate) {
+                        if (query.isIdentityUpdate && query.table) {
                             List<String> pks = getPKs()
                             if(pks.size() == 1 && info(pks.first())?.autoIncrement) {
                                 String id = st.columnStr(1)
@@ -1092,6 +1324,7 @@ class DB {
         info(useCache)
         return !colsInfo.isEmpty() ? colsInfo.get(jdbc.dbname + "." + tbl)?.findAll { it.primaryKey }?.collect { it.name } ?: [] : []
     }
+
     /**
      * Removes AutoID from Query (INSERT)
      * @param qry

@@ -1,10 +1,7 @@
 package com.intellisrc.db.auto
 
 import com.intellisrc.core.Log
-import com.intellisrc.db.ColumnInfo
-import com.intellisrc.db.ColumnType
-import com.intellisrc.db.DB
-import com.intellisrc.db.Database
+import com.intellisrc.db.*
 import com.intellisrc.db.annot.Column
 import com.intellisrc.db.annot.ModelMeta
 import com.intellisrc.db.annot.TableMeta
@@ -14,9 +11,6 @@ import groovy.transform.CompileStatic
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.Field
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
 
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle as BoolType
 
@@ -58,12 +52,15 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             switch (jdbc) {
                 case AutoJDBC:
                     // Initialize Auto
+                    if(!(jdbc as AutoJDBC).initialize()) {
+                        Log.w("Unable to initialize: %s", jdbc.name)
+                        break
+                    }
                     DB conn = connect()
-                    (jdbc as AutoJDBC).autoInit(conn)
                     boolean exists = conn.exists()
                     if (exists) {
                         if(autoUpdate) {
-                            int version = TableUpdater.getTableVersion(conn, tableName.toString())
+                            int version = conn.getVersion(tableName.toString())
                             if (definedVersion != version) {
                                 updateTable()
                             } else {
@@ -109,7 +106,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                             }
                         }
                     } else {
-                        if(!createTable(conn)) {
+                        if(!createTable()) {
                             Log.w("Table [%s] was not created.", tableName)
                         }
                     }
@@ -138,15 +135,15 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * Create the database table based on @Column and @TableMeta
      * @param copyName : if set, will create a table with another name (as copy)
      */
-    boolean createTable(DB db, String copyName = "") {
+    boolean createTable(String copyName = "") {
         boolean ok = false
         String tableNameToCreate = copyName ?: tableName
+        DB db = connect()
         if (!db.getTables(false).contains(tableNameToCreate)) {
             String charset = "utf8"
             String engine = ""
-            Annotation meta = null
             if (this.class.isAnnotationPresent(TableMeta) || this.class.isAnnotationPresent(ViewMeta)) {
-                meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
+                Annotation meta = this.class.getAnnotation(ViewMeta) ?: this.class.getAnnotation(TableMeta)
                 if (meta.hasProperty("engine") && meta.properties.engine.toString() != "auto") {
                     engine = meta.properties.engine.toString()
                 }
@@ -154,9 +151,11 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                     charset = meta.properties.charset.toString()
                 }
             }
-            AutoJDBC auto = jdbc as AutoJDBC
-            ok = auto.createTable(connect(), tableNameToCreate, charset, engine, definedVersion, columns, meta)
+            TableDefinition definition = new TableDefinition(engine: engine, charset: charset, version: definedVersion)
+            definition.addAll(columns.collect { it.normalized })
+            ok = db.table(tableNameToCreate).createTable(definition)
         }
+        db.close()
         return ok
     }
     /**
@@ -167,21 +166,8 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     List<String> getUpdateBooleanQuery(String table, String column, BoolType from) {
         List<String> queries = []
-        AutoJDBC auto = jdbc as AutoJDBC
-        String boolDef = auto.getColumnDefinition(new ColumnDB(type: boolean))
-        // Simulate "Column" annotation:
-        Column annot = (Column) Proxy.newProxyInstance(
-            Column.classLoader,
-            [Column] as Class[],
-            { Object proxy, Method method, Object[] args ->
-                return switch (method.name) {
-                    case "length" -> 6
-                    case "unlimited" -> false
-                    default -> null
-                }
-            } as InvocationHandler
-        )
-        String varChar = auto.getColumnDefinition(new ColumnDB(type: String, annotation: annot))
+        String boolDef = jdbc.getColumnDefinition(new ColumnInfo(type: ColumnType.BOOLEAN).normalized)
+        String varChar = jdbc.getColumnDefinition(new ColumnInfo(type: ColumnType.VARCHAR).normalized)
         column = jdbc.getFieldForQuery(column)
         BoolType to = jdbc.booleanHandle
         // Pre-modification query:
@@ -275,7 +261,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * Returns the autoincrement field
      * @return
      */
-    String getAutoIncrement() {
+    String getIdentityField() {
         String ai = ""
         Field field = getFields().find {
             it.getAnnotation(Column)?.autoincrement()
@@ -286,6 +272,16 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
         return ai
     }
     /**
+     * Get auto-increment value or last inserted
+     * @return
+     */
+    int getIdentityValue() {
+        DB db = connect()
+        int ai = db.getIdentityValue()
+        db.close()
+        return ai
+    }
+    /**
      * Update a model
      * @param model
      * @param exclude : columns to exclude during update
@@ -293,13 +289,12 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      */
     boolean update(M model, Collection<String> exclude = []) {
         boolean ok = false
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         try {
             Map map = getMap(model)
             // id can be a List or the value of the field
-            Object id = (pks.empty ? null : (pks.size() == 1) ? map[pk] : pks.collect {map[it] })
-            pks.each {
+            Object id = (primaryKeys.empty ? null : (primaryKeys.size() == 1) ? map[primaryKey] : primaryKeys.collect {map[it] })
+            primaryKeys.each {
                 exclude << it// Exclude pk from map
             }
             exclude.each {
@@ -322,16 +317,20 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
         DB db = connect()
         boolean singlePk = false
         boolean multiPk = false
-        if(pk) {
-            db.keys(pks)
-            singlePk = pks.size() == 1
-            multiPk = pks.size() > 1
+        if(primaryKey) {
+            db.keys(primaryKeys)
+            singlePk = primaryKeys.size() == 1
+            multiPk = primaryKeys.size() > 1
         }
         boolean ok = db.update(models.collect {
-            it.toDB()
+            Map record = it.toDB()
+            if(primaryKey) {
+                record.remove(primaryKey)
+            }
+            return record
         }, models.collect {
-            return singlePk ? [(pk) : it.toDB().get(pk)] :
-                (multiPk ? it.toDB().subMap(pks) : [])
+            return singlePk ? [(primaryKey): it.toDB().get(primaryKey)] :
+                (multiPk ? it.toDB().subMap(primaryKeys) : [])
         })
         db.close()
         return ok
@@ -349,7 +348,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             exclude.each {
                 map.remove(it)
             }
-            if(pk) { db.keys(pks) }
+            db.keys(primaryKeys)
             ok = db.replace(map)
         } catch(Exception e) {
             Log.e("Unable to insert record", e)
@@ -364,8 +363,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @return
      */
     boolean replace(Collection<M> models) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         boolean ok = db.replace(models.collect { it.toDB() })
         db.close()
         return ok
@@ -384,8 +382,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @return
      */
     boolean delete(int id) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         boolean ok = db.delete(id)
         db.close()
         return ok
@@ -396,8 +393,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @return
      */
     boolean delete(Map map) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         map = convertToDB(map)
         boolean ok = db.delete(map)
         db.close()
@@ -411,9 +407,9 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
     boolean deleteByPK(Collection<Integer> ids) {
         DB db = connect()
         boolean ok = false
-        if(pk) {
-            db.keys(pks)
-            if(pks.size() == 1) {
+        if(primaryKey) {
+            db.keys(primaryKeys)
+            if(primaryKeys.size() == 1) {
                 ok = ids.empty || db.delete(ids)
             } else {
                 Log.w("Trying to delete using PL in a multiPK table: %s", tableName)
@@ -434,14 +430,14 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
 
         boolean singlePk = false
         boolean multiPk = false
-        if(pk) {
-            db.keys(pks)
-            singlePk = pks.size() == 1
-            multiPk = pks.size() > 1
+        if(primaryKey) {
+            db.keys(primaryKeys)
+            singlePk = primaryKeys.size() == 1
+            multiPk = primaryKeys.size() > 1
         }
         boolean ok = db.delete(models.collect {
-            return singlePk ? it.toDB().get(pk) :
-                (multiPk ? it.toDB().subMap(pks) : [])
+            return singlePk ? it.toDB().get(primaryKey) :
+                (multiPk ? it.toDB().subMap(primaryKeys) : [])
         })
         db.close()
         return ok
@@ -451,24 +447,41 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * Delete all rows which match a criteria. If there is no criteria,
      * it will delete all rows in a table
      * @param criteria
+     * @param force: when true, it will turn FK off before deleting all records
      * @return
      */
-    boolean deleteAll(Map<String, Object> criteria = [:]) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+    boolean deleteAll(Map<String, Object> criteria = [:], boolean force = false) {
+        DB db = connect().keys(primaryKeys)
+        if(force) {
+            db.turnFK(false)
+        }
         boolean ok = criteria.isEmpty() ? (db.truncate() ?: db.clear()) : db.delete(criteria.collectEntries {
             boolean isModel = it.value instanceof Model
             return [(isModel ? it.key + "_id" : it.key) : (isModel ? (it.value as Model).uniqueId : it.value)]
         })
+        if(force) {
+            db.turnFK(true)
+        }
         db.close()
         return ok
     }
     /**
      * Alias for deleteAll without criteria
+     * @param force: when true, it will turn FK off before deleting all records
      * @return
      */
-    boolean clear() {
-        return deleteAll()
+    boolean clear(boolean force = false) {
+        return deleteAll([:], force)
+    }
+    /**
+     * Reset autoincrement
+     * @return
+     */
+    boolean setAutoIncrement(int value = 1) {
+        DB db = connect()
+        boolean ok = db.setIdentity(name, identityField, value)
+        db.close()
+        return ok
     }
     /**
      * Insert a model
@@ -476,7 +489,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @return
      */
     int insert(M model) {
-        String ai = getAutoIncrement()
+        String ai = getIdentityField()
         int lastId = 0
         DB db = connect()
         try {
@@ -484,7 +497,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
             if(map.containsKey(ai) && map[ai] == 0) {
                 map.remove(ai)
             }
-            if(pk) { db.keys(pks) }
+            db.keys(primaryKeys)
             boolean ok = db.insert(map)
             lastId = 0
             if (ok) {
@@ -508,8 +521,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
      * @return
      */
     boolean insert(Collection<M> models) {
-        DB db = connect()
-        if(pk) { db.keys(pks) }
+        DB db = connect().keys(primaryKeys)
         boolean ok = db.insert(models.collect { it.toDB() })
         db.close()
         return ok
