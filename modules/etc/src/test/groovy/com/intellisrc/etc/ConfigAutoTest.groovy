@@ -1,10 +1,8 @@
 package com.intellisrc.etc
 
-import com.intellisrc.core.SysClock
-import com.intellisrc.etc.config.AutoConfig
+import com.intellisrc.etc.config.ConfigAuto
+import com.intellisrc.etc.auto_test.*
 import spock.lang.Specification
-
-import java.time.LocalDateTime
 
 import static com.intellisrc.etc.config.ConfigAuto.BasicStorage
 
@@ -12,39 +10,15 @@ import static com.intellisrc.etc.config.ConfigAuto.BasicStorage
  * @since 2021/12/20.
  */
 class ConfigAutoTest extends Specification {
-    static enum Enum {
-        ONE, TWO, THREE
-    }
-    @AutoConfig
-    static class Test {
-        @AutoConfig
-        public static boolean bool        = false
-        @AutoConfig
-        public static Integer integer     = 0
-        @AutoConfig
-        public static String string       = "a"
-        @AutoConfig
-        public static List list1          = [0]
-        @AutoConfig
-        public static List list2          = [0]
-        @AutoConfig
-        public static List list3          = [0]
-        @AutoConfig
-        public static Map map1            = [ a : 1 ]
-        @AutoConfig
-        public static Map map2            = [ a : 1 ]
-        @AutoConfig
-        public static Map map3            = [ a : 1 ]
-        @AutoConfig
-        public static Enum num            = Enum.ONE
-        @AutoConfig
-        public static File file           = File.createTempFile("auto", "config")
-        @AutoConfig
-        public static Inet4Address inet   = "0.0.0.0".toInet4Address()
-        @AutoConfig
-        public static URI uri             = "http://example.com".toURI()
-        @AutoConfig
-        public static LocalDateTime date  = SysClock.now
+    def "Default values should be correct"() {
+        setup:
+            ConfigAuto configAuto = new ConfigAuto("com.intellisrc.etc.auto_test")
+            Map initial = configAuto.initialValues
+        expect:
+            assert (initial["test.integer"] as int) == 4
+            assert (initial["test.num"] as Enum) == Enum.ONE
+            assert (initial["test.file"] as File).name.contains("auto")
+            assert initial["test.uri"].toString().contains("example.com")
     }
     def "Objects should be able to detect changes"() {
         setup :
