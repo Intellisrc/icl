@@ -127,9 +127,17 @@ class Zip {
      */
     static File compressDir(final File srcDir, final File zipFile) {
         Map<String, byte[]> namesData = [:]
-        srcDir.eachFileRecurse {
+        String srcPath = srcDir.absolutePath
+        srcDir.eachFileRecurse { File it ->
             if(it.file) {
-                namesData[it.path - srcDir.path + (it.directory ? File.separatorChar : "")] = it.bytes
+                // Get relative path
+                String relativePath = it.absolutePath.substring(srcPath.length())
+                // Normalize separators to forward slashes and remove any leading slash
+                relativePath = relativePath.replace('\\', '/').replaceAll(/^\//, '')
+                if (it.directory && !relativePath.endsWith("/")) {
+                    relativePath += "/"
+                }
+                namesData[relativePath] = it.bytes
             }
         }
         zipFile.withOutputStream {
@@ -145,7 +153,11 @@ class Zip {
      * @throws IOException
      */
     private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
-        File destFile = new File(destinationDir, zipEntry.name)
+        // Normalize path: (as it may be different in Windows)
+        String entryName = zipEntry.name
+            .replace('\\', File.separatorChar.toString())
+            .replace('/', File.separatorChar.toString())
+        File destFile = new File(destinationDir, entryName)
         String destDirPath = destinationDir.canonicalPath
         String destFilePath = destFile.canonicalPath
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
