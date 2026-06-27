@@ -107,7 +107,20 @@ class PoolConnector implements Connector {
 
 	@Override
 	ResultStatement execute(Query query, boolean silent) {
-		return isOpen() ? currentConnector.execute(query, silent) : null
+		ResultStatement rs = null
+		try {
+			rs = isOpen() ? currentConnector.execute(query, silent) : null
+		} catch (DatabaseConnectionException dce) {
+			Log.w("Socket was closed. Discarding and retrying... : %s", dce)
+			this.close()
+			if(this.open()) {
+				rs = currentConnector.execute(query, silent)
+				if(! rs) {
+					throw dce
+				}
+			}
+		}
+		return rs
 	}
 
     @Override

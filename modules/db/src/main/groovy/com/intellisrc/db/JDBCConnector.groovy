@@ -23,6 +23,7 @@ import static java.sql.Types.NULL
 class JDBCConnector implements Connector {
 	protected Connection connection
 	protected JDBC jdbc = new Dummy()
+	final protected int VALID_TIMEOUT_SECS = 5 // May be ignored by the DB driver
 	LocalDateTime lastUsed
 	LocalDateTime creationTime
 
@@ -292,7 +293,7 @@ class JDBCConnector implements Connector {
 		boolean open = false
 		try {
             if(connection != null) {
-                open = !connection.isClosed()
+                open = !connection.isClosed() && connection.isValid(VALID_TIMEOUT_SECS)
             }
 		} catch(SQLNonTransientConnectionException | ConnectException ce) {
 			onError(new DatabaseConnectionException(ce))

@@ -529,6 +529,9 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
     /**
      * Return table updater
      * Override when needed
+     * NOTE: although Collection<M> could be easier to manipulate (for the user), it might
+     * not be possible as the <M> structure already changed and during the onUpdate
+     * process, we don't have <M> instances yet. That is why we pass the raw data
      * @return
      */
     @SuppressWarnings('GrMethodMayBeStatic')
