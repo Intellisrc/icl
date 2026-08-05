@@ -10,6 +10,7 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.eclipse.jetty.io.EofException
 
 import static com.intellisrc.web.service.HttpHeader.ACCEPT
 import static com.intellisrc.web.service.HttpHeader.UPGRADE
@@ -24,6 +25,28 @@ import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500
 class RequestFilter implements Filter {
     WebService service
     final List<String> ignoreURIs = []
+
+    /**
+     * Detect exceptions caused by the client closing the connection mid-response
+     * (e.g. video seek, navigation away). These are benign: there is nothing the
+     * server can do, so they should be logged at DEBUG rather than ERROR.
+     *
+     * <p>Jetty 12 (unlike Jetty 11) propagates such disconnects as
+     * {@link EofException} (a {@link java.io.IOException}) up to the app code.
+     * <Generated>
+     */
+    private static boolean isClientDisconnect(Throwable t) {
+        Throwable cur = t
+        while (cur != null) {
+            if (cur instanceof EofException) return true
+            if (cur instanceof IOException) {
+                String msg = cur.message?.toLowerCase() ?: ""
+                if (msg.contains("broken pipe") || msg.contains("connection reset")) return true
+            }
+            cur = cur.cause
+        }
+        return false
+    }
 
     @Override
     void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
@@ -98,6 +121,9 @@ class RequestFilter implements Filter {
                             }
                             handled = true
                         }
+                    } else if (isClientDisconnect(e)) {
+                        // Client went away (e.g. video seek, navigation). Benign: stay quiet.
+                        Log.d("Client disconnected: %s", e.toString())
                     } else {
                         Log.e("Unhandled Exception: ", e)
                     }

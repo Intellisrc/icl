@@ -298,7 +298,7 @@ class WebServiceTest extends Specification {
             URL url = "http://localhost:$port/upload".toURL()
             Log.i("Uploading file to: %s", url.toExternalForm())
             Cmd.exec("curl", ["-s", "-F", "image_name=@${emptyGif.absolutePath}", url.toExternalForm()], {
-                String out ->
+                String out, int code ->
                     assert out.startsWith("GIF89a")
                     assert new File(uploadDir, "empty.gif").exists()
                     Log.i("File uploaded successfully")

@@ -70,6 +70,20 @@ class WebServiceHTTPTest extends Specification {
         return response.body()
     }
 
+    /**
+     * Perform a GET, optionally with a Range header, returning the raw-byte response.
+     */
+    HttpResponse<byte[]> requestRange(URI url, String rangeHeader) {
+        HttpClient client = HttpClient.newHttpClient()
+        HttpRequest.Builder builder = HttpRequest.newBuilder(url).GET()
+        if (rangeHeader != null) {
+            builder.header("Range", rangeHeader)
+        }
+        HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray())
+        Log.i("Status: %d (Range: %s) len=%d", response.statusCode(), rangeHeader, response.body().length)
+        return response
+    }
+
     def setup() {
         KeyStoreGenerator ksg = new KeyStoreGenerator(includeIp: true)
         ksg.create(storeFile, "password".toCharArray())
@@ -147,5 +161,99 @@ class WebServiceHTTPTest extends Specification {
             HTTP2    | false
             HTTP2    | true
             //HTTP3 | true
+    }
+
+    def "File service supports HTTP Range (206 / 416 / fallback 200)"() {
+        setup:
+            def conds = new AsyncConditions()
+            int port = LocalHost.freePort
+            // Known content: 250 bytes where byte[i] = i. Named .mp4 so Mime -> video/mp4
+            // -> Type.BINARY (a .bin would resolve to application/octet-stream -> Type.STREAM,
+            // hitting the SSE branch). Mirrors vidi's MediaService returning a File.
+            int size = 250
+            byte[] data = new byte[size]
+            for (int i = 0; i < size; i++) { data[i] = (byte) i }
+            java.io.File media = java.io.File.createTempFile("range", ".mp4")
+            media.deleteOnExit()
+            media.withOutputStream { it.write(data) }
+            def web = new WebService(
+                compress: false,
+                protocol: HTTP,
+                checkSNIHostname: false,
+                port: port,
+            )
+            web.add(new Service(
+                path: "media",
+                action: { media }   // returns a File (like vidi MediaService)
+            ))
+        when:
+            web.start(true, { conds.evaluate { assert true } })
+            conds.await()
+            URI base = "http://localhost:${port}/media".toURI()
+            HttpResponse<byte[]> closed  = requestRange(base, "bytes=0-99")
+            HttpResponse<byte[]> suffix  = requestRange(base, "bytes=-50")
+            HttpResponse<byte[]> open    = requestRange(base, "bytes=100-")
+            HttpResponse<byte[]> unsat   = requestRange(base, "bytes=300-400")
+            HttpResponse<byte[]> multi   = requestRange(base, "bytes=0-10,20-30")
+            HttpResponse<byte[]> noRange = requestRange(base, null)
+        then:
+            web.isRunning()
+            // closed range -> 206, first 100 bytes
+            closed.statusCode() == 206
+            closed.headers().firstValue("Content-Range").orElse("") == "bytes 0-99/${size}".toString()
+            closed.headers().firstValue("Content-Length").orElse("") == "100"
+            closed.headers().firstValue("Accept-Ranges").orElse("") == "bytes"
+            java.util.Arrays.equals(closed.body(), java.util.Arrays.copyOfRange(data, 0, 100))
+            // suffix -> last 50 bytes
+            suffix.statusCode() == 206
+            suffix.headers().firstValue("Content-Range").orElse("") == "bytes 200-249/${size}".toString()
+            java.util.Arrays.equals(suffix.body(), java.util.Arrays.copyOfRange(data, 200, 250))
+            // open range -> 206, from 100 to end (150 bytes)
+            open.statusCode() == 206
+            open.headers().firstValue("Content-Range").orElse("") == "bytes 100-249/${size}".toString()
+            java.util.Arrays.equals(open.body(), java.util.Arrays.copyOfRange(data, 100, 250))
+            // unsatisfiable -> 416
+            unsat.statusCode() == 416
+            unsat.headers().firstValue("Content-Range").orElse("") == "bytes */${size}".toString()
+            // multi-range -> fall back to full 200
+            multi.statusCode() == 200
+            java.util.Arrays.equals(multi.body(), data)
+            // no range -> full 200
+            noRange.statusCode() == 200
+            java.util.Arrays.equals(noRange.body(), data)
+        cleanup:
+            web.stop()
+            media.delete()
+    }
+
+    def "File image (.png) is served over HTTP (regression: must not cast/buffer)"() {
+        setup:
+            def conds = new AsyncConditions()
+            int port = LocalHost.freePort
+            byte[] hdr = [-119, 80, 78, 71, 13, 10, 26, 10] as byte[]
+            byte[] png = new byte[hdr.length + 64]
+            System.arraycopy(hdr, 0, png, 0, hdr.length)
+            java.io.File img = java.io.File.createTempFile("pic", ".png")
+            img.deleteOnExit()
+            img.withOutputStream { it.write(png) }
+            def web = new WebService(
+                compress: false,
+                protocol: HTTP,
+                checkSNIHostname: false,
+                port: port,
+            )
+            web.add(new Service(path: "pic", action: { img }))
+        when:
+            web.start(true, { conds.evaluate { assert true } })
+            conds.await()
+            HttpResponse<byte[]> resp = requestRange("http://localhost:${port}/pic".toURI(), null)
+        then:
+            web.isRunning()
+            resp.statusCode() == 200
+            resp.headers().firstValue("Content-Type").orElse("").startsWith("image/png")
+            java.util.Arrays.equals(resp.body(), png)
+        cleanup:
+            web.stop()
+            img.delete()
     }
 }
