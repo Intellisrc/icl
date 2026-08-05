@@ -25,7 +25,9 @@ class Cache<V> {
     // We can specify (optional) the exception that getting the object (not from cache) may throw to
     // prevent Groovy from wrapping that exception
     interface NotFound<E extends Exception> {
-        V call() throws E
+        // Nested interfaces are implicitly static, so they cannot reference the outer
+        // Cache<V> type parameter. Return Object; get() casts it back to V.
+        Object call() throws E
     }
     static interface CacheAccess {
         void call(String key)
@@ -140,7 +142,7 @@ class Cache<V> {
                 onHit?.call(key)
             } else {
                 if (notFound) {
-                    ret = notFound.call()
+                    ret = (V) notFound.call()
                     if (ret != null) {
                         Log.v("[$key] added to cache")
                         set(key, ret, onStore, time)
@@ -148,7 +150,7 @@ class Cache<V> {
                 }
             }
         } else if(notFound) {
-            ret = notFound.call()
+            ret = (V) notFound.call()
         }
         return ret
     }

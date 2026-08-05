@@ -537,18 +537,18 @@ class TableMaker {
      * @return
      */
     static int getDisplayWidth(String str) {
-        float i = str.length()
+        double i = str.length()
         str.toCharArray().each {
             int c = (it as char) as int
             // Only apply metrics when needed:
             if(c >= CharWidthMetrics.charStart) {
-                float ratio = CharWidthMetrics.getRatio(it.toString())
+                double ratio = CharWidthMetrics.getRatio(it.toString())
                 if(ratio > 0) {
                     i += (ratio - 1)
                 }
             }
         }
-        return i.ceil()
+        return i.ceil() as int
     }
     /**
      * trim from the left (similar to substr but using display width)
@@ -580,7 +580,7 @@ class TableMaker {
     static String trimDisplayRight(String str, boolean ellipsis, String ellipsisChar, int maxLen) {
         String res = ""
         if(ellipsis) { maxLen-- }
-        str.toCharArray().toList().reverse().each {
+        str.toCharArray().collect().toList().reverse().each {
             if(getDisplayWidth(res) < maxLen) {
                 res = "" + it + res
             }
@@ -597,7 +597,7 @@ class TableMaker {
      * @return
      */
     static String trimDisplayBoth(String str, boolean ellipsis, String ellipsisChar, int maxLen) {
-        List chars = str.toCharArray().toList()
+        List chars = str.toCharArray().collect().toList()
         char ec = ellipsisChar[0] as char
         int left = 0
         int right = 0

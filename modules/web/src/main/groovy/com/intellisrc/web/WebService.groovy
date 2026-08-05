@@ -251,10 +251,10 @@ class WebService extends WebServiceBase {
                             case ServiciableAuth:
                                 if(log) {
                                     ServiciableAuth auth = serviciable as ServiciableAuth
-                                    if(auth.authLog &&! auth.authLogFile) {
+                                    if(auth.authLog && auth.authLogFile == null) {
                                         auth.authLogFile = File.get(logDir, "auth.log")
                                     }
-                                    if(auth.failedLog &&! auth.authFailedLogFile) {
+                                    if(auth.failedLog && auth.authFailedLogFile == null) {
                                         auth.authFailedLogFile = File.get(logDir, "auth.fail.log")
                                     }
                                 }
@@ -1184,7 +1184,7 @@ class WebService extends WebServiceBase {
                                         } else {
                                             File staticFile = File.get(fullPath)
                                             if (filePolicy.allow(staticFile) && pathPolicy.allow(staticFile.absolutePath)) {
-                                                if (staticFile.exists()) {
+                                                if (staticFile.exists() && staticFile.isFile()) { // directories are not served as static files (they would shadow services)
                                                     boolean addToCache = staticPath.expireSeconds &&
                                                         (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull && !rangeHeader
 

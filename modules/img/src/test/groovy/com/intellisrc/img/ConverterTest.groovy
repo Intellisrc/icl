@@ -22,7 +22,7 @@ class ConverterTest extends Specification {
 
     def "Convert BufferedImage to File"() {
         setup:
-            assert imgTest : "File not found."
+            assert imgTest.exists() : "File not found."
             BufferedImage img = Converter.FileToBuffered(imgTest)
             File out = Files.createTempFile("buff", "test.jpg").toFile()
         when:

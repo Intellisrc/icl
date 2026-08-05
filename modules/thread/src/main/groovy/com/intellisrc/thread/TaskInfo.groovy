@@ -106,7 +106,7 @@ class TaskInfo implements TaskLoggable {
     }
     
     @Override
-    int getMaxExec() {
+    long getMaxExec() {
         return task.maxExecutionTime
     }
 /**

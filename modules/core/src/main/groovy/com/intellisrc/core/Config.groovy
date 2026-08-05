@@ -154,7 +154,7 @@ class Config {
          * Reload properties from file (if exists)
          */
         void update() {
-            if(configFile &&! loaded) {
+            if(configFile != null && !loaded) {
                 if (configFile.exists()) {
                     if (configFile.canRead()) {
                         FileInputStream input = new FileInputStream(configFile)
@@ -174,7 +174,7 @@ class Config {
          * @return
          */
         boolean exists() {
-            return configFile && configFile.exists()
+            return configFile?.exists() // In Groovy 5, 'return configFile' would be enough, but to be explicit, better this way.
         }
 
         /**
@@ -234,7 +234,7 @@ class Config {
             // Set property value
             props.setProperty(key, value)
             // Save it
-            if(configFile) {
+            if(configFile != null) {
                 if (configFile.parentFile.canWrite()) {
                     props.store(configFile.newWriter(), null)
                     ok = true

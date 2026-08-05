@@ -1,9 +1,8 @@
 dependencies {
-    def groovyVer = "4.0.32"
     def jvmbrotli = "0.2.0"
-    def tika      = "3.3.0"
+    def tika      = "3.3.2"
     def reflections= "0.10.2"
-    def jedis     = "7.5.0"
+    def jedis     = "7.5.3"
     def sleepycat = "18.3.12"
 
     api project(':core')

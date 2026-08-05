@@ -2,6 +2,35 @@
 
 ## 2.10 Main : Jetty 12, Java 21
 
+### 2.10.5
+* Updated to use Groovy 5 (see UPGRADING.md)
+* [etc] #96 Zip handles directory separator wrong in Windows
+* [db] #98 Fixing Socket conneciton issue
+* [web] #99 Large binary files are kept in memory
+
+### 2.10.4
+* [etc] #64 default values issue fixed
+
+### 2.10.3
+* [core] #93 inheritance not working for SysMain/SysService
+* [img] #94 Added height to methods
+* [db] Dropping support for Derby,Firebird and HyperSQL. Improving H2 and SQLServer
+* [db] #95 It should ignore fields not annotated with @Column
+
+### 2.10.2
+* [web] Catch all services like "/*" causing issues with initialization
+
+### 2.10.1
+* [db] #86 Auto: keys are not set automatically on insert
+* [etc] Fixed warning in Mime when string was empty
+* [web] #87 fixed callAction
+* [log] #88 wrong class being printed in logs
+* [etc] Fixed issue when cache was enabled and content was not shown
+* [db] #89 Fixed field names when using inheritance/traits
+* [web] #90 Improved WebClient and added DELETE and PUT
+* [db] Keys were not added in Relational (causing misleading warnings)
+* [log] #91 Stack not always printing
+
 ### 2.10.0 
 * Updated project and dependencies to Java 21
 * [web] Updated to Jetty v.12 (and improved code around it like routing, websockets, etc)

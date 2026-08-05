@@ -81,7 +81,7 @@ abstract class WebServiceBase {
      * @param request
      */
     void logAccess(Request request) {
-        if(log && accessLogFile) {
+        if(log && accessLogFile != null) {
             logger.access(accessLogFile, request)
         }
     }
@@ -91,7 +91,7 @@ abstract class WebServiceBase {
      * @param code
      */
     void logWarn(Request request, int code) {
-        if(log && warnLogFile) {
+        if(log && warnLogFile != null) {
             logger.warn(warnLogFile, request, code)
         }
     }
@@ -100,7 +100,7 @@ abstract class WebServiceBase {
      * @param request
      */
     void logNotFound(Request request) {
-        if(log && notFoundLogFile) {
+        if(log && notFoundLogFile != null) {
             logger.notFound(notFoundLogFile, request)
         }
     }
@@ -110,7 +110,7 @@ abstract class WebServiceBase {
      * @param request
      */
     void logLogin(File logFile, Request request) {
-        if(log && logFile) {
+        if(log && logFile != null) {
             logger.logged(logFile, request)
         }
     }
@@ -120,7 +120,7 @@ abstract class WebServiceBase {
      * @param request
      */
     void logFailLogin(File logFile, Request request) {
-        if(log && logFile) {
+        if(log && logFile != null) {
             logger.failed(logFile, request)
         }
     }
@@ -130,7 +130,7 @@ abstract class WebServiceBase {
      * @param request
      */
     void logLogout(File logFile, Request request) {
-        if(log && logFile) {
+        if(log && logFile != null) {
             logger.logged(logFile, request, true)
         }
     }

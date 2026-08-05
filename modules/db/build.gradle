@@ -4,12 +4,12 @@ dependencies {
     def reflections= "0.10.2"
 
     def h2          = '2.4.240'
-    def mariadb     = '3.5.8'
-    def mysql       = '9.7.0'
-    def oracle      = '23.26.2.0.0' //'21.9.0.0'        // test container is 21
+    def mariadb     = '3.5.10'
+    def mysql       = '26.7.0'
+    def oracle      = '23.26.3.0.0' //'21.9.0.0'        // test container is 21
     //def oracle      = '23.3.0.23.09' <-- not ready (failing tests). May need code changes
-    def postgresql  = '42.7.11'
-    def sqlite      = '3.53.1.0'
+    def postgresql  = '42.7.13'
+    def sqlite      = '3.53.2.1'
     def sqlserver   = '13.4.0.jre11'
 
     api "org.reflections:reflections:${reflections}"
