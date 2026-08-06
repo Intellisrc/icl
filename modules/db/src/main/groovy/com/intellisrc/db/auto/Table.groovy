@@ -12,6 +12,7 @@ import groovy.transform.CompileStatic
 import java.lang.annotation.Annotation
 import java.lang.reflect.Field
 
+import com.intellisrc.db.jdbc.JDBC
 import static com.intellisrc.db.jdbc.JDBC.BooleanHandle as BoolType
 
 @CompileStatic
@@ -48,12 +49,15 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
     void updateOrCreate() {
         if(!versionChecked.containsKey(tableName) || !versionChecked[tableName]) {
             versionChecked[tableName.toString()] = true
+            // Groovy 5 narrows `jdbc` to the AutoJDBC trait inside the switch case below,
+            // hiding JDBC properties (e.g. name, booleanHandle). Use a JDBC-typed alias:
+            JDBC jdbcConn = jdbc
             //noinspection GroovyFallthrough
             switch (jdbc) {
                 case AutoJDBC:
                     // Initialize Auto
                     if(!(jdbc as AutoJDBC).initialize()) {
-                        Log.w("Unable to initialize: %s", jdbc.name)
+                        Log.w("Unable to initialize: %s", jdbcConn.name)
                         break
                     }
                     DB conn = connect()
@@ -74,7 +78,7 @@ class Table<M extends Model> extends Relational<M> implements Instanciable<M> {
                                         if(ci) {
                                             ColumnType ct = ci.type
                                             // booleanHandle is what the column in the database should be (according to Database type):
-                                            boolean needUpdate = switch (jdbc.booleanHandle) {
+                                            boolean needUpdate = switch (jdbcConn.booleanHandle) {
                                                 case BoolType.ENUM,
                                                      BoolType.CHAR      -> ct != ColumnType.TEXT
                                                 case BoolType.BOOLEAN   -> ct != ColumnType.BOOLEAN

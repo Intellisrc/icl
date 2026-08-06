@@ -333,17 +333,17 @@ class JDBCConnector implements Connector {
 			if (o == null) {
 				st.setNull(index, NULL)
 			} else if (o instanceof Boolean) {
-				st.setBoolean(index, (Boolean) o)
+				st.setBoolean(index, o as Boolean)
 			} else if (o instanceof Float) {
-				st.setFloat(index, (Float) o)
+				st.setFloat(index, o as Float)
 			} else if (o instanceof Double || o instanceof BigDecimal) {
-				st.setDouble(index, (Double) o)
+				st.setDouble(index, o.toDouble())
 			} else if (o instanceof Short) {
-				st.setShort(index, (Short) o)
+				st.setShort(index, o as Short)
 			} else if (o instanceof Integer) {
-				st.setInt(index, (Integer) o)
+				st.setInt(index, o.toInteger())
 			} else if (o instanceof Long || o instanceof BigInteger) {
-				st.setLong(index, (Long) o)
+				st.setLong(index, o.toLong())
 			} else if (o instanceof byte[]) {
 				st.setBytes(index, (byte[]) o)
 			} else if (o instanceof Character) {
@@ -351,7 +351,7 @@ class JDBCConnector implements Connector {
 			} else if (o instanceof char[]) {
 				st.setString(index, o.toString())
 			} else if (o instanceof String) {
-				st.setString(index, (String) o)
+				st.setString(index, o.toString())
 			} else if (o instanceof LocalDate) {
 				if(jdbc.supportsDate) {
 					st.setDate(index, Date.valueOf(o.toString()))

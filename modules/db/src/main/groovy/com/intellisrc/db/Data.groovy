@@ -169,10 +169,10 @@ class Data {
                 Object o = getFirstElement(map)
                 switch(o) {
                     case Long:
-                        val = o as long
+                        val = o.toLong()
                         break
                     case Double:
-                        val = ((Double) o).longValue()
+                        val = (o.toDouble()).longValue()
                         break
                     default:
                         val = (o ?: 0) as long

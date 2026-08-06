@@ -315,7 +315,7 @@ abstract class JDBC {
             if(jdbc) {
                 Class cls = jdbc.class
                 while (cls != Object) {
-                    cls.declaredFields.findAll { !it.synthetic }.each {
+                    cls.declaredFields.findAll { !it.synthetic }.each { //intelliJ bug
                         Field field ->
                             if (settings.containsKey(field.name)) {
                                 field.setAccessible(true)

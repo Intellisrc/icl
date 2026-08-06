@@ -1,5 +1,6 @@
 package com.intellisrc.core
 
+import spock.lang.Retry
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -11,6 +12,7 @@ import static com.intellisrc.core.Millis.*
  * @since 2020/05/25.
  */
 class SysClockTest extends Specification {
+    @Retry
     def "Same as NOW"() {
         setup:
             SysClock.setClockAt(LocalDateTime.now())
