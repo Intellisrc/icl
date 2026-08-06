@@ -580,7 +580,7 @@ class TableMaker {
     static String trimDisplayRight(String str, boolean ellipsis, String ellipsisChar, int maxLen) {
         String res = ""
         if(ellipsis) { maxLen-- }
-        str.toCharArray().collect().toList().reverse().each {
+        str.toCharArray().toList().reverse().each { //IntelliJ bug
             if(getDisplayWidth(res) < maxLen) {
                 res = "" + it + res
             }
@@ -597,7 +597,7 @@ class TableMaker {
      * @return
      */
     static String trimDisplayBoth(String str, boolean ellipsis, String ellipsisChar, int maxLen) {
-        List chars = str.toCharArray().collect().toList()
+        List chars = str.toCharArray().toList() //IntelliJ bug
         char ec = ellipsisChar[0] as char
         int left = 0
         int right = 0
