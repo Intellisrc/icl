@@ -45,20 +45,20 @@ class BuffImgToolsTest extends Specification{
 
     def "Resize width"() {
         setup:
-            BufferedImage img = new BufferedImage(640,640,BufferedImage.TYPE_3BYTE_BGR)
+            BufferedImage img = new BufferedImage(640,480,BufferedImage.TYPE_3BYTE_BGR)
             img = BuffImgTools.resizeWidth(img, 840)
         expect:
             assert img.width == 840
-            assert img.height == 840
+            assert img.height == 630
     }
 
     def "Resize height"() {
         setup:
-            BufferedImage img = new BufferedImage(640,640,BufferedImage.TYPE_3BYTE_BGR)
+            BufferedImage img = new BufferedImage(640,480,BufferedImage.TYPE_3BYTE_BGR)
             img = BuffImgTools.resizeHeight(img, 40)
         expect:
-                assert img.width == 40
-                assert img.height == 40
+            assert img.height == 40
+            assert img.width > img.height
     }
 
     def "Rotate"() {
