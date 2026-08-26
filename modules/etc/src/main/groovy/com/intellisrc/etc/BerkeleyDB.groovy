@@ -303,7 +303,7 @@ class BerkeleyDB extends StringPropertiesYaml {
      * @return
      */
     boolean isEmpty() {
-        return dbB.count() > 0
+        return dbB.count() == 0
     }
 
     /**
