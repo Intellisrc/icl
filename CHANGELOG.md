@@ -7,6 +7,8 @@
 * [etc] #96 Zip handles directory separator wrong in Windows
 * [db] #98 Fixing Socket conneciton issue
 * [web] #99 Large binary files are kept in memory
+* [etc] #100 Fixed `BerkeleyDB.isEmpty()` returning inverted value
+* [img] #101 Fixed `BuffImgTools.resizeHeight()` resizing by width instead of height
 
 ### 2.10.4
 * [etc] #64 default values issue fixed
@@ -44,6 +46,12 @@
 * [thread] Improved statistics, failure handling, finding tasks and added Pause/Resume
 
 ## 2.9 (branch: j11) : Jetty 11, Java 11
+
+### 2.9.8
+* [etc] Fixed `BerkeleyDB.isEmpty()` returning inverted value
+* [img] Fixed `BuffImgTools.resizeHeight()` resizing by width instead of height
+* [etc] #64 default values issue fixed
+* [db] #95 ignore fields not annotated with @Column
 
 ### 2.9.4 (bad release) / 2.9.5
 (due to a mistake in buld.gradle the 2.9.4 version was replaced with 2.9.5)
