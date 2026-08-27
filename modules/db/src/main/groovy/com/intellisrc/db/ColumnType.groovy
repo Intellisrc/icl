@@ -40,6 +40,9 @@ enum ColumnType {
     VARBINARY(true),
     BLOB(true),
 
+    // Unmapped / database-specific types (e.g. java.sql.Types.OTHER: H2 & PostgreSQL ENUM, JSON)
+    OTHER(false),
+
     NULL(false)
 
     final boolean requiresLength
@@ -54,7 +57,7 @@ enum ColumnType {
     Class<?> getJavaClass() {
         return switch (this) {
             // Text types
-            case CHAR, VARCHAR, TEXT, CLOB -> String
+            case CHAR, VARCHAR, TEXT, CLOB, OTHER -> String
             // Logical types
             case BOOLEAN                   -> Boolean
             // Integer types
@@ -139,10 +142,12 @@ enum ColumnType {
             case Types.BLOB:
                 return BLOB
 
+            case Types.OTHER: // Database-specific types (ENUM, JSON, UUID, ...): read as String
+                return OTHER
+
             case Types.NULL:
             case Types.DISTINCT:
             case Types.ARRAY:
-            case Types.OTHER:
                 return NULL
 
             default:

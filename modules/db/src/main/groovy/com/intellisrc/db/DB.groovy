@@ -1139,6 +1139,20 @@ class DB {
                                             case TIMESTAMP_TZ: //TODO: should it be columnZonedDateTime ?
                                                 row.put(column, st.columnDateTime(i))
                                                 break
+                                            case OTHER:
+                                                // java.sql.Types.OTHER (database-specific types:
+                                                // e.g. H2 and PostgreSQL report ENUM & JSON columns
+                                                // as OTHER): read the raw string; the model layer
+                                                // (Relational.fromDB) converts it to the field type.
+                                                // Real SQL NULLs never reach this point (guarded
+                                                // by isColumnNull above).
+                                                String strVal = st.columnStr(i).trim()
+                                                if(["true","false"].contains(strVal.toLowerCase())) {
+                                                    row.put(column, st.columnBool(i))
+                                                } else {
+                                                    row.put(column, st.columnStr(i))
+                                                }
+                                                break
                                             case NULL:
                                                 Log.w("Type was NULL")
                                                 break

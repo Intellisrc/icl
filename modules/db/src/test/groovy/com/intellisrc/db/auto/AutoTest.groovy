@@ -93,6 +93,24 @@ abstract class AutoTest extends Specification {
         String city
     }
 
+    enum PreferenceKind { DEBUG, FEATURE, LIMIT }
+
+    /**
+     * Model with ENUM / Map / Collection fields.
+     * Used to verify read support of ENUM and JSON columns
+     * (e.g. H2 reports them as java.sql.Types.OTHER)
+     */
+    static class Preference extends Model {
+        @Column(primary = true, autoincrement = true)
+        int id
+        @Column
+        PreferenceKind kind
+        @Column(nullable = true)
+        Map config = null
+        @Column(nullable = true)
+        List<String> tags = null
+    }
+
     static class Aliases extends Table<Alias>{
         Aliases(Database database) { super(database) }
     }
@@ -108,6 +126,9 @@ abstract class AutoTest extends Specification {
     }
     static class Addresses extends Table<Address> {
         Addresses(Database database) { super(database) }
+    }
+    static class Preferences extends Table<Preference> {
+        Preferences(Database database) { super(database) }
     }
 
     abstract JDBC getConnJdbc()
@@ -430,6 +451,36 @@ abstract class AutoTest extends Specification {
             [emails].each {
                 it?.drop(true)
             }
+            database.quit()
+    }
+
+    def "Read ENUM and JSON (Map/Collection) columns"() {
+        setup:
+            Database database = new Database(connJdbc)
+            Preferences preferences = new Preferences(database)
+        when:
+            int pid = preferences.insert(new Preference(
+                kind  : PreferenceKind.DEBUG,
+                config: [path: "/data", mode: "rw"],
+                tags  : ["alpha", "beta"]
+            ))
+        then:
+            assert pid > 0
+            assert preferences.count() == 1
+        when: "read back through the model"
+            Preference stored = preferences.get(pid)
+        then:
+            assert stored?.kind == PreferenceKind.DEBUG : "ENUM field was not read back"
+            assert stored?.config == [path: "/data", mode: "rw"] : "Map (JSON) field was not read back"
+            assert stored?.tags == ["alpha", "beta"] : "Collection (JSON) field was not read back"
+        when: "read the raw record"
+            Map record = preferences.getRecord(pid)
+        then:
+            assert record.containsKey("kind") : "ENUM column missing from raw record"
+            assert record.containsKey("config") : "JSON column missing from raw record"
+            assert record.containsKey("tags") : "JSON column missing from raw record"
+        cleanup:
+            preferences?.drop(true)
             database.quit()
     }
 }
