@@ -65,6 +65,8 @@ new WebService(
                             // persistent store (FileSession, BerkeleySession, RedisSession) to
                             // keep the sessions across restarts
     sessionTimeout : 0,     // Session inactivity timeout in ms (0 = never expires)
+    trustedProxies: [],     // Proxies allowed to send X-Forwarded-For (IP, hostname, CIDR,
+                            // InetAddress or Network). Empty = header is ignored
     // Other:
     embedded    : false,    // Turn to true if resources are inside jar
     allowOrigin : "",       // apply by default to all
@@ -101,6 +103,8 @@ web.log.notfound="notfound.log"
 # Sessions (see "Session persistence" section):
 web.session.type="memory" # memory | file | berkeley | redis
 web.session.timeout=0     # ms of inactivity before a session expires (0 = never)
+# Trusted proxies (see "Trusted proxies" section):
+web.trusted.proxies=[]    # e.g. [127.0.0.1, 10.0.0.0/8]
 ```
 
 Via `WebService`:
@@ -855,6 +859,39 @@ How it works:
   (in `com.intellisrc.web.service.session`) and assign it to `sessionType`.
 - WebSocket connections always drop on restart and must reconnect, but the HTTP
   session attributes they used during the handshake are persisted as usual.
+
+### Trusted proxies
+
+`Request.ip()` uses the `X-Forwarded-For` header to calculate the client IP
+when the server is behind a proxy. As that header can be sent by anyone,
+it is **only trusted when the connection comes from one of the proxies
+specified in `trustedProxies`** (or `web.trusted.proxies`). Otherwise the
+header is ignored and the IP address of the connection is used:
+
+```groovy
+new WebService(
+    port: 8080,
+    trustedProxies: [
+        "127.0.0.1",        // exact IP
+        "10.0.0.0/8",       // CIDR
+        "10.0.1-3.0-255",   // range
+        "proxy.example.com",// hostname (resolved once, on start)
+        someInetAddress,    // java.net.InetAddress
+        new Network("192.168.0.0/24") // com.intellisrc.net.Network
+    ]
+)
+```
+
+Any combination of Strings, `InetAddress` and `Network` objects (and nested
+collections of them) can be used. Notes:
+
+- The header contains a chain like `client, proxy1, proxy2`, so the client is
+  calculated as the right-most IP which is not a trusted proxy (an untrusted
+  hop can lie about the IPs to its left).
+- Ports are ignored: `10.0.0.1:1234` matches `10.0.0.1`.
+- By default (`trustedProxies` empty) the header is never trusted: if your
+  server is behind a proxy, add it to the list or all requests will appear to
+  come from the proxy IP.
 
 ### HTTPS 
 

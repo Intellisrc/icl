@@ -225,23 +225,24 @@ class SessionPersistenceTest extends Specification {
 
     def "web.session.type selects the session store"() {
         when:
-            System.setProperty("web.session.type", "file")
+            // Note: webSessionType is read once (static), so we set it directly:
+            WebService.webSessionType = "file"
             WebService web = new WebService()
         then:
             web.createSessionType().name() == "file"
         cleanup:
-            System.clearProperty("web.session.type")
+            WebService.webSessionType = "memory"
             File.get(".sessions").deleteDir()
     }
 
     def "Unknown web.session.type falls back to memory"() {
         when:
-            System.setProperty("web.session.type", "whatever")
+            WebService.webSessionType = "whatever"
             WebService web = new WebService()
         then:
             web.createSessionType().name() == "memory"
         cleanup:
-            System.clearProperty("web.session.type")
+            WebService.webSessionType = "memory"
     }
 
     private static boolean redisAvailable() {

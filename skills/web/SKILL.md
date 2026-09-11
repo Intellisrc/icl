@@ -140,13 +140,14 @@ new WebService(
     allowOrigin: "*",                                      // CORS
     sessionType: new FileSession(),                        // keep sessions across restarts (default: MemorySession)
     sessionTimeout: Millis.HOUR,                           // session inactivity timeout in ms (0 = never)
+    trustedProxies: ["127.0.0.1", "10.0.0.0/8"],           // proxies allowed to send X-Forwarded-For
     log: true, accessLog: "access.log",                    // access logging
     filePolicy: { File f -> true }, pathPolicy: { String p -> true }   // resource guards
 )
 web.clearCache() ; web.clearCache("api/")                  // response cache invalidation
 ```
 
-Config keys: `web.port`, `web.threads`, `web.log`, `web.log.dir`, `web.log.access/warn/notfound`, `web.collision.error` (duplicate paths throw unless false), `web.upload.force`, `web.charset`, `web.session.type` (memory|file|berkeley|redis), `web.session.timeout` (ms).
+Config keys: `web.port`, `web.threads`, `web.log`, `web.log.dir`, `web.log.access/warn/notfound`, `web.collision.error` (duplicate paths throw unless false), `web.upload.force`, `web.charset`, `web.session.type` (memory|file|berkeley|redis), `web.session.timeout` (ms), `web.trusted.proxies` (YAML list of IPs/CIDR).
 
 Session stores (`com.intellisrc.web.service.session`): implement `SessionPersistable` — ready ones are `MemorySession` (default, in-memory only), `FileSession` (`web.session.dir`), `BerkeleySession` (`web.session.berkeley.db`), `RedisSession` (`web.session.redis.prefix` + `redis.host/port`). Assign any implementation (or a custom one) to `sessionType`.
 
@@ -161,3 +162,4 @@ Generate a self-signed keystore for dev with `crypt` module `KeyStoreGenerator`.
 - Large binary responses (2.10.5+) stream rather than buffering in memory.
 - Client disconnects are logged at DEBUG level — not errors.
 - Sessions are in-memory only unless a persistent `sessionType` (or `web.session.type`) is set; persisted session attributes must be `Serializable` (a warning is logged otherwise); one store per WebService instance; WebSocket connections don't survive restarts.
+- `X-Forwarded-For` is only honored when the connection comes from an entry in `trustedProxies`/`web.trusted.proxies` (String IP/CIDR/hostname/range, `InetAddress`, or `Network`); otherwise `request.ip()` is the connection IP — IP-restricted services must configure it behind a proxy.

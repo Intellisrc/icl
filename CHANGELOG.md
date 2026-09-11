@@ -12,6 +12,8 @@
 * [web] Sessions can be kept across restarts: new `SessionPersistable` interface and `sessionType` option (`MemorySession`, `FileSession`, `BerkeleySession`, `RedisSession`; selectable with `web.session.type`) and new `web.session.timeout` option (applies to in-memory and persisted sessions)
 * [web] Fixed: login/logout paths were duplicated when `ServiciableAuth.path` was set (e.g. `/auth/auth/login`)
 * [web] Fixed: session id returned on login (`session_id`) did not match the `JSESSIONID` cookie when the session was created
+* [web] Security: `X-Forwarded-For` is only trusted when the connection comes from `trustedProxies` (or `web.trusted.proxies`), which accepts IP, hostname, CIDR, range, InetAddress or Network values. By default the header is ignored and the connection IP is used
+* [web] `request.ip()` now returns a single client IP instead of the raw `X-Forwarded-For` header
 
 ### 2.10.4
 * [etc] #64 default values issue fixed

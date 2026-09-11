@@ -112,6 +112,17 @@ class WebService extends WebServiceBase {
      * persisted sessions. 0 (default) means that sessions never expire.
      */
     public int sessionTimeout = Config.any.get("web.session.timeout", 0)
+    /**
+     * IP addresses of the proxies that are allowed to send the X-Forwarded-For
+     * header. The list accepts String (IP address, hostname, CIDR annotation
+     * like "10.0.0.0/8" or ranges like "10.0.0.1-100"), InetAddress or Network
+     * objects (or a mix of them). It can also be set with web.trusted.proxies.
+     * When empty (default), the X-Forwarded-For header is ignored and the
+     * IP address of the connection is used instead.
+     */
+    public List<?> trustedProxies = Config.any.get("web.trusted.proxies", []) as List<?>
+    /** Parsed trusted proxies (calculated on first use of trustedProxies) */
+    protected TrustedProxies proxyMatcher = null
     public FilePolicy filePolicy = { File file -> true }
     public PathPolicy pathPolicy = { String path -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
@@ -269,6 +280,17 @@ class WebService extends WebServiceBase {
             Log.w("Session attribute [%s] of type [%s] is not Serializable: it will not survive a restart",
                 event.getName(), value.getClass().getName())
         }
+    }
+    /**
+     * List of trusted proxies, parsed from trustedProxies (or web.trusted.proxies).
+     * It is calculated only once: hostnames are resolved at that moment.
+     * @return Parsed list of trusted proxies, or null if none was specified
+     */
+    TrustedProxies getProxyMatcher() {
+        if (proxyMatcher == null && trustedProxies != null && !trustedProxies.isEmpty()) {
+            proxyMatcher = new TrustedProxies(trustedProxies)
+        }
+        return proxyMatcher
     }
     /**
      * Set global maxAge for all resources

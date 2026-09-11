@@ -58,6 +58,10 @@ class RequestFilter implements Filter {
         Request request = new Request(httpReq)
         Response response = new Response(httpRes)
 
+        // Make the trusted proxies available to all requests
+        // (including WebSockets and SSE, which skip this filter's logic):
+        httpReq.setAttribute(TrustedProxies.ATTRIBUTE, service.proxyMatcher)
+
         if (request.headers(UPGRADE) != "websocket" &&
             request.headers(ACCEPT) != "text/event-stream") {
 
