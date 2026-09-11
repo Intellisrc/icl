@@ -53,14 +53,19 @@ That one-liner will start a web server on port 8080 and serve static files locat
 
 ```groovy
 new WebService(
-    // Commonly used:    
+    // Commonly used:
     port        : 80,       // Port in which the Web Server will listen
     resources   : "",       // Path location(s) or File(s) where static resources exists
     threads     : 20,       // Number of threads that will allow to process at the same time
-    // Cache related:    
+    // Cache related:
     cacheTime   : 0,        // Default amount of time to keep in memory requests and resources
     eTagMaxKB   : 1024,     // Below this amount of KB, we will calculate eTag automatically
-    // Other:    
+    // Sessions:
+    sessionType : null,     // Session store: null = MemorySession (in-memory only). Use a
+                            // persistent store (FileSession, BerkeleySession, RedisSession) to
+                            // keep the sessions across restarts
+    sessionTimeout : 0,     // Session inactivity timeout in ms (0 = never expires)
+    // Other:
     embedded    : false,    // Turn to true if resources are inside jar
     allowOrigin : "",       // apply by default to all
     // Logging:
@@ -93,6 +98,9 @@ web.log.dir="log"
 web.log.access="access.log"
 web.log.warn="warn.log"
 web.log.notfound="notfound.log"
+# Sessions (see "Session persistence" section):
+web.session.type="memory" # memory | file | berkeley | redis
+web.session.timeout=0     # ms of inactivity before a session expires (0 = never)
 ```
 
 Via `WebService`:
@@ -805,6 +813,48 @@ new Service(
     }    
 )
 ```
+
+### Session persistence
+
+By default, sessions are kept in memory only (`MemorySession`), so users need to
+login again when the service is restarted. To keep the sessions across restarts,
+set `sessionType` to a persistent store:
+
+```groovy
+import com.intellisrc.web.service.session.*
+
+new WebService(
+    port: 8080,
+    sessionType: new FileSession() // or new BerkeleySession(), new RedisSession()
+)
+```
+
+It can also be selected with `web.session.type` (`memory`, `file`, `berkeley` or `redis`)
+without touching the code. Available implementations:
+
+| Store | Description | Configuration |
+|---|---|---|
+| `MemorySession` | In memory only. Lost on restart (default) | - |
+| `FileSession` | One file per session in a directory (Jetty `FileSessionDataStore`) | `web.session.dir` (default: `.sessions`) |
+| `BerkeleySession` | Sessions in a BerkeleyDB key-value store | `web.session.berkeley.db` (default: `web_sessions`) and `berkeley.dir` |
+| `RedisSession` | Sessions in a Redis server | `web.session.redis.prefix` (default: `web.sessions`) and `redis.host`, `redis.port` |
+
+How it works:
+
+- Sessions are written to the store as soon as they are created, on each request
+  and when the service stops gracefully. After a hard crash, the sessions of the
+  requests that completed correctly are still available.
+- Expired sessions are removed periodically (about every 10 minutes). Use
+  `sessionTimeout` (or `web.session.timeout`, in milliseconds) to bound the size
+  of the store: without it, sessions never expire and the store grows indefinitely.
+- The values stored as session attributes must be `java.io.Serializable` to
+  survive a restart (a warning is logged when a non-serializable value is stored).
+- Each running `WebService` instance must use a different store (directory,
+  database or prefix). This is not a shared/multi-node session store.
+- To add a custom store, implement `SessionPersistable`
+  (in `com.intellisrc.web.service.session`) and assign it to `sessionType`.
+- WebSocket connections always drop on restart and must reconnect, but the HTTP
+  session attributes they used during the handshake are persisted as usual.
 
 ### HTTPS 
 

@@ -138,13 +138,17 @@ new WebService(
     protocol: Protocol.HTTP2,                              // HTTP | HTTP2 | HTTP3
     compress: true,                                        // gzip/brotli
     allowOrigin: "*",                                      // CORS
+    sessionType: new FileSession(),                        // keep sessions across restarts (default: MemorySession)
+    sessionTimeout: Millis.HOUR,                           // session inactivity timeout in ms (0 = never)
     log: true, accessLog: "access.log",                    // access logging
     filePolicy: { File f -> true }, pathPolicy: { String p -> true }   // resource guards
 )
 web.clearCache() ; web.clearCache("api/")                  // response cache invalidation
 ```
 
-Config keys: `web.port`, `web.threads`, `web.log`, `web.log.dir`, `web.log.access/warn/notfound`, `web.collision.error` (duplicate paths throw unless false), `web.upload.force`, `web.charset`.
+Config keys: `web.port`, `web.threads`, `web.log`, `web.log.dir`, `web.log.access/warn/notfound`, `web.collision.error` (duplicate paths throw unless false), `web.upload.force`, `web.charset`, `web.session.type` (memory|file|berkeley|redis), `web.session.timeout` (ms).
+
+Session stores (`com.intellisrc.web.service.session`): implement `SessionPersistable` — ready ones are `MemorySession` (default, in-memory only), `FileSession` (`web.session.dir`), `BerkeleySession` (`web.session.berkeley.db`), `RedisSession` (`web.session.redis.prefix` + `redis.host/port`). Assign any implementation (or a custom one) to `sessionType`.
 
 Generate a self-signed keystore for dev with `crypt` module `KeyStoreGenerator`.
 
@@ -156,3 +160,4 @@ Generate a self-signed keystore for dev with `crypt` module `KeyStoreGenerator`.
 - Regex service paths need `samplePaths` in the Service so collision detection can work.
 - Large binary responses (2.10.5+) stream rather than buffering in memory.
 - Client disconnects are logged at DEBUG level — not errors.
+- Sessions are in-memory only unless a persistent `sessionType` (or `web.session.type`) is set; persisted session attributes must be `Serializable` (a warning is logged otherwise); one store per WebService instance; WebSocket connections don't survive restarts.

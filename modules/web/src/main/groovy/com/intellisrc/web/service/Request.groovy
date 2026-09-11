@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap
 class Request {
 
     static final String X_FORWARDED_FOR = "X-Forwarded-For"
-    static final String SESSION_ID = "JSESSIONID"
 
     /** Servlet API request */
     final HttpServletRequest servlet
@@ -217,10 +216,13 @@ class Request {
 
     // FIXME: this session won't contain websocket session
     Session session() {
-        String id = handshake ?
-            wsSession.id :
-            getCookies()?.find { it.name == SESSION_ID }?.value ?: UUID.randomUUID().toString()
-        return handshake ? new Session(id, wsSession) : new Session(id, servlet.getSession(true))
+        if (handshake) {
+            return new Session(wsSession.id, wsSession)
+        }
+        // Note: we use the id of the real session, so it matches the
+        // JSESSIONID cookie sent to the client (even when it is created now)
+        HttpSession httpSession = servlet.getSession(true)
+        return new Session(httpSession.getId(), httpSession)
     }
 
     Session getSession() {

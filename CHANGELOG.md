@@ -9,6 +9,9 @@
 * [web] #99 Large binary files are kept in memory
 * [etc] #100 Fixed `BerkeleyDB.isEmpty()` returning inverted value
 * [img] #101 Fixed `BuffImgTools.resizeHeight()` resizing by width instead of height
+* [web] Sessions can be kept across restarts: new `SessionPersistable` interface and `sessionType` option (`MemorySession`, `FileSession`, `BerkeleySession`, `RedisSession`; selectable with `web.session.type`) and new `web.session.timeout` option (applies to in-memory and persisted sessions)
+* [web] Fixed: login/logout paths were duplicated when `ServiciableAuth.path` was set (e.g. `/auth/auth/login`)
+* [web] Fixed: session id returned on login (`session_id`) did not match the `JSESSIONID` cookie when the session was created
 
 ### 2.10.4
 * [etc] #64 default values issue fixed

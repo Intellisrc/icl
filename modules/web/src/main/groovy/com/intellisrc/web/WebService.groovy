@@ -12,21 +12,30 @@ import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
 import com.intellisrc.web.service.routing.ExactMatcher
+import com.intellisrc.web.service.session.BerkeleySession
+import com.intellisrc.web.service.session.FileSession
+import com.intellisrc.web.service.session.MemorySession
+import com.intellisrc.web.service.session.RedisSession
+import com.intellisrc.web.service.session.SessionPersistable
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import jakarta.servlet.DispatcherType
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpSessionAttributeListener
+import jakarta.servlet.http.HttpSessionBindingEvent
 import jakarta.servlet.http.Part
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.input.BoundedInputStream
 import org.codehaus.groovy.runtime.metaclass.MissingMethodExceptionNoStack
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
 import org.eclipse.jetty.ee10.servlet.ServletHolder
+import org.eclipse.jetty.ee10.servlet.SessionHandler
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.session.DefaultSessionCache
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 import javax.imageio.ImageIO
@@ -64,12 +73,17 @@ import static org.eclipse.jetty.http.HttpStatus.*
  * cacheTime : time to store static content in cache in seconds (0 = disabled <default>)
  * port      : Port to be used by the WebService (default: 80)
  * threads   : Maximum Number of clients
+ * sessionType : Store to keep the sessions (default: MemorySession). Use a persistent
+ *               implementation (FileSession, BerkeleySession, RedisSession, ...) to
+ *               keep the sessions across restarts
+ * sessionTimeout : Session inactivity timeout in milliseconds (0 = never expires <default>)
  *
  */
 class WebService extends WebServiceBase {
     static String defaultCharset = Config.any.get("web.charset", "UTF-8")
     static boolean forceFile = Config.any.get("web.upload.force", false) // Throw exception when file is expected and it is empty
     static boolean failOnCollision = Config.any.get("web.collision.error", true) // Throw exception when same path, method, etc is used: false will only warn
+    protected static String webSessionType = Config.any.get("web.session.type", "memory").toString().toLowerCase()
 
     public int threads = 20
     public int minThreads = 2
@@ -85,6 +99,19 @@ class WebService extends WebServiceBase {
     public String allowOrigin = "" // disabled by default
     public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = HTTP
+    /**
+     * Store used to keep the sessions. By default (null), the sessions are kept
+     * in memory only (MemorySession, selected by web.session.type) and they are
+     * lost when the service is restarted.
+     * To keep the sessions across restarts, set a persistent implementation:
+     * FileSession, BerkeleySession, RedisSession or any SessionPersistable.
+     */
+    public SessionPersistable sessionType = null
+    /**
+     * Session inactivity timeout in milliseconds. It applies to in-memory and
+     * persisted sessions. 0 (default) means that sessions never expire.
+     */
+    public int sessionTimeout = Config.any.get("web.session.timeout", 0)
     public FilePolicy filePolicy = { File file -> true }
     public PathPolicy pathPolicy = { String path -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
@@ -156,12 +183,91 @@ class WebService extends WebServiceBase {
                 contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS)
                 contextHandler.setContextPath("/")
                 contextHandler.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
+                setupSessions()
                 handlers.addHandler(contextHandler)
                 jettyServer.setHandler(handlers)
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
             } catch(Exception e) {
                 Log.e("Unable to initialize web service", e)
             }
+        }
+    }
+    /**
+     * Configure the Jetty session handling: inactivity timeout and session store.
+     * Executed once in init(), before the server starts.
+     */
+    protected void setupSessions() {
+        SessionHandler sessionHandler = contextHandler.getSessionHandler()
+        if (sessionHandler == null) { return }
+        if (sessionType == null) {
+            sessionType = createSessionType()
+        }
+        // Inactivity timeout: it applies to in-memory and persisted sessions
+        // (by default Jetty keeps the sessions forever):
+        if (sessionTimeout > 0) {
+            // Jetty expects seconds:
+            sessionHandler.setMaxInactiveInterval((int) (sessionTimeout / Millis.SECOND))
+        }
+        try {
+            DefaultSessionCache cache = new DefaultSessionCache(sessionHandler)
+            cache.setSessionDataStore(sessionType)
+            // Note: with MemorySession this is exactly the Jetty default setup
+            sessionHandler.setSessionCache(cache)
+            if (sessionType.isPassivating()) { // false for MemorySession
+                // Store the session as soon as it is created:
+                cache.setSaveOnCreate(true)
+                // If a session cannot be loaded, drop it and allow to login again:
+                cache.setRemoveUnloadableSessions(true)
+                if (sessionTimeout <= 0) {
+                    Log.w("web.session.timeout is not set: the session store may grow indefinitely")
+                }
+                // Warn as soon as possible when an attribute cannot be persisted:
+                sessionHandler.addEventListener(new HttpSessionAttributeListener() {
+                    @Override
+                    void attributeAdded(HttpSessionBindingEvent event) {
+                        checkSessionAttribute(event)
+                    }
+                    @Override
+                    void attributeReplaced(HttpSessionBindingEvent event) {
+                        checkSessionAttribute(event)
+                    }
+                    @Override
+                    void attributeRemoved(HttpSessionBindingEvent event) { }
+                })
+                Log.i("Session persistence enabled (store: %s)", sessionType.name())
+            }
+        } catch (Exception e) {
+            Log.e("Unable to setup the session store. Sessions will be in-memory only.", e)
+        }
+    }
+    /**
+     * Create the default session store from the configuration
+     * @return Session store calculated from web.session.type (default: memory)
+     */
+    protected static SessionPersistable createSessionType() {
+        switch (webSessionType) {
+            case "file":
+                return new FileSession()
+            case "berkeley":
+                return new BerkeleySession()
+            case "redis":
+                return new RedisSession()
+            case "memory":
+                return new MemorySession()
+            default:
+                Log.e("Unknown web.session.type [%s]. Using memory.", webSessionType)
+                return new MemorySession()
+        }
+    }
+    /**
+     * Check that a session attribute can be serialized (required to persist it)
+     * @param event
+     */
+    protected static void checkSessionAttribute(HttpSessionBindingEvent event) {
+        Object value = event.getValue()
+        if (value != null && !(value instanceof Serializable)) {
+            Log.w("Session attribute [%s] of type [%s] is not Serializable: it will not survive a restart",
+                event.getName(), value.getClass().getName())
         }
     }
     /**
@@ -269,7 +375,8 @@ class WebService extends WebServiceBase {
                         switch (serviciable) {
                             case ServiciableAuth:
                                 ServiciableAuth auth = serviciable as ServiciableAuth
-                                setupService(serviciable, Service.new(POST, auth.path + auth.loginPath, {
+                                // Note: setupService() already prepends auth.path to the service path
+                                setupService(serviciable, Service.new(POST, auth.loginPath, {
                                     Request request, Response response ->
                                         boolean ok = false
                                         AuthData sessionData = auth.onLogin(request, response)
@@ -294,7 +401,7 @@ class WebService extends WebServiceBase {
                                         res.ok = ok
                                         return res
                                 }, auth.acceptType))
-                                setupService(serviciable, Service.new(GET, auth.path + auth.logoutPath, {
+                                setupService(serviciable, Service.new(GET, auth.logoutPath, {
                                     Request request, Response response ->
                                         boolean ok = auth.onLogout(request, response)
                                         if (ok) {
