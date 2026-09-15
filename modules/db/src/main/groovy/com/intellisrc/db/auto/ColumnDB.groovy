@@ -38,6 +38,7 @@ class ColumnDB implements NormalizedColumn {
             nullable: this.annotation.nullable(),
             primaryKey: annotation.primary(),
             unique: annotation.unique(),
+            unsigned: annotation.unsigned(),
             length: this.annotation.length(),
             name: this.name,
             uniqueGroup: annotation.uniqueGroup(),
