@@ -20,7 +20,7 @@ interface TaskLoggable {
     LocalDateTime getDoneTime()
     LocalDateTime getFailTime()
     int getSleep()
-    int getMaxExec()
+    long getMaxExec()
     int getFailed()
     int getExecuted()
     boolean isRunning()

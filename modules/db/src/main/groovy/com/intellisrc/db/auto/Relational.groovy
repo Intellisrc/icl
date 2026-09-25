@@ -1134,6 +1134,14 @@ abstract class Relational<M extends Model> implements Instanciable<M> {
         } else {
             decoded = YAML.decode(data)
         }
+        // Remove an extra layer of String wrapping if present: some databases
+        // (e.g. H2) store any String set through a prepared statement into a
+        // JSON column as a JSON string scalar, so a serialized Map/List can
+        // arrive double-encoded. Decoding again (until it is no longer a
+        // quoted String) returns the intended Collection or Map.
+        if (decoded instanceof String && decoded != data) {
+            decoded = decode((String) decoded)
+        }
         return decoded
     }
     /**

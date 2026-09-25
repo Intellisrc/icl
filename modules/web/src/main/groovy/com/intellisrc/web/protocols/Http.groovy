@@ -62,7 +62,13 @@ class Http extends HttpProtocol {
         httpConfig.setSecureScheme("https")
         httpConfig.setSendServerVersion(false)
         if(trustForwardHeaders) {
-            httpConfig.addCustomizer(new ForwardedRequestCustomizer())
+            ForwardedRequestCustomizer customizer = new ForwardedRequestCustomizer()
+            // The client IP (X-Forwarded-For) is validated by WebService.trustedProxies,
+            // so we disable it here to keep the real connection IP in getRemoteAddr().
+            // Other headers (X-Forwarded-Proto, Host, etc) are still processed:
+            customizer.setForwardedForHeader("")
+            customizer.setForwardedHeader("")
+            httpConfig.addCustomizer(customizer)
         }
         return httpConfig
     }

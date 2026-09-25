@@ -52,7 +52,9 @@ class TaskPoolTest extends BaseTaskTest {
             Tasks.printOnScreen = false
             Tasks.add(IntervalTask.create({
                 print "."
-                if(counter.getAndIncrement() >= halfTime) {
+                // Throw only once: the task keeps running every execTime, so if it kept
+                // failing it would re-increment 'failed' after resetCounters()
+                if(counter.getAndIncrement() == halfTime) {
                     exceptionLatch.countDown()
                     throw new Exception("Break it!")
                 }

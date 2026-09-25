@@ -86,7 +86,7 @@ class BuffImgTools {
     static BufferedImage resizeHeight(BufferedImage image, int size) {
         assert image: "Image was empty"
         assert size : "Size was zero"
-        return Thumbnails.of(image).width(size).asBufferedImage()
+        return Thumbnails.of(image).height(size).asBufferedImage()
     }
     /**
      * Rotate a BufferedImage

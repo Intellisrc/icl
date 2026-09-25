@@ -32,7 +32,7 @@ class TaskPool implements TaskLoggable {
     private int sleepVal = 0
     private int failedVal = 0
     private int executedVal = 0
-    private int maxExecVal = 0
+    private long maxExecVal = 0
     
     String indicator = "-"
     String priority = " "
@@ -205,7 +205,7 @@ class TaskPool implements TaskLoggable {
     }
     
     @Override
-    int getMaxExec() {
+    long getMaxExec() {
         return maxExecVal
     }
     

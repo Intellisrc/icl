@@ -45,6 +45,22 @@ class BerkeleyDBTest extends Specification {
             db = new BerkeleyDB("test")
         then: "Destroyed completely"
             assert db.size == 0
+            assert db.isEmpty()
+    }
+    def "Is empty"() {
+        setup:
+            db.destroy()
+            db = new BerkeleyDB("test")
+        expect: "Empty database"
+            assert db.isEmpty()
+        when:
+            db.set("some", "value")
+        then: "Not empty"
+            assert !db.isEmpty()
+        when:
+            db.delete("some")
+        then: "Empty again"
+            assert db.isEmpty()
     }
     def "Binary data"() {
         setup:

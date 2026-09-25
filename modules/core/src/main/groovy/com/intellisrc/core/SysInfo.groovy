@@ -13,7 +13,7 @@ import groovy.transform.CompileStatic
 class SysInfo {
     static String newLine = getNewLineForCurrentOS() //Keep in memory
 
-    static final enum OSType {
+    static enum OSType {
         UNKNOWN, LINUX, WINDOWS, ANDROID, IOS
     }
     /**

@@ -25,6 +25,11 @@ test:
     paths:
       - build
       - .gradle
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: never
 
 pages:
   stage: build

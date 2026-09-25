@@ -4,7 +4,7 @@ dependencies {
     def os = DefaultNativePlatform.currentOperatingSystem
     def arch = DefaultNativePlatform.currentArchitecture
 
-    def jetty = "12.1.9" //Jetty 12 requires Java 17
+    def jetty = "12.1.12" //Jetty 12 requires Java 17
     api project(':etc')
     api project(':net')
     api "org.eclipse.jetty:jetty-server:${jetty}"
@@ -56,7 +56,7 @@ dependencies {
     testImplementation project(':thread')
     testImplementation project(':crypt')
 
-    def okhttp = "5.3.2"
+    def okhttp = "5.4.0"
     testImplementation "com.squareup.okhttp3:okhttp:${okhttp}"
     testImplementation "com.squareup.okhttp3:okhttp-sse:${okhttp}"
 }

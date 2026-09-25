@@ -49,7 +49,7 @@ class TrigonometryTest extends Specification {
             Line2D line1 = new Line2D.Double(10, 250, 270, 130)
             Line2D line2 = new Line2D.Double(60, 120, 110,250)
         expect:
-            Metry.intersect(line1, line2).with {
+            Metry.intersect(line1, line2).tap {
                 assert x.round() == 95
                 assert y.round() == 211
             }

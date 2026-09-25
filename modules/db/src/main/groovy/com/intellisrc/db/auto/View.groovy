@@ -3,6 +3,7 @@ package com.intellisrc.db.auto
 import com.intellisrc.core.Log
 import com.intellisrc.db.DB
 import com.intellisrc.db.Database
+import com.intellisrc.db.jdbc.JDBC
 import com.intellisrc.etc.Instanciable
 import groovy.transform.CompileStatic
 /**
@@ -59,11 +60,14 @@ abstract class View<M extends Model> extends Relational<M> implements Instanciab
     boolean create() {
         boolean ok = false
         if(createSQL != "") {
+            // Groovy 5 narrows `jdbc` to the AutoJDBC trait inside the switch case below,
+            // hiding JDBC properties (e.g. name, booleanHandle). Use a JDBC-typed alias:
+            JDBC jdbcConn = jdbc
             switch (jdbc) {
                 case AutoJDBC:
                     // Initialize Auto
                     if(!(jdbc as AutoJDBC).initialize()) {
-                        Log.w("Unable to initialize: %s", jdbc.name)
+                        Log.w("Unable to initialize: %s", jdbcConn.name)
                         break
                     }
                     DB conn = connect()

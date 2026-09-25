@@ -185,15 +185,18 @@ URL Found: http://ns.adobe.com/xap/1.0
         when:
             Cmd cmd = new Cmd("sleep 60").exec(true)
             sleep(1000)
+            long pid = cmd.process.pid()
             String pgrep = Cmd.exec("pgrep sleep")
             println pgrep
         then:
-            assert cmd.process.pid()
+            assert pid
             assert cmd.process.alive
-            assert ! pgrep.empty
+            assert pgrep.readLines()*.trim().contains(pid.toString())
         when:
             cmd.cancel()
+            sleep(100)
         then:
-            assert Cmd.exec("pgrep sleep").empty
+            // note: cmd.process is set to null by the background thread once the process ends
+            assert Cmd.exec("pgrep sleep").readLines()*.trim().every { it != pid.toString() }
     }
 }

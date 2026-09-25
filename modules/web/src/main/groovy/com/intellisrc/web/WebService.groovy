@@ -12,20 +12,30 @@ import com.intellisrc.web.protocols.HttpProtocol
 import com.intellisrc.web.protocols.Protocol
 import com.intellisrc.web.service.*
 import com.intellisrc.web.service.routing.ExactMatcher
+import com.intellisrc.web.service.session.BerkeleySession
+import com.intellisrc.web.service.session.FileSession
+import com.intellisrc.web.service.session.MemorySession
+import com.intellisrc.web.service.session.RedisSession
+import com.intellisrc.web.service.session.SessionPersistable
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import jakarta.servlet.DispatcherType
 import jakarta.servlet.MultipartConfigElement
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpSessionAttributeListener
+import jakarta.servlet.http.HttpSessionBindingEvent
 import jakarta.servlet.http.Part
 import org.apache.commons.io.IOUtils
+import org.apache.commons.io.input.BoundedInputStream
 import org.codehaus.groovy.runtime.metaclass.MissingMethodExceptionNoStack
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
 import org.eclipse.jetty.ee10.servlet.ServletHolder
+import org.eclipse.jetty.ee10.servlet.SessionHandler
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.session.DefaultSessionCache
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 import javax.imageio.ImageIO
@@ -63,12 +73,17 @@ import static org.eclipse.jetty.http.HttpStatus.*
  * cacheTime : time to store static content in cache in seconds (0 = disabled <default>)
  * port      : Port to be used by the WebService (default: 80)
  * threads   : Maximum Number of clients
+ * sessionType : Store to keep the sessions (default: MemorySession). Use a persistent
+ *               implementation (FileSession, BerkeleySession, RedisSession, ...) to
+ *               keep the sessions across restarts
+ * sessionTimeout : Session inactivity timeout in milliseconds (0 = never expires <default>)
  *
  */
 class WebService extends WebServiceBase {
     static String defaultCharset = Config.any.get("web.charset", "UTF-8")
     static boolean forceFile = Config.any.get("web.upload.force", false) // Throw exception when file is expected and it is empty
     static boolean failOnCollision = Config.any.get("web.collision.error", true) // Throw exception when same path, method, etc is used: false will only warn
+    protected static String webSessionType = Config.any.get("web.session.type", "memory").toString().toLowerCase()
 
     public int threads = 20
     public int minThreads = 2
@@ -84,6 +99,30 @@ class WebService extends WebServiceBase {
     public String allowOrigin = "" // disabled by default
     public List<String> indexFiles = ["index.html", "index.htm"]
     public Protocol protocol = HTTP
+    /**
+     * Store used to keep the sessions. By default (null), the sessions are kept
+     * in memory only (MemorySession, selected by web.session.type) and they are
+     * lost when the service is restarted.
+     * To keep the sessions across restarts, set a persistent implementation:
+     * FileSession, BerkeleySession, RedisSession or any SessionPersistable.
+     */
+    public SessionPersistable sessionType = null
+    /**
+     * Session inactivity timeout in milliseconds. It applies to in-memory and
+     * persisted sessions. 0 (default) means that sessions never expire.
+     */
+    public int sessionTimeout = Config.any.get("web.session.timeout", 0)
+    /**
+     * IP addresses of the proxies that are allowed to send the X-Forwarded-For
+     * header. The list accepts String (IP address, hostname, CIDR annotation
+     * like "10.0.0.0/8" or ranges like "10.0.0.1-100"), InetAddress or Network
+     * objects (or a mix of them). It can also be set with web.trusted.proxies.
+     * When empty (default), the X-Forwarded-For header is ignored and the
+     * IP address of the connection is used instead.
+     */
+    public List<?> trustedProxies = Config.any.get("web.trusted.proxies", []) as List<?>
+    /** Parsed trusted proxies (calculated on first use of trustedProxies) */
+    protected TrustedProxies proxyMatcher = null
     public FilePolicy filePolicy = { File file -> true }
     public PathPolicy pathPolicy = { String path -> true }
     public RequestPolicy requestPolicy = { Request request -> true }
@@ -155,6 +194,7 @@ class WebService extends WebServiceBase {
                 contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS)
                 contextHandler.setContextPath("/")
                 contextHandler.addFilter(new RequestFilter(this),"/*", EnumSet.of(DispatcherType.REQUEST))
+                setupSessions()
                 handlers.addHandler(contextHandler)
                 jettyServer.setHandler(handlers)
                 Log.i("Using protocol: %s, %s", protocol, secure ? "with SSL" : "unencrypted")
@@ -162,6 +202,95 @@ class WebService extends WebServiceBase {
                 Log.e("Unable to initialize web service", e)
             }
         }
+    }
+    /**
+     * Configure the Jetty session handling: inactivity timeout and session store.
+     * Executed once in init(), before the server starts.
+     */
+    protected void setupSessions() {
+        SessionHandler sessionHandler = contextHandler.getSessionHandler()
+        if (sessionHandler == null) { return }
+        if (sessionType == null) {
+            sessionType = createSessionType()
+        }
+        // Inactivity timeout: it applies to in-memory and persisted sessions
+        // (by default Jetty keeps the sessions forever):
+        if (sessionTimeout > 0) {
+            // Jetty expects seconds:
+            sessionHandler.setMaxInactiveInterval((int) (sessionTimeout / Millis.SECOND))
+        }
+        try {
+            DefaultSessionCache cache = new DefaultSessionCache(sessionHandler)
+            cache.setSessionDataStore(sessionType)
+            // Note: with MemorySession this is exactly the Jetty default setup
+            sessionHandler.setSessionCache(cache)
+            if (sessionType.isPassivating()) { // false for MemorySession
+                // Store the session as soon as it is created:
+                cache.setSaveOnCreate(true)
+                // If a session cannot be loaded, drop it and allow to login again:
+                cache.setRemoveUnloadableSessions(true)
+                if (sessionTimeout <= 0) {
+                    Log.w("web.session.timeout is not set: the session store may grow indefinitely")
+                }
+                // Warn as soon as possible when an attribute cannot be persisted:
+                sessionHandler.addEventListener(new HttpSessionAttributeListener() {
+                    @Override
+                    void attributeAdded(HttpSessionBindingEvent event) {
+                        checkSessionAttribute(event)
+                    }
+                    @Override
+                    void attributeReplaced(HttpSessionBindingEvent event) {
+                        checkSessionAttribute(event)
+                    }
+                    @Override
+                    void attributeRemoved(HttpSessionBindingEvent event) { }
+                })
+                Log.i("Session persistence enabled (store: %s)", sessionType.name())
+            }
+        } catch (Exception e) {
+            Log.e("Unable to setup the session store. Sessions will be in-memory only.", e)
+        }
+    }
+    /**
+     * Create the default session store from the configuration
+     * @return Session store calculated from web.session.type (default: memory)
+     */
+    protected static SessionPersistable createSessionType() {
+        switch (webSessionType) {
+            case "file":
+                return new FileSession()
+            case "berkeley":
+                return new BerkeleySession()
+            case "redis":
+                return new RedisSession()
+            case "memory":
+                return new MemorySession()
+            default:
+                Log.e("Unknown web.session.type [%s]. Using memory.", webSessionType)
+                return new MemorySession()
+        }
+    }
+    /**
+     * Check that a session attribute can be serialized (required to persist it)
+     * @param event
+     */
+    protected static void checkSessionAttribute(HttpSessionBindingEvent event) {
+        Object value = event.getValue()
+        if (value != null && !(value instanceof Serializable)) {
+            Log.w("Session attribute [%s] of type [%s] is not Serializable: it will not survive a restart",
+                event.getName(), value.getClass().getName())
+        }
+    }
+    /**
+     * List of trusted proxies, parsed from trustedProxies (or web.trusted.proxies).
+     * It is calculated only once: hostnames are resolved at that moment.
+     * @return Parsed list of trusted proxies, or null if none was specified
+     */
+    TrustedProxies getProxyMatcher() {
+        if (proxyMatcher == null && trustedProxies != null && !trustedProxies.isEmpty()) {
+            proxyMatcher = new TrustedProxies(trustedProxies)
+        }
+        return proxyMatcher
     }
     /**
      * Set global maxAge for all resources
@@ -250,10 +379,10 @@ class WebService extends WebServiceBase {
                             case ServiciableAuth:
                                 if(log) {
                                     ServiciableAuth auth = serviciable as ServiciableAuth
-                                    if(auth.authLog &&! auth.authLogFile) {
+                                    if(auth.authLog && auth.authLogFile == null) {
                                         auth.authLogFile = File.get(logDir, "auth.log")
                                     }
-                                    if(auth.failedLog &&! auth.authFailedLogFile) {
+                                    if(auth.failedLog && auth.authFailedLogFile == null) {
                                         auth.authFailedLogFile = File.get(logDir, "auth.fail.log")
                                     }
                                 }
@@ -268,7 +397,8 @@ class WebService extends WebServiceBase {
                         switch (serviciable) {
                             case ServiciableAuth:
                                 ServiciableAuth auth = serviciable as ServiciableAuth
-                                setupService(serviciable, Service.new(POST, auth.path + auth.loginPath, {
+                                // Note: setupService() already prepends auth.path to the service path
+                                setupService(serviciable, Service.new(POST, auth.loginPath, {
                                     Request request, Response response ->
                                         boolean ok = false
                                         AuthData sessionData = auth.onLogin(request, response)
@@ -293,7 +423,7 @@ class WebService extends WebServiceBase {
                                         res.ok = ok
                                         return res
                                 }, auth.acceptType))
-                                setupService(serviciable, Service.new(GET, auth.path + auth.logoutPath, {
+                                setupService(serviciable, Service.new(GET, auth.logoutPath, {
                                     Request request, Response response ->
                                         boolean ok = auth.onLogout(request, response)
                                         if (ok) {
@@ -524,7 +654,9 @@ class WebService extends WebServiceBase {
                     break
                 case File:
                     File file = output.content as File
-                    output.content = file.bytes
+                    // Do NOT load the whole file into memory: keep the File reference so it
+                    // can be streamed from disk and served with HTTP Range support (206).
+                    // Size comes from disk metadata; etag from lastModified (cheap, stable).
                     output.size = file.size() as int
                     output.etag = file.lastModified().toString()
                     break
@@ -564,6 +696,10 @@ class WebService extends WebServiceBase {
                 case Type.IMAGE:
                     output.charSet = ""
                     switch (output.content) {
+                        case File:
+                            // Keep the File reference; size was already set from disk metadata.
+                            // The content is streamed later (see write switch), not buffered.
+                            break
                         case BufferedImage:
                             BufferedImage img = output.content as BufferedImage
                             ByteArrayOutputStream os = new ByteArrayOutputStream()
@@ -578,11 +714,17 @@ class WebService extends WebServiceBase {
                     }
                     // Replace it with "Binary"
                     output.type = Type.BINARY
-                    output.size = (output.content as byte[]).length
+                    if (!(output.content instanceof File)) {
+                        output.size = (output.content as byte[]).length
+                    }
                     break
                 case Type.BINARY:
                     output.charSet = ""
                     switch (output.content) {
+                        case File:
+                            // Keep the File reference; size was already set from disk metadata.
+                            // The content is streamed later (see write switch), not buffered.
+                            break
                         case String:
                             output.content = output.content.toString().bytes
                             break
@@ -593,7 +735,9 @@ class WebService extends WebServiceBase {
                         default:
                             output.content = output.content as byte[]
                     }
-                    output.size = (output.content as byte[]).length
+                    if (!(output.content instanceof File)) {
+                        output.size = (output.content as byte[]).length
+                    }
             }
         }
         // If file type is compressed by default, do not compress
@@ -733,7 +877,7 @@ class WebService extends WebServiceBase {
                     String etag = output.etag = sp.etag?.calc(output.content) ?: output.etag
                     if (!etag && output.size) {
                         try {
-                            if (output.type == Type.BINARY) {
+                            if (output.type == Type.BINARY && output.content instanceof byte[]) {
                                 if (output.size > 1024 * eTagMaxKB) {
                                     Log.v("Unable to generate ETag for: %s, output is Binary, you can add 'etag' property in Service or increment 'eTagMaxKB' property to dismiss this message", request.uri())
                                 } else {
@@ -768,7 +912,16 @@ class WebService extends WebServiceBase {
                                 bytes = output.content.toString().bytes
                                 break
                             case File:
-                                bytes = (output.content as File).bytes
+                                // <Generated>
+                                if (output.type == Type.BINARY) {
+                                    // Binary/media files (video, audio, images, archives) are large
+                                    // or already compressed: never buffer the whole file just to
+                                    // compress it. Keep the File reference so it streams from disk.
+                                    output.compression = NONE
+                                } else {
+                                    // Text-like files (txt/html/json/yaml/...) are small & compressible.
+                                    bytes = (output.content as File).bytes
+                                }
                                 break
                             case OutputStream:
                                 ByteArrayOutputStream baos = new ByteArrayOutputStream()
@@ -1098,10 +1251,15 @@ class WebService extends WebServiceBase {
         }
         if (requestPolicy.allow(request)) {
             String cacheKey = getCacheKey(request)
+            // A Range request must bypass the cache: cached entries hold full content (200)
+            // and must never be served for a 206 partial request (nor stored from one).
+            String rangeHeader = request.headers(RANGE)
             // Try first with cache:
-            out = cache.get(cacheKey)
-            if (out) {
-                onHit.call(cacheKey)
+            if (!rangeHeader) {
+                out = cache.get(cacheKey)
+                if (out) {
+                    onHit.call(cacheKey)
+                }
             }
 
             // Look for static files:
@@ -1125,7 +1283,7 @@ class WebService extends WebServiceBase {
                                                     InputStream inst = this.class.getResourceAsStream(fullPath)
                                                     byte[] bytes = IOUtils.toByteArray(inst)
                                                     boolean addToCache = staticPath.expireSeconds &&
-                                                        (bytes.length / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
+                                                        (bytes.length / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull && !rangeHeader
                                                     if (addToCache) {
                                                         int cacheMax = bestGlobMatch(File.get(fullPath), cacheRules) ?: cacheTime
                                                         out = cache.get(cacheKey, null, onHit, null, cacheMax)
@@ -1155,9 +1313,9 @@ class WebService extends WebServiceBase {
                                         } else {
                                             File staticFile = File.get(fullPath)
                                             if (filePolicy.allow(staticFile) && pathPolicy.allow(staticFile.absolutePath)) {
-                                                if (staticFile.exists()) {
+                                                if (staticFile.exists() && staticFile.isFile()) { // directories are not served as static files (they would shadow services)
                                                     boolean addToCache = staticPath.expireSeconds &&
-                                                        (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull
+                                                        (staticFile.size() / 1024 <= staticPath.cacheMaxSizeKB) && !cacheFull && !rangeHeader
 
                                                     if(addToCache) {
                                                         int cacheMax = bestGlobMatch(staticFile, cacheRules) ?: cacheTime
@@ -1202,7 +1360,7 @@ class WebService extends WebServiceBase {
                         sp.beforeRequest.run(request)
                     }
                     if(sp.serviceType.processService) {
-                        boolean addToCache = sp.cacheTime && !cacheFull
+                        boolean addToCache = sp.cacheTime && !cacheFull && !rangeHeader
                         try {
                             if (sp.cacheTime) { // Check if its in Cache
                                 out = addToCache ? cache.get(cacheKey, {
@@ -1229,6 +1387,42 @@ class WebService extends WebServiceBase {
 
             // If we have output:
             if (out) {
+                // <Generated>
+                // ---- HTTP Range support (206 Partial Content) for File responses ----
+                // Local variable (NOT a request attribute): Request.attribute(String) casts to
+                // String, so a Range could not be read back. The write switch below is in the
+                // same method scope and reads `range` directly.
+                Range range = null
+                if (out.content instanceof File) {
+                    File rangeFile = out.content as File
+                    range = Range.parse(rangeHeader, rangeFile.length())
+                    if (rangeHeader) {                       // client actually requested a range
+                        if (range == null) {
+                            // multi-range or non-bytes -> ignore, serve full 200 (default)
+                        } else if (!range.isValid()) {
+                            // 416 Range Not Satisfiable
+                            response.status(RANGE_NOT_SATISFIABLE_416)
+                            response.header(CONTENT_RANGE, "bytes */${rangeFile.length()}")
+                            response.header(ACCEPT_RANGES, "bytes")
+                            response.header(CONTENT_LENGTH, "0")
+                            try { response.outputStream.close() } catch (Exception ignore) {}
+                            logAccess(request)
+                            return true
+                        } else {
+                            out.responseCode = PARTIAL_CONTENT_206
+                            // ServiceOutput.size is a legacy int: correct for ranges < 2 GB.
+                            // The streaming write branch sets Content-Length from the long range
+                            // length, so files > 2 GB are handled there.
+                            out.size = (int) Math.min(range.length, Integer.MAX_VALUE)
+                            out.type = Type.BINARY            // avoid STREAM/chunked branch
+                            out.compression = NONE
+                            out.headers[CONTENT_RANGE] = range.contentRangeHeader()
+                            out.headers[ACCEPT_RANGES] = "bytes"
+                        }
+                    }
+                }
+                // ---- end Range support ----
+
                 // Set headers according to ServiceOutput
                 prepareResponse(out, response)
                 // If the response is not closed yet...
@@ -1252,6 +1446,48 @@ class WebService extends WebServiceBase {
                 } else if (!response.committed) {
                     //noinspection GroovyFallthrough
                     switch (out.content) {
+                        // <Generated>
+                        case File:
+                            File f = out.content as File
+                            if (f.exists() && f.isFile()) {
+                                long fileLen = f.length()
+                                boolean isRange = range != null && range.isValid()
+                                long start = isRange ? range.start : 0L
+                                long length = isRange ? range.length : fileLen
+                                // Set Content-Length from the long value: prepareResponse set it
+                                // from the int ServiceOutput.size, which overflows for files > 2 GB.
+                                response.header(CONTENT_LENGTH, length.toString())
+                                FileInputStream fis = null
+                                try {
+                                    fis = new FileInputStream(f)
+                                    long toSkip = start
+                                    while (toSkip > 0) {        // skip() may return early; loop until done
+                                        long skipped = fis.skip(toSkip)
+                                        if (skipped <= 0) break
+                                        toSkip -= skipped
+                                    }
+                                    // BoundedInputStream ctors are deprecated in commons-io >= 2.16;
+                                    // use the builder (resolved here: commons-io 2.21.0).
+                                    InputStream bounded = BoundedInputStream.builder()
+                                        .setInputStream(fis)
+                                        .setMaxCount(length)
+                                        .get()
+                                    bounded.transferTo(response.outputStream)
+                                    response.outputStream.flush()
+                                } catch (IOException disconnect) {
+                                    // Client closed the connection mid-stream (common when a video
+                                    // seek cancels the previous request). Benign: log and swallow.
+                                    // Jetty's EofException extends IOException, so it is caught here.
+                                    Log.d("Client disconnected while streaming %s: %s", request.uri(), disconnect.toString())
+                                } finally {
+                                    if (fis != null) {
+                                        try { fis.close() } catch (Exception ignore) {}
+                                    }
+                                    try { response.outputStream.close() } catch (Exception ignore) {}
+                                }
+                                commited = true
+                            }
+                            break
                         case String:
                             String text = out.toString()
                             if (!text.empty) {
@@ -1268,16 +1504,26 @@ class WebService extends WebServiceBase {
                                     (out.content as ByteBuffer).array() : (out.content as byte[])
                             if (content.length) {
                                 response.contentLength = out.size ?: content.length
-                                response.outputStream.write(content)
-                                response.outputStream.flush()
-                                response.outputStream.close()
+                                try {
+                                    response.outputStream.write(content)
+                                    response.outputStream.flush()
+                                } catch (IOException disconnect) {
+                                    Log.d("Client disconnected while writing %s: %s", request.uri(), disconnect.toString())
+                                } finally {
+                                    try { response.outputStream.close() } catch (Exception ignore) {}
+                                }
                                 commited = true
                             }
                             break
                         case InputStream:
-                            (out as InputStream).transferTo(response.outputStream)
-                            response.outputStream.flush()
-                            response.outputStream.close()
+                            try {
+                                (out.content as InputStream).transferTo(response.outputStream)
+                                response.outputStream.flush()
+                            } catch (IOException disconnect) {
+                                Log.d("Client disconnected while streaming %s: %s", request.uri(), disconnect.toString())
+                            } finally {
+                                try { response.outputStream.close() } catch (Exception ignore) {}
+                            }
                             commited = true
                             break
                     }

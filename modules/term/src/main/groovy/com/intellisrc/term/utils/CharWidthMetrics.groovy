@@ -72,13 +72,13 @@ class CharWidthMetrics {
      * @param character
      * @return
      */
-    static float getRatio(String character) {
+    static double getRatio(String character) {
         if(!fm) {
             Font font = new Font("Monospaced", Font.PLAIN, 12)
             fm = new Canvas().getFontMetrics(font)
             base = fm.stringWidth("a")
         }
         int w = fm.stringWidth(character)
-        return ((w / base).toFloat() * 100).round() / 100f
+        return ((w / base).toDouble() * 100).round() / 100d
     }
 }
