@@ -119,6 +119,9 @@ class SessionPersistenceTest extends Specification {
         setup:
             int port = LocalHost.freePort
             File dbDir = Files.createTempDirectory("web-sessions-berkeley").toFile()
+            // Disable JE free-disk check: the temp dir may be a small tmpfs and JE
+            // prohibits writes when free space is below its 5GB default (je.freeDisk)
+            new File(dbDir, "je.properties").text = "je.freeDisk=0"
             WebService web1 = startService(port, new BerkeleySession(new BerkeleyDB(new File(dbDir, "sessions"))))
         when: "a user logs in"
             String sessionId = login(port)
