@@ -22,7 +22,7 @@ final int javaVersion = 21
 
 allprojects {
     group = groupName
-    version = "2.10.5-SNAPSHOT"
+    version = "2.10.5"
     ext {
         groovyVer = "5.0.8"
     }
